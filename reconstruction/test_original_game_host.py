@@ -440,8 +440,13 @@ class OriginalGameHostTests(unittest.TestCase):
 
     def test_source_accepted_league_fixtures_page_host_seam_redraws_without_pointer_mapping(self):
         live = presenter()
-        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
         host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        # Enter MANAGEMENT through the same source-backed Start route as the
+        # application host. Do not fabricate navigation state that violates the
+        # completed-TeamSelect invariant enforced by the management canvas.
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        host.on_click(SimpleNamespace(x=426, y=301))
         page_presenter = LeagueFixturesPagePresenter()
         host.management_presenter = page_presenter
 
