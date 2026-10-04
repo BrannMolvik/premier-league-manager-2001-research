@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete gate and is Codex-owned. Gate-14 PR #378 is canonical as main 705809b2 after 2,325 tests/23 skips and asset-policy success. Verify clean-main replacement PR #380 at head 1b3478fb: integrate source-white ClockControl into FastView component/overlap accounting, preserve alert RGB, overlap blend, global-z and complete-frame blockers. PR #379 is superseded/closed after squash-history polluted its diff. If #380 is green, merge and continue the next disjoint source-backed FastView blocker.",
-  "last_known_main_head": "705809b2bb1561cbaa1196010d0c6b02b8222836",
+  "active_task": "Gate 13 remains the earliest incomplete gate and is Codex-owned. Gate-14 PR #380 merged as main 8d567bcf after 2,328 tests/23 skips and asset-policy success. Continue disjoint Gate-14 source trace for the two omitted direct FastView TextControls at (250,45)-(550,75) and (250,70)-(550,86): source-close their owner/data producers, exact localized/runtime strings and style-3 font mapping before adding any raster. Current exact render contract is native 0xFFFF, style 3, raw flags 0x24 -> centered final flags 0x2C. Do not infer semantic field names from rendered text alone.",
+  "last_known_main_head": "8d567bcf40abdaf806fc481295d22f57527a8744",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 292,
+  "recovery_generation": 293,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #380 is the clean-main replay of the previously green stacked ClockControl component integration. Do not edit Gate-13 timing/header closure files. Alert RGB8 (255,45,45) remains deliberately unrasterized pending runtime packed16/display expansion evidence.",
+  "note": "ClockControl is now integrated only for source-white states. The next trace is the two direct outer FastView TextControls. Known source strings include localized Referee and Attendance; the producer object/method identities remain to be closed before naming their first fields.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
