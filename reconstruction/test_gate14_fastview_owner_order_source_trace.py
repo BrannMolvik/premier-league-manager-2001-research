@@ -12,6 +12,7 @@ from gate13_button_source_trace import OriginalPE32
 from gate14_fastview_owner_order_source_trace import (
     FASTVIEW_OWNER_NEIGHBORHOOD_END_VA,
     FASTVIEW_OWNER_NEIGHBORHOOD_START_VA,
+    FASTVIEW_TEAM_OWNER_CALLSITE_VA,
     POSSESSION_DIAGRAM_CONSTRUCTOR_VA,
     Gate14FastViewOwnerOrderTraceError,
     fastview_owner_call_candidates,
@@ -43,7 +44,7 @@ def synthetic_pe() -> bytes:
     struct.pack_into("<IIII", out, sections + 8, 0x2400, 0x11F000, 0x2400, 0x200)
     out[0x200:0x2600] = b"\x90" * 0x2400
 
-    first_va = 0x51F4A0
+    first_va = FASTVIEW_TEAM_OWNER_CALLSITE_VA
     first_raw = 0x200 + (first_va - 0x51F000)
     _emit_call(out, first_raw, first_va, FASTVIEW_TEAM_CONSTRUCTOR_VA)
 
@@ -70,8 +71,12 @@ class Gate14FastViewOwnerOrderSourceTraceTests(unittest.TestCase):
         self.assertEqual(
             [(row.callsite_va, row.target_name, row.target_va) for row in rows],
             [
-                (0x51F4A0, "fastview_team", FASTVIEW_TEAM_CONSTRUCTOR_VA),
                 (0x5206CD, "possession_diagram", POSSESSION_DIAGRAM_CONSTRUCTOR_VA),
+                (
+                    FASTVIEW_TEAM_OWNER_CALLSITE_VA,
+                    "fastview_team",
+                    FASTVIEW_TEAM_CONSTRUCTOR_VA,
+                ),
             ],
         )
         for row in rows:
@@ -82,7 +87,7 @@ class Gate14FastViewOwnerOrderSourceTraceTests(unittest.TestCase):
     def test_report_keeps_every_new_order_claim_false(self):
         report = fastview_owner_order_trace_report(parse_fixture())
         self.assertEqual(report["candidate_count"], 2)
-        self.assertFalse(report["fastview_team_owner_callsite_recovered"])
+        self.assertTrue(report["fastview_team_owner_callsite_recovered"])
         self.assertFalse(report["same_parent_registration_recovered_for_new_pairs"])
         self.assertFalse(report["additional_pairwise_draw_order_recovered"])
         self.assertFalse(report["global_fastview_z_order_recovered"])
@@ -102,6 +107,7 @@ class Gate14FastViewOwnerOrderSourceTraceTests(unittest.TestCase):
         report = fastview_owner_order_trace_report(parse_fixture())
         refs = {row["name"]: row for row in report["known_reference_callsites"]}
         self.assertTrue(refs["possession_diagram"]["decoded_in_this_report"])
+        self.assertTrue(refs["fastview_team"]["decoded_in_this_report"])
         self.assertFalse(refs["top_bar_picture_control"]["decoded_in_this_report"])
         self.assertEqual(
             refs["possession_diagram"]["status"],
