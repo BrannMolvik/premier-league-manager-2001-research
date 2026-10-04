@@ -9,28 +9,47 @@ FastViewPanel draw-array registration sequence reached by the recovered setup
 path.
 
 The generic parent appends controls to its `+0x1C/+0x38` draw array and the
-renderer traverses that array forward. Recovery 284 corrects the outer inventory after a constructor cross-check found the source-owned `ScoreCompositeMain` path. The outer FastViewPanel contains exactly
-23 registrations in this source order:
+renderer traverses that array forward. Recovery 284 corrects the outer inventory after constructor cross-checks found two builder-owned families missed by the first direct-call pass: `ScoreCompositeMain` and `SurfacedPictureControl@FastViewPanel`. The outer FastViewPanel contains exactly
+26 registrations in this source order:
 
-1. top-bar PictureControl;
-2. ticker PictureControl;
-3. ClockControl's nested TextControl;
-4. embedded control at parent `+0x388`;
-5. embedded control at parent `+0x3D4`;
-6-10. the five base controls of the single `ScoreCompositeMain` instance;
-11-14. four PossessionDiagram PictureControls;
-15-17. three PossessionFigures TextControls;
-18. direct TextControl at `(250,45)-(550,75)`;
-19. direct TextControl at `(250,70)-(550,86)`;
-20. FastViewScores SubPanelControl;
-21. FastViewTeam SubPanelControl;
-22-23. two post-team embedded controls at parent `+0x424/+0x478`.
+1. full-surface `SurfacedPictureControl@FastViewPanel`;
+2. top-bar PictureControl;
+3. ticker PictureControl;
+4. ClockControl's nested TextControl;
+5. embedded control at parent `+0x388`;
+6. embedded control at parent `+0x3D4`;
+7-11. the five base controls of the single `ScoreCompositeMain` instance;
+12-13. two top-corner `SurfacedPictureControl@FastViewPanel` objects;
+14-17. four PossessionDiagram PictureControls;
+18-20. three PossessionFigures TextControls;
+21. direct TextControl at `(250,45)-(550,75)`;
+22. direct TextControl at `(250,70)-(550,86)`;
+23. FastViewScores SubPanelControl;
+24. FastViewTeam SubPanelControl;
+25-26. two post-team embedded controls at parent `+0x424/+0x478`.
 
 This is stronger than the earlier raster-family subsequence. It proves where
 non-rasterized controls such as the clock and four embedded controls sit
 relative to the score/team subpanels.
 
 ## Source anchors
+
+SurfacedPictureControl:
+
+- RTTI final vtable `0x7CA974` =
+  `.?AVSurfacedPictureControl@FastViewPanel@@`;
+- constructor `0x526940` appends itself to its supplied parent through
+  `0x5269E5 -> 0x5274C0`;
+- owner call `0x51FD31` supplies the outer FastViewPanel and rectangle
+  **(0,0)-(800,600)** before the top-bar PictureControl;
+- owner calls `0x520642` and `0x520697` supply the outer FastViewPanel
+  and rectangles **(38,1)-(173,94)** / **(627,1)-(762,94)** after the
+  ScoreCompositeMain branch and before PossessionDiagram.
+
+The remaining constructor-like calls in the bounded outer setup were checked
+for calls to the generic parent append, PictureControl, and TextControl
+constructors. They are data/receiver/list helpers in this boundary and do not
+add another visible outer child.
 
 Direct PictureControl calls:
 
@@ -62,7 +81,7 @@ ScoreCompositeMain:
 
 These five controls therefore belong directly to the outer draw array and are
 created after the two embedded pre-possession controls but before
-PossessionDiagram. The earlier 18-entry checkpoint omitted this builder-owned
+PossessionDiagram. The earlier direct-call checkpoint omitted this builder-owned
 visible family; this document intentionally records the correction rather than
 hiding the chronology.
 
@@ -90,7 +109,7 @@ This checkpoint deliberately does **not** set
 `global_fastview_z_order_recovered=true`.
 
 The score and team wrappers synchronously render their own child arrays at
-outer ranks 19 and 20 (zero-based), but their **complete** nested child
+outer ranks 22 and 23 (zero-based), but their **complete** nested child
 inventories have not yet been exhaustively reconciled. Earlier work proves the
 relative order of the currently rasterized score/table/team families, not every
 visible nested control.
