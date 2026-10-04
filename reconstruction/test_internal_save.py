@@ -86,6 +86,17 @@ class CupDatabase(Database):
 
 
 class InternalSaveTests(unittest.TestCase):
+    def test_explicit_capacity_allocation_bytes_and_provenance_survive_reload(self):
+        from native_club_capacity_state import RetainedClubAllocationCapacities
+        controller = self.build_controller()
+        club_id = next(i for i in controller.state.clubs if i != 1)
+        controller.state.native_uncontrolled_capacity_bytes[club_id] = RetainedClubAllocationCapacities(
+            17, 0xFFFFFFFE, 'a' * 64)
+        loaded = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                     dumps_human_gameplay(controller))
+        self.assertEqual(loaded.state.native_uncontrolled_capacity_bytes,
+                         controller.state.native_uncontrolled_capacity_bytes)
+
     def build_controller(self):
         state = GameState.from_database(
             Database(),

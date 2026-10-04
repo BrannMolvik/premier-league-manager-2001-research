@@ -77,7 +77,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 43
+SAVE_SCHEMA_VERSION = 44
 
 
 def _snapshot_playable_country_allocation_plan(plan):
@@ -1257,6 +1257,8 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "captured_match_reports": [snapshot_report(report) for report in state.captured_match_reports],
         "native_club_attendance_counters": [[club_id, value.initialized, value.count]
             for club_id, value in sorted(state.native_club_attendance_counters.items())],
+        "native_uncontrolled_capacity_bytes": [[club_id, v.plus13c, v.plus140, v.evidence_sha256, v.allocation_kind]
+            for club_id, v in sorted(state.native_uncontrolled_capacity_bytes.items())],
         "fixture_match_info_links": [[key, value] for key, value in state.fixture_match_info_links.items()],
         "calendar_date": state.calendar.current_date.isoformat(),
         "monthly_player_updates": int(state.monthly_player_updates),
@@ -1880,6 +1882,17 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             raise ValueError('Invalid native attendance-counter identity')
         counters[row[0]] = ClubAttendanceCounter(row[1], row[2])
     state.native_club_attendance_counters = counters
+    from native_club_capacity_state import RetainedClubAllocationCapacities
+    capacity_rows = snapshot['native_uncontrolled_capacity_bytes']
+    if type(capacity_rows) is not list:
+        raise ValueError('Invalid retained capacity owner')
+    capacities = {}
+    for row in capacity_rows:
+        if (type(row) is not list or len(row) != 5 or type(row[0]) is not int
+                or row[0] not in state.clubs or row[0] in capacities):
+            raise ValueError('Invalid retained capacity identity')
+        capacities[row[0]] = RetainedClubAllocationCapacities(*row[1:])
+    state.native_uncontrolled_capacity_bytes = capacities
     # Immutable original setup pool is reconstructed from the same database;
     # no report codec or already-completed inputs are recalculated.
     from ordinary_report_setup import NativeSetupPlayerPool

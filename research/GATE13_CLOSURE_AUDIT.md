@@ -1,6 +1,44 @@
 # Gate 13 Closure Audit
 
-_Audit refreshed: 4 October 2026 KST_
+_Audit refreshed: 5 October 2026 KST_
+
+## Current criterion-by-criterion closure decision: OPEN
+
+This section supersedes the historical probe next-actions below. The native
+selected lifecycle is adjudicated; automatic Windows allocation-byte production
+and schema44 persistence now permit genuine human-away calculation, complete
+publication, disk save, fresh-process reload and correctly rendered PMatchInfo
+through an ordinary right-click. No missing report state was synthesized.
+The port preserves actual Win32 allocation bytes, not a universal zero default
+or an assertion that its heap history replays the original process. See
+`GATE13_UNCONTROLLED_ALLOCATION_PRODUCTION.md` for the exact source boundary.
+
+| Actual ROADMAP criterion | Current evidence and result |
+| --- | --- |
+| Simulation remains separated from presentation | PASS: existing separation audit and current regression remain intact. |
+| Accessible original resources and recoverable layouts/navigation are inventoried and reused | NOT COMPLETE: existing assets/layouts/report rendering are retained, but ordinary Fixtures page-arrow rendering/input remains absent. |
+| Main-menu/login structure, navigation and timing closely follow the original | PARTIALLY VERIFIED: fresh schema-8 checks the existing structure and accepted routes; final source-qualified timing/normal-play judgment is still pending. |
+| Normal play is recognizably FM2001 | BLOCKED: the human-away target outside the first twelve columns requires an explicit paging seam. Right-click works after that seam, but this is not yet a fully ordinary navigation proof. |
+
+The exact next source-backed action is to finish the Fixtures `+D30/+D60`
+controls: events39/40, wrappers9474F0/9474B0, local origins351/213 and721/213,
+27x18 geometry, dispatcher46E040 ->46E489/46E4AB. Qualify the original arrow
+resource identities, concrete control draw/frame-state and accepted pointer
+events, and parent transform before implementing them. Then repeat automatic
+human-away calculation/save/fresh reload/right-click **without the paging seam**
+and complete the timing/recognizability judgment. Do not reopen completed report
+packing/codecs/ownership or expand into Gate14/optional obscure contexts.
+
+Final implementation validation: **2,248 tests /23 expected skips**, **134
+focused checks**, asset policy and fresh Windows11/Tk schema8 all pass.
+Windows receipt SHA-256:
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
+Automatic-away proof SHA-256:
+`20c3ab1422244a312d64db53da55cb1f86b58955ab03c7ea65c7580bb34ae9d5`.
+The receipt explicitly discloses the paging seam; schema8 is not a substitute
+for all ROADMAP criteria. Gate13 remains ACTIVE; no transition is claimed.
+
+## Historical probe checkpoints (superseded next-actions)
 
 ## 5 October: decisive user-thread capacity lifecycle proof
 

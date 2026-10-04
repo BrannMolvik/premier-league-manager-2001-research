@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 4 October 2026 KST_
+_Last reconciled: 5 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -9,6 +9,42 @@ topic-specific research files.
 ## Daniel approved the decisive native capacity probe (5 October 2026 KST)
 
 ### Current result: selected read reached with uninterrupted watch coverage
+
+**Subsequent executable milestone:** the canonical human-away fixture now
+publishes a strict complete report, saves to schema **44**, reloads in a new
+process, and opens the exact rendered PMatchInfo via real Windows/Tk right-click.
+This succeeds both with the explicitly observed allocation and, separately,
+with **automatic Windows-produced allocation bytes**, without replaying the
+probe's zero values or injecting report/scalar/link state. Automatic-route
+receipt SHA-256:
+`20c3ab1422244a312d64db53da55cb1f86b58955ab03c7ea65c7580bb34ae9d5`.
+
+Allocator closure and exact integration details are in
+`GATE13_UNCONTROLLED_ALLOCATION_PRODUCTION.md`. Actual Win32 allocation bytes
+are retained, not a zero default; the port's heap history is not claimed to
+replay the original process. Field mapping and known-zero native RNG skips
+are source-corrected. Focused capacity/gate/save tests: **71 passed**.
+
+**Remaining ordinary navigation blocker:** this report's away club is outside
+the initial 12-column window. The existing +/-12 paging seam exposes it, after
+which ordinary right-click works, but the actual page-button pointer and
+pixel/state path is still unqualified/unimplemented. Native setup proves
+controls `+D30/+D60`, event IDs **39/40**, local origins `(351,213)` /
+`(721,213)`, wrapper-defined 27x18 geometry and wrappers `9474F0/9474B0`;
+dispatcher `46E040` maps them to `46E489/46E4AB`.
+Next: qualify the two resource/control draw-state and acceptance paths, reuse
+the original arrows, integrate ordinary paging, then rerun automatic-away
+without the explicit paging seam and finish criterion-level timing,
+recognizability and Windows validation. Gate13 remains OPEN: this is a real
+normal-navigation gap, not an optional detail. Current-code regression passes
+**2,248 tests / 23 expected skips**, plus **134 focused tests** and asset policy.
+Fresh real Windows 11/Tk schema-8 passes; receipt SHA-256:
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
+This validates existing host contracts, not ordinary paging or every timing/
+recognizability criterion. Both original-probe attempts and consent are spent;
+no further original launch is authorized by those receipts. Gate14 work and
+ownership are unchanged. See the current criterion table in
+`GATE13_CLOSURE_AUDIT.md`; earlier probe next-actions below are historical.
 
 The second/final separately approved follow-up succeeded: **41.812 seconds /
 1,673 debugger events**, stopping **before** selected `5DA538` on imported
