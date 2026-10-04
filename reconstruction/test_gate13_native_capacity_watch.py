@@ -17,6 +17,7 @@ from gate13_native_capacity_watch import (
     FOREGROUND_REQUEST,
     trace_window_activation,
     SupervisedWatchPlan, observe_supervised, write_watch_observation,
+    all_thread_write_watch_readback, finalize_user_thread_write_watch_coverage,
     attendance_receiver_observation,
     renew_display_activation_consent,
 )
@@ -108,6 +109,47 @@ class NativeCapacityWatchTests(unittest.TestCase):
         arm_writes(context, 0x100000)
         context.Dr7 &= ~1
         self.assertFalse(write_watch_observation(context, 0x100000)['selected_capacity_watches_present'])
+
+    def test_all_thread_readback_requires_every_live_thread_watch(self):
+        contexts = {}
+        for tid in (11, 7, 19):
+            ctx = Wow64Context()
+            arm_writes(ctx, 0x100000)
+            contexts[tid] = ctx
+        row = all_thread_write_watch_readback(contexts, 0x100000)
+        self.assertEqual(row['thread_ids'], [7, 11, 19])
+        self.assertEqual(row['thread_count'], 3)
+        self.assertTrue(row['all_live_threads_armed'])
+        self.assertFalse(row['continuous_all_thread_coverage_proven'])
+        contexts[11].Dr0 += 4
+        row = all_thread_write_watch_readback(contexts, 0x100000)
+        self.assertFalse(row['all_live_threads_armed'])
+        self.assertFalse(next(item for item in row['per_thread'] if item['tid'] == 11)
+                         ['selected_capacity_watches_present'])
+
+    def test_all_thread_readback_rejects_empty_or_non_context_ledger(self):
+        for contexts in ({}, {1: object()}, {'1': Wow64Context()}):
+            with self.subTest(contexts=contexts), self.assertRaises(CapacityWatchError):
+                all_thread_write_watch_readback(contexts, 0x100000)
+
+    def test_continuous_coverage_requires_one_check_per_debug_event_and_resume(self):
+        coverage = dict(started=True, broken=False, checks=5, resumed_events_checked=4,
+                        start_debug_event_number=100)
+        finalize_user_thread_write_watch_coverage(coverage, 104)
+        self.assertEqual(coverage['expected_debug_events_through_read'], 5)
+        self.assertTrue(coverage['debug_events_checked_without_gap'])
+        self.assertTrue(coverage['continuous_all_user_thread_write_watch_coverage_proven'])
+        self.assertFalse(coverage['kernel_or_external_writer_coverage_proven'])
+
+        for bad in (
+            dict(started=True, broken=False, checks=4, resumed_events_checked=4),
+            dict(started=True, broken=False, checks=5, resumed_events_checked=3),
+            dict(started=True, broken=True, checks=5, resumed_events_checked=4),
+        ):
+            with self.subTest(bad=bad):
+                bad['start_debug_event_number'] = 100
+                finalize_user_thread_write_watch_coverage(bad, 104)
+                self.assertFalse(bad['continuous_all_user_thread_write_watch_coverage_proven'])
 
     def test_supervised_plan_does_not_expand_ordinary_cli_bound(self):
         self.assertEqual(SupervisedWatchPlan().seconds, 300)

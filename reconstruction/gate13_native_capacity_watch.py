@@ -161,6 +161,48 @@ def write_watch_observation(context: Wow64Context, club_address: int) -> dict:
                 continuous_all_thread_coverage_proven=False)
 
 
+def all_thread_write_watch_readback(contexts: dict[int, Wow64Context], club_address: int) -> dict:
+    """Exact suspended-event read-back across every debugger-owned live thread.
+
+    This proves one debugger-event boundary only. Continuous coverage requires
+    the runtime to perform this check before every ContinueDebugEvent from the
+    allocation breakpoint through the selected uncontrolled read.
+    """
+    if (type(contexts) is not dict or not contexts
+            or any(type(tid) is not int or type(ctx) is not Wow64Context
+                   for tid, ctx in contexts.items())):
+        raise CapacityWatchError('All-thread write-watch read-back requires exact live thread contexts')
+    rows = []
+    for tid in sorted(contexts):
+        observed = write_watch_observation(contexts[tid], club_address)
+        rows.append(dict(tid=tid, registers=observed['registers'],
+                         selected_capacity_watches_present=observed['selected_capacity_watches_present']))
+    return dict(thread_ids=[row['tid'] for row in rows], thread_count=len(rows),
+                all_live_threads_armed=all(row['selected_capacity_watches_present'] for row in rows),
+                per_thread=rows, continuous_all_thread_coverage_proven=False)
+
+
+def finalize_user_thread_write_watch_coverage(coverage: dict, stop_debug_event_number: int) -> None:
+    """Adjudicate the event-by-event user-mode coverage ledger at 0x5DA538."""
+    if type(coverage) is not dict or type(stop_debug_event_number) is not int:
+        raise CapacityWatchError('Invalid write-watch coverage ledger')
+    start = coverage.get('start_debug_event_number')
+    if type(start) is not int or stop_debug_event_number < start:
+        raise CapacityWatchError('Write-watch coverage has no valid allocation start')
+    expected = stop_debug_event_number - start + 1
+    no_gap = bool(
+        coverage.get('started') is True
+        and coverage.get('broken') is False
+        and coverage.get('checks') == expected
+        and coverage.get('resumed_events_checked') == expected - 1
+    )
+    coverage.update(stop_debug_event_number=stop_debug_event_number,
+                    expected_debug_events_through_read=expected,
+                    debug_events_checked_without_gap=no_gap,
+                    continuous_all_user_thread_write_watch_coverage_proven=no_gap,
+                    kernel_or_external_writer_coverage_proven=False)
+
+
 def attendance_receiver_observation(receiver: int, read) -> dict:
     """Actual ESI at qualified 5DA538; observed bytes are not report inputs."""
     vftable = struct.unpack('<I', read(receiver, 4))[0]
@@ -379,6 +421,15 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                   private_wrapper_load_observed=False, native_graphics_initialization_accepted=False,
                   presentation_shim=PRESENTATION_SHIM, presentation_shim_verified=False,
                   presentation_adaptations=[],
+                  write_watch_coverage=dict(
+                      started=False, broken=False, checks=0, resumed_events_checked=0,
+                      new_thread_events_armed=0,
+                      continuous_all_user_thread_write_watch_coverage_proven=False,
+                      kernel_or_external_writer_coverage_proven=False,
+                      debugger_event_suspension_contract=(
+                          'all process threads suspended until ContinueDebugEvent'),
+                      create_thread_pre_user_mode_execution_contract=True,
+                      checkpoints=[]),
                   runtime_nonexclusive_qualified=False, audio_condition='user_managed_volume_mixer')
     if calibrate_crt_writes:
         report['crt_write_watch_calibration_only'] = True
@@ -411,6 +462,33 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
 
     def set_context(tid, ctx):
         checked(k.Wow64SetThreadContext(threads[tid], c.byref(ctx)))
+
+    def verify_write_watch_coverage(stage, event, *, will_resume):
+        if club is None or exited:
+            return
+        contexts = {tid: context(tid) for tid in sorted(threads)}
+        observed = all_thread_write_watch_readback(contexts, club)
+        observed.update(stage=stage, debug_event_number=event_count,
+                        debug_event_code=int(event.code), debug_event_tid=int(event.tid),
+                        will_resume=bool(will_resume))
+        coverage = report['write_watch_coverage']
+        coverage['checks'] += 1
+        coverage['last_debug_event_number'] = event_count
+        if will_resume:
+            coverage['resumed_events_checked'] += 1
+        retain = (
+            coverage['checks'] == 1
+            or int(event.code) == 2
+            or not observed['all_live_threads_armed']
+            or stage in ('constructor_return', 'selected_import_return',
+                         'selected_uncontrolled_read', 'hardware_write_trap')
+        )
+        if retain:
+            coverage['checkpoints'].append(observed)
+        if not observed['all_live_threads_armed']:
+            coverage['broken'] = True
+            raise CapacityWatchError(
+                'Capacity write-watch coverage lost before target-process continuation')
 
     def snapshot(kind, tid, ctx, **extra):
         row = dict(kind=kind, tid=tid, registers={n: int(getattr(ctx, n)) for n in
@@ -458,6 +536,7 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                 continue
             event_count += 1
             continuation, stop = 0x10002, False  # DBG_CONTINUE
+            coverage_stage = f'debug_event_{int(event.code)}'
             try:
                 if event.code == 3:
                     info = event.u.process
@@ -471,12 +550,15 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                             raise CapacityWatchError('Loaded code differs from checksum-qualified source')
                         write(va, b'\xCC')
                 elif event.code == 2:
+                    coverage_stage = 'create_thread'
                     threads[event.tid] = event.u.thread.thread
                     if club is not None:
                         ctx = context(event.tid)
                         arm_writes(ctx, club)
                         set_context(event.tid, ctx)
+                        report['write_watch_coverage']['new_thread_events_armed'] += 1
                 elif event.code == 4:
+                    coverage_stage = 'exit_thread'
                     threads.pop(event.tid, None)
                     pending.pop(event.tid, None)
                 elif event.code == 6 and event.u.dll_file:
@@ -498,6 +580,11 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                     code, address = int(exception.record.code), exception.record.address
                     if code in (0x80000003, 0x4000001F) and address in originals:
                         ctx = context(event.tid)
+                        coverage_stage = f'source_breakpoint_{int(address):08x}'
+                        if address == CONSTRUCTED:
+                            coverage_stage = 'constructor_return'
+                        if address == IMPORTED and ctx.Ebx == plan.club_index:
+                            coverage_stage = 'selected_import_return'
                         if address == IMPORTED and ctx.Ebx == plan.club_index:
                             if club is None or struct.unpack('<I', read(club, 4))[0] != 0x7BD614:
                                 raise CapacityWatchError('Selected import has no qualified DBRClub vftable')
@@ -597,14 +684,20 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                         if address == ALLOC_RETURN:
                             if club is not None:
                                 raise CapacityWatchError('Second array allocation: lifecycle scope exhausted')
+                            coverage_stage = 'allocation_return'
                             club = plan.club_address(ctx.Eax, ctx.Esi)
                             report['allocation_observed'] = True
+                            coverage = report['write_watch_coverage']
+                            coverage['started'] = True
+                            coverage['start_debug_event_number'] = event_count
+                            coverage['allocation_thread_ids'] = sorted(threads)
                             for tid in threads:
                                 target = ctx if tid == event.tid else context(tid)
                                 arm_writes(target, club)
                                 set_context(tid, target)
                             snapshot('allocation_before_constructor', event.tid, ctx, count=int(ctx.Esi))
                         if address == UNCONTROLLED_READ and ctx.Esi == club:
+                            coverage_stage = 'selected_uncontrolled_read'
                             report['uncontrolled_read_observed'] = True
                             report['stop_reason'], stop = 'selected_club_uncontrolled_read', True
                         if address == entry and stop_at_entry:
@@ -627,7 +720,9 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                         set_context(event.tid, ctx)
                     elif code in (0x80000004, 0x4000001E):
                         ctx = context(event.tid)
+                        coverage_stage = 'single_step'
                         if ctx.Dr6 & 3:
+                            coverage_stage = 'hardware_write_trap'
                             snapshot('hardware_dword_write_after_instruction', event.tid, ctx,
                                      preceding_bytes_not_decoded=read(ctx.Eip - 16, 16).hex())
                             if calibrate_crt_writes:
@@ -652,6 +747,11 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                         continuation = 0x80010001  # DBG_EXCEPTION_NOT_HANDLED
                         if not exception.first_chance:
                             report['stop_reason'], stop = 'unhandled_native_exception', True
+                if club is not None and not exited:
+                    verify_write_watch_coverage(coverage_stage, event, will_resume=not stop)
+                    if stop and report.get('stop_reason') == 'selected_club_uncontrolled_read':
+                        finalize_user_thread_write_watch_coverage(
+                            report['write_watch_coverage'], event_count)
             except (OSError, CapacityWatchError, ProbeSafetyError, DisplayWatchError):
                 stop = True
                 raise
