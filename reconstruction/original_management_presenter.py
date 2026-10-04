@@ -119,14 +119,12 @@ class OriginalManagementLeagueFixturesPageActivation:
 
 @dataclass(frozen=True)
 class OriginalManagementLeagueFixturesGridActivation:
-    """One exact source-grid pointer selection accepted by PLeagueFixtures."""
+    """Exact PLeagueGrid selector indices resolved from one source grid press."""
 
     pointer_x: int
     pointer_y: int
     column: int
     row: int
-    previous_cell: tuple[int, int] | None
-    selected_cell: tuple[int, int]
     fixture_id: int | None
     presentation: OriginalManagementPanelSnapshot
 
@@ -157,7 +155,6 @@ def build_management_panel_snapshot(
     expanded_root_id: int | None = None,
     squad_view_control_id: int = 3,
     league_fixtures_column_offset: int = 0,
-    league_fixtures_selected_cell: tuple[int, int] | None = None,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -200,7 +197,6 @@ def build_management_panel_snapshot(
         fixtures = build_league_fixtures_snapshot(
             source,
             column_offset=league_fixtures_column_offset,
-            selected_cell=league_fixtures_selected_cell,
             staged_resource_names=staged_league_fixture_resource_names,
         )
         return OriginalManagementPanelSnapshot(
@@ -272,7 +268,6 @@ class OriginalManagementPresenter:
     expanded_root_id: int | None = None
     squad_view_control_id: int = 3
     league_fixtures_column_offset: int = 0
-    league_fixtures_selected_cell: tuple[int, int] | None = None
 
     def snapshot(self) -> OriginalManagementPanelSnapshot:
         return build_management_panel_snapshot(
@@ -284,7 +279,6 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=self.league_fixtures_column_offset,
-            league_fixtures_selected_cell=self.league_fixtures_selected_cell,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -297,11 +291,9 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=0,
-            league_fixtures_selected_cell=None,
         )
         self.selected_child_id = selected_child_id
         self.league_fixtures_column_offset = 0
-        self.league_fixtures_selected_cell = None
         return snapshot
 
     def source_accepted_pmenu_action(
@@ -350,11 +342,9 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=0,
-            league_fixtures_selected_cell=None,
         )
         self.selected_child_id = menu_id
         self.league_fixtures_column_offset = 0
-        self.league_fixtures_selected_cell = None
         return OriginalManagementPMenuActivation(action, snapshot)
 
     def source_accepted_squad_view_transition(
@@ -385,7 +375,6 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=transition.control_id,
             league_fixtures_column_offset=self.league_fixtures_column_offset,
-            league_fixtures_selected_cell=self.league_fixtures_selected_cell,
         )
         self.squad_view_control_id = transition.control_id
         return OriginalManagementSquadViewActivation(transition, snapshot)
@@ -432,7 +421,6 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=updated,
-            league_fixtures_selected_cell=self.league_fixtures_selected_cell,
         )
         self.league_fixtures_column_offset = updated
         return OriginalManagementLeagueFixturesPageActivation(
@@ -447,13 +435,17 @@ class OriginalManagementPresenter:
         pointer_x: int,
         pointer_y: int,
     ) -> OriginalManagementLeagueFixturesGridActivation | None:
-        """Apply the recovered PLeagueGrid point-selection route.
+        """Resolve the exact PLeagueGrid column/row selectors for a left press.
 
-        The exact source grid is the half-open screen rectangle
-        (378,235,348,336), reduced by 29x14 cells. Points outside that control,
-        and points landing on hidden row/column controls, are no-ops. This
-        method changes only the presentation selection state; PMatchInfo remains
-        the separately recovered right-press/context route.
+        Source method 0x46D300 reduces the half-open screen grid
+        (378,235,348,336) by 29x14 and dispatches the resulting visible column
+        and row selector indices separately. The older source trace does not
+        prove that this pair can be collapsed into one single-cell visual
+        selection state: the recovered toggled-box update is a 24-entry
+        selected-index operation. Therefore this seam records only the exact
+        selector indices and leaves visual selector-band composition fail-closed.
+
+        PMatchInfo remains the separately recovered right-press/context route.
         """
         if self.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id:
             return None
@@ -467,6 +459,7 @@ class OriginalManagementPresenter:
             raise OriginalManagementPresentationError(str(exc)) from exc
         if point is None:
             return None
+
         column, row = point
         current = self.snapshot()
         grid = current.league_fixtures
@@ -488,29 +481,13 @@ class OriginalManagementPresenter:
                 "League Fixtures grid point resolved an ambiguous cell"
             )
 
-        selected = (column, row)
-        snapshot = build_management_panel_snapshot(
-            self.session,
-            LEAGUE_FIXTURES_PANEL.menu_id,
-            bridge_factory=self.bridge_factory,
-            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
-            staged_league_table_resource_names=self.staged_league_table_resource_names,
-            expanded_root_id=self.expanded_root_id,
-            squad_view_control_id=self.squad_view_control_id,
-            league_fixtures_column_offset=self.league_fixtures_column_offset,
-            league_fixtures_selected_cell=selected,
-        )
-        previous = self.league_fixtures_selected_cell
-        self.league_fixtures_selected_cell = selected
         return OriginalManagementLeagueFixturesGridActivation(
             pointer_x=pointer_x,
             pointer_y=pointer_y,
             column=column,
             row=row,
-            previous_cell=previous,
-            selected_cell=selected,
             fixture_id=matches[0].fixture_id,
-            presentation=snapshot,
+            presentation=current,
         )
 
     def fixture_match_info_action(
