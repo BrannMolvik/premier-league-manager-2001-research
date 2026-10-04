@@ -2405,3 +2405,10 @@ Linux-oriented duplicate-ZIP-path assertion failed on Windows because
 2. **Cloud-safe task while private execution is unavailable:** add a narrow synchronous menu-PCM playback backend seam modeled on the existing verified startup-media backend. It may consume only a verified non-silent `DecodedMenuPcmDispatch`; silent routes must not invoke the backend. Backend success can prove delivery to the platform adapter, but **must not** set audible Windows verification or semantic event/sample flags true.
 3. Add a Windows-specific adapter only behind that seam. Python's Windows `winsound.PlaySound` supports an in-memory WAV image synchronously; synthesize only a standard PCM WAV wrapper around the already decoded source samples. Keep actual Windows audible/device verification as a separate deferred receipt before `login_menu_audio_integrated` can become true.
 4. After the private caller trace proves native event semantics, bind only those source-proven original UI senders to numeric dispatch. Do not guess modern UI-event equivalence from the sound itself.
+
+
+## Recovery 270: synchronous menu PCM backend boundary is canonical
+
+- PR #336 is canonical at `4b3f9e0b5d62c699402b580b7dcf4aaf9416a8a4` after reconstruction run `37200017817` passed 2,106 tests / 23 expected skips and asset-policy run `37200017826` passed.
+- Verified numeric no-sound routes now bypass platform playback entirely. Verified non-silent decoded menu PCM can be delivered to a caller-supplied synchronous backend, but adapter completion is **not** audible Windows proof and does not change `audio_event_binding_recovered` or `login_menu_audio_integrated`.
+- Exact cloud-safe next task: add a Windows-specific in-memory WAV backend with injected playback callable/flag for tests. It must verify the decoded PCM identity before wrapping samples in standard PCM WAV and must return success only when the platform player call returns normally. Keep actual Windows audible verification and semantic sender mapping separate.
