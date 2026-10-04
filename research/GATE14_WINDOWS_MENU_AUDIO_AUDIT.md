@@ -102,3 +102,41 @@ That later promotion still requires:
 The private source caller trace remains blocked whenever local container/Python
 execution returns `caas.internal.errors.ClientError`. Do not infer event names
 from the sound while that blocker exists.
+
+
+## Strict private-receipt validation and deterministic replay
+
+`reconstruction/gate14_windows_menu_audio_receipt.py` validates an existing
+private schema-1 audible receipt against the exact canonical `menus.bnk`
+bytes. It is intentionally stricter than merely parsing JSON:
+
+- the top-level and nested schema keys must match exactly;
+- the receipt must preserve all bounded true/false evidence fields from the
+  original real-Windows audit;
+- the bank filename, size and SHA-256 must match the canonical bank supplied
+  to the validator;
+- the numeric event/state/slot tuple is freshly replayed through the
+  source-backed AudioHooks menu dispatcher and BNKl decoder;
+- sample rate, channels, sample count and PCM SHA-256 must equal that fresh
+  replay exactly;
+- the recorded adapter must be `WindowsMemoryWaveMenuPcmBackend` with the
+  Windows `SND_MEMORY` flag;
+- any attempt to add semantic event/sample meaning, modern UI equivalence,
+  login/menu integration or Gate-14 completion fails closed.
+
+The validator does **not** replay a human hearing event. A successful
+validation carries forward the previously recorded human audibility evidence
+while setting `new_device_audibility_replayed: false`. To obtain new device
+audibility evidence, rerun the real Windows audit itself.
+
+Example:
+
+```text
+python reconstruction/gate14_windows_menu_audio_receipt.py ^
+  "<private-staging>\menus.bnk" ^
+  --receipt "<private-folder-outside-Git>\gate14-menu-audio-audible.json" ^
+  --output-validation "<private-folder-outside-Git>\gate14-menu-audio-validation.json"
+```
+
+Both the original audible receipt and the validation receipt remain private
+outside Git.
