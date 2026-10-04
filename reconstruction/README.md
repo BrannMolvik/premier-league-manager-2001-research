@@ -75,9 +75,12 @@ Canonical real-data evidence now includes:
   pending;
 - `--procedural-primary-all` discovers one source-selected live club for every
   expected procedural-primary TeamSelect competition and runs that same
-  continuation audit from a fresh canonical controller per scope. It fails
-  closed if any expected primary owner/target is missing. This remains audit
-  tooling until the authorized private run is actually executed.
+  continuation audit from a fresh canonical controller per scope. The aggregate
+  is bound to the canonical TeamSelect catalog SHA-256 and emits the exact
+  ordered `<country_id>:<competition_id>` scope IDs used by final Gate-17
+  evidence. It fails closed if any expected primary owner/target or catalog
+  mapping is missing. This remains audit tooling until the authorized private
+  run is actually executed.
 
 Run the canonical save routes against an authorized game directory with:
 
