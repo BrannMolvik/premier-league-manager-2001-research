@@ -381,6 +381,10 @@ class OriginalManagementPresenter:
             raise OriginalManagementPresentationError(
                 "League Fixtures paging requires the integrated PLeagueFixtures panel"
             )
+        if type(direction) is not int or direction not in (-1, 1):
+            raise OriginalManagementPresentationError(
+                "League Fixtures page direction must be exact -1 or 1"
+            )
         current = self.snapshot()
         grid = current.league_fixtures
         if grid is None:
