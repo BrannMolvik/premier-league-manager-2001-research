@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 293,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "ClockControl is now integrated only for source-white states. The next trace is the two direct outer FastView TextControls. Known source strings include localized Referee and Attendance; the producer object/method identities remain to be closed before naming their first fields.",
+  "recovery_generation": 294,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered from stale no-progress fallback at main 8d567bcf. Resume the two direct outer FastView TextControls source trace; do not reopen completed ClockControl work or Gate-13 investigation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
