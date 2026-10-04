@@ -147,8 +147,10 @@ Before it creates an install tree or any immutable receipt file, it requires:
   outside the Git checkout;
 - an already-produced `full_original_scope.json` receipt outside Git;
 - a green canonical full-scope implementation preflight over the supplied
-  canonical game directory, including human scope, runtime ownership,
-  per-scope save/reload, six-user multi-human capability and live progression;
+  canonical game directory, using the same requested player seed and day bound
+  as the external validation run and including human scope, runtime ownership,
+  per-scope save/reload, six-user multi-human capability and completed-state
+  progression readiness;
 - a fresh external validation work root that does not already exist.
 
 Only after that preflight succeeds does it execute, in order, the clean-install
