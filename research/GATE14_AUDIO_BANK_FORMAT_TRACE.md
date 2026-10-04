@@ -52,6 +52,23 @@ This reduces the next private pass from reading broad linear disassembly to
 examining concrete record-layout and call candidates while keeping all BNK
 header/table/codec/decode flags false.
 
+## Shared-offset triage boundary
+
+A follow-up correlator can group equal non-stack memory displacements that recur
+across at least two distinct bounded loader/playback windows. This is useful for
+prioritizing candidate shared record fields because the same displacement is
+observed in multiple source-qualified neighborhoods.
+
+The correlator deliberately excludes `esp`/`ebp` operands so unrelated
+stack-frame locals cannot become false cross-window evidence. It retains operand
+width, window labels, base-register identities and instruction VAs.
+
+A repeated displacement still does **not** prove that two instructions reference
+the same object, that the field belongs to a BNK header/sample row, or that its
+meaning is an offset/length/codec/rate/channel value. Every grouped record is
+labeled
+`shared_bnk_memory_displacement_candidate_not_object_or_field_proof`.
+
 ## Fail-closed boundary
 
 The trace requires all of these to remain false until manually source-proven:
