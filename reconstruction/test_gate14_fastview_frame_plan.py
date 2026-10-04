@@ -137,9 +137,9 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertIsNotNone(frame.component_rasters.team_table)
         self.assertEqual(
             frame.component_rasters.team_table.component,
-            "team_table_static",
+            "team_table_energy",
         )
-        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 2)
+        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 3)
         self.assertEqual(frame.resolved_composite.size, (800, 600))
         self.assertFalse(frame.resolved_composite.cross_component_z_order_recovered)
         self.assertFalse(frame.resolved_composite.flattened_frame_available)
