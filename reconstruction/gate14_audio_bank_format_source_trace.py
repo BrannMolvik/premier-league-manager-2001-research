@@ -231,9 +231,10 @@ def audio_bank_format_trace_report(
         "event_binding_recovered": False,
         "evidence_limit": (
             "Bank ownership and selected playback entrypoints are source-backed. "
-            "These bounded windows and optional instruction/dataflow candidates "
-            "do not prove CFG reachability, BNK field meanings, sample table "
-            "layout, codec parameters, exact sample semantics, or modern decode."
+            "These bounded windows do not prove BNK field meanings; optional "
+            "instruction/dataflow candidates also do not prove CFG reachability, "
+            "sample table layout, codec parameters, exact sample semantics, or "
+            "modern decode."
         ),
     }
 
