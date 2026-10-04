@@ -15,6 +15,7 @@ from gate14_audio_bank_format_source_trace import (
     classify_bnk_window_dataflow_candidates,
     indexed_bnk_memory_access_candidates,
     main as tracer_main,
+    shared_bnk_indexed_access_shape_candidates,
     shared_bnk_direct_call_target_candidates,
     shared_bnk_memory_displacement_candidates,
 )
@@ -304,6 +305,78 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
                         ),
                     },
                 )
+            )
+
+    def test_shared_indexed_shapes_require_distinct_windows(self):
+        candidates = (
+            {
+                "window_label": "loader",
+                "instruction_va": 0x401100,
+                "operand_index": 0,
+                "base_register": "ecx",
+                "index_register": "eax",
+                "scale": 4,
+                "displacement": 0x18,
+                "operand_size": 4,
+                "classification": (
+                    "indexed_bnk_memory_access_candidate_not_sample_table_proof"
+                ),
+            },
+            {
+                "window_label": "playback",
+                "instruction_va": 0x401200,
+                "operand_index": 1,
+                "base_register": "esi",
+                "index_register": "edx",
+                "scale": 4,
+                "displacement": 0x18,
+                "operand_size": 4,
+                "classification": (
+                    "indexed_bnk_memory_access_candidate_not_sample_table_proof"
+                ),
+            },
+            {
+                "window_label": "loader",
+                "instruction_va": 0x401110,
+                "operand_index": 0,
+                "base_register": "edi",
+                "index_register": "ecx",
+                "scale": 8,
+                "displacement": 0x20,
+                "operand_size": 4,
+                "classification": (
+                    "indexed_bnk_memory_access_candidate_not_sample_table_proof"
+                ),
+            },
+        )
+        shared = shared_bnk_indexed_access_shape_candidates(candidates)
+        self.assertEqual(
+            shared,
+            (
+                {
+                    "scale": 4,
+                    "displacement": 0x18,
+                    "operand_size": 4,
+                    "distinct_window_count": 2,
+                    "window_labels": ("loader", "playback"),
+                    "base_registers": ("ecx", "esi"),
+                    "index_registers": ("eax", "edx"),
+                    "instruction_vas": (0x401100, 0x401200),
+                    "classification": (
+                        "shared_bnk_indexed_access_shape_candidate_not_record_layout_proof"
+                    ),
+                },
+            ),
+        )
+
+    def test_shared_indexed_shape_threshold_fails_closed(self):
+        with self.assertRaisesRegex(
+            Gate14AudioBankFormatTraceError,
+            "minimum_distinct_windows",
+        ):
+            shared_bnk_indexed_access_shape_candidates(
+                (),
+                minimum_distinct_windows=1,
             )
 
     def test_shared_direct_call_targets_require_distinct_windows(self):
