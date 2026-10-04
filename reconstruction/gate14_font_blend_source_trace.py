@@ -39,6 +39,9 @@ POSSESSION_TEXT_FONT_OBJECT_VA = 0x9197E0
 POSSESSION_TEXT_FONT_WRAPPER_VA = 0x87BE90
 
 NATIVE_PIXEL_MASK_SETUP_VA = 0x656320
+NATIVE_RED_MASK_SOURCE_OFFSET = 0x10
+NATIVE_GREEN_MASK_SOURCE_OFFSET = 0x14
+NATIVE_BLUE_MASK_SOURCE_OFFSET = 0x18
 NATIVE_RED_MASK_GLOBAL_VA = 0x9848DC
 NATIVE_GREEN_MASK_GLOBAL_VA = 0x9848D8
 NATIVE_BLUE_MASK_GLOBAL_VA = 0x9848D4
@@ -308,6 +311,11 @@ def font_blend_trace_report(
         "font_object_va": POSSESSION_TEXT_FONT_OBJECT_VA,
         "font_wrapper_va": POSSESSION_TEXT_FONT_WRAPPER_VA,
         "native_pixel_mask_setup_va": NATIVE_PIXEL_MASK_SETUP_VA,
+        "native_rgb_mask_source_offsets": {
+            "red": NATIVE_RED_MASK_SOURCE_OFFSET,
+            "green": NATIVE_GREEN_MASK_SOURCE_OFFSET,
+            "blue": NATIVE_BLUE_MASK_SOURCE_OFFSET,
+        },
         "native_rgb_mask_globals": {
             "red": NATIVE_RED_MASK_GLOBAL_VA,
             "green": NATIVE_GREEN_MASK_GLOBAL_VA,
