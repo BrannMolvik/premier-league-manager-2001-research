@@ -24,6 +24,7 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.possession_pairwise_draw_order_recovered)
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
+        self.assertTrue(state.audio_sample_decode_ready)
         self.assertTrue(state.chant_runtime_selection_recovered)
         self.assertTrue(state.chant_runtime_timing_recovered)
 
@@ -32,7 +33,6 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertEqual(
             blockers,
             (
-                "audio_sample_decode",
                 "audio_event_binding",
                 "login_menu_audio_integration",
                 "global_fastview_z_order",
@@ -50,7 +50,11 @@ class Gate14ReadinessTests(unittest.TestCase):
             Gate14ReadinessError,
             "audio integration cannot precede",
         ):
-            replace(state, login_menu_audio_integrated=True)
+            replace(
+                state,
+                audio_sample_decode_ready=False,
+                login_menu_audio_integrated=True,
+            )
 
     def test_complete_frame_cannot_bypass_raster_prerequisites(self):
         state = canonical_gate14_readiness()
