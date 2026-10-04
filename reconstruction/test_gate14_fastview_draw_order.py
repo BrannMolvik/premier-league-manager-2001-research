@@ -165,7 +165,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("league_scores_early_rows_static",),
             ("league_table_static",),
             ("league_scores_late_grid_static",),
-            ("league_scores_runtime_phase_icons",),
+            ("league_scores_runtime_phase_icons", "league_scores_runtime_phase_text"),
             ("team_table_static", "team_table_energy"),
         )
         self.assertEqual(SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS, expected_levels)
@@ -176,6 +176,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
             "league_table_static",
             "league_scores_late_grid_static",
             "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
         ):
             relation = source_closed_pairwise_order(
                 "possession_figures_text",
@@ -194,15 +195,24 @@ class FastViewDrawOrderTests(unittest.TestCase):
             "league_scores_early_rows_static",
             "league_table_static",
             "league_scores_late_grid_static",
+        )
+        runtime_tail = (
             "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
         )
         for index, earlier in enumerate(phase_order):
-            for later in phase_order[index + 1:]:
+            for later in phase_order[index + 1:] + runtime_tail:
                 with self.subTest(earlier=earlier, later=later):
                     relation = source_closed_pairwise_order(earlier, later)
                     self.assertEqual(relation.earlier_component, earlier)
                     self.assertEqual(relation.later_component, later)
                     self.assertTrue(relation.same_parent_draw_array)
+        for tail in runtime_tail:
+            relation = source_closed_pairwise_order(tail, "team_table_static")
+            self.assertEqual(relation.earlier_component, tail)
+            self.assertEqual(relation.later_component, "team_table_static")
+        with self.assertRaisesRegex(FastViewDrawOrderError, "remains unresolved"):
+            source_closed_pairwise_order(*runtime_tail)
 
         self.assertEqual(
             later_component("direct_chrome", "team_table_energy"),
@@ -234,6 +244,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("league_scores_static", "league_scores_early_rows_static"),
             ("league_scores_static", "league_scores_late_grid_static"),
             ("league_scores_static", "league_scores_runtime_phase_icons"),
+            ("league_scores_runtime_phase_icons", "league_scores_runtime_phase_text"),
             ("direct_chrome", "direct_chrome"),
         ):
             with self.subTest(pair=pair):
