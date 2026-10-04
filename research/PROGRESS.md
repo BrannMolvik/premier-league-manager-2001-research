@@ -4,6 +4,16 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 252 canonical full-scope preflight
+
+PR #278 head `6cc040e8` passed reconstruction CI with **1,911 tests / 23 expected skips** and repository asset policy, then squash-merged as `9fc7c2e5`. A canonical coordinator now assembles all five repository-side Gate-17 readiness dimensions from one verified game directory and a deterministic read-only live progression controller. Missing allocation-plan state fails closed and the CLI returns nonzero while blockers remain.
+
+PR #279 was a documentation-only reconciliation, squash-merged as `46a29d7f`, correcting stale Premier-League-only handoff wording without changing any capability or gate status.
+
+The authorized 511,121,336-byte source archive was materialized locally for a private canonical coordinator run, but local process execution failed before startup in this recovery. Therefore no private canonical preflight receipt is claimed; the blocker is process infrastructure, not source availability.
+
+Next cloud-safe step is to make the final external Windows release transaction invoke and require a green canonical full-scope implementation preflight before it creates any release receipts.
+
 ### 4 October 2026 KST — Recovery 252 Gate-17 save-scope readiness
 
 PR #277 head `4c13d9bc` passed reconstruction CI with **1,909 tests / 23 expected skips** and repository asset policy, then squash-merged as `ed997a0a`.
