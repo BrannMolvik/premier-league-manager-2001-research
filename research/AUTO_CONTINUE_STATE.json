@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 271,
-  "last_recovery_reason": "transient-connection-interrupted",
-  "note": "Recovery 271: PR #337 merged verified; advance to Windows audible audit harness.",
+  "recovery_generation": 272,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 272: resynced at main 0ce97ae; continue exact cloud-safe Gate-14 Windows audible audit harness while private container execution remains ClientError-blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
