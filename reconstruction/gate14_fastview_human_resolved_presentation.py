@@ -124,6 +124,14 @@ class HumanFastViewResolvedPresentation:
             self.preview.overlap_groups != composite.unresolved_overlap_groups
             or self.coverage.unresolved_overlap_groups
             != composite.unresolved_overlap_groups
+            or tuple(
+                (group.components, group.pixel_count, group.bounding_rect)
+                for group in self.overlap_readiness.groups
+            )
+            != tuple(
+                (group.components, group.pixel_count, group.bounding_rect)
+                for group in composite.unresolved_overlap_groups
+            )
         ):
             raise HumanFastViewResolvedPresentationError(
                 "human FastView presentation overlap topology drifted"
