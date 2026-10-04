@@ -72,13 +72,19 @@ Canonical real-data evidence now includes:
 - canonical mid-matchday save/reload branch equivalence through that same six-fixture span: `../research/GATE8_INTERNAL_SAVE.md`;
 - Gate-17 non-PL primary save/reload audit mode source-selects a live TeamSelect
   procedural-primary club and saves with its first procedural League match
-  pending.
+  pending;
+- `--procedural-primary-all` discovers one source-selected live club for every
+  expected procedural-primary TeamSelect competition and runs that same
+  continuation audit from a fresh canonical controller per scope. It fails
+  closed if any expected primary owner/target is missing. This remains audit
+  tooling until the authorized private run is actually executed.
 
-Run the two canonical save routes against an authorized game directory with:
+Run the canonical save routes against an authorized game directory with:
 
 ```text
 PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game
 PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game --procedural-primary
+PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game --procedural-primary-all
 ```
 - transfer/contract completion with human and AI calendar paths: `../research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 
