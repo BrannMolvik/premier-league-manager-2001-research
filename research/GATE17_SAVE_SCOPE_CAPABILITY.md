@@ -38,7 +38,7 @@ The current repository does **not** have a procedural-secondary live runtime
 container, secondary serialization path, or post-load human continuation route.
 The canonical capability runner therefore marks every fixed-primary and
 procedural-primary scope supported and every procedural-secondary scope blocked
-with `save_reload_capability_missing`.
+with `save_serialization_missing` and/or `save_reload_continuation_missing`.
 
 This is implementation/tooling readiness only. It does not claim that the
 authorized private primary-container sweep has been executed, and it does not
