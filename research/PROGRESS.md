@@ -10975,3 +10975,11 @@ work may continue under the deferred-blocker policy.
 - The PCM bridge does **not** name events or samples by ear and does not claim a Windows device played them. Semantic event binding, human-readable sample meaning, and audible host integration remain false.
 - PR #335 reconstruction run `37199545125` passed **2,101 tests / 23 expected skips** and asset-policy run `37199545111` passed. PR #335 squash-merged as `48f1f6dc8cb0074d5f0b149ad966b3288d4ed4e8`.
 - Gate 13 remains the earliest incomplete validation gate and remains Codex-owned. Exact private Gate-14 follow-up: run `gate14_audiohooks_event_source_trace.py` against the canonical executable and manually prove sender CFG/calling convention/event-state argument data-flow. Independent cloud-safe follow-up: connect the decoded numeric menu-PCM result to a bounded synchronous host playback backend while keeping original UI-event equivalence and audible Windows verification fail-closed.
+
+
+## 4 October 2026 - Recovery 270 synchronous menu PCM playback seam
+
+- PR #336 added a fail-closed synchronous backend boundary on top of the verified numeric `AudioHooks -> menus.bnk -> PCM` bridge. Original no-sound routes never invoke a backend; non-silent routes require a backend `play()` call that returns exactly `True`.
+- Backend success is classified only as adapter delivery completion. Semantic event binding, sample meaning, audible Windows verification, login/menu audio integration, and Gate-14 completion are structurally kept false.
+- Reconstruction run `37200017817` passed **2,106 tests / 23 expected skips** and asset-policy run `37200017826` passed. PR #336 squash-merged as `4b3f9e0b5d62c699402b580b7dcf4aaf9416a8a4`.
+- Exact next cloud-safe step: add a Windows-only in-memory PCM WAV backend behind this seam using standard-library `winsound`, with an injected player for non-Windows/synthetic verification. Actual Windows audible output remains a separate deferred receipt.
