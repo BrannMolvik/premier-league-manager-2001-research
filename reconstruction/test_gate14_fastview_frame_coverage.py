@@ -70,13 +70,13 @@ class FastViewFrameCoverageTests(unittest.TestCase):
         self.assertEqual(coverage.resolved_pixel_count, 3)
         self.assertEqual(coverage.unresolved_overlap_pixel_count, 1)
         self.assertEqual(
-            coverage.no_verified_opaque_contributor_pixel_count,
+            coverage.no_verified_visible_contributor_pixel_count,
             TOTAL - 4,
         )
         self.assertEqual(
             coverage.resolved_pixel_count
             + coverage.unresolved_overlap_pixel_count
-            + coverage.no_verified_opaque_contributor_pixel_count,
+            + coverage.no_verified_visible_contributor_pixel_count,
             TOTAL,
         )
         self.assertEqual(
@@ -111,7 +111,7 @@ class FastViewFrameCoverageTests(unittest.TestCase):
             (1 * 10000) // TOTAL,
         )
         self.assertEqual(
-            coverage.no_verified_opaque_contributor_basis_points,
+            coverage.no_verified_visible_contributor_basis_points,
             ((TOTAL - 4) * 10000) // TOTAL,
         )
 
@@ -124,8 +124,8 @@ class FastViewFrameCoverageTests(unittest.TestCase):
         ):
             replace(
                 coverage,
-                no_verified_opaque_contributor_pixel_count=(
-                    coverage.no_verified_opaque_contributor_pixel_count - 1
+                no_verified_visible_contributor_pixel_count=(
+                    coverage.no_verified_visible_contributor_pixel_count - 1
                 ),
             )
 
