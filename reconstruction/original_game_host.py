@@ -746,8 +746,8 @@ class OriginalGameTkHost:
                     return
                 self.last_league_fixtures_grid_activation = None
                 self.last_status = (
-                    "Management host active; no source-bounded PMenu or League "
-                    "Fixtures grid candidate at "
+                    "Management host active; no source-bounded PMenu candidate row "
+                    "or League Fixtures grid control at "
                     f"({int(event.x)}, {int(event.y)})"
                 )
             else:
