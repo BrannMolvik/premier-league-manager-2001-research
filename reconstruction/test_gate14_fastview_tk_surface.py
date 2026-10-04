@@ -3,9 +3,7 @@ from base64 import b64decode
 from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
-import struct
 import unittest
-import zlib
 
 from gate14_fastview_component_rasters import (
     FastViewComponentRasterPlane,
@@ -15,10 +13,11 @@ from gate14_fastview_resolved_composite import (
     FastViewUnresolvedOverlapGroup,
     compose_fastview_resolved_only_pixels,
 )
+from gate14_fastview_resolved_preview import build_fastview_resolved_preview
 from gate14_fastview_tk_surface import (
     FastViewResolvedTkSurfaceError,
+    draw_fastview_preview_on_tk_canvas,
     draw_fastview_resolved_on_tk_canvas,
-    encode_fastview_resolved_png,
 )
 
 
@@ -65,20 +64,6 @@ def composite():
     )
 
 
-def png_chunks(png):
-    if png[:8] != b"\x89PNG\r\n\x1a\n":
-        raise AssertionError("not a PNG")
-    offset = 8
-    output = []
-    while offset < len(png):
-        length = struct.unpack(">I", png[offset:offset + 4])[0]
-        kind = png[offset + 4:offset + 8]
-        payload = png[offset + 8:offset + 8 + length]
-        output.append((kind, payload))
-        offset += 12 + length
-    return output
-
-
 class FakePhotoImage:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
@@ -99,39 +84,14 @@ class FakeCanvas:
 
 
 class FastViewResolvedTkSurfaceTests(unittest.TestCase):
-    def test_png_preserves_exact_resolved_rgba_and_transparent_holes(self):
+    def test_draw_uses_canonical_preview_png_at_native_origin(self):
         source = composite()
-        png = encode_fastview_resolved_png(source)
-        chunks = png_chunks(png)
-
-        ihdr = next(payload for kind, payload in chunks if kind == b"IHDR")
-        self.assertEqual(
-            struct.unpack(">IIBBBBB", ihdr),
-            (800, 600, 8, 6, 0, 0, 0),
-        )
-
-        compressed = b"".join(
-            payload for kind, payload in chunks if kind == b"IDAT"
-        )
-        scanlines = zlib.decompress(compressed)
-        row_bytes = 800 * 4
-        rebuilt = bytearray()
-        for y in range(600):
-            start = y * (row_bytes + 1)
-            self.assertEqual(scanlines[start], 0)
-            rebuilt.extend(scanlines[start + 1:start + 1 + row_bytes])
-
-        self.assertEqual(bytes(rebuilt), source.rgba)
-        # Pixel 10 is an unresolved overlap and therefore remains alpha-zero.
-        self.assertEqual(source.unresolved_overlap_mask[10], 1)
-        self.assertEqual(bytes(rebuilt[40:44]), b"\x00\x00\x00\x00")
-
-    def test_draw_uses_native_origin_and_retains_unresolved_audit_state(self):
-        source = composite()
+        preview = build_fastview_resolved_preview(source)
         canvas = FakeCanvas()
 
-        draw = draw_fastview_resolved_on_tk_canvas(source, FakeTk, canvas)
+        draw = draw_fastview_preview_on_tk_canvas(preview, FakeTk, canvas)
 
+        self.assertIs(draw.preview, preview)
         self.assertEqual(draw.canvas_item_id, 73)
         self.assertEqual(len(canvas.calls), 1)
         args, kwargs = canvas.calls[0]
@@ -141,16 +101,10 @@ class FastViewResolvedTkSurfaceTests(unittest.TestCase):
         self.assertEqual(draw.photo_image.kwargs["format"], "png")
         self.assertEqual(
             b64decode(draw.photo_image.kwargs["data"]),
-            draw.png,
-        )
-        self.assertEqual(draw.png_sha256, sha256(draw.png).hexdigest())
-        self.assertEqual(draw.resolved_pixel_count, source.resolved_pixel_count)
-        self.assertEqual(
-            draw.unresolved_overlap_pixel_count,
-            source.unresolved_overlap_pixel_count,
+            preview.rgba_png,
         )
         self.assertEqual(
-            draw.unresolved_overlap_groups,
+            preview.overlap_groups,
             (
                 FastViewUnresolvedOverlapGroup(
                     components=("direct_chrome", "possession_diagram"),
@@ -163,16 +117,42 @@ class FastViewResolvedTkSurfaceTests(unittest.TestCase):
         self.assertFalse(draw.cross_component_z_order_recovered)
         self.assertFalse(draw.complete_fastview_frame)
 
+    def test_composite_adapter_preserves_preview_hash_and_overlap_audit(self):
+        source = composite()
+        canvas = FakeCanvas()
+
+        draw = draw_fastview_resolved_on_tk_canvas(source, FakeTk, canvas)
+
+        self.assertEqual(
+            draw.preview.source_composite_rgba_sha256,
+            source.rgba_sha256,
+        )
+        self.assertEqual(
+            draw.preview.source_overlap_mask_sha256,
+            source.unresolved_overlap_mask_sha256,
+        )
+        self.assertEqual(
+            draw.preview.unresolved_overlap_pixel_count,
+            source.unresolved_overlap_pixel_count,
+        )
+        self.assertEqual(draw.preview.overlap_groups, source.unresolved_overlap_groups)
+
     def test_rejects_wrong_inputs_and_false_fidelity_promotion(self):
+        preview = build_fastview_resolved_preview(composite())
+        canvas = FakeCanvas()
+        draw = draw_fastview_preview_on_tk_canvas(preview, FakeTk, canvas)
+
+        with self.assertRaisesRegex(
+            FastViewResolvedTkSurfaceError,
+            "exact resolved preview",
+        ):
+            draw_fastview_preview_on_tk_canvas(object(), FakeTk, canvas)
+
         with self.assertRaisesRegex(
             FastViewResolvedTkSurfaceError,
             "exact resolved-only composite",
         ):
-            encode_fastview_resolved_png(object())
-
-        source = composite()
-        canvas = FakeCanvas()
-        draw = draw_fastview_resolved_on_tk_canvas(source, FakeTk, canvas)
+            draw_fastview_resolved_on_tk_canvas(object(), FakeTk, canvas)
 
         with self.assertRaisesRegex(
             FastViewResolvedTkSurfaceError,
@@ -187,13 +167,13 @@ class FastViewResolvedTkSurfaceTests(unittest.TestCase):
             FastViewResolvedTkSurfaceError,
             "PhotoImage and NW",
         ):
-            draw_fastview_resolved_on_tk_canvas(source, MissingTk, canvas)
+            draw_fastview_preview_on_tk_canvas(preview, MissingTk, canvas)
 
         with self.assertRaisesRegex(
             FastViewResolvedTkSurfaceError,
             "create_image",
         ):
-            draw_fastview_resolved_on_tk_canvas(source, FakeTk, object())
+            draw_fastview_preview_on_tk_canvas(preview, FakeTk, object())
 
     def test_surface_module_does_not_import_gameplay_or_gate13_host(self):
         source = Path(__file__).with_name(
