@@ -10,6 +10,7 @@ from gate14_fastview_frame_plan import (
     build_fastview_frame_plan,
 )
 from gate14_fastview_frame_coverage import audit_fastview_frame_coverage
+from gate14_fastview_team_text_raster import rasterize_fastview_playerrow_text
 from gate14_fastview_resolved_preview import build_fastview_frame_preview
 from gate14_fastview_playerrow_snapshot import (
     build_fastview_player_row_render_plan,
@@ -186,6 +187,19 @@ class FastViewFramePlanTests(unittest.TestCase):
             len(frame.component_rasters.chrome.rgba),
             800 * 600 * 4,
         )
+
+    def test_complete_english_playerrow_text_raster_accepts_frame_render_plans(self):
+        shell = exact_shell()
+        raster = rasterize_fastview_playerrow_text(
+            Path(__file__).resolve().parent.parent,
+            shell.player_row_render_plans,
+        )
+
+        self.assertEqual(raster.rendered_cells, ((0, 0, 1), (0, 0, 2), (0, 0, 3), (0, 0, 6)))
+        self.assertEqual(raster.unresolved_cells, ())
+        self.assertTrue(raster.position_english_localization_recovered)
+        self.assertTrue(raster.own_goal_color_recovered)
+        self.assertTrue(raster.complete_team_table_text)
 
     def test_exports_player_visible_resolved_only_preview_without_promotion(self):
         frame = build_fastview_frame_plan(
