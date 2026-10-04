@@ -64,6 +64,20 @@ class Gate17MultiHumanCapabilityTests(unittest.TestCase):
             ),
         )
 
+    def test_source_proven_required_count_cannot_be_lowered(self):
+        with self.assertRaisesRegex(
+            Gate17MultiHumanCapabilityError,
+            "source-proven maximum 6",
+        ):
+            audit_multi_human_capability(
+                required_simultaneous_users=5,
+                teamselect_selection_capacity=6,
+                gameplay_simultaneous_users_supported=6,
+                multi_human_start_supported=True,
+                shared_runtime_supported=True,
+                save_reload_supported=True,
+            )
+
     def test_invalid_types_and_counts_fail_closed(self):
         with self.assertRaisesRegex(
             Gate17MultiHumanCapabilityError,
