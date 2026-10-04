@@ -25,6 +25,7 @@ from gate14_audiohooks_event_source_trace import (
     BUTTON_EASE_EVENT_IDS,
     BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
     BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
+    BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
     BUTTON_EASE_EVENT_SELECTOR_VA,
     BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
     BUTTON_EASE_INPUT_VA,
@@ -38,6 +39,7 @@ from gate14_audiohooks_event_source_trace import (
     audiohooks_caller_trace_report,
     direct_audiohooks_call_candidates,
     main as tracer_main,
+    button_ease_audiohooks_event_id,
     virtual_audiohooks_call_candidates,
 )
 
@@ -141,6 +143,21 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD, 0x34)
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD, 0x4A)
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET, 0xA8)
+        self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA, 0x5D62F0)
+
+        self.assertEqual(button_ease_audiohooks_event_id(False, 0), 2)
+        self.assertEqual(button_ease_audiohooks_event_id(False, 0xFFFF), 2)
+        self.assertEqual(button_ease_audiohooks_event_id(True, 2), 2)
+        self.assertEqual(button_ease_audiohooks_event_id(True, 0), 10)
+        self.assertEqual(button_ease_audiohooks_event_id(True, 3), 10)
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "explicit boolean"
+        ):
+            button_ease_audiohooks_event_id(1, 2)
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "uint16"
+        ):
+            button_ease_audiohooks_event_id(True, 0x10000)
 
         report = audiohooks_caller_trace_report(parse_fixture())
         contract = report["button_ease_source_contract"]
