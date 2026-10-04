@@ -22,10 +22,71 @@ from gate13_native_capacity_watch import (
     renew_display_activation_consent,
     STARTUP_SURFACE_RETURNS, startup_surface_return_observation,
     trace_startup_surface_returns,
+    native_control_debug_observation, AMD64_CONTEXT_SIZE, AMD64_CONTROL_DEBUG,
+    native_write_watch_context,
 )
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
+    def test_native_watch_setter_selects_only_debug_registers_not_game_control(self):
+        raw = native_write_watch_context(0x100000)
+        self.assertEqual(len(raw), AMD64_CONTEXT_SIZE)
+        self.assertEqual(struct.unpack_from('<I', raw, 0x30)[0], 0x100010)
+        self.assertEqual(struct.unpack_from('<6Q', raw, 0x48), (0x10013C, 0x100140, 0, 0, 0, 0xDD0005))
+        self.assertEqual(raw[:0x30], bytes(0x30))
+        self.assertEqual(raw[0x34:0x48], bytes(0x14))
+        self.assertEqual(raw[0x78:], bytes(AMD64_CONTEXT_SIZE - 0x78))
+
+    def test_native_watch_setter_rejects_unqualified_receiver(self):
+        for receiver in (0, True, -1, 0x100001, 0xFFFFFFFF):
+            with self.assertRaises(CapacityWatchError):
+                native_write_watch_context(receiver)
+
+    def test_native_context_diagnostic_preserves_64bit_registers_without_coverage_override(self):
+        raw = bytearray(AMD64_CONTEXT_SIZE)
+        struct.pack_into('<I', raw, 0x30, AMD64_CONTROL_DEBUG)
+        struct.pack_into('<H', raw, 0x38, 0x33)
+        struct.pack_into('<I', raw, 0x44, 0x202)
+        struct.pack_into('<6Q', raw, 0x48, 0x12340000, 0x12340004, 0, 0, 0, 0xDD0005)
+        struct.pack_into('<Q', raw, 0x98, 0x7FFE12345670)
+        struct.pack_into('<Q', raw, 0xF8, 0x7FFE99887766)
+        result = native_control_debug_observation(bytes(raw))
+        self.assertEqual(result['Dr7'], 0xDD0005)
+        self.assertEqual(result['Rip'], 0x7FFE99887766)
+        self.assertEqual(result['Rsp'], 0x7FFE12345670)
+        self.assertEqual(result['SegCs'], 0x33)
+        self.assertTrue(result['observation_only_not_coverage_override'])
+
+    def test_native_context_diagnostic_rejects_missing_flags_and_wrong_layout(self):
+        for raw in (bytes(AMD64_CONTEXT_SIZE), bytes(AMD64_CONTEXT_SIZE - 1), bytearray(AMD64_CONTEXT_SIZE)):
+            with self.assertRaises(CapacityWatchError):
+                native_control_debug_observation(raw)
+
+    def test_supervised_surface_guard_keeps_fixed_capacity_plan_and_live_consent(self):
+        until = datetime.now(timezone.utc) + timedelta(minutes=10)
+        with patch('gate13_native_capacity_watch.require_desktop_safety_qualification', return_value=until), \
+                patch('gate13_native_capacity_watch._observe', return_value={}) as observer, \
+                patch.object(Path, 'write_text'):
+            result = observe_supervised(Path('original'), Path('private'),
+                display_receipt=Path('qualified'), approved_until_utc=until, guard_startup_surfaces=True)
+        self.assertEqual(observer.call_args.args[2], SupervisedWatchPlan(club_index=5))
+        self.assertEqual(observer.call_args.kwargs, dict(activation_trace_until=until,
+            allow_approved_activation_qualification=True, guard_startup_surfaces=True))
+        self.assertTrue(result['supervised_human_operated'])
+
+    def test_supervised_surface_guard_cannot_be_enabled_by_truthy_nonboolean(self):
+        with self.assertRaisesRegex(CapacityWatchError, 'explicit boolean'):
+            observe_supervised(Path('not-read'), Path('not-written'), display_receipt=Path('none'),
+                approved_until_utc=datetime.now(timezone.utc), guard_startup_surfaces=1)
+
+    def test_surface_guard_cannot_run_under_ordinary_plan_or_without_activation(self):
+        from gate13_native_capacity_watch import _observe
+        for plan, approved in ((WatchPlan(seconds=60, max_events=4096), True),
+                               (SupervisedWatchPlan(), False)):
+            with self.assertRaisesRegex(CapacityWatchError, 'distinct approved'):
+                _observe(Path('not-read'), Path('not-written'), plan, guard_startup_surfaces=True,
+                         allow_approved_activation_qualification=approved)
+
     def test_surface_trace_is_separate_and_has_exact_bound(self):
         until = datetime.now(timezone.utc) + timedelta(minutes=10)
         with patch('gate13_native_capacity_watch.require_desktop_safety_qualification', return_value=until), \

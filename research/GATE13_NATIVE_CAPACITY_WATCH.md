@@ -1,5 +1,25 @@
 # Bounded native fresh-club capacity watch
 
+## 5 October 2026: gap-free selected lifecycle observed
+
+Receipt SHA-256 `132a3ed0c4553a031b7d84e3357837f650a67e1b785f9ea8db108a1e080856c9`:
+41.812 seconds / 1,673 debugger events; selected imported DBRClub ID5 stopped
+before `5DA538`. Both WOW64 and native AMD64 contexts verified on every live
+user thread before all 1,155 continuations; 1,156 checks without a gap and four
+new-thread pre-continuation arms. No capacity write; observed allocation `0/0`
+retained through this exact lifecycle. No universal zero initializer/default
+or kernel/external-writer coverage is inferred. Private adjudication SHA-256:
+`3a9bbf15cfbd6d62418c924bf409be090327c29aaba9b31fcd25f0ec2cefd944`.
+
+Earlier attempts correctly failed on debug-register loss in a new thread.
+Both native and WOW64 contexts actually held zero debug registers. Initial
+setup now selects DEBUG_REGISTERS only in both architectures, followed by
+dual read-back on every event. It never repairs a failed coverage gap or
+modifies native RIP/RSP, capacity/report/registry/simulation or API results.
+Optional supervised source-qualified Lock-return guards stop before copying
+on nonzero HRESULT or invalid descriptor; no additional compatibility shim.
+63 focused tests pass; the human-away implementation/proof is still pending.
+
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 

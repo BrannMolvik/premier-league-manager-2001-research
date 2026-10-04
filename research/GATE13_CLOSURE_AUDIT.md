@@ -2,6 +2,19 @@
 
 _Audit refreshed: 4 October 2026 KST_
 
+## 5 October: decisive user-thread capacity lifecycle proof
+
+The final approved guarded follow-up reached selected DBRClub5's `5DA538`
+before execution: 41.812s / 1,673 events, 1,156 gap-free dual-architecture
+all-user-thread watch checks, including four newly created threads. No write;
+`+13C/+140` retained their observed allocation `0/0` bytes for this exact
+lifecycle. This is **not a universal zero initializer/default**, not kernel or
+external-writer coverage, and not yet the human-away report proof. The preceding
+DR-loss attempts are rejected evidence, not silently repaired coverage.
+63 focused checks pass. Gate13 stays OPEN pending ordinary producer integration
+and human-away report/save/reload/right-click/rendered-context verification,
+then final timing/recognizability/Windows audit. No criterion is waived.
+
 ## 5 October 2026: decisive probe attempted, startup boundary failed
 
 Follow-up isolated idle surface-return diagnostic: intentional 60-second stop,

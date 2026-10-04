@@ -34,6 +34,7 @@ from gate13_native_dxgi_evidence import MODE as DXGI_MODE, windowed_dxgi_proof
 
 U32, U16, PTR = c.c_uint32, c.c_uint16, c.c_void_p
 CONTEXT_FLAGS = 0x1001F  # WOW64 control/integer/segments/FPU/debug registers
+AMD64_CONTEXT_SIZE, AMD64_CONTROL_DEBUG = 0x4D0, 0x100011
 ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ = 0x40BC14, 0x40BC43, 0x40BA2C, 0x5DA538
 STRIDE, CAPACITY_OFFSETS = 0x2A8, (0x13C, 0x140)
 GRAPHICS_SUCCESS, CREATE_WINDOW_CALL = 0x6153A0, 0x6A6363
@@ -215,6 +216,32 @@ def attendance_receiver_observation(receiver: int, read) -> dict:
                 capacity_initializer_proven=False, observation_not_runtime_input=True)
 
 
+def native_control_debug_observation(raw: bytes) -> dict:
+    """Read-only AMD64 CONTEXT prefix; NEVER a substitute for WOW64 coverage."""
+    if type(raw) is not bytes or len(raw) != AMD64_CONTEXT_SIZE:
+        raise CapacityWatchError('Exact AMD64 CONTEXT buffer required')
+    flags = struct.unpack_from('<I', raw, 0x30)[0]
+    if flags & AMD64_CONTROL_DEBUG != AMD64_CONTROL_DEBUG:
+        raise CapacityWatchError('Native context lacks requested control/debug fields')
+    return dict(ContextFlags=flags, SegCs=struct.unpack_from('<H', raw, 0x38)[0],
+                EFlags=struct.unpack_from('<I', raw, 0x44)[0],
+                **dict(zip(('Dr0', 'Dr1', 'Dr2', 'Dr3', 'Dr6', 'Dr7'),
+                           struct.unpack_from('<6Q', raw, 0x48))),
+                Rsp=struct.unpack_from('<Q', raw, 0x98)[0],
+                Rip=struct.unpack_from('<Q', raw, 0xF8)[0],
+                observation_only_not_coverage_override=True)
+
+
+def native_write_watch_context(club_address: int) -> bytes:
+    """Select DEBUG_REGISTERS only: no native RIP/RSP/control/simulation edit."""
+    watch = Wow64Context()
+    arm_writes(watch, club_address)
+    raw = bytearray(AMD64_CONTEXT_SIZE)
+    struct.pack_into('<I', raw, 0x30, 0x100010)
+    struct.pack_into('<6Q', raw, 0x48, watch.Dr0, watch.Dr1, 0, 0, 0, watch.Dr7)
+    return bytes(raw)
+
+
 def startup_surface_return_observation(source_va: int, hresult: int, raw: bytes) -> dict:
     """Actual caller-local Lock output; never a patched result or pointer."""
     if (type(source_va) is not int or source_va not in STARTUP_SURFACE_RETURNS
@@ -327,13 +354,21 @@ def renew_display_activation_consent(executable: Path, previous: Path, output: P
 
 
 def observe_supervised(executable: Path, output: Path, *, display_receipt: Path,
-                       approved_until_utc: datetime, club_index: int = 5) -> dict:
+                       approved_until_utc: datetime, club_index: int = 5,
+                       guard_startup_surfaces: bool = False) -> dict:
+    if type(guard_startup_surfaces) is not bool:
+        raise CapacityWatchError('Surface guard must be an explicit boolean')
     validate_activation_approval(approved_until_utc)
     until = require_desktop_safety_qualification(executable, display_receipt)
     if until != approved_until_utc or until - datetime.now(timezone.utc) < timedelta(seconds=300):
         raise CapacityWatchError('Exact explicit consent must cover the five-minute supervised watch')
-    result = observe(executable, output, SupervisedWatchPlan(club_index=club_index),
-                     display_receipt=display_receipt)
+    if guard_startup_surfaces:
+        result = _observe(executable, output, SupervisedWatchPlan(club_index=club_index),
+                          activation_trace_until=until, allow_approved_activation_qualification=True,
+                          guard_startup_surfaces=True)
+    else:
+        result = observe(executable, output, SupervisedWatchPlan(club_index=club_index),
+                         display_receipt=display_receipt)
     result['supervised_human_operated'] = True
     output.write_text(json.dumps(result, indent=2)+'\n', encoding='utf-8')
     return result
@@ -384,10 +419,16 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
              calibrate_crt_writes: bool = False, qualification_only: bool = False,
              activation_trace_until: datetime | None = None,
              allow_approved_activation_qualification: bool = False,
-             startup_surface_trace_only: bool = False) -> dict:
+             startup_surface_trace_only: bool = False,
+             guard_startup_surfaces: bool = False) -> dict:
     if startup_surface_trace_only and (qualification_only or stop_at_entry or calibrate_crt_writes
                                       or plan.seconds != 60 or plan.max_events != 4096):
         raise CapacityWatchError('Surface diagnostic is a separate fixed 60s/4096-event mode')
+    if guard_startup_surfaces and (type(plan) is not SupervisedWatchPlan
+                                  or qualification_only or stop_at_entry or calibrate_crt_writes
+                                  or startup_surface_trace_only or not allow_approved_activation_qualification):
+        raise CapacityWatchError('Supervised surface guard requires the distinct approved five-minute mode')
+    observe_surfaces = startup_surface_trace_only or guard_startup_surfaces
     if allow_approved_activation_qualification and activation_trace_until is None:
         raise CapacityWatchError('Temporary activation qualification needs live human approval')
     if activation_trace_until is not None:
@@ -408,13 +449,15 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         raise CapacityWatchError('Unexpected Windows debugger ABI layout')
     pe_offset = struct.unpack_from('<I', pe.data, 0x3C)[0]
     entry = pe.image_base + struct.unpack_from('<I', pe.data, pe_offset + 24 + 16)[0]
-    if startup_surface_trace_only:
+    if observe_surfaces:
         for address in STARTUP_SURFACE_RETURNS:
             if pe.read(address - 3, 3) != bytes.fromhex('ff5164'):
                 raise CapacityWatchError('Canonical surface Lock return instruction mismatch')
     sites = ((entry, *STARTUP_SITES, *STARTUP_SURFACE_RETURNS) if startup_surface_trace_only else
              (entry, *STARTUP_SITES) if qualification_only else
              (entry, *STARTUP_SITES, ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ))
+    if guard_startup_surfaces:
+        sites += tuple(STARTUP_SURFACE_RETURNS)
     originals = {va: pe.read(va, 1) for va in sites}
     k = c.WinDLL('kernel32', use_last_error=True)
     signatures = {
@@ -427,6 +470,8 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         'FlushInstructionCache': ([PTR, PTR, c.c_size_t], c.c_int),
         'Wow64GetThreadContext': ([PTR, c.POINTER(Wow64Context)], c.c_int),
         'Wow64SetThreadContext': ([PTR, c.POINTER(Wow64Context)], c.c_int),
+        'GetThreadContext': ([PTR, PTR], c.c_int),
+        'SetThreadContext': ([PTR, PTR], c.c_int),
         'TerminateProcess': ([PTR, U32], c.c_int), 'CloseHandle': ([PTR], c.c_int),
         'SuspendThread': ([PTR], U32),
         'GetFinalPathNameByHandleW': ([PTR, c.c_wchar_p, U32, U32], U32),
@@ -451,6 +496,8 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                   observation_not_runtime_input=True, process_id=created.pid,
                   display_qualification_only=qualification_only,
                   startup_surface_trace_only=startup_surface_trace_only,
+                  guard_startup_surfaces=guard_startup_surfaces,
+                  watch_context_architectures=['wow64', 'native_amd64'],
                   activation_trace_only=activation_trace_until is not None and not allow_approved_activation_qualification,
                   approved_activation_windowed_qualification=allow_approved_activation_qualification,
                   activation_approval_expiry_utc=activation_trace_until.isoformat() if activation_trace_until else None,
@@ -473,7 +520,7 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         report['crt_write_watch_calibration_only'] = True
         report['crt_write_watch_calibration_complete'] = False
         report['crt_write_watch_post_instruction_vas'] = []
-    threads, pending = {}, {}
+    threads, pending, thread_origins = {}, {}, {}
     club, event_count, exited = None, 0, False
     started = time.monotonic()
 
@@ -501,18 +548,44 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
     def set_context(tid, ctx):
         checked(k.Wow64SetThreadContext(threads[tid], c.byref(ctx)))
 
+    def native_context(tid):
+        storage = c.create_string_buffer(AMD64_CONTEXT_SIZE + 15)
+        pointer = (c.addressof(storage) + 15) & ~15
+        c.memmove(pointer + 0x30, struct.pack('<I', AMD64_CONTROL_DEBUG), 4)
+        checked(k.GetThreadContext(threads[tid], pointer))
+        return native_control_debug_observation(c.string_at(pointer, AMD64_CONTEXT_SIZE))
+
+    def arm_native_context(tid):
+        raw = native_write_watch_context(club)
+        storage = c.create_string_buffer(AMD64_CONTEXT_SIZE + 15)
+        pointer = (c.addressof(storage) + 15) & ~15
+        c.memmove(pointer, raw, len(raw))
+        checked(k.SetThreadContext(threads[tid], pointer))
+
     def verify_write_watch_coverage(stage, event, *, will_resume):
         if club is None or exited:
             return
         contexts = {tid: context(tid) for tid in sorted(threads)}
         observed = all_thread_write_watch_readback(contexts, club)
+        native_rows = []
+        for tid in sorted(threads):
+            value = native_context(tid)
+            armed = (value['Dr0'] == club + CAPACITY_OFFSETS[0]
+                     and value['Dr1'] == club + CAPACITY_OFFSETS[1]
+                     and value['Dr7'] & 0xFFFF00FF == 0xDD0005)
+            native_rows.append(dict(tid=tid, registers=value, selected_capacity_watches_present=armed))
+        observed['native_per_thread'] = native_rows
+        observed['native_all_live_threads_armed'] = all(r['selected_capacity_watches_present'] for r in native_rows)
+        observed['wow64_all_live_threads_armed'] = observed['all_live_threads_armed']
+        observed['all_live_threads_armed'] &= observed['native_all_live_threads_armed']
         observed.update(stage=stage, debug_event_number=event_count,
                         debug_event_code=int(event.code), debug_event_tid=int(event.tid),
-                        will_resume=bool(will_resume))
+                        continuation_requested=bool(will_resume),
+                        will_resume=bool(will_resume and observed['all_live_threads_armed']))
         coverage = report['write_watch_coverage']
         coverage['checks'] += 1
         coverage['last_debug_event_number'] = event_count
-        if will_resume:
+        if observed['will_resume']:
             coverage['resumed_events_checked'] += 1
         retain = (
             coverage['checks'] == 1
@@ -525,6 +598,19 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
             coverage['checkpoints'].append(observed)
         if not observed['all_live_threads_armed']:
             coverage['broken'] = True
+            diagnostics = []
+            native_by_tid = {row['tid']: row for row in native_rows}
+            for row in observed['per_thread']:
+                if row['selected_capacity_watches_present'] and native_by_tid[row['tid']]['selected_capacity_watches_present']:
+                    continue
+                tid, ctx = row['tid'], contexts[row['tid']]
+                diagnostic = dict(tid=tid, creation=thread_origins.get(tid),
+                    wow64_context={n: int(getattr(ctx, n)) for n in
+                        ('ContextFlags', 'Eip', 'Esp', 'SegCs', 'EFlags', 'Dr0', 'Dr1', 'Dr6', 'Dr7')},
+                    no_context_repair_attempted=True)
+                diagnostic['native_context'] = native_by_tid[tid]['registers']
+                diagnostics.append(diagnostic)
+            observed['failed_thread_context_diagnostics'] = diagnostics
             raise CapacityWatchError(
                 'Capacity write-watch coverage lost before target-process continuation')
 
@@ -579,6 +665,8 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                 if event.code == 3:
                     info = event.u.process
                     threads[event.tid] = info.thread
+                    thread_origins[event.tid] = dict(start_va=int(info.start or 0),
+                                                    created_at_debug_event=event_count)
                     if info.file:
                         k.CloseHandle(info.file)
                     if info.base != pe.image_base:
@@ -590,10 +678,13 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                 elif event.code == 2:
                     coverage_stage = 'create_thread'
                     threads[event.tid] = event.u.thread.thread
+                    thread_origins[event.tid] = dict(start_va=int(event.u.thread.start or 0),
+                                                    created_at_debug_event=event_count)
                     if club is not None:
                         ctx = context(event.tid)
                         arm_writes(ctx, club)
                         set_context(event.tid, ctx)
+                        arm_native_context(event.tid)
                         report['write_watch_coverage']['new_thread_events_armed'] += 1
                 elif event.code == 4:
                     coverage_stage = 'exit_thread'
@@ -629,10 +720,14 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                             report['selected_club_import_observed'] = True
                         if address != IMPORTED or ctx.Ebx == plan.club_index:
                             snapshot('source_breakpoint', event.tid, ctx, source_va=address)
-                        if startup_surface_trace_only and address in STARTUP_SURFACE_RETURNS:
+                        if observe_surfaces and address in STARTUP_SURFACE_RETURNS:
                             observed = startup_surface_return_observation(address, int(ctx.Eax),
                                 read(ctx.Esp + STARTUP_SURFACE_RETURNS[address], 108))
                             observed.update(tid=int(event.tid), debug_event_number=event_count)
+                            observed.update(elapsed_seconds=round(time.monotonic() - started, 6),
+                                utc=datetime.now(timezone.utc).isoformat(),
+                                preceding_display_sample=dict(foreground_pid=display.last.get('foreground_pid'),
+                                    focus_pid=display.last.get('focus_pid'), target_pid=int(created.pid)))
                             report.setdefault('startup_surface_call_returns', []).append(observed)
                             if observed['diagnostic_stop_required']:
                                 # Terminate while suspended before native copy; never
@@ -742,6 +837,7 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                                 target = ctx if tid == event.tid else context(tid)
                                 arm_writes(target, club)
                                 set_context(tid, target)
+                                arm_native_context(tid)
                             snapshot('allocation_before_constructor', event.tid, ctx, count=int(ctx.Esi))
                         if address == UNCONTROLLED_READ and ctx.Esi == club:
                             coverage_stage = 'selected_uncontrolled_read'

@@ -8,6 +8,40 @@ topic-specific research files.
 
 ## Daniel approved the decisive native capacity probe (5 October 2026 KST)
 
+### Current result: selected read reached with uninterrupted watch coverage
+
+The second/final separately approved follow-up succeeded: **41.812 seconds /
+1,673 debugger events**, stopping **before** selected `5DA538` on imported
+DBRClub ID 5 (Coventry City). The ledger verifies **1,156 consecutive events /
+1,155 continuations** with both WOW64 and native AMD64 DR0/DR1/DR7 read-back
+on every live user thread; four new threads were armed before continuation.
+No watch write occurred. The exact receiver retained allocation bytes
+`0000000000000000` at `+13C/+140` through construction/import/this read.
+
+Classification: **unchanged allocation bytes for this exact lifecycle**, NOT
+a universal zero initializer/default. Kernel/external-writer coverage is not
+claimed. The original executable remains unchanged. All other desktop checks
+remain mandatory; manual audio and the sole topmost shim are unchanged.
+
+The preceding guarded attempts failed closed because one newly created thread
+lost its debug registers during startup in both context views. Initial arming
+now sets DEBUG_REGISTERS only in both architectures, selecting no native
+control/game state; subsequent loss still terminates without repair/bypass.
+The successful run is not a claim that the earlier graphics fault was fixed.
+Both approved follow-ups are spent; no further original launch is authorized
+by their expiry receipt.
+
+Private successful receipt SHA-256:
+`132a3ed0c4553a031b7d84e3357837f650a67e1b785f9ea8db108a1e080856c9`;
+adjudication SHA-256:
+`3a9bbf15cfbd6d62418c924bf409be090327c29aaba9b31fcd25f0ec2cefd944`.
+**Next:** retain source-qualified uncontrolled allocation state explicitly,
+without turning this observation into a global zero default; connect the
+uncontrolled attendance inputs and prove the genuine human-away calculated
+report/save/fresh-reload/right-click/rendered-PMatchInfo chain. Gate 13 remains
+OPEN. Current focused probe/display tests: **63 passed**. Gate 14 and ownership
+protocol remain untouched. Earlier next-action paragraphs below are historical.
+
 ### Executed on current main: startup fault, not a capacity conclusion
 
 **Follow-up, separately approved idle surface diagnostic:** Daniel approved a

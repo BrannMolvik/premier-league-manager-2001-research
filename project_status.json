@@ -14,7 +14,7 @@
   "last_verified_test_count": 1553,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13: prior capacity run faulted at 5EE19B before allocation. Separately approved idle <=60s diagnostic now completed: 120 zero-HRESULT surface-lock returns, valid 800x600/pitch1600/non-null descriptors, intentional time-bound stop, no crash. Previous fault cause remains unproven. Next distinct guarded observation: ordinary startup/interaction with actual Lock returns and adjacent focus state; no automatic retry, injected values or additional shim. Gate13 OPEN; Gate14 unchanged.",
+  "active_task": "Gate13: selected DBRClub5 uncontrolled read reached before execution in 41.812s/1673 events. 1156 gap-free dual-context all-user-thread watch checks, four new threads armed, no write: exact lifecycle retained allocation 0/0, NOT universal zero initializer/default. Next retain source-qualified allocation state explicitly, connect uncontrolled attendance inputs, prove human-away calculated report/save/fresh-reload/right-click/rendered PMatchInfo, then final closure audit. 63 focused tests pass. Both follow-up approvals spent; Gate13 OPEN, Gate14/ownership unchanged.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",

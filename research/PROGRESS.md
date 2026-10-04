@@ -4,6 +4,19 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Decisive selected capacity lifecycle proved
+
+The last of two separately approved supervised follow-ups reached DBRClub5's
+uncontrolled attendance read before execution (41.812s / 1,673 events).
+1,156 gap-free all-user-thread checks / 1,155 continuations verified both
+WOW64 and native AMD64 watch registers, including four newly created threads.
+No write: observed allocation `0/0` retained through this exact lifecycle,
+not a universal initializer/default. Earlier attempts failed closed on actual
+new-thread DR loss; initial debug-only dual-context arming resolved that route.
+63 focused tests pass. Private receipt/adjudication hashes are in CURRENT_STATE.
+Gate13 remains open pending faithful uncontrolled inputs and human-away proof;
+no Gate14 or ownership changes, no further original launch under spent approvals.
+
 ### 5 October 2026 KST — Separate idle surface-lock diagnostic, no crash reproduced
 
 With Daniel's separate <=60-second approval, implemented an isolated surface
