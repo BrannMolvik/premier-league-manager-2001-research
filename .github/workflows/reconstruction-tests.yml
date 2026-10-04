@@ -129,6 +129,8 @@ on:
       - "reconstruction/test_gate14_chant_pool_order.py"
       - "reconstruction/gate14_chant_runtime_timing.py"
       - "reconstruction/test_gate14_chant_runtime_timing.py"
+      - "reconstruction/gate14_chant_runtime_pool_selection.py"
+      - "reconstruction/test_gate14_chant_runtime_pool_selection.py"
       - "reconstruction/gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/test_gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
