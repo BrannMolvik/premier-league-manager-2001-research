@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Disjoint Gate-14 Recovery 270: AudioHooks caller tracer (#334) and canonical numeric menus PCM bridge (#335) are merged and documented. Private next step remains canonical-executable caller/argument adjudication. Current cloud-safe task: add a synchronous playback backend seam for verified non-silent DecodedMenuPcmDispatch results, preserving silent routes and keeping semantic binding/audible Windows verification false.",
-  "last_known_main_head": "faa2bb45445653511753d4dc2cf452b30f6941cd",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 Recovery 270 numeric AudioHooks -> canonical menu PCM -> synchronous backend seam is canonical through main 33b78bc. Current cloud-safe task: add a Windows-only in-memory PCM WAV backend with injected player for tests, verify PCM identity before playback, and keep audible Windows verification/login-menu integration false. Private semantic task remains canonical-executable AudioHooks caller/argument adjudication.",
+  "last_known_main_head": "33b78bc312c6d664f3b588f979fbc7d2f1f8b5d5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 270,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 270: canonical handoff repaired through main faa2bb45445653511753d4dc2cf452b30f6941cd; begin bounded menu PCM playback backend seam.",
+  "note": "Recovery 270: PR #336 merged verified; begin Windows in-memory WAV backend adapter.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
