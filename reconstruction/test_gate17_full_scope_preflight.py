@@ -15,6 +15,7 @@ from gate17_human_scope_capability import (
     HumanScopeCapabilityAudit,
     HumanScopeCapabilityEntry,
 )
+from gate17_multi_human_capability import audit_multi_human_capability
 from gate17_playable_allocation_preview import (
     PlayableAllocationPreview,
     PlayableCountryExchangeSummary,
@@ -71,6 +72,16 @@ def runtime_owner_audit(*, complete=True, scope_id="26:0"):
     return RuntimeOwnerCapabilityAudit(
         catalog_sha256=CATALOG,
         entries=(entry,),
+    )
+
+
+def multi_human_audit(*, complete=True):
+    return audit_multi_human_capability(
+        teamselect_selection_capacity=6,
+        gameplay_simultaneous_users_supported=6 if complete else 1,
+        multi_human_start_supported=complete,
+        shared_runtime_supported=complete,
+        save_reload_supported=complete,
     )
 
 
@@ -151,23 +162,28 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         result = build_full_scope_preflight(
             human_audit(),
             runtime_owner_audit(),
+            multi_human_audit(),
             progression_audit(),
         )
 
         self.assertTrue(result.ready_for_full_runtime_validation)
         self.assertTrue(result.runtime_owner_complete)
+        self.assertTrue(result.multi_human_complete)
+        self.assertEqual(result.multi_human_required_users, 6)
+        self.assertEqual(result.multi_human_gameplay_users_supported, 6)
         self.assertTrue(result.progression_runtime_complete)
         self.assertEqual(result.blocker_codes, ())
         self.assertEqual(result.supported_scope_ids, ("26:0",))
         self.assertEqual(result.runtime_owner_supported_scope_ids, ("26:0",))
         self.assertEqual(result.previewed_allocation_ids, (0,))
-        self.assertEqual(result.as_dict()["schema_version"], 2)
+        self.assertEqual(result.as_dict()["schema_version"], 3)
         self.assertTrue(result.as_dict()["ready_for_full_runtime_validation"])
 
     def test_incomplete_surfaces_remain_explicit_blockers(self):
         result = build_full_scope_preflight(
             human_audit(complete=False),
             runtime_owner_audit(complete=False),
+            multi_human_audit(complete=False),
             progression_audit(complete=False, with_preview=False),
         )
 
@@ -177,6 +193,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             (
                 "human_scope_incomplete",
                 "runtime_owner_capability_incomplete",
+                "multi_human_capability_incomplete",
                 "progression_rankings_incomplete",
                 "allocation_preview_missing",
             ),
@@ -186,6 +203,11 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         self.assertEqual(
             result.runtime_owner_blocker_codes,
             ("human_match_dispatch_missing",),
+        )
+        self.assertFalse(result.multi_human_complete)
+        self.assertIn(
+            "multi_human_gameplay_capacity_incomplete",
+            result.multi_human_blocker_codes,
         )
         self.assertEqual(result.unresolved_allocation_ids, (0,))
         self.assertEqual(result.unresolved_ranking_endpoint_ids, (2,))
@@ -199,6 +221,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 bad_owner,
+                multi_human_audit(),
                 progression_audit(),
             )
 
@@ -209,6 +232,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 replace(progression_audit(), catalog_sha256="d" * 64),
             )
 
@@ -223,6 +247,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 replace(progression_audit(), ranking_capability=bad_ranking),
             )
 
@@ -234,6 +259,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(scope_id="66:27"),
+                multi_human_audit(),
                 progression_audit(),
             )
 
@@ -254,6 +280,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 replace(progression, allocation_preview=bad_preview),
             )
 
@@ -264,6 +291,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 replace(
                     progression,
                     allocation_preview=replace(
@@ -281,6 +309,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         result = build_full_scope_preflight(
             human_audit(),
             runtime_owner_audit(),
+            multi_human_audit(),
             progression,
         )
 
@@ -295,6 +324,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 replace(human_audit(), entries=()),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 progression_audit(),
             )
 
@@ -305,6 +335,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 replace(runtime_owner_audit(), entries=()),
+                multi_human_audit(),
                 progression_audit(),
             )
 
@@ -315,6 +346,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 object(),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 progression_audit(),
             )
 
@@ -324,6 +356,18 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         ):
             build_full_scope_preflight(
                 human_audit(),
+                object(),
+                multi_human_audit(),
+                progression_audit(),
+            )
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "exact MultiHumanCapabilityAudit",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                runtime_owner_audit(),
                 object(),
                 progression_audit(),
             )
@@ -335,6 +379,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(),
+                multi_human_audit(),
                 object(),
             )
 
