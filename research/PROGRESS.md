@@ -38,6 +38,14 @@ The canonical save audit now joins the source-proven fixed Premier League save r
 
 The next independent Gate-17 readiness task is to add the already source-proven six-user TeamSelect requirement to the repository-side full-scope implementation preflight. The current gameplay backend remains single-manager, so the preflight must retain an explicit multi-human blocker even if league selection/runtime/progression dimensions later become green.
 
+### 4 October 2026 KST — Recovery 253 Gate-17 release-path hardening
+
+PR #280 merged as `c8ab34e6` after **1,915 tests / 23 expected skips**, asset policy and Windows release-candidate packaging passed. The external Windows validation transaction now gates receipt creation on the canonical full-scope implementation preflight using the same player seed/day bound.
+
+PR #281 merged as `e522672a` after **1,917 tests / 23 expected skips**, asset policy and Windows packaging passed. Direct final release audit now re-runs the same canonical preflight and records its green payload, closing the direct-audit bypass path. No missing secondary, multi-human, non-PL objective/progression, Gate-13, or external Windows capability is inferred.
+
+Recovery 253 materialized the authorized 511,121,336-byte source archive and persisted reconstruction runtime after one successful local shell probe, but subsequent process launches failed before start with `caas.internal.errors.ClientError`. GitHub inspection shows stale PR #242 carries substantial already-verified Gate-13 native report-row work; only project/status ledgers overlap current main. Next action is safe reconciliation of its disjoint technical/resource changes rather than reimplementation.
+
 ### 4 October 2026 KST — Recovery 251 Gate-17 primary save catalog binding
 
 Resumed from canonical main `b267f046` and agent-runtime generation 250. PR #274 head `b3c90bd9` had both required hosted checks green; reconstruction CI ran **1,891 tests / 23 expected skips** and repository asset policy passed. Merged PR #274 as `748b4782`.
