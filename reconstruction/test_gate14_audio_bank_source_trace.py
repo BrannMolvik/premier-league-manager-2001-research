@@ -12,6 +12,7 @@ from gate13_button_source_trace import OriginalPE32
 from gate14_audio_bank_source_trace import (
     Gate14AudioBankTraceError,
     audio_bank_trace_report,
+    decoded_text_operand_reference_candidates,
     embedded_bnk_string_candidates,
     main as tracer_main,
 )
@@ -43,6 +44,7 @@ def synthetic_pe() -> bytes:
 
     first_va = 0x402010
     second_va = 0x402040
+    out[0x21F] = 0x68  # push imm32
     struct.pack_into("<I", out, 0x220, first_va)
     struct.pack_into("<I", out, 0x224, second_va)
     struct.pack_into("<I", out, 0x380, first_va)
@@ -86,6 +88,50 @@ class Gate14AudioBankSourceTraceTests(unittest.TestCase):
             [(0x401024, ".text")],
         )
 
+    def test_decodes_text_operand_candidate_without_promoting_cfg_or_loader(self):
+        pe = parse_fixture()
+        report = audio_bank_trace_report(
+            pe,
+            classify_text_operands=True,
+        )
+        first, second = report["embedded_bnk_candidates"]
+
+        self.assertTrue(report["text_operand_candidates_classified"])
+        decoded = first["decoded_text_operand_candidates_not_cfg_proof"]
+        self.assertTrue(
+            any(
+                item["instruction_va"] == 0x40101F
+                and item["pointer_candidate_va"] == 0x401020
+                and item["reference_kind"] == "immediate"
+                and item["mnemonic"] == "push"
+                and item["classification"]
+                == "decoded_text_operand_reference_candidate_not_cfg_proof"
+                for item in decoded
+            )
+        )
+        self.assertEqual(
+            second["decoded_text_operand_candidates_not_cfg_proof"],
+            (),
+        )
+        self.assertFalse(report["bank_semantics_recovered"])
+        self.assertFalse(report["bank_event_bindings_recovered"])
+        self.assertIn("do not prove CFG reachability", report["evidence_limit"])
+
+    def test_operand_classifier_ignores_non_text_pointer_copy(self):
+        pe = parse_fixture()
+        raw = pe.pointer_byte_candidates(0x402010)
+        decoded = decoded_text_operand_reference_candidates(
+            pe,
+            0x402010,
+            raw,
+        )
+        self.assertTrue(
+            any(item["pointer_candidate_va"] == 0x401020 for item in decoded)
+        )
+        self.assertFalse(
+            any(item["pointer_candidate_va"] == 0x402080 for item in decoded)
+        )
+
     def test_limits_fail_closed_or_truncate_without_semantic_promotion(self):
         pe = parse_fixture()
         with self.assertRaisesRegex(Gate14AudioBankTraceError, "max_strings"):
@@ -109,6 +155,7 @@ class Gate14AudioBankSourceTraceTests(unittest.TestCase):
                 str(source),
                 "--output",
                 str(output),
+                "--classify-text-operands",
             ]
             with (
                 patch.object(OriginalPE32, "parse", return_value=pe),
@@ -121,6 +168,11 @@ class Gate14AudioBankSourceTraceTests(unittest.TestCase):
                 self.assertEqual(tracer_main(), 0)
             emitted = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(emitted["candidate_count"], 2)
+            self.assertTrue(emitted["text_operand_candidates_classified"])
+            self.assertIn(
+                "decoded_text_operand_candidates_not_cfg_proof",
+                emitted["embedded_bnk_candidates"][0],
+            )
             self.assertFalse(emitted["bank_semantics_recovered"])
             self.assertFalse(emitted["bank_event_bindings_recovered"])
             self.assertNotIn("menu_music_bank", emitted)
