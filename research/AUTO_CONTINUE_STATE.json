@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #292 head c1249254 adds a diagnostic fail-closed PLeagueFixtures selector source-order audit: static country metadata is source-proven, but dynamic League ordering remains blocked until the native DBRCountry +0x48/+0x4C post-RTTI-cast arrays are explicitly materialized. Validate exact head; merge only if Gate13/full/asset checks are green. Private source/runtime files are available but all process launchers fail after materialization.",
-  "last_known_main_head": "b400f9e337cd5c406474d5d5fcfc8a6ec6d000c2",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #292 was closed unmerged because it violated the Gate-13 ownership lock by adding Gate-13 audit implementation/tests/docs. Canonical main includes refreshed Gate-14 guidance at 8cacf5bc. Continuous-worker priority: disjoint Gate-14 critical path only—first recover/narrow cross-component FastView draw/z-order toward a complete source-backed frame; if private execution is required and blocked, advance a Gate-14-only player-visible composition boundary or another source-backed disjoint presentation task; when sustained private execution is healthy, trace exact audio bank loader/callsite ownership; keep SCI/3D choreography fail-closed until source sequencing is recovered. Do not touch Gate-13 implementation/tests/audits/status/shared runtime while the lock is active.",
+  "last_known_main_head": "8cacf5bcf07220f1bd88e1f70ab7f830460623c8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 255,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 255: PR #292 selector source-order audit opened at c1249254; CI queued.",
+  "note": "Coordinator closed PR #292 unmerged for violating the active Gate-13 Codex lock, closed stale superseded PR #227, and refreshed Gate-14 guidance on main at 8cacf5bc. Resume disjoint Gate-14 critical-path work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
