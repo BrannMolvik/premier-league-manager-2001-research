@@ -446,7 +446,14 @@ class OriginalGameHostTests(unittest.TestCase):
         # completed-TeamSelect invariant enforced by the management canvas.
         host.on_click(SimpleNamespace(x=7, y=478))
         live.choose_club(12)
-        host.on_click(SimpleNamespace(x=426, y=301))
+        # Start must still run through the real host/session transition, but the
+        # test backend intentionally lacks the unrelated management source-data
+        # surface. Suppress only the automatic post-Start redraw until the
+        # paging stub is installed.
+        with patch.object(host, "redraw"):
+            host.on_click(SimpleNamespace(x=426, y=301))
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+        self.assertTrue(live.session.started)
         page_presenter = LeagueFixturesPagePresenter()
         host.management_presenter = page_presenter
 
