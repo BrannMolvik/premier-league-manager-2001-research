@@ -1,15 +1,17 @@
 """Source-closed partial FastView cross-component draw order.
 
-Canonical executable tracing now closes the relative paint order of every
-currently rasterized FastView component family. Direct FastViewPanel controls
+Canonical executable tracing closes a partial relative paint order across the
+currently rasterized FastView component families. Direct FastViewPanel controls
 use the generic append-order child array; the score and team subtrees enter that
 same parent array through SubPanelControl wrappers whose render slot delegates
 synchronously into the owned panel's generic forward traversal.
 
-This is a total order over the currently modeled raster families only. It does
-not claim a global FastView z-order across omitted/unbound layers, a
-cross-component pixel blend rule, background ownership, audio, or 3D
-choreography.
+This is intentionally not a total order. The aggregate league-scores raster
+contains native layers on both sides of the LeagueTable block, so no single
+pairwise edge is exposed between league_scores_static and league_table_static.
+The contract also does not claim a global FastView z-order across omitted or
+unbound layers, a cross-component pixel blend rule, background ownership,
+audio, or 3D choreography.
 """
 from __future__ import annotations
 
@@ -66,14 +68,24 @@ FASTVIEW_TEAM_CONSTRUCTOR_VA = 0x524920
 FASTVIEW_TEAM_SUBPANEL_REGISTER_CALL_VA = 0x520EEF
 FASTVIEW_TEAM_SUBPANEL_OFFSET = 0x9C
 
-# FastViewLeagueScores creates the LeagueTableComposite first. Its Heading/Row
-# controls receive the FastViewLeagueScores panel as parent. Only afterward is
-# the current-fixture grid PictureControl created in that same panel.
+# FastViewLeagueScores setup at 0x523370 first calls the generic entry builder
+# 0x522CD0. Its vtable slot +0x5C is 0x523CC0, so one ScoreCompositeNormal
+# (five static controls) is registered per source entry before LeagueTable.
+# LeagueTable follows at 0x523472. Later controls include title_bar_22 at
+# 0x523554 and current_fix_grid_1 at 0x5239F3. The aggregate
+# league_scores_static raster therefore spans native positions both before and
+# after league_table_static and cannot receive one pairwise relation.
+FASTVIEW_LEAGUE_SCORES_SETUP_VA = 0x523370
+FASTVIEW_SCORE_ENTRY_BUILD_CALLSITE_VA = 0x5233C2
+FASTVIEW_SCORE_ENTRY_BUILDER_VA = 0x522CD0
+FASTVIEW_SCORE_FACTORY_VTABLE_SLOT = 0x5C
+FASTVIEW_SCORE_FACTORY_VA = 0x523CC0
 LEAGUE_TABLE_COMPOSITE_FASTVIEW_CALLSITE_VA = 0x523472
 LEAGUE_TABLE_COMPOSITE_CONSTRUCTOR_VA = 0x51E000
 LEAGUE_TABLE_HEADING_CONSTRUCTOR_VA = 0x51DCB0
 LEAGUE_TABLE_ROW_CONSTRUCTOR_VA = 0x51D730
-LEAGUE_SCORES_GRID_PICTURE_CALLSITE_VA = 0x523554
+LEAGUE_SCORES_TITLE_BAR_22_PICTURE_CALLSITE_VA = 0x523554
+LEAGUE_SCORES_CURRENT_FIX_GRID_1_PICTURE_CALLSITE_VA = 0x5239F3
 
 # Each tuple is one native paint position among the currently rasterized
 # families. team_table_static and team_table_energy are alternative
@@ -83,8 +95,7 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("direct_chrome",),
     ("possession_diagram",),
     ("possession_figures_text",),
-    ("league_table_static",),
-    ("league_scores_static",),
+    ("league_scores_static", "league_table_static"),
     ("team_table_static", "team_table_energy"),
 )
 
