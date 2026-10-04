@@ -95,6 +95,8 @@ on:
       - "reconstruction/test_gate14_fastview_overlap_readiness.py"
       - "reconstruction/gate14_font_blend_source_trace.py"
       - "reconstruction/test_gate14_font_blend_source_trace.py"
+      - "reconstruction/gate14_windows_pixel_format_receipt.py"
+      - "reconstruction/test_gate14_windows_pixel_format_receipt.py"
       - "reconstruction/gate14_fastview_draw_order.py"
       - "reconstruction/test_gate14_fastview_draw_order.py"
       - "reconstruction/gate14_fastview_tk_surface.py"

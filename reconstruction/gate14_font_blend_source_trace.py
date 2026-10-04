@@ -38,6 +38,13 @@ POSSESSION_TEXT_STYLE_SELECTOR_VA = 0x527BA0
 POSSESSION_TEXT_FONT_OBJECT_VA = 0x9197E0
 POSSESSION_TEXT_FONT_WRAPPER_VA = 0x87BE90
 
+NATIVE_SURFACE_FORMAT_CAPTURE_VA = 0x653090
+NATIVE_SURFACE_FORMAT_COPY_VA = 0x6530D0
+NATIVE_CHANNEL_MASK_METADATA_VA = 0x653120
+NATIVE_PIXEL_FORMAT_CONFIG_BASE_VA = 0x984820
+NATIVE_CONFIG_RED_MASK_VA = 0x984824
+NATIVE_CONFIG_GREEN_MASK_VA = 0x984830
+NATIVE_CONFIG_BLUE_MASK_VA = 0x98483C
 NATIVE_PIXEL_MASK_SETUP_VA = 0x656320
 NATIVE_RED_MASK_SOURCE_OFFSET = 0x10
 NATIVE_GREEN_MASK_SOURCE_OFFSET = 0x14
@@ -45,7 +52,10 @@ NATIVE_BLUE_MASK_SOURCE_OFFSET = 0x18
 NATIVE_RED_MASK_GLOBAL_VA = 0x9848DC
 NATIVE_GREEN_MASK_GLOBAL_VA = 0x9848D8
 NATIVE_BLUE_MASK_GLOBAL_VA = 0x9848D4
+NATIVE_COLOR_KEY_SETUP_VA = 0x604090
 NATIVE_COLOR_KEY_GLOBAL_VA = 0x87B680
+FONT_PACKED16_CALL_VA = 0x65722E
+FONT_PACKED16_REPLACEMENT_COLOR = 0
 
 # Three orientation branches in 0x658BC0 duplicate the same alpha load/blend
 # primitive. These anchors document the actual destination-read path.
@@ -60,7 +70,10 @@ FONT_BLEND_TRACE_WINDOWS = (
     ("EA font draw", FONT_DRAW_VA, 0x260),
     ("EA glyph draw/dispatch", FONT_GLYPH_DRAW_VA, 0x190),
     ("EA packed-16 glyph blit", FONT_GLYPH_PACKED16_BLIT_VA, 0x530),
+    ("native surface format capture", NATIVE_SURFACE_FORMAT_CAPTURE_VA, 0xD0),
+    ("native channel mask metadata", NATIVE_CHANNEL_MASK_METADATA_VA, 0x40),
     ("native RGB mask setup", NATIVE_PIXEL_MASK_SETUP_VA, 0x70),
+    ("native color key setup", NATIVE_COLOR_KEY_SETUP_VA, 0x30),
     ("EA font loader", FONT_LOADER_VA, 0x160),
     ("generic text style selector", POSSESSION_TEXT_STYLE_SELECTOR_VA, 0x80),
 )
@@ -84,6 +97,11 @@ class Native16PixelMasks:
             raise Gate14FontBlendTraceError(
                 "native RGB masks must be pairwise disjoint"
             )
+
+    @property
+    def color_key(self) -> int:
+        """Return the source-proven packed magenta key for this runtime layout."""
+        return (self.red | self.blue) & 0xFFFF
 
 
 def blend_native_font_pixel16(
@@ -138,6 +156,55 @@ def blend_native_font_pixel16(
         blended &= mask
         result = (result & (~mask & 0xFFFF)) | blended
     return result & 0xFFFF
+
+
+def blend_native_font_pixel16_with_color_key(
+    destination_pixel: int,
+    source_color: int,
+    glyph_alpha: int,
+    masks: Native16PixelMasks,
+    *,
+    replacement_color: int = FONT_PACKED16_REPLACEMENT_COLOR,
+) -> int:
+    """Mirror the source font call's packed-16 color-key plus alpha behavior.
+
+    The font path calls 0x658BC0 at 0x65722E with replacement color zero.
+    For intermediate alpha only, the blitter first replaces a destination pixel
+    equal to the native color key (red_mask | blue_mask), then skips blending
+    entirely when the replacement color itself equals that key. Alpha 0 and
+    alpha 255 retain the already recovered endpoint behavior and bypass this
+    color-key branch.
+    """
+    if type(replacement_color) is not int or not 0 <= replacement_color <= 0xFFFF:
+        raise Gate14FontBlendTraceError("replacement_color must be a uint16")
+    if type(masks) is not Native16PixelMasks:
+        raise Gate14FontBlendTraceError(
+            "masks must be an exact Native16PixelMasks"
+        )
+    if type(destination_pixel) is not int or not 0 <= destination_pixel <= 0xFFFF:
+        raise Gate14FontBlendTraceError("destination_pixel must be a uint16")
+    if type(source_color) is not int or not 0 <= source_color <= 0xFFFF:
+        raise Gate14FontBlendTraceError("source_color must be a uint16")
+    if type(glyph_alpha) is not int or not 0 <= glyph_alpha <= 0xFF:
+        raise Gate14FontBlendTraceError("glyph_alpha must be a uint8")
+
+    if glyph_alpha == 0:
+        return destination_pixel
+    if glyph_alpha == 0xFF:
+        return source_color
+
+    working_destination = destination_pixel
+    if working_destination == masks.color_key:
+        working_destination = replacement_color
+    if replacement_color == masks.color_key:
+        return working_destination
+
+    return blend_native_font_pixel16(
+        working_destination,
+        source_color,
+        glyph_alpha,
+        masks,
+    )
 
 
 def classify_font_blend_dataflow_candidates(
@@ -310,6 +377,15 @@ def font_blend_trace_report(
         "style_selector_va": POSSESSION_TEXT_STYLE_SELECTOR_VA,
         "font_object_va": POSSESSION_TEXT_FONT_OBJECT_VA,
         "font_wrapper_va": POSSESSION_TEXT_FONT_WRAPPER_VA,
+        "native_surface_format_capture_va": NATIVE_SURFACE_FORMAT_CAPTURE_VA,
+        "native_surface_format_copy_va": NATIVE_SURFACE_FORMAT_COPY_VA,
+        "native_channel_mask_metadata_va": NATIVE_CHANNEL_MASK_METADATA_VA,
+        "native_pixel_format_config_base_va": NATIVE_PIXEL_FORMAT_CONFIG_BASE_VA,
+        "native_config_rgb_mask_vas": {
+            "red": NATIVE_CONFIG_RED_MASK_VA,
+            "green": NATIVE_CONFIG_GREEN_MASK_VA,
+            "blue": NATIVE_CONFIG_BLUE_MASK_VA,
+        },
         "native_pixel_mask_setup_va": NATIVE_PIXEL_MASK_SETUP_VA,
         "native_rgb_mask_source_offsets": {
             "red": NATIVE_RED_MASK_SOURCE_OFFSET,
@@ -321,7 +397,10 @@ def font_blend_trace_report(
             "green": NATIVE_GREEN_MASK_GLOBAL_VA,
             "blue": NATIVE_BLUE_MASK_GLOBAL_VA,
         },
+        "native_color_key_setup_va": NATIVE_COLOR_KEY_SETUP_VA,
         "native_color_key_global_va": NATIVE_COLOR_KEY_GLOBAL_VA,
+        "font_packed16_call_va": FONT_PACKED16_CALL_VA,
+        "font_packed16_replacement_color": FONT_PACKED16_REPLACEMENT_COLOR,
         "glyph_alpha_load_vas": GLYPH_ALPHA_LOAD_VAS,
         "glyph_destination_read_vas": GLYPH_DESTINATION_READ_VAS,
         "glyph_alpha_zero_branch_vas": GLYPH_ALPHA_ZERO_BRANCH_VAS,
@@ -338,18 +417,20 @@ def font_blend_trace_report(
         "glyph_destination_read_recovered": True,
         "glyph_alpha_blend_rule_recovered": True,
         "runtime_rgb_mask_source_recovered": True,
+        "runtime_rgb_mask_values_recovered": False,
         "native_color_channel_layout_recovered": False,
-        "font_color_key_applicability_recovered": False,
+        "font_color_key_applicability_recovered": True,
         "cross_component_pixels_resolvable": False,
         "complete_fastview_frame_recovered": False,
         "evidence_limit": (
             "The source now proves the packed-16 glyph destination read, alpha "
             "0/255 endpoints, mask-wise intermediate formula with denominator "
-            "256, and that RGB masks are populated from the runtime surface "
-            "pixel-format fields. It does not yet bind the actual runtime mask "
-            "values for the target Windows surface, prove the font-call color-key "
-            "boundary, or provide an exact modern-RGBA to native-pixel round trip. "
-            "No FastView overlap pixel is therefore promoted."
+            "256, RGB masks populated from the runtime surface pixel-format "
+            "fields, and the font call's native magenta-key branch with zero "
+            "replacement color. It does not yet bind the actual runtime mask "
+            "values for the target Windows surface or provide an exact modern-"
+            "RGBA to native-pixel round trip. No FastView overlap pixel is "
+            "therefore promoted."
         ),
     }
 

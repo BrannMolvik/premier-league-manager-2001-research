@@ -16,20 +16,31 @@ from gate14_font_blend_source_trace import (
     FONT_LOADER_VA,
     GENERIC_TEXT_DRAW_VA,
     NATIVE_BLUE_MASK_GLOBAL_VA,
+    NATIVE_CHANNEL_MASK_METADATA_VA,
     NATIVE_COLOR_KEY_GLOBAL_VA,
+    NATIVE_COLOR_KEY_SETUP_VA,
     NATIVE_COLOR_SETTER_VA,
+    NATIVE_CONFIG_BLUE_MASK_VA,
+    NATIVE_CONFIG_GREEN_MASK_VA,
+    NATIVE_CONFIG_RED_MASK_VA,
     NATIVE_GREEN_MASK_GLOBAL_VA,
+    NATIVE_PIXEL_FORMAT_CONFIG_BASE_VA,
     NATIVE_PIXEL_MASK_SETUP_VA,
     NATIVE_RED_MASK_GLOBAL_VA,
     NATIVE_RED_MASK_SOURCE_OFFSET,
     NATIVE_GREEN_MASK_SOURCE_OFFSET,
     NATIVE_BLUE_MASK_SOURCE_OFFSET,
+    NATIVE_SURFACE_FORMAT_CAPTURE_VA,
+    NATIVE_SURFACE_FORMAT_COPY_VA,
+    FONT_PACKED16_CALL_VA,
+    FONT_PACKED16_REPLACEMENT_COLOR,
     POSSESSION_TEXT_FONT_OBJECT_VA,
     POSSESSION_TEXT_FONT_WRAPPER_VA,
     POSSESSION_TEXT_STYLE_SELECTOR_VA,
     Gate14FontBlendTraceError,
     Native16PixelMasks,
     blend_native_font_pixel16,
+    blend_native_font_pixel16_with_color_key,
     classify_font_blend_dataflow_candidates,
     font_blend_trace_report,
     main as tracer_main,
@@ -87,8 +98,9 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertTrue(report["glyph_destination_read_recovered"])
         self.assertTrue(report["glyph_alpha_blend_rule_recovered"])
         self.assertTrue(report["runtime_rgb_mask_source_recovered"])
+        self.assertFalse(report["runtime_rgb_mask_values_recovered"])
         self.assertFalse(report["native_color_channel_layout_recovered"])
-        self.assertFalse(report["font_color_key_applicability_recovered"])
+        self.assertTrue(report["font_color_key_applicability_recovered"])
         self.assertFalse(report["cross_component_pixels_resolvable"])
         self.assertFalse(report["complete_fastview_frame_recovered"])
         self.assertIn("No FastView overlap pixel is therefore promoted", report["evidence_limit"])
@@ -175,6 +187,56 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
             expected,
         )
 
+    def test_color_key_is_red_or_blue_and_font_call_uses_zero_replacement(self):
+        masks = Native16PixelMasks(red=0xF800, green=0x07E0, blue=0x001F)
+        self.assertEqual(masks.color_key, 0xF81F)
+        self.assertEqual(FONT_PACKED16_REPLACEMENT_COLOR, 0)
+
+        alpha = 0x80
+        source = 0xFFFF
+        expected = blend_native_font_pixel16(0, source, alpha, masks)
+        self.assertEqual(
+            blend_native_font_pixel16_with_color_key(
+                masks.color_key,
+                source,
+                alpha,
+                masks,
+            ),
+            expected,
+        )
+
+        # When the caller's replacement color itself is the key, source code
+        # skips the blend after the key comparison.
+        destination = 0x1234
+        self.assertEqual(
+            blend_native_font_pixel16_with_color_key(
+                destination,
+                source,
+                alpha,
+                masks,
+                replacement_color=masks.color_key,
+            ),
+            destination,
+        )
+        self.assertEqual(
+            blend_native_font_pixel16_with_color_key(
+                destination,
+                source,
+                0,
+                masks,
+            ),
+            destination,
+        )
+        self.assertEqual(
+            blend_native_font_pixel16_with_color_key(
+                destination,
+                source,
+                0xFF,
+                masks,
+            ),
+            source,
+        )
+
     def test_packed_16bit_blend_preserves_non_rgb_bits_and_rejects_bad_masks(self):
         masks = Native16PixelMasks(red=0x7C00, green=0x03E0, blue=0x001F)
         destination = 0x8000
@@ -198,6 +260,15 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertEqual(FONT_DRAW_VA, 0x657280)
         self.assertEqual(FONT_GLYPH_DRAW_VA, 0x6570F0)
         self.assertEqual(FONT_GLYPH_PACKED16_BLIT_VA, 0x658BC0)
+        self.assertEqual(FONT_PACKED16_CALL_VA, 0x65722E)
+        self.assertEqual(FONT_PACKED16_REPLACEMENT_COLOR, 0)
+        self.assertEqual(NATIVE_SURFACE_FORMAT_CAPTURE_VA, 0x653090)
+        self.assertEqual(NATIVE_SURFACE_FORMAT_COPY_VA, 0x6530D0)
+        self.assertEqual(NATIVE_CHANNEL_MASK_METADATA_VA, 0x653120)
+        self.assertEqual(NATIVE_PIXEL_FORMAT_CONFIG_BASE_VA, 0x984820)
+        self.assertEqual(NATIVE_CONFIG_RED_MASK_VA, 0x984824)
+        self.assertEqual(NATIVE_CONFIG_GREEN_MASK_VA, 0x984830)
+        self.assertEqual(NATIVE_CONFIG_BLUE_MASK_VA, 0x98483C)
         self.assertEqual(NATIVE_PIXEL_MASK_SETUP_VA, 0x656320)
         self.assertEqual(NATIVE_RED_MASK_SOURCE_OFFSET, 0x10)
         self.assertEqual(NATIVE_GREEN_MASK_SOURCE_OFFSET, 0x14)
@@ -205,6 +276,7 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertEqual(NATIVE_RED_MASK_GLOBAL_VA, 0x9848DC)
         self.assertEqual(NATIVE_GREEN_MASK_GLOBAL_VA, 0x9848D8)
         self.assertEqual(NATIVE_BLUE_MASK_GLOBAL_VA, 0x9848D4)
+        self.assertEqual(NATIVE_COLOR_KEY_SETUP_VA, 0x604090)
         self.assertEqual(NATIVE_COLOR_KEY_GLOBAL_VA, 0x87B680)
         self.assertEqual(FONT_LOADER_VA, 0x657650)
         self.assertEqual(POSSESSION_TEXT_STYLE_SELECTOR_VA, 0x527BA0)
@@ -260,6 +332,8 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
             self.assertTrue(emitted["glyph_destination_read_recovered"])
             self.assertTrue(emitted["glyph_alpha_blend_rule_recovered"])
             self.assertTrue(emitted["runtime_rgb_mask_source_recovered"])
+            self.assertFalse(emitted["runtime_rgb_mask_values_recovered"])
+            self.assertTrue(emitted["font_color_key_applicability_recovered"])
             self.assertFalse(emitted["cross_component_pixels_resolvable"])
             self.assertFalse(emitted["complete_fastview_frame_recovered"])
 
