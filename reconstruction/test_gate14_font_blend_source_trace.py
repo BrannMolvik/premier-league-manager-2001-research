@@ -21,6 +21,9 @@ from gate14_font_blend_source_trace import (
     NATIVE_GREEN_MASK_GLOBAL_VA,
     NATIVE_PIXEL_MASK_SETUP_VA,
     NATIVE_RED_MASK_GLOBAL_VA,
+    NATIVE_RED_MASK_SOURCE_OFFSET,
+    NATIVE_GREEN_MASK_SOURCE_OFFSET,
+    NATIVE_BLUE_MASK_SOURCE_OFFSET,
     POSSESSION_TEXT_FONT_OBJECT_VA,
     POSSESSION_TEXT_FONT_WRAPPER_VA,
     POSSESSION_TEXT_STYLE_SELECTOR_VA,
@@ -88,7 +91,7 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertFalse(report["font_color_key_applicability_recovered"])
         self.assertFalse(report["cross_component_pixels_resolvable"])
         self.assertFalse(report["complete_fastview_frame_recovered"])
-        self.assertIn("do not yet prove", report["evidence_limit"])
+        self.assertIn("No FastView overlap pixel is therefore promoted", report["evidence_limit"])
 
     def test_classifies_memory_access_direction_without_blend_promotion(self):
         pe = parse_fixture()
@@ -196,6 +199,9 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertEqual(FONT_GLYPH_DRAW_VA, 0x6570F0)
         self.assertEqual(FONT_GLYPH_PACKED16_BLIT_VA, 0x658BC0)
         self.assertEqual(NATIVE_PIXEL_MASK_SETUP_VA, 0x656320)
+        self.assertEqual(NATIVE_RED_MASK_SOURCE_OFFSET, 0x10)
+        self.assertEqual(NATIVE_GREEN_MASK_SOURCE_OFFSET, 0x14)
+        self.assertEqual(NATIVE_BLUE_MASK_SOURCE_OFFSET, 0x18)
         self.assertEqual(NATIVE_RED_MASK_GLOBAL_VA, 0x9848DC)
         self.assertEqual(NATIVE_GREEN_MASK_GLOBAL_VA, 0x9848D8)
         self.assertEqual(NATIVE_BLUE_MASK_GLOBAL_VA, 0x9848D4)
