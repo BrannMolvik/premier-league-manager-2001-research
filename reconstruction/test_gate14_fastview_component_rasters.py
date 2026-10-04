@@ -15,6 +15,12 @@ from gate14_fastview_component_rasters import (
 from gate14_possession_figures import possession_figures_text_layout
 from gate14_fastview_clock import SOURCE_CLOCK_TEXT_RECT
 from gate14_fastview_clock_raster import FastViewClockRaster
+from gate14_fastview_direct_header_raster import (
+    DIRECT_HEADER_TEXT_COMPONENT,
+    FastViewDirectHeaderPlacement,
+    FastViewDirectHeaderRaster,
+)
+from gate14_fastview_direct_header_text import FIRST_TEXT_RECT, SECOND_TEXT_RECT
 from original_fastview_chrome_art import build_fastview_chrome_art
 from original_fastview_possession_art import build_fastview_possession_art
 from original_fastview_possession_figures_art import (
@@ -157,6 +163,35 @@ def clock_raster():
         line_origin=SOURCE_CLOCK_TEXT_RECT[:2],
         clip_rect=SOURCE_CLOCK_TEXT_RECT,
         native_color_16=0xFFFF,
+        rgba_sha256=sha256(payload).hexdigest(),
+    )
+
+
+def direct_header_raster():
+    rgba = bytearray(800 * 600 * 4)
+    for x, y in ((300, 50), (310, 72)):
+        offset = (y * 800 + x) * 4
+        rgba[offset:offset + 4] = b"\xff\xff\xff\xff"
+    payload = bytes(rgba)
+    return FastViewDirectHeaderRaster(
+        component=DIRECT_HEADER_TEXT_COMPONENT,
+        size=(800, 600),
+        rgba=payload,
+        source_layer_count=2,
+        placements=(
+            FastViewDirectHeaderPlacement(
+                text="FIRST",
+                control_rect=FIRST_TEXT_RECT,
+                line_origin=(300, 50),
+                glyph_size=(20, 10),
+            ),
+            FastViewDirectHeaderPlacement(
+                text="SECOND",
+                control_rect=SECOND_TEXT_RECT,
+                line_origin=(300, 68),
+                glyph_size=(20, 10),
+            ),
+        ),
         rgba_sha256=sha256(payload).hexdigest(),
     )
 
@@ -441,6 +476,38 @@ class FastViewComponentRasterTests(unittest.TestCase):
                 possession(),
                 figures(),
                 clock=object(),
+            )
+
+    def test_optional_direct_header_raster_lifts_without_flattening(self):
+        source_header = direct_header_raster()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            direct_header=source_header,
+        )
+        self.assertIsNotNone(rasters.direct_header)
+        self.assertEqual(
+            rasters.direct_header.component,
+            DIRECT_HEADER_TEXT_COMPONENT,
+        )
+        self.assertEqual(
+            rasters.direct_header.rgba_sha256,
+            source_header.rgba_sha256,
+        )
+        self.assertEqual(rasters.direct_header.source_layer_count, 2)
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "direct_header must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                direct_header=object(),
             )
 
     def test_component_set_remains_unflattened_and_has_no_cross_component_order(self):
