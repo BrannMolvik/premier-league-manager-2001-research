@@ -4,7 +4,7 @@ _Status: prepared cloud-safe work-ahead while Gate 13 remains the earliest open 
 
 ## Purpose
 
-Gate 17 now has four independent source-backed/read-only measurements that
+Gate 17 now has five independent source-backed/read-only measurements that
 must agree before full-scope runtime validation is meaningful:
 
 1. whether every original TeamSelect League/club can reach the human-control
@@ -12,9 +12,11 @@ must agree before full-scope runtime validation is meaningful:
 2. whether each TeamSelect League's required fixed-primary,
    procedural-primary, or procedural-secondary runtime owner is actually
    materialized, human-playable, and connected to annual progression;
-3. whether the clean-room backend can carry the source-proven six simultaneous
+3. whether each exact TeamSelect scope has an owner-correct internal
+   save/reload continuation capability;
+4. whether the clean-room backend can carry the source-proven six simultaneous
    TeamSelect users through Start, one shared runtime, and save/reload;
-4. whether a completed runtime state exposes every playable-country
+5. whether a completed runtime state exposes every playable-country
    LeagueAllocation ranking endpoint and can preview all source-backed
    membership exchanges without mutation.
 
@@ -26,12 +28,14 @@ This checkpoint joins those measurements without creating capability.
 
 - `HumanScopeCapabilityAudit`;
 - `RuntimeOwnerCapabilityAudit`;
+- `SaveScopeCapabilityAudit`;
 - `MultiHumanCapabilityAudit`;
 - `RuntimeProgressionAudit`.
 
-The three catalog-bound inputs must target the same canonical TeamSelect
-catalog SHA-256. The runtime-owner audit must contain the same scope IDs in the
-same order as the human-scope audit. The progression audit must internally bind
+The four catalog-bound inputs must target the same canonical TeamSelect
+catalog SHA-256. The runtime-owner and save-scope audits must contain the same
+scope IDs in the same order as the human-scope audit. The progression audit
+must internally bind
 its ranking-capability audit and optional allocation preview to that same
 catalog. The multi-human audit is a global user/runtime capability and therefore
 has no per-League catalog identity.
@@ -45,6 +49,8 @@ The preflight records:
 - supported and unsupported human-selection scope IDs;
 - supported and blocked runtime-owner scope IDs;
 - exact runtime-owner blocker codes;
+- supported and blocked save/reload scope IDs;
+- exact save/reload capability blocker codes;
 - whether the live progression audit is complete;
 - unresolved allocation and ranking endpoint IDs;
 - previewed allocation IDs;
@@ -57,6 +63,7 @@ Current high-level fail-closed blockers are:
 
 - `human_scope_incomplete`;
 - `runtime_owner_capability_incomplete`;
+- `save_scope_capability_incomplete`;
 - `multi_human_capability_incomplete`;
 - `progression_rankings_incomplete`;
 - `allocation_preview_missing`;
@@ -68,6 +75,12 @@ The runtime-owner audit separately preserves its exact underlying blockers,
 including unavailable human selection, missing runtime materialization, missing
 human match dispatch, missing source-backed fresh financial/chairman-objective
 setup, and missing annual progression country coverage.
+
+The save-scope audit separately preserves exact per-scope persistence
+capability. The current canonical surface covers fixed-primary and
+procedural-primary scopes only; procedural-secondary scopes remain blocked on
+`save_reload_capability_missing` rather than being treated as primary-engine
+aliases.
 
 The multi-human audit separately preserves selection-capacity, gameplay-capacity,
 Start-handoff, shared-runtime, and save/reload blocker codes. The current
