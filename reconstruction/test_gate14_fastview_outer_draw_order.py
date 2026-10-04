@@ -30,6 +30,11 @@ from gate14_fastview_outer_draw_order import (
     SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS,
     SCORE_COMPOSITE_MAIN_REGISTER_CALLS,
     SCORES_SUBPANEL_REGISTER_CALL_VA,
+    SURFACED_PICTURE_CONTROL_CONSTRUCTOR_VA,
+    SURFACED_PICTURE_CONTROL_RTTI,
+    SURFACED_PICTURE_CONTROL_VTABLE_VA,
+    SURFACED_PICTURE_OWNER_CALLS,
+    SURFACED_PICTURE_REGISTER_CALL_VA,
     SOURCE_BOUNDARY,
     TEAM_SUBPANEL_REGISTER_CALL_VA,
     FastViewOuterDrawOrderError,
@@ -39,22 +44,23 @@ from gate14_fastview_outer_draw_order import (
 
 
 class FastViewOuterDrawOrderTests(unittest.TestCase):
-    def test_exhaustive_outer_sequence_has_23_unique_ranks(self):
-        self.assertEqual(FASTVIEW_OUTER_DRAW_COUNT, 23)
-        self.assertEqual(len(FASTVIEW_OUTER_DRAW_ENTRIES), 23)
+    def test_exhaustive_outer_sequence_has_26_unique_ranks(self):
+        self.assertEqual(FASTVIEW_OUTER_DRAW_COUNT, 26)
+        self.assertEqual(len(FASTVIEW_OUTER_DRAW_ENTRIES), 26)
         self.assertEqual(
             tuple(row.rank for row in FASTVIEW_OUTER_DRAW_ENTRIES),
-            tuple(range(23)),
+            tuple(range(26)),
         )
         self.assertEqual(
             len({row.identity for row in FASTVIEW_OUTER_DRAW_ENTRIES}),
-            23,
+            26,
         )
 
     def test_exact_outer_sequence(self):
         self.assertEqual(
             tuple(row.identity for row in FASTVIEW_OUTER_DRAW_ENTRIES),
             (
+                "surfaced_picture_control_0",
                 "top_bar_picture",
                 "ticker_picture",
                 "clock_text",
@@ -65,6 +71,8 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
                 "score_composite_main_control_2",
                 "score_composite_main_control_3",
                 "score_composite_main_control_4",
+                "surfaced_picture_control_1",
+                "surfaced_picture_control_2",
                 "possession_diagram_picture_0",
                 "possession_diagram_picture_1",
                 "possession_diagram_picture_2",
@@ -82,6 +90,21 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         )
 
     def test_clock_and_nested_component_source_anchors(self):
+        self.assertEqual(SURFACED_PICTURE_CONTROL_CONSTRUCTOR_VA, 0x526940)
+        self.assertEqual(SURFACED_PICTURE_CONTROL_VTABLE_VA, 0x7CA974)
+        self.assertEqual(
+            SURFACED_PICTURE_CONTROL_RTTI,
+            ".?AVSurfacedPictureControl@FastViewPanel@@",
+        )
+        self.assertEqual(SURFACED_PICTURE_REGISTER_CALL_VA, 0x5269E5)
+        self.assertEqual(
+            SURFACED_PICTURE_OWNER_CALLS,
+            (
+                (0x51FD31, (0, 0, 800, 600)),
+                (0x520642, (38, 1, 173, 94)),
+                (0x520697, (627, 1, 762, 94)),
+            ),
+        )
         self.assertEqual(CLOCK_OWNER_CALL_VA, 0x51FE7B)
         self.assertEqual(CLOCK_TEXT_REGISTER_CALL_VA, 0x51EC30)
         self.assertEqual(
@@ -142,7 +165,7 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         self.assertTrue(outer_draw_before("scores_subpanel", "team_subpanel"))
         self.assertTrue(outer_draw_before("team_subpanel", "post_team_control_0"))
         self.assertFalse(outer_draw_before("direct_text_1", "top_bar_picture"))
-        self.assertEqual(outer_draw_rank("direct_text_0"), 17)
+        self.assertEqual(outer_draw_rank("direct_text_0"), 20)
         with self.assertRaisesRegex(FastViewOuterDrawOrderError, "unknown"):
             outer_draw_rank("not_a_source_child")
 
