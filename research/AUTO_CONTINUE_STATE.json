@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate-14 exact Zurich_XCn_BT_18pixel.fnt staging PR #383 merged to main 5c4b2a5b after 2,334 tests/23 expected skips, asset-policy success and Windows package success. Continue disjoint Gate-14 direct FastView header raster on chatgpt/gate14-fastview-direct-header-raster: verify exact style-3 font load, centered signed-half origins, second-line clip, then merge. Next checkpoint after that: lift direct_header_text into FastView component/resolved-overlap accounting after possession_figures and before score subpanel planes. Do not touch Gate 13.",
-  "last_known_main_head": "5c4b2a5bc745d33ed4365774ae76973596cc3e28",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate 14 direct FastView header raster PR 384 merged to main 66b384ce after 2,339 tests with 23 expected skips and asset-policy success. Continue disjoint Gate 14 direct-header component integration on chatgpt/gate14-direct-header-component: lift direct_header_text after possession_figures and before score planes, add source pairwise draw-order relation, preserve overlap masking, verify and merge. Do not touch Gate 13.",
+  "last_known_main_head": "66b384ceba7adbc3865749a72a18150cc90d5aee",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 296,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #383 canonical at 5c4b2a5b. Exact font repository blob a7286c680a13811f18c8f67ebcc3e17b381fd752 matches local Git-object SHA. Raster branch already contains implementation/tests/docs/CI triggers.",
+  "note": "PR 384 is canonical at 66b384ce. Component branch already contains lift, resolved-composite ordering, draw-order ledger, overlap-readiness tests, and docs.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
