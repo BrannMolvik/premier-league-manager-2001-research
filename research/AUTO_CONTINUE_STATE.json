@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its first-screen timing/management-header closure path. Gate-14 PR #377 merged as main 069d1234 after 2,318 tests/23 skips and asset-policy success. Verify PR #378 at head 2364081c: fail-closed white-endpoint ClockControl raster using exact source font/rect and rejecting alert RGB states. If green, merge and continue with disjoint clock component/overlap integration while preserving alert-color, global-z, complete-frame and Gate-14 blockers.",
-  "last_known_main_head": "069d1234d45b9aea7c157080bd40d2ff6d6d90b2",
+  "active_task": "Gate 13 remains the earliest incomplete gate and is Codex-owned. Gate-14 PR #378 is canonical as main 705809b2 after 2,325 tests/23 skips and asset-policy success. Verify clean-main replacement PR #380 at head 1b3478fb: integrate source-white ClockControl into FastView component/overlap accounting, preserve alert RGB, overlap blend, global-z and complete-frame blockers. PR #379 is superseded/closed after squash-history polluted its diff. If #380 is green, merge and continue the next disjoint source-backed FastView blocker.",
+  "last_known_main_head": "705809b2bb1561cbaa1196010d0c6b02b8222836",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 291,
+  "recovery_generation": 292,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #378 rasterizes only source-white ClockControl states. It emits a transparent zero-layer initial plane and rejects source alert RGB8 (255,45,45) until runtime packed16/display expansion is proven. No Gate-13 files touched.",
+  "note": "PR #380 is the clean-main replay of the previously green stacked ClockControl component integration. Do not edit Gate-13 timing/header closure files. Alert RGB8 (255,45,45) remains deliberately unrasterized pending runtime packed16/display expansion evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
