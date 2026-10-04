@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main is d1901bd6: PictureControl embedded render-chain tracer and font-blend tracer are merged; PR #320 verified 2,053 tests / 23 skips plus asset policy. Active checkpoint is PR #321 head 7a5292f5, a fail-closed BNK loader/sample-format source tracer; asset policy is green and reconstruction CI is running. Private process startup remains blocked by caas ClientError after the canonical source archive/executable were reverified, so do not reprobe locally this recovery. Next healthy private steps: (1) follow 0x64F6D0 -> 0x64E500/0x64D8A0 -> 0x64E5D0 -> 0x6556C0 to prove PictureControl crop-vs-stretch; (2) follow 0x657280 to prove 8-bit glyph blend over destination; (3) run BNK loader/playback trace at 0x6D01F0 and source-close sample table/codec before modern audio decode.",
-  "last_known_main_head": "d1901bd6aff086f70d63fd18dbb56c88fb2edcac",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main is 70018803: BNK loader/sample-format tracer merged after 2,056 tests / 23 expected skips plus asset policy. Active disjoint checkpoint is PR #322 head 0e5e310a, a roadmap-aligned fail-closed Gate-14 readiness audit. Merge only after exact-head reconstruction CI and asset policy pass. Current explicit Gate-14 blockers: audio sample decode/event binding/login-menu integration; global FastView z-order/font blend/complete frame; chant event semantics; 3D choreography; final recognizable-original-workflow verification. Do not reprobe private execution in this recovery.",
+  "last_known_main_head": "700188035ac3c926f244201513c6601854db86b9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 265,
+  "recovery_generation": 266,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery checkpoint: main d1901bd6; PR #321 validates BNK format tracer. Gate 13 lock unchanged; no Gate-14 completion claim.",
+  "note": "Recovery 266: validating PR #322 readiness audit on main 70018803; Gate 13 lock unchanged.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
