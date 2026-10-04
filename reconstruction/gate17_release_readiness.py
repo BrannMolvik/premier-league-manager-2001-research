@@ -30,6 +30,7 @@ from gate17_full_scope_catalog import (
     load_canonical_original_playable_scope,
 )
 from gate17_multi_human_capability import ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS
+from gate17_full_scope_preflight import run_canonical_full_scope_preflight
 
 
 class ReleaseReadinessError(RuntimeError):
@@ -737,6 +738,8 @@ def run_final_release_audit(
     evidence_path: Path,
     release_archive: Path,
     canonical_game_dir: Path,
+    player_seed: int = 1,
+    max_days: int = 420,
 ) -> dict:
     """Execute all locally reproducible Gate-17 checks on one Windows 11 commit."""
     root = Path(repo_root).resolve()
@@ -756,6 +759,18 @@ def run_final_release_audit(
     windows = require_external_windows_11_workstation()
     repository = validate_clean_repository(root, evidence.repository_commit)
     roadmap_prerequisites = validate_roadmap_prerequisites(root)
+
+    implementation_preflight = run_canonical_full_scope_preflight(
+        Path(canonical_game_dir).resolve(),
+        player_seed=int(player_seed),
+        max_days=max_days,
+    )
+    if not implementation_preflight.ready_for_full_runtime_validation:
+        raise ReleaseReadinessError(
+            "canonical full-scope implementation preflight is not ready: "
+            + ",".join(implementation_preflight.blocker_codes)
+        )
+
     receipts = validate_external_receipts(evidence, root)
     full_scope_binding = validate_full_original_scope_binding(
         evidence,
@@ -793,6 +808,7 @@ def run_final_release_audit(
         "windows": windows,
         "repository": repository,
         "roadmap_prerequisites": roadmap_prerequisites,
+        "implementation_preflight": implementation_preflight.as_dict(),
         "external_receipts": receipts,
         "full_original_scope_binding": full_scope_binding,
         "release_archive": archive,
@@ -809,6 +825,8 @@ def main() -> int:
     parser.add_argument("--evidence", type=Path, required=True)
     parser.add_argument("--release-archive", type=Path, required=True)
     parser.add_argument("--canonical-game-dir", type=Path, required=True)
+    parser.add_argument("--player-seed", type=int, default=1)
+    parser.add_argument("--max-days", type=int, default=420)
     parser.add_argument("--output-receipt", type=Path, required=True)
     args = parser.parse_args()
 
@@ -826,6 +844,8 @@ def main() -> int:
         evidence_path=args.evidence,
         release_archive=args.release_archive,
         canonical_game_dir=args.canonical_game_dir,
+        player_seed=args.player_seed,
+        max_days=args.max_days,
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
