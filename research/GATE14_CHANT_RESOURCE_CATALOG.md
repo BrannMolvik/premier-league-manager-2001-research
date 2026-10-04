@@ -53,6 +53,38 @@ These facts prove that chant selection is driven by active-match club state and
 dynamic identifiers. They do **not** yet prove how those formatted identifiers
 map onto each of the 56 physical bank files.
 
+## Source-closed physical bank selection
+
+Private tracing of `0x722F00 -> 0x723010` now closes how the executable assigns
+the physical chant-bank filenames to its three runtime pools.
+
+Before enumeration, `0x722F00` reads source IDs from the active home/away club
+objects at offset `+0x32`. Distinct source IDs become exact lowercase prefix
+patterns `c0%4.4d` for home and away. If both clubs share the same source ID,
+a separate presentation RNG parity draw chooses which side keeps that
+club-specific pattern; the other side receives literal `c0000000`, preventing
+the same physical family from being selected for both pools.
+
+The separate `CL...` pair begins from two value-1 selector globals. Because
+those values compare equal, the source always consumes an earlier independent
+RNG parity draw and assigns `cl000001` to one side and `cl000000` to the
+other. The current authorized disc contains no physical `CL...` bank files, so
+this branch contributes no banks on this release source.
+
+`0x723010` enumerates `*.bnk`, lowercases the first eight basename bytes at
+`0x7231D0`, and checks five patterns in order at `0x7230D6`:
+
+1. `cgener` -> pool type 2;
+2. CL home pattern -> pool type 0;
+3. CL away pattern -> pool type 1;
+4. club home `C0...` pattern -> pool type 0;
+5. club away `C0...` pattern -> pool type 1.
+
+The exact source-disc family shape is 21 `CGENERxx` banks plus 35
+club-specific `C0ddddxx` banks covering 22 source IDs. This source-closes
+bank-to-active-club pool selection. It does not decode the content of those
+banks, bind individual chants to match events, or recover playback timing.
+
 ## Fidelity boundary
 
 The source control file begins with `MIDx`, but its sequencing semantics are
