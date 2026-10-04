@@ -91,6 +91,29 @@ The already recovered enabled groups 0 and 1 both select event 10 when
 `+0x34` is present. Disabled group 2 cannot reach this AudioHooks send through
 `0x64F7A0` because the handler rejects it earlier.
 
+## Pointer enter/leave route
+
+The already source-proven pointer-containment handler `0x64FBE0` supplies a
+second applicable first-screen Button route.
+
+When the pointer is inside and the control accepts the pointer-state update,
+AudioHooks callsite `0x64FC31` sends the same Button-derived event with state
+**6** and arg3 `0x40`. For these captioned enabled first-screen buttons that
+is numeric tuple `(10, 6, 0x40)`, which the recovered dispatcher maps to
+`menus.bnk` slot **3**.
+
+When the pointer leaves, callsite `0x64FC91` sends state **7**. The recovered
+event-10 dispatcher intentionally routes state 7 to no `menus.bnk` playback.
+
+Therefore the currently source-closed applicable first-screen Button sound
+routes are:
+
+- accepted enabled press: event 10, state 0 -> slot 2;
+- accepted pointer enter: event 10, state 6 -> slot 3;
+- accepted pointer leave: event 10, state 7 -> silent.
+
+These remain numeric source facts, not sound names.
+
 ## Reconstruction contract
 
 `reconstruction/gate14_first_screen_button_audio.py` records the exact numeric
