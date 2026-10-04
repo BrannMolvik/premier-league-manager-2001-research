@@ -4,32 +4,35 @@ _Status: independent Gate-14 work-ahead while Gate 13 remains Codex-owned._
 
 ## Purpose
 
-The resolved-only FastView compositor already refuses to flatten any pixel with
-two or more source-backed component contributors. That remains the correct
-pixel-fidelity boundary, but not every masked overlap is blocked by the same
-missing evidence.
+The resolved-only FastView compositor refuses to flatten any pixel with two or
+more source-backed component contributors. That remains the pixel-fidelity
+boundary.
 
-Recovery 273 now separates two questions:
+The readiness audit separates two independent questions:
 
 1. is the native draw order for every component in an overlap group source-closed?
 2. is the native cross-component pixel/blend rule source-closed?
 
-This distinction narrows the next private trace without turning known
-draw-order evidence into guessed pixels.
+Recovery 275 materially advances only the first question.
 
-## Source-backed relation reused
+## Recovery 275 draw-order advance
 
-`reconstruction/gate14_fastview_draw_order.py` currently proves one exact
-cross-component pair:
+`reconstruction/gate14_fastview_draw_order.py` now source-closes relative
+order across every currently rasterized FastView family:
 
-`possession_diagram -> possession_figures_text`
+`direct_chrome -> possession_diagram -> possession_figures_text -> league_table_static -> league_scores_static -> team_table`
 
-The percentage text is registered later in the same parent draw array and the
-generic parent renderer traverses that array forward.
+The TeamTable position may be represented as either `team_table_static` or
+`team_table_energy`.
 
-That ordering fact does **not** resolve the pixels. The native font path uses an
-8-bit alpha atlas and the destination-read / anti-aliased blend rule remains
-unrecovered, as documented in `GATE14_FASTVIEW_FONT_BLEND_TRACE.md`.
+The critical new source chain is the original SubPanelControl render bridge:
+the score and team wrappers are appended to the outer FastViewPanel draw array,
+and each wrapper's render slot synchronously invokes generic forward traversal
+on its stored target panel. The score wrapper is registered before the team
+wrapper. Inside FastViewLeagueScores, LeagueTable controls are registered before
+the current-fixture score controls.
+
+This is not inferred from geometry, allocation order, or names.
 
 ## Readiness audit
 
@@ -39,42 +42,41 @@ unrecovered, as documented in `GATE14_FASTVIEW_FONT_BLEND_TRACE.md`.
 For every unresolved contributor group it:
 
 - enumerates every component pair;
-- asks only the existing source-closed draw-order contract for a relation;
-- records each relation that is genuinely known;
-- records the total number of pairwise relations required for a complete order;
+- asks only the source-closed draw-order contract for a relation;
+- records every genuinely known pair;
 - marks complete draw order only when every required pair is source-backed;
 - keeps cross-component blend recovery false;
 - keeps every unresolved pixel non-resolvable.
 
-The aggregate audit partitions the exact unresolved pixel count into:
+As a result, any current overlap group containing only the modeled raster
+families at distinct native positions is now **draw-order resolved but blend
+unresolved**. The audit still keeps a draw-order blocker for an unmodeled layer
+or another pair absent from the source contract.
 
-- pixels whose full contributor draw order is already recovered;
-- pixels whose contributor draw order is still incomplete.
+Static and energy TeamTable rasters are alternatives for the same native
+position, not two simultaneously composited native siblings.
 
-All current unresolved pixels remain in `blend_unresolved_overlap_pixel_count`,
-and `raster_resolvable_overlap_pixel_count` is required to remain zero.
+## No pixel promotion
 
-This means the known PossessionDiagram/PossessionFigures two-way overlap is now
-identified as **draw-order resolved but blend unresolved**, while a group such
-as direct chrome plus TeamTable remains **draw-order unresolved and blend
-unresolved**. Three-way groups retain any known pairwise subrelation without
-pretending that one known edge establishes a total order.
+The new order evidence does not define what the native renderer does to the
+destination pixel when a later component has partial alpha.
+
+Every current unresolved pixel therefore remains in
+`blend_unresolved_overlap_pixel_count`, while
+`raster_resolvable_overlap_pixel_count` remains exactly zero.
+
+The player-visible resolved-only PNG is unchanged. No masked pixel is unmasked.
 
 ## Completed-human presentation integration
 
-`HumanFastViewResolvedPresentation` now carries the overlap-readiness audit
-alongside its existing frame plan, resolved PNG preview and frame-coverage
-audit.
-
-The bundle integrity-binds:
+`HumanFastViewResolvedPresentation` continues to carry the overlap-readiness
+audit alongside the frame plan, resolved PNG preview, and frame-coverage audit.
+The bundle remains integrity-bound to:
 
 - source composite SHA-256;
 - source overlap-mask SHA-256;
 - unresolved pixel count;
-- exact contributor group identities, counts and bounding rectangles.
-
-The player-visible preview is unchanged. No overlap pixel is unmasked and no
-new background, alpha equation, audio behavior or 3D choreography is invented.
+- exact contributor group identities, counts, and bounding rectangles.
 
 ## Fidelity boundary
 
@@ -83,15 +85,10 @@ This checkpoint still keeps all of these false:
 - cross-component blend-rule recovery;
 - all-overlap-pixels-resolvable;
 - flattened/complete FastView frame;
+- global z-order for omitted/unbound layers;
 - Gate-14 completion.
 
-The next source-backed step is therefore materially narrower:
-
-1. recover the native EA font destination-read/blend behavior for the already
-   ordered possession text overlap; and
-2. recover additional FastView child registration/draw-order relations for the
-   remaining overlap groups.
-
-If private executable execution remains unavailable, continue only
-repository-side work that preserves these fail-closed boundaries. Constructor
-addresses or component geometry alone are not sufficient to promote z-order.
+The next source task is therefore narrower: recover the native destination-read
+and alpha/blend behavior used by the original rendering path, beginning with the
+already bounded EA font renderer. Only then may any ordered overlap pixel be
+resolved.
