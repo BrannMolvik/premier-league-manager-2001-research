@@ -32,7 +32,34 @@ The result records:
 - a one-byte-per-pixel unresolved-overlap mask and SHA-256;
 - resolved pixel count;
 - unresolved-overlap pixel count;
-- ordered source component identities and their original plane SHA-256 values.
+- ordered source component identities and their original plane SHA-256 values;
+- the exact contributor-component tuple for every distinct overlap family;
+- the unresolved pixel count and half-open aggregate bounding rectangle for
+  each contributor tuple.
+
+## Overlap-topology narrowing
+
+The overlap topology is diagnostic evidence, not a draw-order claim.
+
+For every masked pixel, the compositor now inspects all nontransparent
+component planes rather than stopping after the second contributor. Pixels with
+the same ordered contributor tuple are grouped together. Each group retains:
+
+- the component tuple in the existing source-plane order;
+- the number of unresolved pixels with exactly that contributor set;
+- the smallest half-open 800x600 bounding rectangle containing those pixels.
+
+This turns the later executable trace from an open-ended request for a global
+FastView z-order into a bounded set of concrete component relationships and
+screen regions. It still does not say which component wins within any group.
+Two spatially separated overlap islands with the same contributor set may share
+one aggregate bounding rectangle; the per-pixel mask remains authoritative for
+the exact unresolved coordinates.
+
+Integrity checks require the overlap groups to use only known component
+identities, preserve the retained plane order, use unique contributor tuples,
+remain inside the FastView surface, and account for every unresolved overlap
+pixel exactly once.
 
 ## Fidelity boundary
 
@@ -44,9 +71,9 @@ The result requires all of these to remain false:
 - `flattened_frame_available`;
 - `complete_fastview_frame`.
 
-No overlap is resolved by input order, component name, alpha blending, or a
-clean-room preference. A future source trace can replace masked pixels only when
-the original cross-component ordering is actually recovered.
+No overlap is resolved by input order, component name, alpha blending, geometry,
+or a clean-room preference. A future source trace can replace masked pixels only
+when the original cross-component ordering is actually recovered.
 
 The compositor also does not add PlayerRow text, dynamic energy resize pixels,
 audio, commentary, or 3D choreography.
@@ -58,10 +85,15 @@ Focused tests cover:
 - exact copying of singly owned opaque and partial-alpha pixels;
 - alpha-zero pixels not claiming ownership;
 - two-way and three-way overlaps staying transparent and masked;
+- retention of exact two-way and three-way contributor tuples;
+- aggregation of equal contributor sets into exact pixel counts and bounds;
+- separation of distinct contributor sets;
 - operation with only the three mandatory component planes;
 - preservation of source plane hashes and component order;
+- overlap-topology accounting guards;
 - RGBA/mask integrity guards;
 - rejection of false flattened/complete-fidelity promotion.
 
 This provides a player-renderer-safe partial image while keeping every unknown
-cross-component pixel explicitly visible to audits as unresolved.
+cross-component pixel explicitly visible to audits as unresolved and making the
+remaining native ordering trace materially narrower.
