@@ -164,7 +164,7 @@ class FastViewDirectHeaderTextTests(unittest.TestCase):
             TEXT_FONT_SOURCE_ARCHIVE_SHA256,
             "677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4",
         )
-        self.assertFalse(contract["font_bytes_provenance_staged"])
+        self.assertTrue(contract["font_bytes_provenance_staged"])
         self.assertFalse(contract["header_pixels_rasterized"])
         self.assertFalse(contract["complete_fastview_frame_recovered"])
         self.assertFalse(contract["gate14_complete"])
