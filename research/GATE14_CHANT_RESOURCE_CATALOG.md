@@ -107,6 +107,30 @@ than claiming the private RNG generator/state itself. Pool ordering still does
 not identify which individual sample will be played for a particular match
 event or when playback occurs.
 
+## Source-closed runtime timing boundary
+
+The canonical runtime updater at `0x7235E0` is now traced far enough to record
+its exact clock arithmetic without assigning semantic names to the control-file
+fields.
+
+The updater calls the source clock at `0x6AAE40` and drives a four-state record
+lifecycle through pending pass `0x723600` and active pass `0x7236E0`.
+The record state is stored at `+0x08`; source deadlines live at `+0x10` and
+`+0x14`.
+
+The exact source arithmetic is:
+
+- pending-resource retry guard: `now + 200 ms`;
+- first playback-phase deadline: `now + [record+0x20] + [record+0x18]`;
+- second playback-phase deadline: `now + [record+0x1C] + 200 ms`;
+- per-pool cooldown reset: `now + 6000 ms`.
+
+The three record fields `+0x18/+0x1C/+0x20` remain deliberately unnamed.
+Although they participate directly in audible scheduling, this checkpoint does
+not infer their human-facing meaning from their arithmetic or from the
+`CHANT.eam` bytes. Match-event binding and individual chant meaning therefore
+remain unresolved.
+
 ## Fidelity boundary
 
 The source control file begins with `MIDx`, but its sequencing semantics are
