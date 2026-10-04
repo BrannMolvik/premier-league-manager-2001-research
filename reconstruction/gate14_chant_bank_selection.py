@@ -50,6 +50,7 @@ CLUB_SOURCE_ID_COUNTS = (
 class ChantSelectionPatterns:
     home_club_source_id: int
     away_club_source_id: int
+    cl_rng_bit: int
     club_same_id_rng_bit: int | None
     cl_home_pattern: str
     cl_away_pattern: str
@@ -63,6 +64,8 @@ class ChantSelectionPatterns:
         for value in (self.home_club_source_id, self.away_club_source_id):
             if type(value) is not int or not 0 <= value <= 0xFFFF:
                 raise Gate14ChantSelectionError("club source IDs must be uint16")
+        if self.cl_rng_bit not in (0, 1):
+            raise Gate14ChantSelectionError("CL RNG bit must be 0 or 1")
         if self.club_same_id_rng_bit not in (None, 0, 1):
             raise Gate14ChantSelectionError("same-id RNG bit must be None, 0 or 1")
         for value in (
@@ -139,6 +142,7 @@ def chant_selection_patterns(
     return ChantSelectionPatterns(
         home_club_source_id=home_club_source_id,
         away_club_source_id=away_club_source_id,
+        cl_rng_bit=cl_rng_bit,
         club_same_id_rng_bit=(club_same_id_rng_bit if needs_club_rng else None),
         cl_home_pattern=cl_home,
         cl_away_pattern=cl_away,
