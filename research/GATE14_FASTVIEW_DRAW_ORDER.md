@@ -4,15 +4,19 @@ _Status: independent Gate-14 source result while Gate 13 remains Codex-owned._
 
 ## Result
 
-Recovery 275 closes the native relative paint order of every component family
-currently represented by the resolved-only FastView raster pipeline:
+The current source audit closes a **partial** native order across the raster
+families:
 
 1. `direct_chrome`;
 2. `possession_diagram`;
 3. `possession_figures_text`;
-4. `league_table_static`;
-5. `league_scores_static`;
-6. `team_table_static` or `team_table_energy`.
+4. the FastViewScores wrapper, containing both `league_scores_static` and
+   `league_table_static` but with no aggregate pairwise order between those
+   two planes;
+5. `team_table_static` or `team_table_energy`.
+
+The earlier total-order claim between the two score-wrapper raster planes has
+been withdrawn.
 
 The two TeamTable names are alternative reconstruction views of the same native
 TeamTable position. They are not two native siblings and therefore are not
@@ -86,20 +90,30 @@ FastViewScores subtree paints before the FastViewTeam subtree.
 This relation does not rely on their overlapping rectangle or allocation
 addresses.
 
-## Ordering inside the score subtree
+## Ordering inside the score subtree: aggregate edge withdrawn
 
-FastViewLeagueScores constructs LeagueTableComposite at
-`0x523472 -> 0x51E000`. The composite's Heading
-(`0x51DCB0`) and Row (`0x51D730`) constructors receive the
-FastViewLeagueScores panel as parent, so their visible controls are registered
-into that panel's child array.
+Fresh canonical-executable tracing shows that the earlier simplified relation
+was incomplete.
 
-Only afterward does FastViewLeagueScores create the current-fixture grid
-PictureControl at `0x523554 -> 0x527730`, followed by the fixture score
-composites.
+`FastViewLeagueScores::0x523370` calls the generic source-entry builder at
+`0x5233C2 -> 0x522CD0` **before** constructing LeagueTableComposite.
+The class vtable slot `+0x5C` is `0x523CC0`, so that builder creates one
+ScoreCompositeNormal per source entry. Each ScoreComposite registers its
+five static controls into the same FastViewScores child array before the
+LeagueTable constructor at `0x523472 -> 0x51E000`.
 
-The generic forward traversal therefore paints
-`league_table_static` before `league_scores_static`.
+Later in the same setup, additional league-score-owned controls are appended
+after the LeagueTable block. In particular, the call at `0x523554` uses
+`title_bar_22.444`, not `current_fix_grid_1.444`; the actual
+`current_fix_grid_1.444` reference appears later at `0x5239AB` and is
+constructed at `0x5239F3`. Event-driven ScoreComposite phase controls may
+also be cleared and re-appended later.
+
+Therefore the aggregate `league_scores_static` plane spans native positions
+both before and after `league_table_static`. A single pairwise relation
+between those two aggregate raster planes would be false. The source contract
+now deliberately exposes **no relation** for that pair while retaining the
+proven order from the outer score wrapper to the later team wrapper.
 
 ## Direct FastViewPanel controls precede both subpanels
 
@@ -144,7 +158,7 @@ The result does **not** establish:
 - 3D choreography.
 
 The resolved-only compositor therefore keeps every multi-contributor pixel
-masked. The practical change is only that overlap readiness can now identify
-draw order as solved for groups made entirely from the currently rasterized
-families. Blend evidence remains independently required before those pixels can
-be emitted.
+masked. Groups that contain both aggregate score/table planes retain a
+cross-component draw-order blocker until those planes are split by native draw
+phase. Other source-closed pairwise relations remain available. Blend evidence
+remains independently required before any overlap pixel can be emitted.
