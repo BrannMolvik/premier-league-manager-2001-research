@@ -44,36 +44,86 @@ def plan_fixture():
     )
 
 
+def surface(
+    *,
+    fixed_serialized=("26:0",),
+    fixed_continuation=("26:0",),
+    primary_serialized=("26:2",),
+    primary_continuation=("26:2",),
+    secondary_serialized=(),
+    secondary_continuation=(),
+):
+    return normalized_surface(
+        fixed_primary_serialized_scope_ids=fixed_serialized,
+        fixed_primary_continuation_scope_ids=fixed_continuation,
+        procedural_primary_serialized_scope_ids=primary_serialized,
+        procedural_primary_continuation_scope_ids=primary_continuation,
+        procedural_secondary_serialized_scope_ids=secondary_serialized,
+        procedural_secondary_continuation_scope_ids=secondary_continuation,
+    )
+
+
 class Gate17SaveScopeCapabilityTests(unittest.TestCase):
     def test_primary_capability_keeps_secondary_explicitly_blocked(self):
-        plan = plan_fixture()
-        audit = audit_save_scope_capability(
-            plan,
-            normalized_surface(
-                fixed_primary_scope_ids=("26:0",),
-                procedural_primary_scope_ids=("26:2",),
-                procedural_secondary_scope_ids=(),
-            ),
-        )
+        audit = audit_save_scope_capability(plan_fixture(), surface())
 
         self.assertFalse(audit.complete)
         self.assertEqual(audit.supported_scope_ids, ("26:0", "26:2"))
         self.assertEqual(audit.blocked_scope_ids, ("66:27",))
-        self.assertEqual(audit.blocker_codes, ("save_reload_capability_missing",))
         self.assertEqual(
-            tuple(row.save_reload_capable for row in audit.entries),
+            audit.blocker_codes,
+            ("save_serialization_missing", "save_reload_continuation_missing"),
+        )
+        self.assertEqual(
+            tuple(row.serialization_supported for row in audit.entries),
+            (True, True, False),
+        )
+        self.assertEqual(
+            tuple(row.continuation_supported for row in audit.entries),
             (True, True, False),
         )
         self.assertEqual(audit.as_dict()["schema_version"], 1)
 
-    def test_all_owner_surfaces_can_become_complete_without_owner_aliasing(self):
-        plan = plan_fixture()
+    def test_serialization_without_continuation_stays_blocked(self):
         audit = audit_save_scope_capability(
-            plan,
-            normalized_surface(
-                fixed_primary_scope_ids=("26:0",),
-                procedural_primary_scope_ids=("26:2",),
-                procedural_secondary_scope_ids=("66:27",),
+            plan_fixture(),
+            surface(
+                secondary_serialized=("66:27",),
+                secondary_continuation=(),
+            ),
+        )
+
+        self.assertFalse(audit.complete)
+        self.assertTrue(audit.entries[2].serialization_supported)
+        self.assertFalse(audit.entries[2].continuation_supported)
+        self.assertEqual(
+            audit.entries[2].blocker_codes,
+            ("save_reload_continuation_missing",),
+        )
+
+    def test_continuation_without_serialization_stays_blocked(self):
+        audit = audit_save_scope_capability(
+            plan_fixture(),
+            surface(
+                secondary_serialized=(),
+                secondary_continuation=("66:27",),
+            ),
+        )
+
+        self.assertFalse(audit.complete)
+        self.assertFalse(audit.entries[2].serialization_supported)
+        self.assertTrue(audit.entries[2].continuation_supported)
+        self.assertEqual(
+            audit.entries[2].blocker_codes,
+            ("save_serialization_missing",),
+        )
+
+    def test_all_owner_surfaces_can_become_complete_without_owner_aliasing(self):
+        audit = audit_save_scope_capability(
+            plan_fixture(),
+            surface(
+                secondary_serialized=("66:27",),
+                secondary_continuation=("66:27",),
             ),
         )
 
@@ -85,51 +135,44 @@ class Gate17SaveScopeCapabilityTests(unittest.TestCase):
         self.assertEqual(audit.blocked_scope_ids, ())
 
     def test_wrong_owner_bucket_does_not_count_as_save_capability(self):
-        plan = plan_fixture()
         audit = audit_save_scope_capability(
-            plan,
-            normalized_surface(
-                fixed_primary_scope_ids=("26:0",),
-                procedural_primary_scope_ids=("26:2", "66:27"),
-                procedural_secondary_scope_ids=(),
+            plan_fixture(),
+            surface(
+                primary_serialized=("26:2", "66:27"),
+                primary_continuation=("26:2", "66:27"),
             ),
         )
-        self.assertFalse(audit.entries[2].save_reload_capable)
+        self.assertFalse(audit.entries[2].serialization_supported)
+        self.assertFalse(audit.entries[2].continuation_supported)
         self.assertEqual(audit.blocked_scope_ids, ("66:27",))
 
     def test_unknown_overlapping_and_duplicate_scope_ids_fail_closed(self):
-        plan = plan_fixture()
         with self.assertRaisesRegex(
             Gate17SaveScopeCapabilityError,
             "outside TeamSelect catalog",
         ):
             audit_save_scope_capability(
-                plan,
-                normalized_surface(
-                    fixed_primary_scope_ids=("26:0",),
-                    procedural_primary_scope_ids=("26:2",),
-                    procedural_secondary_scope_ids=("99:99",),
-                ),
+                plan_fixture(),
+                surface(secondary_serialized=("99:99",)),
             )
 
         with self.assertRaisesRegex(
             Gate17SaveScopeCapabilityError,
             "overlap across runtime owners",
         ):
-            normalized_surface(
-                fixed_primary_scope_ids=("26:0",),
-                procedural_primary_scope_ids=("26:0",),
-                procedural_secondary_scope_ids=(),
-            )
+            surface(primary_serialized=("26:2", "26:0"))
 
         with self.assertRaisesRegex(
             Gate17SaveScopeCapabilityError,
             "duplicate scope ID",
         ):
             normalized_surface(
-                fixed_primary_scope_ids=("26:0", "26:0"),
-                procedural_primary_scope_ids=(),
-                procedural_secondary_scope_ids=(),
+                fixed_primary_serialized_scope_ids=("26:0", "26:0"),
+                fixed_primary_continuation_scope_ids=(),
+                procedural_primary_serialized_scope_ids=(),
+                procedural_primary_continuation_scope_ids=(),
+                procedural_secondary_serialized_scope_ids=(),
+                procedural_secondary_continuation_scope_ids=(),
             )
 
     def test_bad_types_and_empty_plan_fail_closed(self):
@@ -138,9 +181,12 @@ class Gate17SaveScopeCapabilityTests(unittest.TestCase):
             "exact strings",
         ):
             normalized_surface(
-                fixed_primary_scope_ids=(26,),
-                procedural_primary_scope_ids=(),
-                procedural_secondary_scope_ids=(),
+                fixed_primary_serialized_scope_ids=(26,),
+                fixed_primary_continuation_scope_ids=(),
+                procedural_primary_serialized_scope_ids=(),
+                procedural_primary_continuation_scope_ids=(),
+                procedural_secondary_serialized_scope_ids=(),
+                procedural_secondary_continuation_scope_ids=(),
             )
 
         with self.assertRaisesRegex(
@@ -149,10 +195,11 @@ class Gate17SaveScopeCapabilityTests(unittest.TestCase):
         ):
             audit_save_scope_capability(
                 PlayableLeagueRuntimePlan(catalog_sha256=CATALOG, entries=()),
-                normalized_surface(
-                    fixed_primary_scope_ids=(),
-                    procedural_primary_scope_ids=(),
-                    procedural_secondary_scope_ids=(),
+                surface(
+                    fixed_serialized=(),
+                    fixed_continuation=(),
+                    primary_serialized=(),
+                    primary_continuation=(),
                 ),
             )
 
