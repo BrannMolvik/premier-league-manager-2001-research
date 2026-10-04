@@ -118,9 +118,9 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                 "direct_chrome",
                 "possession_diagram",
                 "possession_figures_text",
-                "team_table_static",
                 "league_scores_static",
                 "league_table_static",
+                "team_table_static",
             ),
         )
         self.assertEqual(
@@ -131,9 +131,9 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                     rasters.chrome,
                     rasters.possession_diagram,
                     rasters.possession_figures,
-                    rasters.team_table,
                     rasters.league_scores,
                     rasters.league_table,
+                    rasters.team_table,
                 )
             ),
         )
