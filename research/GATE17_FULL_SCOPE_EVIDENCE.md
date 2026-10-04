@@ -82,12 +82,22 @@ There is deliberately still no producer in the current repository that claims
 the full-scope runtime facts. `gate17_windows_gameplay_receipts.py` remains
 honest about producing three Premier-League-centered gameplay receipts only.
 
-The current human gameplay handoff is still Premier-League-only, so the
-full-scope receipt cannot legitimately satisfy the binding above yet. After
-Gate 13 releases the shared-runtime ownership lock, the gameplay continuation
-must be generalized across the source-backed catalog, then every cataloged
-country/League route must be exercised against the final archive on a real
-Windows 11 client.
+The repository-side human gameplay handoff is no longer Premier-League-only:
+the fixed Premier League and every source-backed TeamSelect League classified
+`procedural_primary` have distinct live primary-container human routes, and
+canonical audit tooling now covers save/reload capability across that complete
+primary-container scope. That is still not the shipped full scope. Every
+`procedural_secondary` TeamSelect League remains without its distinct live
+runtime owner/human route and persistence continuation, and the gameplay backend
+still models one human manager despite the source-proven six-user TeamSelect
+contract. Non-PL fresh-objective and season-end sporting-objective progression
+also retain explicit source-backed blockers.
+
+The full-scope receipt therefore still cannot legitimately satisfy the binding
+above. Those missing owner, multi-human, objective/progression and persistence
+surfaces must be implemented without aliasing them to the primary engine, then
+every cataloged country/League route must be exercised against the final archive
+on a real Windows 11 client.
 
 Until that external audit passes, Gate 17 remains open.
 
