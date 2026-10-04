@@ -2,9 +2,9 @@
 
 This module creates no gameplay capability. It joins the canonical human-control
 scope audit, the current runtime-owner capability audit, the source-proven
-multi-human capability audit, and the read-only runtime progression audit.
-Catalog-bound inputs must target the same source-backed TeamSelect playable-
-scope catalog.
+multi-human capability audit, the per-scope save/reload capability audit, and
+the read-only runtime progression audit. Catalog-bound inputs must target the
+same source-backed TeamSelect playable-scope catalog.
 """
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from gate17_multi_human_capability import (
     ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS,
 )
 from gate17_runtime_owner_capability import RuntimeOwnerCapabilityAudit
+from gate17_save_scope_capability import SaveScopeCapabilityAudit
 from gate17_runtime_progression_audit import RuntimeProgressionAudit
 
 
@@ -29,6 +30,10 @@ class FullScopePreflight:
     scope_entry_count: int
     human_scope_complete: bool
     runtime_owner_complete: bool
+    save_scope_complete: bool
+    save_scope_supported_scope_ids: tuple[str, ...]
+    save_scope_blocked_scope_ids: tuple[str, ...]
+    save_scope_blocker_codes: tuple[str, ...]
     multi_human_complete: bool
     multi_human_required_users: int
     multi_human_gameplay_users_supported: int
@@ -53,11 +58,19 @@ class FullScopePreflight:
 
     def as_dict(self) -> dict:
         return {
-            "schema_version": 3,
+            "schema_version": 4,
             "catalog_sha256": self.catalog_sha256,
             "scope_entry_count": self.scope_entry_count,
             "human_scope_complete": self.human_scope_complete,
             "runtime_owner_complete": self.runtime_owner_complete,
+            "save_scope_complete": self.save_scope_complete,
+            "save_scope_supported_scope_ids": list(
+                self.save_scope_supported_scope_ids
+            ),
+            "save_scope_blocked_scope_ids": list(
+                self.save_scope_blocked_scope_ids
+            ),
+            "save_scope_blocker_codes": list(self.save_scope_blocker_codes),
             "multi_human_complete": self.multi_human_complete,
             "multi_human_required_users": self.multi_human_required_users,
             "multi_human_gameplay_users_supported": (
@@ -90,6 +103,7 @@ class FullScopePreflight:
 def build_full_scope_preflight(
     human_scope: HumanScopeCapabilityAudit,
     runtime_owner: RuntimeOwnerCapabilityAudit,
+    save_scope: SaveScopeCapabilityAudit,
     multi_human: MultiHumanCapabilityAudit,
     progression: RuntimeProgressionAudit,
 ) -> FullScopePreflight:
@@ -102,6 +116,10 @@ def build_full_scope_preflight(
     if type(runtime_owner) is not RuntimeOwnerCapabilityAudit:
         raise Gate17FullScopePreflightError(
             "preflight requires exact RuntimeOwnerCapabilityAudit"
+        )
+    if type(save_scope) is not SaveScopeCapabilityAudit:
+        raise Gate17FullScopePreflightError(
+            "preflight requires exact SaveScopeCapabilityAudit"
         )
     if type(multi_human) is not MultiHumanCapabilityAudit:
         raise Gate17FullScopePreflightError(
@@ -126,11 +144,19 @@ def build_full_scope_preflight(
         raise Gate17FullScopePreflightError(
             "runtime-owner audit contains no TeamSelect scope entries"
         )
+    if not save_scope.entries:
+        raise Gate17FullScopePreflightError(
+            "save-scope audit contains no TeamSelect scope entries"
+        )
 
     catalog_sha = str(human_scope.catalog_sha256)
     if str(runtime_owner.catalog_sha256) != catalog_sha:
         raise Gate17FullScopePreflightError(
             "human-scope and runtime-owner audits target different catalogs"
+        )
+    if str(save_scope.catalog_sha256) != catalog_sha:
+        raise Gate17FullScopePreflightError(
+            "human-scope and save-scope audits target different catalogs"
         )
     if str(progression.catalog_sha256) != catalog_sha:
         raise Gate17FullScopePreflightError(
@@ -148,6 +174,11 @@ def build_full_scope_preflight(
     if runtime_owner_scope_ids != human_scope_ids:
         raise Gate17FullScopePreflightError(
             "runtime-owner audit scope IDs do not exactly match human-scope audit"
+        )
+    save_scope_ids = tuple(str(entry.scope_id) for entry in save_scope.entries)
+    if save_scope_ids != human_scope_ids:
+        raise Gate17FullScopePreflightError(
+            "save-scope audit scope IDs do not exactly match human-scope audit"
         )
 
     preview = progression.allocation_preview
@@ -185,6 +216,8 @@ def build_full_scope_preflight(
         blockers.append("human_scope_incomplete")
     if not runtime_owner.complete:
         blockers.append("runtime_owner_capability_incomplete")
+    if not save_scope.complete:
+        blockers.append("save_scope_capability_incomplete")
     if not multi_human.complete:
         blockers.append("multi_human_capability_incomplete")
     if not progression.ranking_capability.complete:
@@ -201,6 +234,10 @@ def build_full_scope_preflight(
         scope_entry_count=len(human_scope.entries),
         human_scope_complete=human_scope.complete,
         runtime_owner_complete=runtime_owner.complete,
+        save_scope_complete=save_scope.complete,
+        save_scope_supported_scope_ids=tuple(save_scope.supported_scope_ids),
+        save_scope_blocked_scope_ids=tuple(save_scope.blocked_scope_ids),
+        save_scope_blocker_codes=tuple(save_scope.blocker_codes),
         multi_human_complete=multi_human.complete,
         multi_human_required_users=int(multi_human.required_simultaneous_users),
         multi_human_gameplay_users_supported=int(
