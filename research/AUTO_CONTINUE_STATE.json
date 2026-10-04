@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #343 merged as main cc7803ab after 2,143 tests/23 skips and asset-policy success; canonical Gate-14 readiness now separately requires genuine replay-validated audible Windows evidence. Audio semantic binding and font blend arithmetic remain private-source blockers. Continue the highest-value independent cloud-safe Gate-14 presentation work: inspect already-persisted FastView child registration/construction evidence for additional source-backed cross-component draw-order relations before creating any new compositor pixels.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Continue Gate-14 PR #344 from head 64a07fbc: finish verification/audit of the recovered FastViewTeam owner-call checkpoint, then trace FastViewPanel rendering of the +0x94 FastViewTeam object relative to generic 0x6533A0 forward child-array traversal. Add no draw-order relation unless source-closed; rerun overlap readiness only after exact ordering evidence exists.",
   "last_known_main_head": "cc7803ab7c51b09e8b79f09e05610214d3f6803e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 274,
+  "recovery_generation": 275,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 274 checkpoint after PR #343 merge. Stale #339 and #333 closed as superseded. Next is disjoint Gate-14 FastView draw-order evidence reuse; do not infer order from geometry or file naming.",
+  "note": "Recovery 275 resumed from canonical main cc7803ab and open PR #344. PR #344 source-closes the 0x520E67 -> FastViewTeam::0x524920 owner call and parent-pointer relation but intentionally leaves new pairwise/global draw order false. Continue exact render-order trace; do not infer order from allocation or geometry.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
