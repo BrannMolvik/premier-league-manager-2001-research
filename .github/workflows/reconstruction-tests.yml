@@ -117,6 +117,8 @@ on:
       - "reconstruction/test_original_fastview_chrome_source.py"
       - "reconstruction/gate14_audio_bank_source_trace.py"
       - "reconstruction/test_gate14_audio_bank_source_trace.py"
+      - "reconstruction/gate14_readiness.py"
+      - "reconstruction/test_gate14_readiness.py"
       - "reconstruction/gate14_audio_bank_format_source_trace.py"
       - "reconstruction/test_gate14_audio_bank_format_source_trace.py"
       - "reconstruction/gate14_audio_bank_ownership.py"
