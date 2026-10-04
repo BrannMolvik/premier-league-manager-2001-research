@@ -88,6 +88,28 @@ Source-closed sites:
 This closes the sender shape without equating the dynamic return value to any
 specific AudioHooks event ID.
 
+## Derived non-control sender family
+
+Seven additional virtual senders are source-closed by local register/data-flow
+rather than three immediate PUSHes:
+
+| Callsite | Possible event IDs | State | Arg3 | Derivation |
+| ---: | --- | ---: | ---: | --- |
+| `0x4B95F4` | 1 | 1 | 0 | arg3 register proven zero locally |
+| `0x5EB69B` | 23 or 25 | 0 | 0 | two-value arithmetic branch |
+| `0x5EBA8A` | 24 or 26 | 0 | 0 | two-value arithmetic branch |
+| `0x5EBC7B` | 32 | 0 | 0 | state/arg3 registers proven zero locally |
+| `0x5EBE61` | 32 | 0 | 0 | state/arg3 registers proven zero locally |
+| `0x5EC02B` | 31 | 0 | 0 | state/arg3 registers proven zero locally |
+| `0x5ED5E5` | 17 or 18 | 0 | 0 | two-value arithmetic branch |
+
+The pair-valued event sites remain bounded numeric sets. The branch predicate's
+human meaning is not named.
+
+Together with the ten all-immediate sites and ten dynamic-control sites, this
+accounts for the source-adjudicated slot-0 sender families currently recovered
+without inventing semantic event names.
+
 ## Tracer update
 
 `reconstruction/gate14_audiohooks_event_source_trace.py` now has two source
@@ -121,6 +143,7 @@ This checkpoint may promote:
 - event/state/third argument positions;
 - proof that the third argument is unused by `0x5DBFC0`;
 - the exact numeric literal sender tuples above;
+- the exact locally derived numeric sender bounds above;
 - the exact dynamic-control sender shape above.
 
 It does **not** promote:
