@@ -145,6 +145,8 @@ on:
       - "reconstruction/test_gate14_audiohooks_menu_playback.py"
       - "reconstruction/gate14_first_screen_button_audio.py"
       - "reconstruction/test_gate14_first_screen_button_audio.py"
+      - "reconstruction/gate14_first_screen_audio_binding.py"
+      - "reconstruction/test_gate14_first_screen_audio_binding.py"
       - "reconstruction/gate14_windows_menu_pcm_backend.py"
       - "reconstruction/test_gate14_windows_menu_pcm_backend.py"
       - "reconstruction/gate14_windows_menu_audio_audit.py"
