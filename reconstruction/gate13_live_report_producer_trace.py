@@ -10,6 +10,17 @@ from gate13_button_source_trace import (
 )
 
 SOURCE_SHA256 = '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'
+REMAINING_SETUP_WINDOWS = (
+    # Known lifecycle neighborhoods only. These windows do not claim that the
+    # unresolved writer necessarily lives inside them.
+    ('compact club import around +0x130/+0x13C/+0x140', 0x403660, 0x320),
+    ('DBRClub constructor around unresolved legacy fields', 0x405A40, 0x1C0),
+    ('human-opponent D48 adjustment helper', 0x408170, 0x2A0),
+    ('primary/secondary player selector accessor', 0x41E3D0, 0x30),
+    ('club player-assignment record initializer', 0x61C460, 0x90),
+    ('club player-assignment table initializer', 0x61C9C0, 0x180),
+    ('gate attendance/counter/capacity neighborhood', 0x5DB900, 0x120),
+)
 LIVE_PRODUCER_WINDOWS = (
     ('calculator constructor', 0x62ABD0, 0x92),
     ('calculator initialization', 0x62AC90, 0x150),
@@ -46,11 +57,25 @@ LIVE_PRODUCER_WINDOWS = (
 )
 
 
-def live_report_producer_trace(pe, *, with_disassembly=False, metadata_only=False):
+def live_report_producer_trace(
+    pe,
+    *,
+    with_disassembly=False,
+    metadata_only=False,
+    remaining_setup_only=False,
+):
     if pe.sha256 != SOURCE_SHA256:
         raise OriginalPETraceError('Live producer trace requires the canonical executable')
+    if metadata_only and remaining_setup_only:
+        raise ValueError('Choose either metadata-only or remaining-setup-only, not both')
     windows = []
-    selected = LIVE_PRODUCER_WINDOWS[21:] if metadata_only else LIVE_PRODUCER_WINDOWS
+    selected = (
+        REMAINING_SETUP_WINDOWS
+        if remaining_setup_only
+        else LIVE_PRODUCER_WINDOWS[21:]
+        if metadata_only
+        else LIVE_PRODUCER_WINDOWS
+    )
     for label, address, size in selected:
         blob = pe.read(address, size)
         window = {'label': label, 'va': address, 'size': size,
@@ -60,6 +85,8 @@ def live_report_producer_trace(pe, *, with_disassembly=False, metadata_only=Fals
         windows.append(window)
     return {'source_sha256': pe.sha256, 'windows': windows,
             'scope': 'private analyst evidence, NOT a runtime captured report',
+            'remaining_setup_trace_complete': False,
+            'legacy_capacity_writer_identified': False,
             'runtime_capture_production_complete': False,
             'normal_pmatchinfo_opening_verified': False, 'gate13_closed': False}
 
@@ -71,11 +98,20 @@ def main():
     parser.add_argument('--disassemble', action='store_true')
     parser.add_argument('--metadata-only', action='store_true',
                         help='Skip already recovered compact/stat/goal windows')
+    parser.add_argument(
+        '--remaining-setup-only',
+        action='store_true',
+        help='Trace only unresolved Gate-13 setup lifecycle neighborhoods',
+    )
     args = parser.parse_args()
     require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
-    report = live_report_producer_trace(pe, with_disassembly=args.disassemble,
-                                      metadata_only=args.metadata_only)
+    report = live_report_producer_trace(
+        pe,
+        with_disassembly=args.disassemble,
+        metadata_only=args.metadata_only,
+        remaining_setup_only=args.remaining_setup_only,
+    )
     args.output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(f'Private live-producer evidence saved to {args.output}')
 
