@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN; Daniel's approved decisive native capacity probe still requires a Windows-capable execution surface and fresh live consent-expiry receipt. Gate-14 PR #358 merged as main 9d97a926 after 2,228 tests/23 skips and asset-policy success. Verify PR #359 at head c89abf74: source-closed six first-screen Button caption-source paths and accepted enabled press numeric AudioHooks tuple (10,0,0x40) -> menus.bnk slot 2, with live front-end binding/audibility/semantics still false. After verification, continue the next disjoint source-backed Gate-14 integration boundary.",
-  "last_known_main_head": "9d97a9267fad3d91867fd4fa42a518c4e90fb927",
+  "active_task": "Gate 13 remains OPEN and Codex-owned, but the decisive selected-capacity native probe is now canonical on main and no longer a blocker: DBRClub ID 5 reached selected 0x5DA538 with uninterrupted dual-context all-user-thread watch coverage, no watched write, and unchanged 0/0 allocation bytes classified only for that exact lifecycle. Independent Gate-14 PR #359 is merged as main 1e24635b after 2,236 tests/23 skips. Verify PR #360 at head fc821691: disjoint live first-screen press-audio host wrapper that delivers the source-closed numeric route before the existing click path and never lets expected audio failure block gameplay. After verification, continue the next disjoint Gate-14 audio/presentation blocker without touching Gate-13-owned files.",
+  "last_known_main_head": "1e24635b88601bf179e4ce32409c3f2c5ff06cf3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 281,
+  "recovery_generation": 282,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #359 is intentionally numeric-only. Do not name event 10 or sample slot 2 by ear. It does not edit Gate-13 presentation files and does not yet bind audio to the live first-screen host because the native owner-acceptance boundary must be preserved.",
+  "note": "Gate-13 ownership lock remains active despite successful native probe; do not edit its implementation/status/persistence files. PR #360 is deliberately press-only because the production host still lacks native Button hover/capture/group state tracking. Numeric first-screen routes are canonical; human-readable sound names and Windows audibility remain unresolved.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
