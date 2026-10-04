@@ -94,15 +94,20 @@ That selector reads Button object field `+0x34`. When that field is null it
 returns numeric event ID **2**. Otherwise it passes Button word field `+0x4A`
 through virtual offset `+0xA8`.
 
+Gate 13 already source-closed `+0x4A` independently as the active
+Button@ease animation **group index**. The three exact group lengths are
+`(11, 11, 1)`, and group 2 is the disabled one-frame group. This checkpoint
+reuses that evidence rather than renaming the field.
+
 For this Button vtable, `+0xA8` targets `0x5D62F0`. That helper returns
-**1** when its uint16 input equals **2**, and **11** otherwise. Slot 0 compares
-that result with one.
+**1** for group **2**, and **11** for groups **0/1**. Slot 0 compares that
+result with one.
 
 Therefore the exact numeric rule is:
 
 - event **2** when `+0x34` is null;
-- event **2** when `+0x34` is non-null and `+0x4A == 2`;
-- event **10** when `+0x34` is non-null and `+0x4A != 2`.
+- event **2** when `+0x34` is non-null and native group **2** is active;
+- event **10** when `+0x34` is non-null and native group **0 or 1** is active.
 
 The already-source-closed Button input path `0x64F7A0` invokes this exact
 slot 0 before every dynamic AudioHooks call. Therefore all ten dynamic-control
@@ -185,8 +190,9 @@ Continue from the sender side rather than the dispatcher:
 
 1. tie only directly proven numeric sender contexts to higher-level native
    classes or event constructors;
-2. recover the source meaning of Button fields `+0x34` and `+0x4A` only
-   if their ownership/data flow identifies that meaning directly;
+2. recover the source meaning of Button field `+0x34` only if its
+   ownership/data flow identifies that meaning directly; `+0x4A` is already
+   source-closed as the native animation-group index;
 3. add semantic names only when that source path itself establishes the meaning;
 4. keep BNK sample interpretation separate from sender semantics.
 
