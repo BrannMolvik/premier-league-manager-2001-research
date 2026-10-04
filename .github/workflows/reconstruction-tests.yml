@@ -135,6 +135,8 @@ on:
       - "reconstruction/test_gate14_audiohooks_menu_pcm.py"
       - "reconstruction/gate14_audiohooks_menu_playback.py"
       - "reconstruction/test_gate14_audiohooks_menu_playback.py"
+      - "reconstruction/gate14_windows_menu_pcm_backend.py"
+      - "reconstruction/test_gate14_windows_menu_pcm_backend.py"
       - "reconstruction/gate14_audio_bank_ownership.py"
       - "reconstruction/test_gate14_audio_bank_ownership.py"
       - "reconstruction/gate14_speech_resource_ownership.py"
