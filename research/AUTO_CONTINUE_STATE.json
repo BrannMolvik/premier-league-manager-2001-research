@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #375 is merged as main 98d9bd92 after 2,304 tests/23 skips and asset-policy success. Continue disjoint Gate-14 source work: persist ScoreComposite phase receiver registration/dispatch ordering. Source now proves typed receivers are tail-appended in LeagueScores source-row construction order and sender broadcasts traverse head-to-tail, so each broadcast invokes rows in source order. Keep aggregate runtime icon<->text family order unresolved because different event broadcasts occur over time and append per-row icon/text pairs chronologically.",
-  "last_known_main_head": "98d9bd927030b15434149cc96b5b4d9c2f409c98",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its first-screen timing/management-header closure path. Gate-14 PR #376 merged as main d4d38b5a after 2,311 tests/23 skips and asset-policy success. Verify Gate-14 PR #377 at head ab42cbf8: source-closed FastView ClockControl receiver/localization/state contract. Keep alert packed16/modern RGBA, integrated clock raster, global z-order, complete frame and Gate-14 completion false. If #377 passes, continue the next disjoint clock/display or omitted-child step.",
+  "last_known_main_head": "d4d38b5afa7f86e62b52d447a4f1c29dc5f3130d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 289,
+  "recovery_generation": 290,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #375 merged cleanly from current main. Static canonical executable tracing closes ScoreComposite receiver registration and per-broadcast dispatch order but does not create a universal aggregate icon/text edge. Next checkpoint should encode exact sender/receiver offsets, registration callsites, tail append helper 0x5302C0, forward sender traversal, and fail-closed aggregate ordering.",
+  "note": "PR #377 derives clock text strictly from the canonical localization mapping: mins entry2333/STR21532, Half time entry2331/21530, Full time entry2332/21531, Extra time entry2433/21617, Penalties entry2378/20014. RTTI closes GlobalTick/Half/SecondHalf/Full/Extra/Penalties receiver offsets. Red-tinted source color remains RGB8-only because modern display expansion is still unresolved.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
