@@ -19,6 +19,7 @@ from gate17_release_readiness import (
     parse_release_evidence,
     require_external_windows_11_workstation,
     require_path_outside_repo,
+    run_final_release_audit,
     validate_external_receipts,
     validate_full_original_scope_binding,
     validate_limitations_document,
@@ -624,6 +625,138 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 ReleaseReadinessError, "receipt set mismatch"
             ):
                 parse_release_evidence(raw)
+
+
+    def test_direct_final_audit_rejects_incomplete_canonical_preflight_before_receipts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, private, archive, raw = self.fixture(temp)
+            evidence_path = private / "release-evidence.json"
+            evidence_path.write_text(json.dumps(raw), encoding="utf-8")
+            game = private / "game"
+            game.mkdir()
+            blocked = SimpleNamespace(
+                ready_for_full_runtime_validation=False,
+                blocker_codes=("multi_human_capability_incomplete",),
+            )
+
+            with (
+                patch(
+                    "gate17_release_readiness.require_external_windows_11_workstation",
+                    return_value={"windows_11": True},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_clean_repository",
+                    return_value={"working_tree_clean": True},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_roadmap_prerequisites",
+                    return_value={"all_prerequisites_complete": True},
+                ),
+                patch(
+                    "gate17_release_readiness.run_canonical_full_scope_preflight",
+                    return_value=blocked,
+                ) as preflight,
+                patch(
+                    "gate17_release_readiness.validate_external_receipts"
+                ) as receipts,
+            ):
+                with self.assertRaisesRegex(
+                    ReleaseReadinessError,
+                    "canonical full-scope implementation preflight is not ready: "
+                    "multi_human_capability_incomplete",
+                ):
+                    run_final_release_audit(
+                        repo_root=repo,
+                        evidence_path=evidence_path,
+                        release_archive=archive,
+                        canonical_game_dir=game,
+                        player_seed=7,
+                        max_days=430,
+                    )
+
+            preflight.assert_called_once_with(
+                game.resolve(),
+                player_seed=7,
+                max_days=430,
+            )
+            receipts.assert_not_called()
+
+    def test_direct_final_audit_records_green_canonical_preflight(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, private, archive, raw = self.fixture(temp)
+            evidence_path = private / "release-evidence.json"
+            evidence_path.write_text(json.dumps(raw), encoding="utf-8")
+            game = private / "game"
+            game.mkdir()
+            preflight_payload = {
+                "schema_version": 4,
+                "ready_for_full_runtime_validation": True,
+                "blocker_codes": [],
+            }
+            ready = SimpleNamespace(
+                ready_for_full_runtime_validation=True,
+                blocker_codes=(),
+                as_dict=lambda: dict(preflight_payload),
+            )
+
+            with (
+                patch(
+                    "gate17_release_readiness.require_external_windows_11_workstation",
+                    return_value={"windows_11": True},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_clean_repository",
+                    return_value={"working_tree_clean": True},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_roadmap_prerequisites",
+                    return_value={"all_prerequisites_complete": True},
+                ),
+                patch(
+                    "gate17_release_readiness.run_canonical_full_scope_preflight",
+                    return_value=ready,
+                ) as preflight,
+                patch(
+                    "gate17_release_readiness.validate_external_receipts",
+                    return_value={"full_original_scope": {"sha256": "a" * 64}},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_full_original_scope_binding",
+                    return_value={"scope_entry_count": 1},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_release_archive",
+                    return_value={"sha256": RELEASE_ARCHIVE_SHA256},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_limitations_document",
+                    return_value={"path": "research/RELEASE_LIMITATIONS.md"},
+                ),
+                patch(
+                    "gate17_release_readiness.run_repository_command",
+                    return_value={"returncode": 0},
+                ) as command,
+            ):
+                result = run_final_release_audit(
+                    repo_root=repo,
+                    evidence_path=evidence_path,
+                    release_archive=archive,
+                    canonical_game_dir=game,
+                    player_seed=11,
+                    max_days=440,
+                )
+
+            self.assertTrue(result["passed"])
+            self.assertEqual(
+                result["implementation_preflight"],
+                preflight_payload,
+            )
+            preflight.assert_called_once_with(
+                game.resolve(),
+                player_seed=11,
+                max_days=440,
+            )
+            self.assertEqual(command.call_count, 3)
 
 
 if __name__ == "__main__":

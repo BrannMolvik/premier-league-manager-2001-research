@@ -357,6 +357,8 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             )
             self.assertEqual(result["full_original_scope"], scope.resolve())
             self.assertEqual(final_audit.call_args.kwargs["release_archive"], archive.resolve())
+            self.assertEqual(final_audit.call_args.kwargs["player_seed"], 7)
+            self.assertEqual(final_audit.call_args.kwargs["max_days"], 430)
 
     def test_late_failure_removes_all_partial_external_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
