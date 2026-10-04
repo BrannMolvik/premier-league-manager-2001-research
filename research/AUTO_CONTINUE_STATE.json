@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate and is still Codex-owned; its ordinary League Fixtures paging path must not be edited by ChatGPT while that lock remains. Gate-14 PR #363 merged as main 7aac77af after 2,274 tests/23 skips, but a nested-constructor cross-check found ScoreCompositeMain contributes five direct outer FastViewPanel controls omitted by the 18-entry inventory. Corrective PR #364 at head 64be4f09 changes the exhaustive outer count to 23; asset policy is green and full CI is running. In parallel, continue the disjoint nested FastViewScores/FastViewTeam child-order trace. FastViewTeam appends six TeamTable controls then 9 controls per PlayerRow, with 11 rows always constructed and further rows controlled by unresolved TeamTable +0x6C. Both FastViewLeagueScores and RTTI-proven FastViewCupScores call shared score setup first, so per-record ScoreComposite controls precede later fixed panel controls; dynamic phase controls clear the prior phase pair and append picture then text at the tail.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate and Codex-owned; do not edit its Fixtures paging path from ChatGPT. Gate-14 outer-order correction PR #364 is now at head a766d63c. The complete bounded FastViewPanel setup sweep found 36 source-order outer registrations, not the earlier 18/23/26 counts: three SurfacedPictureControl children, ten GoalFlash TextControls (two child records x five), five ScoreCompositeMain controls, plus the previously enumerated direct/nested wrapper controls. Asset policy passes; full CI is running. After #364 merges, create the disjoint nested FastViewScores/FastViewTeam order checkpoint using source-parameterized counts and dynamic phase-tail mutation.",
   "last_known_main_head": "7aac77afcb22931eb8cf6d17725df2e7b24daf1e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 284,
+  "recovery_generation": 285,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not promote global_fastview_z_order_recovered until PR #364 is canonical and both nested score branches plus FastViewTeam dynamic child algorithms are exhaustively source-closed. Do not infer a TeamTable row cap from the 18-entry +0x170/+0x1B8 auxiliary arrays; +0x6C initialization remains outside the constructor trace.",
+  "note": "Do not resurrect the 18, 23, or 26-entry outer counts. The bounded setup inventory is 36 on PR #364 head a766d63c. GoalFlash owner 0x5200CB -> 0x51C700 creates two 0x51BE20 child records; each appends five outer TextControls. SurfacedPictureControl RTTI vtable 0x7CA974 contributes owner calls 0x51FD31/0x520642/0x520697. ScoreCompositeMain contributes five. Global FastView z-order remains false pending nested score/team algorithms and final dynamic-order audit.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
