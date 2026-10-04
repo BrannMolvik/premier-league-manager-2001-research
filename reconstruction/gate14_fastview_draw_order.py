@@ -8,7 +8,10 @@ synchronously into the owned panel's generic forward traversal.
 
 The phase-split LeagueScores raster now has a source-closed order around the
 LeagueTable block: early score rows -> LeagueTable -> late grid -> runtime
-phase-icon tail. The older aggregate league_scores_static plane is retained only
+phase tail. Runtime phase icons and runtime phase text occupy the same recovered
+phase level: both are after the late grid and before TeamTable, while their
+aggregate icon↔text order remains unresolved. The older aggregate
+league_scores_static plane is retained only
 for compatibility and still has no single relation to LeagueTable or the split
 score phases because it spans more than one native position.
 
@@ -101,7 +104,7 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("league_scores_early_rows_static",),
     ("league_table_static",),
     ("league_scores_late_grid_static",),
-    ("league_scores_runtime_phase_icons",),
+    ("league_scores_runtime_phase_icons", "league_scores_runtime_phase_text"),
     ("team_table_static", "team_table_energy"),
 )
 
@@ -114,6 +117,7 @@ _COMPONENT_PARENT_GROUP = {
     "league_scores_early_rows_static": "fastview_scores",
     "league_scores_late_grid_static": "fastview_scores",
     "league_scores_runtime_phase_icons": "fastview_scores",
+    "league_scores_runtime_phase_text": "fastview_scores",
     "team_table_static": "fastview_team",
     "team_table_energy": "fastview_team",
 }

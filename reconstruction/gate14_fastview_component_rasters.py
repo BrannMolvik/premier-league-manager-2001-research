@@ -31,6 +31,10 @@ from gate14_fastview_score_draw_phases import (
     FastViewLeagueScoresDrawPhases,
     FastViewScoreDrawPhasePlane,
 )
+from gate14_fastview_score_phase_text_raster import (
+    PHASE_RUNTIME_TEXT_COMPONENT,
+    FastViewScorePhaseTextRaster,
+)
 from original_fastview_chrome_art import OriginalFastViewChromeArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import (
@@ -62,6 +66,7 @@ class FastViewComponentRasterPlane:
             "league_scores_early_rows_static",
             "league_scores_late_grid_static",
             "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
             "league_table_static",
         }:
             raise FastViewComponentRasterError("unknown FastView raster component")
@@ -80,6 +85,7 @@ class FastViewComponentRasterPlane:
             "team_table_static",
             "team_table_energy",
             "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
         } and self.source_layer_count == 0:
             raise FastViewComponentRasterError(
                 "non-TeamTable FastView raster planes require source layers"
@@ -113,6 +119,7 @@ class FastViewComponentRasterSet:
     league_table: FastViewComponentRasterPlane | None = None
     league_scores_late_grid: FastViewComponentRasterPlane | None = None
     league_scores_runtime_icons: FastViewComponentRasterPlane | None = None
+    league_scores_runtime_text: FastViewComponentRasterPlane | None = None
     cross_component_z_order_recovered: bool = False
     flattened_frame_available: bool = False
 
@@ -149,6 +156,7 @@ class FastViewComponentRasterSet:
             (self.league_table, "league_table_static"),
             (self.league_scores_late_grid, PHASE_LATE_GRID),
             (self.league_scores_runtime_icons, PHASE_RUNTIME_ICONS),
+            (self.league_scores_runtime_text, PHASE_RUNTIME_TEXT_COMPONENT),
         )
         for plane, component in optional:
             if plane is None:
@@ -186,6 +194,10 @@ class FastViewComponentRasterSet:
         elif self.league_table is not None:
             raise FastViewComponentRasterError(
                 "league table raster requires aggregate or phased score evidence"
+            )
+        if self.league_scores_runtime_text is not None and not phased_mode:
+            raise FastViewComponentRasterError(
+                "runtime phase text requires phased league-score evidence"
             )
         if self.cross_component_z_order_recovered or self.flattened_frame_available:
             raise FastViewComponentRasterError(
@@ -411,6 +423,22 @@ def _lift_score_draw_phase_plane(
     )
 
 
+def _lift_score_phase_text_raster(
+    raster: FastViewScorePhaseTextRaster,
+) -> FastViewComponentRasterPlane:
+    if type(raster) is not FastViewScorePhaseTextRaster:
+        raise FastViewComponentRasterError(
+            "runtime phase text must be exact FastViewScorePhaseTextRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component=raster.component,
+        size=raster.size,
+        rgba=raster.rgba,
+        source_layer_count=raster.source_layer_count,
+        rgba_sha256=raster.rgba_sha256,
+    )
+
+
 def _lift_score_table_plane(
     plane: FastViewScoreTableStaticPlane,
 ) -> FastViewComponentRasterPlane:
@@ -434,6 +462,7 @@ def build_fastview_component_rasters(
     team_table: FastViewTeamStaticRaster | FastViewTeamEnergyRaster | None = None,
     score_table: FastViewScoreTableStaticRasterSet | None = None,
     score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
     if score_table is not None and type(score_table) is not FastViewScoreTableStaticRasterSet:
@@ -450,6 +479,17 @@ def build_fastview_component_rasters(
     if score_draw_phases is not None and score_table is None:
         raise FastViewComponentRasterError(
             "score draw phases require the verified LeagueTable source bundle"
+        )
+    if (
+        score_phase_text is not None
+        and type(score_phase_text) is not FastViewScorePhaseTextRaster
+    ):
+        raise FastViewComponentRasterError(
+            "score_phase_text must be exact FastViewScorePhaseTextRaster"
+        )
+    if score_phase_text is not None and score_draw_phases is None:
+        raise FastViewComponentRasterError(
+            "score phase text requires phased league-score evidence"
         )
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
@@ -484,5 +524,10 @@ def build_fastview_component_rasters(
             None
             if score_draw_phases is None
             else _lift_score_draw_phase_plane(score_draw_phases.runtime_phase_icons)
+        ),
+        league_scores_runtime_text=(
+            None
+            if score_phase_text is None
+            else _lift_score_phase_text_raster(score_phase_text)
         ),
     )
