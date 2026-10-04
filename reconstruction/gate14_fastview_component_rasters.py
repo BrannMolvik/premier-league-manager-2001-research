@@ -66,7 +66,7 @@ class FastViewComponentRasterPlane:
             raise FastViewComponentRasterError(
                 "FastView raster plane source_layer_count must be non-negative"
             )
-        if self.component not in {"team_table_static"} and self.source_layer_count == 0:
+        if self.component not in {"team_table_static", "team_table_energy"} and self.source_layer_count == 0:
             raise FastViewComponentRasterError(
                 "non-TeamTable FastView raster planes require source layers"
             )
