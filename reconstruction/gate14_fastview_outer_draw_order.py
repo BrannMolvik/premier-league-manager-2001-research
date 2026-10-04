@@ -39,6 +39,24 @@ EMBEDDED_BUTTON1_REGISTER_CALL_VA = 0x52000B
 EMBEDDED_BUTTON1_CONSTRUCTOR_CALL_VA = 0x52009F
 EMBEDDED_BUTTON_CONSTRUCTOR_VA = 0x652FD0
 
+SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS = (
+    0x520356,
+    0x520416,
+    0x5204D6,
+)
+SCORE_COMPOSITE_MAIN_CONSTRUCTORS = (
+    0x51B400,
+    0x51B330,
+)
+SCORE_COMPOSITE_BASE_CONSTRUCTOR_VA = 0x51A730
+SCORE_COMPOSITE_MAIN_REGISTER_CALLS = (
+    (0x51A825, "picture_control_constructor"),
+    (0x51A8C1, "text_control_constructor"),
+    (0x51A93C, "text_control_constructor"),
+    (0x51A9D2, "text_control_constructor"),
+    (0x51AA83, "text_control_constructor"),
+)
+
 POSSESSION_DIAGRAM_OWNER_CALL_VA = 0x5206CD
 POSSESSION_DIAGRAM_REGISTER_CALLS = (
     0x522894,
@@ -160,6 +178,14 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
         parent_offset=EMBEDDED_BUTTON1_PARENT_OFFSET,
     )
 
+    for index, (call_va, kind) in enumerate(SCORE_COMPOSITE_MAIN_REGISTER_CALLS):
+        add(
+            f"score_composite_main_control_{index}",
+            kind,
+            call_va,
+            owner_call_va=None,
+        )
+
     for index, call_va in enumerate(POSSESSION_DIAGRAM_REGISTER_CALLS):
         add(
             f"possession_diagram_picture_{index}",
@@ -216,7 +242,7 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
 
 
 FASTVIEW_OUTER_DRAW_ENTRIES = _build_outer_draw_entries()
-FASTVIEW_OUTER_DRAW_COUNT = 18
+FASTVIEW_OUTER_DRAW_COUNT = 23
 
 
 @dataclass(frozen=True)
