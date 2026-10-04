@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #348 merged as canonical main 8bc65124 after 2,161 tests/23 skips and asset-policy success. Continue independent Gate-14 native pixel-format work: source-close 0x443E00/0x443E20 RGB8 -> packed16 conversion using the retained mask metadata. Keep actual runtime mask values behind the strict Windows receipt and keep packed16 -> modern RGBA expansion / overlap pixels unresolved.",
-  "last_known_main_head": "8bc65124b422f3b271be4d5b07f8857456b509f3",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #349 merged as canonical main ba8aa214 after 2,167 tests/23 skips and asset-policy success. Continue independent Gate-14 AudioHooks sender recovery: source-close RTTI/vtable/global object path for AudioHooks::0x5DBFC0, its three-stack-argument convention (event arg1, state arg2, third arg3), and exact literal virtual caller candidates through global 0x984810. Do not assign human-readable event/sample semantics from numeric IDs or audio content.",
+  "last_known_main_head": "ba8aa214eb1439bb54007c101c28d8af141a1084",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 277,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Static source revalidation shows 0x653120 derives per-channel trailing-zero placement and 8-bit truncation shift from the runtime mask. 0x443E00 packs one channel as (value >> quantization_shift) << placement_shift; 0x443E20 applies this to red/green/blue. No runtime RGB565/RGB555 value is inferred.",
+  "note": "Canonical source proves 0x7D73EC is RTTI-confirmed .?AVAudioHooks@@ vtable, 0x5DC2B6 installs it into the global object stored at 0x984810, and 0x5DBFC0 reads event=[esp+4], state=[esp+8], returns ret 0x0C. Existing direct-call tracer misses ordinary virtual senders; next tracer must follow global-object indirect calls and retain semantics fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
