@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #293 merged to main as 52816328 after 1,961 tests / 23 expected skips and green asset policy. Continuous worker remains on disjoint Gate-14 critical path. Private source archive is accessible but local process startup is infrastructure-blocked, so do not spin on native tracing. Continue the highest-value cloud-safe Gate-14-only player-visible/composition step while keeping cross-component z-order, PictureControl resize semantics, audio ownership, and 3D choreography fail-closed unless directly proven.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #293 merged as 52816328 after 1,961 tests / 23 expected skips plus asset policy. PR #294 head 8688dccd is the active disjoint Gate-14 checkpoint: deterministic transparency-preserving PNG export of the resolved-only FastView frame and overlap mask, with frame-plan integration coverage. Validate exact head CI before merge; then continue Gate-14-only composition/z-order work without touching Gate-13 files or shared runtime.",
   "last_known_main_head": "528163286873543506a378f31cda50f81b9fe371",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 256,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #293 overlap-topology narrowing is canonical. Pivoted from infrastructure-blocked private tracing to next disjoint Gate-14 cloud-safe integration.",
+  "note": "Recovery 256: PR #293 merged; validating PR #294 resolved-only FastView preview.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
