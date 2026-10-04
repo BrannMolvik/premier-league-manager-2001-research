@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #368 is canonical as main 46e40c19. Stale stacked PR #369 was closed because it carried pre-#367 ancestry. Verify clean replacement PR #370 at head 0a8e4efd: split LeagueScores into early ScoreComposite grid-2 rows, league_table_static between static phases, late current_fix_grid_1, and runtime phase-icon tail. Keep paired phase text, omitted controls, global FastView z-order, and complete frame false.",
-  "last_known_main_head": "46e40c19c9edf55627b4e1b98c742b500fede1dd",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #370 is merged as main 291371bb after 2,284 tests/23 skips and asset-policy success. Verify PR #371 at head cf84661c: carry split LeagueScores phase identities through component rasters, resolved-only overlap topology, and partial draw-order accounting while retaining legacy aggregate score/table ambiguity and all blend/global-z/complete-frame blockers.",
+  "last_known_main_head": "291371bbad801cc8cd1dac5f4303966fde0646f6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 286,
+  "recovery_generation": 287,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #370 replaces closed stale-base PR #369 and changes only four files on current main. After verification, integrate the phased score planes into component-raster/overlap partial-order accounting without promoting global z-order.",
+  "note": "PR #371 is disjoint from Gate-13 paging. If green, merge it and continue the next Gate-14 source-backed frame-fidelity blocker; do not treat phase-split draw-order completeness as blend or global-z completeness.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
