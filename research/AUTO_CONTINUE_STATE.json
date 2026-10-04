@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Gate-14 main now includes CRWD resource selection and chant control/bank catalog. PR #313 merged as 8b4969e0 after 2,030 tests / 23 expected skips plus asset policy. Exact next disjoint task: trace chant dynamic loader 0x723010 and its consumers far enough to source-close one concrete bank-selection or sample-playback rule; keep MIDx sequencing, club-name semantics, event meaning and playback timing fail-closed until source-proven.",
-  "last_known_main_head": "8b4969e01d3168a77f4f1caab45e944efea0698e",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Active disjoint Gate-14 PR #317 head a44c8db4 source-closes runtime chant pool choice and is asset-policy green with full reconstruction CI running. Private canonical trace additionally proves numeric source event-record codes 9..13 reach chant selector 0 and codes 14..16 reach selector 1 through registered callback slot 0x86644C; human event meanings for those numeric codes remain unresolved. Merge #317 only if exact-head CI passes, then checkpoint the numeric event-code routing without inventing names.",
+  "last_known_main_head": "57a5d17e85e340fc090e33f172a994f6da5cfc7c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 263,
+  "recovery_generation": 264,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery continuation: chant catalog canonical; tracing dynamic chant loader/playback path next.",
+  "note": "Recovery 264: validating #317; next source-backed slice is numeric chant event-code routing through callback slot 0x86644C.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
