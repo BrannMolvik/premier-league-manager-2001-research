@@ -168,9 +168,9 @@ def rasterize_fastview_league_scores_static(
 ) -> FastViewScoreTableStaticPlane:
     """Rasterize source-proven fixture grids and optional typed phase icons.
 
-    Paging above 24 source entries remains outside this static slice because the
-    recovered contract describes one visible page only. Phase labels are not
-    rasterized.
+    LeagueScores exposes one 12-row left-column page. Source entries beyond
+    that page remain outside this static slice until the native paging event
+    chronology is integrated. Phase labels are not rasterized.
     """
     if type(art) is not OriginalFastViewScoreTableArt:
         raise FastViewScoreTableStaticRasterError(
@@ -194,10 +194,7 @@ def rasterize_fastview_league_scores_static(
     grid2 = art.image_for(CURRENT_FIX_GRID_2)
     layout = fastview_league_scores_page_layout(source_count)
     for source_index in range(source_count):
-        if layout.columns == 1:
-            column, row = 0, source_index
-        else:
-            column, row = divmod(source_index, layout.rows_per_column)
+        column, row = 0, source_index
         grid_rect, _text_rects = score_composite_normal_page_slot_rects(
             source_count,
             column,
@@ -217,10 +214,7 @@ def rasterize_fastview_league_scores_static(
                 "only one retained phase icon may occupy a score composite"
             )
         seen_indices.add(source_index)
-        if layout.columns == 1:
-            column, row = 0, source_index
-        else:
-            column, row = divmod(source_index, layout.rows_per_column)
+        column, row = 0, source_index
         origin = layout.slot_origin(column, row)
         icon_rect, _text_rect = score_composite_phase_rects(origin)
         resource = score_composite_phase_resource(event_name)
