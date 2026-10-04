@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #354 at head abcee5b0: PTitleMenuRow/PChildMenuRow RTTI/vtables share slot 11 -> 0x47ACF0, which sends numeric AudioHooks tuple (13,0,0) only when the non-null incoming object's +0x20 dword equals 2. Keep incoming field meaning and event-13 semantics unresolved. If green, merge and continue source-closing another numeric sender class/context without touching Gate 13.",
-  "last_known_main_head": "6721056c1c2fe4d2385710218148180a9cf5faaa",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #354 merged as canonical main ce4abfc1 after 2,226 tests/23 skips and asset-policy success. Continue independent Gate-14 PTeamOrders2K event-19 sender recovery: RTTI type descriptor 0x81DE68 / vtable 0x7C6FE0, slot 2 -> 0x4D7600 and slot 4 -> 0x4D6770 both reach helper 0x4D6FA0; helper sends numeric AudioHooks tuple (19,0,0) only when 0x64E5B0 returns AL==0 and the original second helper argument has nonzero low byte. Keep all player-facing/event semantics unresolved.",
+  "last_known_main_head": "ce4abfc16ae3dd19e8cc63e5b47f10084bea6e8a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 279,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #354 opened from canonical main 6721056c. Canonical executable revalidated class descriptors/vtables and shared slot-11 method. CI pending; semantics remain fail-closed.",
+  "note": "PR #354 canonical as ce4abfc1. Next source unit is PTeamOrders2K event-19 helper. Source facts are structural/numeric only; do not infer event meaning from class name or menus.bnk audio.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
