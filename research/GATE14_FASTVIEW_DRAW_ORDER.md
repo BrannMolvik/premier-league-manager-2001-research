@@ -115,6 +115,36 @@ between those two aggregate raster planes would be false. The source contract
 now deliberately exposes **no relation** for that pair while retaining the
 proven order from the outer score wrapper to the later team wrapper.
 
+## Phase-specific score order
+
+The aggregate score/table boundary above remains the compatibility contract for
+the historical `league_scores_static` plane. A newer source-backed raster
+split can be more precise without assigning that aggregate plane a false
+position.
+
+For the phase-specific LeagueScores planes, the source-closed order is:
+
+1. `league_scores_early_rows_static`;
+2. `league_table_static`;
+3. `league_scores_late_grid_static`;
+4. `league_scores_runtime_phase_icons`;
+5. the later FastViewTeam wrapper.
+
+The first three score/table positions come from constructor append order:
+ScoreComposite factory calls begin at `0x5233C2`, LeagueTable is constructed
+at `0x523472`, and the verified current_fix_grid_1 PictureControl is appended
+at `0x5239F3`.
+
+The runtime phase-icon plane is different: phase helper `0x51BA30` first
+removes the old phase pair through `0x51BBE0`, then appends the replacement
+PictureControl/TextControl pair at the FastViewScores parent array's current
+tail. The raster phase contains only the icon pixels; paired phase text remains
+unrasterized.
+
+These phase-specific relations do **not** make
+`league_scores_static <-> league_table_static` valid. They exist precisely
+because the aggregate score plane spans multiple native positions.
+
 ## Direct FastViewPanel controls precede both subpanels
 
 The directly bound top bar and ticker PictureControls are created at
