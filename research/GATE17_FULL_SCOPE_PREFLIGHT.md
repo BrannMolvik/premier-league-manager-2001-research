@@ -29,10 +29,12 @@ This checkpoint joins those measurements without creating capability.
 - `MultiHumanCapabilityAudit`;
 - `RuntimeProgressionAudit`.
 
-All three must target the same canonical TeamSelect catalog SHA-256. The
-runtime-owner audit must contain the same scope IDs in the same order as the
-human-scope audit. The progression audit must internally bind its
-ranking-capability audit and optional allocation preview to that same catalog.
+The three catalog-bound inputs must target the same canonical TeamSelect
+catalog SHA-256. The runtime-owner audit must contain the same scope IDs in the
+same order as the human-scope audit. The progression audit must internally bind
+its ranking-capability audit and optional allocation preview to that same
+catalog. The multi-human audit is a global user/runtime capability and therefore
+has no per-League catalog identity.
 
 The preflight records:
 
