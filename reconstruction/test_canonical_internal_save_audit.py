@@ -8,6 +8,7 @@ from canonical_internal_save_audit import (
     _first_live_procedural_primary_club,
     _json_primary_entry,
     _live_procedural_primary_scope_targets,
+    run_canonical_primary_container_internal_save_sweep,
     run_canonical_primary_scope_internal_save_audit,
     run_canonical_primary_scope_internal_save_sweep,
 )
@@ -50,6 +51,43 @@ class _MultiController:
         # Deliberately does not match competition-policy order. Target ordering
         # must still follow playable_primary_procedural_ids.
         return (21, 31, 22, 32)
+
+
+def _runtime_plan(*, catalog_sha="b" * 64):
+    return SimpleNamespace(
+        catalog_sha256=catalog_sha,
+        entries=(
+            SimpleNamespace(
+                scope_id="26:0",
+                competition_id=0,
+                runtime_owner="fixed_primary",
+                uses_primary_container=True,
+                selectable_club_ids=(7, 8),
+            ),
+            SimpleNamespace(
+                scope_id="26:15",
+                competition_id=15,
+                runtime_owner="procedural_primary",
+                uses_primary_container=True,
+                selectable_club_ids=(31, 32),
+            ),
+            SimpleNamespace(
+                scope_id="66:14",
+                competition_id=14,
+                runtime_owner="procedural_primary",
+                uses_primary_container=True,
+                selectable_club_ids=(21, 22),
+            ),
+            SimpleNamespace(
+                scope_id="77:20",
+                competition_id=20,
+                runtime_owner="procedural_secondary",
+                uses_primary_container=False,
+                selectable_club_ids=(41, 42),
+            ),
+        ),
+        procedural_secondary_scope_ids=("77:20",),
+    )
 
 
 def _scope(*, duplicate=False):
@@ -162,6 +200,95 @@ class CanonicalPrimaryScopeSaveAuditTests(unittest.TestCase):
         self.assertTrue(result["all_primary_scopes_save_reload_equal"])
         self.assertEqual([call.kwargs["club_id"] for call in audit.call_args_list], [31, 21])
 
+    def test_primary_container_sweep_joins_fixed_and_procedural_in_plan_order(self):
+        fixed_result = {
+            "human_club_id": 7,
+            "branches_equal": True,
+        }
+        procedural_result = {
+            "scope_catalog_sha256": "b" * 64,
+            "verified_scope_ids": ["26:15", "66:14"],
+            "scope_audits": [
+                {
+                    "human_club_id": 31,
+                    "competition_id": 15,
+                    "branches_equal": True,
+                },
+                {
+                    "human_club_id": 21,
+                    "competition_id": 14,
+                    "branches_equal": True,
+                },
+            ],
+        }
+        with (
+            patch(
+                "canonical_internal_save_audit.load_canonical_playable_league_runtime_plan",
+                return_value=_runtime_plan(),
+            ),
+            patch(
+                "canonical_internal_save_audit.run_canonical_internal_save_audit",
+                return_value=fixed_result,
+            ) as fixed,
+            patch(
+                "canonical_internal_save_audit.run_canonical_primary_scope_internal_save_sweep",
+                return_value=procedural_result,
+            ) as procedural,
+        ):
+            result = run_canonical_primary_container_internal_save_sweep(
+                "/canonical/game",
+                player_seed=7,
+            )
+
+        self.assertEqual(result["scope_catalog_sha256"], "b" * 64)
+        self.assertEqual(result["primary_scope_count"], 3)
+        self.assertEqual(
+            result["verified_primary_scope_ids"],
+            ["26:0", "26:15", "66:14"],
+        )
+        self.assertEqual(result["fixed_primary_scope_ids"], ["26:0"])
+        self.assertEqual(
+            result["procedural_primary_scope_ids"],
+            ["26:15", "66:14"],
+        )
+        self.assertEqual(result["unverified_secondary_scope_ids"], ["77:20"])
+        self.assertTrue(result["all_primary_container_scopes_save_reload_equal"])
+        self.assertFalse(result["full_original_scope_save_reload_complete"])
+        self.assertEqual(
+            [row["scope_id"] for row in result["scope_audits"]],
+            ["26:0", "26:15", "66:14"],
+        )
+        self.assertEqual(fixed.call_args.kwargs["club_id"], 7)
+        self.assertEqual(fixed.call_args.kwargs["player_seed"], 7)
+        self.assertEqual(procedural.call_args.kwargs["player_seed"], 7)
+
+    def test_primary_container_sweep_fails_on_catalog_or_order_drift(self):
+        with (
+            patch(
+                "canonical_internal_save_audit.load_canonical_playable_league_runtime_plan",
+                return_value=_runtime_plan(),
+            ),
+            patch(
+                "canonical_internal_save_audit.run_canonical_internal_save_audit",
+                return_value={"human_club_id": 7, "branches_equal": True},
+            ),
+            patch(
+                "canonical_internal_save_audit.run_canonical_primary_scope_internal_save_sweep",
+                return_value={
+                    "scope_catalog_sha256": "c" * 64,
+                    "verified_scope_ids": ["26:15", "66:14"],
+                    "scope_audits": [],
+                },
+            ),
+        ):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "different TeamSelect catalog",
+            ):
+                run_canonical_primary_container_internal_save_sweep(
+                    "/canonical/game"
+                )
+
     def test_primary_entry_json_projection_preserves_nested_identity(self):
         self.assertEqual(
             _json_primary_entry(
@@ -202,6 +329,22 @@ class CanonicalPrimaryScopeSaveAuditTests(unittest.TestCase):
             run_canonical_primary_scope_internal_save_sweep(
                 "/private/source/not-needed",
                 post_save_matches=0,
+            )
+        with self.assertRaisesRegex(
+            ValueError,
+            "max_matches_before_save must be positive",
+        ):
+            run_canonical_primary_container_internal_save_sweep(
+                "/private/source/not-needed",
+                max_matches_before_save=0,
+            )
+        with self.assertRaisesRegex(
+            ValueError,
+            "procedural_post_save_matches must be positive",
+        ):
+            run_canonical_primary_container_internal_save_sweep(
+                "/private/source/not-needed",
+                procedural_post_save_matches=0,
             )
 
 
