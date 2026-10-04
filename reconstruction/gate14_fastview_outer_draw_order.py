@@ -24,6 +24,16 @@ PARENT_DRAW_REGISTER_VA = 0x5274C0
 PICTURE_CONTROL_CONSTRUCTOR_VA = 0x527730
 TEXT_CONTROL_CONSTRUCTOR_VA = 0x527960
 
+SURFACED_PICTURE_CONTROL_CONSTRUCTOR_VA = 0x526940
+SURFACED_PICTURE_CONTROL_VTABLE_VA = 0x7CA974
+SURFACED_PICTURE_CONTROL_RTTI = ".?AVSurfacedPictureControl@FastViewPanel@@"
+SURFACED_PICTURE_REGISTER_CALL_VA = 0x5269E5
+SURFACED_PICTURE_OWNER_CALLS = (
+    (0x51FD31, (0, 0, 800, 600)),
+    (0x520642, (38, 1, 173, 94)),
+    (0x520697, (627, 1, 762, 94)),
+)
+
 TOP_BAR_OWNER_CALL_VA = 0x51FDA3
 TICKER_OWNER_CALL_VA = 0x51FE31
 
@@ -150,6 +160,12 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
         )
 
     add(
+        "surfaced_picture_control_0",
+        "manual_parent_append",
+        SURFACED_PICTURE_REGISTER_CALL_VA,
+        owner_call_va=SURFACED_PICTURE_OWNER_CALLS[0][0],
+    )
+    add(
         "top_bar_picture",
         "picture_control_constructor",
         TOP_BAR_OWNER_CALL_VA,
@@ -184,6 +200,14 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
             kind,
             call_va,
             owner_call_va=None,
+        )
+
+    for index in (1, 2):
+        add(
+            f"surfaced_picture_control_{index}",
+            "manual_parent_append",
+            SURFACED_PICTURE_REGISTER_CALL_VA,
+            owner_call_va=SURFACED_PICTURE_OWNER_CALLS[index][0],
         )
 
     for index, call_va in enumerate(POSSESSION_DIAGRAM_REGISTER_CALLS):
@@ -242,7 +266,7 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
 
 
 FASTVIEW_OUTER_DRAW_ENTRIES = _build_outer_draw_entries()
-FASTVIEW_OUTER_DRAW_COUNT = 23
+FASTVIEW_OUTER_DRAW_COUNT = 26
 
 
 @dataclass(frozen=True)
