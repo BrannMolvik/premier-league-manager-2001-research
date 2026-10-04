@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete gate and is Codex-owned. Gate-14 PR #381 merged as main 4923fdc4 after 2,333 tests/23 expected skips and asset-policy success. Continue disjoint Gate-14 header work: source-close the concrete class/field meaning of the second header line's nested +0xFE8 -> 0x514270 display object, and independently stage/checksum the exact style-3 Fonts\\Zurich_XCn_BT_18pixel.fnt from the authorized source before any header rasterization. Keep semantics neutral until source-closed and do not touch Gate 13.",
+  "active_task": "Gate 13 remains the earliest incomplete gate and is Codex-owned. Gate-14 PR #382 is open and mergeable on head bf15837e: source-closes the FastView second header line as stadium display name and verifies exact Zurich_XCn_BT_18pixel.fnt source bytes (79,734 bytes; SHA-256 968936a5...). Asset policy passed; full reconstruction CI is still running. Next: merge #382 if green, stage the byte-identical font via a binary-safe GitHub path if available, then bind/rasterize the two direct header TextControls without touching Gate 13.",
   "last_known_main_head": "4923fdc45c09e259781c7a763e005ddbcfb5afd5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 294,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered PR #381, verified 2,333 tests/23 skips plus asset policy, and squash-merged it to main. Continue nested display-object semantics and exact style-3 font provenance; no Gate-13 edits.",
+  "recovery_generation": 295,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovered after stale activity. Do not restart PR #382 work; CI is in progress. Continue font staging/raster integration after verified merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
