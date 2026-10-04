@@ -37,6 +37,7 @@ from gate14_fastview_draw_order import (
     POSSESSION_FIGURES_CONSTRUCTOR_VA,
     POSSESSION_FIGURES_OWNER_CALL_VA,
     SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS,
+    SOURCE_CLOSED_SCORE_PHASE_ORDER_LEVELS,
     SUBPANEL_CONTROL_RENDER_VA,
     SUBPANEL_CONTROL_TARGET_PANEL_OFFSET,
     SUBPANEL_CONTROL_TRAVERSAL_CALL_VA,
@@ -189,6 +190,42 @@ class FastViewDrawOrderTests(unittest.TestCase):
             later_component("league_table_static", "team_table_energy"),
             "team_table_energy",
         )
+
+    def test_phase_specific_score_planes_restore_precise_partial_order(self):
+        self.assertEqual(
+            SOURCE_CLOSED_SCORE_PHASE_ORDER_LEVELS,
+            (
+                ("direct_chrome",),
+                ("possession_diagram",),
+                ("possession_figures_text",),
+                ("league_scores_early_rows_static",),
+                ("league_table_static",),
+                ("league_scores_late_grid_static",),
+                ("league_scores_runtime_phase_icons",),
+                ("team_table_static", "team_table_energy"),
+            ),
+        )
+        chain = (
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "team_table_static",
+        )
+        for earlier, later in zip(chain, chain[1:]):
+            with self.subTest(earlier=earlier, later=later):
+                relation = source_closed_pairwise_order(earlier, later)
+                self.assertEqual(relation.earlier_component, earlier)
+                self.assertEqual(relation.later_component, later)
+                self.assertTrue(relation.traversal_is_forward)
+
+        # The aggregate compatibility plane stays intentionally unordered
+        # against LeagueTable even though the phase-specific planes are precise.
+        with self.assertRaisesRegex(FastViewDrawOrderError, "remains unresolved"):
+            source_closed_pairwise_order(
+                "league_scores_static",
+                "league_table_static",
+            )
 
     def test_direct_chrome_is_source_earlier_than_nested_score_and_team_subtrees(self):
         self.assertLess(TOP_BAR_PICTURE_CALL_VA, POSSESSION_DIAGRAM_OWNER_CALL_VA)
