@@ -217,6 +217,8 @@ def _ordered_component_planes(
             rasters.possession_figures,
         )
     )
+    if rasters.direct_header is not None:
+        planes.append(rasters.direct_header)
     for optional in (
         rasters.league_scores,
         rasters.league_scores_early_rows,
