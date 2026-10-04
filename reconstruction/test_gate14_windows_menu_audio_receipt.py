@@ -67,6 +67,10 @@ class Gate14WindowsMenuAudioReceiptTests(unittest.TestCase):
                 "sample_count": 3,
                 "sha256": "a" * 64,
             },
+            "playback_backend": {
+                "class": "WindowsMemoryWaveMenuPcmBackend",
+                "memory_flag": 4,
+            },
             "adapter_delivery_completed": True,
             "human_audibility_confirmation": True,
             "audible_windows_verified": True,
@@ -100,6 +104,11 @@ class Gate14WindowsMenuAudioReceiptTests(unittest.TestCase):
         self.assertTrue(verified.source_identity_replayed)
         self.assertTrue(verified.numeric_route_replayed)
         self.assertTrue(verified.pcm_identity_replayed)
+        self.assertEqual(
+            verified.playback_backend_class,
+            "WindowsMemoryWaveMenuPcmBackend",
+        )
+        self.assertEqual(verified.playback_memory_flag, 4)
         self.assertTrue(verified.audible_windows_verified)
         self.assertFalse(verified.semantic_event_binding_recovered)
         self.assertFalse(verified.sample_meaning_recovered)
@@ -136,6 +145,38 @@ class Gate14WindowsMenuAudioReceiptTests(unittest.TestCase):
                             changed,
                             self.raw,
                         )
+
+
+    def test_receipt_transport_must_be_exact_windows_memory_backend(self):
+        wrong_class = json.loads(json.dumps(self.receipt))
+        wrong_class["playback_backend"]["class"] = "FakeBackend"
+        with patch.dict(
+            CANONICAL_FM2001_BANK_PROFILES,
+            {"menus.bnk": self.identity},
+        ):
+            with self.assertRaisesRegex(
+                Gate14WindowsMenuAudioReceiptError,
+                "exact Windows memory-wave backend",
+            ):
+                validate_windows_menu_audio_receipt(
+                    wrong_class,
+                    self.raw,
+                )
+
+        wrong_flag = json.loads(json.dumps(self.receipt))
+        wrong_flag["playback_backend"]["memory_flag"] = -1
+        with patch.dict(
+            CANONICAL_FM2001_BANK_PROFILES,
+            {"menus.bnk": self.identity},
+        ):
+            with self.assertRaisesRegex(
+                Gate14WindowsMenuAudioReceiptError,
+                "memory flag",
+            ):
+                validate_windows_menu_audio_receipt(
+                    wrong_flag,
+                    self.raw,
+                )
 
     @patch("gate14_windows_menu_audio_receipt.decode_audiohooks_menu_pcm")
     def test_source_identity_is_replayed_not_trusted_from_receipt(self, decode):
@@ -261,6 +302,8 @@ class Gate14WindowsMenuAudioReceiptTests(unittest.TestCase):
             pcm_sha256="a" * 64,
             platform="Windows-11",
             python_version="3.12",
+            playback_backend_class="WindowsMemoryWaveMenuPcmBackend",
+            playback_memory_flag=4,
         )
         for field in (
             "semantic_event_binding_recovered",
