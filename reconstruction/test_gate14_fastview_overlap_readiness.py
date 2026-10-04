@@ -66,7 +66,7 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertFalse(item.pixels_resolvable)
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
 
-    def test_unknown_pair_keeps_draw_order_and_blend_as_separate_blockers(self):
+    def test_direct_chrome_team_pair_is_now_order_resolved_but_blend_blocked(self):
         group = FastViewUnresolvedOverlapGroup(
             components=("direct_chrome", "team_table_static"),
             pixel_count=9,
@@ -75,24 +75,50 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         item = classify_fastview_overlap_group(group)
 
         self.assertEqual(item.required_pairwise_relation_count, 1)
-        self.assertEqual(item.recovered_pairwise_relation_count, 0)
-        self.assertFalse(item.complete_draw_order_recovered)
-        self.assertEqual(item.recovered_pairwise_order, ())
+        self.assertEqual(item.recovered_pairwise_relation_count, 1)
+        self.assertTrue(item.complete_draw_order_recovered)
         self.assertEqual(
-            item.blockers,
-            ("cross_component_draw_order", "cross_component_blend_rule"),
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            ),
+            (("direct_chrome", "team_table_static"),),
         )
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
         self.assertFalse(item.pixels_resolvable)
 
-    def test_three_way_group_retains_known_subrelation_without_promoting_total_order(self):
+    def test_all_six_current_raster_families_have_complete_pairwise_order(self):
+        components = (
+            "direct_chrome",
+            "possession_diagram",
+            "possession_figures_text",
+            "league_table_static",
+            "league_scores_static",
+            "team_table_static",
+        )
+        group = FastViewUnresolvedOverlapGroup(
+            components=components,
+            pixel_count=4,
+            bounding_rect=(37, 27, 763, 217),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 15)
+        self.assertEqual(item.recovered_pairwise_relation_count, 15)
+        self.assertTrue(item.complete_draw_order_recovered)
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+
+    def test_unmodeled_component_retains_draw_order_blocker(self):
         group = FastViewUnresolvedOverlapGroup(
             components=(
                 "direct_chrome",
                 "possession_diagram",
-                "possession_figures_text",
+                "unmodeled_fastview_layer",
             ),
             pixel_count=4,
-            bounding_rect=(311, 181, 350, 199),
+            bounding_rect=(0, 0, 350, 217),
         )
         item = classify_fastview_overlap_group(group)
 
@@ -104,30 +130,29 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
                 (relation.earlier_component, relation.later_component)
                 for relation in item.recovered_pairwise_order
             ),
-            (("possession_diagram", "possession_figures_text"),),
+            (("direct_chrome", "possession_diagram"),),
         )
         self.assertEqual(
             item.blockers,
             ("cross_component_draw_order", "cross_component_blend_rule"),
         )
 
-    def test_audit_partitions_pixels_without_unmasking_any_overlap(self):
+    def test_audit_partitions_known_and_unmodeled_pixels_without_unmasking(self):
         ordered = FastViewUnresolvedOverlapGroup(
-            components=("possession_diagram", "possession_figures_text"),
+            components=("direct_chrome", "team_table_energy"),
             pixel_count=7,
-            bounding_rect=(311, 181, 351, 199),
+            bounding_rect=(37, 27, 491, 43),
         )
         unknown = FastViewUnresolvedOverlapGroup(
-            components=("direct_chrome", "team_table_static"),
+            components=("direct_chrome", "unmodeled_fastview_layer"),
             pixel_count=5,
-            bounding_rect=(37, 27, 296, 43),
+            bounding_rect=(0, 0, 100, 10),
         )
         source = composite(
             (
                 "direct_chrome",
-                "possession_diagram",
-                "possession_figures_text",
-                "team_table_static",
+                "team_table_energy",
+                "unmodeled_fastview_layer",
             ),
             (ordered, unknown),
         )
