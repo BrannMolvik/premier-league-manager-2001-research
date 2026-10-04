@@ -9,8 +9,8 @@ FastViewPanel draw-array registration sequence reached by the recovered setup
 path.
 
 The generic parent appends controls to its `+0x1C/+0x38` draw array and the
-renderer traverses that array forward. Recovery 284 corrects the outer inventory after constructor cross-checks found two builder-owned families missed by the first direct-call pass: `ScoreCompositeMain` and `SurfacedPictureControl@FastViewPanel`. The outer FastViewPanel contains exactly
-26 registrations in this source order:
+renderer traverses that array forward. Recovery 284 corrects the outer inventory after constructor cross-checks found three builder-owned visible families missed by the first direct-call pass: `GoalFlash`, `ScoreCompositeMain`, and `SurfacedPictureControl@FastViewPanel`. The outer FastViewPanel contains exactly
+36 registrations in this source order:
 
 1. full-surface `SurfacedPictureControl@FastViewPanel`;
 2. top-bar PictureControl;
@@ -18,15 +18,16 @@ renderer traverses that array forward. Recovery 284 corrects the outer inventory
 4. ClockControl's nested TextControl;
 5. embedded control at parent `+0x388`;
 6. embedded control at parent `+0x3D4`;
-7-11. the five base controls of the single `ScoreCompositeMain` instance;
-12-13. two top-corner `SurfacedPictureControl@FastViewPanel` objects;
-14-17. four PossessionDiagram PictureControls;
-18-20. three PossessionFigures TextControls;
-21. direct TextControl at `(250,45)-(550,75)`;
-22. direct TextControl at `(250,70)-(550,86)`;
-23. FastViewScores SubPanelControl;
-24. FastViewTeam SubPanelControl;
-25-26. two post-team embedded controls at parent `+0x424/+0x478`.
+7-16. ten GoalFlash TextControls, five for each of two flash records;
+17-21. the five base controls of the single `ScoreCompositeMain` instance;
+22-23. two top-corner `SurfacedPictureControl@FastViewPanel` objects;
+24-27. four PossessionDiagram PictureControls;
+28-30. three PossessionFigures TextControls;
+31. direct TextControl at `(250,45)-(550,75)`;
+32. direct TextControl at `(250,70)-(550,86)`;
+33. FastViewScores SubPanelControl;
+34. FastViewTeam SubPanelControl;
+35-36. two post-team embedded controls at parent `+0x424/+0x478`.
 
 This is stronger than the earlier raster-family subsequence. It proves where
 non-rasterized controls such as the clock and four embedded controls sit
@@ -46,10 +47,7 @@ SurfacedPictureControl:
   and rectangles **(38,1)-(173,94)** / **(627,1)-(762,94)** after the
   ScoreCompositeMain branch and before PossessionDiagram.
 
-The remaining constructor-like calls in the bounded outer setup were checked
-for calls to the generic parent append, PictureControl, and TextControl
-constructors. They are data/receiver/list helpers in this boundary and do not
-add another visible outer child.
+The remaining constructor-like calls in the bounded outer setup were checked for parent forwarding as well as direct generic append/Picture/Text construction. GoalFlash was the one deeper forwarding case: its child constructor creates the ten controls above. The remaining helpers are data/receiver/list paths in this boundary and do not add another visible outer child.
 
 Direct PictureControl calls:
 
@@ -68,6 +66,23 @@ Embedded pre-possession controls:
   through `0x520061 -> 0x652FD0`;
 - parent `+0x3D4`: append `0x52000B -> 0x5274C0`, later initialized
   through `0x52009F -> 0x652FD0`.
+
+GoalFlash:
+
+- owner call `0x5200CB -> 0x51C700` passes the outer FastViewPanel as the
+  first constructor argument;
+- `GoalFlash::0x51C700` executes a two-iteration child-record loop;
+- each child record is constructed by `0x51BE20`, which forwards that same
+  outer parent into five generic TextControl constructors at
+  `0x51BF51`, `0x51BFDC`, `0x51C067`, `0x51C0F2`, and
+  `0x51C180`;
+- the five constructor rectangles per flash record are
+  `(0,0)-(134,33)`, `(0,0)-(30,33)`, `(0,0)-(30,33)`,
+  `(0,0)-(134,33)`, and `(0,0)-(160,33)`.
+
+Because the child loop executes twice, GoalFlash contributes ten direct
+FastViewPanel TextControls. They are appended after the two pre-possession
+embedded buttons and before ScoreCompositeMain.
 
 ScoreCompositeMain:
 
@@ -109,7 +124,7 @@ This checkpoint deliberately does **not** set
 `global_fastview_z_order_recovered=true`.
 
 The score and team wrappers synchronously render their own child arrays at
-outer ranks 22 and 23 (zero-based), but their **complete** nested child
+outer ranks 32 and 33 (zero-based), but their **complete** nested child
 inventories have not yet been exhaustively reconciled. Earlier work proves the
 relative order of the currently rasterized score/table/team families, not every
 visible nested control.
