@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 from gate14_audio_bank_format import CANONICAL_FM2001_BANK_PROFILES
 from gate14_audiohooks_menu_pcm import DecodedMenuPcmDispatch
 from gate14_audiohooks_menu_playback import MenuPcmPlaybackSummary
+from gate14_windows_menu_pcm_backend import WindowsMemoryWaveMenuPcmBackend
 from gate14_windows_menu_audio_audit import (
     AUDIBLE_CONFIRMATION_TOKEN,
     Gate14WindowsMenuAudioAuditError,
@@ -51,6 +52,13 @@ def delivery(*, slot: int = 6) -> MenuPcmPlaybackSummary:
     )
 
 
+def windows_backend() -> WindowsMemoryWaveMenuPcmBackend:
+    return WindowsMemoryWaveMenuPcmBackend(
+        player=lambda _wav, _flag: None,
+        memory_flag=4,
+    )
+
+
 class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
     def setUp(self):
         self.raw = b"synthetic-menus-bank"
@@ -69,7 +77,7 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
         item = decoded()
         decode.return_value = item
         play.return_value = delivery()
-        backend = object()
+        backend = windows_backend()
         prompts = []
 
         def confirmer(prompt):
@@ -109,6 +117,10 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
         self.assertEqual(receipt["decoded_pcm"]["channels"], 1)
         self.assertEqual(receipt["decoded_pcm"]["sample_count"], 3)
         self.assertEqual(receipt["decoded_pcm"]["sha256"], "a" * 64)
+        self.assertEqual(
+            receipt["playback_backend"],
+            {"class": "WindowsMemoryWaveMenuPcmBackend", "memory_flag": 4},
+        )
         self.assertTrue(receipt["adapter_delivery_completed"])
         self.assertTrue(receipt["human_audibility_confirmation"])
         self.assertTrue(receipt["audible_windows_verified"])
@@ -175,7 +187,7 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
                     self.raw,
                     event_id=7,
                     state_value=0,
-                    backend=object(),
+                    backend=windows_backend(),
                     confirmer=lambda _: AUDIBLE_CONFIRMATION_TOKEN,
                     platform_system="Windows",
                 )
@@ -204,7 +216,7 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
                             self.raw,
                             event_id=17,
                             state_value=0,
-                            backend=object(),
+                            backend=windows_backend(),
                             confirmer=lambda _, value=response: value,
                             platform_system="Windows",
                         )
@@ -230,7 +242,7 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
                     self.raw,
                     event_id=17,
                     state_value=0,
-                    backend=object(),
+                    backend=windows_backend(),
                     confirmer=lambda _: AUDIBLE_CONFIRMATION_TOKEN,
                     platform_system="Windows",
                 )
