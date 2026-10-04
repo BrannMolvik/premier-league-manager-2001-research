@@ -168,6 +168,10 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                 "league_scores_runtime_phase_icons",
                 {40: (7, 7, 7, 255)},
             ),
+            league_scores_runtime_text=plane(
+                "league_scores_runtime_phase_text",
+                {40: (70, 70, 70, 255)},
+            ),
             team_table=plane(
                 "team_table_static",
                 {40: (8, 8, 8, 255)},
@@ -185,6 +189,7 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                 "league_table_static",
                 "league_scores_late_grid_static",
                 "league_scores_runtime_phase_icons",
+                "league_scores_runtime_phase_text",
                 "team_table_static",
             ),
         )
@@ -196,6 +201,7 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                     "league_table_static",
                     "league_scores_late_grid_static",
                     "league_scores_runtime_phase_icons",
+                    "league_scores_runtime_phase_text",
                     "team_table_static",
                 ),
                 pixel_count=1,
