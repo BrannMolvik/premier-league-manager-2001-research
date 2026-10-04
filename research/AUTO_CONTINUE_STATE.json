@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes indexed BNK access narrowing caff7481 and shared indexed-shape correlation 95f50d2e (2,072 tests / 23 expected skips, asset policy green). Active disjoint checkpoint is PR #330 head 7f1e7b23: exact four-bank source staging contract + canonical source archive identity + private receipt. Merge only after exact-head reconstruction CI and asset policy pass; format/decode/event-binding flags remain false.",
-  "last_known_main_head": "95f50d2e8480a6eae9af09a98a59cd0c1da536fe",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #330 is canonical as 94fea407 (2,081 tests / 23 expected skips, asset policy green). Private canonical source is materialized and the four source-owned BNKl v2 banks were extracted. Active disjoint Gate-14 task: source-close exact BNKl/PT header/table semantics and codec/rate/channel defaults from the canonical bank bytes, then validate EA-XA/PCM encoded-span and decoder behavior before promoting audio_sample_decode. Do not touch Gate 13/shared runtime.",
+  "last_known_main_head": "94fea407bee6fdf4aa6528c0b8c5d1ad6ffcc64e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 268,
+  "recovery_generation": 269,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 268 heartbeat: validating PR #330 exact BNK staging after #328 merged; private shell/Python execution unavailable.",
+  "note": "Recovery 269: #330 merged; private four-bank BNK format/decode analysis active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
