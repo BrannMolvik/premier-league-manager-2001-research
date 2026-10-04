@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #291 is canonical as 02b5d5c8; Recovery 255 reconciliation is on main through b400f9e3. Private source/runtime inputs materialize but shell and independent Python process startup fail with caas.internal.errors.ClientError after the first trivial process. Next cloud-safe task: add a fail-closed PLeagueFixtures country/League selector source-data contract that preserves the recovered static country order/events and refuses to derive dynamic League ordering from generic state.competitions/dict order until the original DBRCountry competition-array ordering is explicitly supplied.",
-  "last_known_main_head": "b400f9e337cd5c406474d5d5fcfc8a6ec6d000c2",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #291 is merged as 02b5d5c884ef6bb0fa72b9f4594f746c767fdbac with all hosted checks green. Do not redo its League Fixtures selector work. Resume critical-path independent work: prefer disjoint Gate-14 source-backed implementation; if blocked, conclusively resolve independent Gate-15 fidelity gaps; use Gate-17/16 work only when it has higher architectural leverage and does not touch Gate-13-owned/shared files.",
+  "last_known_main_head": "02b5d5c884ef6bb0fa72b9f4594f746c767fdbac",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 255,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 255: grid selectors merged/reconciled; private process startup still unstable; starting selector input-boundary audit.",
+  "note": "Recovery 255 merge consumed: PR #291 selector integration is canonical at 02b5d5c8. Gate-13 private +13C/+140 and native scroll fidelity remain Codex/private boundaries. Continuous worker should pivot to highest-value disjoint Gate-14/15 work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
