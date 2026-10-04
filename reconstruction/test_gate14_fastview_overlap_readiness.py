@@ -87,7 +87,7 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
         self.assertFalse(item.pixels_resolvable)
 
-    def test_all_six_current_raster_families_have_complete_pairwise_order(self):
+    def test_score_table_aggregate_pair_keeps_draw_order_fail_closed(self):
         components = (
             "direct_chrome",
             "possession_diagram",
@@ -104,9 +104,12 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         item = classify_fastview_overlap_group(group)
 
         self.assertEqual(item.required_pairwise_relation_count, 15)
-        self.assertEqual(item.recovered_pairwise_relation_count, 15)
-        self.assertTrue(item.complete_draw_order_recovered)
-        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertEqual(item.recovered_pairwise_relation_count, 14)
+        self.assertFalse(item.complete_draw_order_recovered)
+        self.assertEqual(
+            item.blockers,
+            ("cross_component_draw_order", "cross_component_blend_rule"),
+        )
         self.assertFalse(item.cross_component_blend_rule_recovered)
         self.assertFalse(item.pixels_resolvable)
 
