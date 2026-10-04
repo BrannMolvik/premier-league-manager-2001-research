@@ -22,16 +22,25 @@ outer-wrapper relations:
 
 `direct_chrome -> possession_diagram -> possession_figures_text -> FastViewScores wrapper -> team_table`
 
-Within the FastViewScores wrapper, the aggregate
-`league_scores_static` and `league_table_static` planes are now deliberately
-**unordered relative to each other**.
+Within the FastViewScores wrapper, the historical aggregate
+`league_scores_static` and `league_table_static` planes remain deliberately
+**unordered relative to each other** because the aggregate score raster spans
+more than one native position.
 
-Fresh source tracing shows why: the LeagueScores setup creates one
-ScoreCompositeNormal per source entry before constructing LeagueTableComposite,
-then appends additional score-owned controls after the table block. Runtime
-phase callbacks may later clear and reappend a score icon/text tail. Therefore
-the aggregate league-scores raster spans native positions on both sides of the
-league-table raster.
+The new phased raster path removes that ambiguity for currently source-backed
+score pixels. It carries these distinct component identities through the
+resolved-only compositor:
+
+- `league_scores_early_rows_static`;
+- `league_table_static`;
+- `league_scores_late_grid_static`;
+- `league_scores_runtime_phase_icons`.
+
+Their source-closed order is exactly:
+
+`early rows -> league table -> late grid -> runtime phase-icon tail`.
+
+The score wrapper as a whole still renders before the TeamTable wrapper.
 
 The TeamTable position may still be represented as either
 `team_table_static` or `team_table_energy`. The score wrapper itself still
@@ -55,13 +64,17 @@ For every unresolved contributor group it:
 - keeps cross-component blend recovery false;
 - keeps every unresolved pixel non-resolvable.
 
-As a result, groups that do not require the aggregate
-`league_scores_static <-> league_table_static` relation may still be
-draw-order resolved. A group containing both aggregate score/table planes now
-retains a **cross-component draw-order blocker** in addition to the blend
-blocker. In the six-family regression, 14 of 15 pairwise relations are
+As a result, legacy groups that still use the aggregate
+`league_scores_static <-> league_table_static` representation retain a
+**cross-component draw-order blocker** in addition to the blend blocker. In
+that legacy six-family regression, 14 of 15 pairwise relations remain
 source-closed; the missing pair is intentionally the aggregate score/table
 relation.
+
+By contrast, overlap groups built from the four phase-split score/table
+identities above have complete source-closed pairwise order, including the
+outer relation to TeamTable. Those groups are therefore blocked only by the
+remaining cross-component blend/output-format boundary, not by draw order.
 
 The audit also keeps a draw-order blocker for an unmodeled layer or any other
 pair absent from the source contract.
@@ -101,8 +114,9 @@ This checkpoint still keeps all of these false:
 - global z-order for omitted/unbound layers;
 - Gate-14 completion.
 
-The native font destination-read/blend primitive is now separately
-source-closed, but the aggregate score/table order correction means these
-planes must first be split by native draw phase before their shared overlap can
-be flattened honestly. Runtime pixel-format evidence and exact modern expansion
-remain separate prerequisites for emitting blended pixels.
+The native font destination-read/blend primitive is separately source-closed,
+and the score/table phase split is now represented directly in component raster
+and overlap topology. Runtime pixel-format evidence and exact modern expansion
+remain separate prerequisites for emitting blended pixels. The phase split does
+not by itself recover omitted score text/title controls or global FastView
+z-order.
