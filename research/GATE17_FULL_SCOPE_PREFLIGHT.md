@@ -4,7 +4,7 @@ _Status: prepared cloud-safe work-ahead while Gate 13 remains the earliest open 
 
 ## Purpose
 
-Gate 17 now has three independent source-backed/read-only measurements that
+Gate 17 now has four independent source-backed/read-only measurements that
 must agree before full-scope runtime validation is meaningful:
 
 1. whether every original TeamSelect League/club can reach the human-control
@@ -12,7 +12,9 @@ must agree before full-scope runtime validation is meaningful:
 2. whether each TeamSelect League's required fixed-primary,
    procedural-primary, or procedural-secondary runtime owner is actually
    materialized, human-playable, and connected to annual progression;
-3. whether a completed runtime state exposes every playable-country
+3. whether the clean-room backend can carry the source-proven six simultaneous
+   TeamSelect users through Start, one shared runtime, and save/reload;
+4. whether a completed runtime state exposes every playable-country
    LeagueAllocation ranking endpoint and can preview all source-backed
    membership exchanges without mutation.
 
@@ -24,6 +26,7 @@ This checkpoint joins those measurements without creating capability.
 
 - `HumanScopeCapabilityAudit`;
 - `RuntimeOwnerCapabilityAudit`;
+- `MultiHumanCapabilityAudit`;
 - `RuntimeProgressionAudit`.
 
 All three must target the same canonical TeamSelect catalog SHA-256. The
@@ -34,6 +37,9 @@ ranking-capability audit and optional allocation preview to that same catalog.
 The preflight records:
 
 - catalog SHA-256 and TeamSelect scope-entry count;
+- whether multi-human capability is complete, the source-required simultaneous
+  user count, the current gameplay-supported count, and detailed multi-human
+  blocker codes;
 - supported and unsupported human-selection scope IDs;
 - supported and blocked runtime-owner scope IDs;
 - exact runtime-owner blocker codes;
@@ -49,6 +55,7 @@ Current high-level fail-closed blockers are:
 
 - `human_scope_incomplete`;
 - `runtime_owner_capability_incomplete`;
+- `multi_human_capability_incomplete`;
 - `progression_rankings_incomplete`;
 - `allocation_preview_missing`;
 - `runtime_membership_mutation`;
@@ -59,6 +66,13 @@ The runtime-owner audit separately preserves its exact underlying blockers,
 including unavailable human selection, missing runtime materialization, missing
 human match dispatch, missing source-backed fresh financial/chairman-objective
 setup, and missing annual progression country coverage.
+
+The multi-human audit separately preserves selection-capacity, gameplay-capacity,
+Start-handoff, shared-runtime, and save/reload blocker codes. The current
+repository runner reports TeamSelect selection capacity 6 but gameplay capacity
+1, with Start/shared-runtime/save-reload support absent. Therefore an otherwise
+green full-scope preflight still fails closed on
+`multi_human_capability_incomplete`.
 
 `ready_for_full_runtime_validation=true` means only that repository-side
 capability has reached the point where full runtime validation is meaningful.
@@ -76,10 +90,11 @@ not reinterpret incomplete audits as partial success.
 
 Even a green preflight still requires the shared runtime to expose every
 cataloged human club route, all required primary and secondary runtime owners,
-real-season publication of all required ranking endpoints, atomic live
-membership installation and annual regeneration, full per-scope Windows 11
-validation against the final archive, and a `full_original_scope.json`
-receipt bound to the exact canonical catalog and release archive.
+all six source-proven simultaneous human users, real-season publication of all
+required ranking endpoints, atomic live membership installation and annual
+regeneration, full per-scope Windows 11 validation against the final archive,
+and a `full_original_scope.json` receipt bound to the exact canonical catalog
+and release archive.
 
 Gate 13 remains the earliest incomplete gate. This work is independent Gate 17
 readiness infrastructure only and must not be used to bypass Gate 13 or declare
