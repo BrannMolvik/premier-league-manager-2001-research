@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 250,
+  "recovery_generation": 251,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 250 continues; PR #274 pending hosted verification.",
+  "note": "Recovery 251 resumed from canonical main b267f046; verifying PR #274 hosted checks before merge/reconciliation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
