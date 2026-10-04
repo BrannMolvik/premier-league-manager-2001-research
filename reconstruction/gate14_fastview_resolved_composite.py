@@ -214,9 +214,12 @@ def _ordered_component_planes(
         rasters.possession_figures,
     ]
     for optional in (
-        rasters.team_table,
         rasters.league_scores,
+        rasters.league_scores_early_rows,
         rasters.league_table,
+        rasters.league_scores_late_grid,
+        rasters.league_scores_runtime_icons,
+        rasters.team_table,
     ):
         if optional is not None:
             planes.append(optional)
