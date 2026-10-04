@@ -146,15 +146,21 @@ Before it creates an install tree or any immutable receipt file, it requires:
 - the exact release archive and canonical user-owned FM2001 directory to be
   outside the Git checkout;
 - an already-produced `full_original_scope.json` receipt outside Git;
+- a green canonical full-scope implementation preflight over the supplied
+  canonical game directory, including human scope, runtime ownership,
+  per-scope save/reload, six-user multi-human capability and live progression;
 - a fresh external validation work root that does not already exist.
 
 Only after that preflight succeeds does it execute, in order, the clean-install
 receipt, all three Premier-League-centered gameplay receipts, release-evidence
 assembly including the separately supplied full-scope receipt, and the final
-release-readiness audit. The complete evidence bundle lives below the one
-external work root. If any post-preflight step fails, that newly created work
-root is removed so a partial set of receipts cannot be mistaken for final
-release evidence.
+release-readiness audit. The repository-side implementation preflight is
+diagnostic rather than external evidence, but it prevents a stale or hand-edited
+full-scope receipt from starting the immutable release transaction while the
+current runtime still reports known scope blockers. The complete evidence bundle
+lives below the one external work root. If any post-preflight step fails, that
+newly created work root is removed so a partial set of receipts cannot be
+mistaken for final release evidence.
 
 The runner therefore **cannot pass today** while Gates 13-16 remain open and
 the limitations ledger is intentionally marked pre-release. That is the desired
