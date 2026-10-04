@@ -383,6 +383,7 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             0x982158: (2472, "Booking"),
             0x982154: (2473, "Injury"),
             0x982100: (2494, "Shoot Out"),
+            0x982010: (2554, " MINS"),
             0x98200C: (2555, "Ref."),
             0x982008: (2556, "FINANCIAL"),
             0x981EA4: (2645, "%s: %s %s"),
