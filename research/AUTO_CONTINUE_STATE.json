@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #283 is canonical as 7cfcad7c after 1,935 full / 23 skips and 571 Gate13 / 22 skips plus asset policy. Private process startup remains blocked. Active cloud-safe task: add bounded read/write-direction classification for +0x130/+0x13C/+0x140/+0x76 memory operands inside the seven REMAINING_SETUP_WINDOWS only, preserving candidate-only semantics; then validate and checkpoint.",
+  "active_task": "Gate 13 remains OPEN. PR #285 head ae684f62 adds candidate-only read/write-direction classification for exact +0x76/+0x130/+0x13C/+0x140 operands inside the seven REMAINING_SETUP_WINDOWS only. Hosted checks are pending; merge only if the exact head is green. Private writer identity/value remains unresolved and no Gate-13 closure is claimed.",
   "last_known_main_head": "b836a7347a78cb773f93a4fa9112732545bdd6a4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 254,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 254 resumed exact PR283 follow-up from main b836a734; bounded setup access classifier in progress.",
+  "note": "Recovery 254: PR #285 opened; waiting for hosted checks on exact head ae684f62.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
