@@ -50,12 +50,16 @@ def fastview_draw_trace_report(
     pe: OriginalPE32,
     *,
     with_disassembly: bool = True,
-    windows=FASTVIEW_DRAW_WINDOWS,
-    targets=FASTVIEW_DRAW_TARGETS,
+    windows=None,
+    targets=None,
 ) -> dict:
     """Return only bounded candidate evidence for later manual adjudication."""
     if type(with_disassembly) is not bool:
         raise Gate14FastViewDrawTraceError("with_disassembly must be boolean")
+    if windows is None:
+        windows = FASTVIEW_DRAW_WINDOWS
+    if targets is None:
+        targets = FASTVIEW_DRAW_TARGETS
 
     inspected = []
     for label, start_va, requested_size in tuple(windows):
