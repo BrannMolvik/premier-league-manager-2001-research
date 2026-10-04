@@ -2389,3 +2389,19 @@ Linux-oriented duplicate-ZIP-path assertion failed on Windows because
   the final club selection write remain open; the live hierarchy stays inert
   and Gate 13 remains active.
 - Evidence: `research/GATE13_TEAMSELECT_HIERARCHY_TRACE.md`.
+
+
+## Recovery 270: AudioHooks numeric routing now reaches canonical decoded menu PCM
+
+- Canonical main reached `48f1f6dc8cb0074d5f0b149ad966b3288d4ed4e8` after verified PRs #334 and #335. Gate 13 is still the earliest incomplete validation gate and remains Codex-owned; this is bounded Gate-14 work-ahead only.
+- `AudioHooks::0x5DBFC0` is source-closed as a numeric event/state dispatcher to literal `menus.bnk` sample slots. The canonical FM2001 BNKl v2 parser/decoder is already source-closed for all four core banks, and `audio_sample_decode_ready` remains true.
+- New private trace tooling can enumerate decoded direct callers of `0x5DBFC0` and nearby PUSH operands, but caller reachability, calling convention, exact event/state argument positions, and semantic event names remain intentionally unproven until a private canonical-executable run is manually adjudicated.
+- The new numeric menu-PCM bridge requires the exact canonical `menus.bnk` SHA/size, preserves no-sound routes, and decodes routed slots to exact mono 22,050 Hz PCM. It does not promote sample names, event meanings, reconstructed UI-event equivalence, Windows device output, or Gate-14 login/menu audio completion.
+- Verification: PR #334 ran 2,096 tests with 23 expected skips plus asset-policy success; PR #335 ran 2,101 tests with 23 expected skips plus asset-policy success.
+
+### Exact next Gate-14 work-ahead tasks
+
+1. **Private/source task:** run `reconstruction/gate14_audiohooks_event_source_trace.py` against canonical executable SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Manually adjudicate real callers, function/CFG boundaries, calling convention, argument positions, and native sender data-flow before setting any semantic event binding true.
+2. **Cloud-safe task while private execution is unavailable:** add a narrow synchronous menu-PCM playback backend seam modeled on the existing verified startup-media backend. It may consume only a verified non-silent `DecodedMenuPcmDispatch`; silent routes must not invoke the backend. Backend success can prove delivery to the platform adapter, but **must not** set audible Windows verification or semantic event/sample flags true.
+3. Add a Windows-specific adapter only behind that seam. Python's Windows `winsound.PlaySound` supports an in-memory WAV image synchronously; synthesize only a standard PCM WAV wrapper around the already decoded source samples. Keep actual Windows audible/device verification as a separate deferred receipt before `login_menu_audio_integrated` can become true.
+4. After the private caller trace proves native event semantics, bind only those source-proven original UI senders to numeric dispatch. Do not guess modern UI-event equivalence from the sound itself.
