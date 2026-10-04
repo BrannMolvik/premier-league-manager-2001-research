@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #371 is merged as main b6ef2d66 after 2,288 tests/23 skips and asset-policy success. Verify PR #372 at head b078a634: source-close the exact 2,714-entry localization-global mapping and ScoreComposite phase labels HT/FT/ET/PEN, including centered style-1/native-0xFFFF TextControl semantics. Keep phase text rasterization, icon/text runtime interleaving flattening, global z-order, complete frame, and Gate 14 completion false.",
-  "last_known_main_head": "b6ef2d669dae85fba5479d496245bdeda6af356f",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #372 is merged as main ce355560 after 2,294 tests/23 skips and asset-policy success. Continue disjoint Gate-14 work by rasterizing the exact HT/FT/ET/PEN ScoreComposite labels into a transparent runtime phase-text plane using the verified Zurich 18px font, exact 28x16 centered/clipped control geometry, and native 0xFFFF endpoint color. Keep aggregate runtime icon<->text draw order unresolved, overlap pixels masked, global z-order false, and complete-frame/Gate-14 completion false.",
+  "last_known_main_head": "ce355560bd9e92da072f220376bc7b36768c4034",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 287,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #372 is disjoint from Gate-13 paging. Exact English phase labels are source-derived from the canonical 2,714-entry initializer, not inferred from nearby keys. Per callback icon is appended before text; multiple rows may interleave, so no global all-icons-before-all-text relation is claimed.",
+  "note": "PR #372 canonicalized exact phase labels and TextControl semantics. Next raster must preserve source centering/clipping. Do not flatten text with runtime icon plane: one callback appends icon then text, but cross-row callback order is not source-closed, so aggregate icon/text relation remains unresolved.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
