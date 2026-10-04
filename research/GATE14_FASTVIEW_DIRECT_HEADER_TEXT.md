@@ -5,9 +5,10 @@ _Status: independent source-backed Gate-14 work-ahead while Gate 13 remains the 
 ## Result
 
 The two previously unnamed direct FastViewPanel TextControls at outer draw ranks
-31 and 32 are now source-closed far enough to preserve their exact rendering
-contract and runtime string shapes without inventing the remaining leading
-second-line semantic.
+31 and 32 now have source-closed rendering contracts and runtime string
+semantics. The second line's leading value is proven to be the match stadium
+display name rather than a context-based guess. Pixel rasterization remains
+fail-closed until the verified style-3 font bytes are provenance-staged.
 
 They are created at:
 
@@ -28,8 +29,21 @@ embedded path:
 
 `Fonts\Zurich_XCn_BT_18pixel.fnt`
 
-That font is not yet provenance-staged in the repository, so this checkpoint
-does not rasterize either control.
+The authorized source archive was recovered through
+`research/ORIGINAL_SOURCE_LOCATOR.md` and independently verified before
+extraction:
+
+- source archive: **511,121,336 bytes**, SHA-256
+  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`;
+- raw MODE1/2352 image: all **268,549** sectors validated;
+- Joliet level-3 catalog: **2,456** files;
+- exact `Fonts\Zurich_XCn_BT_18pixel.fnt`: **79,734 bytes**, SHA-256
+  `968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a`.
+
+Those bytes are source-verified but are **not yet repository-staged**. The
+current connector can write UTF-8 GitHub content but has no binary-file ingest
+path from the recovered local asset, so this checkpoint records the exact proof
+without falsely marking provenance staging complete.
 
 ## Match-context ownership
 
@@ -81,15 +95,36 @@ The exact format at `0x8296F8` is:
 The second string is exact localized **Attendance**, and the integer is read
 from match-context `+0xD84`.
 
-The first string is obtained by:
+The first string is now source-closed as the **match stadium display name**.
 
-1. `0x62AC80` returning match-context nested object `+0xFE8`;
-2. `0x514270` resolving that object's source display string through existing
-   object/lookup state, including its original `N/A` / `NA` fallback logic.
+The evidence chain is:
 
-The exact player-facing semantic name of this leading value is **not** yet
-source-closed, so code deliberately keeps it neutral instead of calling it a
-stadium, venue, city, or club from context.
+1. `0x62ABD0` stores its constructor argument at `+0xFE8`; its sole caller
+   `0x5130A9` passes the current Match-family object.
+2. MSVC RTTI proves that caller slot across the concrete source types
+   `Match`, `LeagueMatch`, `CupMatch`, `FriendlyMatch`,
+   `CupMatchReplay`, and `SecondLegMatch`.
+3. `0x62AC80` is the bare accessor `mov eax,[ecx+0xFE8]`, so the returned
+   object is that Match-family object, not a separately inferred venue object.
+4. Match helper `0x514220` obtains the explicit club id at Match `+0x48`
+   when present and otherwise falls back through the first club reference at
+   Match `+0x14`.
+5. `0x514270` resolves that id through global `0x874B9C`. The global is
+   constructed at `0x40BBB0` with vtable `0x7BD718`; RTTI names it
+   **`DBTClubs`**.
+6. The returned DBRAccessClub record supplies its string at `+0x28`.
+   DBRAccessClub loader `0x4022D0` reads that fourth string at callsite
+   `0x402364`.
+7. The canonical original English resource proves the record slot with real
+   club data: Arsenal's fourth string is **Highbury** (STR id 919), Chelsea's
+   is **Stamford Bridge** (975), Liverpool's is **Anfield** (1031), and
+   Manchester United's is **Old Trafford** (1059).
+8. Independently, localized entry 2538 / STR id 21705 is exact
+   `%s MATCH TODAY AT %s`; source callsites pass the same `0x514270`
+   result as that final location value.
+
+`0x514270` retains the original `N/A` / `NA` fallback logic before
+returning the stadium string. No modern stadium label is invented.
 
 ## Localization proof
 
@@ -110,19 +145,23 @@ Automated tests replay these entries against the provenance-tracked canonical
 
 This checkpoint closes the two controls' construction, geometry, style/font
 identity, color/alignment, localization labels, exact format strings,
-match-type branch, referee-name formatting path, and attendance source field.
+match-type branch, referee-name formatting path, stadium-display semantic, and
+attendance source field. It also source-verifies the exact style-3 font bytes
+and their authorized archive provenance.
 
 It deliberately keeps false:
 
-- semantic naming of the second line's leading `0x514270` result;
-- provenance staging of the already identity-pinned `Zurich_XCn_BT_18pixel.fnt`;
+- repository provenance staging of the byte-identical
+  `Zurich_XCn_BT_18pixel.fnt`;
 - header pixel rasterization;
 - complete FastView frame;
 - Gate 14 completion.
 
 ## Next step
 
-Source-close the nested `+0xFE8 -> 0x514270` object's concrete class/field
-meaning. Independently, stage and checksum the exact style-3 font from the
-authorized disc. Only after both are verified should these header strings be
-bound to reconstructed match state and rasterized.
+Transfer the already verified byte-identical
+`Fonts\Zurich_XCn_BT_18pixel.fnt` into `original_assets/source/Fonts/`
+through a binary-safe GitHub path and add its manifest provenance. Then bind
+the now source-closed stadium/referee/attendance strings to reconstructed match
+state and rasterize the two direct header controls with the exact style-3 font.
+Gate 13 remains the earlier active validation gate and is not changed here.
