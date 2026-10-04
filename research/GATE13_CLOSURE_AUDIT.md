@@ -2,7 +2,110 @@
 
 _Audit refreshed: 4 October 2026 KST_
 
-## Current local producer milestone and criterion audit
+## Subsequent prerequisite progress / probe-safety stop (not a new closure audit)
+
+Supervised r2 now reaches the selected imported DBRClub ID5's uncontrolled
+attendance read5DA538 after77.719seconds/1270events. It stops there deliberately,
+not from a game crash. No hardware write was recorded;0/0 snapshots still do
+not establish an initializer/default or continuous all-thread watch coverage.
+Next is narrow watch-register/receiver lifecycle adjudication, not another broad
+scan. Private receipt hash and separately renewed13:40UTC foreground consent
+are in `CURRENT_STATE.md`; expired consent never authorizes another launch.
+Daniel's Southport1-1 was a home fixture, not the required human-away proof.
+No report producer was changed, no new closure/Windows audit is claimed, and
+Gate13 remains OPEN pending the actual capacity semantics and human-away route.
+Final offline regression passes 2082 tests / 23 expected skips, plus 46 focused
+probe-safety tests and repository asset policy. This is regression validation,
+not a new native producer finding or current-code Windows closure audit.
+
+The later exact-callsite topmost-only compatibility adaptation and explicit
+foreground/focus consent now qualify this exact private non-exclusive stage until
+2026-10-04 13:22 UTC. Loss-free DXGI Windowed=true matches native HWND; graphics
+success and every non-activation desktop check pass. No original gameplay state
+was adapted. Capacity tracing resumes; this does NOT source-close +13C/+140,
+prove the human-away report route, or pass a new Gate-13 closure audit.
+Current receipt/expiry are in `CURRENT_STATE.md`; older safety stops below are
+historical. Audio manual; signing/Azure remain stopped. Gate 13 stays OPEN.
+
+The later qualified r6 run now reaches fresh-world allocation/construction/import
+with hardware watches armed, but no +13C/+140 write or uncontrolled attendance
+read. Initial root redraw completes; no graphics hang is established. The actual
+capacity producer and human-away complete-report criterion remain unresolved;
+zero snapshots are not a default. Next is supervised native interaction through
+the attendance read (new foreground window required after consent expires), not
+another broad scan or compatibility patch. No fresh closure pass is claimed.
+
+Original-installer evidence now qualifies the missing resource selectors;
+Daniel-approved reversible repair makes native setup succeed. Exact original
+DLL/data staging then reached actual fresh DBRClub allocation/construction/import
+in one bounded run. No capacity writer or uncontrolled read was observed; zero
+snapshots do not source-close initialization. The earlier missing-selector stop
+below is superseded, not an unresolved registry repair request.
+
+Daniel now accepts manual Volume Mixer audio and has stopped Azure/signing/custom
+mute-helper work. Only display safety remains a technical probe prerequisite.
+The newly authorized bounded forced-windowed probe loaded the exact wrapper but
+stopped after 1.969 seconds on a game-owned topmost window, with desktop mode
+unchanged and child terminated. Canonical startup proves a native topmost request;
+the debugger now guards it before API execution. Normal capacity/calibration
+probes require exact-stage successful runtime display qualification. Qualify a
+source-valid presentation-only remedy; ask before any genuinely necessary
+disruptive observation. No new broad/Windows closure audit or human-away report
+success is claimed. Historical signing evidence is not a continuation task.
+Gate 13 stays OPEN with the same producer/normal-play criterion unresolved.
+See `GATE13_NATIVE_CAPACITY_WATCH.md` and `CONTINUATION_INSTRUCTIONS.md`.
+
+## Fresh current-main criterion audit: 4 October, base `29781e92`
+
+Canonical main was fetched at `3a3f60d1`, then the worker's strictly disjoint
+commits through `29781e9278c4a50ca0921723fa7614314f793b0d` were preserved by
+merge `c9c64fa0`. No Gate-14 implementation, work-ownership or runtime-ownership
+protocol was changed by this Gate-13 work.
+
+Fresh real Windows 11 / Python 3.12.14 / Tk schema-8 audit passes on that
+merged code (`Windows-11-10.0.26200-SP0`). Private receipt
+`gate13-final-main-schema8-29781e92.json`, SHA-256
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+The controlled-home fixture2 genuinely calculates, publishes, saves to disk,
+freshly reloads and opens its correct rendered report via ordinary Tk right-click;
+both script lists still reach all eight entries. Private current-code receipt
+`gate13-current-main-3a3f60d1-calculated-reload-script-scroll-20261004.json`, digest
+`3b2829f5b2f085e8a277088fa4896ac40d67c2dbe8a833cd8e54df0f21550e1b`.
+The fetched newer changes do not alter that report/calculator/host path.
+Conversely, the repeated human-away fixture2 calculation still publishes no
+report/link: missing attendance offsets `30/34/38/3C/40` remain unknown, not
+derived from scores/completion. Its private negative receipt retains digest
+`5a0c22887e38ad8e4a305f371528de273fdc5fa1461029fb8d77377bfb5973b2`.
+
+| Actual Gate-13 ROADMAP criterion | Fresh result | Evidence / exact remaining boundary |
+| --- | --- | --- |
+| Simulation separated from presentation | PASS | Existing controller/presentation boundary preserved; new native probes/geometry never supply simulation/report values. |
+| Accessible original resources, layouts and navigation reused | PARTIAL | Existing source report layout/rows/arrows pass; all five scroll assets now verify and original thumb rectangles/rounding are retained. Pixel resampling/input/timing remain unqualified, not invented. Their minimum-closure necessity still needs normal-play adjudication, not blanket optional-context expansion. |
+| Main-menu/login structure, navigation and timing closely follow original | PARTIAL | Fresh Windows/Tk source-art/font/control/hierarchy route passes; schema-8 is not a native timing comparison/sign-off. |
+| Normal play recognizably FM2001 | NOT PASSED | Controlled-home screenshot/complete report path remains source-recognizable. Ordinary human-away still has no complete report. That genuine producer failure prevents normal-play closure. |
+
+The allocation/write-watch infrastructure now works locally and is calibrated
+on actual known CRT writes, rather than another exhausted broad scan. It cannot
+yet reach club allocation: after approved elevation the native install-key open
+succeeds, but required `art` DWORD lookup at `53085F` returns 2 and the original
+setup guard exits. Exact private evidence, original-installer component evidence
+and the next source-backed action are in `GATE13_NATIVE_CAPACITY_WATCH.md`.
+Source-qualify the compiled original installer's location-selector writes and
+obtain approval for any installation-key repair; then observe the actual fresh
+uncontrolled club `+13C/+140` producer/lifecycle and integrate only proven values.
+
+Twenty-six focused tooling/resource/rectangle checks and asset policy pass.
+Full regression on the starting canonical base plus Gate-13 changes passed
+2,004 tests / 23 expected licensed-source skips. Final post-merge regression
+passes **2,011 tests / 23 expected skips**, zero failures/errors; private receipt
+`gate13-final-main-full-suite-29781e92.json`. The calibration-mode guard added
+after discovery is separately covered by the 26 focused checks, and actual
+native hardware write-watch delivery passed. This is not frozen-package launch,
+native timing certification, Gate-13 completion, Gate-14 transition or Gate-17
+release completion. Gate 13 remains **OPEN**; full-original-functionality scope
+and the ownership lock are unchanged.
+
+## Prior row/arrow milestone (preserved, not retraced)
 
 The 4 October PR #242 row/arrow milestone supersedes the historical blank-row
 and absent-producer statements below. The retained packed-native reader,

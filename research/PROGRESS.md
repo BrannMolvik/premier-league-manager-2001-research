@@ -4,6 +4,97 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Supervised native allocation-to-attendance receipt
+
+Daniel selected Southport and advanced normal play under explicit five-minute
+supervised foreground consent ending13:40UTC. First closure was the debugger's
+512-event ceiling, not a native crash. The supervised plan now uses the existing
+4096-event limit without expanding the ordinary60-second CLI. r2 reaches watched
+imported DBRClub5 (Coventry City) at uncontrolled attendance5DA538 and deliberately
+terminates after77.719seconds/1270events. No hardware writes;0/0 remains observed
+allocation state, NEVER a proven initializer or report input. Private receipt
+SHA256 abcfa7ea4af09a8cc60f63f67409d3cda8daf27cc64727d8a8190873f0a6d42f.
+All non-activation desktop checks pass; original terminated. Daniel confirms
+Southport's1-1 was HOME, not a human-away report proof. Next narrow watch retains
+DR0/DR1/DR7 read-back and actual attendance receiver, to adjudicate coverage and
+producer/alias lifecycle; no broad scan, no other shim, no guessed capacities.
+Consent expires; no further launch on historical approval. Gate13 OPEN; no
+Gate14/ownership change. Raw source/debug/display evidence stays outsideGit.
+Daniel then explicitly prohibited further original launches until he says it is
+fine again; proposed14:05UTC renewal was not approved. Continued offline
+watch/read-back contracts, regression tests and checkpoint documentation only.
+Final code passes 2082 reconstruction tests / 23 expected skips (292.054 seconds),
+46 focused probe-safety tests, asset policy, JSON and diff checks. No original
+execution after Daniel's stop and no new Windows/Tk closure pass are claimed.
+
+### 4 October 2026 KST — Exact-callsite shim and non-exclusive runtime proof
+
+PR #309: Daniel's approved 6A6363 stack-only adaptation clears only exstyle bit8
+(8->0), verifies twelve arguments/read-back and preserves disk/game/capacity state.
+Separate source/runtime activation tracing isolates original SetForegroundWindow
+6A6016; it is executed normally under explicit temporary foreground/focus consent
+ending13:22UTC/22:22KST, never suppressed/faked. Native graphics succeeds.
+Loss-free installed-provider DXGI Windowed=true matches actual HWND/800x600 swap
+chain and stable visibility; desktop2560x1440/32bpp/165Hz unchanged, no topmost,
+capture or unrelated geometry failure. Exact-stage receipt0e96f4e8... expires with
+consent; no unsafe override. First qualified60second capacity probe reaches
+graphics but not allocation/read; receiptfc27bac7... does not prove capacity.
+Continue exact startup dependency, then actual producer and human-away route.
+Raw evidence stays private. Audio manual; Azure/signing abandoned; Gate13 OPEN,
+Gate14/ownership unchanged. Focused pure contracts and asset policy pass.
+
+Subsequent exact root-redraw probes reach native fresh-world allocation,
+construction and imported DBRClub ID5 under the qualified safe stage. r6 ends at
+60.062seconds/362events; hardware writes and uncontrolled read absent. Zero
+snapshots remain observational only. Actual first root redraw and renderer wait
+return pass; repeated C++ throw resolves to eEPanelDeleted, not a resource-failure
+guess. Private receipt5d7e0e68... . No additional shim or blind elevated-game input.
+Next: supervised native interaction through actual uncontrolled attendance read,
+new foreground consent after13:22UTC; source-adjudicate producer before integration.
+
+### 4 October 2026 KST — Quiet-probe prerequisite advanced; policy denial
+
+PR #309's stale description now records source-qualified repaired selectors and
+actual earlier fresh-world allocation/import. The private wrapper configuration
+needed an explicit `AppControlledScreenMode=false`, not FullScreenMode alone;
+passthrough/Alt-Enter are explicitly disabled too. Six strict offline safety
+checks were added, never authorizing original launch. A proposed private GUI-free
+32-bit zero-PCM mute self-test failed before execution: Code Integrity 3077/3033
+confirm Enterprise Application Control signing/policy denial. No bypass, security
+change or original launch; no mute/windowed runtime success is claimed. The
+unqualified candidate remains private. Exact next prerequisite is a reviewed,
+policy-approved build/signing path, then harmless pre-play audio and exact
+wrapper/runtime qualification. Capacity producer/report behavior remains
+fail-closed. See `GATE13_NATIVE_PROBE_SAFETY.md`.
+
+### 4 October 2026 KST — Fail-closed native-original desktop safety
+
+Daniel restricted further original probes after fullscreen/resolution, focus
+and loud-audio disruption. Non-calibration capacity-watch launch now refuses
+before executable access/process creation; no unsafe override was added.
+No original was launched after the restriction. An existing private windowed
+wrapper configuration is checked offline only, not execution-qualified; pre-play
+process-local mute remains unqualified. Durable continuation instructions require
+both safeguards, or fresh approval before any genuinely required disruptive
+observation. Capacity lifecycle/report behavior remains unresolved/fail-closed;
+the earlier allocation/import receipt is not a proven initializer. No Gate-14
+or ownership change. See `GATE13_NATIVE_CAPACITY_WATCH.md`.
+
+### 4 October 2026 KST — Source-proven installer repair and real club allocation
+
+The authorized original SETUP.INS numeric registry producer proves the four
+resource selector names and selected DWORD 1 / unselected DWORD 0. Following
+Daniel's explicit approval, the existing 32-bit key was exported and only the
+four missing selected-component flags were added; original paths, Settings and
+game files were preserved. Private before/after receipts and a narrowly guarded
+rollback remain outside Git. Native setup now accepts every flag. Exact original
+DLL staging removes the next null driver call; verified original data lets the
+bounded watch reach fresh allocation/construction/import of DBRClub ID 5.
+No watched capacity writes or uncontrolled read yet; zero snapshots are not
+initializer proof and no report producer was relaxed. Ten debugger checks pass.
+Gate 13 remains open; continue the actual native lifecycle. See
+`GATE13_INSTALLER_RESOURCE_SELECTORS.md` and `GATE13_NATIVE_CAPACITY_WATCH.md`.
+
 ### 4 October 2026 KST — Recovery 255 League Fixtures grid-selector integration
 
 PR #291 merged as `02b5d5c8` after **1,960 tests / 23 expected skips**, **594 Gate-13 tests / 22 expected skips**, asset policy and the Windows release-candidate package workflow all passed. It integrates the exact `PLeagueGrid` left-press screen rectangle `(378,235,348,336)`, 29x14 reduction and source column/row selector indices into the ordinary management host while preserving PMenu priority and the independent PMatchInfo context route.
@@ -10964,6 +11055,24 @@ work may continue under the deferred-blocker policy.
 - PR #272 reconstruction run `37163378899` passed **1,886 tests / 23 expected skips**; asset-policy run `37163378866` passed. Squash-merged as `053dc98f743110ee654d57a02a4351fb8c2f93d2`.
 - Local fallback validation was unavailable because the execution container could not resolve `github.com`; no local pass was inferred. Hosted Actions provided the executable verification.
 - Gate 13 remains the earliest incomplete validation gate. Remaining Gate-17 source/runtime blockers are secondary procedural ownership/human dispatch, exact CRT state for RNG-bearing non-PL fresh objectives, non-PL sporting-objective season-end progression, the authorized private non-PL save audit receipt, and eventually the full Windows 11 external receipt set. No blocker was guessed away.
+
+## 4 October 2026 - Codex PR #309 read-only policy and Azure discovery
+
+- Renewed explicitly approved read-only UAC inventory succeeds: `CiTool -lp -json` returns exit/OperationResult 0, 15 policies, 7 `IsEnforced=true` including one audit-mode, all reported system-provided/signed. The earlier unsigned-helper denial GUID matches currently enforced SAC `VerifiedAndReputableDesktop`; no policy/token/trust change was made.
+- Bounded local discovery finds no usable Azure CLI/Azure PowerShell/full Visual Studio authentication provider/context. VS Code is installed without matching Azure authentication extensions. Windows IdentityCache contents and all credential/token/secret values were not accessed.
+- Azure account/profile/RBAC enumeration could not be performed, not an empty inventory; PublicTrust resource existence and exact region/endpoint/account/profile/signer permissions remain unknown. No Azure resource, identity validation, profile, RBAC assignment, billing setup, installation or login was initiated.
+- Private full inventory/discovery receipts are retained with hashes in `GATE13_NATIVE_PROBE_SAFETY.md`. The warning-clean Microsoft native x86 build remains unchanged, unsigned and unexecuted. Current authorization is discovery only: report an existing suitable production PublicTrust profile before any separate signing approval; never substitute PublicTrustTest/PrivateTrust.
+- 34 focused offline safety/debugger/scroll tests, asset policy, JSON and diff checks pass. No new full-suite, runtime-mute, wrapper or Windows closure result is claimed. Original launches remain refused; capacity lifecycle and human-away report remain unresolved; Gate 13 stays open and Gate-14/ownership state is preserved.
+- Exact next step: obtain approved official CLI/user-interactive authentication or an existing authenticated read-only context, then enumerate accounts/profiles/effective signer RBAC. If authenticated discovery proves missing resources, report the precise eligible subscription/provider/account/Public Trust identity/profile/signer-role setup and await explicit creation approval.
+
+## 4 October 2026 - PR #309 manual audio policy and stopped display qualification
+
+- Daniel withdrew all Azure CLI / Artifact Signing / custom mute-helper work. Audio is now his accepted manual Windows Volume Mixer condition, not a technical launch or Gate-13 prerequisite. Earlier signing/discovery receipts remain historical only; no further helper/signing/cloud work was done.
+- A newly authorized fixed-bound display-only original launch loaded the exact private dgVoodoo wrapper and stopped at 1.969 seconds / 106 debug events on a visible game-owned topmost window. Before/after desktop stayed 2560x1440 / 32 bpp / 165 Hz; no unrelated-window geometry or foreground violation was reported. Child terminated, no original process remained. Qualification failed; no capacity watch or human-away success is inferred.
+- Canonical aligned source proves startup explicitly sets fullscreen bit 0 at 615260/615262, reaches the renderer mode field A9115D, and requests WS_EX_TOPMOST at CreateWindowExA 6A6363. Native Software configuration/environment-log false leads were rejected. No game flag, executable file, capacity value or registry was patched.
+- The debugger now guards topmost requests before API execution/continuation, requires complete exact-stage schema-2 display receipts for capacity/calibration launches, and checks graphics success at 6153A0 rather than the unrelated 6151B5 query. Read-only monitoring retains the first failure snapshot and probe window class for future diagnostics; the original failed receipt is preserved unchanged.
+- Gate 13 stays open with uncontrolled visiting capacities / genuine human-away normal report unresolved. Next source/vendor-qualify a presentation-only non-topmost remedy, then bounded display qualification and the existing allocation/write/copy/alias/attendance chain. Ask Daniel before any genuinely necessary disruptive probe. Ownership and disjoint Gate-14 work are untouched.
+- 33 focused offline config/debugger/receipt/display-snapshot/scroll-readiness tests, asset policy, state JSON and diff checks pass. No new full-suite or Windows schema-8 closure audit is claimed for environment/debugger-only work.
 
 
 ## 4 October 2026 - Recovery 270 AudioHooks caller trace and numeric menus PCM

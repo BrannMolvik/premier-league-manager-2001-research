@@ -1,12 +1,15 @@
 """Tests for fail-closed PMatchInfo scroll-resource readiness."""
 from pathlib import Path
+from dataclasses import replace
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from original_pmatchinfo_scroll_readiness import (
     PMATCHINFO_SCROLL_EXACT_PATH_FILE,
     PMATCHINFO_SCROLL_IMPORT_ROOT,
     PMATCHINFO_SCROLL_RESOURCE_LEADS,
+    PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS,
     audit_pmatchinfo_scroll_resource_readiness,
     pending_pmatchinfo_scroll_source_paths,
     validate_pmatchinfo_scroll_exact_path_contract,
@@ -33,11 +36,10 @@ class PMatchInfoScrollReadinessTests(unittest.TestCase):
         self.assertFalse(result["renderer_geometry_recovered"])
 
     def test_present_unknown_identity_does_not_become_verified(self):
-        unknown = next(
-            lead for lead in PMATCHINFO_SCROLL_RESOURCE_LEADS
-            if not lead.has_staged_identity
-        )
-        with tempfile.TemporaryDirectory() as temp:
+        unknown = replace(PMATCHINFO_SCROLL_RESOURCE_LEADS[1], staged_sha256=None, staged_size_bytes=None)
+        with tempfile.TemporaryDirectory() as temp, patch(
+            'original_pmatchinfo_scroll_readiness.PMATCHINFO_SCROLL_RESOURCE_LEADS', (unknown,)
+        ):
             root = Path(temp)
             self._write_known(root, unknown, b"candidate")
             result = audit_pmatchinfo_scroll_resource_readiness(root)
@@ -60,32 +62,33 @@ class PMatchInfoScrollReadinessTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "size mismatch"):
                 audit_pmatchinfo_scroll_resource_readiness(root)
 
-    def test_repository_stages_only_the_two_currently_proven_identities(self):
+    def test_repository_stages_all_five_proven_identities_without_behavior_claim(self):
         repo_root = Path(__file__).resolve().parent.parent
         result = audit_pmatchinfo_scroll_resource_readiness(repo_root)
         self.assertEqual(
             result["verified_staged_resource_names"],
-            ["arrow_atlas", "end_vertical"],
+            ["arrow_atlas", "bar_vertical", "bar_blue", "end_vertical", "thumb_blue"],
         )
         self.assertEqual(
             result["missing_resource_names"],
-            ["bar_vertical", "bar_blue", "thumb_blue"],
+            [],
         )
         self.assertEqual(
             result["pending_resource_names"],
-            ["bar_vertical", "bar_blue", "thumb_blue"],
+            [],
         )
-        self.assertFalse(result["resource_inventory_complete"])
+        self.assertTrue(result["resource_inventory_complete"])
         self.assertFalse(result["native_scroll_behavior_recovered"])
 
-    def test_exact_path_file_matches_pending_source_leads(self):
+    def test_exact_path_file_remains_replayable_after_import(self):
         repo_root = Path(__file__).resolve().parent.parent
         expected = (
             "FM2001_Art/Generic/GenericButtonsAndBars/scroller_bar_vert.444",
             "FM2001_Art/Generic/GenericButtonsAndBars/scroller_blue_bar.444",
             "FM2001_Art/Generic/GenericButtonsAndBars/vscroll_blue_bar.444",
         )
-        self.assertEqual(pending_pmatchinfo_scroll_source_paths(), expected)
+        self.assertEqual(pending_pmatchinfo_scroll_source_paths(), ())
+        self.assertEqual(PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS, expected)
         self.assertEqual(
             validate_pmatchinfo_scroll_exact_path_contract(repo_root),
             expected,

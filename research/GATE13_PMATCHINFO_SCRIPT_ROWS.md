@@ -119,6 +119,31 @@ launch, timing sign-off or Gate13/Gate17 release claim.
 
 ## Still-open closure boundary
 
+4 October current-main follow-up: the complete five-resource scroll family is
+now deliberately staged/hash checked; see `GATE13_NATIVE_CAPACITY_WATCH.md`.
+`original_pmatchinfo_scroll_geometry.py` records the source-owned 64EBE0
+cap/middle/cap rectangles, 487520/487550 range, 64FF90 enable guard and exact
+float32 bias `7BD70C = 3EFF7CEE` (`0.49900001287460327`). The proven eight-entry
+list's 122px thumb offsets are **0, 20, 41**, not 0, 21, 41.
+
+668350 uses round-toward-zero **QWORD** FISTP, not a dword conversion. For a
+zero-range masked-invalid result, its returned low dword is 0; arbitrary FPU
+mask state is not assumed. The new geometry seam requires an explicit qualified
+mask for that branch; the native startup receipt observes `027F`. The frame
+transform uses disabled3 / idle0 / source-hover2. It does not manufacture a
+pressed-thumb frame from descriptor flags D.
+
+655740 clips rectangles before 6556C0's surface Blt dispatch. Source and
+destination middle heights differ, so this is not evidence for repeating
+19px tiles. Microsoft's [surface Blt contract](https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-idirectdrawsurface7-blt)
+specifies stretching for unequal rectangles. This source-rectangle milestone
+does **not** select a guessed replacement pixel resampling/blending algorithm,
+bind unproven hover/drag events, or certify held-repeat timing. The host remains
+on proven rows/arrows until that rendering/input boundary is adjudicated.
+The [Intel FISTP reference](https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-2a-manual.pdf)
+defines masked-invalid integer-indefinite behavior; the QWORD-vs-dword
+distinction is taken from the canonical executable, not a generic UI default.
+
 This milestone does not certify the complete report surface across normal
 contexts: thumb/bar/hover/held-repeat behavior, required unstaged shirt
 contexts and display-color fidelity need final adjudication. Blank slots and
