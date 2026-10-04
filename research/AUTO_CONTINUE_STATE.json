@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and source/private blocked. Recovery 250 merged PR #271 (efb9eb7b) and PR #272 (053dc98f), then reconciled canonical state as main 4e8a55e7. Next cloud-safe Gate-17 task: audit/extend canonical save-continuation tooling from one representative non-PL procedural-primary TeamSelect club to an exact source-driven sweep of every live procedural-primary TeamSelect scope, without claiming private execution or touching unresolved secondary/RNG/sporting-progression behavior.",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. Main is 4e8a55e7. PR #273 is open to sweep the canonical pending-procedural-League save/reload audit across every expected live procedural-primary TeamSelect competition, one source-selected club per scope, failing closed on missing owners. CI runs 37163764278 and 37163764265 are pending. Merge only if green; no private canonical execution is claimed.",
   "last_known_main_head": "4e8a55e75fd999a93823b2d213e1954f17f7a4e7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 250,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 250 continues after durable main checkpoint 4e8a55e7; overall mission remains incomplete.",
+  "note": "Recovery 250 continues; PR #273 pending hosted verification.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
