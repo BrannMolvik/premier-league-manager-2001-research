@@ -40,6 +40,8 @@ class VerifiedWindowsMenuAudioReceipt:
     pcm_sha256: str
     platform: str
     python_version: str
+    playback_backend_class: str
+    playback_memory_flag: int
     source_identity_replayed: bool = True
     numeric_route_replayed: bool = True
     pcm_identity_replayed: bool = True
@@ -86,6 +88,14 @@ class VerifiedWindowsMenuAudioReceipt:
         if not isinstance(self.python_version, str) or not self.python_version:
             raise Gate14WindowsMenuAudioReceiptError(
                 "verified receipt Python version must be non-empty"
+            )
+        if self.playback_backend_class != "WindowsMemoryWaveMenuPcmBackend":
+            raise Gate14WindowsMenuAudioReceiptError(
+                "verified receipt must retain exact Windows memory-wave backend"
+            )
+        if type(self.playback_memory_flag) is not int or self.playback_memory_flag < 0:
+            raise Gate14WindowsMenuAudioReceiptError(
+                "verified receipt playback memory flag must be nonnegative integer"
             )
         if not (
             self.source_identity_replayed
@@ -182,6 +192,22 @@ def validate_windows_menu_audio_receipt(
             "receipt python_version must be non-empty"
         )
 
+    playback = receipt.get("playback_backend")
+    if type(playback) is not dict:
+        raise Gate14WindowsMenuAudioReceiptError(
+            "receipt playback_backend must be an object"
+        )
+    playback_class = playback.get("class")
+    playback_flag = playback.get("memory_flag")
+    if playback_class != "WindowsMemoryWaveMenuPcmBackend":
+        raise Gate14WindowsMenuAudioReceiptError(
+            "receipt did not use exact Windows memory-wave backend"
+        )
+    if type(playback_flag) is not int or playback_flag < 0:
+        raise Gate14WindowsMenuAudioReceiptError(
+            "receipt playback memory flag must be a nonnegative integer"
+        )
+
     bank_size, bank_sha = _require_canonical_bank_bytes(menus_bnk)
     bank = receipt.get("source_bank")
     if type(bank) is not dict:
@@ -259,6 +285,8 @@ def validate_windows_menu_audio_receipt(
         pcm_sha256=str(decoded.pcm_sha256),
         platform=platform_text,
         python_version=python_version,
+        playback_backend_class=playback_class,
+        playback_memory_flag=playback_flag,
     )
 
 
