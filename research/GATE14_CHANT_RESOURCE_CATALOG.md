@@ -85,6 +85,28 @@ club-specific `C0ddddxx` banks covering 22 source IDs. This source-closes
 bank-to-active-club pool selection. It does not decode the content of those
 banks, bind individual chants to match events, or recover playback timing.
 
+## Source-closed pool shuffle/order
+
+The next loader phase at `0x723142-0x72319D` is also now source-closed.
+After all matching bank records are collected, the executable:
+
+1. reads the current remaining-record count through `0x6B2340`;
+2. obtains one presentation RNG value at `0x723157`;
+3. divides by the remaining count and uses the remainder as an index;
+4. calls `0x6B2810`, which removes and returns that indexed list node;
+5. reads record type at `+0x08`;
+6. appends the record through `0x6B1F90` to:
+   - type 0 -> home pool `0xA87984`;
+   - type 1 -> away pool `0xA879A0`;
+   - type 2 -> generic pool `0xA87968`;
+7. repeats until the source list is empty.
+
+This proves a random-without-replacement ordering inside the three chant pools.
+The reconstruction models the already-reduced modulo indices explicitly rather
+than claiming the private RNG generator/state itself. Pool ordering still does
+not identify which individual sample will be played for a particular match
+event or when playback occurs.
+
 ## Fidelity boundary
 
 The source control file begins with `MIDx`, but its sequencing semantics are
