@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #276 is canonical as fc985fab; reconciliation is on main through 403de220. Next cloud-safe Gate 17 task: add a catalog-ordered save/reload capability audit to full-scope preflight so runtime-owner completeness cannot imply persistence completeness. Fixed/procedural-primary save harnesses exist; procedural-secondary must remain blocked until its own live state, serialization and post-load continuation path exist.",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #276 is canonical as fc985fab with reconciliation through 403de220. PR #277 head 4c13d9bc is open to bind Gate 17 full-scope preflight to owner-correct per-scope save capability, requiring serialization and post-load continuation independently; procedural-secondary remains blocked. No private canonical sweep or secondary persistence implementation is claimed.",
   "last_known_main_head": "403de220d079e8fc1441d4905253328d5d30b7d8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 251,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 251 continued after transient connection interruption; PR #276 merged after 1,900 tests / 23 expected skips plus asset policy. Continuing with save-scope readiness invariant.",
+  "note": "Recovery 251: PR #277 opened after transient interruption; validating newest head.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
