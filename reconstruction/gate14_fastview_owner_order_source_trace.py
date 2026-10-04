@@ -33,29 +33,31 @@ class Gate14FastViewOwnerOrderTraceError(OriginalPETraceError):
 
 
 FASTVIEW_PANEL_CONSTRUCTOR_VA = 0x51F490
+FASTVIEW_PANEL_SETUP_VA = 0x51FA70
+FASTVIEW_TEAM_OWNER_CALLSITE_VA = 0x520E67
 
-# Deliberately a bounded neighborhood, not an asserted function extent. It spans
-# the already-proven top/ticker, possession-diagram and possession-figures owner
-# callsites while remaining small enough for manual private adjudication.
-FASTVIEW_OWNER_NEIGHBORHOOD_START_VA = 0x51F490
-FASTVIEW_OWNER_NEIGHBORHOOD_END_VA = 0x520900
+# Recovery 274's canonical private replay showed that the earlier 0x520900
+# upper bound stopped before the FastViewTeam owner call. Keep this as a
+# bounded setup-region inspection range rather than claiming exact CFG extent.
+FASTVIEW_OWNER_NEIGHBORHOOD_START_VA = FASTVIEW_PANEL_SETUP_VA
+FASTVIEW_OWNER_NEIGHBORHOOD_END_VA = 0x5211F9
 
 PICTURE_CONTROL_CONSTRUCTOR_VA = 0x527730
 POSSESSION_DIAGRAM_CONSTRUCTOR_VA = 0x5227D0
 POSSESSION_FIGURES_CONSTRUCTOR_VA = 0x51E7E0
 
-# These four callsites are persisted source evidence and calibrate a private
-# report. They do not by themselves establish global z-order.
+# These five callsites are persisted source evidence and calibrate a private
+# report. Recovery 274 added the FastViewTeam call after a checksum-gated
+# canonical executable pass. They do not by themselves establish global z-order.
 KNOWN_REFERENCE_CALLSITES = (
     ("top_bar_picture_control", 0x51FDA3, PICTURE_CONTROL_CONSTRUCTOR_VA),
     ("ticker_picture_control", 0x51FE31, PICTURE_CONTROL_CONSTRUCTOR_VA),
     ("possession_diagram", 0x5206CD, POSSESSION_DIAGRAM_CONSTRUCTOR_VA),
     ("possession_figures", 0x520802, POSSESSION_FIGURES_CONSTRUCTOR_VA),
+    ("fastview_team", FASTVIEW_TEAM_OWNER_CALLSITE_VA, FASTVIEW_TEAM_CONSTRUCTOR_VA),
 )
 
-# Only source-qualified constructor targets. FastViewTeam's exact owner callsite
-# is intentionally not hard-coded because that is one of the facts the next
-# private pass should locate and adjudicate.
+# Only source-qualified constructor targets.
 OWNER_TARGETS = (
     ("picture_control", PICTURE_CONTROL_CONSTRUCTOR_VA),
     ("possession_diagram", POSSESSION_DIAGRAM_CONSTRUCTOR_VA),
@@ -207,9 +209,14 @@ def fastview_owner_order_trace_report(
         }
         for name, callsite_va, target_va in KNOWN_REFERENCE_CALLSITES
     )
+    fastview_team_owner_callsite_recovered = (
+        FASTVIEW_TEAM_OWNER_CALLSITE_VA,
+        FASTVIEW_TEAM_CONSTRUCTOR_VA,
+    ) in observed
     return {
         "source_sha256": pe.sha256,
         "fastview_panel_constructor_va": FASTVIEW_PANEL_CONSTRUCTOR_VA,
+        "fastview_panel_setup_va": FASTVIEW_PANEL_SETUP_VA,
         "bounded_owner_neighborhood": {
             "start_va": start_va,
             "end_va_exclusive": end_va,
@@ -228,7 +235,9 @@ def fastview_owner_order_trace_report(
             }
             for item in candidates
         ),
-        "fastview_team_owner_callsite_recovered": False,
+        "fastview_team_owner_callsite_recovered": (
+            fastview_team_owner_callsite_recovered
+        ),
         "same_parent_registration_recovered_for_new_pairs": False,
         "additional_pairwise_draw_order_recovered": False,
         "global_fastview_z_order_recovered": False,
@@ -236,8 +245,9 @@ def fastview_owner_order_trace_report(
         "complete_fastview_frame_recovered": False,
         "evidence_limit": (
             "Decoded direct CALL candidates inside a bounded FastView owner "
-            "neighborhood only. This does not prove the neighborhood is one "
-            "function, CFG reachability, constructor receiver/parent identity, "
+            "setup region only. The exact 0x520E67 -> 0x524920 FastViewTeam "
+            "call may be source-recovered without proving CFG-wide reachability, "
+            "constructor parent registration, "
             "child registration into the FastViewPanel draw array, ordering "
             "across nested component arrays, pixel blend behavior, or any new "
             "pairwise/global z-order relation."
