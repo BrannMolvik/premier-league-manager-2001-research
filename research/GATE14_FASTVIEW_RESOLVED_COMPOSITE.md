@@ -80,6 +80,28 @@ This gives Gate 14 a player-visible/debuggable boundary for every pixel whose
 ownership is already source-backed while keeping unresolved overlap topology
 visibly separate for the next native z-order trace.
 
+## Exact frame-coverage accounting
+
+`gate14_fastview_frame_coverage.py` classifies every pixel in the 800x600
+resolved-only surface into one of three exhaustive states:
+
+- exactly one verified non-zero-alpha contributor: resolved;
+- two or more verified contributors: unresolved cross-component overlap;
+- no currently verified non-zero-alpha contributor.
+
+The third class is intentionally named
+`no_verified_opaque_contributor_pixel_count`. It is **not** equivalent to
+"missing artwork": transparent pixels inside verified source resources, an
+unbound background layer, or another not-yet-integrated component can all appear
+there. The counts therefore quantify the renderer boundary without assigning a
+source meaning to blank space.
+
+The audit records deterministic integer basis points for quick comparison, but
+the exact pixel counts remain authoritative. It retains the same component
+identities, overlap groups and source composite/mask hashes, requires the three
+classes to partition all 480,000 pixels exactly, and keeps cross-component
+z-order, background binding and complete-frame status false.
+
 ## Fidelity boundary
 
 This is deliberately **not** a flattened or complete FastView frame.
