@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Gate-14 main now includes dynamic energy in the canonical frame path and complete English PlayerRow text. Active PR #308 composes exact retained PlayerRow pixels (name grid + complete text + source-cropped energy) with source-closed per-row control order and disjointness guards; require exact-head full CI and asset policy before merge. Private audio source access is healthy: named banks map to slots 0 menus, 1 game00, 2 playercalls, 3 Advice, but playback ownership is not yet source-closed, so do not assign menu/match roles from filenames.",
-  "last_known_main_head": "8c6b167f87de17b7ae26bc7f0f26d9ec93b9469d",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Canonical Gate-14 main now includes source-closed possession ordering, source-cropped dynamic PlayerRow energy, complete English PlayerRow text, and complete retained PlayerRow raster through main 9595291d. Continue disjoint Gate-14 source work on audio bank playback ownership: named bank slots 0 menus / 1 game00 / 2 playercalls / 3 Advice are inventory facts only; trace exact executable loader/playback callsites before assigning menu/login/match roles. Do not touch Gate 13/shared runtime.",
+  "last_known_main_head": "9595291d83ad99d02d235736e94fe87e5464c4fd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 261,
+  "recovery_generation": 262,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 261 heartbeat: main 8c6b167f; validating retained PlayerRow compositor and tracing playback slot ownership.",
+  "note": "Recovery resumed at main 9595291d; continuing audio playback ownership trace after PlayerRow raster completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
