@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - "chatgpt/gate14-font-stage"
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/tmp-gate14-font-stage.yml"
+      - "research/tmp_gate14_zurich18_font.gz.b64"
 
 permissions:
   contents: write
