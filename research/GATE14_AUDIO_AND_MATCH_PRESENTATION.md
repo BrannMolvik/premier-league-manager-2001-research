@@ -356,6 +356,29 @@ bank/sample resource before integration.
 - Presentation fidelity does not block core management play: architectural
   separation is preserved; final criterion remains for Gate-14 audit.
 
+## Recovery 256: instruction-level audio-bank candidate narrowing
+
+The private `.bnk` source tracer can now optionally narrow raw little-endian
+pointer-byte occurrences inside `.text` to Capstone-decoded x86 operand
+reference **candidates**. For each raw hit it tests only instruction starts
+within the architectural 15-byte x86 maximum and retains a decode only when the
+instruction fully contains the exact four pointer bytes and exposes either an
+immediate or absolute-memory displacement equal to the embedded bank-string VA.
+
+This is deliberately weaker than an xref/loader claim. Variable-length
+instruction alignment, CFG reachability, call ownership and bank semantics still
+require private original-byte adjudication. The report therefore labels these
+records `decoded_text_operand_reference_candidate_not_cfg_proof` and keeps
+`bank_semantics_recovered=false` and
+`bank_event_bindings_recovered=false`.
+
+Synthetic calibration includes a known `push imm32` bank-string reference and
+a separate `.rdata` pointer copy. The former must appear as an instruction
+candidate; the latter must never be promoted merely because it contains the
+same four bytes. This makes the next healthy private audio pass more focused
+without assigning menu music, commentary, crowd, sample indices or match-event
+roles from filenames.
+
 ## Exact next cloud-safe task
 
 The Recovery-209 PlayerRow event/text work is already canonical and has since
