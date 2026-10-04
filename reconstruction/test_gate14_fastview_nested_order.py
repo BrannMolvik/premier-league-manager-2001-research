@@ -17,7 +17,7 @@ class NestedOrderTests(unittest.TestCase):
         self.assertEqual(team_table_visible_control_count(11),105)
         self.assertEqual(team_table_visible_control_count(16),150)
         self.assertEqual(fastview_team_visible_control_count(11,11),210)
-        self.assertEqual(fastview_team_visible_control_count(16,12),273)
+        self.assertEqual(fastview_team_visible_control_count(16,12),264)
 
     def test_phase_tail_is_dynamic_and_appended_as_two_controls(self):
         s=ScoreCompositePhaseTail()
