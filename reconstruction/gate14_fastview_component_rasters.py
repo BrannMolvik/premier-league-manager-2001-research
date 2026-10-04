@@ -18,6 +18,10 @@ from dataclasses import dataclass
 from hashlib import sha256
 
 from gate14_fastview_partial_surface import FASTVIEW_SURFACE_SIZE
+from gate14_fastview_clock_raster import (
+    CLOCK_TEXT_COMPONENT,
+    FastViewClockRaster,
+)
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
@@ -58,6 +62,7 @@ class FastViewComponentRasterPlane:
     def __post_init__(self) -> None:
         if self.component not in {
             "direct_chrome",
+            "clock_text",
             "possession_diagram",
             "possession_figures_text",
             "team_table_static",
@@ -86,6 +91,7 @@ class FastViewComponentRasterPlane:
             "team_table_energy",
             "league_scores_runtime_phase_icons",
             "league_scores_runtime_phase_text",
+            "clock_text",
         } and self.source_layer_count == 0:
             raise FastViewComponentRasterError(
                 "non-TeamTable FastView raster planes require source layers"
@@ -120,6 +126,7 @@ class FastViewComponentRasterSet:
     league_scores_late_grid: FastViewComponentRasterPlane | None = None
     league_scores_runtime_icons: FastViewComponentRasterPlane | None = None
     league_scores_runtime_text: FastViewComponentRasterPlane | None = None
+    clock: FastViewComponentRasterPlane | None = None
     cross_component_z_order_recovered: bool = False
     flattened_frame_available: bool = False
 
@@ -137,6 +144,15 @@ class FastViewComponentRasterSet:
             if plane.component != component:
                 raise FastViewComponentRasterError(
                     "FastView raster set component identity mismatch"
+                )
+        if self.clock is not None:
+            if type(self.clock) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    "Clock raster must be an exact component plane"
+                )
+            if self.clock.component != CLOCK_TEXT_COMPONENT:
+                raise FastViewComponentRasterError(
+                    "Clock raster component identity mismatch"
                 )
         if self.team_table is not None:
             if type(self.team_table) is not FastViewComponentRasterPlane:
@@ -407,6 +423,22 @@ def rasterize_fastview_team_table_plane(
     )
 
 
+def _lift_clock_raster(
+    raster: FastViewClockRaster,
+) -> FastViewComponentRasterPlane:
+    if type(raster) is not FastViewClockRaster:
+        raise FastViewComponentRasterError(
+            "clock must be exact FastViewClockRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component=raster.component,
+        size=raster.size,
+        rgba=raster.rgba,
+        source_layer_count=raster.source_layer_count,
+        rgba_sha256=raster.rgba_sha256,
+    )
+
+
 def _lift_score_draw_phase_plane(
     plane: FastViewScoreDrawPhasePlane,
 ) -> FastViewComponentRasterPlane:
@@ -463,8 +495,13 @@ def build_fastview_component_rasters(
     score_table: FastViewScoreTableStaticRasterSet | None = None,
     score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
     score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
+    if clock is not None and type(clock) is not FastViewClockRaster:
+        raise FastViewComponentRasterError(
+            "clock must be exact FastViewClockRaster"
+        )
     if score_table is not None and type(score_table) is not FastViewScoreTableStaticRasterSet:
         raise FastViewComponentRasterError(
             "score_table must be exact FastViewScoreTableStaticRasterSet"
@@ -493,6 +530,7 @@ def build_fastview_component_rasters(
         )
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
+        clock=(None if clock is None else _lift_clock_raster(clock)),
         possession_diagram=rasterize_fastview_possession_plane(possession),
         possession_figures=rasterize_fastview_possession_figures_plane(figures),
         team_table=(
