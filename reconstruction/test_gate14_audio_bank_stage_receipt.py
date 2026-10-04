@@ -130,6 +130,30 @@ class Gate14AudioBankStageReceiptTests(unittest.TestCase):
                 with self.subTest(key=key):
                     self.assertFalse(receipt[key])
 
+    def test_accepts_case_variant_staged_directory_components(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            write_contract(root)
+            stage, report_path, _report = stage_and_report(root)
+
+            upper_data = stage / "DATA"
+            lower_data = stage / "data"
+            upper_data.rename(lower_data)
+            audio = lower_data / "AUDIO"
+            audio.rename(lower_data / "audio")
+            sfxs = lower_data / "audio" / "SFXS"
+            sfxs.rename(lower_data / "audio" / "sfxs")
+            advice = lower_data / "audio" / "sfxs" / "Advice.bnk"
+            advice.rename(lower_data / "audio" / "sfxs" / "advice.BNK")
+
+            receipt = validate_audio_bank_stage_receipt(
+                repo_root=root,
+                inventory_report=report_path,
+                staging_root=stage,
+            )
+            self.assertTrue(receipt["passed"])
+            self.assertEqual(receipt["bank_count"], 4)
+
     def test_rejects_noncanonical_source_archive_identity(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
