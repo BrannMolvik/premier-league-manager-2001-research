@@ -6,6 +6,18 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 253 Gate-17 final-audit preflight checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
+
+PR #280 merged as `c8ab34e6` after **1,915 tests / 23 expected skips**, repository asset policy, and Windows release-candidate packaging passed. The external Windows validation transaction now refuses to create its work root or immutable release receipts unless the canonical repository-side full-scope implementation preflight is green for the same player seed and day bound.
+
+PR #281 merged as `e522672a` after **1,917 tests / 23 expected skips**, repository asset policy, and Windows release-candidate packaging passed. Direct `run_final_release_audit()` now independently re-runs that same canonical full-scope implementation preflight, records the green preflight payload in the final receipt, and cannot be used to bypass human-scope, runtime-owner, per-scope save/reload, six-user multi-human, or completed-state progression blockers by supplying plausible external JSON.
+
+Recovery 253 briefly regained local shell execution and successfully materialized both persistent private inputs: the authorized 511,121,336-byte source archive and the persisted reconstruction runtime ZIP. Subsequent shell launches failed before process start with `caas.internal.errors.ClientError`, so no new private source hash, Gate-13 behavior, or canonical preflight execution is claimed.
+
+Exact next action: Gate 13 remains the highest-value validation gate. PR #242 contains a verified source-backed PMatchInfo script-row/arrow milestone from an older base and overlaps current main in only four status/research files; reconcile its disjoint technical/resource changes onto current main rather than reimplementing them. Preserve the four newer canonical status files and manually merge only still-valid Gate-13 evidence wording. Gate 13 remains OPEN after that milestone; the unresolved fresh +13C/+140 capacity lifecycle and remaining native scroll/kit/color/timing criteria stay fail-closed.
+
 ## Recovery 252 Gate-17 canonical preflight checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
