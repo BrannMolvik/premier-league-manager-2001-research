@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #286 is canonical as df098e6d after 1,942 full / 23 skips and 576 Gate13 / 22 skips plus asset policy. PR #287 head 8e263d38 binds the three still-pending PMatchInfo scroll assets to an exact source-path staging file consumable by the existing fail-closed extractor. Asset policy is green; full and focused Gate13 CI are running. No hashes, geometry, behavior, or extraction success for those three assets is claimed.",
-  "last_known_main_head": "df098e6d6bed42c09e823815294625b67153a3f0",
+  "active_task": "Gate 13 remains OPEN. PR #287 is canonical as eb44dd11 and PR #288 as 14ef3211, with the PMatchInfo scroll exact-path/staging-receipt pipeline complete up to private extraction. Process startup remains blocked. Next cloud-safe task: integrate the source-proven PLeagueFixtures 12-club column paging offset into OriginalManagementPresenter through an explicit source-accepted non-pointer seam; do not invent pointer hitboxes.",
+  "last_known_main_head": "d729c133be9e9a3ac37a963d7918085922035111",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 254,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 254: PR286 merged; PR287 exact pending scroll paths validating on head 8e263d38.",
+  "note": "Recovery 254: PMatchInfo scroll staging pipeline merged; moving to source-accepted League Fixtures paging seam.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
