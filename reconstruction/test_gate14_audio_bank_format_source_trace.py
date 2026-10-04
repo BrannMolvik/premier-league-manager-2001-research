@@ -13,6 +13,7 @@ from gate14_audio_bank_format_source_trace import (
     Gate14AudioBankFormatTraceError,
     audio_bank_format_trace_report,
     classify_bnk_window_dataflow_candidates,
+    indexed_bnk_memory_access_candidates,
     main as tracer_main,
     shared_bnk_direct_call_target_candidates,
     shared_bnk_memory_displacement_candidates,
@@ -122,6 +123,10 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
         )
         self.assertTrue(report["dataflow_candidates_classified"])
         self.assertTrue(report["bounded_dataflow_candidates_not_format_proof"])
+        self.assertIn(
+            "indexed_memory_access_candidates_not_sample_table_proof",
+            report,
+        )
         self.assertFalse(report["sample_table_layout_recovered"])
         self.assertFalse(report["sample_codec_recovered"])
         self.assertFalse(report["modern_sample_decode_ready"])
@@ -200,6 +205,106 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
                 },
             ),
         )
+
+    def test_indexed_memory_candidates_require_real_non_stack_index(self):
+        candidates = (
+            {
+                "window_label": "loader",
+                "instruction_va": 0x401100,
+                "memory_operand_candidates": (
+                    {
+                        "base": "ecx",
+                        "index": "eax",
+                        "scale": 4,
+                        "displacement": 0x18,
+                        "operand_size": 4,
+                    },
+                    {
+                        "base": "ebp",
+                        "index": "edx",
+                        "scale": 4,
+                        "displacement": -8,
+                        "operand_size": 4,
+                    },
+                    {
+                        "base": "esi",
+                        "index": None,
+                        "scale": 1,
+                        "displacement": 0x20,
+                        "operand_size": 4,
+                    },
+                ),
+            },
+            {
+                "window_label": "playback",
+                "instruction_va": 0x401200,
+                "memory_operand_candidates": (
+                    {
+                        "base": None,
+                        "index": "ecx",
+                        "scale": 8,
+                        "displacement": 0x1000,
+                        "operand_size": 2,
+                    },
+                ),
+            },
+        )
+
+        indexed = indexed_bnk_memory_access_candidates(candidates)
+        self.assertEqual(
+            indexed,
+            (
+                {
+                    "window_label": "loader",
+                    "instruction_va": 0x401100,
+                    "operand_index": 0,
+                    "base_register": "ecx",
+                    "index_register": "eax",
+                    "scale": 4,
+                    "displacement": 0x18,
+                    "operand_size": 4,
+                    "classification": (
+                        "indexed_bnk_memory_access_candidate_not_sample_table_proof"
+                    ),
+                },
+                {
+                    "window_label": "playback",
+                    "instruction_va": 0x401200,
+                    "operand_index": 0,
+                    "base_register": None,
+                    "index_register": "ecx",
+                    "scale": 8,
+                    "displacement": 0x1000,
+                    "operand_size": 2,
+                    "classification": (
+                        "indexed_bnk_memory_access_candidate_not_sample_table_proof"
+                    ),
+                },
+            ),
+        )
+
+    def test_indexed_memory_candidates_fail_closed_on_bad_scale(self):
+        with self.assertRaisesRegex(
+            Gate14AudioBankFormatTraceError,
+            "x86 scale",
+        ):
+            indexed_bnk_memory_access_candidates(
+                (
+                    {
+                        "window_label": "loader",
+                        "instruction_va": 0x401100,
+                        "memory_operand_candidates": (
+                            {
+                                "base": "ecx",
+                                "index": "eax",
+                                "scale": 3,
+                                "displacement": 0,
+                                "operand_size": 4,
+                            },
+                        ),
+                    },
+                )
+            )
 
     def test_shared_direct_call_targets_require_distinct_windows(self):
         candidates = (
