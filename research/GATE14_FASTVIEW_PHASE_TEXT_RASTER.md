@@ -56,7 +56,7 @@ The line origins are therefore:
 - `HT`: `(355,53)`;
 - `FT`: `(356,53)`;
 - `ET`: `(356,53)`;
-- `PEN`: `(352,53)`.
+- `PEN`: `(351,53)`.
 
 The vertical line origin is two pixels above the control because the native line
 height is 20 while the control height is 16. This is not an overflow defect:
