@@ -11,7 +11,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gate17_human_scope_capability import HumanScopeCapabilityAudit
-from gate17_multi_human_capability import MultiHumanCapabilityAudit
+from gate17_multi_human_capability import (
+    MultiHumanCapabilityAudit,
+    ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS,
+)
 from gate17_runtime_owner_capability import RuntimeOwnerCapabilityAudit
 from gate17_runtime_progression_audit import RuntimeProgressionAudit
 
@@ -107,6 +110,13 @@ def build_full_scope_preflight(
     if type(progression) is not RuntimeProgressionAudit:
         raise Gate17FullScopePreflightError(
             "preflight requires exact RuntimeProgressionAudit"
+        )
+    if (
+        int(multi_human.required_simultaneous_users)
+        != ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS
+    ):
+        raise Gate17FullScopePreflightError(
+            "multi-human audit required user count differs from source-proven six-user contract"
         )
     if not human_scope.entries:
         raise Gate17FullScopePreflightError(
