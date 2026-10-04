@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #278 head 6cc040e8 is open for a diagnostic canonical Gate-17 full-scope preflight coordinator. Asset policy is green; full reconstruction CI is running. If green, merge and reconcile, then update stale full-scope evidence wording that still says the human handoff is Premier-League-only; preserve secondary and multi-human blockers.",
-  "last_known_main_head": "8cc249ec474d2158fa156e14ba87fef6d26519cc",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #278 is canonical as 9fc7c2e5 and PR #279 as 46a29d7f; Recovery 252 reconciliation is on main through efccd103. Private canonical preflight execution is process-infrastructure blocked despite source materialization. Next cloud-safe task: require the external Gate-17 Windows release transaction to pass the canonical full-scope implementation preflight before creating any release work root or receipts.",
+  "last_known_main_head": "efccd10336917699dcb1fc528788da83c29f72dd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 252,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 252: PR #278 asset policy passed; full reconstruction CI running.",
+  "note": "Recovery 252: canonical preflight coordinator merged; source archive materialized but local execution unavailable; continuing external validation hardening.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
