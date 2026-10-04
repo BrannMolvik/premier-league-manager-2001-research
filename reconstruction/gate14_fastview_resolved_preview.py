@@ -19,6 +19,7 @@ from gate14_fastview_resolved_composite import (
     FastViewResolvedOnlyComposite,
     FastViewUnresolvedOverlapGroup,
 )
+from gate14_fastview_frame_plan import FastViewFramePlan
 
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -168,3 +169,12 @@ def build_fastview_resolved_preview(
         source_composite_rgba_sha256=composite.rgba_sha256,
         source_overlap_mask_sha256=composite.unresolved_overlap_mask_sha256,
     )
+
+
+def build_fastview_frame_preview(frame: FastViewFramePlan) -> FastViewResolvedPreview:
+    """Export only the resolved-only pixels retained by an exact frame plan."""
+    if type(frame) is not FastViewFramePlan:
+        raise FastViewResolvedPreviewError(
+            "frame preview requires exact FastViewFramePlan"
+        )
+    return build_fastview_resolved_preview(frame.resolved_composite)
