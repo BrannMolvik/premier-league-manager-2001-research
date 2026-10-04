@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #278 is canonical as 9fc7c2e5 and PR #279 as 46a29d7f; Recovery 252 reconciliation is on main through efccd103. Private canonical preflight execution is process-infrastructure blocked despite source materialization. Next cloud-safe task: require the external Gate-17 Windows release transaction to pass the canonical full-scope implementation preflight before creating any release work root or receipts.",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #280 head a7d88f8a is open to require a green canonical full-scope implementation preflight before the external Windows release transaction creates its work root or receipts. Asset policy passed; reconstruction and Windows package workflows are running. If green, merge and then bind the final release-readiness audit itself to the same preflight so bypassing the coordinator cannot weaken Gate 17.",
   "last_known_main_head": "efccd10336917699dcb1fc528788da83c29f72dd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 252,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 252: canonical preflight coordinator merged; source archive materialized but local execution unavailable; continuing external validation hardening.",
+  "note": "Recovery 252: PR #280 validation running; local private execution remains unavailable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
