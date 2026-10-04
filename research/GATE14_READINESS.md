@@ -38,7 +38,8 @@ The current audit records these solved sub-capabilities:
 - completed human outcome -> resolved-only FastView -> Tk draw path;
 - dynamic PlayerRow energy pixels;
 - English PlayerRow text pixels;
-- PossessionDiagram before PossessionFigures pairwise draw order;
+- source-closed relative draw order across the currently rasterized FastView component families;
+- native packed-16 font destination read, alpha endpoints, /256 mask-wise blend rule and color-key behavior;
 - ownership and selected playback entrypoints for the four canonical BNK banks;
 - chant pool selection and timing arithmetic.
 
@@ -52,15 +53,20 @@ The audit exposes the unresolved capabilities directly:
 - BNK sample decode;
 - exact audio event/sample binding;
 - login/menu audio integration;
-- global FastView cross-component z-order;
-- native font blend over an existing destination;
-- a complete FastView frame;
+- global FastView z-order across omitted/unbound layers;
+- a complete FastView frame, including the remaining runtime-mask / packed-16-to-modern-RGBA translation boundary;
 - chant event semantics;
 - source-backed 3D choreography;
 - final recognizable-original-workflow verification.
 
 The audit deliberately does not convert this list into a percentage. Completion
 remains criterion-based.
+
+The font blend rule is now source-closed, but this does **not** mean the current
+masked overlap pixels are resolvable. The original blend operates in the active
+runtime 16-bit packed surface format. An actual runtime mask-value receipt and
+an exact packed-16 to modern-RGBA expansion boundary still remain prerequisites
+for emitting those pixels.
 
 ## Fail-closed guards
 
@@ -69,7 +75,8 @@ The data model rejects invalid promotion paths. In particular:
 - login/menu audio cannot be declared integrated before bank ownership,
   playback entrypoints and sample decode are ready;
 - a complete FastView frame cannot be asserted before the resolved human path,
-  energy/text pixels, global z-order and font blend are all closed;
+  energy/text pixels, global z-order and the already source-closed font blend
+  prerequisite are all satisfied;
 - recognizable original workflow cannot be asserted without at least one
   completed source-backed match presentation path.
 
