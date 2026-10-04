@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 251 Gate-17 multi-human readiness checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
+
+PR #276 merged as canonical main `fc985fab`. Gate-17 full-scope implementation preflight now requires an independent multi-human capability audit tied to the source-proven hard maximum of exactly six simultaneous TeamSelect users. The six-user requirement cannot be lowered by callers or forged audit objects. Current canonical capability remains deliberately blocked: TeamSelect selection capacity is 6, but gameplay capacity is 1, multi-human Start is unavailable, one shared multi-human runtime is unavailable, and multi-human save/reload is unavailable. Hosted verification passed **1,900 tests / 23 expected skips** plus repository asset policy. No multi-human gameplay implementation is claimed.
+
+The remaining Gate-17 runtime blockers are unchanged: secondary procedural Leagues still lack a distinct live runtime container/human route; multi-human gameplay/shared-runtime/save continuity are absent; RNG-bearing non-PL fresh chairman-objective branches still need exact caller CRT state; non-PL season-end sporting-objective progression is not source-closed; and final full-scope Windows receipts remain external blockers.
+
+Exact next cloud-safe action: add an independent catalog-ordered save/reload capability audit to the full-scope preflight. Runtime-owner completeness must not imply persistence completeness. Fixed-primary and procedural-primary scopes already have source-backed continuation harnesses; every procedural-secondary scope must remain blocked until its own live state, serialization and post-load continuation path exist. Do not infer secondary persistence from primary-container saves.
+
 ## Recovery 251 Gate-17 primary-container save checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
