@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 273,
+  "recovery_generation": 274,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 273 checkpoint: overlap readiness merged. Font-blend dataflow replay PR #342 active on exact current main. Reuse persisted PR #339 only after fresh redesign/validation because its old CI failed and its receipt type differs from current main.",
+  "note": "Recovery 274 resumed from canonical GitHub state at main 1664d411. Continue exact active work: verify PR #342 font-blend Capstone dataflow replay and merge only if its fresh reconstruction/asset-policy evidence passes; then advance to the next bounded cloud-safe Gate-14 task without changing Gate 13's open validation status.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
