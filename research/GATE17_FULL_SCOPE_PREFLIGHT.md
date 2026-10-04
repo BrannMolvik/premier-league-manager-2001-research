@@ -102,10 +102,17 @@ the canonical human-scope, runtime-owner and save-scope capability runners,
 the immutable current multi-human capability audit, and one live canonical
 controller for the read-only progression audit.
 
-The coordinator does not advance the calendar, commit LeagueAllocation
-exchanges, create secondary owners, or widen multi-human support. Its CLI exits
-with status 2 while any blocker remains, making it suitable as a fail-closed
-preflight before later private/Windows validation.
+The coordinator uses a disposable canonical controller for progression
+readiness. Because the progression audit requires an already-completed runtime
+ranking surface, that controller advances only through the shared primary AI
+scheduler, bounded by `--max-days` (default 420), until the read-only
+progression audit becomes complete or the bound is exhausted. The audit still
+never commits the previewed LeagueAllocation exchanges.
+
+The coordinator does not mutate the caller's game, create secondary owners, or
+widen multi-human support. Its CLI exits with status 2 while any blocker
+remains, making it suitable as a fail-closed preflight before later
+private/Windows validation.
 
 ## Integrity boundary
 
