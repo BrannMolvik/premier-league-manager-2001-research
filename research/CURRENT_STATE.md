@@ -6,6 +6,35 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Daniel approved the decisive native capacity probe (5 October 2026 KST)
+
+At approximately **2026-10-05 01:12 KST**, Daniel explicitly approved the exact
+bounded probe below: one supervised human-operated original-game run, maximum
+300 seconds / 4096 debugger events, selected array index 5 / qualified DBRClub
+ID 5, existing topmost-only presentation shim, manual Windows Volume Mixer
+audio, no injected capacity/report/registry/simulation values, and stop before
+executing the selected `0x5DA538` read.
+
+The user-approval blocker is therefore cleared for **this one probe**. The
+temporary ChatGPT takeover session receiving the approval has no Windows
+desktop/computer/shell execution surface, so it did **not** launch
+`FOOTBAL.EXE` and no native receipt is claimed.
+
+The existing safety contract still requires a live UTC consent expiry covering
+the exact five-minute execution. A Windows-capable continuation should use this
+recorded approval to create the renewed private consent receipt immediately
+before execution with a live <=1-hour UTC expiry covering the 300-second bound,
+revalidate the exact qualified private stage, and call
+`observe_supervised(..., club_index=5)`. Do not weaken or bypass that expiry
+check.
+
+No additional static/source analysis is required before the probe. Its receipt
+is now the decisive next evidence:
+- a `+13C/+140` hardware trap => adjudicate the writer and receiver;
+- selected `0x5DA538` with uninterrupted all-user-thread coverage and no
+  write => classify only the actual receiver bytes as unchanged allocation
+  bytes for this exact lifecycle, never as a general zero initializer/default.
+
 ## Gate-13 takeover reconciliation / exact next probe (5 October 2026 KST)
 
 Temporary Gate-13 closure work is now reconciled onto current-main-based PR #346;
