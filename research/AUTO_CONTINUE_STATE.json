@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Gate-14 main now includes four-bank SFX ownership (2faf1b66) and exact speech-stream resource ownership (05b5a267; 2,021 tests / 23 expected skips). Active disjoint PR #312 head a744cf6a binds the separate CRWD resource-selection subsystem without promoting filename/user semantics. Validate exact-head CI before merge, then continue the next source-backed audio slice (CHANT.eam / chant bank selection or concrete speech/event binding) without touching Gate 13/shared runtime.",
-  "last_known_main_head": "05b5a267d4aacb32902466dd0e208435e0f731de",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Gate-14 main now includes CRWD resource selection and chant control/bank catalog. PR #313 merged as 8b4969e0 after 2,030 tests / 23 expected skips plus asset policy. Exact next disjoint task: trace chant dynamic loader 0x723010 and its consumers far enough to source-close one concrete bank-selection or sample-playback rule; keep MIDx sequencing, club-name semantics, event meaning and playback timing fail-closed until source-proven.",
+  "last_known_main_head": "8b4969e01d3168a77f4f1caab45e944efea0698e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 262,
+  "recovery_generation": 263,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Audio work-ahead continues: PR #312 CRWD selection validating; no music/commentary semantics claimed yet.",
+  "note": "Recovery continuation: chant catalog canonical; tracing dynamic chant loader/playback path next.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
