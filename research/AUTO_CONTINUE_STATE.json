@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Continue disjoint Gate-14 exact Zurich_XCn_BT_18pixel.fnt staging on chatgpt/gate14-font-stage. Existing temp payload/bootstrap branch head d23e3536 is preserved. Current continuation: make the temporary workflow PR-triggerable so a GitHub runner reconstructs and SHA-256 verifies the exact 79,734-byte font, commits the binary to the branch, then remove temporary payload/workflow, add manifest provenance, and continue direct FastView header rasterization/integration. Do not touch Gate 13.",
-  "last_known_main_head": "8698939b3b80ab048839f7cd46ef97c1418833e2",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate-14 exact Zurich_XCn_BT_18pixel.fnt staging PR #383 merged to main 5c4b2a5b after 2,334 tests/23 expected skips, asset-policy success and Windows package success. Continue disjoint Gate-14 direct FastView header raster on chatgpt/gate14-fastview-direct-header-raster: verify exact style-3 font load, centered signed-half origins, second-line clip, then merge. Next checkpoint after that: lift direct_header_text into FastView component/resolved-overlap accounting after possession_figures and before score subpanel planes. Do not touch Gate 13.",
+  "last_known_main_head": "5c4b2a5bc745d33ed4365774ae76973596cc3e28",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 296,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered again at main 8698939b. Font bytes remain locally verified; branch d23e3536 has temporary chunked payload/bootstrap but no run yet. Resume via PR-triggerable GitHub Actions rather than recreating payload.",
+  "note": "PR #383 canonical at 5c4b2a5b. Exact font repository blob a7286c680a13811f18c8f67ebcc3e17b381fd752 matches local Git-object SHA. Raster branch already contains implementation/tests/docs/CI triggers.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
