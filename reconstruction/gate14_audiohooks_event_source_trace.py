@@ -48,6 +48,11 @@ BUTTON_EASE_INPUT_VA = 0x64F7A0
 BUTTON_EASE_EVENT_IDS = (2, 10)
 BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD = 0x34
 BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD = 0x4A
+# Independently source-closed by GATE13_BUTTON_NATIVE_TRACE.md as the active
+# Button@ease animation group index.
+BUTTON_EASE_NATIVE_GROUP_FIELD = BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD
+BUTTON_EASE_NATIVE_GROUP_LENGTHS = (11, 11, 1)
+BUTTON_EASE_DISABLED_GROUP = 2
 BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET = 0xA8
 BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA = 0x5D62F0
 
@@ -439,6 +444,10 @@ def audiohooks_caller_trace_report(
             "event_ids": BUTTON_EASE_EVENT_IDS,
             "object_field_offset": BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
             "word_field_offset": BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
+            "native_group_field_offset": BUTTON_EASE_NATIVE_GROUP_FIELD,
+            "native_group_lengths": BUTTON_EASE_NATIVE_GROUP_LENGTHS,
+            "disabled_group": BUTTON_EASE_DISABLED_GROUP,
+            "native_group_semantics_recovered": True,
             "virtual_offset": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
             "virtual_target_va": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
             "numeric_rule": "event=2 if +0x34 is null or +0x4A==2; otherwise event=10",
