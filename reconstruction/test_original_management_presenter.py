@@ -366,12 +366,10 @@ class OriginalManagementPresenterTests(unittest.TestCase):
         ):
             presenter.source_accepted_squad_view_transition(4)
 
-    def test_exact_fixtures_grid_pointer_selects_source_cell_and_toggled_overlay(self):
-        fixture_staged = tuple(resource.name for resource in LEAGUE_FIXTURES_RESOURCES)
+    def test_exact_fixtures_grid_pointer_resolves_source_column_and_row_selectors(self):
         presenter = OriginalManagementPresenter(
             self.started_session(),
             bridge_factory=Bridge,
-            staged_league_fixture_resource_names=fixture_staged,
         )
         presenter.navigate(0x25C)
 
@@ -382,41 +380,30 @@ class OriginalManagementPresenterTests(unittest.TestCase):
 
         self.assertIsNotNone(activation)
         self.assertEqual((activation.column, activation.row), (1, 0))
-        self.assertIsNone(activation.previous_cell)
-        self.assertEqual(activation.selected_cell, (1, 0))
         self.assertEqual(activation.fixture_id, 700)
-        self.assertEqual(presenter.league_fixtures_selected_cell, (1, 0))
-        selected = [
-            cell
-            for cell in activation.presentation.league_fixtures.cells
-            if cell.selected
-        ]
-        self.assertEqual(len(selected), 1)
-        self.assertEqual((selected[0].column, selected[0].row), (1, 0))
-        self.assertEqual(selected[0].fixture_id, 700)
-        self.assertEqual(selected[0].resource_name, "toggled_fixtures_box")
-        self.assertEqual(selected[0].text, "19.08")
+        # The recovered 0x46D300 path dispatches column/row selectors
+        # separately. Do not manufacture a single-cell toggled visual state.
+        self.assertFalse(
+            any(cell.selected for cell in activation.presentation.league_fixtures.cells)
+        )
 
-    def test_fixtures_grid_pointer_selection_replaces_prior_cell_transactionally(self):
+    def test_fixtures_grid_pointer_reports_empty_materialized_cell_without_action_inference(self):
         presenter = OriginalManagementPresenter(
             self.started_session(),
             bridge_factory=Bridge,
         )
         presenter.navigate(0x25C)
-        first = presenter.league_fixtures_grid_pointer_press(378 + 29 + 1, 235 + 1)
-        second = presenter.league_fixtures_grid_pointer_press(378 + 1, 235 + 14 + 1)
+        activation = presenter.league_fixtures_grid_pointer_press(
+            378 + 1,
+            235 + 14 + 1,
+        )
 
-        self.assertEqual(first.selected_cell, (1, 0))
-        self.assertEqual(second.previous_cell, (1, 0))
-        self.assertEqual(second.selected_cell, (0, 1))
-        self.assertIsNone(second.fixture_id)
-        selected = [
-            cell
-            for cell in second.presentation.league_fixtures.cells
-            if cell.selected
-        ]
-        self.assertEqual([(cell.column, cell.row) for cell in selected], [(0, 1)])
-        self.assertEqual(presenter.league_fixtures_selected_cell, (0, 1))
+        self.assertIsNotNone(activation)
+        self.assertEqual((activation.column, activation.row), (0, 1))
+        self.assertIsNone(activation.fixture_id)
+        self.assertFalse(
+            any(cell.selected for cell in activation.presentation.league_fixtures.cells)
+        )
 
     def test_fixtures_grid_pointer_is_noop_outside_control_or_hidden_cells(self):
         presenter = OriginalManagementPresenter(
@@ -440,7 +427,6 @@ class OriginalManagementPresenterTests(unittest.TestCase):
                 self.assertIsNone(
                     presenter.league_fixtures_grid_pointer_press(*point)
                 )
-        self.assertIsNone(presenter.league_fixtures_selected_cell)
 
     def test_fixtures_grid_pointer_rejects_non_integer_coordinates(self):
         presenter = OriginalManagementPresenter(
@@ -455,32 +441,21 @@ class OriginalManagementPresenterTests(unittest.TestCase):
                     "pointer coordinates must be integers",
                 ):
                     presenter.league_fixtures_grid_pointer_press(*point)
-        self.assertIsNone(presenter.league_fixtures_selected_cell)
 
-    def test_fixtures_selection_survives_source_page_state_and_resets_on_new_panel(self):
+    def test_fixtures_grid_pointer_does_not_change_source_page_state(self):
         presenter = OriginalManagementPresenter(
             self.started_session(),
             bridge_factory=WideBridge,
         )
         presenter.navigate(0x25C)
-        selected = presenter.league_fixtures_grid_pointer_press(378 + 1, 235 + 1)
-        self.assertEqual(selected.selected_cell, (0, 0))
+        activation = presenter.league_fixtures_grid_pointer_press(378 + 1, 235 + 1)
+        self.assertEqual((activation.column, activation.row), (0, 0))
+        self.assertEqual(presenter.league_fixtures_column_offset, 0)
 
         paged = presenter.source_accepted_league_fixtures_page(1)
         self.assertEqual(paged.column_offset, 8)
-        self.assertEqual(presenter.league_fixtures_selected_cell, (0, 0))
-        selected_cells = [
-            cell for cell in paged.presentation.league_fixtures.cells if cell.selected
-        ]
-        self.assertEqual([(cell.column, cell.row) for cell in selected_cells], [(0, 0)])
-        self.assertEqual(selected_cells[0].column_club_id, 108)
-
-        presenter.navigate(0x25A)
-        self.assertIsNone(presenter.league_fixtures_selected_cell)
-        presenter.navigate(0x25C)
-        self.assertIsNone(presenter.league_fixtures_selected_cell)
         self.assertFalse(
-            any(cell.selected for cell in presenter.snapshot().league_fixtures.cells)
+            any(cell.selected for cell in paged.presentation.league_fixtures.cells)
         )
 
     def test_source_accepted_fixtures_paging_tracks_exact_clamped_column_window(self):
