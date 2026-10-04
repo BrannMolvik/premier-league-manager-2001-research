@@ -551,6 +551,32 @@ class OriginalGameTkHost:
         )
         return activation
 
+    def apply_source_accepted_league_fixtures_page(self, direction: int):
+        """Apply one proven PLeagueFixtures column-window page after source acceptance.
+
+        This seam intentionally accepts no pointer coordinates or Tk event.
+        Ordinary mouse mapping remains fail-closed until the original page
+        controls' input rectangles/event boundary are recovered.
+        """
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise OriginalGameHostError(
+                "Source-accepted League Fixtures paging requires the MANAGEMENT host"
+            )
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        activation = self.management_presenter.source_accepted_league_fixtures_page(
+            direction
+        )
+        self.redraw()
+        self.last_status = (
+            "Applied source-accepted League Fixtures page transition: "
+            f"{activation.previous_offset} -> {activation.column_offset}; "
+            "ordinary page-button pointer mapping remains fail-closed"
+        )
+        return activation
+
     def apply_source_accepted_fixture_match_info(
         self,
         *,
