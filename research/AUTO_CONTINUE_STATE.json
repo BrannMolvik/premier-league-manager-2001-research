@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main now includes #299 audio-bank operand narrowing and #300 completed-human -> resolved preview/coverage/Tk presentation composition. Active disjoint checkpoint is PR #302 head e73f26f8: reconciled private PictureControl renderer tracer covering FastView/Panel/PictureControl construction, generic draw neighborhood, bounded vtable-slot candidates, and PlayerRow energy rectangle writer. PR #301 was closed as a duplicate. Merge #302 only after exact-head reconstruction CI and asset policy pass; do not touch Gate 13/shared runtime.",
-  "last_known_main_head": "4fb2940447569f49e279caeecb6c7d1ca38a93ea",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Gate-14 canonical main now includes #302 PictureControl renderer trace tooling and #303 source-closed pairwise paint order possession_diagram -> possession_figures_text. Exact next task: use authorized canonical executable evidence to source-close generic PictureControl resize/source-destination behavior needed by dynamic PlayerRow energy-bar pixels. Keep global z-order, blend behavior, background, audio, and 3D choreography fail-closed unless separately proved.",
+  "last_known_main_head": "3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 258,
+  "recovery_generation": 259,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 258: #300 merged as 4fb29404 after 1,982 tests / 23 skips plus asset policy; #301 duplicate closed; validating reconciled PR #302.",
+  "note": "Recovery 259: resumed at main 3a3f60d1; continuing private Gate-14 PictureControl resize semantics.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
