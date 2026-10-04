@@ -153,6 +153,110 @@ def classify_bnk_window_dataflow_candidates(
     return tuple(output)
 
 
+def shared_bnk_memory_displacement_candidates(
+    candidates: tuple[dict, ...],
+    *,
+    minimum_distinct_windows: int = 2,
+) -> tuple[dict, ...]:
+    """Group recurring bounded memory displacements across distinct trace windows.
+
+    Repetition across loader/playback neighborhoods is useful triage evidence for
+    a possible shared object/record field, but it is not object-identity or field-
+    meaning proof. The grouping intentionally ignores stack/frame-pointer based
+    operands because equal local-stack offsets across unrelated functions are not
+    meaningful cross-window evidence.
+    """
+    if type(candidates) is not tuple:
+        raise Gate14AudioBankFormatTraceError(
+            "BNK dataflow candidates must be an exact tuple"
+        )
+    if (
+        type(minimum_distinct_windows) is not int
+        or minimum_distinct_windows < 2
+    ):
+        raise Gate14AudioBankFormatTraceError(
+            "minimum_distinct_windows must be an integer >= 2"
+        )
+
+    grouped: dict[tuple[int, int], dict] = {}
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            raise Gate14AudioBankFormatTraceError(
+                "BNK dataflow candidate must be a mapping"
+            )
+        label = candidate.get("window_label")
+        instruction_va = candidate.get("instruction_va")
+        memory_operands = candidate.get("memory_operand_candidates", ())
+        if not isinstance(label, str) or not label or type(instruction_va) is not int:
+            raise Gate14AudioBankFormatTraceError(
+                "BNK dataflow candidate identity is malformed"
+            )
+        if type(memory_operands) not in (tuple, list):
+            raise Gate14AudioBankFormatTraceError(
+                "memory_operand_candidates must be a tuple/list"
+            )
+
+        for operand in memory_operands:
+            if not isinstance(operand, dict):
+                raise Gate14AudioBankFormatTraceError(
+                    "memory operand candidate must be a mapping"
+                )
+            base = operand.get("base")
+            displacement = operand.get("displacement")
+            operand_size = operand.get("operand_size")
+            if base in {"esp", "ebp"}:
+                continue
+            if type(displacement) is not int or type(operand_size) is not int:
+                raise Gate14AudioBankFormatTraceError(
+                    "memory operand displacement/size must be integers"
+                )
+            key = (displacement, operand_size)
+            entry = grouped.setdefault(
+                key,
+                {
+                    "displacement": displacement,
+                    "operand_size": operand_size,
+                    "window_labels": set(),
+                    "base_registers": set(),
+                    "instruction_vas": set(),
+                },
+            )
+            entry["window_labels"].add(label)
+            if isinstance(base, str) and base:
+                entry["base_registers"].add(base)
+            entry["instruction_vas"].add(instruction_va)
+
+    output = []
+    for (displacement, operand_size), entry in grouped.items():
+        labels = tuple(sorted(entry["window_labels"]))
+        if len(labels) < minimum_distinct_windows:
+            continue
+        output.append(
+            {
+                "displacement": displacement,
+                "operand_size": operand_size,
+                "distinct_window_count": len(labels),
+                "window_labels": labels,
+                "base_registers": tuple(sorted(entry["base_registers"])),
+                "instruction_vas": tuple(sorted(entry["instruction_vas"])),
+                "classification": (
+                    "shared_bnk_memory_displacement_candidate_not_object_or_field_proof"
+                ),
+            }
+        )
+
+    return tuple(
+        sorted(
+            output,
+            key=lambda item: (
+                -item["distinct_window_count"],
+                item["displacement"],
+                item["operand_size"],
+            ),
+        )
+    )
+
+
 def audio_bank_format_trace_report(
     pe: OriginalPE32,
     *,
@@ -214,6 +318,13 @@ def audio_bank_format_trace_report(
         "dataflow_candidates_classified": bool(classify_dataflow_candidates),
         "bounded_dataflow_candidates_not_format_proof": (
             classify_bnk_window_dataflow_candidates(pe, windows=windows)
+            if classify_dataflow_candidates
+            else ()
+        ),
+        "shared_memory_displacement_candidates_not_field_proof": (
+            shared_bnk_memory_displacement_candidates(
+                classify_bnk_window_dataflow_candidates(pe, windows=windows)
+            )
             if classify_dataflow_candidates
             else ()
         ),
