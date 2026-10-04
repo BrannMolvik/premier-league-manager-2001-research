@@ -10983,3 +10983,12 @@ work may continue under the deferred-blocker policy.
 - Backend success is classified only as adapter delivery completion. Semantic event binding, sample meaning, audible Windows verification, login/menu audio integration, and Gate-14 completion are structurally kept false.
 - Reconstruction run `37200017817` passed **2,106 tests / 23 expected skips** and asset-policy run `37200017826` passed. PR #336 squash-merged as `4b3f9e0b5d62c699402b580b7dcf4aaf9416a8a4`.
 - Exact next cloud-safe step: add a Windows-only in-memory PCM WAV backend behind this seam using standard-library `winsound`, with an injected player for non-Windows/synthetic verification. Actual Windows audible output remains a separate deferred receipt.
+
+
+## 4 October 2026 - Recovery 271 Windows in-memory menu PCM backend
+
+- Recovery 271 resumed after a transient chat interruption without restarting completed Gate-14 audio work. The authorized private FM2001 Library ZIP was successfully resolved/materialized again, but both trivial shell and Python execution still fail with `caas.internal.errors.ClientError`; therefore no new canonical-executable caller trace is claimed.
+- PR #337 added the dependency-free Windows in-memory WAV adapter behind the verified numeric menu PCM seam. It requires non-silent verified decoded PCM, recomputes the PCM SHA-256 before platform delivery, emits a standard mono 16-bit 22,050 Hz WAV image, and defaults to synchronous `winsound.PlaySound(..., SND_MEMORY)` with an injectable player for hosted tests.
+- Hosted tests inspect the exact WAV PCM frames and verify that an integrity mismatch blocks the platform player. A normal platform return remains adapter completion only, not proof of audible Windows output.
+- Reconstruction run `37200338931` passed **2,112 tests / 23 expected skips** and asset-policy run `37200338933` passed. PR #337 squash-merged as `418375e94a90595c121bf4b3ba7dc4071c849f9b`.
+- Exact next cloud-safe step: add a Windows 11 audible-audit harness/receipt for an explicit numeric AudioHooks event/state pair and exact canonical `menus.bnk`. The receipt must require explicit human audibility confirmation; it must not invent event/sample names or promote semantic binding.
