@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned, but the decisive selected-capacity native probe is now canonical on main and no longer a blocker: DBRClub ID 5 reached selected 0x5DA538 with uninterrupted dual-context all-user-thread watch coverage, no watched write, and unchanged 0/0 allocation bytes classified only for that exact lifecycle. Independent Gate-14 PR #359 is merged as main 1e24635b after 2,236 tests/23 skips. Verify PR #360 at head fc821691: disjoint live first-screen press-audio host wrapper that delivers the source-closed numeric route before the existing click path and never lets expected audio failure block gameplay. After verification, continue the next disjoint Gate-14 audio/presentation blocker without touching Gate-13-owned files.",
-  "last_known_main_head": "1e24635b88601bf179e4ce32409c3f2c5ff06cf3",
+  "active_task": "Gate 13 remains OPEN and Codex-owned; its decisive selected-capacity probe is canonical and no longer a blocker. Gate-14 PR #360 is merged as main e76f9c5b; authoritative workflow run 37222871240 passed 2,257 tests with 23 expected skips (the merge commit message's 2,242 count is a bookkeeping typo). Verify PR #361 at head 4ec0fada: exhaustive 18-entry outer FastViewPanel draw-array order while global z-order remains false. In parallel, source-close exhaustive nested child inventories for FastViewScores and FastViewTeam, then promote only the structural ordering evidence actually proven.",
+  "last_known_main_head": "e76f9c5b766bbfecec7b5a4f8cf50dbd87b668cd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 282,
+  "recovery_generation": 283,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate-13 ownership lock remains active despite successful native probe; do not edit its implementation/status/persistence files. PR #360 is deliberately press-only because the production host still lacks native Button hover/capture/group state tracking. Numeric first-screen routes are canonical; human-readable sound names and Windows audibility remain unresolved.",
+  "note": "Gate-13 ownership lock remains active. #360 is canonical and must be cited as 2,257 tests/23 skips from workflow run 37222871240. #361 closes only outer FastView order. Nested FastViewScores/FastViewTeam inventories remain the structural blocker before any global_fastview_z_order_recovered promotion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
