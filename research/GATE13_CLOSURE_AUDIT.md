@@ -16,35 +16,36 @@ or an assertion that its heap history replays the original process. See
 | Actual ROADMAP criterion | Current evidence and result |
 | --- | --- |
 | Simulation remains separated from presentation | PASS: existing separation audit and current regression remain intact. |
-| Accessible original resources and recoverable layouts/navigation are inventoried and reused | NOT COMPLETE: existing assets/layouts/report rendering are retained, but ordinary Fixtures page-arrow rendering/input remains absent. |
-| Main-menu/login structure, navigation and timing closely follow the original | PARTIALLY VERIFIED: fresh schema-8 checks the existing structure and accepted routes; final source-qualified timing/normal-play judgment is still pending. |
-| Normal play is recognizably FM2001 | BLOCKED: the human-away target outside the first twelve columns requires an explicit paging seam. Right-click works after that seam, but this is not yet a fully ordinary navigation proof. |
+| Accessible original resources and recoverable layouts/navigation are inventoried and reused | PARTIAL: ordinary four-frame Fixtures arrows and native PMenu popup lifecycle are integrated; the corrected automatic-away route needs no paging seam. The recovered management header's dynamic back_4/back_4_anim art/text remains unrendered. |
+| Main-menu/login structure, navigation and timing closely follow the original | FAIL: the live host still renders fixed frame0 rather than advancing the recovered 11-step Button hover model. The original update owner/cadence is not qualified; a guessed Tk timer cannot close this criterion. |
+| Normal play is recognizably FM2001 | PARTIAL: genuine calculated human-away report/save/fresh reload/visible arrows/right-click/correct PMatchInfo passes. Final required header/ordinary data/text recognizability has not passed; schema8 is not a comprehensive normal-play pixel judgment. |
 
-The exact next source-backed action is to finish the Fixtures `+D30/+D60`
-controls: events39/40, wrappers9474F0/9474B0, local origins351/213 and721/213,
-27x18 geometry, dispatcher46E040 ->46E489/46E4AB. Qualify the original arrow
-resource identities, concrete control draw/frame-state and accepted pointer
-events, and parent transform before implementing them. Then repeat automatic
-human-away calculation/save/fresh reload/right-click **without the paging seam**
-and complete the timing/recognizability judgment. Do not reopen completed report
-packing/codecs/ownership or expand into Gate14/optional obscure contexts.
+The exact next source-backed action is the existing Button update owner/cadence
+and live first-screen integration, followed by the genuinely required management
+header/ordinary data-text recognizability review. The Fixtures arrow and popup
+dependency are closed; see `GATE13_FIXTURES_PAGING_TRACE.md`. Do not reopen
+capacity/report packing/codecs/ownership or expand into Gate14/optional contexts.
 
 Bounded canonical-executable pager setup/dispatch evidence SHA-256:
 `12d05ef3630dcb690e115208c2656c97f9b786a6e880431d2577a0d3e4770da2`;
 wrapper declaration/event-table detail SHA-256:
 `7dc43a4a24b2444d3b3bccf7a0d5ebfae12776823023f7a283e95dc87afe078e`.
-The wrappers declare 15 frames, not the unrelated 23-frame Button mapping.
-Raw source reports remain private; asset paths/frame semantics, concrete control
-type and parent translation are not inferred from these candidate owners.
+Correction: pushed0xF is descriptor capability flags, **not15frames**. Actual
+atlases108x18 contain four27x18 frames. Concrete bitmap vtable7BE3E8, frame
+selector64FDB0, accepted64F7A0 press and zero-origin factory are now qualified;
+raw reports remain private. The two original assets are provenance-imported.
 
-Final reconciled implementation validation: **2,267 tests /23 expected skips**, **134
+Previous producer implementation validation: **2,267 tests /23 expected skips**, **134
 focused checks**, asset policy and fresh Windows11/Tk schema8 all pass.
 Windows receipt SHA-256:
 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
 Automatic-away proof SHA-256:
 `20c3ab1422244a312d64db53da55cb1f86b58955ab03c7ea65c7580bb34ae9d5`.
-The receipt explicitly discloses the paging seam; schema8 is not a substitute
-for all ROADMAP criteria. Gate13 remains ACTIVE; no transition is claimed.
+That historical producer receipt discloses a paging seam. The corrected current
+ordinary-arrow receipt is `d22de98fa7b130df69331366073256e8e62a6ecaa67ea77f3a26004fbd159125`:
+bidirectional real pointer presses/releases, no seam, zero arrow occlusion and
+correct rendered report. Schema8 is not a substitute for all ROADMAP criteria.
+Gate13 remains ACTIVE; no transition is claimed.
 
 ## Historical probe checkpoints (superseded next-actions)
 

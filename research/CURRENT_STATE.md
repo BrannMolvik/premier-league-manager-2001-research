@@ -25,23 +25,32 @@ are retained, not a zero default; the port's heap history is not claimed to
 replay the original process. Field mapping and known-zero native RNG skips
 are source-corrected. Focused capacity/gate/save tests: **71 passed**.
 
-**Remaining ordinary navigation blocker:** this report's away club is outside
-the initial 12-column window. The existing +/-12 paging seam exposes it, after
-which ordinary right-click works, but the actual page-button pointer and
-pixel/state path is still unqualified/unimplemented. Native setup proves
-controls `+D30/+D60`, event IDs **39/40**, local origins `(351,213)` /
-`(721,213)`, wrapper-defined 27x18 geometry and wrappers `9474F0/9474B0`;
-dispatcher `46E040` maps them to `46E489/46E4AB`.
-Next: qualify the two resource/control draw-state and acceptance paths, reuse
-the original arrows, integrate ordinary paging, then rerun automatic-away
-without the explicit paging seam and finish criterion-level timing,
-recognizability and Windows validation. Gate13 remains OPEN: this is a real
-normal-navigation gap, not an optional detail. Current-code regression passes
+**Ordinary paging milestone (5 October):** exact `toogle_arrow_left/right.444`
+resources are imported and the +D30/+D60 controls now use events39/40, original
+four-frame draw state, accepted press/release/hover and zero-origin transform.
+`0xF` is a capability mask, NOT15frames. A real visual-tail check exposed the
+permanent PMenu overlay hiding the entire right arrow; source-qualified popup
+stack/event2/dismissal behavior now fixes that without invented z-order.
+The genuine automatic human-away save reloads in a fresh Tk process and uses
+real bidirectional arrow clicks, no explicit paging seam, then ordinary
+right-click opens the correct rendered PMatchInfo. Receipt SHA-256:
+`d22de98fa7b130df69331366073256e8e62a6ecaa67ea77f3a26004fbd159125`.
+Exact source/asset/route evidence: `GATE13_FIXTURES_PAGING_TRACE.md`.
+
+**Gate13 remains OPEN after the criterion review.** The next actual blocker is
+live first-screen Button hover/update timing: the host still draws fixed
+`build_original_debug_frame(view,0)`, not the recovered 11-step live state.
+Qualify its original update owner/cadence and integrate it without inventing a
+timer. Then complete normal-play recognizability review of the recovered
+management header/ordinary data/text presentation. Header popup input is now
+qualified, but `back_4/back_4_anim` dynamic art/text is not yet rendered.
+No capacity/report/save/PMatchInfo retracing, Gate14 changes or new original
+launch is required by these findings. Previous milestone regression passed
 **2,267 tests / 23 expected skips** after canonical-main reconciliation,
 plus **134 focused tests** and asset policy (pre-reconciliation: 2,248 tests).
 Fresh real Windows 11/Tk schema-8 passes; receipt SHA-256:
 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
-This validates existing host contracts, not ordinary paging or every timing/
+This validates existing host contracts, not every timing/
 recognizability criterion. Both original-probe attempts and consent are spent;
 no further original launch is authorized by those receipts. Gate14 work and
 ownership are unchanged. See the current criterion table in

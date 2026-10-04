@@ -4,6 +4,23 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Ordinary Fixtures arrows and native menu popup
+
+Recovered exact left/right `toogle` resources, four-state27x18 bitmap controls,
+event39/40 accepted press/release/hover, boundary enable/clamp and zero-origin
+parent transform. Corrected the old15-frame inference: F is a capability mask.
+The genuine automatic human-away report now survives save/fresh-process reload
+and reaches correct PMatchInfo through actual bidirectional Tk page clicks,
+not the explicit paging seam. A visual-tail check caught the entire right
+arrow hidden under the old permanent PMenu overlay. Recovered native stack/
+event2/open/pointer-dismiss semantics and fixed visibility/input ownership,
+without raising the arrow over the menu. Details/receipts are in
+`GATE13_FIXTURES_PAGING_TRACE.md`. No original execution or capacity/report edits.
+The final criterion review keeps Gate13 OPEN: the live first-screen host still
+draws fixed frame0 rather than recovered hover animation with qualified timing;
+required management header/ordinary data-text recognizability remains incomplete.
+Disjoint Gate14 #363 was fast-forward-preserved; agent-runtime is unchanged.
+
 ### 5 October 2026 KST — Automatic uncontrolled producer and calculated-away report
 
 Following the gap-free native capacity receipt, recovered the exact CRT private
