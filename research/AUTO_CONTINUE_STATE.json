@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #347 merged as main 96e1d7ca after 2,155 tests/23 skips and asset-policy success. Continue independent Gate-14 native font work: source-close the runtime color-key path and prepare a fail-closed runtime pixel-format mask receipt. Static source proves the color key is red-mask OR blue-mask and the font packed blitter receives replacement color 0; exact target-Windows mask values remain runtime evidence.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #348 at head 1714407a: source-closed font color-key semantics plus strict Windows original-runtime pixel-format receipt validation. Asset policy is green; full reconstruction CI is running. If green, merge #348 and continue source-closing the retained-mask RGB8 -> packed16 conversion (0x443E00/0x443E20) without assuming runtime RGB565/RGB555 values.",
   "last_known_main_head": "96e1d7caabdc4a53f4f4736843ca169c0a536109",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 277,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #347 canonicalized packed-16 alpha blending. Next source layer: 0x653090/0x6530D0/0x653120 populate runtime channel-mask metadata from the active surface; 0x604090 derives native key as red_mask | blue_mask; 0x65722E calls 0x658BC0 with zero replacement color. Add no fixed RGB565/RGB555 claim without runtime receipt.",
+  "note": "PR #348 turns the remaining channel layout question into an exact Windows receipt requirement. Static source now closes native key = red_mask | blue_mask and zero font replacement color. Next static source step after merge is the mask-metadata-driven RGB8 -> packed16 conversion; actual mask values remain external Windows evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
