@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #281 head ebc007ee is open to bind direct run_final_release_audit to the canonical full-scope implementation preflight, record the green preflight payload, and propagate the external transaction's player seed/max-days. Merge only after reconstruction, asset-policy, and Windows-package checks are green; then continue the next independent Gate-17 release invariant.",
-  "last_known_main_head": "c8ab34e685aa2c39d0fd2f99fc415cf1b21d1004",
+  "active_task": "Gate 13 remains OPEN. PR #282 head 9004e0df safely reconciles the 31 non-overlapping technical/resource/evidence files from stale PR #242 onto current main without overwriting project_status/CURRENT_STATE/FIDELITY_GAPS/PROGRESS. Gate13 focused, reconstruction, asset-policy, and Windows package workflows are validating this exact head. Merge only on green checks, then reconcile the four status ledgers and continue the unresolved fresh +13C/+140 capacity lifecycle / remaining native report presentation blockers.",
+  "last_known_main_head": "a3f66010b0451725dd73cdfdfc6f253006d55744",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 253,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 253: PR #281 opened at ebc007ee; reconstruction CI queued.",
+  "note": "Recovery 253: PR #282 opened at 9004e0df; fresh CI running on reconciled Gate13 PMatchInfo row milestone.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
