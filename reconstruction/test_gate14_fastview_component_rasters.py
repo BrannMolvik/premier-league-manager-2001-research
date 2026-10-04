@@ -27,6 +27,13 @@ from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
 )
+from gate14_fastview_score_draw_phases import (
+    PHASE_EARLY_SCORE_ROWS,
+    PHASE_LATE_GRID,
+    PHASE_RUNTIME_ICONS,
+    FastViewLeagueScoresDrawPhases,
+    FastViewScoreDrawPhasePlane,
+)
 from hashlib import sha256
 
 
@@ -97,6 +104,25 @@ def score_table_rasters():
             rgba_sha256=sha256(rgba_b).hexdigest(),
         ),
     )
+
+def score_draw_phases():
+    def phase(component, value, layers):
+        rgba = bytes((value, value + 1, value + 2, 255)) * (800 * 600)
+        return FastViewScoreDrawPhasePlane(
+            component=component,
+            size=(800, 600),
+            rgba=rgba,
+            source_layer_count=layers,
+            rgba_sha256=sha256(rgba).hexdigest(),
+            native_phase=component,
+            runtime_tail=(component == PHASE_RUNTIME_ICONS),
+        )
+    return FastViewLeagueScoresDrawPhases(
+        early_score_rows=phase(PHASE_EARLY_SCORE_ROWS, 31, 2),
+        late_grid=phase(PHASE_LATE_GRID, 41, 1),
+        runtime_phase_icons=phase(PHASE_RUNTIME_ICONS, 51, 1),
+    )
+
 
 def pixel(plane, x, y):
     offset = (y * 800 + x) * 4
@@ -203,6 +229,84 @@ class FastViewComponentRasterTests(unittest.TestCase):
         )
         self.assertFalse(rasters.cross_component_z_order_recovered)
         self.assertFalse(rasters.flattened_frame_available)
+
+    def test_phase_split_replaces_aggregate_score_plane_but_keeps_table(self):
+        source = score_table_rasters()
+        phases = score_draw_phases()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+            score_draw_phases=phases,
+        )
+        self.assertIsNone(rasters.league_scores)
+        self.assertEqual(
+            rasters.league_scores_early_rows.component,
+            PHASE_EARLY_SCORE_ROWS,
+        )
+        self.assertEqual(rasters.league_table.component, "league_table_static")
+        self.assertEqual(
+            rasters.league_scores_late_grid.component,
+            PHASE_LATE_GRID,
+        )
+        self.assertEqual(
+            rasters.league_scores_runtime_icons.component,
+            PHASE_RUNTIME_ICONS,
+        )
+        self.assertEqual(
+            rasters.league_scores_runtime_icons.source_layer_count,
+            1,
+        )
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+    def test_phase_split_requires_verified_table_bundle_and_exact_phase_type(self):
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "require the verified LeagueTable",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_draw_phases=score_draw_phases(),
+            )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "score_draw_phases must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_table=score_table_rasters(),
+                score_draw_phases=object(),
+            )
+
+        source = score_table_rasters()
+        phases = score_draw_phases()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+            score_draw_phases=phases,
+        )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "mutually exclusive",
+        ):
+            replace(
+                rasters,
+                league_scores=FastViewComponentRasterPlane(
+                    component="league_scores_static",
+                    size=source.league_scores.size,
+                    rgba=source.league_scores.rgba,
+                    source_layer_count=source.league_scores.source_layer_count,
+                    rgba_sha256=source.league_scores.rgba_sha256,
+                ),
+            )
 
     def test_score_table_bundle_fails_closed_on_wrong_type_or_partial_pair(self):
         with self.assertRaisesRegex(
