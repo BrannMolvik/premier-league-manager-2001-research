@@ -121,6 +121,8 @@ on:
       - "reconstruction/test_gate14_speech_resource_ownership.py"
       - "reconstruction/gate14_crwd_resource_ownership.py"
       - "reconstruction/test_gate14_crwd_resource_ownership.py"
+      - "reconstruction/gate14_chant_resource_catalog.py"
+      - "reconstruction/test_gate14_chant_resource_catalog.py"
       - "reconstruction/gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/test_gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
