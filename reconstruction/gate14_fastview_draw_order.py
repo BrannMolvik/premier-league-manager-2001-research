@@ -99,6 +99,7 @@ LEAGUE_SCORES_CURRENT_FIX_GRID_1_PICTURE_CALLSITE_VA = 0x5239F3
 # siblings, so no relation is exposed between those aliases.
 SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("direct_chrome",),
+    ("clock_text",),
     ("possession_diagram",),
     ("possession_figures_text",),
     ("league_scores_early_rows_static",),
@@ -110,6 +111,7 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
 
 _COMPONENT_PARENT_GROUP = {
     "direct_chrome": "fastview_panel",
+    "clock_text": "fastview_panel",
     "possession_diagram": "fastview_panel",
     "possession_figures_text": "fastview_panel",
     "league_table_static": "fastview_scores",
@@ -201,7 +203,7 @@ _SOURCE_CLOSED_PAIRWISE_RELATIONS = _source_closed_relations()
 # it cannot be ordered against LeagueTable or any split score phase. Its outer
 # wrapper relations remain valid: all direct FastViewPanel controls precede the
 # score wrapper, and the score wrapper precedes the team wrapper.
-for earlier in ("direct_chrome", "possession_diagram", "possession_figures_text"):
+for earlier in ("direct_chrome", "clock_text", "possession_diagram", "possession_figures_text"):
     relation = _relation(earlier, "league_scores_static")
     _SOURCE_CLOSED_PAIRWISE_RELATIONS[
         frozenset((earlier, "league_scores_static"))

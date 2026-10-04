@@ -13,6 +13,8 @@ from gate14_fastview_component_rasters import (
     rasterize_fastview_team_table_plane,
 )
 from gate14_possession_figures import possession_figures_text_layout
+from gate14_fastview_clock import SOURCE_CLOCK_TEXT_RECT
+from gate14_fastview_clock_raster import FastViewClockRaster
 from original_fastview_chrome_art import build_fastview_chrome_art
 from original_fastview_possession_art import build_fastview_possession_art
 from original_fastview_possession_figures_art import (
@@ -138,6 +140,24 @@ def score_phase_text_raster():
         source_layer_count=0,
         placements=(),
         rgba_sha256=sha256(rgba).hexdigest(),
+    )
+
+
+def clock_raster():
+    rgba = bytearray(800 * 600 * 4)
+    offset = (SOURCE_CLOCK_TEXT_RECT[1] * 800 + SOURCE_CLOCK_TEXT_RECT[0]) * 4
+    rgba[offset:offset + 4] = b"\xff\xff\xff\xff"
+    payload = bytes(rgba)
+    return FastViewClockRaster(
+        component="clock_text",
+        size=(800, 600),
+        rgba=payload,
+        source_layer_count=1,
+        text="1 mins",
+        line_origin=SOURCE_CLOCK_TEXT_RECT[:2],
+        clip_rect=SOURCE_CLOCK_TEXT_RECT,
+        native_color_16=0xFFFF,
+        rgba_sha256=sha256(payload).hexdigest(),
     )
 
 
@@ -396,6 +416,32 @@ class FastViewComponentRasterTests(unittest.TestCase):
             "supplied as one verified pair",
         ):
             replace(rasters, league_table=None)
+
+    def test_optional_clock_raster_lifts_without_flattening(self):
+        source_clock = clock_raster()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            clock=source_clock,
+        )
+        self.assertIsNotNone(rasters.clock)
+        self.assertEqual(rasters.clock.component, "clock_text")
+        self.assertEqual(rasters.clock.rgba_sha256, source_clock.rgba_sha256)
+        self.assertEqual(rasters.clock.source_layer_count, 1)
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "clock must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                clock=object(),
+            )
 
     def test_component_set_remains_unflattened_and_has_no_cross_component_order(self):
         rasters = build_fastview_component_rasters(

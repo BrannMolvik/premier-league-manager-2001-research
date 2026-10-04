@@ -160,6 +160,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
     def test_current_raster_families_have_source_closed_partial_relative_order(self):
         expected_levels = (
             ("direct_chrome",),
+            ("clock_text",),
             ("possession_diagram",),
             ("possession_figures_text",),
             ("league_scores_early_rows_static",),
@@ -169,6 +170,35 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("team_table_static", "team_table_energy"),
         )
         self.assertEqual(SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS, expected_levels)
+
+        clock_after_chrome = source_closed_pairwise_order(
+            "direct_chrome",
+            "clock_text",
+        )
+        self.assertEqual(clock_after_chrome.earlier_component, "direct_chrome")
+        self.assertEqual(clock_after_chrome.later_component, "clock_text")
+        self.assertTrue(clock_after_chrome.same_parent_draw_array)
+        clock_before_possession = source_closed_pairwise_order(
+            "clock_text",
+            "possession_diagram",
+        )
+        self.assertEqual(clock_before_possession.earlier_component, "clock_text")
+        self.assertEqual(
+            clock_before_possession.later_component,
+            "possession_diagram",
+        )
+        self.assertTrue(clock_before_possession.same_parent_draw_array)
+
+        aggregate_clock = source_closed_pairwise_order(
+            "clock_text",
+            "league_scores_static",
+        )
+        self.assertEqual(aggregate_clock.earlier_component, "clock_text")
+        self.assertEqual(
+            aggregate_clock.later_component,
+            "league_scores_static",
+        )
+        self.assertTrue(aggregate_clock.nested_subpanel_bridge_recovered)
 
         for score_component in (
             "league_scores_static",
