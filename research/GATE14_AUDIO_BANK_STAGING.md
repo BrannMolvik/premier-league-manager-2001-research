@@ -39,6 +39,9 @@ Both outputs and the staged BNK bytes remain private and outside Git.
 
 The receipt requires:
 
+- canonical authorized source archive size **511,121,336 bytes**;
+- canonical authorized source archive SHA-256
+  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`;
 - one hashed source archive;
 - `only_explicit=true`;
 - zero unresolved requested paths;
