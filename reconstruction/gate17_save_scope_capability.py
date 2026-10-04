@@ -30,9 +30,12 @@ class Gate17SaveScopeCapabilityError(RuntimeError):
 
 @dataclass(frozen=True)
 class SaveScopeCapabilitySurface:
-    fixed_primary_scope_ids: tuple[str, ...]
-    procedural_primary_scope_ids: tuple[str, ...]
-    procedural_secondary_scope_ids: tuple[str, ...]
+    fixed_primary_serialized_scope_ids: tuple[str, ...]
+    fixed_primary_continuation_scope_ids: tuple[str, ...]
+    procedural_primary_serialized_scope_ids: tuple[str, ...]
+    procedural_primary_continuation_scope_ids: tuple[str, ...]
+    procedural_secondary_serialized_scope_ids: tuple[str, ...]
+    procedural_secondary_continuation_scope_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -40,7 +43,8 @@ class SaveScopeCapabilityEntry:
     scope_id: str
     competition_id: int
     runtime_owner: str
-    save_reload_capable: bool
+    serialization_supported: bool
+    continuation_supported: bool
     blocker_codes: tuple[str, ...]
 
     @property
@@ -52,7 +56,8 @@ class SaveScopeCapabilityEntry:
             "scope_id": self.scope_id,
             "competition_id": self.competition_id,
             "runtime_owner": self.runtime_owner,
-            "save_reload_capable": self.save_reload_capable,
+            "serialization_supported": self.serialization_supported,
+            "continuation_supported": self.continuation_supported,
             "blocker_codes": list(self.blocker_codes),
             "complete": self.complete,
         }
@@ -127,32 +132,57 @@ def _exact_unique_scope_ids(
 
 def normalized_surface(
     *,
-    fixed_primary_scope_ids: Iterable[str],
-    procedural_primary_scope_ids: Iterable[str],
-    procedural_secondary_scope_ids: Iterable[str],
+    fixed_primary_serialized_scope_ids: Iterable[str],
+    fixed_primary_continuation_scope_ids: Iterable[str],
+    procedural_primary_serialized_scope_ids: Iterable[str],
+    procedural_primary_continuation_scope_ids: Iterable[str],
+    procedural_secondary_serialized_scope_ids: Iterable[str],
+    procedural_secondary_continuation_scope_ids: Iterable[str],
 ) -> SaveScopeCapabilitySurface:
-    fixed = _exact_unique_scope_ids(
-        fixed_primary_scope_ids,
-        label="fixed primary save scope IDs",
+    values = {
+        "fixed_primary_serialized_scope_ids": _exact_unique_scope_ids(
+            fixed_primary_serialized_scope_ids,
+            label="fixed primary serialized scope IDs",
+        ),
+        "fixed_primary_continuation_scope_ids": _exact_unique_scope_ids(
+            fixed_primary_continuation_scope_ids,
+            label="fixed primary continuation scope IDs",
+        ),
+        "procedural_primary_serialized_scope_ids": _exact_unique_scope_ids(
+            procedural_primary_serialized_scope_ids,
+            label="procedural primary serialized scope IDs",
+        ),
+        "procedural_primary_continuation_scope_ids": _exact_unique_scope_ids(
+            procedural_primary_continuation_scope_ids,
+            label="procedural primary continuation scope IDs",
+        ),
+        "procedural_secondary_serialized_scope_ids": _exact_unique_scope_ids(
+            procedural_secondary_serialized_scope_ids,
+            label="procedural secondary serialized scope IDs",
+        ),
+        "procedural_secondary_continuation_scope_ids": _exact_unique_scope_ids(
+            procedural_secondary_continuation_scope_ids,
+            label="procedural secondary continuation scope IDs",
+        ),
+    }
+
+    owner_sets = (
+        set(values["fixed_primary_serialized_scope_ids"])
+        | set(values["fixed_primary_continuation_scope_ids"]),
+        set(values["procedural_primary_serialized_scope_ids"])
+        | set(values["procedural_primary_continuation_scope_ids"]),
+        set(values["procedural_secondary_serialized_scope_ids"])
+        | set(values["procedural_secondary_continuation_scope_ids"]),
     )
-    primary = _exact_unique_scope_ids(
-        procedural_primary_scope_ids,
-        label="procedural primary save scope IDs",
-    )
-    secondary = _exact_unique_scope_ids(
-        procedural_secondary_scope_ids,
-        label="procedural secondary save scope IDs",
-    )
-    all_ids = fixed + primary + secondary
-    if len(set(all_ids)) != len(all_ids):
+    if (
+        owner_sets[0] & owner_sets[1]
+        or owner_sets[0] & owner_sets[2]
+        or owner_sets[1] & owner_sets[2]
+    ):
         raise Gate17SaveScopeCapabilityError(
             "save capability scope IDs overlap across runtime owners"
         )
-    return SaveScopeCapabilitySurface(
-        fixed_primary_scope_ids=fixed,
-        procedural_primary_scope_ids=primary,
-        procedural_secondary_scope_ids=secondary,
-    )
+    return SaveScopeCapabilitySurface(**values)
 
 
 def audit_save_scope_capability(
@@ -171,11 +201,22 @@ def audit_save_scope_capability(
     if not plan.entries:
         raise Gate17SaveScopeCapabilityError("runtime ownership plan is empty")
 
-    fixed = set(surface.fixed_primary_scope_ids)
-    primary = set(surface.procedural_primary_scope_ids)
-    secondary = set(surface.procedural_secondary_scope_ids)
+    fixed_serialized = set(surface.fixed_primary_serialized_scope_ids)
+    fixed_continuation = set(surface.fixed_primary_continuation_scope_ids)
+    primary_serialized = set(surface.procedural_primary_serialized_scope_ids)
+    primary_continuation = set(surface.procedural_primary_continuation_scope_ids)
+    secondary_serialized = set(surface.procedural_secondary_serialized_scope_ids)
+    secondary_continuation = set(surface.procedural_secondary_continuation_scope_ids)
+    all_surface_ids = (
+        fixed_serialized
+        | fixed_continuation
+        | primary_serialized
+        | primary_continuation
+        | secondary_serialized
+        | secondary_continuation
+    )
     known_scope_ids = {str(entry.scope_id) for entry in plan.entries}
-    outside = (fixed | primary | secondary) - known_scope_ids
+    outside = all_surface_ids - known_scope_ids
     if outside:
         raise Gate17SaveScopeCapabilityError(
             f"save capability references scopes outside TeamSelect catalog: {sorted(outside)}"
@@ -186,23 +227,32 @@ def audit_save_scope_capability(
         scope_id = str(planned.scope_id)
         owner = str(planned.runtime_owner)
         if owner == RUNTIME_FIXED_PRIMARY:
-            capable = scope_id in fixed
+            serialization_supported = scope_id in fixed_serialized
+            continuation_supported = scope_id in fixed_continuation
         elif owner == RUNTIME_PROCEDURAL_PRIMARY:
-            capable = scope_id in primary
+            serialization_supported = scope_id in primary_serialized
+            continuation_supported = scope_id in primary_continuation
         elif owner == RUNTIME_PROCEDURAL_SECONDARY:
-            capable = scope_id in secondary
+            serialization_supported = scope_id in secondary_serialized
+            continuation_supported = scope_id in secondary_continuation
         else:
             raise Gate17SaveScopeCapabilityError(
                 f"unknown runtime owner {owner!r}"
             )
-        blockers = () if capable else ("save_reload_capability_missing",)
+
+        blockers: list[str] = []
+        if not serialization_supported:
+            blockers.append("save_serialization_missing")
+        if not continuation_supported:
+            blockers.append("save_reload_continuation_missing")
         entries.append(
             SaveScopeCapabilityEntry(
                 scope_id=scope_id,
                 competition_id=int(planned.competition_id),
                 runtime_owner=owner,
-                save_reload_capable=capable,
-                blocker_codes=blockers,
+                serialization_supported=serialization_supported,
+                continuation_supported=continuation_supported,
+                blocker_codes=tuple(blockers),
             )
         )
 
@@ -223,8 +273,11 @@ def run_canonical_save_scope_capability(
     """
     plan = load_canonical_playable_league_runtime_plan(game_dir)
     surface = normalized_surface(
-        fixed_primary_scope_ids=plan.fixed_primary_scope_ids,
-        procedural_primary_scope_ids=plan.procedural_primary_scope_ids,
-        procedural_secondary_scope_ids=(),
+        fixed_primary_serialized_scope_ids=plan.fixed_primary_scope_ids,
+        fixed_primary_continuation_scope_ids=plan.fixed_primary_scope_ids,
+        procedural_primary_serialized_scope_ids=plan.procedural_primary_scope_ids,
+        procedural_primary_continuation_scope_ids=plan.procedural_primary_scope_ids,
+        procedural_secondary_serialized_scope_ids=(),
+        procedural_secondary_continuation_scope_ids=(),
     )
     return audit_save_scope_capability(plan, surface)
