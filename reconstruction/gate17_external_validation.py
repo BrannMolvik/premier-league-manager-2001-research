@@ -107,6 +107,8 @@ def preflight_external_release_validation(
     canonical_game_dir: str | Path,
     full_original_scope_receipt: str | Path,
     work_root: str | Path,
+    player_seed: int = 1,
+    max_days: int = 420,
 ) -> dict:
     """Validate all immutable-evidence prerequisites before writing anything."""
     root = Path(repo_root).resolve()
@@ -141,7 +143,11 @@ def preflight_external_release_validation(
         repo_root=root,
         label="full original scope receipt",
     )
-    implementation_preflight = run_canonical_full_scope_preflight(game_dir)
+    implementation_preflight = run_canonical_full_scope_preflight(
+        game_dir,
+        player_seed=int(player_seed),
+        max_days=int(max_days),
+    )
     if not implementation_preflight.ready_for_full_runtime_validation:
         raise ExternalReleaseValidationError(
             "canonical full-scope implementation preflight is not ready: "
@@ -196,6 +202,8 @@ def run_external_release_validation(
         canonical_game_dir=canonical_game_dir,
         full_original_scope_receipt=full_original_scope_receipt,
         work_root=work_root,
+        player_seed=int(player_seed),
+        max_days=int(max_days),
     )
 
     root = Path(repo_root).resolve()
