@@ -342,6 +342,111 @@ def indexed_bnk_memory_access_candidates(
     )
 
 
+def shared_bnk_indexed_access_shape_candidates(
+    indexed_candidates: tuple[dict, ...],
+    *,
+    minimum_distinct_windows: int = 2,
+) -> tuple[dict, ...]:
+    """Group recurring indexed access shapes across distinct trace windows.
+
+    Equal scale/displacement/operand-width patterns are useful triage evidence
+    for a possible shared indexed record layout. They do not prove object
+    identity, record stride, a BNK sample table, sample ids, or field semantics.
+    """
+    if type(indexed_candidates) is not tuple:
+        raise Gate14AudioBankFormatTraceError(
+            "indexed BNK candidates must be an exact tuple"
+        )
+    if (
+        type(minimum_distinct_windows) is not int
+        or minimum_distinct_windows < 2
+    ):
+        raise Gate14AudioBankFormatTraceError(
+            "minimum_distinct_windows must be an integer >= 2"
+        )
+
+    grouped: dict[tuple[int, int, int], dict] = {}
+    for candidate in indexed_candidates:
+        if not isinstance(candidate, dict):
+            raise Gate14AudioBankFormatTraceError(
+                "indexed BNK candidate must be a mapping"
+            )
+        label = candidate.get("window_label")
+        instruction_va = candidate.get("instruction_va")
+        scale = candidate.get("scale")
+        displacement = candidate.get("displacement")
+        operand_size = candidate.get("operand_size")
+        base_register = candidate.get("base_register")
+        index_register = candidate.get("index_register")
+        if (
+            not isinstance(label, str)
+            or not label
+            or type(instruction_va) is not int
+            or type(scale) is not int
+            or scale not in (1, 2, 4, 8)
+            or type(displacement) is not int
+            or type(operand_size) is not int
+        ):
+            raise Gate14AudioBankFormatTraceError(
+                "indexed BNK candidate identity/shape is malformed"
+            )
+        if not isinstance(index_register, str) or not index_register:
+            raise Gate14AudioBankFormatTraceError(
+                "indexed BNK candidate must retain an index register"
+            )
+        key = (scale, displacement, operand_size)
+        entry = grouped.setdefault(
+            key,
+            {
+                "scale": scale,
+                "displacement": displacement,
+                "operand_size": operand_size,
+                "window_labels": set(),
+                "base_registers": set(),
+                "index_registers": set(),
+                "instruction_vas": set(),
+            },
+        )
+        entry["window_labels"].add(label)
+        if isinstance(base_register, str) and base_register:
+            entry["base_registers"].add(base_register)
+        entry["index_registers"].add(index_register)
+        entry["instruction_vas"].add(instruction_va)
+
+    output = []
+    for entry in grouped.values():
+        labels = tuple(sorted(entry["window_labels"]))
+        if len(labels) < minimum_distinct_windows:
+            continue
+        output.append(
+            {
+                "scale": entry["scale"],
+                "displacement": entry["displacement"],
+                "operand_size": entry["operand_size"],
+                "distinct_window_count": len(labels),
+                "window_labels": labels,
+                "base_registers": tuple(sorted(entry["base_registers"])),
+                "index_registers": tuple(sorted(entry["index_registers"])),
+                "instruction_vas": tuple(sorted(entry["instruction_vas"])),
+                "classification": (
+                    "shared_bnk_indexed_access_shape_candidate_not_record_layout_proof"
+                ),
+            }
+        )
+
+    return tuple(
+        sorted(
+            output,
+            key=lambda item: (
+                -item["distinct_window_count"],
+                item["scale"],
+                item["displacement"],
+                item["operand_size"],
+            ),
+        )
+    )
+
+
 def shared_bnk_direct_call_target_candidates(
     candidates: tuple[dict, ...],
     *,
@@ -497,6 +602,15 @@ def audio_bank_format_trace_report(
         "indexed_memory_access_candidates_not_sample_table_proof": (
             indexed_bnk_memory_access_candidates(
                 classify_bnk_window_dataflow_candidates(pe, windows=windows)
+            )
+            if classify_dataflow_candidates
+            else ()
+        ),
+        "shared_indexed_access_shapes_not_record_layout_proof": (
+            shared_bnk_indexed_access_shape_candidates(
+                indexed_bnk_memory_access_candidates(
+                    classify_bnk_window_dataflow_candidates(pe, windows=windows)
+                )
             )
             if classify_dataflow_candidates
             else ()
