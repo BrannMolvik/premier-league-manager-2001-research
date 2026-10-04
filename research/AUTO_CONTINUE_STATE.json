@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 272,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 272 checkpoint: PR #338 asset policy green; full reconstruction suite still running; do not merge before success.",
+  "recovery_generation": 273,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 273: recovered into a fresh conversation from canonical main 0ce97ae5; continue exact persisted PR #338 Gate-14 Windows menu-audio audibility audit, then strict receipt validation/replay after verified merge. Gate 13 remains earliest open validation gate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
