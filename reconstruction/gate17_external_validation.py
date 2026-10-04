@@ -9,6 +9,7 @@ external receipt it requires:
 - every Gate 1-16 ROADMAP completion criterion checked;
 - the final limitations document to have left its pre-release state;
 - the exact release archive and canonical user-owned game directory outside Git;
+- a green canonical full-scope implementation preflight over that game directory;
 - a fresh external work root.
 
 Only after those checks pass does it require a separately produced full-original-
@@ -26,6 +27,7 @@ from pathlib import Path
 import shutil
 
 from gate17_clean_windows_install import run_clean_windows_install_receipt
+from gate17_full_scope_preflight import run_canonical_full_scope_preflight
 from gate17_release_evidence import assemble_release_evidence
 from gate17_release_readiness import (
     ReleaseReadinessError,
@@ -139,6 +141,12 @@ def preflight_external_release_validation(
         repo_root=root,
         label="full original scope receipt",
     )
+    implementation_preflight = run_canonical_full_scope_preflight(game_dir)
+    if not implementation_preflight.ready_for_full_runtime_validation:
+        raise ExternalReleaseValidationError(
+            "canonical full-scope implementation preflight is not ready: "
+            + ",".join(implementation_preflight.blocker_codes)
+        )
     output_root = _fresh_external_root(work_root, repo_root=root)
 
     return {
@@ -150,6 +158,7 @@ def preflight_external_release_validation(
         "release_archive": archive,
         "canonical_game_dir": game_dir,
         "full_original_scope_receipt": scope_receipt,
+        "implementation_preflight": implementation_preflight,
         "work_root": output_root,
     }
 
