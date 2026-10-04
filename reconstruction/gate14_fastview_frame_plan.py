@@ -23,7 +23,7 @@ from gate14_fastview_partial_surface import (
     FastViewPartialSurfaceLayout,
     build_fastview_partial_surface_from_render_plans,
 )
-from gate14_fastview_team_static_raster import rasterize_fastview_team_static_rows
+from gate14_fastview_team_energy_raster import rasterize_fastview_team_energy_rows
 from gate14_fastview_score_table_static_raster import FastViewScoreTableStaticRasterSet
 from gate14_fastview_playerrow_snapshot import (
     FastViewPlayerRowRenderPlan,
@@ -148,7 +148,7 @@ def build_fastview_frame_plan(
         figures,
         render_plans=shell.player_row_render_plans,
     )
-    team_static = rasterize_fastview_team_static_rows(
+    team_energy = rasterize_fastview_team_energy_rows(
         team_art,
         shell.player_row_render_plans,
     )
@@ -156,7 +156,7 @@ def build_fastview_frame_plan(
         chrome,
         possession,
         figures,
-        team_static,
+        team_energy,
         score_table=score_table_static,
     )
 
