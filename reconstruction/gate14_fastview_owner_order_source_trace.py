@@ -246,7 +246,7 @@ def fastview_owner_order_trace_report(
         "evidence_limit": (
             "Decoded direct CALL candidates inside a bounded FastView owner "
             "setup region only. The exact 0x520E67 -> 0x524920 FastViewTeam "
-            "call may be source-recovered without proving CFG-wide reachability, "
+            "call may be source-recovered, but this does not prove CFG-wide reachability, "
             "constructor parent registration, "
             "child registration into the FastViewPanel draw array, ordering "
             "across nested component arrays, pixel blend behavior, or any new "
