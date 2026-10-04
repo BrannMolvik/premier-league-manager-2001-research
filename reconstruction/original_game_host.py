@@ -627,7 +627,9 @@ class OriginalGameTkHost:
         self.last_status = (
             "Applied source-accepted League Fixtures page transition: "
             f"{activation.previous_offset} -> {activation.column_offset}; "
-            "ordinary page-button pointer mapping remains fail-closed"
+            + ("ordinary page-button pointer mapping remains fail-closed without verified art"
+               if self.fixtures_pager_art is None
+               else "ordinary page-button pointer mapping is separately source-qualified")
         )
         return activation
 
@@ -699,8 +701,8 @@ class OriginalGameTkHost:
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
 
         Opening requires the native captured-report owner, not completion or a
-        score. Current backend capture production remains incomplete, so an
-        ordinary uncaptured fixture is still a source-compatible no-op.
+        score. The complete ordinary producer publishes explicit owner/link
+        state; an uncaptured fixture is still a source-compatible no-op.
         """
         if (self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
                 or self.active_pmatchinfo_art is not None):

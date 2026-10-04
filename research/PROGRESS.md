@@ -24,6 +24,8 @@ Final verified code `daa1622f`: 2,283 tests/23 expected skips,44 focused tests,
 asset policy, fresh real Windows11/Tk schema8 and Windows candidate package
 CI37227429547 PASS. PR #365 retains the verified milestone and exact next
 timing/presentation boundary. No Gate13-complete or Gate17 claim is made.
+Final reconciliation preserves disjoint worker PR #364/main `a99f1e02`;
+its changed-module7-test regression passes. Ownership is unchanged.
 
 ### 5 October 2026 KST — Automatic uncontrolled producer and calculated-away report
 

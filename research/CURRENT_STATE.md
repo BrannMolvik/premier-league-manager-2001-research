@@ -49,6 +49,9 @@ This is not Daniel-machine frozen-package acceptance or Gate17 certification.
 Verified implementation/research is on PR **#365**,
 `codex/gate13-fixtures-paging-closure`; original/proprietary reports and save
 remain private. `agent-runtime` and ownership are unchanged.
+Final reconciliation also preserves the newer disjoint worker PR #364 at
+`a99f1e029036c8cb37d66f36641c6093214d883a`; its changed-module regression
+passes7 tests. This introduces no new Gate13 source/runtime discrepancy.
 
 **Gate13 remains OPEN after the criterion review.** The next actual blocker is
 live first-screen Button hover/update timing: the host still draws fixed
