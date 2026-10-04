@@ -5,6 +5,7 @@ import unittest
 from ea444_decoder import EA444DecodedImage
 from gate14_fastview_component_rasters import (
     FastViewComponentRasterError,
+    FastViewComponentRasterPlane,
     build_fastview_component_rasters,
     rasterize_fastview_chrome_plane,
     rasterize_fastview_possession_figures_plane,
