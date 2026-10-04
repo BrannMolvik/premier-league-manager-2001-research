@@ -50,11 +50,11 @@ def synthetic_pe() -> bytes:
 
     # Direct CALL calibration candidate.
     direct_off = 0x220
-    direct_va = 0x5DB020
+    direct_call_va = 0x5DB024
     out[direct_off:direct_off + 2] = b"\x6A\x00"  # push arg3
     out[direct_off + 2:direct_off + 4] = b"\x6A\x11"  # push state
     out[direct_off + 4] = 0xE8
-    displacement = AUDIO_HOOKS_DISPATCH_VA - (direct_va + 5)
+    displacement = AUDIO_HOOKS_DISPATCH_VA - (direct_call_va + 5)
     struct.pack_into("<i", out, direct_off + 5, displacement)
     out[direct_off + 9] = 0xC3
 
