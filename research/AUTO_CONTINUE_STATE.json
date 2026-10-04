@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #341 merged as main 1664d411 after 2,135 tests/23 skips. PR #342 cleanly replays persisted PR #333 font-blend Capstone dataflow classification onto that main; fresh reconstruction run 37205675294 and asset-policy run 37205675293 are active. After verified merge, next cloud-safe candidate is to recover the useful audible-Windows readiness bridge from failed PR #339 against the current strict receipt validator, fixing its stale syntax/type design without promoting semantic binding or login/menu integration.",
-  "last_known_main_head": "1664d41184992792f7b98e3fdb73c5a8514da9c1",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 font-blend replay PR #342 merged as main 4f435494 after 2,136 tests/23 skips and asset-policy success. PR #343 now recovers the useful Windows-audibility readiness bridge against the current strict receipt validator: canonical readiness gains audible_windows_verified=false until genuine private evidence is replay-validated; the bridge must not promote semantic event binding or login/menu integration. Verify PR #343 CI and merge if green, then continue the next highest-value independent Gate-14 source-backed task.",
+  "last_known_main_head": "4f43549438be614754ed6bb7fa2570514174ab4b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 274,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 274 resumed from canonical GitHub state at main 1664d411. Continue exact active work: verify PR #342 font-blend Capstone dataflow replay and merge only if its fresh reconstruction/asset-policy evidence passes; then advance to the next bounded cloud-safe Gate-14 task without changing Gate 13's open validation status.",
+  "note": "Recovery 274 heartbeat after verified PR #342 merge. PR #343 is the active disjoint Gate-14 work-ahead checkpoint; CI has not yet appeared at this instant. Preserve Gate 13 ownership lock.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
