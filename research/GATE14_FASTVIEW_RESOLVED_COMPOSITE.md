@@ -61,6 +61,25 @@ identities, preserve the retained plane order, use unique contributor tuples,
 remain inside the FastView surface, and account for every unresolved overlap
 pixel exactly once.
 
+## Resolved-only player-visible preview
+
+`gate14_fastview_resolved_preview.py` provides a deterministic PNG export of
+the already-resolved composite without changing its fidelity boundary. The RGBA
+PNG encodes the composite bytes exactly, including fully transparent pixels at
+every unresolved cross-component overlap. A companion 8-bit grayscale PNG maps
+the authoritative 0/1 overlap mask to 0/255 so unresolved regions can be
+inspected directly.
+
+The preview is identity-bound to the source composite and mask hashes, retains
+the exact overlap-group records, and uses only deterministic PNG filter type 0
+plus zlib compression. It does not paint a diagnostic color into unresolved
+pixels, choose a winning component, add a background, or claim a flattened or
+complete FastView frame.
+
+This gives Gate 14 a player-visible/debuggable boundary for every pixel whose
+ownership is already source-backed while keeping unresolved overlap topology
+visibly separate for the next native z-order trace.
+
 ## Fidelity boundary
 
 This is deliberately **not** a flattened or complete FastView frame.
