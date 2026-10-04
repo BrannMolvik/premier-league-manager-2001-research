@@ -22,6 +22,7 @@ from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
     ordinary_pmatchinfo_header_lines,
 )
+from original_pmatchinfo_script_rows import load_script_row_art
 from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
@@ -130,6 +131,7 @@ class OriginalGameTkHost:
         pmatchinfo_snapshot=None,
         pmatchinfo_font=None,
         pmatchinfo_nested_font=None,
+        pmatchinfo_script_art=None,
         error_reporter=None,
         management_background=None,
     ):
@@ -148,12 +150,15 @@ class OriginalGameTkHost:
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
         self.pmatchinfo_nested_font = pmatchinfo_nested_font
+        self.pmatchinfo_script_art = pmatchinfo_script_art
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_context = None
+        self.pmatchinfo_script_offsets = {1: 0, 0: 0}
+        self.pmatchinfo_script_pressed = None
         self.active_pmatchinfo_art = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -170,6 +175,7 @@ class OriginalGameTkHost:
         self.canvas.pack()
         self.canvas.bind("<Button-3>", self.on_fixture_report_press)
         self.canvas.bind("<Button-1>", self.on_click)
+        self.canvas.bind("<ButtonRelease-1>", self.on_script_arrow_release)
         self.redraw()
 
     def _show_transition_error(self, message: str) -> None:
@@ -398,6 +404,24 @@ class OriginalGameTkHost:
                     x, y, w, h, png = pixels
                     self.canvas.create_image(art.x + x, art.y + y,
                         image=self._photo(png), anchor=self.tk.NW)
+            if (self.pmatchinfo_script_art is not None and self.pmatchinfo_snapshot is not None
+                    and self.pmatchinfo_snapshot.selected_tab_event_id == 1):
+                from original_pmatchinfo_script_rows import script_list_pixels, script_arrow_pixels
+                for side in (1, 0):
+                    offset = self.pmatchinfo_script_offsets[side]
+                    layers = script_list_pixels(
+                            context.captured_report, side, self.pmatchinfo_script_art,
+                            self.pmatchinfo_font,
+                            players=None if controller is None else controller.state.players,
+                            first_row=offset)
+                    layers += script_arrow_pixels(context.captured_report, side,
+                            self.pmatchinfo_script_art, first_row=offset,
+                            pressed_direction=(self.pmatchinfo_script_pressed[1]
+                                if self.pmatchinfo_script_pressed is not None
+                                and self.pmatchinfo_script_pressed[0] == side else None))
+                    for x, y, w, h, png in layers:
+                        self.canvas.create_image(art.x + x, art.y + y,
+                            image=self._photo(png), anchor=self.tk.NW)
         return 1
 
     def _draw_management_host(self) -> None:
@@ -623,11 +647,41 @@ class OriginalGameTkHost:
             return
         if action is not None:
             self.active_pmatchinfo_context = context
+            self.pmatchinfo_script_offsets = {1: 0, 0: 0}
+            self.pmatchinfo_script_pressed = None
+            self.redraw()
+
+    def on_script_arrow_release(self, event) -> None:
+        # 64F860 -> 64F470(0) clears bit4; no second scroll on release.
+        if self.pmatchinfo_script_pressed is not None:
+            self.pmatchinfo_script_pressed = None
             self.redraw()
 
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.active_pmatchinfo_art is not None:
+                if (self.active_pmatchinfo_context is not None
+                        and self.pmatchinfo_snapshot is not None
+                        and self.pmatchinfo_snapshot.selected_tab_event_id == 1):
+                    from original_pmatchinfo_script_rows import script_arrow_at_point, script_scroll_step
+                    art = self.active_pmatchinfo_art
+                    arrow = script_arrow_at_point(int(event.x) - art.x, int(event.y) - art.y)
+                    if arrow is not None:
+                        if self.pmatchinfo_script_pressed == arrow:
+                            self.last_status = 'PMatchInfo native script arrow rejects already-pressed control'
+                            return
+                        side, direction = arrow
+                        old = self.pmatchinfo_script_offsets[side]
+                        new = script_scroll_step(self.active_pmatchinfo_context.captured_report,
+                                                 old, direction)
+                        if new != old:
+                            self.pmatchinfo_script_pressed = arrow
+                            self.pmatchinfo_script_offsets[side] = new
+                            self.redraw()
+                            self.last_status = f'PMatchInfo native script list {side}: offset {new}'
+                        else:
+                            self.last_status = 'PMatchInfo native script arrow disabled at bound'
+                        return
                 self.last_status = (
                     "PMatchInfo pointer interaction remains fail-closed until "
                     "owner-local source control transforms are recovered"
@@ -793,6 +847,8 @@ def run_original_game_ui(
         pmatchinfo_snapshot=pmatchinfo_snapshot,
         pmatchinfo_font=validate_original_pmenu_font(resolved_source_root),
         pmatchinfo_nested_font=load_pmatchinfo_nested_font(resolved_source_root),
+        pmatchinfo_script_art=load_script_row_art(
+            runtime_repo_root, original_executable, game_dir=game_dir),
         management_background=OriginalManagementBackground(
             resolved_source_root, original_executable),
     )

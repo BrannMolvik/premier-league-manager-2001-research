@@ -1,8 +1,37 @@
 # Gate 13 Closure Audit
 
-_Audit refreshed: 3 October 2026 KST_
+_Audit refreshed: 4 October 2026 KST_
 
 ## Current local producer milestone and criterion audit
+
+The 4 October PR #242 row/arrow milestone supersedes the historical blank-row
+and absent-producer statements below. The retained packed-native reader,
+eligibility/duplicate/boundary ownership, labels/minutes/player names/icons,
+all twenty original Premiership primary custom numbered-shirt atlases, empty
+slots and native single-press arrows are integrated. 65 focused tests pass.
+The genuine calculated fixture -> disk save -> fresh reload -> Windows
+Fixtures right-click renders the report and actual arrows reach all eight
+source entries in both lists, preserving duplicate state and press/release
+acceptance. Exact evidence and remaining thumb/bar/hover/held-repeat/kit/color
+adjudication are in `GATE13_PMATCHINFO_SCRIPT_ROWS.md`.
+
+Fresh uncontrolled +13C/+140 remains unknown. A genuine human-away calculation
+in the same fixture retains only the six non-attendance scalars; complete
+assembly correctly publishes no report or link. This observable normal-play
+failure prevents closure, rather than a historical blanket "no producer"
+claim. The constructor iterator supplies no hidden zeroing; candidate622A10
+is a float-triple bounds writer, not a proven club initializer. Next source
+action is the actual allocation-to-uncontrolled-read write/lifecycle watch.
+See `GATE13_LEGACY_CLUB_REPORT_STATE.md` for the negative receipt.
+
+Gate13 remains OPEN. No final timing/recognizability certification or Gate14
+transition is inferred from the successful controlled-home path.
+Final PR242 milestone validation: 1,791 full tests / 23 expected skips, asset
+policy/JSON/diff guards and fresh real Windows schema8 pass on the row/arrow
+code. Receipts/digests are in `GATE13_PMATCHINFO_SCRIPT_ROWS.md`. The schema8
+positive result does not override the genuine ordinary-away negative probe.
+
+## Historical producer checkpoints (superseded by the current audit above)
 
 PR #211 continuation from `689c91dd`: original possession controls, complete
 Attendance/caption buffer and native-aligned home/away names/score are now
@@ -130,23 +159,17 @@ wording below describes the 2 October checkpoint, not the current blocker.
 | Roadmap criterion | Current result | Concrete evidence / remaining boundary |
 | --- | --- | --- |
 | Simulation separated from presentation | **PASS** | Presentation-separation tests, controller/session boundary; captions and error feedback do not add simulation semantics. |
-| Accessible original resources/layout/navigation reused | **PARTIAL** | #177 seasonal base/header preserved. Native right-press/cell/link adapter and capture eligibility/ownership are recovered; full captured-report production/save integration is still absent. |
+| Accessible original resources/layout/navigation reused | **PARTIAL** | #177 seasonal base/header preserved. Complete native-style captured reports, ordered ownership/links, disk persistence, right-click context and source-owned rows/primary numbered shirts/arrow steps pass for the supported controlled-home route. Thumb/bar/hover/held-repeat and required kit/color contexts still need adjudication. |
 | Main-menu/login presentation, structure, navigation and timing closely follow original | **PARTIAL** | Canonical strings, fonts, layouts, Button frames and real Tk menu/TeamSelect route pass; space/caption playtest defects fixed. Original timing is not certified by this receipt. |
-| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Fresh Windows schema 8 verifies native right-press no-op for uncaptured fixtures plus the existing original-art route. Injected-owner tests and the explicit popup seam are not normal-play report production or a recognizability judgment. |
+| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Genuine calculated fixture2 publishes/reloads and renders source header/summary/pitch/possession/eight script entries through ordinary Windows right-click and arrows. Conversely, genuine human-away fixture2 publishes no report because required attendance production is unresolved. A successful controlled-home route is not a full normal-play audit. |
 
-Gate 13 remains **OPEN**, for substantive presentation/navigation boundaries,
-not absence of a schema-8 Windows run. The background work from #177 is closed
-and unchanged. `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md` closes eligibility,
-native ownership/lifecycle evidence and the exact right-button event chain.
-The single next implementation blocker is complete completion-time report
-production/persistence. PR #183 now source-closes/tests native participant
-packing and skill flags, script extraction, grouped possession and additional
-scalar projection; the live calculator still does not retain their complete
-inputs. The read-only adapter has no real report producer yet and never
-derives context from scores/completion. After that producer is integrated,
-audit a real calculated fixture through save/reload and PMatchInfo and assess
-the roadmap's normal-play/timing criteria. No formal Gate-14 transition or
-Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
+Gate 13 remains **OPEN**, not for absent codecs/ownership/publication or an
+absent Windows run. Its specific observable producer boundary is ordinary
+human-away/uncontrolled-home attendance and therefore absent complete report
+publication. Source-close fresh +13C/+140 rather than supplying guessed values;
+finish/adjudicate required remaining nested control fidelity, then assess
+timing and normal-play recognizability against the unchanged roadmap. No
+Gate14 transition, scope reduction or release completion is claimed.
 
 ## Final local validation (3 October)
 

@@ -196,6 +196,7 @@ class FakeWidget:
 
     def bind(self, *args, **kwargs):
         self.values["bind"] = (args, kwargs)
+        self.values.setdefault("bindings", {})[args[0]] = (args, kwargs)
 
 
 class FakeRoot(FakeWidget):
@@ -265,11 +266,13 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(root.values["title"], "Premier League Manager 2001")
             self.assertEqual(host.canvas.kwargs["width"], 800)
             self.assertEqual(host.canvas.kwargs["height"], 600)
-            bind_args, bind_kwargs = host.canvas.values["bind"]
+            bind_args, bind_kwargs = host.canvas.values["bindings"]["<Button-1>"]
             self.assertEqual(bind_args[0], "<Button-1>")
             self.assertIs(bind_args[1].__self__, host)
             self.assertEqual(bind_args[1].__func__, host.on_click.__func__)
             self.assertEqual(bind_kwargs, {})
+            self.assertEqual(host.canvas.values["bindings"]["<ButtonRelease-1>"][0][1].__func__,
+                             host.on_script_arrow_release.__func__)
             self.assertEqual(len(host.canvas.images), 9)
 
             host.on_click(SimpleNamespace(x=7, y=478))

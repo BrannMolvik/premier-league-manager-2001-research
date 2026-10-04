@@ -207,6 +207,32 @@ Linear disassembly is analyst evidence, not a control-flow proof by itself.
 
 ## Confirmed visiting-capacity lifecycle; unresolved fresh bytes
 
+4 October source-tail adjudication: `6687C1` merely calls the supplied
+constructor per 0x2A8-byte element; it performs no payload memset. The unrelated
+`622750 -> 622A10 -> 622B10` receiver uses +0 as a count, +C as an array of
+12-byte floating triples, and min/max/translation of those triples. DBRClub
+instead has a vtable at +0. Those repeating float-coordinate writes cannot be
+promoted into visiting-capacity initialization. This excludes that candidate,
+not every possible indirect/native writer. Source evidence is private
+`gate13-script-scroll-owner-private-20261004.json` (digest in the row research).
+
+A genuine ordinary-away probe selects club11 as human in fixture2 (home5),
+uses canonical database/automatic source stadium/legal XI and runs the real
+calculator. It retains scalar offsets94/98/9A/A0/A1/A2 but no attendance-derived
+30/34/38/3C/40; strict complete assembly publishes neither a report nor a link.
+Private `gate13-uncontrolled-home-negative-20261004.json` SHA-256
+`5a0c22887e38ad8e4a305f371528de273fdc5fa1461029fb8d77377bfb5973b2`.
+Thus uncontrolled-home setup is an observable ordinary-report boundary, not
+source-proven unreachable behavior. No values were injected to make it pass.
+
+Next bounded native action: observe actual fresh club-array allocation at
+40BC0F/40BC3E, track this club's +13C/+140 writes/copies until the uncontrolled
+read at5DA538, and identify any indirect/aliased producer on that path. Use the
+canonical executable under a native debugger/write watch; another undirected
+displacement search or another controlled-home report probe is not a closure
+proof. Neither `cdb` nor `windbg` was found on the current command PATH; this
+is a tool-availability check, not a claim that no debugger exists on the PC.
+
 `0x5DA2F0` retains its DBRClub receiver through `0x5DA538`. The uncontrolled
 branch reads `+0x13C/+0x140` as unsigned dwords, clamping each to zero only
 when greater than 200000 (double at `0x7D73D8`). There is no authorization to
