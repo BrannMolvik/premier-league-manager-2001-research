@@ -47,6 +47,35 @@ PLAYERROW_TEXT_NATIVE_LINE_HEIGHT = 18
 # Source constructor order uses these flags for cells 1..6.
 PLAYERROW_TEXT_FLAGS = (0x24, 0x24, 0x21, 0x21, 0x21, 0x24)
 
+# 0x635EC0 indexes the Position* key table at 0x849930 and resolves through
+# 0x6350D0. The English localization initializer reads a contiguous uint16
+# English.idx sequence into the corresponding globals: key Versus starts at
+# entry 2257, and the same source order places PositionGK..PositionST at
+# entries 2305..2323.
+PLAYERROW_POSITION_ENGLISH_IDX_BASE = 2305
+PLAYERROW_POSITION_ENGLISH_BY_KEY = {
+    "": "",
+    "PositionGK": "GK",
+    "PositionRB": "RB",
+    "PositionLB": "LB",
+    "PositionCD": "CD",
+    "PositionSW": "SW",
+    "PositionRWB": "RWB",
+    "PositionLWB": "LWB",
+    "PositionANC": "ANC",
+    "PositionDM": "DM",
+    "PositionRM": "RM",
+    "PositionLM": "LM",
+    "PositionCM": "CM",
+    "PositionRW": "RW",
+    "PositionLW": "LW",
+    "PositionAM": "AM",
+    "PositionRF": "RF",
+    "PositionLF": "LF",
+    "PositionCF": "CF",
+    "PositionST": "ST",
+}
+
 
 @dataclass(frozen=True)
 class FastViewUnresolvedPlayerRowText:
@@ -75,7 +104,8 @@ class FastViewTeamTextRaster:
     rgba_sha256: str
     text_style_index: int = PLAYERROW_TEXT_STYLE_INDEX
     native_color_16: int = PLAYERROW_TEXT_NATIVE_COLOR_16
-    position_localization_recovered: bool = False
+    source_language: str = "English"
+    position_english_localization_recovered: bool = True
     own_goal_color_recovered: bool = False
     complete_team_table_text: bool = False
 
@@ -120,11 +150,15 @@ class FastViewTeamTextRaster:
             raise FastViewTeamTextRasterError(
                 "PlayerRow text raster style/color drifted from source"
             )
-        if (
-            self.position_localization_recovered
-            or self.own_goal_color_recovered
-            or self.complete_team_table_text
-        ):
+        if self.source_language != "English":
+            raise FastViewTeamTextRasterError(
+                "PlayerRow text raster currently binds only the canonical English source"
+            )
+        if not self.position_english_localization_recovered:
+            raise FastViewTeamTextRasterError(
+                "PlayerRow text raster cannot drop source-closed English position strings"
+            )
+        if self.own_goal_color_recovered or self.complete_team_table_text:
             raise FastViewTeamTextRasterError(
                 "partial PlayerRow text raster cannot promote unresolved fidelity"
             )
@@ -164,6 +198,20 @@ def load_verified_playerrow_text_font(repo_root: str | Path) -> EAFont:
             "PlayerRow font native line-height mismatch"
         )
     return font
+
+
+def resolve_playerrow_position_english(localization_key: str) -> str:
+    """Resolve only the source-closed English Position* key family."""
+    if not isinstance(localization_key, str):
+        raise FastViewTeamTextRasterError(
+            "PlayerRow position localization key must be a string"
+        )
+    try:
+        return PLAYERROW_POSITION_ENGLISH_BY_KEY[localization_key]
+    except KeyError as exc:
+        raise FastViewTeamTextRasterError(
+            "PlayerRow position key is outside the source-closed English mapping"
+        ) from exc
 
 
 def _alignment_for_cell(text_cell_index: int) -> tuple[str, str]:
@@ -277,14 +325,18 @@ def rasterize_fastview_playerrow_text(
             if instruction.value_kind == "unwritten":
                 continue
             if instruction.value_kind == "localization_key":
-                unresolved.append(
-                    FastViewUnresolvedPlayerRowText(
-                        *identity,
-                        semantic=instruction.semantic,
-                        reason="position_localization_string_not_source_bound",
+                if instruction.text_cell_index != 2 or instruction.value is None:
+                    raise FastViewTeamTextRasterError(
+                        "only PlayerRow cell 2 may use the source-closed localization path"
                     )
+                instruction = FastViewPlayerRowTextRenderInstruction(
+                    text_cell_index=instruction.text_cell_index,
+                    semantic=instruction.semantic,
+                    rect=instruction.rect,
+                    value_kind="literal",
+                    value=resolve_playerrow_position_english(instruction.value),
+                    source_color_update=instruction.source_color_update,
                 )
-                continue
             if instruction.value_kind != "literal":
                 raise FastViewTeamTextRasterError(
                     "unknown PlayerRow text instruction value kind"
