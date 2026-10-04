@@ -31,6 +31,7 @@ class Gate14ReadinessEvidence:
     audio_playback_entrypoints_recovered: bool
     audio_sample_decode_ready: bool
     audio_event_binding_recovered: bool
+    audible_windows_verified: bool
     login_menu_audio_integrated: bool
 
     chant_runtime_selection_recovered: bool
@@ -49,9 +50,12 @@ class Gate14ReadinessEvidence:
             self.audio_bank_ownership_recovered
             and self.audio_playback_entrypoints_recovered
             and self.audio_sample_decode_ready
+            and self.audio_event_binding_recovered
+            and self.audible_windows_verified
         ):
             raise Gate14ReadinessError(
-                "login/menu audio integration cannot precede source-backed decode readiness"
+                "login/menu audio integration cannot precede source-backed decode, "
+                "event binding, and audible Windows verification"
             )
         if self.complete_fastview_frame_recovered and not (
             self.completed_human_resolved_fastview_path
@@ -81,6 +85,7 @@ class Gate14ReadinessEvidence:
             self.login_menu_audio_integrated
             and self.audio_sample_decode_ready
             and self.audio_event_binding_recovered
+            and self.audible_windows_verified
         )
 
     @property
@@ -109,6 +114,8 @@ class Gate14ReadinessEvidence:
             blockers.append("audio_sample_decode")
         if not self.audio_event_binding_recovered:
             blockers.append("audio_event_binding")
+        if not self.audible_windows_verified:
+            blockers.append("audible_windows_output")
         if not self.login_menu_audio_integrated:
             blockers.append("login_menu_audio_integration")
         if not self.global_fastview_z_order_recovered:
@@ -144,6 +151,7 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         audio_playback_entrypoints_recovered=True,
         audio_sample_decode_ready=True,
         audio_event_binding_recovered=False,
+        audible_windows_verified=False,
         login_menu_audio_integrated=False,
 
         chant_runtime_selection_recovered=True,
