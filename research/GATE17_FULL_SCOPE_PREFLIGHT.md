@@ -79,7 +79,7 @@ setup, and missing annual progression country coverage.
 The save-scope audit separately preserves exact per-scope persistence
 capability. The current canonical surface covers fixed-primary and
 procedural-primary scopes only; procedural-secondary scopes remain blocked on
-`save_reload_capability_missing` rather than being treated as primary-engine
+`save_serialization_missing` and/or `save_reload_continuation_missing` rather than being treated as primary-engine
 aliases.
 
 The multi-human audit separately preserves selection-capacity, gameplay-capacity,
