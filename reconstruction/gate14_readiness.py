@@ -144,7 +144,7 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         playerrow_text_pixels_recovered=True,
         possession_pairwise_draw_order_recovered=True,
         global_fastview_z_order_recovered=False,
-        font_blend_rule_recovered=False,
+        font_blend_rule_recovered=True,
         complete_fastview_frame_recovered=False,
 
         audio_bank_ownership_recovered=True,
