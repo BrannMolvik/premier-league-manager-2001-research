@@ -183,6 +183,32 @@ Before any worker pauses for or asks the user to re-upload `FOOTBAL.EXE` or the 
 
 Never guess source behavior merely to avoid performing this recovery step.
 
+## Native-original Windows probe safety
+
+Daniel's desktop must remain usable during private original-executable probes.
+This restriction supersedes earlier approval to launch a bounded elevated
+debugger; elevation is not approval for exclusive fullscreen or loud playback.
+
+- Prefer source-valid non-exclusive/windowed or borderless execution. Do not
+  patch the original executable or alter the game logic under investigation.
+- Do not deliberately change the Windows desktop resolution, make the game
+  always-on-top, or steal foreground/focus unnecessarily. Hidden startup alone
+  does not prevent the original from switching display mode or playing sound.
+- When audio is irrelevant, verify process-local mute/effectively silent audio
+  before playback; do not mute or reconfigure other applications as a substitute.
+- If a required source-valid observation genuinely needs exclusive fullscreen,
+  display-mode switching or disruptive foreground interaction, stop and ask
+  Daniel before that probe. Do not infer approval from an older launch consent.
+- Compatibility wrapper configuration is environment evidence, not proof of
+  original pixels, timing, game semantics or a safely executed probe. Preserve
+  hashes/configuration privately and qualify its behavior before normal launch.
+
+The bounded capacity debugger currently rejects non-calibration launches before
+reading the executable or creating a process. Entry/CRT positive controls end
+before original main/graphics/audio startup; they do not authorize normal probes.
+First qualify non-exclusive execution and pre-play process-local silence, then
+resume the genuine fresh-club lifecycle without supplying capacity values.
+
 ## Gate completion procedure
 
 Before advancing gates:

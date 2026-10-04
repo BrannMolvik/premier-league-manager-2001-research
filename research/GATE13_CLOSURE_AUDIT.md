@@ -2,6 +2,25 @@
 
 _Audit refreshed: 4 October 2026 KST_
 
+## Subsequent prerequisite progress / probe-safety stop (not a new closure audit)
+
+Original-installer evidence now qualifies the missing resource selectors;
+Daniel-approved reversible repair makes native setup succeed. Exact original
+DLL/data staging then reached actual fresh DBRClub allocation/construction/import
+in one bounded run. No capacity writer or uncontrolled read was observed; zero
+snapshots do not source-close initialization. The earlier missing-selector stop
+below is superseded, not an unresolved registry repair request.
+
+After fullscreen/resolution/focus/audio disruption, Daniel restricted further
+original execution. Normal capacity-debugger launches now fail closed before
+executable access/process creation. First qualify non-exclusive display and
+pre-play process-local silence; offline wrapper configuration is not runtime
+safety proof. Ask before any genuinely required disruptive probe. No original
+was launched after that restriction. Eleven focused debugger checks and asset
+policy pass; no new broad/Windows audit or human-away report success is claimed.
+Gate 13 stays OPEN with the same producer/normal-play criterion unresolved.
+See `GATE13_NATIVE_CAPACITY_WATCH.md` and `CONTINUATION_INSTRUCTIONS.md`.
+
 ## Fresh current-main criterion audit: 4 October, base `29781e92`
 
 Canonical main was fetched at `3a3f60d1`, then the worker's strictly disjoint

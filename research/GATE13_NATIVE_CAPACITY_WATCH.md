@@ -3,6 +3,38 @@
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
+## Desktop-safety stop supersedes earlier launch approval
+
+After the last original run, Daniel prohibited unapproved exclusive fullscreen,
+desktop-resolution changes, unnecessary focus stealing/always-on-top and loud
+audio during probes. No further original launch was performed. The debugger
+now rejects every non-calibration launch before input access/process creation;
+there is no unsafe CLI override. Entry/CRT calibration stops before original
+main/graphics/audio startup and is not permission for an ordinary probe.
+
+Next qualify source-valid windowed execution AND verified process-local silence
+before audible playback. A private existing dgVoodoo 2.87.5 DDraw wrapper/config
+was prepared, not executed: FullScreenMode=false, Resolution=unforced, blank
+DesktopResolution/WindowedAttributes/FullscreenAttributes, no mouse capture or
+centering. The canonical executable and installation files remain unchanged.
+Offline config checks do not establish runtime safety or original rendering/
+timing fidelity. Process-local mute is not yet implemented/qualified. If a
+required source-valid observation genuinely needs disruptive execution, ask
+Daniel first; previous administrator approval does not cover that disruption.
+
+Private DDraw.dll SHA-256:
+`612a24408a090a3c6f3886557fa18034ee742e94ad0a40ebdf854d2816176c2e`.
+Private dgVoodoo.conf SHA-256:
+`6b54be438a5f9c32c0f33f60694791f8ba0a1cf7aefc9b49862dcf1200a24552`.
+Neither compatibility file is native capacity evidence or a game-code patch.
+Policy is durable in `CONTINUATION_INSTRUCTIONS.md`.
+
+The last original-essential-assets receipt
+`gate13-native-capacity-runtime-essentials-20261004.json` ends at the 45-second
+bound without `50D630` or allocation. That run does not establish why startup
+stalled. The earlier allocation/import receipt below remains a separate partial
+lifecycle, not proof of complete normal startup or capacity initialization.
+
 ## Approved installer prerequisite repair (supersedes missing-selector stop)
 
 Daniel authorized missing-only registry repair after original-installer value
@@ -13,14 +45,17 @@ both original root paths and other entries were preserved. Private reversible
 before/after/source receipts are recorded in `GATE13_INSTALLER_RESOURCE_SELECTORS.md`.
 The original now returns success for all four selectors and setup AL=1.
 
-Allocation still has not been observed: the executable-only private stage
-then calls a null driver function (`6151EB`, slot `A911EC`). The debugger now
+At the executable-only private stage, allocation had not yet been observed:
+startup called a null driver function (`6151EB`, slot `A911EC`). The debugger now
 records the six query results, exact selector type/size/value, setup acceptance,
 driver load returns, native exception registers/stack and fresh-world entry
 `50D630` as distinct observations. Exact-source original DLL staging is the
-next bounded startup dependency check; do not infer a capacity initializer.
+then-next bounded startup dependency check; do not infer a capacity initializer.
 Ten debugger ABI/planning tests pass. No report producer/gameplay default was
 changed, and the prior 2,011-test/Windows receipts are not rerun or relabeled.
+The subsequent desktop-safety launch guard is covered by an eleventh passing
+focused test. Asset policy and diff whitespace checks also pass; these are not
+a new Windows or Gate-13 closure audit.
 
 Exact original ThrashSoftware and companion DLL extraction removes that null
 call: driver LoadLibrary returns a nonzero handle and `615180` returns AL=1.
@@ -34,7 +69,7 @@ is recorded. **Snapshots/no write events are not initialization semantics**;
 the report producer remains fail-closed. Private receipt
 `gate13-native-capacity-runtime-data-20261004.json`, SHA-256
 `7e82ef483c2449386ce31c377ca3d7ca51029b28a8da4401d6fa93b84abf28de`.
-Continue the actual runtime lifecycle using remaining original startup assets,
+After qualifying desktop safety, continue the actual runtime lifecycle using remaining original startup assets,
 not an injected capacity, forced caller or controlled-home substitute.
 
 ## Executable observation, not another displacement scan

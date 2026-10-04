@@ -6,6 +6,31 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Native-original desktop-safety restriction (4 October 2026 KST)
+
+Daniel reports exclusive-fullscreen/resolution, focus/window and loud-audio
+disruption from the last original launch. No original was launched after his
+restriction. Non-calibration capacity-debugger launches now fail closed before
+executable access/process creation. Earlier administrator approval does not
+authorize another disruptive probe; see `CONTINUATION_INSTRUCTIONS.md`.
+
+**Immediate next action:** qualify a source-valid non-exclusive environment and
+verified pre-play process-local silence before resuming allocation/write-watch.
+The private dgVoodoo configuration has windowed mode, unforced resolution, no
+mouse capture and no always-on-top attributes, but is only checked offline.
+It has NOT been execution-qualified, and process-local mute is not yet qualified.
+Do not launch merely because the configuration exists. If the required native
+observation can only be performed disruptively, ask Daniel before running it.
+
+The last bounded original-essential-assets run ended at its 45-second bound
+without fresh-world entry/allocation; the earlier runtime-data run did reach
+allocation/import, but neither observed a capacity writer or uncontrolled read.
+These distinct receipts must not be combined into a proven normal startup or
+initializer. Gate 13 remains OPEN; the human-away report producer stays
+fail-closed. No ownership or Gate-14 work is changed.
+Eleven debugger ABI/planning/launch-guard tests and asset policy pass. No
+presentation/calculator change or new full-suite/Windows closure result is claimed.
+
 ## Gate-13 installer prerequisite advanced (4 October 2026 KST)
 
 PR #309 remains on `codex/gate13-uncontrolled-capacity-lifecycle`. Latest fetched
@@ -27,8 +52,9 @@ Exact original DLL staging has now removed the null driver call (`6151EB` ->
 The following run with verified original data reaches fresh-world allocation,
 construction and import of qualified DBRClub ID 5. No capacity writes or
 uncontrolled read were observed within the bound; zero snapshots are explicitly
-not initializer proof. Next: complete the private original startup resource
-dependencies, continue the real allocation-to-uncontrolled-read watch and
+not initializer proof. After qualifying the quiet/non-exclusive probe environment
+above, complete the private original startup resource dependencies, continue the
+real allocation-to-uncontrolled-read watch and
 adjudicate the actual +13C/+140 writer/copy lifecycle. No source-proven initialized
 capacity or human-away complete report is claimed. Ten debugger
 checks pass; gameplay/presentation code is unchanged, so prior full/Windows

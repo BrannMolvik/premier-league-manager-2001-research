@@ -11,6 +11,10 @@ from gate13_native_capacity_watch import (
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
+    def test_normal_launch_refused_before_read_or_execution_without_desktop_safety(self):
+        with self.assertRaisesRegex(CapacityWatchError, 'Non-calibration original launch disabled'):
+            observe(Path('not-an-executable'), Path('not-a-receipt'), WatchPlan())
+
     def test_all_four_native_resource_query_returns_are_observed(self):
         self.assertEqual({INSTALL_QUERY_RETURNS[va] for va in RESOURCE_SELECTOR_RETURNS},
                          {'art', 'fmv', 'matchengine', 'stadia'})

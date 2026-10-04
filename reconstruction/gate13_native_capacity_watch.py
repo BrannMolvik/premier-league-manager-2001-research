@@ -119,6 +119,16 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
             calibrate_crt_writes: bool = False) -> dict:
     if stop_at_entry and calibrate_crt_writes:
         raise CapacityWatchError('Entry-only and CRT write calibration are separate probes')
+    if not (stop_at_entry or calibrate_crt_writes):
+        # Daniel's desktop-safety restriction supersedes the earlier launch
+        # authorization. SW_HIDE does NOT prevent the original from changing
+        # display mode or playing audio. No unsafe CLI override is provided.
+        # Re-enable only with a qualified non-exclusive wrapper AND a verified
+        # process-local mute boundary before any audible playback. These are
+        # debugger-environment controls, never capacity/game-logic patches.
+        raise CapacityWatchError(
+            'Non-calibration original launch disabled: first qualify non-exclusive '
+            'display and process-local silence; disruptive probes require Daniel approval')
     require_private_output_path(output)
     require_private_output_path(executable)
     pe = OriginalPE32.parse(executable.read_bytes())

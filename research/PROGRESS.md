@@ -4,6 +4,19 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Fail-closed native-original desktop safety
+
+Daniel restricted further original probes after fullscreen/resolution, focus
+and loud-audio disruption. Non-calibration capacity-watch launch now refuses
+before executable access/process creation; no unsafe override was added.
+No original was launched after the restriction. An existing private windowed
+wrapper configuration is checked offline only, not execution-qualified; pre-play
+process-local mute remains unqualified. Durable continuation instructions require
+both safeguards, or fresh approval before any genuinely required disruptive
+observation. Capacity lifecycle/report behavior remains unresolved/fail-closed;
+the earlier allocation/import receipt is not a proven initializer. No Gate-14
+or ownership change. See `GATE13_NATIVE_CAPACITY_WATCH.md`.
+
 ### 4 October 2026 KST — Source-proven installer repair and real club allocation
 
 The authorized original SETUP.INS numeric registry producer proves the four
