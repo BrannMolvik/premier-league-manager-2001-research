@@ -142,6 +142,56 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
             ("league_scores_runtime_phase_icons", "team_table_static"),
         )
 
+    def test_runtime_icon_text_group_keeps_only_their_aggregate_order_unresolved(self):
+        components = (
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
+            "team_table_static",
+        )
+        group = FastViewUnresolvedOverlapGroup(
+            components=components,
+            pixel_count=3,
+            bounding_rect=(349, 55, 377, 128),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 15)
+        self.assertEqual(item.recovered_pairwise_relation_count, 14)
+        self.assertFalse(item.complete_draw_order_recovered)
+        self.assertEqual(
+            item.blockers,
+            ("cross_component_draw_order", "cross_component_blend_rule"),
+        )
+        recovered = {
+            (relation.earlier_component, relation.later_component)
+            for relation in item.recovered_pairwise_order
+        }
+        self.assertNotIn(
+            (
+                "league_scores_runtime_phase_icons",
+                "league_scores_runtime_phase_text",
+            ),
+            recovered,
+        )
+        self.assertIn(
+            (
+                "league_scores_late_grid_static",
+                "league_scores_runtime_phase_text",
+            ),
+            recovered,
+        )
+        self.assertIn(
+            (
+                "league_scores_runtime_phase_text",
+                "team_table_static",
+            ),
+            recovered,
+        )
+        self.assertFalse(item.pixels_resolvable)
+
     def test_unmodeled_component_retains_draw_order_blocker(self):
         group = FastViewUnresolvedOverlapGroup(
             components=(
