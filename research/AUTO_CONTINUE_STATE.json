@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Recovery 272 Gate-14 PR #338 adds the fail-closed real-Windows numeric menu-audio audibility audit; asset policy passed and full reconstruction run 37201937251 is still in progress. After verified merge, add strict receipt validation/replay against canonical menus.bnk without promoting semantic binding or login/menu integration. Private caller trace remains blocked by caas ClientError.",
-  "last_known_main_head": "0ce97ae596d2c69ea50565d16d63951e826e52fa",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #338 is verified and merged as main 0c92e35b. Active cloud-safe work-ahead: add strict private Windows menu-audio receipt validation that re-decodes the exact numeric route against canonical menus.bnk and rejects any drift/semantic promotion; then verify in hosted CI and merge. Private AudioHooks caller trace remains blocked by caas ClientError.",
+  "last_known_main_head": "0c92e35b3ee8ebfe777c74bbe8afa0ffee53094e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 273,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 273: recovered into a fresh conversation from canonical main 0ce97ae5; continue exact persisted PR #338 Gate-14 Windows menu-audio audibility audit, then strict receipt validation/replay after verified merge. Gate 13 remains earliest open validation gate.",
+  "note": "Recovery 273 checkpoint: PR #338 merged after 2,120 tests / 23 expected skips and asset policy pass. Implement strict canonical menus.bnk receipt validation/replay next; keep semantic/login integration false.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
