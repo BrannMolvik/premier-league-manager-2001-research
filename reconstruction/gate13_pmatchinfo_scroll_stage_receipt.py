@@ -1,7 +1,7 @@
 """Private Gate-13 PMatchInfo scroll staging receipt validator.
 
 This tool validates one exact-path source-inventory report and the staged bytes
-for the three still-pending PMatchInfo vertical-scroll assets. It records byte
+for the three-resource PMatchInfo vertical-scroll staging batch. It records byte
 identity and raw EA444 header geometry only. It does not infer how the original
 renderer composes, positions, clips, repeats, drags, or animates those assets.
 """
@@ -19,7 +19,6 @@ from gate13_button_source_trace import require_private_output_path
 from gate13_source_inventory import normalize_member
 from original_pmatchinfo_scroll_readiness import (
     PMATCHINFO_SCROLL_EXACT_PATH_FILE,
-    pending_pmatchinfo_scroll_source_paths,
     validate_pmatchinfo_scroll_exact_path_contract,
 )
 

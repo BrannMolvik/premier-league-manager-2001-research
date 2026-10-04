@@ -1,4 +1,4 @@
-# Exact source-backed PMatchInfo scroll assets not yet staged.
+# Exact source-backed PMatchInfo scroll staging/replay batch (now imported).
 # Use with gate13_source_inventory.py --deep --extract-path-file
 # --only-explicit --require-all-explicit. These are canonical disc-relative
 # paths recovered from the native loader chain; no checksum, geometry, or

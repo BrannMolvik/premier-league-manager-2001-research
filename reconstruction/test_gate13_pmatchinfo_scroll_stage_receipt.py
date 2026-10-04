@@ -11,7 +11,7 @@ from gate13_pmatchinfo_scroll_stage_receipt import (
 )
 from original_pmatchinfo_scroll_readiness import (
     PMATCHINFO_SCROLL_EXACT_PATH_FILE,
-    pending_pmatchinfo_scroll_source_paths,
+    PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS,
 )
 
 
@@ -31,7 +31,7 @@ class PMatchInfoScrollStageReceiptTests(unittest.TestCase):
         report = root / "selection.json"
         contract = repo / PMATCHINFO_SCROLL_EXACT_PATH_FILE
         contract.parent.mkdir(parents=True)
-        expected = pending_pmatchinfo_scroll_source_paths()
+        expected = PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS
         contract.write_text("\n".join(expected) + "\n", encoding="utf-8")
 
         candidates = []
@@ -73,7 +73,7 @@ class PMatchInfoScrollStageReceiptTests(unittest.TestCase):
         self.assertEqual(receipt["asset_count"], 3)
         self.assertEqual(
             [item["source_path"] for item in receipt["assets"]],
-            list(pending_pmatchinfo_scroll_source_paths()),
+            list(PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS),
         )
         self.assertEqual(
             [(item["header_width"], item["header_height"]) for item in receipt["assets"]],
