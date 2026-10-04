@@ -37,7 +37,8 @@ the original arrows, integrate ordinary paging, then rerun automatic-away
 without the explicit paging seam and finish criterion-level timing,
 recognizability and Windows validation. Gate13 remains OPEN: this is a real
 normal-navigation gap, not an optional detail. Current-code regression passes
-**2,248 tests / 23 expected skips**, plus **134 focused tests** and asset policy.
+**2,267 tests / 23 expected skips** after canonical-main reconciliation,
+plus **134 focused tests** and asset policy (pre-reconciliation: 2,248 tests).
 Fresh real Windows 11/Tk schema-8 passes; receipt SHA-256:
 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
 This validates existing host contracts, not ordinary paging or every timing/
@@ -45,6 +46,17 @@ recognizability criterion. Both original-probe attempts and consent are spent;
 no further original launch is authorized by those receipts. Gate14 work and
 ownership are unchanged. See the current criterion table in
 `GATE13_CLOSURE_AUDIT.md`; earlier probe next-actions below are historical.
+
+Reconciled canonical main for this milestone:
+`e76f9c5b766bbfecec7b5a4f8cf50dbd87b668cd`; the continuous worker's newer
+disjoint Gate14 changes are preserved. Merged PR353 is not reopened; subsequent
+producer/persistence work is on `codex/gate13-uncontrolled-producer-20261005`.
+Reconciled real Windows11/Tk schema8 passes with the same deterministic receipt
+identity above. Existing Windows package CI passes at code head `84fa8d79`,
+including frozen executable smoke and uploaded candidate archive:
+https://github.com/BrannMolvik/premier-league-manager-2001-research/actions/runs/37223803377
+This is CI packaging evidence, not Daniel-machine frozen-executable acceptance
+or Gate17 certification; earlier local App Control denials are not bypassed.
 
 The second/final separately approved follow-up succeeded: **41.812 seconds /
 1,673 debugger events**, stopping **before** selected `5DA538` on imported

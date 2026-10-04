@@ -29,7 +29,15 @@ human-away calculation/save/fresh reload/right-click **without the paging seam**
 and complete the timing/recognizability judgment. Do not reopen completed report
 packing/codecs/ownership or expand into Gate14/optional obscure contexts.
 
-Final implementation validation: **2,248 tests /23 expected skips**, **134
+Bounded canonical-executable pager setup/dispatch evidence SHA-256:
+`12d05ef3630dcb690e115208c2656c97f9b786a6e880431d2577a0d3e4770da2`;
+wrapper declaration/event-table detail SHA-256:
+`7dc43a4a24b2444d3b3bccf7a0d5ebfae12776823023f7a283e95dc87afe078e`.
+The wrappers declare 15 frames, not the unrelated 23-frame Button mapping.
+Raw source reports remain private; asset paths/frame semantics, concrete control
+type and parent translation are not inferred from these candidate owners.
+
+Final reconciled implementation validation: **2,267 tests /23 expected skips**, **134
 focused checks**, asset policy and fresh Windows11/Tk schema8 all pass.
 Windows receipt SHA-256:
 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
@@ -39,50 +47,6 @@ The receipt explicitly discloses the paging seam; schema8 is not a substitute
 for all ROADMAP criteria. Gate13 remains ACTIVE; no transition is claimed.
 
 ## Historical probe checkpoints (superseded next-actions)
-
-## 5 October: decisive user-thread capacity lifecycle proof
-
-The final approved guarded follow-up reached selected DBRClub5's `5DA538`
-before execution: 41.812s / 1,673 events, 1,156 gap-free dual-architecture
-all-user-thread watch checks, including four newly created threads. No write;
-`+13C/+140` retained their observed allocation `0/0` bytes for this exact
-lifecycle. This is **not a universal zero initializer/default**, not kernel or
-external-writer coverage, and not yet the human-away report proof. The preceding
-DR-loss attempts are rejected evidence, not silently repaired coverage.
-63 focused checks pass. Gate13 stays OPEN pending ordinary producer integration
-and human-away report/save/reload/right-click/rendered-context verification,
-then final timing/recognizability/Windows audit. No criterion is waived.
-
-## 5 October 2026: decisive probe attempted, startup boundary failed
-
-Follow-up isolated idle surface-return diagnostic: intentional 60-second stop,
-515 events, 120 zero-HRESULT returns with 108-byte/800x600/pitch-1600/non-null
-descriptors; no native access violation or unhandled exception. This does not
-establish the cause of the previous graphics fault, fix the ordinary interaction
-path, supply visiting capacities, or close the human-away report requirement.
-Daniel's alt-tab recollection is a candidate, not a native causal proof; he also
-recalls an earlier idle crash. 56 focused probe/display checks and asset policy
-pass. Gate 13 remains OPEN; criterion-level outcomes are unchanged.
-
-On canonical main `781f90a1`, the approved single bounded capacity attempt
-ended with an unhandled native graphics-copy access violation at `5EE19B`
-(invalid destination `00009312`), after 58.031 seconds / 273 events. Allocation,
-import and selected `5DA538` were not reached; all-user-thread watch coverage
-never started. This is not a capacity/time/event guard success and supplies no
-capacity values or unchanged-allocation proof. Executable bytes remain unchanged.
-
-Next narrow dependency: actual surface-lock HRESULT/descriptor observations
-at `5EE232` / `5EE252`, with no pointer/return substitution or added shim.
-Their actual returns and the cause of the invalid copy destination remain
-unproven. No automatic additional original launch is authorized by the
-executed single-run approval. Details and private receipt hashes are in
-`CURRENT_STATE.md` and `GATE13_NATIVE_CAPACITY_WATCH.md`.
-
-Gate 13 stays **OPEN**. The human-away report/save/fresh-reload/right-click proof
-and final timing/recognizability/Windows audit remain pending, not waived.
-49 focused watcher/display checks pass; no new full-suite/Windows closure or
-release certification is claimed. The prior criterion-level results below
-remain unchanged. No Gate-14 implementation or ownership protocol changed.
 
 ## 5 October: decisive user-thread capacity lifecycle proof
 

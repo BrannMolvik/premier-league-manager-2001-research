@@ -18,7 +18,7 @@ PMatchInfo via actual Tk right-click. Independently repeated with automatic
 Win32 allocation, without replayed original zeros or injected report state.
 The proof needed the existing paging seam; ordinary Fixtures page-arrow input
 and draw-state qualification is the next normal-play blocker. Gate13 stays open.
-Final current-code validation: 2,248 tests / 23 expected skips, 134 focused
+Final reconciled-code validation: 2,267 tests / 23 expected skips, 134 focused
 checks, asset policy and fresh real Windows 11/Tk schema-8 all pass. This is
 not a waiver of ordinary paging or final timing/recognizability requirements.
 

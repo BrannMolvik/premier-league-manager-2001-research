@@ -84,7 +84,8 @@ It is the next real normal-navigation gap; Gate13 stays open.
 
 Focused capacity/gate/save integration: **71 tests passed**; combined probe/
 display/integration checks: **134 passed**. Full current-code regression:
-**2,248 tests / 23 expected skips**. Fresh Windows 11/Tk schema-8 passes,
+**2,267 tests / 23 expected skips** after main reconciliation (2,248 before).
+Fresh Windows 11/Tk schema-8 passes,
 receipt SHA-256
 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
 Neither regression nor that audit closes the ordinary paging/timing gap.
