@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes indexed non-stack BNK access narrowing caff7481 (2,070 tests / 23 expected skips, asset policy green). Active disjoint checkpoint is PR #328 head 750d73d9: recurring indexed access-shape correlation across loader/playback windows, explicitly not record-layout/sample-table proof. Exact four-bank staging/receipt work is prepared off-PR and should be rebased only after #328 resolves.",
-  "last_known_main_head": "caff748169e6f6f01768304104c5c91df0c8ac10",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes indexed BNK access narrowing caff7481 and shared indexed-shape correlation 95f50d2e (2,072 tests / 23 expected skips, asset policy green). Active disjoint checkpoint is PR #330 head 7f1e7b23: exact four-bank source staging contract + canonical source archive identity + private receipt. Merge only after exact-head reconstruction CI and asset policy pass; format/decode/event-binding flags remain false.",
+  "last_known_main_head": "95f50d2e8480a6eae9af09a98a59cd0c1da536fe",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 268,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 268 heartbeat: validating PR #328 shared indexed BNK access shapes; private shell/Python execution remains unavailable.",
+  "note": "Recovery 268 heartbeat: validating PR #330 exact BNK staging after #328 merged; private shell/Python execution unavailable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
