@@ -6,6 +6,20 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 255 Gate-13 League Fixtures grid-selector checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN.
+
+PR #291 merged as canonical main `02b5d5c8` after **1,960 tests / 23 expected skips**, **594 Gate-13 tests / 22 expected skips**, repository asset policy, and the Windows release-candidate package workflow all passed. The live management presenter/host now accepts only the exact source-proven `PLeagueGrid` left-press boundary: half-open screen rectangle `(378,235,348,336)`, 29x14 point reduction, visible column selector `0..11`, visible row selector `0..23`, and only materialized source cells. PMenu retains priority where screen regions overlap; PMatchInfo remains on its separately recovered right-press/context route.
+
+A source-evidence re-check during PR #291 **removed** the provisional single-cell visual-selection interpretation before merge. `0x46D300` dispatches the column and row selector indices separately, while the older `+0x109B0/+0x109B4` toggled-box trace describes a 24-entry selected-index update. The repository now explicitly records that this does not prove one clicked `(column,row)` maps to one toggled cell. Exact selector-band composition remains fail-closed until the `0x46CF90` / `0x46D140` data flow into those selected-index fields is source-closed.
+
+Private execution briefly recovered enough to launch one trivial process. The authorized **511,121,336-byte** source ZIP and **688,773-byte** persisted runtime ZIP were then successfully materialized to the workspace. Every subsequent shell launch, a minimal independent shell reprobe, and the separate Python execution path failed before process start with `caas.internal.errors.ClientError`. No source hash, PMatchInfo scroll extraction, remaining-setup trace, selector data-flow result, or new Windows receipt is claimed. Source/runtime availability is not the blocker; sustained process startup is.
+
+Exact private actions when sustained execution returns remain: (1) run the PMatchInfo scroll exact-path inventory with `--deep --hash-source --only-explicit --require-all-explicit`, validate the private staging receipt and import only verified assets; (2) run the bounded remaining-setup trace for fresh uncontrolled club `+0x13C/+0x140` and manually adjudicate authoritative writes/lifecycle; (3) source-close `0x46CF90` / `0x46D140` -> `+0x109B0/+0x109B4` before rendering any toggled selector bands; and (4) rerun the current-main real-Windows graphical audit.
+
+Next cloud-safe action: do **not** infer the PLeagueFixtures country/League runtime list from generic `state.competitions` ordering. Audit and expose a fail-closed source-data contract for the already-recovered eight country selector identities/events and the dynamic League selector input requirements, so later integration cannot silently substitute modern/dictionary ordering for the original DBRCountry competition-array order.
+
 ## Recovery 255 Gate-13 League Fixtures paging checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN.
