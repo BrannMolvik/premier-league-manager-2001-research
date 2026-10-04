@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #338 is verified and merged as main 0c92e35b. Active cloud-safe work-ahead: add strict private Windows menu-audio receipt validation that re-decodes the exact numeric route against canonical menus.bnk and rejects any drift/semantic promotion; then verify in hosted CI and merge. Private AudioHooks caller trace remains blocked by caas ClientError.",
-  "last_known_main_head": "0c92e35b3ee8ebfe777c74bbe8afa0ffee53094e",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #340 is verified and merged as main 44110d89. Continue highest-value disjoint Gate-14 work: narrow FastView cross-component child registration/draw order without promoting unresolved blend semantics. Use persisted source evidence where sufficient; otherwise add bounded fail-closed private trace support. Private canonical executable execution remains blocked by caas ClientError.",
+  "last_known_main_head": "44110d892d762d06baa409ff80793be254f8c077",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 273,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 273 checkpoint: PR #338 merged after 2,120 tests / 23 expected skips and asset policy pass. Implement strict canonical menus.bnk receipt validation/replay next; keep semantic/login integration false.",
+  "note": "Recovery 273 checkpoint: PR #340 merged after reconstruction run 37204633486 passed 2,128 tests / 23 expected skips and asset-policy run 37204633485 passed. Next: FastView child-registration/draw-order narrowing; do not unmask alpha-overlap pixels without blend proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
