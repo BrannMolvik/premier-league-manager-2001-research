@@ -18,6 +18,8 @@ from gate13_button_source_trace import require_private_output_path
 from gate13_source_inventory import normalize_member
 from gate14_audio_bank_source_paths import (
     AUDIO_BANK_EXACT_PATH_FILE,
+    CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256,
+    CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE,
     validate_audio_bank_exact_path_contract,
 )
 
@@ -71,9 +73,18 @@ def validate_audio_bank_stage_receipt(
             "audio-bank staging report has unresolved exact paths"
         )
     source_sha = report.get("source_sha256")
+    source_size = report.get("source_size")
     if not isinstance(source_sha, str) or not _HEX64.fullmatch(source_sha):
         raise Gate14AudioBankStageReceiptError(
             "audio-bank staging report requires a hashed source archive"
+        )
+    if source_sha != CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256:
+        raise Gate14AudioBankStageReceiptError(
+            "audio-bank staging report source SHA-256 is not canonical"
+        )
+    if source_size != CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE:
+        raise Gate14AudioBankStageReceiptError(
+            "audio-bank staging report source size is not canonical"
         )
 
     raw_explicit = report.get("explicit_paths")
@@ -191,6 +202,7 @@ def validate_audio_bank_stage_receipt(
         "schema_version": 1,
         "passed": True,
         "source_sha256": source_sha,
+        "source_size": source_size,
         "exact_path_contract": str(AUDIO_BANK_EXACT_PATH_FILE),
         "bank_count": len(banks),
         "banks": banks,
