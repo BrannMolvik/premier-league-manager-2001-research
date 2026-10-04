@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Gate-14 canonical main now includes #302 PictureControl renderer trace tooling and #303 source-closed pairwise paint order possession_diagram -> possession_figures_text. Exact next task: use authorized canonical executable evidence to source-close generic PictureControl resize/source-destination behavior needed by dynamic PlayerRow energy-bar pixels. Keep global z-order, blend behavior, background, audio, and 3D choreography fail-closed unless separately proved.",
-  "last_known_main_head": "3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main now includes source-closed possession diagram->figures draw order and source-cropped dynamic PlayerRow energy bars. Active PR #305 head becd9ab1 integrates the dynamic TeamTable energy raster into the canonical component/frame pipeline while retaining unresolved TeamTable text/global z-order/blend/background/audio/3D. Require exact-head hosted CI before merge. In parallel, audit whether existing PlayerRow text/font primitives are sufficient for source-backed TeamTable text pixels; otherwise prepare the smallest private renderer trace.",
+  "last_known_main_head": "0dc0be8a4955c8eec869e349813ecd0eb2b9fc50",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 259,
+  "recovery_generation": 260,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 259: resumed at main 3a3f60d1; continuing private Gate-14 PictureControl resize semantics.",
+  "note": "Recovery 260: main 0dc0be8a; PR #305 open awaiting hosted CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
