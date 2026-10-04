@@ -236,6 +236,22 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         self.assertEqual(result.unresolved_allocation_ids, (0,))
         self.assertEqual(result.unresolved_ranking_endpoint_ids, (2,))
 
+    def test_multi_human_required_user_count_cannot_drift(self):
+        forged = replace(
+            multi_human_audit(),
+            required_simultaneous_users=5,
+        )
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "source-proven six-user contract",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                runtime_owner_audit(),
+                forged,
+                progression_audit(),
+            )
+
     def test_catalog_identity_must_match_across_all_inputs(self):
         bad_owner = replace(runtime_owner_audit(), catalog_sha256="d" * 64)
         with self.assertRaisesRegex(
