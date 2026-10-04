@@ -6,6 +6,18 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 254 Gate-13 PMatchInfo scroll-resource checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN.
+
+PR #286 merged as canonical main `df098e6d` after **1,942 tests / 23 expected skips**, **576 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The repository now has a fail-closed PMatchInfo vertical-scroll readiness inventory for the already source-identified loader family. It verifies the two currently staged identities (`scroller_vert.444` and `vscroll_end.444`) and explicitly reports `scroller_bar_vert.444`, `scroller_blue_bar.444`, and `vscroll_blue_bar.444` as missing/pending. Native thumb/bar geometry, composite blits, x87 page/range arithmetic, hover, six-tick held-repeat, wheel and drag behavior remain unrecovered and are hard-coded false rather than inferred.
+
+PR #287 is the current follow-up. It binds exactly those three pending assets to a durable source-relative path file consumable by the existing `gate13_source_inventory.py --extract-path-file --only-explicit --require-all-explicit` flow. It does not assign hashes, byte sizes, geometry or behavior before authorized bytes are actually extracted and verified. Focused Gate-13 CI and asset policy are green on the current PR head; full reconstruction CI is still running.
+
+Private execution remains infrastructure-blocked in this allocation. The authorized source and persisted runtime archives were materialized successfully earlier in Recovery 254, but subsequent shell and independent Python process startup failed with `caas.internal.errors.ClientError`. No extraction or private-native scroll result is claimed.
+
+Exact next action after PR #287 verification: if sustained private execution is healthy, run the exact-path staging pass against the authorized source with source hashing and retain the private selection report; otherwise add a fail-closed private staging-receipt validator that requires all three candidates to come from one complete hashed exact-path inventory before any import. Do not infer renderer behavior from asset identity.
+
 ## Recovery 254 Gate-13 bounded setup-access checkpoint
 
 PR #284 merged as canonical main `88a3d38a` after **1,937 tests / 23 expected skips**, **571 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The remaining-setup private trace can now optionally classify exact unresolved displacement operands only inside the seven source-qualified `REMAINING_SETUP_WINDOWS`. It reuses `REMAINING_GATE13_FIELDS`, records Capstone read/write/read-write direction plus base/index register and window/instruction identity, and labels every hit `bounded_linear_candidate_not_cfg_or_object_proof`. The classifier refuses to run outside `--remaining-setup-only`; it does not prove object identity, reachability, writer ownership, initialization semantics, a capacity value, or Gate-13 closure.
