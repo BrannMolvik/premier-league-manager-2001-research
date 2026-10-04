@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #289 is canonical as b28c4697 and PR #290 as 0ebdd839; Recovery 255 reconciliation is on main through b93d1cda. Next cloud-safe task: integrate the source-proven PLeagueFixtures grid pointer-selection path using exact GRID_RECT (378,235,348,336), 29x14 reduction, and the existing selected-cell/toggled-box projection. Do not invent paging-button hitboxes, selector-control geometry, or PMatchInfo behavior.",
+  "active_task": "Gate 13 remains OPEN. PR #291 head 06abc93d integrates only the exact PLeagueGrid left-press selector indices from GRID_RECT (378,235,348,336) and 29x14 reduction. A source re-check removed the earlier synthetic single-cell visual-selection claim; toggled-box selector-band composition remains fail-closed. Validate Gate13/full/asset/Windows workflows, merge only if green, then continue the next source-backed Gate-13 presentation slice.",
   "last_known_main_head": "b93d1cda9978058f5f476246b406c3c7268e821a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 255,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 255: paging presenter+host merged and reconciled; starting exact League Fixtures grid pointer selection integration.",
+  "note": "Recovery 255: PR #291 narrowed to exact column/row selector evidence; validating corrected head 06abc93d.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
