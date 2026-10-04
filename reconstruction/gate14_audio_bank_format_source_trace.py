@@ -49,15 +49,124 @@ BANK_FORMAT_TRACE_WINDOWS = (
 )
 
 
+def classify_bnk_window_dataflow_candidates(
+    pe: OriginalPE32,
+    *,
+    windows=None,
+) -> tuple[dict, ...]:
+    """Classify bounded loader/playback instructions without assigning format semantics.
+
+    Each retained record is still only a linear-disassembly candidate. The
+    classifier exposes direct CALL targets, immediate operands and memory
+    operands so private manual analysis can focus on record-layout/file-I/O
+    operations. It does not infer field meanings, sample-table ownership, codec,
+    or control-flow reachability.
+    """
+    if windows is None:
+        windows = BANK_FORMAT_TRACE_WINDOWS
+    try:
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        from capstone.x86_const import X86_OP_IMM, X86_OP_MEM
+    except ImportError as exc:
+        raise Gate14AudioBankFormatTraceError(
+            'Capstone missing: install locally with pip install "capstone>=5,<6"'
+        ) from exc
+
+    engine = Cs(CS_ARCH_X86, CS_MODE_32)
+    engine.detail = True
+    output: list[dict] = []
+
+    for item in tuple(windows):
+        if not isinstance(item, tuple) or len(item) != 3:
+            raise Gate14AudioBankFormatTraceError(
+                "BNK trace windows must be (label, start_va, requested_size)"
+            )
+        label, start_va, requested_size = item
+        if (
+            not isinstance(label, str)
+            or not label
+            or type(start_va) is not int
+            or type(requested_size) is not int
+            or requested_size <= 0
+        ):
+            raise Gate14AudioBankFormatTraceError("invalid BNK trace window")
+        section, _ = pe.section_for_va(start_va)
+        if section.name != ".text":
+            raise Gate14AudioBankFormatTraceError(
+                f"{label}: expected source-qualified code in .text"
+            )
+        raw = pe.bounded_window(start_va, requested_size)
+
+        for insn in engine.disasm(raw, start_va):
+            immediates: list[int] = []
+            memory_operands: list[dict] = []
+            for operand in insn.operands:
+                if operand.type == X86_OP_IMM:
+                    immediates.append(int(operand.imm) & 0xFFFFFFFF)
+                elif operand.type == X86_OP_MEM:
+                    memory_operands.append(
+                        {
+                            "base": (
+                                insn.reg_name(operand.mem.base)
+                                if operand.mem.base
+                                else None
+                            ),
+                            "index": (
+                                insn.reg_name(operand.mem.index)
+                                if operand.mem.index
+                                else None
+                            ),
+                            "scale": int(operand.mem.scale),
+                            "displacement": int(operand.mem.disp),
+                            "operand_size": int(operand.size),
+                        }
+                    )
+
+            direct_call_target = None
+            if (
+                insn.mnemonic == "call"
+                and len(insn.operands) == 1
+                and insn.operands[0].type == X86_OP_IMM
+            ):
+                direct_call_target = int(insn.operands[0].imm) & 0xFFFFFFFF
+
+            if not immediates and not memory_operands and direct_call_target is None:
+                continue
+
+            output.append(
+                {
+                    "window_label": label,
+                    "instruction_va": int(insn.address),
+                    "instruction_size": int(insn.size),
+                    "bytes": bytes(insn.bytes).hex(),
+                    "mnemonic": insn.mnemonic,
+                    "operands": insn.op_str,
+                    "direct_call_target_candidate": direct_call_target,
+                    "immediate_candidates": tuple(immediates),
+                    "memory_operand_candidates": tuple(memory_operands),
+                    "classification": (
+                        "bounded_linear_bnk_dataflow_candidate_not_cfg_or_format_proof"
+                    ),
+                }
+            )
+
+    return tuple(output)
+
+
 def audio_bank_format_trace_report(
     pe: OriginalPE32,
     *,
     windows=None,
     with_disassembly: bool = True,
+    classify_dataflow_candidates: bool = False,
 ) -> dict:
     """Collect bounded BNK loader/playback evidence without format promotion."""
     if type(with_disassembly) is not bool:
         raise Gate14AudioBankFormatTraceError("with_disassembly must be boolean")
+    if type(classify_dataflow_candidates) is not bool:
+        raise Gate14AudioBankFormatTraceError(
+            "classify_dataflow_candidates must be boolean"
+        )
     if windows is None:
         windows = BANK_FORMAT_TRACE_WINDOWS
 
@@ -102,6 +211,12 @@ def audio_bank_format_trace_report(
     return {
         "source_sha256": pe.sha256,
         "windows": tuple(inspected),
+        "dataflow_candidates_classified": bool(classify_dataflow_candidates),
+        "bounded_dataflow_candidates_not_format_proof": (
+            classify_bnk_window_dataflow_candidates(pe, windows=windows)
+            if classify_dataflow_candidates
+            else ()
+        ),
         "bank_loader_va": BANK_LOADER_VA,
         "bank_ownership_recovered": True,
         "playback_entrypoints_recovered": True,
@@ -116,8 +231,10 @@ def audio_bank_format_trace_report(
         "event_binding_recovered": False,
         "evidence_limit": (
             "Bank ownership and selected playback entrypoints are source-backed. "
-            "These bounded windows do not prove BNK field meanings, sample table "
-            "layout, codec parameters, exact sample semantics, or modern decode."
+            "These bounded windows do not prove BNK field meanings; optional "
+            "instruction/dataflow candidates also do not prove CFG reachability, "
+            "sample table layout, codec parameters, exact sample semantics, or "
+            "modern decode."
         ),
     }
 
@@ -132,6 +249,14 @@ def main() -> int:
         help="Private JSON evidence path outside the Git repository",
     )
     parser.add_argument("--no-disassembly", action="store_true")
+    parser.add_argument(
+        "--classify-dataflow-candidates",
+        action="store_true",
+        help=(
+            "Classify bounded direct-call, immediate and memory operands for "
+            "manual format analysis; still not CFG or BNK-format proof"
+        ),
+    )
     args = parser.parse_args()
 
     require_private_output_path(args.output)
@@ -139,6 +264,7 @@ def main() -> int:
     report = audio_bank_format_trace_report(
         pe,
         with_disassembly=not args.no_disassembly,
+        classify_dataflow_candidates=args.classify_dataflow_candidates,
     )
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Private Gate-14 BNK format trace saved to {args.output}")
