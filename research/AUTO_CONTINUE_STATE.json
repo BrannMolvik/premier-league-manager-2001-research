@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #344 is merged as main f35b8955 after 2,148 tests/23 skips and asset-policy success. Continue independent Gate-14 FastView render-order work: trace how FastViewPanel invokes its source-closed +0x94 FastViewTeam object relative to generic 0x6533A0 forward child-array traversal, and separately retain the already-proven nested TeamTable/PlayerRow traversal boundary. Add no pairwise/global draw-order relation without direct source closure.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #345 at head 4bc1d040: source-closed SubPanelControl bridge and total relative draw order for currently rasterized FastView families. Asset policy is green; full reconstruction CI is still running. If green, merge #345 and continue immediately with the bounded native font destination-read/alpha-blend trace without unmasking pixels until the blend equation is source-closed.",
   "last_known_main_head": "f35b895530d4038df778f4afade7462f9e09fa54",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 275,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 275 merged PR #344 as f35b8955. The owner call 0x520E67 -> FastViewTeam::0x524920 and parent-pointer relation are canonical; FastViewTeam parent draw-array registration and container-level ordering remain unresolved. Continue only disjoint Gate-14 files while Gate 13 ownership lock is active.",
+  "recovery_generation": 276,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 276 resumed exact open PR #345. main remains f35b8955. Do not touch Gate-13-owned files while the ownership lock remains active. Next after #345 is the native font blend/dataflow task documented in GATE14_FASTVIEW_FONT_BLEND_TRACE.md.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
