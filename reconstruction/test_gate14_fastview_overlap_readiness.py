@@ -113,6 +113,35 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertFalse(item.cross_component_blend_rule_recovered)
         self.assertFalse(item.pixels_resolvable)
 
+    def test_phase_split_score_group_has_complete_source_order_but_stays_blend_blocked(self):
+        components = (
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "team_table_static",
+        )
+        group = FastViewUnresolvedOverlapGroup(
+            components=components,
+            pixel_count=6,
+            bounding_rect=(38, 32, 763, 283),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 10)
+        self.assertEqual(item.recovered_pairwise_relation_count, 10)
+        self.assertTrue(item.complete_draw_order_recovered)
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+        self.assertEqual(
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            )[-1],
+            ("league_scores_runtime_phase_icons", "team_table_static"),
+        )
+
     def test_unmodeled_component_retains_draw_order_blocker(self):
         group = FastViewUnresolvedOverlapGroup(
             components=(
