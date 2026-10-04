@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #373 is still the active worker checkpoint. CI on head d80fe5ee found one incorrect PEN centering expectation; implementation was correct at x=351 under native signed truncation. Test/docs are corrected on head c5388009. Verify fresh CI, merge only if green, then continue component/overlap integration with runtime phase text and icon planes retained at one unresolved aggregate icon<->text order level.",
-  "last_known_main_head": "ce355560bd9e92da072f220376bc7b36768c4034",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #375 is merged as main 98d9bd92 after 2,304 tests/23 skips and asset-policy success. Continue disjoint Gate-14 source work: persist ScoreComposite phase receiver registration/dispatch ordering. Source now proves typed receivers are tail-appended in LeagueScores source-row construction order and sender broadcasts traverse head-to-tail, so each broadcast invokes rows in source order. Keep aggregate runtime icon<->text family order unresolved because different event broadcasts occur over time and append per-row icon/text pairs chronologically.",
+  "last_known_main_head": "98d9bd927030b15434149cc96b5b4d9c2f409c98",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 288,
+  "recovery_generation": 289,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #373 remains disjoint from Gate-13 paging. The failed CI was only an expected-value bug: PEN width 23 in a 28px control gives trunc((28-23)/2)=2, so origin x=349+2=351. No raster implementation change was needed.",
+  "note": "PR #375 merged cleanly from current main. Static canonical executable tracing closes ScoreComposite receiver registration and per-broadcast dispatch order but does not create a universal aggregate icon/text edge. Next checkpoint should encode exact sender/receiver offsets, registration callsites, tail append helper 0x5302C0, forward sender traversal, and fail-closed aggregate ordering.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
