@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main now includes #293 overlap topology, #294 resolved PNG preview, #295 Tk presentation seam, and #297 exact 800x600 coverage audit (1,975 tests / 23 expected skips, asset policy green). Active disjoint checkpoint is PR #299 head 6f864fbe: fail-closed audio-bank .bnk raw-hit narrowing to decoded x86 operand-reference candidates. Merge only after exact-head reconstruction CI and asset policy pass, then continue the next Gate-14-only source-backed step without touching Gate 13/shared runtime.",
-  "last_known_main_head": "87bda1bffae6f9612b245f4774a132087c66ad9f",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main now includes #293 overlap topology, #294 resolved PNG preview, #295 Tk presentation seam, #297 exact 800x600 coverage audit, and #299 decoded audio-bank operand candidate narrowing. Active disjoint checkpoint is PR #300 head 660b558d: compose completed human outcome -> source-backed frame plan -> canonical resolved preview -> exact coverage -> caller-owned Tk draw, with all z-order/background/audio/3D fidelity still fail-closed. Merge only after exact-head reconstruction CI and asset policy pass.",
+  "last_known_main_head": "e94b9e68dfa0091d79c964487c621f3c685e72c4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 257,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 257: resumed at main 87bda1bf; validating PR #299 audio-bank operand candidate classifier.",
+  "note": "Recovery 257: #299 merged as e94b9e68 after 1,977 tests / 23 skips plus asset policy; validating PR #300 completed-human resolved presentation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
