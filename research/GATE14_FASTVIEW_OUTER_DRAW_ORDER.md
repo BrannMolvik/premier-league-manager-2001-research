@@ -9,21 +9,22 @@ FastViewPanel draw-array registration sequence reached by the recovered setup
 path.
 
 The generic parent appends controls to its `+0x1C/+0x38` draw array and the
-renderer traverses that array forward. The outer FastViewPanel contains exactly
-18 registrations in this source order:
+renderer traverses that array forward. Recovery 284 corrects the outer inventory after a constructor cross-check found the source-owned `ScoreCompositeMain` path. The outer FastViewPanel contains exactly
+23 registrations in this source order:
 
 1. top-bar PictureControl;
 2. ticker PictureControl;
 3. ClockControl's nested TextControl;
 4. embedded control at parent `+0x388`;
 5. embedded control at parent `+0x3D4`;
-6-9. four PossessionDiagram PictureControls;
-10-12. three PossessionFigures TextControls;
-13. direct TextControl at `(250,45)-(550,75)`;
-14. direct TextControl at `(250,70)-(550,86)`;
-15. FastViewScores SubPanelControl;
-16. FastViewTeam SubPanelControl;
-17-18. two post-team embedded controls at parent `+0x424/+0x478`.
+6-10. the five base controls of the single `ScoreCompositeMain` instance;
+11-14. four PossessionDiagram PictureControls;
+15-17. three PossessionFigures TextControls;
+18. direct TextControl at `(250,45)-(550,75)`;
+19. direct TextControl at `(250,70)-(550,86)`;
+20. FastViewScores SubPanelControl;
+21. FastViewTeam SubPanelControl;
+22-23. two post-team embedded controls at parent `+0x424/+0x478`.
 
 This is stronger than the earlier raster-family subsequence. It proves where
 non-rasterized controls such as the clock and four embedded controls sit
@@ -49,6 +50,22 @@ Embedded pre-possession controls:
 - parent `+0x3D4`: append `0x52000B -> 0x5274C0`, later initialized
   through `0x52009F -> 0x652FD0`.
 
+ScoreCompositeMain:
+
+- exactly one branch constructs the object at `0x520356 -> 0x51B400`,
+  `0x520416 -> 0x51B330`, or `0x5204D6 -> 0x51B330`;
+- each branch passes the outer FastViewPanel as constructor argument 1;
+- both constructors flow through shared `ScoreComposite::0x51A730`;
+- that base appends one PictureControl at `0x51A825` followed by four
+  TextControls at `0x51A8C1`, `0x51A93C`, `0x51A9D2`, and
+  `0x51AA83`.
+
+These five controls therefore belong directly to the outer draw array and are
+created after the two embedded pre-possession controls but before
+PossessionDiagram. The earlier 18-entry checkpoint omitted this builder-owned
+visible family; this document intentionally records the correction rather than
+hiding the chronology.
+
 PossessionDiagram's owner call `0x5206CD` creates four PictureControls, in
 order, at `0x522894`, `0x52291D`, `0x5229AA`, and `0x522A33`.
 
@@ -73,7 +90,7 @@ This checkpoint deliberately does **not** set
 `global_fastview_z_order_recovered=true`.
 
 The score and team wrappers synchronously render their own child arrays at
-outer ranks 14 and 15 (zero-based), but their **complete** nested child
+outer ranks 19 and 20 (zero-based), but their **complete** nested child
 inventories have not yet been exhaustively reconciled. Earlier work proves the
 relative order of the currently rasterized score/table/team families, not every
 visible nested control.
