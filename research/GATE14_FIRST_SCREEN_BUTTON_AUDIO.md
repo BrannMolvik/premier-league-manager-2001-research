@@ -56,6 +56,21 @@ The reconstruction already requires these caption sources for the verified
 first-screen visual path. They are therefore the same non-null source class
 used by the native Button selector rather than an inferred replacement field.
 
+## Owner acceptance
+
+The pre-audio owner gate in `0x64F7A0` dispatches virtual slot `+0x0C`
+when the Button has an owner/callback context.
+
+For the two first-screen owners this gate is source-closed:
+
+- PStartMenu vtable `0x7C64E0`, slot `+0x0C` -> `0x42DE00`;
+- TeamSelect vtable `0x7C7650`, slot `+0x0C` -> `0x5CFA50`.
+
+Both targets are exactly `mov eax,1; ret 8`. Therefore these owner methods
+accept the press at this pre-audio gate. This does not bypass the Button's own
+enabled/capture checks, and it does not claim that every later gameplay/session
+operation succeeds.
+
 ## Press ordering
 
 Generic Button press handler `0x64F7A0` first rejects controls whose enabled
@@ -98,8 +113,11 @@ The checkpoint therefore keeps all of these false:
 
 ## Next step
 
-Bind this numeric route only at a front-end press boundary whose owner
-acceptance is already source-equivalent in the modern host, then rerun the
-strict Windows audible receipt. Do not play the route for rejected TeamSelect
-Start presses or other rectangle hits unless their native acceptance path is
-also closed.
+The native first-screen owner acceptance gate is now source-closed. The next
+integration step is to wrap the existing verified first-screen Button press
+boundary without editing Gate-13-owned presentation code, preserve the Button
+enabled/capture checks, and route the accepted numeric tuple through the
+existing menu PCM backend. Then rerun the strict Windows audible receipt.
+
+Do not use later modern backend rejection (for example an unavailable gameplay
+continuation) as a substitute for the earlier native Button acceptance order.
