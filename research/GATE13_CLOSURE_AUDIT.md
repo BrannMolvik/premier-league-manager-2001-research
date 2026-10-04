@@ -84,6 +84,50 @@ and final timing/recognizability/Windows audit remain pending, not waived.
 release certification is claimed. The prior criterion-level results below
 remain unchanged. No Gate-14 implementation or ownership protocol changed.
 
+## 5 October: decisive user-thread capacity lifecycle proof
+
+The final approved guarded follow-up reached selected DBRClub5's `5DA538`
+before execution: 41.812s / 1,673 events, 1,156 gap-free dual-architecture
+all-user-thread watch checks, including four newly created threads. No write;
+`+13C/+140` retained their observed allocation `0/0` bytes for this exact
+lifecycle. This is **not a universal zero initializer/default**, not kernel or
+external-writer coverage, and not yet the human-away report proof. The preceding
+DR-loss attempts are rejected evidence, not silently repaired coverage.
+63 focused checks pass. Gate13 stays OPEN pending ordinary producer integration
+and human-away report/save/reload/right-click/rendered-context verification,
+then final timing/recognizability/Windows audit. No criterion is waived.
+
+## 5 October 2026: decisive probe attempted, startup boundary failed
+
+Follow-up isolated idle surface-return diagnostic: intentional 60-second stop,
+515 events, 120 zero-HRESULT returns with 108-byte/800x600/pitch-1600/non-null
+descriptors; no native access violation or unhandled exception. This does not
+establish the cause of the previous graphics fault, fix the ordinary interaction
+path, supply visiting capacities, or close the human-away report requirement.
+Daniel's alt-tab recollection is a candidate, not a native causal proof; he also
+recalls an earlier idle crash. 56 focused probe/display checks and asset policy
+pass. Gate 13 remains OPEN; criterion-level outcomes are unchanged.
+
+On canonical main `781f90a1`, the approved single bounded capacity attempt
+ended with an unhandled native graphics-copy access violation at `5EE19B`
+(invalid destination `00009312`), after 58.031 seconds / 273 events. Allocation,
+import and selected `5DA538` were not reached; all-user-thread watch coverage
+never started. This is not a capacity/time/event guard success and supplies no
+capacity values or unchanged-allocation proof. Executable bytes remain unchanged.
+
+Next narrow dependency: actual surface-lock HRESULT/descriptor observations
+at `5EE232` / `5EE252`, with no pointer/return substitution or added shim.
+Their actual returns and the cause of the invalid copy destination remain
+unproven. No automatic additional original launch is authorized by the
+executed single-run approval. Details and private receipt hashes are in
+`CURRENT_STATE.md` and `GATE13_NATIVE_CAPACITY_WATCH.md`.
+
+Gate 13 stays **OPEN**. The human-away report/save/fresh-reload/right-click proof
+and final timing/recognizability/Windows audit remain pending, not waived.
+49 focused watcher/display checks pass; no new full-suite/Windows closure or
+release certification is claimed. The prior criterion-level results below
+remain unchanged. No Gate-14 implementation or ownership protocol changed.
+
 ## Subsequent prerequisite progress / probe-safety stop (not a new closure audit)
 
 Supervised r2 now reaches the selected imported DBRClub ID5's uncontrolled

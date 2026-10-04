@@ -38,6 +38,138 @@ AUDIO_HOOKS_EVENT_STACK_OFFSET = 0x04
 AUDIO_HOOKS_STATE_STACK_OFFSET = 0x08
 AUDIO_HOOKS_THIRD_STACK_OFFSET = 0x0C
 
+# Independently source-closed Button@ease_2001 RTTI/vtable path used by the
+# dynamic 0x64F7xx AudioHooks sender family.
+BUTTON_EASE_DECORATED_RTTI = ".?AVButton@ease_2001@@"
+BUTTON_EASE_TYPE_DESCRIPTOR_VA = 0x81AD90
+BUTTON_EASE_VTABLE_VA = 0x7BF4CC
+BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA = 0x6528A0
+BUTTON_EASE_INPUT_VA = 0x64F7A0
+BUTTON_EASE_EVENT_IDS = (2, 10)
+BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD = 0x34
+BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD = 0x4A
+# Independently source-closed by GATE13_BUTTON_NATIVE_TRACE.md as the active
+# Button@ease animation group index.
+BUTTON_EASE_NATIVE_GROUP_FIELD = BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD
+BUTTON_EASE_NATIVE_GROUP_LENGTHS = (11, 11, 1)
+BUTTON_EASE_DISABLED_GROUP = 2
+BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET = 0xA8
+BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA = 0x5D62F0
+
+# Recovery 279: source-closed class/method context for the literal event-13
+# sender at 0x47AD13. Both row classes share vtable slot 11 -> 0x47ACF0.
+P_TITLE_MENU_ROW_DECORATED_RTTI = ".?AVPTitleMenuRow@@"
+P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA = 0x81CDB0
+P_TITLE_MENU_ROW_VTABLE_VA = 0x7C3A80
+P_CHILD_MENU_ROW_DECORATED_RTTI = ".?AVPChildMenuRow@@"
+P_CHILD_MENU_ROW_TYPE_DESCRIPTOR_VA = 0x81CDF0
+P_CHILD_MENU_ROW_VTABLE_VA = 0x7C3A20
+MENU_ROW_EVENT13_VIRTUAL_SLOT_INDEX = 11
+MENU_ROW_EVENT13_VIRTUAL_SLOT_OFFSET = 0x2C
+MENU_ROW_EVENT13_METHOD_VA = 0x47ACF0
+MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET = 0x20
+MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE = 2
+MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE = (13, 0, 0)
+
+# Recovery 279: source-closed PTeamOrders2K class context for the literal
+# event-19 sender at 0x4D707F. Vtable slots 2 and 4 both reach helper 0x4D6FA0.
+P_TEAM_ORDERS_2K_DECORATED_RTTI = ".?AVPTeamOrders2K@@"
+P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA = 0x81DE68
+P_TEAM_ORDERS_2K_VTABLE_VA = 0x7C6FE0
+P_TEAM_ORDERS_2K_SLOT2_INDEX = 2
+P_TEAM_ORDERS_2K_SLOT2_OFFSET = 0x08
+P_TEAM_ORDERS_2K_SLOT2_METHOD_VA = 0x4D7600
+P_TEAM_ORDERS_2K_SLOT4_INDEX = 4
+P_TEAM_ORDERS_2K_SLOT4_OFFSET = 0x10
+P_TEAM_ORDERS_2K_SLOT4_METHOD_VA = 0x4D6770
+P_TEAM_ORDERS_2K_EVENT19_HELPER_VA = 0x4D6FA0
+P_TEAM_ORDERS_2K_EVENT19_GUARD_HELPER_VA = 0x64E5B0
+P_TEAM_ORDERS_2K_EVENT19_CALLSITE_VA = 0x4D707F
+P_TEAM_ORDERS_2K_EVENT19_AUDIOHOOKS_TUPLE = (19, 0, 0)
+P_TEAM_ORDERS_2K_EVENT19_HELPER_CALLSITES = (
+    0x4D6F2D,
+    0x4D6F61,
+    0x4D6F91,
+    0x4D7945,
+)
+P_TEAM_ORDERS_2K_EVENT19_INDEX_MIN = 0
+P_TEAM_ORDERS_2K_EVENT19_INDEX_MAX = 9
+P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_OFFSET = 0x96C
+P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_STRIDE = 0x20
+P_TEAM_ORDERS_2K_EVENT19_GUARD_OBJECT_OFFSET = 0xAD4
+
+# Recovery 279: RTTI-backed ownership for every currently recovered numeric
+# event-1 sender. These class/method identities do not assign event meaning.
+P_FORMATION_PITCH_2K_DECORATED_RTTI = ".?AVPFormationPitch2k@@"
+P_FORMATION_PITCH_2K_TYPE_DESCRIPTOR_VA = 0x81C418
+P_FORMATION_PITCH_2K_COMPLETE_OBJECT_LOCATOR_VA = 0x7E3258
+P_FORMATION_PITCH_2K_VTABLE_VA = 0x7C2084
+P_FORMATION_PITCH_2K_EVENT1_SLOT_INDEX = 5
+P_FORMATION_PITCH_2K_EVENT1_SLOT_OFFSET = 0x14
+P_FORMATION_PITCH_2K_EVENT1_METHOD_VA = 0x468620
+P_FORMATION_PITCH_2K_EVENT1_SENDERS = (
+    (0x468720, 1, 1, 0),
+    (0x468781, 1, 1, 0),
+)
+
+P_SQUAD_PITCH_DECORATED_RTTI = ".?AVPSquadPitch@@"
+P_SQUAD_PITCH_TYPE_DESCRIPTOR_VA = 0x81DB30
+P_SQUAD_PITCH_COMPLETE_OBJECT_LOCATOR_VA = 0x7E5A50
+P_SQUAD_PITCH_VTABLE_VA = 0x7C54A8
+P_SQUAD_PITCH_EVENT1_SLOT_INDEX = 5
+P_SQUAD_PITCH_EVENT1_SLOT_OFFSET = 0x14
+P_SQUAD_PITCH_EVENT1_METHOD_VA = 0x4B66E0
+P_SQUAD_PITCH_EVENT1_SENDERS = (
+    (0x4B6822, 1, 1, 0),
+    (0x4B6868, 1, 1, 0),
+)
+
+P_SQUAD_SCREEN_DECORATED_RTTI = ".?AVPSquadScreen@@"
+P_SQUAD_SCREEN_TYPE_DESCRIPTOR_VA = 0x819D48
+P_SQUAD_SCREEN_COMPLETE_OBJECT_LOCATOR_VA = 0x7E5F00
+P_SQUAD_SCREEN_VTABLE_VA = 0x7C5CA4
+P_SQUAD_SCREEN_EVENT1_SLOT4_INDEX = 4
+P_SQUAD_SCREEN_EVENT1_SLOT4_OFFSET = 0x10
+P_SQUAD_SCREEN_EVENT1_SLOT4_METHOD_VA = 0x4B8E70
+P_SQUAD_SCREEN_EVENT1_SLOT4_SENDERS = (
+    (0x4B9297, 1, 2, 0),
+)
+P_SQUAD_SCREEN_EVENT1_SLOT5_INDEX = 5
+P_SQUAD_SCREEN_EVENT1_SLOT5_OFFSET = 0x14
+P_SQUAD_SCREEN_EVENT1_SLOT5_METHOD_VA = 0x4B9350
+P_SQUAD_SCREEN_EVENT1_SLOT5_SENDERS = (
+    (0x4B95F4, 1, 1, 0),
+    (0x4B994F, 1, 1, 0),
+    (0x4B9AC0, 1, 1, 0),
+)
+
+SOURCE_CLOSED_EVENT1_CLASS_SENDERS = (
+    (
+        "PFormationPitch2k",
+        P_FORMATION_PITCH_2K_VTABLE_VA,
+        P_FORMATION_PITCH_2K_EVENT1_METHOD_VA,
+        P_FORMATION_PITCH_2K_EVENT1_SENDERS,
+    ),
+    (
+        "PSquadPitch",
+        P_SQUAD_PITCH_VTABLE_VA,
+        P_SQUAD_PITCH_EVENT1_METHOD_VA,
+        P_SQUAD_PITCH_EVENT1_SENDERS,
+    ),
+    (
+        "PSquadScreen:slot4",
+        P_SQUAD_SCREEN_VTABLE_VA,
+        P_SQUAD_SCREEN_EVENT1_SLOT4_METHOD_VA,
+        P_SQUAD_SCREEN_EVENT1_SLOT4_SENDERS,
+    ),
+    (
+        "PSquadScreen:slot5",
+        P_SQUAD_SCREEN_VTABLE_VA,
+        P_SQUAD_SCREEN_EVENT1_SLOT5_METHOD_VA,
+        P_SQUAD_SCREEN_EVENT1_SLOT5_SENDERS,
+    ),
+)
+
 # Exact canonical callsites where all three AudioHooks stack operands are
 # immediate literals immediately before the slot-0 indirect call.
 # Tuple fields are: callsite, event arg1, state arg2, third arg3.
@@ -114,6 +246,71 @@ class AudioHooksCallingConvention:
 
 
 SOURCE_CALLING_CONVENTION = AudioHooksCallingConvention()
+
+
+def button_ease_audiohooks_event_id(
+    object_field_34_non_null: bool,
+    word_field_4a: int,
+) -> int:
+    """Reproduce Button@ease slot-0's source-closed numeric event selection.
+
+    No semantic meaning is assigned to either object field or to event 2/10.
+    """
+    if type(object_field_34_non_null) is not bool:
+        raise Gate14AudioHooksCallerTraceError(
+            "Button +0x34 presence must be explicit boolean"
+        )
+    if type(word_field_4a) is not int or not 0 <= word_field_4a <= 0xFFFF:
+        raise Gate14AudioHooksCallerTraceError(
+            "Button +0x4A value must be uint16"
+        )
+    if not object_field_34_non_null:
+        return 2
+    return 2 if word_field_4a == 2 else 10
+
+
+def menu_row_event13_should_send(
+    incoming_object_non_null: bool,
+    incoming_field_20: int,
+) -> bool:
+    """Mirror only 0x47ACF0's source-closed numeric send predicate.
+
+    The incoming object's class/field meaning is deliberately unresolved. The
+    method sends AudioHooks numeric tuple (13,0,0) only when the incoming
+    object is non-null and its dword at +0x20 equals 2.
+    """
+    if type(incoming_object_non_null) is not bool:
+        raise Gate14AudioHooksCallerTraceError(
+            "incoming object presence must be explicit boolean"
+        )
+    if type(incoming_field_20) is not int or not 0 <= incoming_field_20 < 1 << 32:
+        raise Gate14AudioHooksCallerTraceError(
+            "incoming +0x20 value must be uint32"
+        )
+    return incoming_object_non_null and incoming_field_20 == 2
+
+
+def pteamorders2k_event19_should_send(
+    guard_helper_return_al: int,
+    second_argument: int,
+) -> bool:
+    """Mirror only 0x4D6FA0's source-closed numeric event-19 predicate.
+
+    Source closes the predicate, not the semantic meaning of helper 0x64E5B0,
+    the second argument, or AudioHooks event 19.
+    """
+    if (
+        type(guard_helper_return_al) is not int
+        or not 0 <= guard_helper_return_al <= 0xFF
+    ):
+        raise Gate14AudioHooksCallerTraceError(
+            "PTeamOrders2K guard helper return must be uint8"
+        )
+    if type(second_argument) is not int or not 0 <= second_argument < 1 << 32:
+        raise Gate14AudioHooksCallerTraceError(
+            "PTeamOrders2K second helper argument must be uint32"
+        )
+    return guard_helper_return_al == 0 and (second_argument & 0xFF) != 0
 
 
 def _load_capstone():
@@ -394,7 +591,139 @@ def audiohooks_caller_trace_report(
         "global_slot0_call_candidates_not_cfg_proof": virtual,
         "source_closed_literal_virtual_senders": SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS,
         "source_closed_dynamic_control_senders": SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
+        "source_closed_dynamic_control_event_ids": BUTTON_EASE_EVENT_IDS,
         "source_closed_derived_virtual_senders": SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        "menu_row_event13_source_contract": {
+            "classes": (
+                {
+                    "decorated_rtti": P_TITLE_MENU_ROW_DECORATED_RTTI,
+                    "type_descriptor_va": P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA,
+                    "vtable_va": P_TITLE_MENU_ROW_VTABLE_VA,
+                },
+                {
+                    "decorated_rtti": P_CHILD_MENU_ROW_DECORATED_RTTI,
+                    "type_descriptor_va": P_CHILD_MENU_ROW_TYPE_DESCRIPTOR_VA,
+                    "vtable_va": P_CHILD_MENU_ROW_VTABLE_VA,
+                },
+            ),
+            "shared_virtual_slot_index": MENU_ROW_EVENT13_VIRTUAL_SLOT_INDEX,
+            "shared_virtual_slot_offset": MENU_ROW_EVENT13_VIRTUAL_SLOT_OFFSET,
+            "shared_method_va": MENU_ROW_EVENT13_METHOD_VA,
+            "incoming_object_field_offset": MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET,
+            "required_field_value": MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE,
+            "audiohooks_numeric_tuple": MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE,
+            "incoming_field_semantics_recovered": False,
+            "event_semantics_recovered": False,
+        },
+        "pteamorders2k_event19_source_contract": {
+            "decorated_rtti": P_TEAM_ORDERS_2K_DECORATED_RTTI,
+            "type_descriptor_va": P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA,
+            "vtable_va": P_TEAM_ORDERS_2K_VTABLE_VA,
+            "vtable_paths": (
+                {
+                    "slot_index": P_TEAM_ORDERS_2K_SLOT2_INDEX,
+                    "slot_offset": P_TEAM_ORDERS_2K_SLOT2_OFFSET,
+                    "method_va": P_TEAM_ORDERS_2K_SLOT2_METHOD_VA,
+                },
+                {
+                    "slot_index": P_TEAM_ORDERS_2K_SLOT4_INDEX,
+                    "slot_offset": P_TEAM_ORDERS_2K_SLOT4_OFFSET,
+                    "method_va": P_TEAM_ORDERS_2K_SLOT4_METHOD_VA,
+                },
+            ),
+            "shared_helper_va": P_TEAM_ORDERS_2K_EVENT19_HELPER_VA,
+            "helper_callsites": P_TEAM_ORDERS_2K_EVENT19_HELPER_CALLSITES,
+            "guard_helper_va": P_TEAM_ORDERS_2K_EVENT19_GUARD_HELPER_VA,
+            "audiohooks_callsite_va": P_TEAM_ORDERS_2K_EVENT19_CALLSITE_VA,
+            "audiohooks_numeric_tuple": P_TEAM_ORDERS_2K_EVENT19_AUDIOHOOKS_TUPLE,
+            "clamped_index_range": (
+                P_TEAM_ORDERS_2K_EVENT19_INDEX_MIN,
+                P_TEAM_ORDERS_2K_EVENT19_INDEX_MAX,
+            ),
+            "source_block_offset": P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_OFFSET,
+            "source_block_stride": P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_STRIDE,
+            "guard_object_offset": P_TEAM_ORDERS_2K_EVENT19_GUARD_OBJECT_OFFSET,
+            "numeric_predicate": (
+                "send only when 0x64E5B0 returns AL==0 and the original "
+                "second helper argument has a nonzero low byte"
+            ),
+            "guard_helper_semantics_recovered": False,
+            "second_argument_semantics_recovered": False,
+            "event_semantics_recovered": False,
+        },
+        "event1_class_sender_source_contract": {
+            "event_id": 1,
+            "classes": (
+                {
+                    "decorated_rtti": P_FORMATION_PITCH_2K_DECORATED_RTTI,
+                    "type_descriptor_va": P_FORMATION_PITCH_2K_TYPE_DESCRIPTOR_VA,
+                    "complete_object_locator_va": P_FORMATION_PITCH_2K_COMPLETE_OBJECT_LOCATOR_VA,
+                    "vtable_va": P_FORMATION_PITCH_2K_VTABLE_VA,
+                    "paths": (
+                        {
+                            "slot_index": P_FORMATION_PITCH_2K_EVENT1_SLOT_INDEX,
+                            "slot_offset": P_FORMATION_PITCH_2K_EVENT1_SLOT_OFFSET,
+                            "method_va": P_FORMATION_PITCH_2K_EVENT1_METHOD_VA,
+                            "senders": P_FORMATION_PITCH_2K_EVENT1_SENDERS,
+                        },
+                    ),
+                },
+                {
+                    "decorated_rtti": P_SQUAD_PITCH_DECORATED_RTTI,
+                    "type_descriptor_va": P_SQUAD_PITCH_TYPE_DESCRIPTOR_VA,
+                    "complete_object_locator_va": P_SQUAD_PITCH_COMPLETE_OBJECT_LOCATOR_VA,
+                    "vtable_va": P_SQUAD_PITCH_VTABLE_VA,
+                    "paths": (
+                        {
+                            "slot_index": P_SQUAD_PITCH_EVENT1_SLOT_INDEX,
+                            "slot_offset": P_SQUAD_PITCH_EVENT1_SLOT_OFFSET,
+                            "method_va": P_SQUAD_PITCH_EVENT1_METHOD_VA,
+                            "senders": P_SQUAD_PITCH_EVENT1_SENDERS,
+                        },
+                    ),
+                },
+                {
+                    "decorated_rtti": P_SQUAD_SCREEN_DECORATED_RTTI,
+                    "type_descriptor_va": P_SQUAD_SCREEN_TYPE_DESCRIPTOR_VA,
+                    "complete_object_locator_va": P_SQUAD_SCREEN_COMPLETE_OBJECT_LOCATOR_VA,
+                    "vtable_va": P_SQUAD_SCREEN_VTABLE_VA,
+                    "paths": (
+                        {
+                            "slot_index": P_SQUAD_SCREEN_EVENT1_SLOT4_INDEX,
+                            "slot_offset": P_SQUAD_SCREEN_EVENT1_SLOT4_OFFSET,
+                            "method_va": P_SQUAD_SCREEN_EVENT1_SLOT4_METHOD_VA,
+                            "senders": P_SQUAD_SCREEN_EVENT1_SLOT4_SENDERS,
+                        },
+                        {
+                            "slot_index": P_SQUAD_SCREEN_EVENT1_SLOT5_INDEX,
+                            "slot_offset": P_SQUAD_SCREEN_EVENT1_SLOT5_OFFSET,
+                            "method_va": P_SQUAD_SCREEN_EVENT1_SLOT5_METHOD_VA,
+                            "senders": P_SQUAD_SCREEN_EVENT1_SLOT5_SENDERS,
+                        },
+                    ),
+                },
+            ),
+            "source_closed_sender_family": SOURCE_CLOSED_EVENT1_CLASS_SENDERS,
+            "event_semantics_recovered": False,
+        },
+        "button_ease_source_contract": {
+            "decorated_rtti": BUTTON_EASE_DECORATED_RTTI,
+            "type_descriptor_va": BUTTON_EASE_TYPE_DESCRIPTOR_VA,
+            "vtable_va": BUTTON_EASE_VTABLE_VA,
+            "slot0_event_selector_va": BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA,
+            "input_va": BUTTON_EASE_INPUT_VA,
+            "event_ids": BUTTON_EASE_EVENT_IDS,
+            "object_field_offset": BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
+            "word_field_offset": BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
+            "native_group_field_offset": BUTTON_EASE_NATIVE_GROUP_FIELD,
+            "native_group_lengths": BUTTON_EASE_NATIVE_GROUP_LENGTHS,
+            "disabled_group": BUTTON_EASE_DISABLED_GROUP,
+            "native_group_semantics_recovered": True,
+            "virtual_offset": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
+            "virtual_target_va": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
+            "numeric_rule": "event=2 if +0x34 is null or +0x4A==2; otherwise event=10",
+            "event_semantics_recovered": False,
+        },
         "rtti_vtable_global_path_recovered": True,
         "calling_convention_recovered": True,
         "event_argument_position_recovered": True,
@@ -405,8 +734,12 @@ def audiohooks_caller_trace_report(
         "sample_meaning_recovered": False,
         "evidence_limit": (
             "The AudioHooks RTTI/vtable/global-object path, three-stack-argument "
-            "convention, literal/derived numeric sender tuples, and dynamic-control "
-            "sender shape are source-backed. Numeric event IDs are not human-readable "
+            "convention, literal/derived numeric sender tuples, Button@ease "
+            "dynamic-control event set {2,10}, the shared PTitleMenuRow/"
+            "PChildMenuRow event-13 sender method, the PTeamOrders2K event-19 "
+            "numeric sender predicate, and the complete RTTI-backed event-1 sender "
+            "class family are source-backed. Numeric event IDs "
+            "are not human-readable "
             "event names, computed event results are not guessed, and decoded "
             "audio is not sample-meaning evidence."
         ),

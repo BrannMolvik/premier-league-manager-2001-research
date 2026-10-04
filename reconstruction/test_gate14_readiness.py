@@ -22,6 +22,7 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.playerrow_energy_pixels_recovered)
         self.assertTrue(state.playerrow_text_pixels_recovered)
         self.assertTrue(state.possession_pairwise_draw_order_recovered)
+        self.assertTrue(state.font_blend_rule_recovered)
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
         self.assertTrue(state.audio_sample_decode_ready)
@@ -38,7 +39,6 @@ class Gate14ReadinessTests(unittest.TestCase):
                 "audible_windows_output",
                 "login_menu_audio_integration",
                 "global_fastview_z_order",
-                "font_blend_rule",
                 "complete_fastview_frame",
                 "chant_event_semantics",
                 "3d_choreography",

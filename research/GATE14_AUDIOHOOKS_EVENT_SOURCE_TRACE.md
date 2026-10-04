@@ -85,8 +85,133 @@ Source-closed sites:
 | `0x64FD1B` | 8 | `0x40` |
 | `0x64FD8B` | 8 | `0x40` |
 
-This closes the sender shape without equating the dynamic return value to any
-specific AudioHooks event ID.
+The concrete dynamic return value is now source-closed numerically without
+assigning event meaning. MSVC RTTI resolves `.?AVButton@ease_2001@@` to type
+descriptor `0x81AD90` and vtable `0x7BF4CC`. Vtable slot 0 targets
+`0x6528A0`.
+
+That selector reads Button object field `+0x34`. When that field is null it
+returns numeric event ID **2**. Otherwise it passes Button word field `+0x4A`
+through virtual offset `+0xA8`.
+
+Gate 13 already source-closed `+0x4A` independently as the active
+Button@ease animation **group index**. The three exact group lengths are
+`(11, 11, 1)`, and group 2 is the disabled one-frame group. This checkpoint
+reuses that evidence rather than renaming the field.
+
+For this Button vtable, `+0xA8` targets `0x5D62F0`. That helper returns
+**1** for group **2**, and **11** for groups **0/1**. Slot 0 compares that
+result with one.
+
+Therefore the exact numeric rule is:
+
+- event **2** when `+0x34` is null;
+- event **2** when `+0x34` is non-null and native group **2** is active;
+- event **10** when `+0x34` is non-null and native group **0 or 1** is active.
+
+The already-source-closed Button input path `0x64F7A0` invokes this exact
+slot 0 before every dynamic AudioHooks call. Therefore all ten dynamic-control
+sites have the source-bounded event set **{2, 10}**.
+
+The condition deciding 2 versus 10 is not given a UI/event name.
+
+## Event-13 menu-row sender class context
+
+Recovery 279 source-closes the higher-level native class context of the literal
+AudioHooks sender at `0x47AD13` without naming the event.
+
+MSVC RTTI and the constructor vtable installs identify two concrete row classes:
+
+- `PTitleMenuRow`: type descriptor `0x81CDB0`, vtable `0x7C3A80`;
+- `PChildMenuRow`: type descriptor `0x81CDF0`, vtable `0x7C3A20`.
+
+In both vtables, slot **11** (byte offset `0x2C`) points to the same method
+`0x47ACF0`.
+
+That method reads its first incoming object pointer from the stack. It sends the
+exact numeric AudioHooks tuple **(event 13, state 0, arg3 0)** only when:
+
+- the incoming object pointer is non-null; and
+- the dword at incoming-object offset `+0x20` equals **2**.
+
+If either condition fails, this AudioHooks send does not occur. The subsequent
+method behavior is outside this narrow sender claim.
+
+The incoming object's type and the semantic meaning of its `+0x20` field remain
+unrecovered. Event **13** also remains a numeric event ID only. The class names
+prove where this sender method is installed, not what the event or field means
+to a player.
+
+## Event-19 PTeamOrders2K sender class context
+
+Recovery 279 source-closes the higher-level native class and predicate for the
+literal AudioHooks sender at `0x4D707F` without naming the event.
+
+MSVC RTTI identifies `PTeamOrders2K` with type descriptor `0x81DE68` and
+vtable `0x7C6FE0`. Two recovered virtual paths reach the same event helper:
+
+- vtable slot **2** (byte offset `0x08`) -> method `0x4D7600`;
+- vtable slot **4** (byte offset `0x10`) -> method `0x4D6770`.
+
+Both paths reach helper `0x4D6FA0`. Source-closed direct helper callsites are
+`0x4D6F2D`, `0x4D6F61`, `0x4D6F91`, and `0x4D7945`.
+
+Inside `0x4D6FA0`, the first helper argument is clamped to **0..9** and selects
+a 32-byte block at `this + 0x96C + 0x20 * index`. That block is passed together
+with `this + 0xAD4` to helper `0x64E5B0`.
+
+The exact neutral send predicate is:
+
+- `0x64E5B0` must return `AL == 0`; and
+- the original second argument passed to `0x4D6FA0` must have a nonzero low byte.
+
+Only then does callsite `0x4D707F` send numeric AudioHooks tuple
+**(event 19, state 0, arg3 0)**.
+
+The semantics of helper `0x64E5B0`, the selected 32-byte block, the second
+argument, and AudioHooks event **19** remain unresolved. The class name and
+numeric predicate are source facts, not player-facing event names.
+
+## Event-1 pitch/squad sender class family
+
+Recovery 279 now source-closes RTTI/vtable ownership for every recovered numeric
+AudioHooks event-1 sender without assigning event 1 a player-facing name.
+
+### PFormationPitch2k
+
+- type descriptor: `0x81C418`, RTTI `.?AVPFormationPitch2k@@`;
+- complete object locator: `0x7E3258`;
+- vtable: `0x7C2084`;
+- slot **5** (byte offset `0x14`) -> method `0x468620`;
+- literal sender callsites `0x468720` and `0x468781`, both tuple
+  **(event 1, state 1, arg3 0)**.
+
+### PSquadPitch
+
+- type descriptor: `0x81DB30`, RTTI `.?AVPSquadPitch@@`;
+- complete object locator: `0x7E5A50`;
+- vtable: `0x7C54A8`;
+- slot **5** (byte offset `0x14`) -> method `0x4B66E0`;
+- literal sender callsites `0x4B6822` and `0x4B6868`, both tuple
+  **(event 1, state 1, arg3 0)**.
+
+### PSquadScreen
+
+- type descriptor: `0x819D48`, RTTI `.?AVPSquadScreen@@`;
+- complete object locator: `0x7E5F00`;
+- vtable: `0x7C5CA4`;
+- slot **4** (byte offset `0x10`) -> method `0x4B8E70`, containing callsite
+  `0x4B9297` with tuple **(event 1, state 2, arg3 0)**;
+- slot **5** (byte offset `0x14`) -> method `0x4B9350`, containing callsites
+  `0x4B95F4`, `0x4B994F`, and `0x4B9AC0`, all tuple
+  **(event 1, state 1, arg3 0)**.
+
+The `0x4B95F4` site was previously source-closed only through local register
+flow. It is now additionally class-owned by the PSquadScreen slot-5 method.
+
+This accounts for all eight currently recovered event-1 sender sites. The class
+names and state values are source facts, but neither event **1** nor states
+**1/2** are assigned UI/audio meanings from those names alone.
 
 ## Derived non-control sender family
 
@@ -95,7 +220,7 @@ rather than three immediate PUSHes:
 
 | Callsite | Possible event IDs | State | Arg3 | Derivation |
 | ---: | --- | ---: | ---: | --- |
-| `0x4B95F4` | 1 | 1 | 0 | arg3 register proven zero locally |
+| `0x4B95F4` | 1 | 1 | 0 | arg3 register proven zero locally; now also PSquadScreen slot-5 owned |
 | `0x5EB69B` | 23 or 25 | 0 | 0 | two-value arithmetic branch |
 | `0x5EBA8A` | 24 or 26 | 0 | 0 | two-value arithmetic branch |
 | `0x5EBC7B` | 32 | 0 | 0 | state/arg3 registers proven zero locally |
@@ -144,7 +269,14 @@ This checkpoint may promote:
 - proof that the third argument is unused by `0x5DBFC0`;
 - the exact numeric literal sender tuples above;
 - the exact locally derived numeric sender bounds above;
-- the exact dynamic-control sender shape above.
+- the exact dynamic-control sender shape above;
+- the Button@ease RTTI/vtable identity and dynamic numeric event set {2,10};
+- the PTitleMenuRow/PChildMenuRow shared slot-11 sender method and its exact
+  event-13 numeric predicate;
+- the PTeamOrders2K vtable paths to helper 0x4D6FA0 and its exact event-19
+  numeric send predicate;
+- complete RTTI/vtable ownership for all eight currently recovered event-1
+  pitch/squad sender sites.
 
 It does **not** promote:
 
@@ -160,10 +292,11 @@ Decoded audio remains non-evidence for naming events.
 
 Continue from the sender side rather than the dispatcher:
 
-1. source-close the remaining non-literal virtual sender candidates where event
-   or state is derived from registers/data flow;
-2. tie only directly proven sender contexts to higher-level native classes or
-   event constructors;
+1. continue tying only directly proven numeric sender contexts to higher-level
+   native classes or event constructors;
+2. recover the source meaning of Button field `+0x34` only if its
+   ownership/data flow identifies that meaning directly; `+0x4A` is already
+   source-closed as the native animation-group index;
 3. add semantic names only when that source path itself establishes the meaning;
 4. keep BNK sample interpretation separate from sender semantics.
 
