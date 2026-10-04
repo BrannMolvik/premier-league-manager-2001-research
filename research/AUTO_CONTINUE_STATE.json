@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #283 is canonical as 7cfcad7c after 1,935 full / 23 skips and 571 Gate13 / 22 skips plus asset policy. Private process startup remains blocked. Next cloud-safe task: add bounded read/write-direction classification for +0x130/+0x13C/+0x140/+0x76 operands inside the seven REMAINING_SETUP_WINDOWS only, preserving candidate-only semantics; then use it on canonical bytes when sustained execution returns.",
+  "active_task": "Gate 13 remains OPEN. PR #283 is canonical as 7cfcad7c after 1,935 full / 23 skips and 571 Gate13 / 22 skips plus asset policy. Private process startup remains blocked. Active cloud-safe task: add bounded read/write-direction classification for +0x130/+0x13C/+0x140/+0x76 memory operands inside the seven REMAINING_SETUP_WINDOWS only, preserving candidate-only semantics; then validate and checkpoint.",
   "last_known_main_head": "b836a7347a78cb773f93a4fa9112732545bdd6a4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 253,
+  "recovery_generation": 254,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 253: PR283 merged; private execution blocked; bounded setup access-classifier next.",
+  "note": "Recovery 254 resumed exact PR283 follow-up from main b836a734; bounded setup access classifier in progress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
