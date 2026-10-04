@@ -379,6 +379,32 @@ same four bytes. This makes the next healthy private audio pass more focused
 without assigning menu music, commentary, crowd, sample indices or match-event
 roles from filenames.
 
+## Recovery 258: bounded FastView draw-order source trace
+
+A new private-only source tracer now packages the highest-priority unresolved
+FastView composition evidence into one checksum-gated pass. It captures bounded
+windows around the already-established FastViewPanel constructor, generic Panel
+constructor, PictureControl constructor and generic control draw neighborhood,
+plus raw pointer-byte candidate occurrences for the known PictureControl
+vtable and those source-qualified code targets.
+
+This is preparation for manual child-list/data-flow adjudication, not a new
+draw-order result. The report hard-codes
+`child_list_direction_recovered=false`,
+`cross_component_z_order_recovered=false`,
+`picture_control_resize_semantics_recovered=false` and
+`complete_fastview_frame_recovered=false`. Linear disassembly, bounded bytes
+and raw pointer occurrences do not prove function boundaries, CFG reachability,
+insertion/traversal direction, clipping/scaling, or which overlapping component
+wins a pixel.
+
+The next healthy private-source pass should run this tracer first and manually
+follow the generic child registration/traversal path far enough to answer the
+smallest useful ordering relation, especially PossessionDiagram versus
+PossessionFigures and the resized PictureControl behavior needed by dynamic
+TeamTable energy bars. Until that evidence exists, the canonical resolved-only
+mask and Tk surface remain the correct player-visible boundary.
+
 ## Exact next cloud-safe task
 
 The Recovery-209 PlayerRow event/text work is already canonical and has since
