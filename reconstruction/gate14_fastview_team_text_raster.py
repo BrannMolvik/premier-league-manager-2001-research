@@ -36,6 +36,10 @@ class FastViewTeamTextRasterError(ValueError):
 
 PLAYERROW_TEXT_STYLE_INDEX = 3
 PLAYERROW_TEXT_NATIVE_COLOR_16 = 0xFFFF
+PLAYERROW_OWN_GOAL_RGB = (255, 0, 0)
+PLAYERROW_OWN_GOAL_COLOR_SETTER_VA = 0x650480
+PLAYERROW_OWN_GOAL_COLOR_SOURCE_VA = 0x5268A5
+PLAYERROW_PACKED_RGB_CHANNEL_PROOF_VA = 0x434357
 PLAYERROW_TEXT_FONT_PATH = "Fonts/Zurich_XCn_BT_16pixel.fnt"
 PLAYERROW_TEXT_FONT_BYTE_SIZE = 75_217
 PLAYERROW_TEXT_FONT_SHA256 = (
@@ -106,8 +110,8 @@ class FastViewTeamTextRaster:
     native_color_16: int = PLAYERROW_TEXT_NATIVE_COLOR_16
     source_language: str = "English"
     position_english_localization_recovered: bool = True
-    own_goal_color_recovered: bool = False
-    complete_team_table_text: bool = False
+    own_goal_color_recovered: bool = True
+    complete_team_table_text: bool = True
 
     def __post_init__(self) -> None:
         if self.size != FASTVIEW_SURFACE_SIZE:
@@ -158,9 +162,9 @@ class FastViewTeamTextRaster:
             raise FastViewTeamTextRasterError(
                 "PlayerRow text raster cannot drop source-closed English position strings"
             )
-        if self.own_goal_color_recovered or self.complete_team_table_text:
+        if not self.own_goal_color_recovered or not self.complete_team_table_text:
             raise FastViewTeamTextRasterError(
-                "partial PlayerRow text raster cannot promote unresolved fidelity"
+                "PlayerRow text raster cannot drop source-closed English text fidelity"
             )
 
 
@@ -254,6 +258,21 @@ def _line_origin(
     return x, y
 
 
+def _text_rgba(alpha: bytes, instruction: FastViewPlayerRowTextRenderInstruction) -> bytes:
+    if instruction.source_color_update:
+        if instruction.text_cell_index != 5 or instruction.semantic != "player_own_goal_count":
+            raise FastViewTeamTextRasterError(
+                "only PlayerRow own-goal text has a source-closed color update"
+            )
+        r, g, b = PLAYERROW_OWN_GOAL_RGB
+        out = bytearray(len(alpha) * 4)
+        for index, value in enumerate(alpha):
+            pos = index * 4
+            out[pos:pos + 4] = bytes((r, g, b, value))
+        return bytes(out)
+    return endpoint_text_rgba(alpha, PLAYERROW_TEXT_NATIVE_COLOR_16)
+
+
 def _draw_clipped_text(
     canvas: bytearray,
     font: EAFont,
@@ -266,7 +285,7 @@ def _draw_clipped_text(
     mask = font.render_text_alpha(instruction.value)
     if mask.width == 0 or mask.height == 0:
         return
-    rgba = endpoint_text_rgba(mask.alpha, PLAYERROW_TEXT_NATIVE_COLOR_16)
+    rgba = _text_rgba(mask.alpha, instruction)
     origin_x, origin_y = _line_origin(font, instruction)
     clip_left, clip_top, clip_right, clip_bottom = instruction.rect
     surface_width, surface_height = FASTVIEW_SURFACE_SIZE
@@ -341,15 +360,6 @@ def rasterize_fastview_playerrow_text(
                 raise FastViewTeamTextRasterError(
                     "unknown PlayerRow text instruction value kind"
                 )
-            if instruction.source_color_update:
-                unresolved.append(
-                    FastViewUnresolvedPlayerRowText(
-                        *identity,
-                        semantic=instruction.semantic,
-                        reason="native_source_color_update_not_rgba_bound",
-                    )
-                )
-                continue
             _draw_clipped_text(canvas, font, instruction)
             rendered.append(identity)
 
