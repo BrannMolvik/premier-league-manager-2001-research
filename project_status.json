@@ -2628,6 +2628,7 @@
   "gate13_uncontrolled_home_negative_receipt_sha256": "5a0c22887e38ad8e4a305f371528de273fdc5fa1461029fb8d77377bfb5973b2",
   "gate13_local_capacity_watch_checkpoint": {
     "canonical_main_base": "29781e9278c4a50ca0921723fa7614314f793b0d",
+    "latest_disjoint_main_preserved": "9595291d83ad99d02d235736e94fe87e5464c4fd",
     "research": "research/GATE13_NATIVE_CAPACITY_WATCH.md",
     "native_entry_calibration_passed": true,
     "native_hardware_write_watch_calibration_passed": true,
@@ -2649,6 +2650,7 @@
     "repair_receipt_sha256": "dfea7e2385a1454226134cb81eaf58bed0347064cfed3a179d8a5cad4cb29318",
     "allocation_receipt_sha256": "7e82ef483c2449386ce31c377ca3d7ca51029b28a8da4401d6fa93b84abf28de",
     "new_debugger_focused_tests_passed": 11,
+    "post_desktop_guard_focused_tests_passed": 28,
     "human_away_complete_report_published": false,
     "scroll_resource_inventory_complete": true,
     "thumb_source_rectangles_retained": true,

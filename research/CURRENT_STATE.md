@@ -28,14 +28,16 @@ allocation/import, but neither observed a capacity writer or uncontrolled read.
 These distinct receipts must not be combined into a proven normal startup or
 initializer. Gate 13 remains OPEN; the human-away report producer stays
 fail-closed. No ownership or Gate-14 work is changed.
-Eleven debugger ABI/planning/launch-guard tests and asset policy pass. No
+After preserving main `9595291d`, 28 focused checks (including 11 debugger
+ABI/planning/launch-guard tests) and asset policy pass. No
 presentation/calculator change or new full-suite/Windows closure result is claimed.
 
 ## Gate-13 installer prerequisite advanced (4 October 2026 KST)
 
 PR #309 remains on `codex/gate13-uncontrolled-capacity-lifecycle`. Latest fetched
-main is `9595291d83ad99d02d235736e94fe87e5464c4fd`; the branch already preserves
-disjoint worker work through `29781e92`. The Gate-13 lock is unchanged.
+main is `9595291d83ad99d02d235736e94fe87e5464c4fd`; merge `0e37603c` preserves
+its disjoint worker commits without changing Gate-14 implementation or the
+Gate-13 lock. Prior broader validation through `29781e92` remains historical.
 
 Daniel's explicitly approved missing-only repair is now source-qualified and
 verified. The authorized original INS 3.00.077 writes each component's exact
