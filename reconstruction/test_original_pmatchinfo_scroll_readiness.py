@@ -4,9 +4,12 @@ import tempfile
 import unittest
 
 from original_pmatchinfo_scroll_readiness import (
+    PMATCHINFO_SCROLL_EXACT_PATH_FILE,
     PMATCHINFO_SCROLL_IMPORT_ROOT,
     PMATCHINFO_SCROLL_RESOURCE_LEADS,
     audit_pmatchinfo_scroll_resource_readiness,
+    pending_pmatchinfo_scroll_source_paths,
+    validate_pmatchinfo_scroll_exact_path_contract,
 )
 
 
@@ -74,6 +77,36 @@ class PMatchInfoScrollReadinessTests(unittest.TestCase):
         )
         self.assertFalse(result["resource_inventory_complete"])
         self.assertFalse(result["native_scroll_behavior_recovered"])
+
+    def test_exact_path_file_matches_pending_source_leads(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        expected = (
+            "FM2001_Art/Generic/GenericButtonsAndBars/scroller_bar_vert.444",
+            "FM2001_Art/Generic/GenericButtonsAndBars/scroller_blue_bar.444",
+            "FM2001_Art/Generic/GenericButtonsAndBars/vscroll_blue_bar.444",
+        )
+        self.assertEqual(pending_pmatchinfo_scroll_source_paths(), expected)
+        self.assertEqual(
+            validate_pmatchinfo_scroll_exact_path_contract(repo_root),
+            expected,
+        )
+        self.assertTrue((repo_root / PMATCHINFO_SCROLL_EXACT_PATH_FILE).is_file())
+
+    def test_exact_path_contract_rejects_missing_or_extra_selection(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            path = root / PMATCHINFO_SCROLL_EXACT_PATH_FILE
+            path.parent.mkdir(parents=True)
+            path.write_text(
+                "FM2001_Art/Generic/GenericButtonsAndBars/scroller_bar_vert.444\n"
+                "FM2001_Art/Generic/GenericButtonsAndBars/unproven.444\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ValueError,
+                "exact-path staging contract mismatch",
+            ):
+                validate_pmatchinfo_scroll_exact_path_contract(root)
 
     def test_source_contract_keeps_exact_loader_order(self):
         self.assertEqual(
