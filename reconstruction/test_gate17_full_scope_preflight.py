@@ -1,6 +1,8 @@
 """Tests for the fail-closed Gate-17 full-scope preflight."""
 from dataclasses import replace
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from gate17_allocation_ranking_capability import (
     AllocationEndpointRequirement,
@@ -10,6 +12,7 @@ from gate17_allocation_ranking_capability import (
 from gate17_full_scope_preflight import (
     Gate17FullScopePreflightError,
     build_full_scope_preflight,
+    run_canonical_full_scope_preflight,
 )
 from gate17_human_scope_capability import (
     HumanScopeCapabilityAudit,
@@ -185,6 +188,101 @@ def progression_audit(*, complete=True, with_preview=True):
 
 
 class Gate17FullScopePreflightTests(unittest.TestCase):
+    def test_canonical_coordinator_assembles_existing_capabilities_and_live_progression(self):
+        human = human_audit()
+        owner = runtime_owner_audit()
+        save = save_scope_audit()
+        multi = multi_human_audit(complete=False)
+        progression = progression_audit(complete=False, with_preview=False)
+        controller = SimpleNamespace(
+            playable_country_allocation_plan=object(),
+            state=object(),
+        )
+
+        with (
+            patch(
+                "gate17_full_scope_preflight.run_canonical_human_scope_capability",
+                return_value=human,
+            ) as human_runner,
+            patch(
+                "gate17_full_scope_preflight.run_canonical_runtime_owner_capability",
+                return_value=owner,
+            ) as owner_runner,
+            patch(
+                "gate17_full_scope_preflight.run_canonical_save_scope_capability",
+                return_value=save,
+            ) as save_runner,
+            patch(
+                "gate17_full_scope_preflight.run_current_multi_human_capability",
+                return_value=multi,
+            ) as multi_runner,
+            patch(
+                "human_gameplay.HumanGameplayController.from_canonical_game_dir",
+                return_value=controller,
+            ) as controller_runner,
+            patch(
+                "gate17_full_scope_preflight.audit_runtime_playable_progression",
+                return_value=progression,
+            ) as progression_runner,
+        ):
+            result = run_canonical_full_scope_preflight(
+                "/canonical/game",
+                player_seed=7,
+            )
+
+        self.assertFalse(result.ready_for_full_runtime_validation)
+        self.assertIn("multi_human_capability_incomplete", result.blocker_codes)
+        self.assertIn("progression_rankings_incomplete", result.blocker_codes)
+        human_runner.assert_called_once()
+        owner_runner.assert_called_once()
+        save_runner.assert_called_once()
+        multi_runner.assert_called_once_with()
+        controller_runner.assert_called_once()
+        self.assertEqual(controller_runner.call_args.kwargs["player_seed"], 7)
+        self.assertEqual(controller_runner.call_args.kwargs["match_engine_seed"], 1)
+        progression_runner.assert_called_once_with(
+            controller.playable_country_allocation_plan,
+            controller.state,
+        )
+
+    def test_canonical_coordinator_requires_allocation_plan_before_progression(self):
+        controller = SimpleNamespace(
+            playable_country_allocation_plan=None,
+            state=object(),
+        )
+        with (
+            patch(
+                "gate17_full_scope_preflight.run_canonical_human_scope_capability",
+                return_value=human_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_canonical_runtime_owner_capability",
+                return_value=runtime_owner_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_canonical_save_scope_capability",
+                return_value=save_scope_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_current_multi_human_capability",
+                return_value=multi_human_audit(),
+            ),
+            patch(
+                "human_gameplay.HumanGameplayController.from_canonical_game_dir",
+                return_value=controller,
+            ),
+            patch(
+                "gate17_full_scope_preflight.audit_runtime_playable_progression",
+            ) as progression_runner,
+        ):
+            with self.assertRaisesRegex(
+                Gate17FullScopePreflightError,
+                "no playable-country allocation plan",
+            ):
+                run_canonical_full_scope_preflight("/canonical/game")
+
+        progression_runner.assert_not_called()
+
     def test_complete_audits_are_ready_for_full_runtime_validation(self):
         result = build_full_scope_preflight(
             human_audit(),
