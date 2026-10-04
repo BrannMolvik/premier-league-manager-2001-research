@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its first-screen timing/management-header closure path. Gate-14 PR #376 merged as main d4d38b5a after 2,311 tests/23 skips and asset-policy success. Verify Gate-14 PR #377 at head ab42cbf8: source-closed FastView ClockControl receiver/localization/state contract. Keep alert packed16/modern RGBA, integrated clock raster, global z-order, complete frame and Gate-14 completion false. If #377 passes, continue the next disjoint clock/display or omitted-child step.",
-  "last_known_main_head": "d4d38b5afa7f86e62b52d447a4f1c29dc5f3130d",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its first-screen timing/management-header closure path. Gate-14 PR #377 merged as main 069d1234 after 2,318 tests/23 skips and asset-policy success. Verify PR #378 at head 2364081c: fail-closed white-endpoint ClockControl raster using exact source font/rect and rejecting alert RGB states. If green, merge and continue with disjoint clock component/overlap integration while preserving alert-color, global-z, complete-frame and Gate-14 blockers.",
+  "last_known_main_head": "069d1234d45b9aea7c157080bd40d2ff6d6d90b2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 290,
+  "recovery_generation": 291,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #377 derives clock text strictly from the canonical localization mapping: mins entry2333/STR21532, Half time entry2331/21530, Full time entry2332/21531, Extra time entry2433/21617, Penalties entry2378/20014. RTTI closes GlobalTick/Half/SecondHalf/Full/Extra/Penalties receiver offsets. Red-tinted source color remains RGB8-only because modern display expansion is still unresolved.",
+  "note": "PR #378 rasterizes only source-white ClockControl states. It emits a transparent zero-layer initial plane and rejects source alert RGB8 (255,45,45) until runtime packed16/display expansion is proven. No Gate-13 files touched.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
