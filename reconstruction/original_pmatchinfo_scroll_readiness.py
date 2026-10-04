@@ -37,11 +37,15 @@ PMATCHINFO_SCROLL_RESOURCE_LEADS = (
         "bar_vertical",
         "FM2001_Art/Generic/GenericButtonsAndBars/scroller_bar_vert.444",
         0x5F2DA0,
+        "d01ea16dee4849616c8e2d2a7be8180840703d99d4af0790ebdc5299d6578e79",
+        2112,
     ),
     PMatchInfoScrollResourceLead(
         "bar_blue",
         "FM2001_Art/Generic/GenericButtonsAndBars/scroller_blue_bar.444",
         0x5F2E30,
+        "402664424e2405d98e89ca0226876cb76b1cbfcd0781c1342c0adb7813d947cb",
+        3488,
     ),
     PMatchInfoScrollResourceLead(
         "end_vertical",
@@ -54,6 +58,8 @@ PMATCHINFO_SCROLL_RESOURCE_LEADS = (
         "thumb_blue",
         "FM2001_Art/Generic/GenericButtonsAndBars/vscroll_blue_bar.444",
         0x5F2F10,
+        "0047670de58f4470fa27fbbae7562c870525b2c889498aeaf825e270cbee13fa",
+        6052,
     ),
 )
 
@@ -70,6 +76,12 @@ PMATCHINFO_SCROLL_IMPORT_ROOT = Path("original_assets/source")
 PMATCHINFO_SCROLL_EXACT_PATH_FILE = Path(
     "research/GATE13_PMATCHINFO_SCROLL_EXACT_PATHS.txt"
 )
+# Preserve the exact three-resource staging/replay batch after import. This is
+# independent of whether a resource remains missing in a particular checkout.
+PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS = tuple(
+    lead.source_path for lead in PMATCHINFO_SCROLL_RESOURCE_LEADS
+    if lead.name in ("bar_vertical", "bar_blue", "thumb_blue")
+)
 
 
 def pending_pmatchinfo_scroll_source_paths() -> tuple[str, ...]:
@@ -82,7 +94,7 @@ def pending_pmatchinfo_scroll_source_paths() -> tuple[str, ...]:
 
 
 def validate_pmatchinfo_scroll_exact_path_contract(repo_root: str | Path) -> tuple[str, ...]:
-    """Require the staging path file to match exactly the pending source leads."""
+    """Require the replayable staging path file to match its source-qualified batch."""
     from gate13_source_inventory import load_explicit_path_file
 
     root = Path(repo_root)
@@ -94,7 +106,7 @@ def validate_pmatchinfo_scroll_exact_path_contract(repo_root: str | Path) -> tup
             f"Missing PMatchInfo scroll exact-path staging file: {path}"
         ) from exc
 
-    expected = pending_pmatchinfo_scroll_source_paths()
+    expected = PMATCHINFO_SCROLL_STAGING_SOURCE_PATHS
     if selected != set(expected):
         missing = sorted(set(expected) - selected)
         extra = sorted(selected - set(expected))

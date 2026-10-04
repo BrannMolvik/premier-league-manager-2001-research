@@ -6,6 +6,36 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Local Gate-13 native lifecycle checkpoint (current-main base `3a3f60d1`)
+
+Codex started a fresh `codex/gate13-uncontrolled-capacity-lifecycle` branch
+from fetched canonical main `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
+The exclusive Gate-13 ownership lock and disjoint Gate-14 work are unchanged.
+Existing report production/persistence/rows/arrows were not retraced or changed.
+
+A checksum-gated bounded WOW64 debugger now calibrates against the original
+entry point and can arm exact fresh-array capacity write watches before club
+construction. It did **not** reach allocation: non-admin install-key open
+returns 5; Daniel-approved elevation changes that result to 0, but the native
+mandatory `art` DWORD query returns 2 and setup exits. No installation key,
+executable file, capacity or report input was altered to bypass this guard.
+See `GATE13_NATIVE_CAPACITY_WATCH.md` for exact probes, receipts and limitations.
+
+The three pending native scroll assets have been extracted from the rehashed
+authorized archive, strictly receipt-validated and provenance-imported. All
+five scroll loader-family identities now verify. This does not certify thumb
+pixels, hover, repeat or timing. Nineteen focused tooling/readiness tests and
+asset policy pass at this checkpoint; final current-main Windows/full-suite
+validation is still pending.
+
+Gate 13 remains **OPEN**. Exact capacity next action: source-qualify original
+installer resource-location selectors and obtain approval before repairing
+the existing installation keys, then observe actual allocation-to-uncontrolled
+read and adjudicate the writer/copy lifecycle. Do not infer zero or inject
+controlled-home values. Continue independently source-backed report-scroll
+geometry/input and required normal-play closure work while this native startup
+prerequisite is unresolved; then rerun current-code Windows/Tk and criteria.
+
 ## Recovery 255 Gate-13 League Fixtures grid-selector checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN.
