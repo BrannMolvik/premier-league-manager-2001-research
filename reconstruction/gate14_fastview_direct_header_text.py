@@ -163,7 +163,7 @@ def direct_header_text_contract() -> dict:
         "second_line_leading_value_semantics_recovered": True,
         "second_line_leading_value_semantics": "stadium_display_name",
         "font_bytes_source_verified": True,
-        "font_bytes_provenance_staged": False,
+        "font_bytes_provenance_staged": True,
         "header_pixels_rasterized": False,
         "complete_fastview_frame_recovered": False,
         "gate14_complete": False,
