@@ -266,9 +266,10 @@ def audio_bank_trace_report(
         "evidence_limit": (
             "Embedded null-terminated .bnk strings and raw pointer-byte "
             "occurrences only, optionally narrowed to decoded x86 operand "
-            "reference candidates. Neither raw hits nor decoded candidates "
-            "prove CFG reachability, loader calls, bank roles, sample indices, "
-            "menu/login music, or match-event sound bindings."
+            "reference candidates. Raw occurrences are not proven x86 xrefs; "
+            "decoded candidates still do not prove CFG reachability, loader "
+            "calls, bank roles, sample indices, menu/login music, or "
+            "match-event sound bindings."
         ),
     }
 
