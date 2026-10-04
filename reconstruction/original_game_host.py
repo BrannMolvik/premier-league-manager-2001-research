@@ -155,6 +155,7 @@ class OriginalGameTkHost:
         self.management_background = management_background
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
+        self.last_league_fixtures_grid_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_context = None
         self.pmatchinfo_script_offsets = {1: 0, 0: 0}
@@ -725,9 +726,29 @@ class OriginalGameTkHost:
             )
             if candidate is None:
                 self.last_pmenu_activation = None
+                try:
+                    grid = self.management_presenter.league_fixtures_grid_pointer_press(
+                        int(event.x),
+                        int(event.y),
+                    )
+                except Exception as exc:
+                    self.last_league_fixtures_grid_activation = None
+                    self.last_status = f"{type(exc).__name__}: {exc}"
+                    return
+                if grid is not None:
+                    self.last_league_fixtures_grid_activation = grid
+                    self.redraw()
+                    self.last_status = (
+                        "League Fixtures source grid press: "
+                        f"column {grid.column}, row {grid.row}, "
+                        f"fixture {grid.fixture_id}"
+                    )
+                    return
+                self.last_league_fixtures_grid_activation = None
                 self.last_status = (
-                    "Management host active; no source-bounded PMenu candidate "
-                    f"row at ({int(event.x)}, {int(event.y)})"
+                    "Management host active; no source-bounded PMenu candidate row "
+                    "or League Fixtures grid control at "
+                    f"({int(event.x)}, {int(event.y)})"
                 )
             else:
                 menu = frame.presentation.menu

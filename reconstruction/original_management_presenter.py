@@ -117,6 +117,18 @@ class OriginalManagementLeagueFixturesPageActivation:
     presentation: OriginalManagementPanelSnapshot
 
 
+@dataclass(frozen=True)
+class OriginalManagementLeagueFixturesGridActivation:
+    """Exact PLeagueGrid selector indices resolved from one source grid press."""
+
+    pointer_x: int
+    pointer_y: int
+    column: int
+    row: int
+    fixture_id: int | None
+    presentation: OriginalManagementPanelSnapshot
+
+
 def _require_started_session(session: FrontEndSession) -> None:
     if not isinstance(session, FrontEndSession):
         raise OriginalManagementPresentationError(
@@ -416,6 +428,66 @@ class OriginalManagementPresenter:
             previous_offset=previous,
             column_offset=updated,
             presentation=snapshot,
+        )
+
+    def league_fixtures_grid_pointer_press(
+        self,
+        pointer_x: int,
+        pointer_y: int,
+    ) -> OriginalManagementLeagueFixturesGridActivation | None:
+        """Resolve the exact PLeagueGrid column/row selectors for a left press.
+
+        Source method 0x46D300 reduces the half-open screen grid
+        (378,235,348,336) by 29x14 and dispatches the resulting visible column
+        and row selector indices separately. The older source trace does not
+        prove that this pair can be collapsed into one single-cell visual
+        selection state: the recovered toggled-box update is a 24-entry
+        selected-index operation. Therefore this seam records only the exact
+        selector indices and leaves visual selector-band composition fail-closed.
+
+        PMatchInfo remains the separately recovered right-press/context route.
+        """
+        if self.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id:
+            return None
+        if type(pointer_x) is not int or type(pointer_y) is not int:
+            raise OriginalManagementPresentationError(
+                "League Fixtures grid pointer coordinates must be integers"
+            )
+        try:
+            point = fixture_cell_at_screen_point(pointer_x, pointer_y)
+        except ValueError as exc:
+            raise OriginalManagementPresentationError(str(exc)) from exc
+        if point is None:
+            return None
+
+        column, row = point
+        current = self.snapshot()
+        grid = current.league_fixtures
+        if grid is None:
+            raise OriginalManagementPresentationError(
+                "League Fixtures grid selection lost the integrated snapshot"
+            )
+        matches = tuple(
+            cell for cell in grid.cells
+            if cell.column == column and cell.row == row
+        )
+        if not matches:
+            # Source hides unused row/column controls. A point inside the
+            # enclosing 12x24 rectangle is not accepted when its concrete cell
+            # control is absent for the current competition.
+            return None
+        if len(matches) != 1:
+            raise OriginalManagementPresentationError(
+                "League Fixtures grid point resolved an ambiguous cell"
+            )
+
+        return OriginalManagementLeagueFixturesGridActivation(
+            pointer_x=pointer_x,
+            pointer_y=pointer_y,
+            column=column,
+            row=row,
+            fixture_id=matches[0].fixture_id,
+            presentation=current,
         )
 
     def fixture_match_info_action(

@@ -13,7 +13,10 @@ from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
-from gate13_management_source_data import ClubHeaderView
+from gate13_management_source_data import (
+    ClubHeaderView,
+    LeagueFixturesGridSourceView,
+)
 from original_first_screen_presenter import OriginalFirstScreenPresenter
 from original_league_fixtures_art import build_league_fixtures_grid_art
 from original_league_fixtures_resources import (
@@ -79,6 +82,16 @@ class Bridge:
 
     def squad_rows(self):
         return (Row(0, 1000, "Player 0"),)
+
+    def league_fixtures_grid_source(self):
+        return LeagueFixturesGridSourceView(
+            competition_id=0,
+            member_club_ids=(12, 13),
+            scheduled_matchday_count=2,
+            schedule_cycle_count=2,
+            matrix_layer_count=1,
+            fixtures_in_source_order=(),
+        )
 
 
 def management_factory(session):
@@ -437,6 +450,69 @@ class OriginalGameHostTests(unittest.TestCase):
             restored = host.apply_source_accepted_squad_view(3)
             self.assertEqual(restored.transition.control_id, 3)
             self.assertEqual(len(host.canvas.images), 7)
+
+    def test_native_league_fixtures_grid_left_press_uses_exact_source_control(self):
+        live = presenter()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ):
+            host = OriginalGameTkHost(
+                live,
+                FakeRoot(),
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+            )
+            host.on_click(SimpleNamespace(x=7, y=478))
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+            host.management_presenter.navigate(0x25C)
+
+            # Exact PLeagueGrid screen origin (378,235), cell (1,0).
+            with patch.object(host, "redraw") as redraw:
+                host.on_click(SimpleNamespace(x=378 + 29 + 1, y=235 + 1))
+
+        activation = host.last_league_fixtures_grid_activation
+        self.assertIsNotNone(activation)
+        self.assertEqual((activation.column, activation.row), (1, 0))
+        self.assertIsNone(activation.fixture_id)
+        self.assertFalse(
+            any(
+                cell.selected
+                for cell in activation.presentation.league_fixtures.cells
+            )
+        )
+        redraw.assert_called_once_with()
+        self.assertIn("League Fixtures source grid press", host.last_status)
+        self.assertIn("column 1, row 0", host.last_status)
+
+    def test_native_grid_press_is_noop_outside_source_grid_and_keeps_page_buttons_unmapped(self):
+        live = presenter()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ):
+            host = OriginalGameTkHost(
+                live,
+                FakeRoot(),
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+            )
+            host.on_click(SimpleNamespace(x=7, y=478))
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+            host.management_presenter.navigate(0x25C)
+
+            # Outside the exact 378..725 x 235..570 grid and outside PMenu.
+            host.on_click(SimpleNamespace(x=350, y=200))
+
+        self.assertIsNone(host.last_league_fixtures_grid_activation)
+        self.assertIn("no source-bounded PMenu candidate row", host.last_status)
+        self.assertIn("League Fixtures grid control", host.last_status)
 
     def test_source_accepted_league_fixtures_page_host_seam_redraws_without_pointer_mapping(self):
         live = presenter()

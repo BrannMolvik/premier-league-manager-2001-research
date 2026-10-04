@@ -768,3 +768,32 @@ placement or fixture-text layering.
 This closes original binary availability and exact grid-art staging. Integrated
 real-Windows verification remains pending as part of the schema-8 management
 visual audit.
+
+
+## Recovery 255 selector-integration clarification
+
+The existing selected-index/toggled-box trace above must **not** be read as proof
+that one pointer press toggles exactly one matrix cell.
+
+Recovery 153 independently proves that `PLeagueGrid::0x46D300` reduces one
+valid grid-relative point into **two selector indices** and dispatches them
+separately:
+
+- visible column selector `0..11` through `0x46CF90`;
+- visible row selector `0..23` through `0x46D140`.
+
+The earlier toggled-box trace, meanwhile, explicitly describes a
+**24-entry selected-index update**. The persisted evidence does not yet close
+the exact relationship between both selector indices and that 24-entry visual
+update well enough to collapse the pair into a synthetic single-cell highlight.
+
+The clean-room host therefore now accepts the exact left-press grid rectangle
+and 29x14 reduction, records the source column/row selector indices, and leaves
+visual selector-band composition fail-closed. This clarification does not
+weaken the independently proven date/played/red cell state, score/date text,
+matrix population, paging, or PMatchInfo right-press route.
+
+Exact remaining selector-presentation task: source-close how `0x46CF90` and
+`0x46D140` update `+0x109B0/+0x109B4` and which 24-entry wrapper family each
+selector refreshes before rendering any toggled selection state in the live
+host.

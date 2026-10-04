@@ -366,6 +366,98 @@ class OriginalManagementPresenterTests(unittest.TestCase):
         ):
             presenter.source_accepted_squad_view_transition(4)
 
+    def test_exact_fixtures_grid_pointer_resolves_source_column_and_row_selectors(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=Bridge,
+        )
+        presenter.navigate(0x25C)
+
+        activation = presenter.league_fixtures_grid_pointer_press(
+            378 + 29 + 1,
+            235 + 1,
+        )
+
+        self.assertIsNotNone(activation)
+        self.assertEqual((activation.column, activation.row), (1, 0))
+        self.assertEqual(activation.fixture_id, 700)
+        # The recovered 0x46D300 path dispatches column/row selectors
+        # separately. Do not manufacture a single-cell toggled visual state.
+        self.assertFalse(
+            any(cell.selected for cell in activation.presentation.league_fixtures.cells)
+        )
+
+    def test_fixtures_grid_pointer_reports_empty_materialized_cell_without_action_inference(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=Bridge,
+        )
+        presenter.navigate(0x25C)
+        activation = presenter.league_fixtures_grid_pointer_press(
+            378 + 1,
+            235 + 14 + 1,
+        )
+
+        self.assertIsNotNone(activation)
+        self.assertEqual((activation.column, activation.row), (0, 1))
+        self.assertIsNone(activation.fixture_id)
+        self.assertFalse(
+            any(cell.selected for cell in activation.presentation.league_fixtures.cells)
+        )
+
+    def test_fixtures_grid_pointer_is_noop_outside_control_or_hidden_cells(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=Bridge,
+        )
+        self.assertIsNone(presenter.league_fixtures_grid_pointer_press(379, 236))
+        presenter.navigate(0x25C)
+
+        for point in (
+            (377, 235),
+            (378, 234),
+            (378 + 348, 235),
+            (378, 235 + 336),
+            # Two-club/one-layer source hides row controls 2..23.
+            (378 + 1, 235 + 14 * 2 + 1),
+            # Two-club source hides column controls 2..11.
+            (378 + 29 * 2 + 1, 235 + 1),
+        ):
+            with self.subTest(point=point):
+                self.assertIsNone(
+                    presenter.league_fixtures_grid_pointer_press(*point)
+                )
+
+    def test_fixtures_grid_pointer_rejects_non_integer_coordinates(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=Bridge,
+        )
+        presenter.navigate(0x25C)
+        for point in ((True, 235), (378, False), ("378", 235), (378, None)):
+            with self.subTest(point=point):
+                with self.assertRaisesRegex(
+                    OriginalManagementPresentationError,
+                    "pointer coordinates must be integers",
+                ):
+                    presenter.league_fixtures_grid_pointer_press(*point)
+
+    def test_fixtures_grid_pointer_does_not_change_source_page_state(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=WideBridge,
+        )
+        presenter.navigate(0x25C)
+        activation = presenter.league_fixtures_grid_pointer_press(378 + 1, 235 + 1)
+        self.assertEqual((activation.column, activation.row), (0, 0))
+        self.assertEqual(presenter.league_fixtures_column_offset, 0)
+
+        paged = presenter.source_accepted_league_fixtures_page(1)
+        self.assertEqual(paged.column_offset, 8)
+        self.assertFalse(
+            any(cell.selected for cell in paged.presentation.league_fixtures.cells)
+        )
+
     def test_source_accepted_fixtures_paging_tracks_exact_clamped_column_window(self):
         fixture_staged = tuple(resource.name for resource in LEAGUE_FIXTURES_RESOURCES)
         presenter = OriginalManagementPresenter(
