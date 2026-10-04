@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 Recovery 270 numeric AudioHooks -> canonical menu PCM -> synchronous backend seam is canonical through main 33b78bc. Current cloud-safe task: add a Windows-only in-memory PCM WAV backend with injected player for tests, verify PCM identity before playback, and keep audible Windows verification/login-menu integration false. Private semantic task remains canonical-executable AudioHooks caller/argument adjudication.",
-  "last_known_main_head": "33b78bc312c6d664f3b588f979fbc7d2f1f8b5d5",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 numeric menu audio path is canonical through Windows in-memory WAV adapter. Private caller semantics blocked by container/Python ClientError despite successful Library materialization. Current cloud-safe task: add a real-Windows audible audit harness and fail-closed receipt for exact canonical menus.bnk plus explicit numeric event/state, requiring human audibility confirmation while semantic binding stays false.",
+  "last_known_main_head": "0ce97ae596d2c69ea50565d16d63951e826e52fa",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 271,
   "last_recovery_reason": "transient-connection-interrupted",
-  "note": "Recovery 271: transient chat interruption; resumed exact Gate-14 Windows menu PCM backend PR #337 verification while Gate 13 remains Codex-owned.",
+  "note": "Recovery 271: PR #337 merged verified; advance to Windows audible audit harness.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
