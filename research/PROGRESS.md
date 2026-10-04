@@ -4,6 +4,32 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Approved decisive probe executed; startup fault
+
+Fetched canonical main `781f90a1` and fast-forwarded local main, preserving seven
+stale PR #309 edits in recoverable stash `25135afb281214aa62f69437625d80d7e9aa3691`.
+Created fresh `codex/gate13-decisive-capacity-20261005`; PR #309 remains closed.
+The PR #351-approved single original run used exact-stage hash checks, fresh
+16:27:24 UTC consent expiring 16:47:24 UTC, hardened all-user-thread watcher,
+300-second/4096-event bounds, index 5, manual audio and only the existing shim.
+
+After 58.031 seconds / 273 events it encountered unhandled access violation
+`C0000005` at `5EE19B` writing word to `00009312`, before allocation/import or
+selected attendance. This is a native graphics-copy fault, not an intentional
+capacity/time/event stop. Watch coverage never started; no capacity conclusion
+or human-away report is claimed. Original terminated; disk hash unchanged.
+Offline source/stack adjudication identifies the two unchecked surface-lock
+returns, `5EE232` / `5EE252`, as the next bounded observation; actual HRESULTs
+and debugger/wrapper causality remain unproven. No automatic retry/new launch.
+
+Private native receipt digest
+`df539e660f6c04e57ee2797d4df6cde8b6c10622a9c1a93bd9b8d87a0f062546`;
+offline adjudication digest
+`8e0936b2284dd6cae2fbe6730f5e5f7004b836283a576949660eb5ce51c16894`.
+49 focused watcher/display tests pass on current code. Gate 13 remains OPEN;
+Gate-14 work and ownership protocol are unchanged. All binary/raw debug evidence
+remains private and outside Git.
+
 ### 4 October 2026 KST — Supervised native allocation-to-attendance receipt
 
 Daniel selected Southport and advanced normal play under explicit five-minute

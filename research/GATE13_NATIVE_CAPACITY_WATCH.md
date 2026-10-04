@@ -3,6 +3,32 @@
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
+## Latest decisive attempt: startup graphics fault (5 October 2026 KST)
+
+The PR #351-approved single probe ran on main `781f90a1` with fresh 20-minute
+consent, 300-second/4096-event bounds, index 5, and only the existing verified
+topmost-bit shim. It ended after 58.031 seconds / 273 events with an unhandled
+native access violation at `5EE19B`, `mov word ptr [eax], si`, writing to
+`00009312`. This was not the intended selected-capacity stop. No club allocation
+occurred, so the hardened all-user-thread ledger did not start. No capacity
+lifecycle/initializer/default or report input is established.
+
+Canonical source ties observed return `5EE353` to `5EE34E -> 5EE180`. The caller's
+two surface-lock calls at `5EE22F` / `5EE24F` have no HRESULT guard. The first
+retained caller descriptor has a null surface pointer; actual HRESULTs are
+missing, so the cause and any debugger/wrapper contribution remain unknown.
+Next observation is their exact return sites `5EE232` / `5EE252`, with a stop
+before unsafe copy, no pointer/return substitution and no additional shim.
+Do not automatically retry: the approved single capacity attempt has executed.
+
+Private native receipt SHA-256
+`df539e660f6c04e57ee2797d4df6cde8b6c10622a9c1a93bd9b8d87a0f062546`;
+private offline adjudication SHA-256
+`8e0936b2284dd6cae2fbe6730f5e5f7004b836283a576949660eb5ce51c16894`.
+Executable SHA-256 is unchanged. Focused current-code contracts: 49 tests pass.
+Historical supervision statements below are superseded by this executed-attempt
+result and live `CURRENT_STATE.md`.
+
 ## Current exact-stage display qualification
 
 Latest supervised milestone: Daniel renewed temporary foreground/focus consent

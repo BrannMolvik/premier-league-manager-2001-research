@@ -2,6 +2,28 @@
 
 _Audit refreshed: 4 October 2026 KST_
 
+## 5 October 2026: decisive probe attempted, startup boundary failed
+
+On canonical main `781f90a1`, the approved single bounded capacity attempt
+ended with an unhandled native graphics-copy access violation at `5EE19B`
+(invalid destination `00009312`), after 58.031 seconds / 273 events. Allocation,
+import and selected `5DA538` were not reached; all-user-thread watch coverage
+never started. This is not a capacity/time/event guard success and supplies no
+capacity values or unchanged-allocation proof. Executable bytes remain unchanged.
+
+Next narrow dependency: actual surface-lock HRESULT/descriptor observations
+at `5EE232` / `5EE252`, with no pointer/return substitution or added shim.
+Their actual returns and the cause of the invalid copy destination remain
+unproven. No automatic additional original launch is authorized by the
+executed single-run approval. Details and private receipt hashes are in
+`CURRENT_STATE.md` and `GATE13_NATIVE_CAPACITY_WATCH.md`.
+
+Gate 13 stays **OPEN**. The human-away report/save/fresh-reload/right-click proof
+and final timing/recognizability/Windows audit remain pending, not waived.
+49 focused watcher/display checks pass; no new full-suite/Windows closure or
+release certification is claimed. The prior criterion-level results below
+remain unchanged. No Gate-14 implementation or ownership protocol changed.
+
 ## Subsequent prerequisite progress / probe-safety stop (not a new closure audit)
 
 Supervised r2 now reaches the selected imported DBRClub ID5's uncontrolled

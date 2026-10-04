@@ -8,6 +8,55 @@ topic-specific research files.
 
 ## Daniel approved the decisive native capacity probe (5 October 2026 KST)
 
+### Executed on current main: startup fault, not a capacity conclusion
+
+The approved single run executed from canonical `781f90a1` using the hardened
+watcher. Fresh consent was generated immediately before execution at
+`2026-10-04T16:27:24.529140+00:00`, expiring 20 minutes later. Exact executable,
+wrapper and config identities were rechecked; the sole topmost shim read-back
+was 8 -> 0, every other argument unchanged. No capacity/report/registry/simulation
+values were injected.
+
+The run ended after **58.031 seconds / 273 debugger events** with an unhandled
+native `0xC0000005` at **`0x5EE19B`**, a word graphics-copy store to invalid
+address **`0x00009312`**. This was **not** an intentional attendance/time/event
+stop. The debugger terminated the failed owned process after the unhandled
+exception; no original remains running, and its on-disk SHA-256 is unchanged.
+
+Allocation/import/selected `0x5DA538` were not reached. The all-user-thread
+watch ledger never started (0 checks). Thus this receipt proves **neither** a
+capacity writer nor unchanged allocation bytes, and authorizes no capacity
+value/default or human-away report. Gate 13 remains **OPEN**.
+
+Offline exact-source adjudication identifies `mov word ptr [eax], si` at
+`5EE19B`, called from `5EE34E -> 5EE180`. The caller obtains two surface locks
+at `5EE22F` / `5EE24F` and does not branch on their HRESULTs before copying.
+The retained first caller descriptor has a null surface pointer, but actual
+lock HRESULTs were not observed. Do not claim a specific lock failure,
+lost-surface cause, or debugger/wrapper causality from this evidence alone.
+
+Private receipts (outside Git):
+- `gate13-native-decisive-20261005-capacity.json`, SHA-256
+  `df539e660f6c04e57ee2797d4df6cde8b6c10622a9c1a93bd9b8d87a0f062546`;
+- renewed consent SHA-256
+  `863850e0d613bf68335d3e8ac1985b29bf5e465de6fba9374f5784e208cacc80`;
+- offline adjudication SHA-256
+  `8e0936b2284dd6cae2fbe6730f5e5f7004b836283a576949660eb5ce51c16894`.
+
+**Exact next action:** a separately scoped bounded observation of actual
+surface-lock HRESULT/descriptor returns at `5EE232` / `5EE252`, stopping before
+unsafe copying and never replacing pointers/returns or adding compatibility
+shims. The one approved capacity run has now executed; its live expiry is not
+authorization for automatic retries or an additional diagnostic run. No repeat
+approval of the already-executed run is requested. Once safe startup is restored,
+resume the unchanged all-user-thread capacity proof and genuine human-away
+report -> disk save -> fresh reload -> ordinary right-click -> rendered PMatchInfo
+chain. No broad static scans, Gate-14 work or ownership changes are required.
+
+Current-code focused watcher/display checks: **49 tests passed**. No new full
+reconstruction, Windows/Tk closure or playable-release pass is claimed by this
+failed native probe. Prior CI results below remain historical verified results.
+
 At approximately **2026-10-05 01:12 KST**, Daniel explicitly approved the exact
 bounded probe below: one supervised human-operated original-game run, maximum
 300 seconds / 4096 debugger events, selected array index 5 / qualified DBRClub
