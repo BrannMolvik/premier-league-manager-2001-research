@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 255 League Fixtures paging integration
+
+PR #289 merged as `b28c4697`: the stateful management presenter now preserves the recovered PLeagueFixtures 12-club column window through exact +/-12 paging with final-window clamping, without inventing input hitboxes. Verification passed **1,951 tests / 23 expected skips**, **585 Gate-13 tests / 22 expected skips**, and asset policy.
+
+PR #290 then exposed that same already-recovered transition through `OriginalGameTkHost`. Its first two test heads correctly exposed invalid synthetic MANAGEMENT setup/redraw assumptions in the new test fixture; production behavior was not weakened. The final test enters MANAGEMENT through the real TeamSelect Start boundary while isolating unrelated test-backend redraw data. Head `ad4240b8` passed **1,953 tests / 23 expected skips**, **587 Gate-13 tests / 22 expected skips**, asset policy, and the Windows release-candidate package workflow, then squash-merged as `0ebdd839`.
+
+Paging remains source-accepted/non-pointer only. No page-button rectangle, caption, keyboard binding, hover state or ordinary Tk pointer mapping is claimed. Next cloud-safe work is the distinct source-proven League Fixtures grid pointer-selection path with exact grid rectangle and 29x14 reduction; private PMatchInfo scroll extraction and uncontrolled-club capacity lifecycle remain blocked by local process startup.
+
 ### 4 October 2026 KST — Recovery 252 canonical full-scope preflight
 
 PR #278 head `6cc040e8` passed reconstruction CI with **1,911 tests / 23 expected skips** and repository asset policy, then squash-merged as `9fc7c2e5`. A canonical coordinator now assembles all five repository-side Gate-17 readiness dimensions from one verified game directory and a deterministic read-only live progression controller. Missing allocation-plan state fails closed and the CLI returns nonzero while blockers remain.
