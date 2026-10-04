@@ -71,19 +71,37 @@ order. The raster therefore source-binds cell 2 for the canonical English
 release and records `position_english_localization_recovered=true`. It does
 not claim equivalent strings for other language resources.
 
-## Explicit unresolved cells
+## Own-goal color source closure
 
-One text-color channel remains fail-closed:
+The final PlayerRow text-color blocker is also source-closed.
 
-- cell 5, when written by EventPlayerOwnGoal, receives a native source color
-  update whose 16-bit pixel-format meaning is not yet RGBA-bound.
+EventPlayerOwnGoal constructs its native color at `0x5268A5..0x5268E8` and
+writes it through text-color setter `0x650480`. Only the channel pair
+`0x98482C/0x984828` receives source intensity 255; the other two channels are
+zero.
 
-Unwritten goal/own-goal cells produce no text pixels, matching their source
-lifecycle.
+A generic packed-24-bit RGB conversion path at `0x434357` labels those same
+three channel pairs directly:
 
-The result records rendered cell identities and explicit unresolved cell
-records. It does not claim complete TeamTable text, global FastView z-order,
-cross-component blending, background ownership, audio, or 3D choreography.
+- `0xFF0000` uses `0x98482C/0x984828`;
+- `0x00FF00` uses `0x984838/0x984834`;
+- `0x0000FF` uses `0x984844/0x984840`.
+
+Therefore the own-goal text update is source-proven **pure red**. The clean
+RGBA raster uses `(255, 0, 0, alpha)` for written cell 5.
+
+Unwritten goal/own-goal cells still produce no text pixels, matching their
+source lifecycle.
+
+For the canonical English release, all six PlayerRow text cells are now
+rasterizable when written. The result records
+`position_english_localization_recovered=true`,
+`own_goal_color_recovered=true`, and `complete_team_table_text=true`.
+This completeness applies only to PlayerRow text, not to the whole TeamTable or
+FastView frame.
+
+The result does not claim global FastView z-order, cross-component blending,
+background ownership, audio, or 3D choreography.
 
 ## Provenance
 
