@@ -294,10 +294,6 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
                     return_value="Windows",
                 ),
                 patch(
-                    "gate14_windows_menu_audio_audit._require_private_receipt",
-                    side_effect=lambda path: Path(path),
-                ),
-                patch(
                     "gate14_windows_menu_audio_audit.run_windows_menu_audio_audit",
                     return_value=receipt,
                 ) as run,
