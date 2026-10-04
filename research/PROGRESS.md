@@ -60,6 +60,12 @@ PR #281 merged as `e522672a` after **1,917 tests / 23 expected skips**, asset po
 
 Recovery 253 materialized the authorized 511,121,336-byte source archive and persisted reconstruction runtime after one successful local shell probe, but subsequent process launches failed before start with `caas.internal.errors.ClientError`. GitHub inspection shows stale PR #242 carries substantial already-verified Gate-13 native report-row work; only project/status ledgers overlap current main. Next action is safe reconciliation of its disjoint technical/resource changes rather than reimplementation.
 
+### 4 October 2026 KST — Recovery 254 PMatchInfo scroll-resource readiness
+
+PR #286 added a fail-closed inventory for the source-identified default PMatchInfo vertical-scroll family and merged as `df098e6d`. It verifies staged `scroller_vert.444` and `vscroll_end.444`, reports the three bar/thumb source files as pending, and keeps native geometry/behavior false. Validation passed **1,942 full tests / 23 skips**, **576 Gate-13 tests / 22 skips**, and asset policy.
+
+Follow-up PR #287 records the exact three pending disc-relative paths and machine-checks that the staging list matches the readiness inventory exactly. It is deliberately an extraction contract only: no unknown checksum, dimensions or scrolling semantics are promoted. Focused Gate-13 CI and asset policy are green; full-suite verification is pending at this checkpoint.
+
 ### 4 October 2026 KST — Recovery 254 bounded Gate-13 setup-access classifier
 
 PR #284 head `3197cbe0` provided the already-running implementation of the PR #283 follow-up and was selected over duplicate PR #285. It reuses the established unresolved-field table and classifies only exact `+0x76/+0x130/+0x13C/+0x140` memory operands inside the seven approved remaining-setup windows, preserving Capstone access direction/register context while explicitly refusing CFG/object/semantic promotion. Full CI passed **1,937 tests / 23 expected skips**; focused Gate-13 CI passed **571 tests / 22 expected skips**; asset policy passed. PR #284 squash-merged as `88a3d38a`. Duplicate PR #285 was closed without merge.
