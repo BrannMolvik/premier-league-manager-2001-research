@@ -6,6 +6,53 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Gate-13 takeover reconciliation / exact next probe (5 October 2026 KST)
+
+Temporary Gate-13 closure work is now reconciled onto current-main-based PR #346;
+the preserved stale checkpoint remains separately recoverable. PR #346 head
+`b23bd281a666dea3ee48d6dba394932e2a21854a` contains all verified PR #309
+Gate-13 implementation/evidence plus Worker-1's disjoint Gate-14+ main work.
+`agent-runtime` is untouched.
+
+The native capacity watcher now verifies DR0/DR1/DR7 on every live target thread
+before every target-process continuation from `40BC14` allocation through the
+selected `5DA538` stop, including arming/read-back on `CREATE_THREAD_DEBUG_EVENT`
+before that new thread can resume. It can therefore produce a fresh receipt
+proving uninterrupted user-thread coverage; it deliberately does not claim
+kernel/external-writer coverage.
+
+Canonical source adjudication also closes the known producer candidates:
+`405A40` constructor and `403660` import do not write `+13C/+140`;
+HeapAlloc uses flags 0, so allocation-time 0/0 is not a zero-fill/default
+contract; `40BD10 -> 40BE30` copies those fields only into the separate
+`!Spare` object; and the real writer `618C10` is confined by its three direct
+call sites to the recovered user/stadium setup path. No zero default has been
+promoted.
+
+**Original launch remains prohibited until Daniel explicitly approves it.**
+The only remaining next action for this lifecycle is one supervised,
+human-operated native observation using the already source-qualified path:
+maximum 300 seconds / 4096 debugger events, selected array index 5 / qualified
+DBRClub ID 5, with the existing exact non-topmost presentation shim and manual
+Volume Mixer audio. The probe must stop before executing the selected
+`0x5DA538` read, retain all-thread watch checkpoints and actual receiver
+`+13C/+140` bytes, and either capture an authoritative write or prove the
+run reached that read with uninterrupted user-thread write-watch coverage and
+no write. No capacity value, report input, registry value, simulation result or
+additional compatibility behavior may be injected.
+
+If the no-write case is proven and the receiver again contains 0/0, classify
+that only as the observed allocation bytes remaining unchanged in this exact
+lifecycle, never as a general initializer/default. Then integrate only the
+resulting source-proven behavior and continue the required human-controlled
+**away** calculated fixture -> complete report -> disk save -> fresh process/
+reload -> ordinary Fixtures right-click -> correct PMatchInfo route.
+
+Reconciled verification before this documentation checkpoint: focused Gate-13
+CI **643 tests / 22 expected skips**; full reconstruction CI **2,210 tests /
+23 expected skips**; repository asset policy and Windows release-candidate
+package job all passed. Gate 13 remains OPEN.
+
 ## Supervised allocation-to-attendance milestone (4 October 2026 KST)
 
 **Daniel explicitly stopped further original-game launches while playing an
