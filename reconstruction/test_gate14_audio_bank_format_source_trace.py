@@ -14,6 +14,7 @@ from gate14_audio_bank_format_source_trace import (
     audio_bank_format_trace_report,
     classify_bnk_window_dataflow_candidates,
     main as tracer_main,
+    shared_bnk_memory_displacement_candidates,
 )
 
 
@@ -123,6 +124,91 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
         self.assertFalse(report["sample_table_layout_recovered"])
         self.assertFalse(report["sample_codec_recovered"])
         self.assertFalse(report["modern_sample_decode_ready"])
+
+    def test_shared_memory_displacements_require_distinct_windows_and_ignore_stack(self):
+        candidates = (
+            {
+                "window_label": "loader",
+                "instruction_va": 0x401100,
+                "memory_operand_candidates": (
+                    {
+                        "base": "ecx",
+                        "index": None,
+                        "scale": 1,
+                        "displacement": 0x18,
+                        "operand_size": 4,
+                    },
+                    {
+                        "base": "ebp",
+                        "index": None,
+                        "scale": 1,
+                        "displacement": -4,
+                        "operand_size": 4,
+                    },
+                ),
+            },
+            {
+                "window_label": "playback",
+                "instruction_va": 0x401200,
+                "memory_operand_candidates": (
+                    {
+                        "base": "esi",
+                        "index": None,
+                        "scale": 1,
+                        "displacement": 0x18,
+                        "operand_size": 4,
+                    },
+                    {
+                        "base": "esp",
+                        "index": None,
+                        "scale": 1,
+                        "displacement": 8,
+                        "operand_size": 4,
+                    },
+                ),
+            },
+            {
+                "window_label": "loader",
+                "instruction_va": 0x401110,
+                "memory_operand_candidates": (
+                    {
+                        "base": "edi",
+                        "index": None,
+                        "scale": 1,
+                        "displacement": 0x24,
+                        "operand_size": 2,
+                    },
+                ),
+            },
+        )
+
+        shared = shared_bnk_memory_displacement_candidates(candidates)
+        self.assertEqual(
+            shared,
+            (
+                {
+                    "displacement": 0x18,
+                    "operand_size": 4,
+                    "distinct_window_count": 2,
+                    "window_labels": ("loader", "playback"),
+                    "base_registers": ("ecx", "esi"),
+                    "instruction_vas": (0x401100, 0x401200),
+                    "classification": (
+                        "shared_bnk_memory_displacement_candidate_not_object_or_field_proof"
+                    ),
+                },
+            ),
+        )
+
+    def test_shared_memory_displacement_threshold_fails_closed(self):
+        with self.assertRaisesRegex(
+            Gate14AudioBankFormatTraceError,
+            "minimum_distinct_windows",
+        ):
+            shared_bnk_memory_displacement_candidates(
+                (),
+                minimum_distinct_windows=1,
+            )
 
     def test_dataflow_classifier_rejects_non_text_window(self):
         with self.assertRaisesRegex(
