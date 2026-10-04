@@ -13,7 +13,13 @@ from gate14_fastview_draw_order import (
     FASTVIEW_TEAM_SUBPANEL_OFFSET,
     FASTVIEW_TEAM_SUBPANEL_REGISTER_CALL_VA,
     GENERIC_CHILD_RENDER_TARGET_VA,
-    LEAGUE_SCORES_GRID_PICTURE_CALLSITE_VA,
+    FASTVIEW_LEAGUE_SCORES_SETUP_VA,
+    FASTVIEW_SCORE_ENTRY_BUILD_CALLSITE_VA,
+    FASTVIEW_SCORE_ENTRY_BUILDER_VA,
+    FASTVIEW_SCORE_FACTORY_VTABLE_SLOT,
+    FASTVIEW_SCORE_FACTORY_VA,
+    LEAGUE_SCORES_TITLE_BAR_22_PICTURE_CALLSITE_VA,
+    LEAGUE_SCORES_CURRENT_FIX_GRID_1_PICTURE_CALLSITE_VA,
     LEAGUE_TABLE_COMPOSITE_FASTVIEW_CALLSITE_VA,
     LEAGUE_TABLE_COMPOSITE_CONSTRUCTOR_VA,
     LEAGUE_TABLE_HEADING_CONSTRUCTOR_VA,
@@ -122,55 +128,58 @@ class FastViewDrawOrderTests(unittest.TestCase):
         self.assertEqual(relation.earlier_component, "league_scores_static")
         self.assertEqual(relation.later_component, "team_table_static")
 
-    def test_league_table_children_precede_league_score_children(self):
+    def test_aggregate_score_and_table_planes_have_no_false_pairwise_edge(self):
+        self.assertEqual(FASTVIEW_LEAGUE_SCORES_SETUP_VA, 0x523370)
+        self.assertEqual(FASTVIEW_SCORE_ENTRY_BUILD_CALLSITE_VA, 0x5233C2)
+        self.assertEqual(FASTVIEW_SCORE_ENTRY_BUILDER_VA, 0x522CD0)
+        self.assertEqual(FASTVIEW_SCORE_FACTORY_VTABLE_SLOT, 0x5C)
+        self.assertEqual(FASTVIEW_SCORE_FACTORY_VA, 0x523CC0)
         self.assertEqual(LEAGUE_TABLE_COMPOSITE_FASTVIEW_CALLSITE_VA, 0x523472)
         self.assertEqual(LEAGUE_TABLE_COMPOSITE_CONSTRUCTOR_VA, 0x51E000)
         self.assertEqual(LEAGUE_TABLE_HEADING_CONSTRUCTOR_VA, 0x51DCB0)
         self.assertEqual(LEAGUE_TABLE_ROW_CONSTRUCTOR_VA, 0x51D730)
-        self.assertEqual(LEAGUE_SCORES_GRID_PICTURE_CALLSITE_VA, 0x523554)
+        self.assertEqual(LEAGUE_SCORES_TITLE_BAR_22_PICTURE_CALLSITE_VA, 0x523554)
+        self.assertEqual(
+            LEAGUE_SCORES_CURRENT_FIX_GRID_1_PICTURE_CALLSITE_VA,
+            0x5239F3,
+        )
+        self.assertLess(
+            FASTVIEW_SCORE_ENTRY_BUILD_CALLSITE_VA,
+            LEAGUE_TABLE_COMPOSITE_FASTVIEW_CALLSITE_VA,
+        )
         self.assertLess(
             LEAGUE_TABLE_COMPOSITE_FASTVIEW_CALLSITE_VA,
-            LEAGUE_SCORES_GRID_PICTURE_CALLSITE_VA,
+            LEAGUE_SCORES_CURRENT_FIX_GRID_1_PICTURE_CALLSITE_VA,
         )
+        with self.assertRaisesRegex(FastViewDrawOrderError, "remains unresolved"):
+            source_closed_pairwise_order(
+                "league_table_static",
+                "league_scores_static",
+            )
 
-        relation = source_closed_pairwise_order(
-            "league_table_static",
-            "league_scores_static",
-        )
-        self.assertTrue(relation.same_parent_draw_array)
-        self.assertFalse(relation.nested_subpanel_bridge_recovered)
-
-    def test_current_raster_families_have_source_closed_total_relative_order(self):
+    def test_current_raster_families_have_source_closed_partial_relative_order(self):
         expected_levels = (
             ("direct_chrome",),
             ("possession_diagram",),
             ("possession_figures_text",),
-            ("league_table_static",),
-            ("league_scores_static",),
+            ("league_scores_static", "league_table_static"),
             ("team_table_static", "team_table_energy"),
         )
         self.assertEqual(SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS, expected_levels)
 
-        static_order = tuple(level[0] for level in expected_levels)
-        self.assertEqual(
-            static_order,
-            (
-                "direct_chrome",
-                "possession_diagram",
+        for score_component in ("league_scores_static", "league_table_static"):
+            relation = source_closed_pairwise_order(
                 "possession_figures_text",
-                "league_table_static",
-                "league_scores_static",
+                score_component,
+            )
+            self.assertEqual(relation.earlier_component, "possession_figures_text")
+            self.assertEqual(relation.later_component, score_component)
+            relation = source_closed_pairwise_order(
+                score_component,
                 "team_table_static",
-            ),
-        )
-        for earlier_index, earlier in enumerate(static_order):
-            for later in static_order[earlier_index + 1 :]:
-                with self.subTest(earlier=earlier, later=later):
-                    relation = source_closed_pairwise_order(earlier, later)
-                    self.assertEqual(relation.earlier_component, earlier)
-                    self.assertEqual(relation.later_component, later)
-                    self.assertTrue(relation.registration_is_append_order)
-                    self.assertTrue(relation.traversal_is_forward)
+            )
+            self.assertEqual(relation.earlier_component, score_component)
+            self.assertEqual(relation.later_component, "team_table_static")
 
         self.assertEqual(
             later_component("direct_chrome", "team_table_energy"),
