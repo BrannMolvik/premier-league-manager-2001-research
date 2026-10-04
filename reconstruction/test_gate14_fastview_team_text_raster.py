@@ -14,6 +14,7 @@ from gate14_fastview_team_text_raster import (
     PLAYERROW_TEXT_NATIVE_LINE_HEIGHT,
     PLAYERROW_TEXT_NATIVE_COLOR_16,
     PLAYERROW_TEXT_STYLE_INDEX,
+    PLAYERROW_OWN_GOAL_RGB,
     PLAYERROW_POSITION_ENGLISH_IDX_BASE,
     PLAYERROW_POSITION_ENGLISH_BY_KEY,
     FastViewTeamTextRasterError,
@@ -86,10 +87,10 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
         self.assertEqual(raster.source_font_sha256, PLAYERROW_TEXT_FONT_SHA256)
         self.assertEqual(raster.source_language, "English")
         self.assertTrue(raster.position_english_localization_recovered)
-        self.assertFalse(raster.own_goal_color_recovered)
-        self.assertFalse(raster.complete_team_table_text)
+        self.assertTrue(raster.own_goal_color_recovered)
+        self.assertTrue(raster.complete_team_table_text)
 
-    def test_written_goal_renders_but_written_own_goal_stays_color_unresolved(self):
+    def test_written_goal_and_own_goal_render_with_source_colors(self):
         raster = rasterize_fastview_playerrow_text(
             REPO_ROOT,
             (render_plan(goal=2, own_goal=1),),
@@ -97,16 +98,30 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
 
         self.assertEqual(
             raster.rendered_cells,
-            ((0, 0, 1), (0, 0, 2), (0, 0, 3), (0, 0, 4), (0, 0, 6)),
+            ((0, 0, 1), (0, 0, 2), (0, 0, 3), (0, 0, 4), (0, 0, 5), (0, 0, 6)),
         )
-        unresolved = {
-            item.text_cell_index: item.reason
-            for item in raster.unresolved_cells
-        }
-        self.assertEqual(
-            unresolved,
-            {5: "native_source_color_update_not_rgba_bound"},
-        )
+        self.assertEqual(raster.unresolved_cells, ())
+        self.assertEqual(PLAYERROW_OWN_GOAL_RGB, (255, 0, 0))
+
+        font = load_verified_playerrow_text_font(REPO_ROOT)
+        own_goal = render_plan(goal=2, own_goal=1).text_instructions[4]
+        mask = font.render_text_alpha(own_goal.value)
+        origin_x, origin_y = _line_origin(font, own_goal)
+        left, top, right, bottom = own_goal.rect
+        found = None
+        for y in range(mask.height):
+            for x in range(mask.width):
+                alpha = mask.alpha[y * mask.width + x]
+                dst_x = origin_x + x
+                dst_y = origin_y + y
+                if alpha and left <= dst_x < right and top <= dst_y < bottom:
+                    found = (dst_x, dst_y, alpha)
+                    break
+            if found is not None:
+                break
+        self.assertIsNotNone(found)
+        x, y, alpha = found
+        self.assertEqual(pixel(raster, x, y), (255, 0, 0, alpha))
 
     def test_source_closes_exact_english_position_sequence(self):
         self.assertEqual(PLAYERROW_POSITION_ENGLISH_IDX_BASE, 2305)
@@ -220,9 +235,9 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
             with self.subTest(field=field):
                 with self.assertRaisesRegex(
                     FastViewTeamTextRasterError,
-                    "cannot promote",
+                    "cannot drop source-closed English text fidelity",
                 ):
-                    replace(raster, **{field: True})
+                    replace(raster, **{field: False})
 
 
 if __name__ == "__main__":
