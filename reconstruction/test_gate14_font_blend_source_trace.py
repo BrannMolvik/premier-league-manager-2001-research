@@ -11,13 +11,25 @@ from unittest.mock import patch
 from gate13_button_source_trace import OriginalPE32
 from gate14_font_blend_source_trace import (
     FONT_DRAW_VA,
+    FONT_GLYPH_DRAW_VA,
+    FONT_GLYPH_PACKED16_BLIT_VA,
     FONT_LOADER_VA,
     GENERIC_TEXT_DRAW_VA,
+    NATIVE_BLUE_MASK_GLOBAL_VA,
+    NATIVE_COLOR_KEY_GLOBAL_VA,
     NATIVE_COLOR_SETTER_VA,
+    NATIVE_GREEN_MASK_GLOBAL_VA,
+    NATIVE_PIXEL_MASK_SETUP_VA,
+    NATIVE_RED_MASK_GLOBAL_VA,
+    NATIVE_RED_MASK_SOURCE_OFFSET,
+    NATIVE_GREEN_MASK_SOURCE_OFFSET,
+    NATIVE_BLUE_MASK_SOURCE_OFFSET,
     POSSESSION_TEXT_FONT_OBJECT_VA,
     POSSESSION_TEXT_FONT_WRAPPER_VA,
     POSSESSION_TEXT_STYLE_SELECTOR_VA,
     Gate14FontBlendTraceError,
+    Native16PixelMasks,
+    blend_native_font_pixel16,
     classify_font_blend_dataflow_candidates,
     font_blend_trace_report,
     main as tracer_main,
@@ -72,12 +84,14 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertTrue(report["windows"][0]["linear_disassembly_only"])
         self.assertTrue(report["glyph_alpha_source_recovered"])
         self.assertTrue(report["possession_pairwise_draw_order_recovered"])
-        self.assertFalse(report["glyph_destination_read_recovered"])
-        self.assertFalse(report["glyph_alpha_blend_rule_recovered"])
+        self.assertTrue(report["glyph_destination_read_recovered"])
+        self.assertTrue(report["glyph_alpha_blend_rule_recovered"])
+        self.assertTrue(report["runtime_rgb_mask_source_recovered"])
         self.assertFalse(report["native_color_channel_layout_recovered"])
+        self.assertFalse(report["font_color_key_applicability_recovered"])
         self.assertFalse(report["cross_component_pixels_resolvable"])
         self.assertFalse(report["complete_fastview_frame_recovered"])
-        self.assertIn("do not yet prove", report["evidence_limit"])
+        self.assertIn("No FastView overlap pixel is therefore promoted", report["evidence_limit"])
 
     def test_classifies_memory_access_direction_without_blend_promotion(self):
         pe = parse_fixture()
@@ -118,7 +132,7 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
         self.assertIn(0x7F, by_va[0x401019]["immediate_candidates"])
         self.assertEqual(
             by_va[0x401013]["classification"],
-            "bounded_linear_font_dataflow_candidate_not_framebuffer_or_blend_proof",
+            "bounded_linear_font_dataflow_candidate_not_object_identity_proof",
         )
 
         report = font_blend_trace_report(
@@ -127,15 +141,71 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
             classify_dataflow_candidates=True,
         )
         self.assertTrue(report["font_dataflow_candidates_classified"])
-        self.assertTrue(report["bounded_font_dataflow_candidates_not_blend_proof"])
-        self.assertFalse(report["glyph_destination_read_recovered"])
-        self.assertFalse(report["glyph_alpha_blend_rule_recovered"])
+        self.assertTrue(report["bounded_font_dataflow_candidates_not_object_identity_proof"])
+        self.assertTrue(report["glyph_destination_read_recovered"])
+        self.assertTrue(report["glyph_alpha_blend_rule_recovered"])
+        self.assertTrue(report["runtime_rgb_mask_source_recovered"])
         self.assertFalse(report["native_color_channel_layout_recovered"])
+
+    def test_packed_16bit_blend_matches_source_endpoints_and_intermediate_math(self):
+        rgb565 = Native16PixelMasks(red=0xF800, green=0x07E0, blue=0x001F)
+
+        self.assertEqual(
+            blend_native_font_pixel16(0x1234, 0xFFFF, 0, rgb565),
+            0x1234,
+        )
+        self.assertEqual(
+            blend_native_font_pixel16(0x1234, 0xFFFF, 0xFF, rgb565),
+            0xFFFF,
+        )
+
+        alpha = 0x80
+        destination = 0x001F
+        source = 0xF800
+        expected = destination
+        for mask in (rgb565.red, rgb565.green, rgb565.blue):
+            mixed = (
+                (expected & mask) * (0x100 - alpha)
+                + (source & mask) * alpha
+            ) >> 8
+            mixed &= mask
+            expected = (expected & (~mask & 0xFFFF)) | mixed
+        self.assertEqual(
+            blend_native_font_pixel16(destination, source, alpha, rgb565),
+            expected,
+        )
+
+    def test_packed_16bit_blend_preserves_non_rgb_bits_and_rejects_bad_masks(self):
+        masks = Native16PixelMasks(red=0x7C00, green=0x03E0, blue=0x001F)
+        destination = 0x8000
+        blended = blend_native_font_pixel16(destination, 0x7FFF, 0x40, masks)
+        self.assertEqual(blended & 0x8000, 0x8000)
+
+        with self.assertRaisesRegex(
+            Gate14FontBlendTraceError,
+            "pairwise disjoint",
+        ):
+            Native16PixelMasks(red=0xF800, green=0xF000, blue=0x001F)
+        with self.assertRaisesRegex(
+            Gate14FontBlendTraceError,
+            "glyph_alpha",
+        ):
+            blend_native_font_pixel16(0, 0, 256, masks)
 
     def test_source_anchor_constants_remain_exact(self):
         self.assertEqual(GENERIC_TEXT_DRAW_VA, 0x64F090)
         self.assertEqual(NATIVE_COLOR_SETTER_VA, 0x650480)
         self.assertEqual(FONT_DRAW_VA, 0x657280)
+        self.assertEqual(FONT_GLYPH_DRAW_VA, 0x6570F0)
+        self.assertEqual(FONT_GLYPH_PACKED16_BLIT_VA, 0x658BC0)
+        self.assertEqual(NATIVE_PIXEL_MASK_SETUP_VA, 0x656320)
+        self.assertEqual(NATIVE_RED_MASK_SOURCE_OFFSET, 0x10)
+        self.assertEqual(NATIVE_GREEN_MASK_SOURCE_OFFSET, 0x14)
+        self.assertEqual(NATIVE_BLUE_MASK_SOURCE_OFFSET, 0x18)
+        self.assertEqual(NATIVE_RED_MASK_GLOBAL_VA, 0x9848DC)
+        self.assertEqual(NATIVE_GREEN_MASK_GLOBAL_VA, 0x9848D8)
+        self.assertEqual(NATIVE_BLUE_MASK_GLOBAL_VA, 0x9848D4)
+        self.assertEqual(NATIVE_COLOR_KEY_GLOBAL_VA, 0x87B680)
         self.assertEqual(FONT_LOADER_VA, 0x657650)
         self.assertEqual(POSSESSION_TEXT_STYLE_SELECTOR_VA, 0x527BA0)
         self.assertEqual(POSSESSION_TEXT_FONT_OBJECT_VA, 0x9197E0)
@@ -186,8 +256,10 @@ class Gate14FontBlendSourceTraceTests(unittest.TestCase):
                 self.assertEqual(tracer_main(), 0)
             emitted = json.loads(output.read_text(encoding="utf-8"))
             self.assertTrue(emitted["font_dataflow_candidates_classified"])
-            self.assertTrue(emitted["bounded_font_dataflow_candidates_not_blend_proof"])
-            self.assertFalse(emitted["glyph_alpha_blend_rule_recovered"])
+            self.assertTrue(emitted["bounded_font_dataflow_candidates_not_object_identity_proof"])
+            self.assertTrue(emitted["glyph_destination_read_recovered"])
+            self.assertTrue(emitted["glyph_alpha_blend_rule_recovered"])
+            self.assertTrue(emitted["runtime_rgb_mask_source_recovered"])
             self.assertFalse(emitted["cross_component_pixels_resolvable"])
             self.assertFalse(emitted["complete_fastview_frame_recovered"])
 
