@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #274 is canonical as 748b4782 and Recovery 251 reconciliation is on main through 03361bfd. PR #275 is open to aggregate exact primary-container TeamSelect save/reload coverage while leaving every procedural-secondary scope explicitly unverified. Merge only if full reconstruction and asset-policy CI are green; no private canonical primary-container sweep is claimed.",
-  "last_known_main_head": "03361bfd21efe72210153f2e8a0a0a09c87abb62",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #275 is canonical as 636f4204; reconciliation is on main through ac77995f. Next cloud-safe Gate 17 task: make the full-scope implementation preflight fail closed on the source-proven six-user TeamSelect requirement while the backend remains single-manager. Do not claim multi-human gameplay implementation.",
+  "last_known_main_head": "ac77995f4ea06dac8e9322c98b317b7f4c110683",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 251,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 251: PR #275 asset policy passed; full reconstruction CI still running.",
+  "note": "Recovery 251: PR #275 merged after 1,893 tests / 23 expected skips plus asset policy; continuing with multi-human full-scope preflight invariant.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
