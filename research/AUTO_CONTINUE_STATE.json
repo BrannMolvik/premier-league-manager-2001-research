@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #280 head 4215bfa9 is the current corrected external-release preflight binding. It uses the same external player seed/max-days, advances only a disposable canonical controller through shared primary AI until the read-only completed-state progression audit is complete or bounded, and never commits allocation preview. Asset policy is green; Windows package and reconstruction workflows are validating this exact head. Merge only on green checks, then harden direct run_final_release_audit with the same canonical preflight.",
-  "last_known_main_head": "efccd10336917699dcb1fc528788da83c29f72dd",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #280 merged as c8ab34e6 after 1,915 tests / 23 expected skips, asset policy, and Windows package workflow passed. Exact next cloud-safe task: harden direct run_final_release_audit so it independently requires the canonical full-scope implementation preflight and cannot be used to bypass gate17_external_validation.",
+  "last_known_main_head": "c8ab34e685aa2c39d0fd2f99fc415cf1b21d1004",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 252,
+  "recovery_generation": 253,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 252: validating exact PR #280 head 4215bfa9; prior workflow heads are superseded.",
+  "note": "Recovery 253 resumed after PR #280 merge; hardening direct final release audit preflight binding.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
