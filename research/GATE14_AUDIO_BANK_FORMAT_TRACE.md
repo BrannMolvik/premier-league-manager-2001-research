@@ -94,6 +94,20 @@ This narrows the next private dataflow pass toward the unresolved
 `audio_sample_decode` readiness blocker without promoting any header/table
 layout.
 
+## Shared indexed-shape triage boundary
+
+A follow-up correlator groups indexed candidates by exact
+`(scale, displacement, operand width)` when the same shape recurs across at
+least two distinct bounded loader/playback windows. It also retains the observed
+base registers, index registers and source instruction VAs.
+
+This is the narrowest current cloud-safe evidence for a possible shared indexed
+record layout. It is still **not** proof that the accesses touch the same
+object, that the scale is a record stride, that the index is a sample id, or
+that the displacement names any BNK header/table field. Every grouped record is
+labeled
+`shared_bnk_indexed_access_shape_candidate_not_record_layout_proof`.
+
 ## Shared-call triage boundary
 
 A second correlator groups exact direct-call targets that recur across at least
