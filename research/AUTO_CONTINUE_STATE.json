@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #368 merged as main 46e40c19 after 2,279 tests/23 skips and asset-policy success, correcting LeagueScores/CupScores identity and geometry. Next verify the prepared LeagueScores draw-phase split: early ScoreComposite grid-2 rows before LeagueTable, later current_fix_grid_1 after LeagueTable, runtime phase icons as current-tail appends. Keep paired phase text, omitted controls, global FastView z-order, and complete frame false.",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #368 is canonical as main 46e40c19. Stale stacked PR #369 was closed because it carried pre-#367 ancestry. Verify clean replacement PR #370 at head 0a8e4efd: split LeagueScores into early ScoreComposite grid-2 rows, league_table_static between static phases, late current_fix_grid_1, and runtime phase-icon tail. Keep paired phase text, omitted controls, global FastView z-order, and complete frame false.",
   "last_known_main_head": "46e40c19c9edf55627b4e1b98c742b500fede1dd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 286,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #368 canonicalizes FastViewLeagueScores=0x523370 fixed-left 12-row page and FastViewCupScores=0x523DF0 centered/two-column behavior. Stacked branch chatgpt/gate14-score-draw-phases adds native score draw-phase planes and CI. Do not promote global z-order.",
+  "note": "PR #370 replaces closed stale-base PR #369 and changes only four files on current main. After verification, integrate the phased score planes into component-raster/overlap partial-order accounting without promoting global z-order.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
