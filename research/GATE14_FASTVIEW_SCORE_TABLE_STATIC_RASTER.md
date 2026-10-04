@@ -14,18 +14,23 @@ FastView frame.
 
 ## League-scores static plane
 
-For a source count within the recovered one-page capacity of 1..24:
+For a source count within the verified LeagueScores visible-page capacity of
+1..12:
 
-- current_fix_grid_1 is placed using the exact one-strip/two-strip threshold;
-- current_fix_grid_2 is placed at every visible ScoreCompositeNormal slot;
+- current_fix_grid_1 is placed once at the true left LeagueScores rectangle
+  **(38,32)-(347,51)**;
+- current_fix_grid_2 is placed down the fixed left column beginning at
+  **(38,55)** with a 19-pixel row step;
 - optional phase icons are accepted only through the existing typed
   EventHalfTime/EventExtraTime/EventPenalties/EventFullTime source mapping;
 - each phase icon is placed in the recovered icon rectangle for that exact
   source entry;
 - the paired phase text control is deliberately not rasterized.
 
-Counts above 24 remain fail-closed because paging beyond one visible source
-page is not part of this static slice.
+Counts above 12 remain fail-closed in this LeagueScores static slice because
+native LeagueScores paging chronology is not yet integrated. The separate
+FastViewCupScores source contract retains the centered/two-column geometry but
+is not silently rendered through the LeagueScores plane.
 
 ## LeagueTable static plane
 
@@ -52,11 +57,11 @@ order relative to chrome, possession, TeamTable, or any future score text.
 
 Focused tests cover:
 
-- exact one-column and two-column current-fixture placement;
-- the 12-entry source threshold;
-- typed phase-icon placement on left and right columns;
+- exact fixed-left LeagueScores current-fixture placement;
+- exact 12-row LeagueScores page boundary;
+- typed phase-icon placement at first/last visible LeagueScores rows;
+- separate source tests for the CupScores centered/two-column threshold;
 - exact LeagueTable visible-row transform and 19-pixel row step;
-- one-page 24-entry fail-closed boundary;
 - duplicate phase-icon rejection;
 - rejection of unproved EventGlobalSecondHalf phase-icon mapping;
 - continued unflattened/incomplete status.
@@ -67,8 +72,9 @@ caas.internal.errors.ClientError, so no local passing claim is made.
 
 ## Next boundary
 
-After the loader and raster slices are verified, the next source-backed
-presentation work should connect these new planes into the same unflattened
-FastView frame-plan family or close additional score text semantics only where
-their producers are already persisted. Audio-bank adjudication remains blocked
-until private executable execution is healthy.
+After this correction is canonical, the next source-backed presentation step
+is to split the aggregate score raster by native draw phase so the early
+ScoreComposite block, LeagueTable block, later LeagueScores decorations, and
+runtime phase tails can participate in an honest partial z-order. CupScores may
+receive its own raster plane when required by a source-backed match view; it
+must not be passed through the LeagueScores API.

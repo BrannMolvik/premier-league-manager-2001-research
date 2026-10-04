@@ -24,9 +24,14 @@ SOURCE_PICTURE_CONTROL_RTTI = ".?AVPictureControl@@"
 FASTVIEW_LEAGUE_SCORES_PRIMARY_VFTABLE = 0x7CA750
 FASTVIEW_LEAGUE_SCORES_RECEIVER_VFTABLE = 0x7CA744
 FASTVIEW_LEAGUE_SCORES_RTTI = ".?AVFastViewLeagueScores@FastViewPanel@@"
-FASTVIEW_LEAGUE_SCORES_LAYOUT_METHOD_VA = 0x523DF0
+FASTVIEW_LEAGUE_SCORES_LAYOUT_METHOD_VA = 0x523370
 FASTVIEW_LEAGUE_SCORES_SCORE_FACTORY_VA = 0x523CC0
 FASTVIEW_LEAGUE_SCORES_EVENT_UPDATE_CALLBACK_VA = 0x523DB0
+
+FASTVIEW_CUP_SCORES_PRIMARY_VFTABLE = 0x7CA680
+FASTVIEW_CUP_SCORES_RTTI = ".?AVFastViewCupScores@FastViewPanel@@"
+FASTVIEW_CUP_SCORES_LAYOUT_METHOD_VA = 0x523DF0
+FASTVIEW_CUP_SCORES_SCORE_FACTORY_VA = 0x5243B0
 EVENT_LEAGUE_TABLE_UPDATE_BASE_VFTABLE = 0x7CA7B4
 EVENT_LEAGUE_TABLE_UPDATE_RTTI = ".?AV?$Receiver@VEventLeagueTableUpdate@@@@"
 
@@ -38,15 +43,22 @@ SCORE_COMPOSITE_NORMAL_LAYOUT_DWORDS = (
     309, 16, 0, 0, 0, 0, 2, 139, 177, 158, 130, 16, 13, 16
 )
 
-# Base layout helper 0x522CD0 stores these six source fields on the owning
-# FastViewLeagueScores object. 0x5230B0 later uses them to reposition every
-# ScoreComposite on the visible page.
+# Base layout helper 0x522CD0 stores six fields:
+# x, y, rows-per-column, columns, column-step, row-step.
+# FastViewLeagueScores::0x523370 passes the fixed left-column tuple
+# (38,55,12,1,0,19). FastViewCupScores::0x523DF0 owns the previously
+# misattributed centered/two-column branch.
 FASTVIEW_LEAGUE_SCORES_ROW_COUNT = 12
 FASTVIEW_LEAGUE_SCORES_ROW_STEP = 19
-FASTVIEW_LEAGUE_SCORES_SINGLE_COLUMN_ORIGIN = (246, 55)
-FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_ORIGIN = (38, 55)
-FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_STEP = 416
-FASTVIEW_LEAGUE_SCORES_PAGE_CAPACITY = 24
+FASTVIEW_LEAGUE_SCORES_SINGLE_COLUMN_ORIGIN = (38, 55)
+FASTVIEW_LEAGUE_SCORES_PAGE_CAPACITY = 12
+
+FASTVIEW_CUP_SCORES_ROW_COUNT = 12
+FASTVIEW_CUP_SCORES_ROW_STEP = 19
+FASTVIEW_CUP_SCORES_SINGLE_COLUMN_ORIGIN = (246, 55)
+FASTVIEW_CUP_SCORES_TWO_COLUMN_ORIGIN = (38, 55)
+FASTVIEW_CUP_SCORES_TWO_COLUMN_STEP = 416
+FASTVIEW_CUP_SCORES_PAGE_CAPACITY = 24
 
 # ScoreComposite::0x51A730 adds the owning composite origin to these fixed local
 # rectangles from the table at 0x828E98.
@@ -180,7 +192,7 @@ class FastViewScoreGridResource:
 
 CURRENT_FIX_GRID_1 = FastViewScoreGridResource(
     name="current_fix_grid_1",
-    owner="FastViewPanel::FastViewLeagueScores",
+    owner="FastViewPanel::FastViewLeagueScores and FastViewPanel::FastViewCupScores",
     source_path="FM2001_Art/FastView/current_fix_grid_1.444",
     sha256="bdd2fe25884e8ce72e21bd7b9296c65827ce90ea058c6f43e2f727f2bae19057",
     byte_size=3704,
@@ -207,22 +219,28 @@ FASTVIEW_CURRENT_FIXTURE_GRID_RESOURCES = (
 def fastview_league_scores_grid_rects(
     source_count: int,
 ) -> tuple[tuple[int, int, int, int], ...]:
-    """Return exact grid-1 PictureControl rectangles from 0x523DF0.
+    """Return FastViewLeagueScores grid-1 rectangles from 0x523370.
 
-    The source method switches at count 12. One through twelve entries use one
-    centered 309x19 strip. Counts above twelve use one left and one right strip.
-    Zero is rejected here because downstream source indexing uses count-1 and a
-    zero-entry live state is not proved by this path.
+    LeagueScores always owns one left 309x19 strip at (38,32)-(347,51).
+    Counts above the visible 12-row page remain a separate paging concern.
     """
     if type(source_count) is not int or source_count <= 0:
         raise FastViewScoresError("FastViewLeagueScores source_count must be positive")
-    if source_count <= 12:
+    return ((38, 32, 347, 51),)
+
+
+def fastview_cup_scores_grid_rects(
+    source_count: int,
+) -> tuple[tuple[int, int, int, int], ...]:
+    """Return FastViewCupScores grid-1 rectangles from 0x523DF0."""
+    if type(source_count) is not int or source_count <= 0:
+        raise FastViewScoresError("FastViewCupScores source_count must be positive")
+    if source_count <= FASTVIEW_CUP_SCORES_ROW_COUNT:
         return ((246, 32, 555, 51),)
     return (
         (38, 32, 347, 51),
         (454, 32, 763, 51),
     )
-
 
 def score_composite_normal_local_grid_size() -> tuple[int, int]:
     """Return the source table's grid-2 width/height pair."""
@@ -233,7 +251,7 @@ def score_composite_normal_local_grid_size() -> tuple[int, int]:
 
 
 @dataclass(frozen=True)
-class FastViewLeagueScoresPageLayout:
+class FastViewScoresPageLayout:
     columns: int
     rows_per_column: int
     origin: tuple[int, int]
@@ -253,32 +271,46 @@ class FastViewLeagueScoresPageLayout:
         )
 
 
+# Backwards-compatible type alias retained for existing callers; the layout
+# record itself is shared by LeagueScores and CupScores.
+FastViewLeagueScoresPageLayout = FastViewScoresPageLayout
+
+
 def fastview_league_scores_page_layout(
     source_count: int,
-) -> FastViewLeagueScoresPageLayout:
-    """Return the exact 0x522CD0/0x5230B0 row-layout contract.
-
-    Counts through 12 use one centered column. Larger source sets use two
-    12-row columns separated by 416 pixels. The source has separate paging
-    behavior above 24 entries, so this function describes one visible page and
-    does not map off-page source entries.
-    """
+) -> FastViewScoresPageLayout:
+    """Return the true 0x523370 LeagueScores row-layout contract."""
     if type(source_count) is not int or source_count <= 0:
         raise FastViewScoresError("FastViewLeagueScores source_count must be positive")
-    if source_count <= FASTVIEW_LEAGUE_SCORES_ROW_COUNT:
-        return FastViewLeagueScoresPageLayout(
-            columns=1,
-            rows_per_column=FASTVIEW_LEAGUE_SCORES_ROW_COUNT,
-            origin=FASTVIEW_LEAGUE_SCORES_SINGLE_COLUMN_ORIGIN,
-            column_step=0,
-            row_step=FASTVIEW_LEAGUE_SCORES_ROW_STEP,
-        )
-    return FastViewLeagueScoresPageLayout(
-        columns=2,
+    return FastViewScoresPageLayout(
+        columns=1,
         rows_per_column=FASTVIEW_LEAGUE_SCORES_ROW_COUNT,
-        origin=FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_ORIGIN,
-        column_step=FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_STEP,
+        origin=FASTVIEW_LEAGUE_SCORES_SINGLE_COLUMN_ORIGIN,
+        column_step=0,
         row_step=FASTVIEW_LEAGUE_SCORES_ROW_STEP,
+    )
+
+
+def fastview_cup_scores_page_layout(
+    source_count: int,
+) -> FastViewScoresPageLayout:
+    """Return the source 0x523DF0 CupScores visible-page layout."""
+    if type(source_count) is not int or source_count <= 0:
+        raise FastViewScoresError("FastViewCupScores source_count must be positive")
+    if source_count <= FASTVIEW_CUP_SCORES_ROW_COUNT:
+        return FastViewScoresPageLayout(
+            columns=1,
+            rows_per_column=FASTVIEW_CUP_SCORES_ROW_COUNT,
+            origin=FASTVIEW_CUP_SCORES_SINGLE_COLUMN_ORIGIN,
+            column_step=0,
+            row_step=FASTVIEW_CUP_SCORES_ROW_STEP,
+        )
+    return FastViewScoresPageLayout(
+        columns=2,
+        rows_per_column=FASTVIEW_CUP_SCORES_ROW_COUNT,
+        origin=FASTVIEW_CUP_SCORES_TWO_COLUMN_ORIGIN,
+        column_step=FASTVIEW_CUP_SCORES_TWO_COLUMN_STEP,
+        row_step=FASTVIEW_CUP_SCORES_ROW_STEP,
     )
 
 
@@ -317,6 +349,16 @@ def score_composite_normal_page_slot_rects(
 ) -> tuple[tuple[int, int, int, int], tuple[tuple[int, int, int, int], ...]]:
     """Resolve one visible page slot to exact final grid/text rectangles."""
     layout = fastview_league_scores_page_layout(source_count)
+    return score_composite_normal_rects(layout.slot_origin(column, row))
+
+
+def score_composite_normal_cup_page_slot_rects(
+    source_count: int,
+    column: int,
+    row: int,
+) -> tuple[tuple[int, int, int, int], tuple[tuple[int, int, int, int], ...]]:
+    """Resolve one CupScores visible-page slot to exact final rectangles."""
+    layout = fastview_cup_scores_page_layout(source_count)
     return score_composite_normal_rects(layout.slot_origin(column, row))
 
 
