@@ -31,6 +31,27 @@ The next healthy private run should follow the loader's file reads/allocations
 and the playback helper's sample lookup far enough to establish the exact record
 layout shared between load and playback.
 
+## Recovery 273: bounded instruction/dataflow candidate inventory
+
+The tracer can now optionally classify only the already-bounded loader/playback
+windows into instruction facts that materially narrow manual BNK-format analysis:
+
+- direct `CALL rel32` targets;
+- immediate operands;
+- memory operands with base register, index register, scale, displacement and
+  operand width.
+
+Every retained row is labeled
+`bounded_linear_bnk_dataflow_candidate_not_cfg_or_format_proof`. The
+classifier does not decide whether an offset belongs to a bank object, file
+header, sample-table row, decoder state or unrelated stack/local storage. A
+direct call target is likewise not assigned a file-I/O, allocation, decoder or
+playback role without control-flow/data-flow adjudication.
+
+This reduces the next private pass from reading broad linear disassembly to
+examining concrete record-layout and call candidates while keeping all BNK
+header/table/codec/decode flags false.
+
 ## Fail-closed boundary
 
 The trace requires all of these to remain false until manually source-proven:
