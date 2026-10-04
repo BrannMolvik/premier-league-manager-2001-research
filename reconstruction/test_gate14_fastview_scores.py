@@ -37,7 +37,9 @@ from gate14_fastview_scores import (
     SCORE_COMPOSITE_NORMAL_TEXT_LOCAL_RECTS,
     FASTVIEW_LEAGUE_SCORES_ROW_COUNT,
     FASTVIEW_LEAGUE_SCORES_ROW_STEP,
+    FASTVIEW_LEAGUE_SCORES_PAGE_CAPACITY,
     FASTVIEW_CUP_SCORES_ROW_COUNT,
+    FASTVIEW_CUP_SCORES_PAGE_CAPACITY,
     FASTVIEW_CUP_SCORES_TWO_COLUMN_STEP,
     FastViewScoresError,
     fastview_league_scores_grid_rects,
@@ -277,6 +279,7 @@ class FastViewScoresTests(unittest.TestCase):
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_RECEIVER_VFTABLE, 0x7CA744)
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_LAYOUT_METHOD_VA, 0x523370)
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_SCORE_FACTORY_VA, 0x523CC0)
+        self.assertEqual(FASTVIEW_LEAGUE_SCORES_PAGE_CAPACITY, 12)
         self.assertEqual(EVENT_LEAGUE_TABLE_UPDATE_BASE_VFTABLE, 0x7CA7B4)
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_EVENT_UPDATE_CALLBACK_VA, 0x523DB0)
 
@@ -284,6 +287,7 @@ class FastViewScoresTests(unittest.TestCase):
         self.assertEqual(FASTVIEW_CUP_SCORES_RTTI, ".?AVFastViewCupScores@FastViewPanel@@")
         self.assertEqual(FASTVIEW_CUP_SCORES_LAYOUT_METHOD_VA, 0x523DF0)
         self.assertEqual(FASTVIEW_CUP_SCORES_SCORE_FACTORY_VA, 0x5243B0)
+        self.assertEqual(FASTVIEW_CUP_SCORES_PAGE_CAPACITY, 24)
 
     def test_score_composite_normal_source_table_and_receiver_lifecycle(self):
         self.assertEqual(SCORE_COMPOSITE_NORMAL_CONSTRUCTOR_VA, 0x51B740)
