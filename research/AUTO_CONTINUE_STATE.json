@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #273 is canonical as b267f046 after 1,889 tests / 23 expected skips. PR #274 is open to bind the all-procedural-primary save sweep to the canonical TeamSelect catalog SHA and exact <country_id>:<competition_id> IDs. Merge only if full reconstruction and asset-policy CI are green; no private canonical sweep is claimed.",
-  "last_known_main_head": "b267f046bb5559092b4f0b1d58ab60fb38b59ec8",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #274 is canonical as 748b4782 and Recovery 251 reconciliation is on main through 03361bfd. PR #275 is open to aggregate exact primary-container TeamSelect save/reload coverage while leaving every procedural-secondary scope explicitly unverified. Merge only if full reconstruction and asset-policy CI are green; no private canonical primary-container sweep is claimed.",
+  "last_known_main_head": "03361bfd21efe72210153f2e8a0a0a09c87abb62",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 251,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 251 resumed from canonical main b267f046; verifying PR #274 hosted checks before merge/reconciliation.",
+  "note": "Recovery 251: PR #275 asset policy passed; full reconstruction CI still running.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
