@@ -187,6 +187,8 @@ on:
       - "reconstruction/test_gate14_fastview_score_draw_phases.py"
       - "reconstruction/gate14_fastview_phase_text.py"
       - "reconstruction/test_gate14_fastview_phase_text.py"
+      - "reconstruction/gate14_fastview_phase_receiver_order.py"
+      - "reconstruction/test_gate14_fastview_phase_receiver_order.py"
       - "reconstruction/gate14_fastview_score_phase_text_raster.py"
       - "reconstruction/test_gate14_fastview_score_phase_text_raster.py"
       - "original_assets/source/FM2001_Art/FastView/**"
