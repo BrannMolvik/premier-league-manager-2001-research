@@ -1,15 +1,20 @@
 """Aggregate fail-closed Gate-17 full-scope implementation readiness.
 
 This module creates no gameplay capability. It joins the canonical human-control
-scope audit, the current runtime-owner capability audit, and the read-only
-runtime progression audit. All three inputs must target the same source-backed
-TeamSelect playable-scope catalog.
+scope audit, the current runtime-owner capability audit, the source-proven
+multi-human capability audit, and the read-only runtime progression audit.
+Catalog-bound inputs must target the same source-backed TeamSelect playable-
+scope catalog.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 from gate17_human_scope_capability import HumanScopeCapabilityAudit
+from gate17_multi_human_capability import (
+    MultiHumanCapabilityAudit,
+    ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS,
+)
 from gate17_runtime_owner_capability import RuntimeOwnerCapabilityAudit
 from gate17_runtime_progression_audit import RuntimeProgressionAudit
 
@@ -24,6 +29,10 @@ class FullScopePreflight:
     scope_entry_count: int
     human_scope_complete: bool
     runtime_owner_complete: bool
+    multi_human_complete: bool
+    multi_human_required_users: int
+    multi_human_gameplay_users_supported: int
+    multi_human_blocker_codes: tuple[str, ...]
     progression_runtime_complete: bool
     progression_rankings_complete: bool
     allocation_preview_complete: bool
@@ -44,11 +53,17 @@ class FullScopePreflight:
 
     def as_dict(self) -> dict:
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "catalog_sha256": self.catalog_sha256,
             "scope_entry_count": self.scope_entry_count,
             "human_scope_complete": self.human_scope_complete,
             "runtime_owner_complete": self.runtime_owner_complete,
+            "multi_human_complete": self.multi_human_complete,
+            "multi_human_required_users": self.multi_human_required_users,
+            "multi_human_gameplay_users_supported": (
+                self.multi_human_gameplay_users_supported
+            ),
+            "multi_human_blocker_codes": list(self.multi_human_blocker_codes),
             "progression_runtime_complete": self.progression_runtime_complete,
             "progression_rankings_complete": self.progression_rankings_complete,
             "allocation_preview_complete": self.allocation_preview_complete,
@@ -75,6 +90,7 @@ class FullScopePreflight:
 def build_full_scope_preflight(
     human_scope: HumanScopeCapabilityAudit,
     runtime_owner: RuntimeOwnerCapabilityAudit,
+    multi_human: MultiHumanCapabilityAudit,
     progression: RuntimeProgressionAudit,
 ) -> FullScopePreflight:
     """Join independent capability audits without mutating runtime state."""
@@ -87,9 +103,20 @@ def build_full_scope_preflight(
         raise Gate17FullScopePreflightError(
             "preflight requires exact RuntimeOwnerCapabilityAudit"
         )
+    if type(multi_human) is not MultiHumanCapabilityAudit:
+        raise Gate17FullScopePreflightError(
+            "preflight requires exact MultiHumanCapabilityAudit"
+        )
     if type(progression) is not RuntimeProgressionAudit:
         raise Gate17FullScopePreflightError(
             "preflight requires exact RuntimeProgressionAudit"
+        )
+    if (
+        int(multi_human.required_simultaneous_users)
+        != ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS
+    ):
+        raise Gate17FullScopePreflightError(
+            "multi-human audit required user count differs from source-proven six-user contract"
         )
     if not human_scope.entries:
         raise Gate17FullScopePreflightError(
@@ -158,6 +185,8 @@ def build_full_scope_preflight(
         blockers.append("human_scope_incomplete")
     if not runtime_owner.complete:
         blockers.append("runtime_owner_capability_incomplete")
+    if not multi_human.complete:
+        blockers.append("multi_human_capability_incomplete")
     if not progression.ranking_capability.complete:
         blockers.append("progression_rankings_incomplete")
     if preview is None:
@@ -172,6 +201,12 @@ def build_full_scope_preflight(
         scope_entry_count=len(human_scope.entries),
         human_scope_complete=human_scope.complete,
         runtime_owner_complete=runtime_owner.complete,
+        multi_human_complete=multi_human.complete,
+        multi_human_required_users=int(multi_human.required_simultaneous_users),
+        multi_human_gameplay_users_supported=int(
+            multi_human.gameplay_simultaneous_users_supported
+        ),
+        multi_human_blocker_codes=tuple(multi_human.blocker_codes),
         progression_runtime_complete=progression.complete,
         progression_rankings_complete=progression.ranking_capability.complete,
         allocation_preview_complete=preview is not None,
