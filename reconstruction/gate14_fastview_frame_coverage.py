@@ -2,9 +2,9 @@
 
 This diagnostic distinguishes three exhaustive pixel classes:
 
-* exactly one verified opaque/non-zero-alpha component contributor -> resolved;
+* exactly one verified visible/non-zero-alpha component contributor -> resolved;
 * two or more verified contributors -> unresolved cross-component overlap;
-* no currently verified opaque contributor -> no_verified_opaque_contributor.
+* no currently verified visible contributor -> no_verified_visible_contributor.
 
 The third class is intentionally not called "missing artwork": transparent pixels
 inside verified resources and still-unbound source layers can both contribute to
@@ -31,10 +31,10 @@ class FastViewFrameCoverage:
     total_pixel_count: int
     resolved_pixel_count: int
     unresolved_overlap_pixel_count: int
-    no_verified_opaque_contributor_pixel_count: int
+    no_verified_visible_contributor_pixel_count: int
     resolved_basis_points: int
     unresolved_overlap_basis_points: int
-    no_verified_opaque_contributor_basis_points: int
+    no_verified_visible_contributor_basis_points: int
     contributing_components: tuple[str, ...]
     unresolved_overlap_groups: tuple[FastViewUnresolvedOverlapGroup, ...]
     source_composite_rgba_sha256: str
@@ -53,7 +53,7 @@ class FastViewFrameCoverage:
         counts = (
             self.resolved_pixel_count,
             self.unresolved_overlap_pixel_count,
-            self.no_verified_opaque_contributor_pixel_count,
+            self.no_verified_visible_contributor_pixel_count,
         )
         if any(type(value) is not int or value < 0 for value in counts):
             raise FastViewFrameCoverageError("FastView coverage counts must be non-negative")
@@ -64,7 +64,7 @@ class FastViewFrameCoverage:
         basis_points = (
             self.resolved_basis_points,
             self.unresolved_overlap_basis_points,
-            self.no_verified_opaque_contributor_basis_points,
+            self.no_verified_visible_contributor_basis_points,
         )
         if any(type(value) is not int or not 0 <= value <= 10000 for value in basis_points):
             raise FastViewFrameCoverageError(
@@ -146,10 +146,10 @@ def audit_fastview_frame_coverage(
         total_pixel_count=total,
         resolved_pixel_count=resolved,
         unresolved_overlap_pixel_count=overlap,
-        no_verified_opaque_contributor_pixel_count=no_contributor,
+        no_verified_visible_contributor_pixel_count=no_contributor,
         resolved_basis_points=_basis_points(resolved, total),
         unresolved_overlap_basis_points=_basis_points(overlap, total),
-        no_verified_opaque_contributor_basis_points=_basis_points(
+        no_verified_visible_contributor_basis_points=_basis_points(
             no_contributor, total
         ),
         contributing_components=composite.contributing_components,
