@@ -35,6 +35,10 @@ from gate14_fastview_score_draw_phases import (
     FastViewLeagueScoresDrawPhases,
     FastViewScoreDrawPhasePlane,
 )
+from gate14_fastview_score_phase_text_raster import (
+    PHASE_RUNTIME_TEXT_COMPONENT,
+    FastViewScorePhaseTextRaster,
+)
 from hashlib import sha256
 
 
@@ -122,6 +126,18 @@ def score_draw_phases():
         early_score_rows=phase(PHASE_EARLY_SCORE_ROWS, 31, 2),
         late_grid=phase(PHASE_LATE_GRID, 41, 1),
         runtime_phase_icons=phase(PHASE_RUNTIME_ICONS, 51, 1),
+    )
+
+
+def score_phase_text_raster():
+    rgba = bytes(800 * 600 * 4)
+    return FastViewScorePhaseTextRaster(
+        component=PHASE_RUNTIME_TEXT_COMPONENT,
+        size=(800, 600),
+        rgba=rgba,
+        source_layer_count=0,
+        placements=(),
+        rgba_sha256=sha256(rgba).hexdigest(),
     )
 
 
@@ -261,6 +277,53 @@ class FastViewComponentRasterTests(unittest.TestCase):
         )
         self.assertFalse(rasters.cross_component_z_order_recovered)
         self.assertFalse(rasters.flattened_frame_available)
+
+    def test_phase_text_lifts_only_with_phased_score_evidence(self):
+        source = score_table_rasters()
+        phases = score_draw_phases()
+        text = score_phase_text_raster()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+            score_draw_phases=phases,
+            score_phase_text=text,
+        )
+        self.assertIsNotNone(rasters.league_scores_runtime_text)
+        self.assertEqual(
+            rasters.league_scores_runtime_text.component,
+            PHASE_RUNTIME_TEXT_COMPONENT,
+        )
+        self.assertEqual(rasters.league_scores_runtime_text.source_layer_count, 0)
+        self.assertEqual(
+            rasters.league_scores_runtime_text.rgba_sha256,
+            text.rgba_sha256,
+        )
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "requires phased league-score evidence",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_phase_text=text,
+            )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "score_phase_text must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_table=source,
+                score_draw_phases=phases,
+                score_phase_text=object(),
+            )
 
     def test_phase_split_requires_verified_table_bundle_and_exact_phase_type(self):
         with self.assertRaisesRegex(
