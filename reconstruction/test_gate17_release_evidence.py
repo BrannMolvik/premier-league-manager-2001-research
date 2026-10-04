@@ -50,6 +50,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 "human_career_flow": True,
                 "competition_progression": True,
                 "original_management_gameplay_subsystems": True,
+                "all_original_scope_save_reload": True,
                 "multi_human_management": True,
                 "simultaneous_human_users_verified": 6,
             },

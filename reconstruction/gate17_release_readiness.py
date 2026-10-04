@@ -59,6 +59,7 @@ REQUIRED_EXTERNAL_RECEIPTS = {
         "human_career_flow",
         "competition_progression",
         "original_management_gameplay_subsystems",
+        "all_original_scope_save_reload",
         "multi_human_management",
     ),
 }
@@ -328,6 +329,38 @@ def validate_full_original_scope_binding(
             "full_original_scope receipt still has failed_scope_ids"
         )
 
+    try:
+        save_reload_verified_count = int(
+            payload.get("save_reload_verified_scope_entry_count", -1)
+        )
+    except (TypeError, ValueError) as exc:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt save_reload_verified_scope_entry_count "
+            "is invalid"
+        ) from exc
+    if save_reload_verified_count != expected["scope_entry_count"]:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt did not verify save/reload for every "
+            "catalog scope entry"
+        )
+    save_reload_verified_ids = payload.get("save_reload_verified_scope_ids")
+    if (
+        not isinstance(save_reload_verified_ids, list)
+        or tuple(save_reload_verified_ids) != expected["scope_ids"]
+    ):
+        raise ReleaseReadinessError(
+            "full_original_scope receipt save_reload_verified_scope_ids do not "
+            "exactly match the canonical TeamSelect catalog"
+        )
+    if payload.get("save_reload_missing_scope_ids") != []:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt still has save_reload_missing_scope_ids"
+        )
+    if payload.get("save_reload_failed_scope_ids") != []:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt still has save_reload_failed_scope_ids"
+        )
+
     return {
         "path": str(path),
         "sha256": actual_sha,
@@ -336,6 +369,10 @@ def validate_full_original_scope_binding(
         "verified_scope_ids": list(verified_ids),
         "missing_scope_ids": [],
         "failed_scope_ids": [],
+        "save_reload_verified_scope_entry_count": save_reload_verified_count,
+        "save_reload_verified_scope_ids": list(save_reload_verified_ids),
+        "save_reload_missing_scope_ids": [],
+        "save_reload_failed_scope_ids": [],
         "simultaneous_human_users_verified": simultaneous_human_users_verified,
     }
 

@@ -26,6 +26,7 @@ archive SHA-256 as the other release evidence and declares all of these true:
 - `human_career_flow`;
 - `competition_progression`;
 - `original_management_gameplay_subsystems`;
+- `all_original_scope_save_reload`;
 - `multi_human_management`.
 
 The receipt must additionally record
@@ -57,7 +58,19 @@ requires `full_original_scope.json` to carry:
 - `verified_scope_ids`, in exact canonical order, using
   `<country_id>:<competition_id>`;
 - empty `missing_scope_ids`;
-- empty `failed_scope_ids`.
+- empty `failed_scope_ids`;
+- `save_reload_verified_scope_entry_count`, equal to the full entry count;
+- `save_reload_verified_scope_ids`, in the same exact canonical order;
+- empty `save_reload_missing_scope_ids`;
+- empty `save_reload_failed_scope_ids`.
+
+The save/reload fields are deliberately separate from generic scope verification.
+They require the final Windows 11 full-scope producer to prove continuation across
+every cataloged TeamSelect country/League route rather than reusing the older
+Premier-League-centered `save_reload.json` receipt or one representative
+non-PL procedural-primary audit. PR #271 provides a source-driven canonical
+non-PL primary audit harness, but no private canonical or Windows receipt is
+inferred from its hosted tests.
 
 The catalog SHA also covers the exact selectable club IDs and captions recorded
 inside every League entry. A broad set of true booleans can therefore no longer
