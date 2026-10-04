@@ -9,6 +9,10 @@ from gate14_audio_bank_ownership import BANKS
 
 AUDIO_BANK_EXACT_PATH_FILE = Path("research/gate14_audio_bank_exact_paths.txt")
 AUDIO_BANK_SOURCE_DIRECTORY = "DATA/AUDIO/SFXS"
+CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE = 511_121_336
+CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256 = (
+    "677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4"
+)
 
 
 class Gate14AudioBankSourcePathError(ValueError):
