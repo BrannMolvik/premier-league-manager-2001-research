@@ -8,6 +8,128 @@ topic-specific research files.
 
 ## Daniel approved the decisive native capacity probe (5 October 2026 KST)
 
+### Current result: selected read reached with uninterrupted watch coverage
+
+The second/final separately approved follow-up succeeded: **41.812 seconds /
+1,673 debugger events**, stopping **before** selected `5DA538` on imported
+DBRClub ID 5 (Coventry City). The ledger verifies **1,156 consecutive events /
+1,155 continuations** with both WOW64 and native AMD64 DR0/DR1/DR7 read-back
+on every live user thread; four new threads were armed before continuation.
+No watch write occurred. The exact receiver retained allocation bytes
+`0000000000000000` at `+13C/+140` through construction/import/this read.
+
+Classification: **unchanged allocation bytes for this exact lifecycle**, NOT
+a universal zero initializer/default. Kernel/external-writer coverage is not
+claimed. The original executable remains unchanged. All other desktop checks
+remain mandatory; manual audio and the sole topmost shim are unchanged.
+
+The preceding guarded attempts failed closed because one newly created thread
+lost its debug registers during startup in both context views. Initial arming
+now sets DEBUG_REGISTERS only in both architectures, selecting no native
+control/game state; subsequent loss still terminates without repair/bypass.
+The successful run is not a claim that the earlier graphics fault was fixed.
+Both approved follow-ups are spent; no further original launch is authorized
+by their expiry receipt.
+
+Private successful receipt SHA-256:
+`132a3ed0c4553a031b7d84e3357837f650a67e1b785f9ea8db108a1e080856c9`;
+adjudication SHA-256:
+`3a9bbf15cfbd6d62418c924bf409be090327c29aaba9b31fcd25f0ec2cefd944`.
+**Next:** retain source-qualified uncontrolled allocation state explicitly,
+without turning this observation into a global zero default; connect the
+uncontrolled attendance inputs and prove the genuine human-away calculated
+report/save/fresh-reload/right-click/rendered-PMatchInfo chain. Gate 13 remains
+OPEN. Current focused probe/display tests: **63 passed**. Gate 14 and ownership
+protocol remain untouched. Earlier next-action paragraphs below are historical.
+
+### Executed on current main: startup fault, not a capacity conclusion
+
+**Follow-up, separately approved idle surface diagnostic:** Daniel approved a
+single <=60-second run with the same safeguards and no additional shim. It ran
+from the PR #353 branch with newly isolated observational Lock-return probes
+at `5EE232` / `5EE252`, not capacity watches or GUI inputs. Fresh consent was
+generated at `2026-10-04T16:44:35.385300+00:00`, expiring 10 minutes later.
+It intentionally stopped on the 60-second time bound (60.031 seconds including
+cleanup / 515 debugger events), **not** an exception. All **120** returns
+(60 per surface) were zero; all retained descriptors were 108 bytes,
+800x600, pitch 1600, with non-null surface buffers. No access violation or
+unhandled native exception occurred. Original terminated; disk hash unchanged.
+Other desktop checks remained intact; only approved foreground/focus was seen.
+
+This is a successful **idle** diagnostic, not proof that the prior graphics
+fault is fixed, and not a capacity/report route or a new DXGI qualification.
+Daniel reports he alt-tabbed to another game during the prior crash run, but
+also recalls an earlier crash without interaction. Focus loss is a candidate,
+not a proven sole cause. No automatic additional original launch is authorized
+by the now-executed single diagnostic approval.
+
+Private diagnostic receipt SHA-256
+`96f6e93c26e86d0b732604087773dbc7857edd7e21c4155e10750379719bfb5e`;
+consent SHA-256
+`a2a5ed2e07ed34217ce3a9f305fc86f056a36b34dfda993adca079d7a6115ab5`;
+offline adjudication SHA-256
+`b80f832b0cd299da16a17a9bc2d61f555981c67c05bc470157800d0510bde4f0`.
+
+**Updated next action:** reproduce the ordinary startup/interaction boundary
+in a separately scoped bounded guarded native observation, retaining actual
+surface HRESULT/descriptors and adjacent focus/foreground state. Do not
+manufacture surface recovery or blame alt-tab from user recollection alone.
+The isolated diagnostic helper is fixed at 60 seconds / 4096 events, continuously
+re-arms its two probes and terminates before copying on nonzero HRESULT or a
+null/malformed descriptor. Ordinary capacity mode is unchanged. Resume the
+all-user-thread allocation-to-selected-read proof only after this startup
+dependency is closed; human-away report and final Gate-13 closure remain pending.
+Focused current-code watcher/display checks now pass **56 tests**; asset policy
+passes. No broad/full-suite/Windows closure repetition was needed for this
+observational milestone.
+
+The approved single run executed from canonical `781f90a1` using the hardened
+watcher. Fresh consent was generated immediately before execution at
+`2026-10-04T16:27:24.529140+00:00`, expiring 20 minutes later. Exact executable,
+wrapper and config identities were rechecked; the sole topmost shim read-back
+was 8 -> 0, every other argument unchanged. No capacity/report/registry/simulation
+values were injected.
+
+The run ended after **58.031 seconds / 273 debugger events** with an unhandled
+native `0xC0000005` at **`0x5EE19B`**, a word graphics-copy store to invalid
+address **`0x00009312`**. This was **not** an intentional attendance/time/event
+stop. The debugger terminated the failed owned process after the unhandled
+exception; no original remains running, and its on-disk SHA-256 is unchanged.
+
+Allocation/import/selected `0x5DA538` were not reached. The all-user-thread
+watch ledger never started (0 checks). Thus this receipt proves **neither** a
+capacity writer nor unchanged allocation bytes, and authorizes no capacity
+value/default or human-away report. Gate 13 remains **OPEN**.
+
+Offline exact-source adjudication identifies `mov word ptr [eax], si` at
+`5EE19B`, called from `5EE34E -> 5EE180`. The caller obtains two surface locks
+at `5EE22F` / `5EE24F` and does not branch on their HRESULTs before copying.
+The retained first caller descriptor has a null surface pointer, but actual
+lock HRESULTs were not observed. Do not claim a specific lock failure,
+lost-surface cause, or debugger/wrapper causality from this evidence alone.
+
+Private receipts (outside Git):
+- `gate13-native-decisive-20261005-capacity.json`, SHA-256
+  `df539e660f6c04e57ee2797d4df6cde8b6c10622a9c1a93bd9b8d87a0f062546`;
+- renewed consent SHA-256
+  `863850e0d613bf68335d3e8ac1985b29bf5e465de6fba9374f5784e208cacc80`;
+- offline adjudication SHA-256
+  `8e0936b2284dd6cae2fbe6730f5e5f7004b836283a576949660eb5ce51c16894`.
+
+**Next action at the failed capacity checkpoint (superseded above):** a separately scoped bounded observation of actual
+surface-lock HRESULT/descriptor returns at `5EE232` / `5EE252`, stopping before
+unsafe copying and never replacing pointers/returns or adding compatibility
+shims. The one approved capacity run has now executed; its live expiry is not
+authorization for automatic retries or an additional diagnostic run. No repeat
+approval of the already-executed run is requested. Once safe startup is restored,
+resume the unchanged all-user-thread capacity proof and genuine human-away
+report -> disk save -> fresh reload -> ordinary right-click -> rendered PMatchInfo
+chain. No broad static scans, Gate-14 work or ownership changes are required.
+
+Current-code focused watcher/display checks: **49 tests passed**. No new full
+reconstruction, Windows/Tk closure or playable-release pass is claimed by this
+failed native probe. Prior CI results below remain historical verified results.
+
 At approximately **2026-10-05 01:12 KST**, Daniel explicitly approved the exact
 bounded probe below: one supervised human-operated original-game run, maximum
 300 seconds / 4096 debugger events, selected array index 5 / qualified DBRClub

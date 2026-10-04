@@ -1,7 +1,88 @@
 # Bounded native fresh-club capacity watch
 
+## 5 October 2026: gap-free selected lifecycle observed
+
+Receipt SHA-256 `132a3ed0c4553a031b7d84e3357837f650a67e1b785f9ea8db108a1e080856c9`:
+41.812 seconds / 1,673 debugger events; selected imported DBRClub ID5 stopped
+before `5DA538`. Both WOW64 and native AMD64 contexts verified on every live
+user thread before all 1,155 continuations; 1,156 checks without a gap and four
+new-thread pre-continuation arms. No capacity write; observed allocation `0/0`
+retained through this exact lifecycle. No universal zero initializer/default
+or kernel/external-writer coverage is inferred. Private adjudication SHA-256:
+`3a9bbf15cfbd6d62418c924bf409be090327c29aaba9b31fcd25f0ec2cefd944`.
+
+Earlier attempts correctly failed on debug-register loss in a new thread.
+Both native and WOW64 contexts actually held zero debug registers. Initial
+setup now selects DEBUG_REGISTERS only in both architectures, followed by
+dual read-back on every event. It never repairs a failed coverage gap or
+modifies native RIP/RSP, capacity/report/registry/simulation or API results.
+Optional supervised source-qualified Lock-return guards stop before copying
+on nonzero HRESULT or invalid descriptor; no additional compatibility shim.
+63 focused tests pass; the human-away implementation/proof is still pending.
+
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
+
+## Latest decisive attempt: startup graphics fault (5 October 2026 KST)
+
+### Follow-up: idle Lock-return observation succeeds, cause remains open
+
+Daniel separately approved a <=60-second diagnostic, manually handling audio
+and leaving the game idle. The new `trace_startup_surface_returns` mode is
+isolated from capacity, display-qualification and CRT-calibration modes. It
+verifies canonical `ff 51 64` calls immediately before both return probes,
+uses source-qualified caller-local offsets `1C` / `88` for 108-byte descriptors,
+and re-arms both probes on every call. It stops while suspended before copying
+on nonzero HRESULT, null surface pointer or unexpected descriptor size; it
+never repairs/changes the return, surface pointer, game logic or registry.
+The fixed bounds are 60 seconds / 4096 debugger events. Ordinary capacity
+launches remain unchanged and do not acquire this diagnostic implicitly.
+
+Actual run: 60.031 seconds including cleanup / 515 events, intentional time-bound
+termination, 60 first-surface and 60 second-surface returns, all HRESULT 0.
+All retained descriptors: size 108, 800x600, pitch 1600, non-null buffers. No
+access violation/unhandled native exception. Sole topmost shim and graphics
+startup verified; no desktop violation beyond approved focus/foreground.
+No new DXGI observation or capacity/report conclusion is claimed.
+
+Native receipt SHA-256
+`96f6e93c26e86d0b732604087773dbc7857edd7e21c4155e10750379719bfb5e`;
+offline adjudication SHA-256
+`b80f832b0cd299da16a17a9bc2d61f555981c67c05bc470157800d0510bde4f0`.
+Execution used watcher source SHA-256
+`d72525b72ae862e4d6bd4292b733cd017daebbf967799782844ebc55e1372cbc`.
+56 focused tests and asset policy pass.
+
+Daniel recalls alt-tabbing during the preceding crash but also an earlier
+crash without interaction. Thus neither focus-loss nor the wrapper/debugger
+is proven causal. The idle pass does not fix/explain the previous invalid
+copy. Next bounded observation should retain failed Lock output and adjacent
+focus state in the actual ordinary interaction path. The single diagnostic
+approval has executed; do not treat its live timer as automatic-retry permission.
+
+The PR #351-approved single probe ran on main `781f90a1` with fresh 20-minute
+consent, 300-second/4096-event bounds, index 5, and only the existing verified
+topmost-bit shim. It ended after 58.031 seconds / 273 events with an unhandled
+native access violation at `5EE19B`, `mov word ptr [eax], si`, writing to
+`00009312`. This was not the intended selected-capacity stop. No club allocation
+occurred, so the hardened all-user-thread ledger did not start. No capacity
+lifecycle/initializer/default or report input is established.
+
+Canonical source ties observed return `5EE353` to `5EE34E -> 5EE180`. The caller's
+two surface-lock calls at `5EE22F` / `5EE24F` have no HRESULT guard. The first
+retained caller descriptor has a null surface pointer; actual HRESULTs are
+missing, so the cause and any debugger/wrapper contribution remain unknown.
+Next observation is their exact return sites `5EE232` / `5EE252`, with a stop
+before unsafe copy, no pointer/return substitution and no additional shim.
+Do not automatically retry: the approved single capacity attempt has executed.
+
+Private native receipt SHA-256
+`df539e660f6c04e57ee2797d4df6cde8b6c10622a9c1a93bd9b8d87a0f062546`;
+private offline adjudication SHA-256
+`8e0936b2284dd6cae2fbe6730f5e5f7004b836283a576949660eb5ce51c16894`.
+Executable SHA-256 is unchanged. Focused current-code contracts: 49 tests pass.
+Historical supervision statements below are superseded by this executed-attempt
+result and live `CURRENT_STATE.md`.
 
 ## Current exact-stage display qualification
 
