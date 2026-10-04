@@ -4,6 +4,16 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 255 League Fixtures grid-selector integration
+
+PR #291 merged as `02b5d5c8` after **1,960 tests / 23 expected skips**, **594 Gate-13 tests / 22 expected skips**, asset policy and the Windows release-candidate package workflow all passed. It integrates the exact `PLeagueGrid` left-press screen rectangle `(378,235,348,336)`, 29x14 reduction and source column/row selector indices into the ordinary management host while preserving PMenu priority and the independent PMatchInfo context route.
+
+During implementation, a source re-check caught and removed an overclaim before merge: the earlier toggled-box trace performs a 24-entry selected-index update, so the recovered column+row selector pair cannot yet be rendered as one synthetic toggled cell. `GATE13_LEAGUE_FIXTURES_RESOURCES.md` now supersedes that ambiguity explicitly and leaves exact `0x46CF90` / `0x46D140` -> `+0x109B0/+0x109B4` visual-selector data flow open.
+
+Private execution briefly launched one trivial process, then both authorized Library inputs materialized successfully: the 511,121,336-byte original source ZIP and 688,773-byte persisted runtime ZIP. Every subsequent shell process and the independent Python process path failed before startup with `caas.internal.errors.ClientError`. Therefore no private extraction/hash/trace/Windows result is promoted. Private source availability is healthy; sustained process startup remains the blocker.
+
+Next cloud-safe work is to lock the League Fixtures country/League selector **data input** boundary without assuming that generic runtime competition dictionary order reproduces the source DBRCountry competition array.
+
 ### 4 October 2026 KST — Recovery 255 League Fixtures paging integration
 
 PR #289 merged as `b28c4697`: the stateful management presenter now preserves the recovered PLeagueFixtures 12-club column window through exact +/-12 paging with final-window clamping, without inventing input hitboxes. Verification passed **1,951 tests / 23 expected skips**, **585 Gate-13 tests / 22 expected skips**, and asset policy.
