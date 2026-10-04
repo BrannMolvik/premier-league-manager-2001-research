@@ -201,7 +201,7 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
         self.assertIsNotNone(frame.component_rasters.team_table)
         self.assertEqual(
             frame.component_rasters.team_table.component,
-            "team_table_static",
+            "team_table_energy",
         )
         self.assertFalse(frame.complete_raster_frame)
         self.assertFalse(frame.audio_ready)
