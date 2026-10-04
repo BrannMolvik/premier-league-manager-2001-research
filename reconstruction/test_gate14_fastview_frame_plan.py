@@ -9,6 +9,7 @@ from gate14_fastview_frame_plan import (
     FastViewFramePlanError,
     build_fastview_frame_plan,
 )
+from gate14_fastview_resolved_preview import build_fastview_frame_preview
 from gate14_fastview_playerrow_snapshot import (
     build_fastview_player_row_render_plan,
     build_fastview_player_row_snapshot,
@@ -184,6 +185,34 @@ class FastViewFramePlanTests(unittest.TestCase):
             len(frame.component_rasters.chrome.rgba),
             800 * 600 * 4,
         )
+
+    def test_exports_player_visible_resolved_only_preview_without_promotion(self):
+        frame = build_fastview_frame_plan(
+            exact_shell(),
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+        )
+
+        preview = build_fastview_frame_preview(frame)
+
+        self.assertEqual(preview.size, (800, 600))
+        self.assertEqual(
+            preview.source_composite_rgba_sha256,
+            frame.resolved_composite.rgba_sha256,
+        )
+        self.assertEqual(
+            preview.source_overlap_mask_sha256,
+            frame.resolved_composite.unresolved_overlap_mask_sha256,
+        )
+        self.assertEqual(
+            preview.unresolved_overlap_pixel_count,
+            frame.resolved_composite.unresolved_overlap_pixel_count,
+        )
+        self.assertFalse(preview.cross_component_z_order_recovered)
+        self.assertFalse(preview.flattened_frame_available)
+        self.assertFalse(preview.complete_fastview_frame)
 
     def test_rejects_resolved_composite_drift_from_component_planes(self):
         frame = build_fastview_frame_plan(
