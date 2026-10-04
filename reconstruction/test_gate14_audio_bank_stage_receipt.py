@@ -7,6 +7,8 @@ import unittest
 
 from gate14_audio_bank_source_paths import (
     AUDIO_BANK_EXACT_PATH_FILE,
+    CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256,
+    CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE,
     Gate14AudioBankSourcePathError,
     expected_audio_bank_source_paths,
     validate_audio_bank_exact_path_contract,
@@ -56,7 +58,8 @@ def stage_and_report(root: Path):
     report = {
         "only_explicit": True,
         "unresolved_explicit_paths": [],
-        "source_sha256": "a" * 64,
+        "source_sha256": CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256,
+        "source_size": CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE,
         "explicit_paths": list(EXPECTED),
         "candidates": candidates,
     }
@@ -101,7 +104,14 @@ class Gate14AudioBankStageReceiptTests(unittest.TestCase):
             )
 
             self.assertTrue(receipt["passed"])
-            self.assertEqual(receipt["source_sha256"], "a" * 64)
+            self.assertEqual(
+                receipt["source_sha256"],
+                CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256,
+            )
+            self.assertEqual(
+                receipt["source_size"],
+                CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE,
+            )
             self.assertEqual(receipt["bank_count"], 4)
             self.assertEqual(
                 tuple(item["source_path"] for item in receipt["banks"]),
@@ -119,6 +129,37 @@ class Gate14AudioBankStageReceiptTests(unittest.TestCase):
             ):
                 with self.subTest(key=key):
                     self.assertFalse(receipt[key])
+
+    def test_rejects_noncanonical_source_archive_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            write_contract(root)
+            stage, report_path, report = stage_and_report(root)
+
+            report["source_sha256"] = "b" * 64
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            with self.assertRaisesRegex(
+                Gate14AudioBankStageReceiptError,
+                "source SHA-256 is not canonical",
+            ):
+                validate_audio_bank_stage_receipt(
+                    repo_root=root,
+                    inventory_report=report_path,
+                    staging_root=stage,
+                )
+
+            report["source_sha256"] = CANONICAL_AUDIO_SOURCE_ARCHIVE_SHA256
+            report["source_size"] = CANONICAL_AUDIO_SOURCE_ARCHIVE_SIZE - 1
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            with self.assertRaisesRegex(
+                Gate14AudioBankStageReceiptError,
+                "source size is not canonical",
+            ):
+                validate_audio_bank_stage_receipt(
+                    repo_root=root,
+                    inventory_report=report_path,
+                    staging_root=stage,
+                )
 
     def test_rejects_unresolved_or_non_exact_inventory(self):
         with tempfile.TemporaryDirectory() as directory:
