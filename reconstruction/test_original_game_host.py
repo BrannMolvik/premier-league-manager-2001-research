@@ -151,6 +151,19 @@ def fake_pmatchinfo_snapshot():
     )
 
 
+class LeagueFixturesPagePresenter:
+    def __init__(self):
+        self.calls = []
+
+    def source_accepted_league_fixtures_page(self, direction):
+        self.calls.append(direction)
+        return SimpleNamespace(
+            direction=direction,
+            previous_offset=0,
+            column_offset=8,
+        )
+
+
 class MatchInfoActionPresenter:
     def fixture_match_info_action(
         self,
@@ -424,6 +437,31 @@ class OriginalGameHostTests(unittest.TestCase):
             restored = host.apply_source_accepted_squad_view(3)
             self.assertEqual(restored.transition.control_id, 3)
             self.assertEqual(len(host.canvas.images), 7)
+
+    def test_source_accepted_league_fixtures_page_host_seam_redraws_without_pointer_mapping(self):
+        live = presenter()
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        page_presenter = LeagueFixturesPagePresenter()
+        host.management_presenter = page_presenter
+
+        with patch.object(host, "redraw") as redraw:
+            activation = host.apply_source_accepted_league_fixtures_page(1)
+
+        self.assertEqual(page_presenter.calls, [1])
+        self.assertEqual((activation.previous_offset, activation.column_offset), (0, 8))
+        redraw.assert_called_once_with()
+        self.assertIn("source-accepted League Fixtures page transition", host.last_status)
+        self.assertIn("0 -> 8", host.last_status)
+        self.assertIn("pointer mapping remains fail-closed", host.last_status)
+
+    def test_source_accepted_league_fixtures_page_requires_management_host(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "requires the MANAGEMENT host",
+        ):
+            host.apply_source_accepted_league_fixtures_page(1)
 
     def test_league_fixtures_draws_only_the_36_position_proven_grid_bitmaps(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
