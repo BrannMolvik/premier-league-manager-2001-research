@@ -17,12 +17,32 @@ Current safety qualification found/corrected the private wrapper's omitted
 disabled and Alt-Enter switching forbidden. Six new strict offline checks pass.
 Runtime/vendor-parser qualification remains false. A private GUI-free zero-PCM
 32-bit mute self-test was blocked before execution by Windows Application Control;
-matching Code Integrity 3077/3033 confirm Enterprise signing/policy denial.
+matching Code Integrity 3077/3033/3089 identify Smart App Control policy
+`VerifiedAndReputableDesktop` (`{0283ac0f-fff1-49ae-ada1-8a933130cad6}`):
+requested level 2, validated level 1, zero signatures. This does not establish an
+organization-only signer requirement. Full `CiTool -lp -json` inventory remains
+pending: non-admin access denied and the read-only UAC request was cancelled.
 No security exception/bypass or original launch was attempted. Experimental
-helper code/binary remain private/unqualified, not imported into the debugger.
+warning-bearing helper remains private/unqualified, not imported into the debugger.
 
-**Current execution prerequisite:** an approved build/signing route for a reviewed
-native probe helper, followed by harmless pre-play mute and exact wrapper/runtime
+The replacement `tools/gate13_mute_selftest.cpp` builds with the actual Microsoft
+C++/Windows SDK x86 ABI, `/W4 /WX`, without warnings. Build-only run
+`37189161424` passes at `4901e529`; exact unsigned SHA-256 is
+`4ebe2420fa798528df29c05b036a5f447e1178d8ed53c4f74e0dbce892c79f84`.
+The downloaded binary/source identities are verified, including runner CRLF
+versus reviewed LF source. **It is unsigned and has never executed.** No approved
+Artifact Signing profile/authentication is configured/identified; Daniel has
+been asked for the endpoint/account/profile and authentication method, not keys.
+Private correlated policy/build receipt and exact identities are retained in
+`GATE13_NATIVE_PROBE_SAFETY.md`. Signed hash/signer/SignTool verification remain
+pending; this is not runtime mute or wrapper qualification.
+
+**Current execution prerequisite:** renewed read-only UAC inventory approval plus
+an approved Artifact Signing endpoint/account/profile/authentication route.
+Sign the exact reviewed helper with SHA-256 Authenticode, verify with SignTool,
+then execute ONLY its harmless mute self-test. If signed execution is denied,
+stop with the exact correlated policy/signature reason; do not bypass policy.
+This must be followed by harmless pre-play mute and exact wrapper/runtime
 qualification before any original launch. Do not whitelist the unqualified
 candidate or disable system security. Evidence, identities and bounded next
 actions are in `GATE13_NATIVE_PROBE_SAFETY.md`. The launch guard remains.
