@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #372 is merged as main ce355560 after 2,294 tests/23 skips and asset-policy success. Verify PR #373 at head d80fe5ee: raster exact HT/FT/ET/PEN phase-label pixels with the verified Zurich 18px font, native centered signed-half arithmetic, and exact 28x16 clipping into a separate transparent runtime phase-text plane. Keep aggregate runtime icon<->text order, native overlap flattening, global z-order, complete frame, and Gate-14 completion false.",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #373 is still the active worker checkpoint. CI on head d80fe5ee found one incorrect PEN centering expectation; implementation was correct at x=351 under native signed truncation. Test/docs are corrected on head c5388009. Verify fresh CI, merge only if green, then continue component/overlap integration with runtime phase text and icon planes retained at one unresolved aggregate icon<->text order level.",
   "last_known_main_head": "ce355560bd9e92da072f220376bc7b36768c4034",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 287,
+  "recovery_generation": 288,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #373 is disjoint from Gate-13 paging. Text plane remains separate from runtime icon plane because one callback is icon->text but cross-row receiver order is not source-closed. Next after merge is component/overlap integration at one unresolved aggregate icon/text level.",
+  "note": "PR #373 remains disjoint from Gate-13 paging. The failed CI was only an expected-value bug: PEN width 23 in a 28px control gives trunc((28-23)/2)=2, so origin x=349+2=351. No raster implementation change was needed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
