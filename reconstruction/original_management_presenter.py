@@ -33,6 +33,7 @@ from original_league_fixtures_presenter import (
 )
 from original_league_fixtures_resources import (
     LeagueFixturesMatchInfoAction,
+    league_fixtures_column_page_offset,
     league_fixtures_match_info_action,
 )
 from original_league_tables_presenter import (
@@ -106,6 +107,16 @@ class OriginalManagementSquadViewActivation:
     presentation: OriginalManagementPanelSnapshot
 
 
+@dataclass(frozen=True)
+class OriginalManagementLeagueFixturesPageActivation:
+    """One source-accepted PLeagueFixtures +/-12 column-window transition."""
+
+    direction: int
+    previous_offset: int
+    column_offset: int
+    presentation: OriginalManagementPanelSnapshot
+
+
 def _require_started_session(session: FrontEndSession) -> None:
     if not isinstance(session, FrontEndSession):
         raise OriginalManagementPresentationError(
@@ -131,6 +142,7 @@ def build_management_panel_snapshot(
     staged_league_table_resource_names: Iterable[str] = (),
     expanded_root_id: int | None = None,
     squad_view_control_id: int = 3,
+    league_fixtures_column_offset: int = 0,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -172,6 +184,7 @@ def build_management_panel_snapshot(
         source = bridge.league_fixtures_grid_source()
         fixtures = build_league_fixtures_snapshot(
             source,
+            column_offset=league_fixtures_column_offset,
             staged_resource_names=staged_league_fixture_resource_names,
         )
         return OriginalManagementPanelSnapshot(
@@ -242,6 +255,7 @@ class OriginalManagementPresenter:
     staged_league_table_resource_names: tuple[str, ...] = ()
     expanded_root_id: int | None = None
     squad_view_control_id: int = 3
+    league_fixtures_column_offset: int = 0
 
     def snapshot(self) -> OriginalManagementPanelSnapshot:
         return build_management_panel_snapshot(
@@ -252,6 +266,7 @@ class OriginalManagementPresenter:
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
+            league_fixtures_column_offset=self.league_fixtures_column_offset,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -263,8 +278,10 @@ class OriginalManagementPresenter:
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
+            league_fixtures_column_offset=0,
         )
         self.selected_child_id = selected_child_id
+        self.league_fixtures_column_offset = 0
         return snapshot
 
     def source_accepted_pmenu_action(
@@ -312,8 +329,10 @@ class OriginalManagementPresenter:
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
+            league_fixtures_column_offset=0,
         )
         self.selected_child_id = menu_id
+        self.league_fixtures_column_offset = 0
         return OriginalManagementPMenuActivation(action, snapshot)
 
     def source_accepted_squad_view_transition(
@@ -343,9 +362,61 @@ class OriginalManagementPresenter:
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=transition.control_id,
+            league_fixtures_column_offset=self.league_fixtures_column_offset,
         )
         self.squad_view_control_id = transition.control_id
         return OriginalManagementSquadViewActivation(transition, snapshot)
+
+    def source_accepted_league_fixtures_page(
+        self,
+        direction: int,
+    ) -> OriginalManagementLeagueFixturesPageActivation:
+        """Apply the recovered +/-12 column window after source control acceptance.
+
+        This is deliberately a non-pointer seam. It preserves the source-proven
+        PLeagueFixtures+0xA4 paging arithmetic but does not invent page-button
+        rectangles, captions, keyboard bindings, hover state, or event mapping.
+        """
+        if self.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id:
+            raise OriginalManagementPresentationError(
+                "League Fixtures paging requires the integrated PLeagueFixtures panel"
+            )
+        if type(direction) is not int or direction not in (-1, 1):
+            raise OriginalManagementPresentationError(
+                "League Fixtures page direction must be exact -1 or 1"
+            )
+        current = self.snapshot()
+        grid = current.league_fixtures
+        if grid is None:
+            raise OriginalManagementPresentationError(
+                "League Fixtures paging lost the integrated grid snapshot"
+            )
+        previous = self.league_fixtures_column_offset
+        try:
+            updated = league_fixtures_column_page_offset(
+                previous,
+                len(grid.member_club_ids),
+                direction,
+            )
+        except ValueError as exc:
+            raise OriginalManagementPresentationError(str(exc)) from exc
+        snapshot = build_management_panel_snapshot(
+            self.session,
+            LEAGUE_FIXTURES_PANEL.menu_id,
+            bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
+            staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=self.expanded_root_id,
+            squad_view_control_id=self.squad_view_control_id,
+            league_fixtures_column_offset=updated,
+        )
+        self.league_fixtures_column_offset = updated
+        return OriginalManagementLeagueFixturesPageActivation(
+            direction=direction,
+            previous_offset=previous,
+            column_offset=updated,
+            presentation=snapshot,
+        )
 
     def fixture_match_info_action(
         self,
