@@ -1,0 +1,6 @@
+# Exact executable-proven Gate-14 BNK source paths.
+# Loader 0x6D01F0 formats %s\DATA\AUDIO\SFXS\%s.
+DATA/AUDIO/SFXS/menus.bnk
+DATA/AUDIO/SFXS/game00.bnk
+DATA/AUDIO/SFXS/playercalls.bnk
+DATA/AUDIO/SFXS/Advice.bnk
