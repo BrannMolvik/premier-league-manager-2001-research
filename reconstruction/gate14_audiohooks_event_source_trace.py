@@ -38,6 +38,18 @@ AUDIO_HOOKS_EVENT_STACK_OFFSET = 0x04
 AUDIO_HOOKS_STATE_STACK_OFFSET = 0x08
 AUDIO_HOOKS_THIRD_STACK_OFFSET = 0x0C
 
+# Independently source-closed Button@ease_2001 RTTI/vtable path used by the
+# dynamic 0x64F7xx AudioHooks sender family.
+BUTTON_EASE_DECORATED_RTTI = ".?AVButton@ease_2001@@"
+BUTTON_EASE_TYPE_DESCRIPTOR_VA = 0x81AD90
+BUTTON_EASE_VTABLE_VA = 0x7BF4CC
+BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA = 0x6528A0
+BUTTON_EASE_INPUT_VA = 0x64F7A0
+BUTTON_EASE_EVENT_IDS = (2, 10)
+BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD = 0x34
+BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD = 0x4A
+BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET = 0xA8
+
 # Exact canonical callsites where all three AudioHooks stack operands are
 # immediate literals immediately before the slot-0 indirect call.
 # Tuple fields are: callsite, event arg1, state arg2, third arg3.
@@ -394,7 +406,20 @@ def audiohooks_caller_trace_report(
         "global_slot0_call_candidates_not_cfg_proof": virtual,
         "source_closed_literal_virtual_senders": SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS,
         "source_closed_dynamic_control_senders": SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
+        "source_closed_dynamic_control_event_ids": BUTTON_EASE_EVENT_IDS,
         "source_closed_derived_virtual_senders": SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        "button_ease_source_contract": {
+            "decorated_rtti": BUTTON_EASE_DECORATED_RTTI,
+            "type_descriptor_va": BUTTON_EASE_TYPE_DESCRIPTOR_VA,
+            "vtable_va": BUTTON_EASE_VTABLE_VA,
+            "slot0_event_selector_va": BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA,
+            "input_va": BUTTON_EASE_INPUT_VA,
+            "event_ids": BUTTON_EASE_EVENT_IDS,
+            "object_field_offset": BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
+            "word_field_offset": BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
+            "virtual_offset": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
+            "event_semantics_recovered": False,
+        },
         "rtti_vtable_global_path_recovered": True,
         "calling_convention_recovered": True,
         "event_argument_position_recovered": True,
@@ -405,8 +430,9 @@ def audiohooks_caller_trace_report(
         "sample_meaning_recovered": False,
         "evidence_limit": (
             "The AudioHooks RTTI/vtable/global-object path, three-stack-argument "
-            "convention, literal/derived numeric sender tuples, and dynamic-control "
-            "sender shape are source-backed. Numeric event IDs are not human-readable "
+            "convention, literal/derived numeric sender tuples, and Button@ease "
+            "dynamic-control event set {2,10} are source-backed. Numeric event IDs "
+            "are not human-readable "
             "event names, computed event results are not guessed, and decoded "
             "audio is not sample-meaning evidence."
         ),
