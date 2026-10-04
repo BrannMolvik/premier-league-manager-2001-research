@@ -2412,3 +2412,12 @@ Linux-oriented duplicate-ZIP-path assertion failed on Windows because
 - PR #336 is canonical at `4b3f9e0b5d62c699402b580b7dcf4aaf9416a8a4` after reconstruction run `37200017817` passed 2,106 tests / 23 expected skips and asset-policy run `37200017826` passed.
 - Verified numeric no-sound routes now bypass platform playback entirely. Verified non-silent decoded menu PCM can be delivered to a caller-supplied synchronous backend, but adapter completion is **not** audible Windows proof and does not change `audio_event_binding_recovered` or `login_menu_audio_integrated`.
 - Exact cloud-safe next task: add a Windows-specific in-memory WAV backend with injected playback callable/flag for tests. It must verify the decoded PCM identity before wrapping samples in standard PCM WAV and must return success only when the platform player call returns normally. Keep actual Windows audible verification and semantic sender mapping separate.
+
+
+## Recovery 271: Windows menu PCM adapter is canonical; real audible receipt remains open
+
+- Canonical main includes PR #337 at `418375e94a90595c121bf4b3ba7dc4071c849f9b`. Reconstruction run `37200338931` passed 2,112 tests / 23 expected skips; asset-policy run `37200338933` passed.
+- The full source-backed numeric route now exists as: exact canonical `menus.bnk` -> original numeric AudioHooks event/state switch -> literal slot -> BNKl v2 decoder -> verified PCM identity -> synchronous backend seam -> Windows in-memory WAV adapter.
+- This still does **not** prove audible Windows output, semantic event names, human-readable sample names, reconstructed UI-event equivalence, or Gate-14 login/menu audio integration.
+- Private caller/source work is currently blocked by execution infrastructure: the authorized 511,121,336-byte Library ZIP resolves/materializes successfully, but both trivial shell and Python execution return `caas.internal.errors.ClientError`. Do not infer caller semantics while this persists.
+- Exact cloud-safe next task: create a real-Windows audit harness and fail-closed receipt schema for an explicit numeric event/state pair. It must verify canonical bank identity, run the real Windows adapter, capture OS/Python and routed slot/PCM identity, and require explicit human confirmation of audibility before setting an `audible_windows_verified` receipt field. Semantic event binding must remain separately false.
