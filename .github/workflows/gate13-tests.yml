@@ -88,6 +88,8 @@ on:
       - "reconstruction/test_original_league_tables_presenter.py"
       - "reconstruction/original_pmatchinfo_resources.py"
       - "reconstruction/test_original_pmatchinfo_resources.py"
+      - "reconstruction/original_pmatchinfo_scroll_readiness.py"
+      - "reconstruction/test_original_pmatchinfo_scroll_readiness.py"
       - "reconstruction/original_pmatchinfo_presenter.py"
       - "reconstruction/original_pmatchinfo_summary.py"
       - "reconstruction/test_original_pmatchinfo_summary.py"
@@ -190,6 +192,7 @@ jobs:
             test_original_league_tables_resources \
             test_original_league_tables_presenter \
             test_original_pmatchinfo_resources \
+            test_original_pmatchinfo_scroll_readiness \
             test_original_pmatchinfo_presenter \
             test_original_pmatchinfo_summary \
             test_original_pmenu_chrome \
