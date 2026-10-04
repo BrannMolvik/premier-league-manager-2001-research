@@ -27,7 +27,8 @@ Validation requires:
 - deterministic replay of the original numeric AudioHooks dispatcher;
 - exact routed sample-slot equality;
 - deterministic BNKl sample decode against the supplied canonical bank;
-- exact sample rate, channel count, sample count and decoded PCM SHA-256 equality.
+- exact sample rate, channel count, sample count and decoded PCM SHA-256 equality;
+- exact `WindowsMemoryWaveMenuPcmBackend` class and a nonnegative memory flag.
 
 If the replay resolves to an original no-sound route, or any receipt-derived
 slot/PCM field differs, validation fails.
