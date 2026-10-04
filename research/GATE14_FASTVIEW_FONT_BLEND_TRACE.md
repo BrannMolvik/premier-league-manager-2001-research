@@ -27,6 +27,24 @@ The existing possession-text evidence already binds style index 1 through
 wrapper `0x87BE90` to font object `0x9197E0` and the verified
 `Zurich_BdXCn_BT_18pixel.fnt` atlas.
 
+## Bounded memory-access candidate classification
+
+The tracer can now optionally decode only the existing source-qualified font
+windows with Capstone detail enabled and retain memory operands together with
+their reported access direction (`read`, `write`, `read_write` or
+`unreported`), base/index registers, displacement, scale and operand width.
+Immediate operands are retained alongside them.
+
+This is a triage aid for the next private blend pass. A memory read is not
+automatically a framebuffer read, and a write is not automatically a destination
+pixel write. The object identity, glyph-alpha source, destination surface,
+channel layout and arithmetic relationship still require manual data-flow
+adjudication.
+
+Every record is labeled
+`bounded_linear_font_dataflow_candidate_not_framebuffer_or_blend_proof`, and
+all blend/readiness flags remain false.
+
 ## Fail-closed boundary
 
 The tracer explicitly records:
