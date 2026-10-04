@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #280 head f7774f77 is the corrected external-release preflight binding: progression readiness uses a bounded disposable canonical controller advanced through shared primary AI days until the read-only completed-state audit is complete or remains blocked; no allocation preview is committed. Asset policy passed; reconstruction and Windows package workflows are rerunning. Merge only on green current-head checks, then harden direct run_final_release_audit with the same preflight.",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #280 head 4215bfa9 is the current corrected external-release preflight binding. It uses the same external player seed/max-days, advances only a disposable canonical controller through shared primary AI until the read-only completed-state progression audit is complete or bounded, and never commits allocation preview. Asset policy is green; Windows package and reconstruction workflows are validating this exact head. Merge only on green checks, then harden direct run_final_release_audit with the same canonical preflight.",
   "last_known_main_head": "efccd10336917699dcb1fc528788da83c29f72dd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 252,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 252: corrected PR #280 completed-state progression contract; validating head f7774f77.",
+  "note": "Recovery 252: validating exact PR #280 head 4215bfa9; prior workflow heads are superseded.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
