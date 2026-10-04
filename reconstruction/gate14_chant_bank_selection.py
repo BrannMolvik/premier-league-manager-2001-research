@@ -50,7 +50,7 @@ CLUB_SOURCE_ID_COUNTS = (
 class ChantSelectionPatterns:
     home_club_source_id: int
     away_club_source_id: int
-    same_id_rng_bit: int | None
+    club_same_id_rng_bit: int | None
     cl_home_pattern: str
     cl_away_pattern: str
     club_home_pattern: str
@@ -63,7 +63,7 @@ class ChantSelectionPatterns:
         for value in (self.home_club_source_id, self.away_club_source_id):
             if type(value) is not int or not 0 <= value <= 0xFFFF:
                 raise Gate14ChantSelectionError("club source IDs must be uint16")
-        if self.same_id_rng_bit not in (None, 0, 1):
+        if self.club_same_id_rng_bit not in (None, 0, 1):
             raise Gate14ChantSelectionError("same-id RNG bit must be None, 0 or 1")
         for value in (
             self.cl_home_pattern,
@@ -87,7 +87,8 @@ def chant_selection_patterns(
     home_club_source_id: int,
     away_club_source_id: int,
     *,
-    same_id_rng_bit: int | None = None,
+    cl_rng_bit: int,
+    club_same_id_rng_bit: int | None = None,
 ) -> ChantSelectionPatterns:
     """Reproduce the exact prefix assignment prepared by 0x722F00.
 
@@ -103,19 +104,24 @@ def chant_selection_patterns(
         if type(value) is not int or not 0 <= value <= 0xFFFF:
             raise Gate14ChantSelectionError("club source IDs must be uint16")
 
-    if same_id_rng_bit not in (None, 0, 1):
-        raise Gate14ChantSelectionError("same-id RNG bit must be None, 0 or 1")
+    if cl_rng_bit not in (0, 1):
+        raise Gate14ChantSelectionError("CL RNG bit must be 0 or 1")
+    if club_same_id_rng_bit not in (None, 0, 1):
+        raise Gate14ChantSelectionError("same-club RNG bit must be None, 0 or 1")
 
-    needs_rng = home_club_source_id == away_club_source_id
-    if needs_rng and same_id_rng_bit is None:
+    needs_club_rng = home_club_source_id == away_club_source_id
+    if needs_club_rng and club_same_id_rng_bit is None:
         raise Gate14ChantSelectionError(
-            "same club source IDs require the source RNG parity bit"
+            "same club source IDs require the separate club RNG parity bit"
+        )
+    if not needs_club_rng and club_same_id_rng_bit is not None:
+        raise Gate14ChantSelectionError(
+            "distinct club source IDs do not consume a club RNG parity bit"
         )
 
     # 0x723350 sets both CL selector globals to 1 before 0x722F00. The equal
-    # branch therefore always randomizes which side gets cl000001.
-    rng_bit = 0 if same_id_rng_bit is None else same_id_rng_bit
-    if rng_bit:
+    # branch therefore always consumes its own RNG parity draw.
+    if cl_rng_bit:
         cl_home, cl_away = "cl000001", CL_AWAY_DEFAULT
     else:
         cl_home, cl_away = CL_HOME_DEFAULT, "cl000001"
@@ -123,7 +129,7 @@ def chant_selection_patterns(
     if home_club_source_id != away_club_source_id:
         club_home = _club_pattern(home_club_source_id)
         club_away = _club_pattern(away_club_source_id)
-    elif rng_bit:
+    elif club_same_id_rng_bit:
         club_home = _club_pattern(home_club_source_id)
         club_away = CLUB_AWAY_DEFAULT
     else:
@@ -133,7 +139,7 @@ def chant_selection_patterns(
     return ChantSelectionPatterns(
         home_club_source_id=home_club_source_id,
         away_club_source_id=away_club_source_id,
-        same_id_rng_bit=(rng_bit if needs_rng else None),
+        club_same_id_rng_bit=(club_same_id_rng_bit if needs_club_rng else None),
         cl_home_pattern=cl_home,
         cl_away_pattern=cl_away,
         club_home_pattern=club_home,
