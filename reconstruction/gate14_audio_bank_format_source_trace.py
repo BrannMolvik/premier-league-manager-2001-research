@@ -257,6 +257,91 @@ def shared_bnk_memory_displacement_candidates(
     )
 
 
+def indexed_bnk_memory_access_candidates(
+    candidates: tuple[dict, ...],
+) -> tuple[dict, ...]:
+    """Retain bounded non-stack memory operands that use an index register.
+
+    Indexed addressing is useful triage evidence for possible table/record
+    access in the loader/playback path, but it does not prove that the indexed
+    object is a BNK sample table, that the index is a sample id, or that scale
+    / displacement encode any particular record layout.
+    """
+    if type(candidates) is not tuple:
+        raise Gate14AudioBankFormatTraceError(
+            "BNK dataflow candidates must be an exact tuple"
+        )
+
+    output: list[dict] = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            raise Gate14AudioBankFormatTraceError(
+                "BNK dataflow candidate must be a mapping"
+            )
+        label = candidate.get("window_label")
+        instruction_va = candidate.get("instruction_va")
+        memory_operands = candidate.get("memory_operand_candidates", ())
+        if not isinstance(label, str) or not label or type(instruction_va) is not int:
+            raise Gate14AudioBankFormatTraceError(
+                "BNK dataflow candidate identity is malformed"
+            )
+        if type(memory_operands) not in (tuple, list):
+            raise Gate14AudioBankFormatTraceError(
+                "memory_operand_candidates must be a tuple/list"
+            )
+
+        for operand_index, operand in enumerate(memory_operands):
+            if not isinstance(operand, dict):
+                raise Gate14AudioBankFormatTraceError(
+                    "memory operand candidate must be a mapping"
+                )
+            base = operand.get("base")
+            index = operand.get("index")
+            scale = operand.get("scale")
+            displacement = operand.get("displacement")
+            operand_size = operand.get("operand_size")
+            if base in {"esp", "ebp"}:
+                continue
+            if not isinstance(index, str) or not index:
+                continue
+            if index in {"esp", "ebp"}:
+                continue
+            if type(scale) is not int or scale not in (1, 2, 4, 8):
+                raise Gate14AudioBankFormatTraceError(
+                    "indexed memory operand scale must be x86 scale 1/2/4/8"
+                )
+            if type(displacement) is not int or type(operand_size) is not int:
+                raise Gate14AudioBankFormatTraceError(
+                    "indexed memory displacement/size must be integers"
+                )
+            output.append(
+                {
+                    "window_label": label,
+                    "instruction_va": instruction_va,
+                    "operand_index": operand_index,
+                    "base_register": base,
+                    "index_register": index,
+                    "scale": scale,
+                    "displacement": displacement,
+                    "operand_size": operand_size,
+                    "classification": (
+                        "indexed_bnk_memory_access_candidate_not_sample_table_proof"
+                    ),
+                }
+            )
+
+    return tuple(
+        sorted(
+            output,
+            key=lambda item: (
+                item["window_label"],
+                item["instruction_va"],
+                item["operand_index"],
+            ),
+        )
+    )
+
+
 def shared_bnk_direct_call_target_candidates(
     candidates: tuple[dict, ...],
     *,
@@ -409,6 +494,13 @@ def audio_bank_format_trace_report(
             if classify_dataflow_candidates
             else ()
         ),
+        "indexed_memory_access_candidates_not_sample_table_proof": (
+            indexed_bnk_memory_access_candidates(
+                classify_bnk_window_dataflow_candidates(pe, windows=windows)
+            )
+            if classify_dataflow_candidates
+            else ()
+        ),
         "shared_direct_call_targets_not_function_role_proof": (
             shared_bnk_direct_call_target_candidates(
                 classify_bnk_window_dataflow_candidates(pe, windows=windows)
@@ -432,8 +524,8 @@ def audio_bank_format_trace_report(
             "Bank ownership and selected playback entrypoints are source-backed. "
             "These bounded windows do not prove BNK field meanings; optional "
             "instruction/dataflow candidates also do not prove CFG reachability, "
-            "sample table layout, codec parameters, exact sample semantics, or "
-            "modern decode."
+            "sample table layout, indexed sample identity, codec parameters, "
+            "exact sample semantics, or modern decode."
         ),
     }
 
