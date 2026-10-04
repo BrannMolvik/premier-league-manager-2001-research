@@ -60,7 +60,7 @@ class FastViewScoreTableFrameBridgeTests(unittest.TestCase):
                 return_value=surface,
             ) as build_surface,
             patch(
-                "gate14_fastview_frame_plan.rasterize_fastview_team_static_rows",
+                "gate14_fastview_frame_plan.rasterize_fastview_team_energy_rows",
                 return_value=team_static,
             ) as raster_team,
             patch(
