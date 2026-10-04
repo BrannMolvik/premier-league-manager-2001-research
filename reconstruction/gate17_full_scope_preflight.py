@@ -8,16 +8,32 @@ same source-backed TeamSelect playable-scope catalog.
 """
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
+import json
+from pathlib import Path
 
-from gate17_human_scope_capability import HumanScopeCapabilityAudit
+from gate17_human_scope_capability import (
+    HumanScopeCapabilityAudit,
+    run_canonical_human_scope_capability,
+)
 from gate17_multi_human_capability import (
     MultiHumanCapabilityAudit,
     ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS,
+    run_current_multi_human_capability,
 )
-from gate17_runtime_owner_capability import RuntimeOwnerCapabilityAudit
-from gate17_save_scope_capability import SaveScopeCapabilityAudit
-from gate17_runtime_progression_audit import RuntimeProgressionAudit
+from gate17_runtime_owner_capability import (
+    RuntimeOwnerCapabilityAudit,
+    run_canonical_runtime_owner_capability,
+)
+from gate17_save_scope_capability import (
+    SaveScopeCapabilityAudit,
+    run_canonical_save_scope_capability,
+)
+from gate17_runtime_progression_audit import (
+    RuntimeProgressionAudit,
+    audit_runtime_playable_progression,
+)
 
 
 class Gate17FullScopePreflightError(RuntimeError):
@@ -262,3 +278,68 @@ def build_full_scope_preflight(
         previewed_allocation_ids=previewed_ids,
         blocker_codes=tuple(blockers),
     )
+
+def run_canonical_full_scope_preflight(
+    game_dir: str | Path,
+    *,
+    player_seed: int = 1,
+) -> FullScopePreflight:
+    """Assemble the current canonical Gate-17 blocker snapshot.
+
+    This coordinator is diagnostic only. It reuses the existing canonical
+    capability runners, constructs one live controller solely for the
+    read-only progression audit, and never commits an allocation exchange or
+    manufactures missing secondary/multi-human capability.
+    """
+    from human_gameplay import HumanGameplayController
+
+    game_dir = Path(game_dir)
+    human_scope = run_canonical_human_scope_capability(game_dir)
+    runtime_owner = run_canonical_runtime_owner_capability(game_dir)
+    save_scope = run_canonical_save_scope_capability(game_dir)
+    multi_human = run_current_multi_human_capability()
+
+    controller = HumanGameplayController.from_canonical_game_dir(
+        game_dir,
+        player_seed=int(player_seed),
+        match_engine_seed=1,
+    )
+    plan = controller.playable_country_allocation_plan
+    if plan is None:
+        raise Gate17FullScopePreflightError(
+            "canonical controller has no playable-country allocation plan"
+        )
+    progression = audit_runtime_playable_progression(plan, controller.state)
+
+    return build_full_scope_preflight(
+        human_scope,
+        runtime_owner,
+        save_scope,
+        multi_human,
+        progression,
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("game_dir", type=Path)
+    parser.add_argument("--player-seed", type=int, default=1)
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+
+    audit = run_canonical_full_scope_preflight(
+        args.game_dir,
+        player_seed=args.player_seed,
+    )
+    text = json.dumps(audit.as_dict(), indent=2, sort_keys=True) + "\n"
+    if args.output is None:
+        print(text, end="")
+    else:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(text, encoding="utf-8")
+    return 0 if audit.ready_for_full_runtime_validation else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
