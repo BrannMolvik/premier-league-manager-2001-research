@@ -257,6 +257,87 @@ def shared_bnk_memory_displacement_candidates(
     )
 
 
+def shared_bnk_direct_call_target_candidates(
+    candidates: tuple[dict, ...],
+    *,
+    minimum_distinct_windows: int = 2,
+) -> tuple[dict, ...]:
+    """Group direct CALL targets recurring across distinct bounded windows.
+
+    A repeated target is useful triage evidence for a helper shared by loader and
+    playback neighborhoods. It is not function-role, CFG reachability, decoder,
+    file-I/O, allocation, or format-field proof.
+    """
+    if type(candidates) is not tuple:
+        raise Gate14AudioBankFormatTraceError(
+            "BNK dataflow candidates must be an exact tuple"
+        )
+    if (
+        type(minimum_distinct_windows) is not int
+        or minimum_distinct_windows < 2
+    ):
+        raise Gate14AudioBankFormatTraceError(
+            "minimum_distinct_windows must be an integer >= 2"
+        )
+
+    grouped: dict[int, dict] = {}
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            raise Gate14AudioBankFormatTraceError(
+                "BNK dataflow candidate must be a mapping"
+            )
+        label = candidate.get("window_label")
+        instruction_va = candidate.get("instruction_va")
+        target = candidate.get("direct_call_target_candidate")
+        if not isinstance(label, str) or not label or type(instruction_va) is not int:
+            raise Gate14AudioBankFormatTraceError(
+                "BNK dataflow candidate identity is malformed"
+            )
+        if target is None:
+            continue
+        if type(target) is not int or not 0 <= target < 1 << 32:
+            raise Gate14AudioBankFormatTraceError(
+                "direct call target candidate must be uint32 or None"
+            )
+        entry = grouped.setdefault(
+            target,
+            {
+                "target_va": target,
+                "window_labels": set(),
+                "callsite_vas": set(),
+            },
+        )
+        entry["window_labels"].add(label)
+        entry["callsite_vas"].add(instruction_va)
+
+    output = []
+    for target, entry in grouped.items():
+        labels = tuple(sorted(entry["window_labels"]))
+        if len(labels) < minimum_distinct_windows:
+            continue
+        output.append(
+            {
+                "target_va": target,
+                "distinct_window_count": len(labels),
+                "window_labels": labels,
+                "callsite_vas": tuple(sorted(entry["callsite_vas"])),
+                "classification": (
+                    "shared_bnk_direct_call_target_candidate_not_function_role_proof"
+                ),
+            }
+        )
+
+    return tuple(
+        sorted(
+            output,
+            key=lambda item: (
+                -item["distinct_window_count"],
+                item["target_va"],
+            ),
+        )
+    )
+
+
 def audio_bank_format_trace_report(
     pe: OriginalPE32,
     *,
@@ -323,6 +404,13 @@ def audio_bank_format_trace_report(
         ),
         "shared_memory_displacement_candidates_not_field_proof": (
             shared_bnk_memory_displacement_candidates(
+                classify_bnk_window_dataflow_candidates(pe, windows=windows)
+            )
+            if classify_dataflow_candidates
+            else ()
+        ),
+        "shared_direct_call_targets_not_function_role_proof": (
+            shared_bnk_direct_call_target_candidates(
                 classify_bnk_window_dataflow_candidates(pe, windows=windows)
             )
             if classify_dataflow_candidates
