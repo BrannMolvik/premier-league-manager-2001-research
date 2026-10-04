@@ -4,41 +4,41 @@ _Status: independent Gate-14 work-ahead while Gate 13 remains Codex-owned._
 
 ## Purpose
 
-The Gate-14 frame pipeline already produces a source-backed 800x600
-`FastViewResolvedOnlyComposite`. Pixels with one proven component owner are
-retained exactly. Pixels whose cross-component ordering is not yet recovered
-stay transparent and are tracked by the unresolved-overlap mask/topology.
+The canonical Gate-14 resolved-preview layer now exports the source-backed
+800x600 RGBA subset and its authoritative unresolved-overlap mask as
+deterministic PNGs. This checkpoint adds only the next presentation seam: put
+that existing RGBA preview on a caller-owned Tk canvas without changing its
+fidelity boundary.
 
-This checkpoint adds a player-visible rendering boundary for that exact partial
-image without modifying the Gate-13 management host.
+It does not modify or depend on the Gate-13 management host.
 
 ## Rendering contract
 
-`encode_fastview_resolved_png()` converts only the existing composite RGBA
-bytes into a lossless 8-bit RGBA PNG using filter 0 scanlines. It does not fill,
-blend, recolor, scale, or reinterpret transparent pixels.
+`draw_fastview_preview_on_tk_canvas()` accepts an exact
+`FastViewResolvedPreview` from
+`gate14_fastview_resolved_preview.py`.
 
-`draw_fastview_resolved_on_tk_canvas()`:
+It:
 
-- requires an exact `FastViewResolvedOnlyComposite`;
-- creates one Tk `PhotoImage` from the lossless PNG;
-- places it at native origin `(0, 0)` on a caller-owned canvas;
-- returns an object that retains the Tk photo reference so the image is not
-  garbage-collected;
-- carries the resolved count, unresolved count, and exact overlap groups into
-  the draw result.
+- feeds the canonical `rgba_png` bytes directly to Tk `PhotoImage`;
+- places exactly one image at native origin `(0, 0)`;
+- retains the PhotoImage object so Tk does not garbage-collect it;
+- retains the complete canonical preview record, including RGBA/mask hashes and
+  exact overlap groups.
 
-The draw helper deliberately does **not**:
+`draw_fastview_resolved_on_tk_canvas()` is a convenience adapter that first
+builds that same canonical preview from an exact
+`FastViewResolvedOnlyComposite`, then uses the identical Tk path.
 
+The helper deliberately does **not**:
+
+- re-encode a second competing PNG representation;
 - clear the canvas;
 - choose a background color or unknown shell pixels;
-- scale or stretch the 800x600 source surface;
+- scale or stretch the native 800x600 surface;
 - create a window;
 - bind input;
 - invoke gameplay, simulation, RNG, management-host, audio, or 3D code.
-
-This makes the recovered FastView subset directly drawable while leaving
-surrounding composition policy to a later source-backed host integration.
 
 ## Fidelity boundary
 
@@ -48,25 +48,26 @@ The returned draw record requires:
 - `cross_component_z_order_recovered = False`;
 - `complete_fastview_frame = False`.
 
-The surface therefore cannot be presented as a complete original FastView
-screen. Transparent pixels include both areas with no currently recovered
-component owner and pixels deliberately masked because multiple components
-overlap without a proven original order. The compositor's overlap mask/topology
-remains the audit source for that distinction.
+The canonical preview itself must also keep its z-order, flattened-frame, and
+complete-frame claims false.
+
+This means the Tk surface is directly visible but explicitly partial.
+Transparent pixels remain transparent. Their exact unresolved-vs-unowned audit
+state remains available through the retained preview's mask PNG and overlap
+topology rather than being painted with substitute pixels.
 
 ## Validation
 
 Focused tests verify:
 
-- PNG IHDR is exactly 800x600 RGBA8;
-- decompressed scanlines reproduce the resolved composite RGBA byte-for-byte;
-- unresolved overlap pixels remain alpha-zero;
-- Tk receives exactly one native-origin image draw;
-- the PhotoImage payload decodes to the exact emitted PNG;
-- overlap audit metadata is retained;
+- Tk receives the exact canonical RGBA preview PNG, not a re-encoded copy;
+- the image is placed once at native origin with the source alpha preserved;
+- the returned object retains the preview and PhotoImage lifetime;
+- composite-to-preview adaptation preserves source RGBA/mask hashes and overlap
+  metadata;
 - false complete-frame promotion is rejected;
 - the module has no gameplay, RNG, Gate-13 host, or simulation dependency.
 
-This is a rendering seam, not Gate-14 completion. Cross-component order,
-dynamic PictureControl resize pixels, unrecovered text/background ownership,
-audio bindings, and SCI/3D choreography remain separate blockers.
+This is still not Gate-14 completion. Cross-component draw order, dynamic
+PictureControl resize pixels, unrecovered text/background ownership, audio
+bindings, and SCI/3D choreography remain separate blockers.
