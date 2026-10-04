@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Disjoint Gate-14 work: PR #334 merged at 1873047b after 2,096 tests / 23 expected skips and green asset policy. Private next step is to run the AudioHooks caller tracer on the canonical executable. While that private step is unavailable, implement a fail-closed numeric AudioHooks -> canonical menus.bnk decoded-PCM bridge without assigning semantic event/sample names or claiming audible host integration.",
-  "last_known_main_head": "1873047b5fb31c3e34770768bfe11b137b35f305",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Disjoint Gate-14 Recovery 270: AudioHooks caller tracer (#334) and canonical numeric menus PCM bridge (#335) are merged and documented. Private next step remains canonical-executable caller/argument adjudication. Current cloud-safe task: add a synchronous playback backend seam for verified non-silent DecodedMenuPcmDispatch results, preserving silent routes and keeping semantic binding/audible Windows verification false.",
+  "last_known_main_head": "faa2bb45445653511753d4dc2cf452b30f6941cd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 270,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 270: #334 merged verified at 1873047b; advancing cloud-safe numeric menus PCM bridge.",
+  "note": "Recovery 270: canonical handoff repaired through main faa2bb45445653511753d4dc2cf452b30f6941cd; begin bounded menu PCM playback backend seam.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
