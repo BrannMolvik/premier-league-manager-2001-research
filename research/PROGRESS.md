@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 252 Gate-17 save-scope readiness
+
+PR #277 head `4c13d9bc` passed reconstruction CI with **1,909 tests / 23 expected skips** and repository asset policy, then squash-merged as `ed997a0a`.
+
+The full-scope implementation preflight now treats persistence as an independent per-TeamSelect-scope capability. Fixed-primary and procedural-primary scopes are mapped to their existing serialization and post-load continuation surfaces; procedural-secondary scopes retain explicit `save_serialization_missing` and `save_reload_continuation_missing` blockers. Catalog SHA/order and runtime-owner class are enforced, so a secondary scope cannot be satisfied by being placed in a primary capability set. This remains repository-side readiness only, not private or Windows save evidence.
+
+Next cloud-safe step is a canonical preflight coordinator that assembles all current capability audits against one verified game directory and one live controller state, producing a single honest blocker snapshot.
+
 ### 4 October 2026 KST — Recovery 251 Gate-17 multi-human readiness
 
 PR #276 head `26513995` passed reconstruction CI with **1,900 tests / 23 expected skips** and repository asset policy, then squash-merged as `fc985fab`.
