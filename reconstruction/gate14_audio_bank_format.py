@@ -10,8 +10,10 @@ No filename/event semantics are assigned here.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
 import math
 import struct
+from typing import Mapping
 
 
 class Gate14BnkFormatError(ValueError):
@@ -324,3 +326,141 @@ def pcm16le_bytes(samples: tuple[int, ...]) -> bytes:
     if any(not -32768 <= value <= 32767 for value in samples):
         raise Gate14BnkFormatError("PCM sample is outside int16 range")
     return b"".join(struct.pack("<h", value) for value in samples)
+
+
+CANONICAL_FM2001_BANK_PROFILES = {
+    "menus.bnk": {
+        "size_bytes": 159324,
+        "sha256": "e3bd385d89ab94f0a97834a0749898c99d10a29ee404c29ebdc708c0daa1fc1d",
+        "slot_count": 23,
+        "real_sound_count": 23,
+        "dummy_count": 0,
+        "header_size": 976,
+        "ea_xa_count": 22,
+        "pcm16le_count": 1,
+        "decoded_sample_count": 311460,
+        "decoded_pcm_sha256": "b56652f1c2d74043d3ab31072f4d3df45518ddfa87d1c9ec4cefd9dc426ddc65",
+    },
+    "game00.bnk": {
+        "size_bytes": 360400,
+        "sha256": "dde480b17fcc73811ea6bd8ef2a918550c8c5b6b81cc60ca0e4893b2a91cff86",
+        "slot_count": 96,
+        "real_sound_count": 55,
+        "dummy_count": 41,
+        "header_size": 2404,
+        "ea_xa_count": 54,
+        "pcm16le_count": 1,
+        "decoded_sample_count": 652750,
+        "decoded_pcm_sha256": "572d4f64f04b23db562f243e90f6b77f573f48f4cfce390356602d9cc3e43ff3",
+    },
+    "playercalls.bnk": {
+        "size_bytes": 275140,
+        "sha256": "b03a63a614536cc31736aab118e82874e53f9989045c158a2a82282afc731fe9",
+        "slot_count": 70,
+        "real_sound_count": 59,
+        "dummy_count": 11,
+        "header_size": 3124,
+        "ea_xa_count": 59,
+        "pcm16le_count": 0,
+        "decoded_sample_count": 506871,
+        "decoded_pcm_sha256": "e06bdc865b6a7bde47187dad11a10c62950bf3bb528c866cb7424938b73c4646",
+    },
+    "Advice.bnk": {
+        "size_bytes": 700072,
+        "sha256": "dc63453b42cb12649e0fd3ea28cd1f181b7924069e640638ad5f6603a7ef871b",
+        "slot_count": 43,
+        "real_sound_count": 43,
+        "dummy_count": 0,
+        "header_size": 1600,
+        "ea_xa_count": 43,
+        "pcm16le_count": 0,
+        "decoded_sample_count": 1303128,
+        "decoded_pcm_sha256": "49e0a84f4b37034eca04cdc94befba23e3ceaf8b2edc235b747d77a306ab06f9",
+    },
+}
+
+
+def audit_canonical_fm2001_audio_banks(
+    payloads: Mapping[str, bytes],
+) -> dict:
+    """Verify exact source-bank identities and decode every real sound to PCM."""
+    if not isinstance(payloads, Mapping):
+        raise Gate14BnkFormatError("canonical bank payloads must be a mapping")
+    if set(payloads) != set(CANONICAL_FM2001_BANK_PROFILES):
+        raise Gate14BnkFormatError("canonical bank set is incomplete or contains extras")
+
+    bank_results = []
+    total_slots = total_real = total_dummy = total_samples = 0
+    total_ea_xa = total_pcm = 0
+    for name, profile in CANONICAL_FM2001_BANK_PROFILES.items():
+        data = payloads[name]
+        if not isinstance(data, bytes):
+            raise Gate14BnkFormatError(f"{name} payload must be bytes")
+        if len(data) != profile["size_bytes"] or sha256(data).hexdigest() != profile["sha256"]:
+            raise Gate14BnkFormatError(f"{name} does not match canonical source identity")
+
+        bank = parse_fm2001_bnk(data)
+        ea_xa_count = sum(sample.codec == "ea_xa_v1" for sample in bank.samples)
+        pcm_count = sum(sample.codec == "pcm16le" for sample in bank.samples)
+        if (
+            bank.slot_count != profile["slot_count"]
+            or bank.real_sound_count != profile["real_sound_count"]
+            or len(bank.dummy_slots) != profile["dummy_count"]
+            or bank.header_size != profile["header_size"]
+            or ea_xa_count != profile["ea_xa_count"]
+            or pcm_count != profile["pcm16le_count"]
+        ):
+            raise Gate14BnkFormatError(f"{name} canonical structure drifted")
+
+        decoded_hash = sha256()
+        decoded_count = 0
+        for sample in bank.samples:
+            pcm = decode_fm2001_bnk_sample(data, sample)
+            if len(pcm) != sample.sample_count:
+                raise Gate14BnkFormatError(f"{name} decoded sample count drifted")
+            decoded_hash.update(pcm16le_bytes(pcm))
+            decoded_count += len(pcm)
+        if (
+            decoded_count != profile["decoded_sample_count"]
+            or decoded_hash.hexdigest() != profile["decoded_pcm_sha256"]
+        ):
+            raise Gate14BnkFormatError(f"{name} decoded PCM identity drifted")
+
+        total_slots += bank.slot_count
+        total_real += bank.real_sound_count
+        total_dummy += len(bank.dummy_slots)
+        total_samples += decoded_count
+        total_ea_xa += ea_xa_count
+        total_pcm += pcm_count
+        bank_results.append({
+            "filename": name,
+            "source_sha256": profile["sha256"],
+            "size_bytes": len(data),
+            "slot_count": bank.slot_count,
+            "real_sound_count": bank.real_sound_count,
+            "dummy_count": len(bank.dummy_slots),
+            "header_size": bank.header_size,
+            "ea_xa_count": ea_xa_count,
+            "pcm16le_count": pcm_count,
+            "decoded_sample_count": decoded_count,
+            "decoded_pcm_sha256": decoded_hash.hexdigest(),
+        })
+
+    return {
+        "passed": True,
+        "bank_count": len(bank_results),
+        "banks": tuple(bank_results),
+        "total_slot_count": total_slots,
+        "total_real_sound_count": total_real,
+        "total_dummy_count": total_dummy,
+        "total_ea_xa_count": total_ea_xa,
+        "total_pcm16le_count": total_pcm,
+        "total_decoded_sample_count": total_samples,
+        "bnk_header_layout_recovered": True,
+        "pt_sample_table_layout_recovered": True,
+        "sample_offsets_recovered": True,
+        "sample_codec_recovered": True,
+        "sample_rate_channels_recovered": True,
+        "modern_sample_decode_ready": True,
+        "event_binding_recovered": False,
+    }
