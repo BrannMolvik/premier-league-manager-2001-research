@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Continue independent Gate-14 AudioHooks sender recovery from canonical main ba8aa214: source-close RTTI/vtable/global object path for AudioHooks::0x5DBFC0, its three-stack-argument convention (event arg1, state arg2, third arg3), and exact literal virtual caller candidates through global 0x984810. Do not assign human-readable event/sample semantics from numeric IDs or audio content.",
-  "last_known_main_head": "ba8aa214eb1439bb54007c101c28d8af141a1084",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #350 at head 533df8dc: recover AudioHooks global 0x984810/vtable-slot-0 sender contract, three-stack-argument convention, 10 literal senders, 7 locally derived numeric senders, and 10 dynamic-control sender sites. Keep human-readable event/sample semantics false. After green merge, continue source-backed sender-context/class attribution only where executable evidence proves it.",
+  "last_known_main_head": "781f90a10c96eb41f827dc4a9baea58fff35cd1f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 278,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 278 confirmed main ba8aa214. Font-blend work is already canonical through PR #349. Continue only disjoint Gate-14 AudioHooks source work while Gate 13 ownership lock remains active. Current source anchors: RTTI vtable 0x7D73EC, global object pointer 0x984810, install at 0x5DC2B6, receiver 0x5DBFC0 with three stack args and ret 0x0C.",
+  "note": "Recovery 278 opened PR #350 from disjoint Gate-14 AudioHooks work. Concurrent Gate-13 PRs #346 and #351 advanced main to 781f90a1; PR #350 remains mergeable. Do not touch Gate-13 native-probe or status files.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
