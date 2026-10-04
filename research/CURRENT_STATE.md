@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 251 Gate-17 primary-container save checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
+
+PR #275 merged as canonical main `636f4204`. Canonical save tooling now aggregates every source-backed TeamSelect **primary-container** scope in exact runtime-ownership-plan order: the fixed Premier League uses the established mid-matchday save/reload route, every procedural-primary League uses the all-scope continuation audit, and the aggregate is bound to the same TeamSelect catalog SHA-256. Every procedural-secondary TeamSelect scope is emitted explicitly as unverified; no secondary owner is routed through the primary engine. Hosted verification passed **1,893 tests / 23 expected skips** plus repository asset policy. No authorized private `--primary-container-all` execution receipt is claimed.
+
+The remaining Gate-17 runtime blockers are explicit: secondary procedural Leagues still lack a distinct live runtime container/human route; the gameplay backend still has only one `HumanManagerState` even though TeamSelect source tracing proves up to six simultaneous users; RNG-bearing non-PL fresh chairman-objective branches still need the exact `0x5DF670` caller CRT state; non-PL season-end sporting-objective classification/progression is not source-closed; and final full-scope Windows receipts remain external blockers.
+
+Exact next cloud-safe action: close a readiness-audit gap around the source-proven six-user requirement. The current full-scope implementation preflight measures selection/runtime ownership/progression but does not independently include multi-human backend capability, so it must not be able to report ready while the clean-room controller is still single-manager. Add a fail-closed multi-human capability input to that preflight without claiming the missing gameplay implementation.
+
 ## Recovery 251 Gate-17 primary-save catalog checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
