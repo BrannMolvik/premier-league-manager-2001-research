@@ -11,6 +11,8 @@ from gate14_fastview_frame_plan import (
 )
 from gate14_fastview_frame_coverage import audit_fastview_frame_coverage
 from gate14_fastview_team_text_raster import rasterize_fastview_playerrow_text
+from gate14_fastview_playerrows_raster import compose_fastview_player_rows_raster
+from gate14_fastview_team_energy_raster import rasterize_fastview_team_energy_rows
 from gate14_fastview_resolved_preview import build_fastview_frame_preview
 from gate14_fastview_playerrow_snapshot import (
     build_fastview_player_row_render_plan,
@@ -200,6 +202,27 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertTrue(raster.position_english_localization_recovered)
         self.assertTrue(raster.own_goal_color_recovered)
         self.assertTrue(raster.complete_team_table_text)
+
+    def test_complete_retained_playerrow_raster_accepts_frame_render_plans(self):
+        shell = exact_shell()
+        energy = rasterize_fastview_team_energy_rows(
+            exact_team_art(),
+            shell.player_row_render_plans,
+        )
+        text_raster = rasterize_fastview_playerrow_text(
+            Path(__file__).resolve().parent.parent,
+            shell.player_row_render_plans,
+        )
+        rows = compose_fastview_player_rows_raster(
+            energy,
+            text_raster,
+            shell.player_row_render_plans,
+        )
+
+        self.assertEqual(rows.row_identities, ((0, 0),))
+        self.assertTrue(rows.complete_retained_player_rows)
+        self.assertFalse(rows.complete_team_table)
+        self.assertFalse(rows.complete_fastview_frame)
 
     def test_exports_player_visible_resolved_only_preview_without_promotion(self):
         frame = build_fastview_frame_plan(
