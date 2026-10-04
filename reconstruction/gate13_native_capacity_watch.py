@@ -94,7 +94,7 @@ class WatchPlan:
                 raise CapacityWatchError('Invalid bounded watch plan')
 
     def club_address(self, allocation: int, count: int) -> int:
-        if not 0 < allocation < 2**32 or not self.club_index < count <= 4096:
+        if type(allocation) is not int or type(count) is not int or not 0 < allocation < 2**32 or not self.club_index < count <= 4096:
             raise CapacityWatchError('Allocation/count does not qualify the selected array index')
         address = allocation + 4 + self.club_index * STRIDE
         if address + STRIDE > 2**32 or address % 4:
@@ -103,7 +103,7 @@ class WatchPlan:
 
 
 def arm_writes(context: Wow64Context, club_address: int) -> None:
-    if not 0 < club_address <= 2**32 - STRIDE or club_address % 4:
+    if type(club_address) is not int or not 0 < club_address <= 2**32 - STRIDE or club_address % 4:
         raise CapacityWatchError('Invalid watch receiver')
     context.Dr0, context.Dr1 = (club_address + off for off in CAPACITY_OFFSETS)
     context.Dr2 = context.Dr3 = context.Dr6 = 0
