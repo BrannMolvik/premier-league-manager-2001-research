@@ -142,6 +142,36 @@ unrecovered. Event **13** also remains a numeric event ID only. The class names
 prove where this sender method is installed, not what the event or field means
 to a player.
 
+## Event-19 PTeamOrders2K sender class context
+
+Recovery 279 source-closes the higher-level native class and predicate for the
+literal AudioHooks sender at `0x4D707F` without naming the event.
+
+MSVC RTTI identifies `PTeamOrders2K` with type descriptor `0x81DE68` and
+vtable `0x7C6FE0`. Two recovered virtual paths reach the same event helper:
+
+- vtable slot **2** (byte offset `0x08`) -> method `0x4D7600`;
+- vtable slot **4** (byte offset `0x10`) -> method `0x4D6770`.
+
+Both paths reach helper `0x4D6FA0`. Source-closed direct helper callsites are
+`0x4D6F2D`, `0x4D6F61`, `0x4D6F91`, and `0x4D7945`.
+
+Inside `0x4D6FA0`, the first helper argument is clamped to **0..9** and selects
+a 32-byte block at `this + 0x96C + 0x20 * index`. That block is passed together
+with `this + 0xAD4` to helper `0x64E5B0`.
+
+The exact neutral send predicate is:
+
+- `0x64E5B0` must return `AL == 0`; and
+- the original second argument passed to `0x4D6FA0` must have a nonzero low byte.
+
+Only then does callsite `0x4D707F` send numeric AudioHooks tuple
+**(event 19, state 0, arg3 0)**.
+
+The semantics of helper `0x64E5B0`, the selected 32-byte block, the second
+argument, and AudioHooks event **19** remain unresolved. The class name and
+numeric predicate are source facts, not player-facing event names.
+
 ## Derived non-control sender family
 
 Seven additional virtual senders are source-closed by local register/data-flow
@@ -201,7 +231,9 @@ This checkpoint may promote:
 - the exact dynamic-control sender shape above;
 - the Button@ease RTTI/vtable identity and dynamic numeric event set {2,10};
 - the PTitleMenuRow/PChildMenuRow shared slot-11 sender method and its exact
-  event-13 numeric predicate.
+  event-13 numeric predicate;
+- the PTeamOrders2K vtable paths to helper 0x4D6FA0 and its exact event-19
+  numeric send predicate.
 
 It does **not** promote:
 
