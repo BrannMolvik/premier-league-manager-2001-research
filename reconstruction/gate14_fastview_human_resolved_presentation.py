@@ -7,6 +7,7 @@ completed human outcome
     -> FastViewFramePlan
     -> resolved-only FastView PNG preview
     -> exact frame-coverage audit
+    -> unresolved-overlap readiness audit
     -> optional caller-owned Tk canvas draw
 
 It does not simulate a match, rerun RNG, invent background/z-order, assign
@@ -27,6 +28,10 @@ from gate14_fastview_human_frame_plan import (
     build_human_fastview_frame_plan_from_retained_histories,
 )
 from gate14_fastview_playerrow_from_result import FastViewRetainedPlayerRowIdentity
+from gate14_fastview_overlap_readiness import (
+    FastViewOverlapReadinessAudit,
+    audit_fastview_overlap_readiness,
+)
 from gate14_fastview_resolved_preview import (
     FastViewResolvedPreview,
     build_fastview_frame_preview,
@@ -54,6 +59,7 @@ class HumanFastViewResolvedPresentation:
     frame: FastViewFramePlan
     preview: FastViewResolvedPreview
     coverage: FastViewFrameCoverage
+    overlap_readiness: FastViewOverlapReadinessAudit
     complete_fastview_frame: bool = False
     audio_ready: bool = False
     choreography_3d_ready: bool = False
@@ -71,6 +77,10 @@ class HumanFastViewResolvedPresentation:
             raise HumanFastViewResolvedPresentationError(
                 "human FastView presentation requires exact frame coverage"
             )
+        if type(self.overlap_readiness) is not FastViewOverlapReadinessAudit:
+            raise HumanFastViewResolvedPresentationError(
+                "human FastView presentation requires exact overlap readiness"
+            )
 
         composite = self.frame.resolved_composite
         expected_rgba_hash = composite.rgba_sha256
@@ -79,6 +89,7 @@ class HumanFastViewResolvedPresentation:
         if (
             self.preview.source_composite_rgba_sha256 != expected_rgba_hash
             or self.coverage.source_composite_rgba_sha256 != expected_rgba_hash
+            or self.overlap_readiness.source_composite_rgba_sha256 != expected_rgba_hash
         ):
             raise HumanFastViewResolvedPresentationError(
                 "human FastView presentation RGBA source hashes drifted"
@@ -86,6 +97,7 @@ class HumanFastViewResolvedPresentation:
         if (
             self.preview.source_overlap_mask_sha256 != expected_mask_hash
             or self.coverage.source_overlap_mask_sha256 != expected_mask_hash
+            or self.overlap_readiness.source_overlap_mask_sha256 != expected_mask_hash
         ):
             raise HumanFastViewResolvedPresentationError(
                 "human FastView presentation overlap-mask source hashes drifted"
@@ -101,6 +113,8 @@ class HumanFastViewResolvedPresentation:
             self.preview.unresolved_overlap_pixel_count
             != composite.unresolved_overlap_pixel_count
             or self.coverage.unresolved_overlap_pixel_count
+            != composite.unresolved_overlap_pixel_count
+            or self.overlap_readiness.unresolved_overlap_pixel_count
             != composite.unresolved_overlap_pixel_count
         ):
             raise HumanFastViewResolvedPresentationError(
@@ -124,6 +138,9 @@ class HumanFastViewResolvedPresentation:
             or self.coverage.cross_component_z_order_recovered
             or self.coverage.background_binding_recovered
             or self.coverage.complete_fastview_frame
+            or self.overlap_readiness.cross_component_blend_rule_recovered
+            or self.overlap_readiness.all_overlap_pixels_resolvable
+            or self.overlap_readiness.complete_fastview_frame
             or self.complete_fastview_frame
             or self.audio_ready
             or self.choreography_3d_ready
@@ -142,10 +159,12 @@ def _presentation_from_frame(
         )
     preview = build_fastview_frame_preview(frame)
     coverage = audit_fastview_frame_coverage(frame.resolved_composite)
+    overlap_readiness = audit_fastview_overlap_readiness(frame.resolved_composite)
     return HumanFastViewResolvedPresentation(
         frame=frame,
         preview=preview,
         coverage=coverage,
+        overlap_readiness=overlap_readiness,
     )
 
 
