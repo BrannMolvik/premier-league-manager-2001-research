@@ -38,31 +38,63 @@ def _json_primary_entry(entry: tuple | None):
     ]
 
 
-def _first_live_procedural_primary_club(controller) -> tuple[int, int]:
-    """Return the first source-backed TeamSelect club with a live primary owner."""
-    allowed_competitions = {
+def _live_procedural_primary_scope_targets(
+    controller,
+    *,
+    require_all: bool = False,
+) -> tuple[tuple[int, int], ...]:
+    """Return one source-selected live club for each procedural-primary scope.
+
+    Competition order follows the controller's source-derived playable-primary
+    policy. Club choice follows source-backed TeamSelect/selectable-club order.
+    The complete sweep fails closed when any expected competition lacks a live
+    root owner or an eligible selectable club.
+    """
+    competition_ids = tuple(
         int(value) for value in controller.playable_primary_procedural_ids
-    }
+    )
+    if not competition_ids:
+        raise RuntimeError("no playable procedural-primary competitions are available")
     allowed_clubs = {
         int(value) for value in controller.playable_primary_club_ids
     }
-    for club_id in controller.selectable_club_ids():
-        club_id = int(club_id)
-        if club_id not in allowed_clubs:
-            continue
-        competition_id = controller.state.club_competition_membership.get(club_id)
-        if competition_id is None:
-            continue
-        competition_id = int(competition_id)
-        if competition_id not in allowed_competitions:
-            continue
+    selectable = tuple(int(value) for value in controller.selectable_club_ids())
+    targets: list[tuple[int, int]] = []
+    missing: list[int] = []
+
+    for competition_id in competition_ids:
         owner = controller.state.procedural_leagues.get((competition_id, 0))
         if owner is None:
+            missing.append(competition_id)
             continue
-        if club_id not in {int(value) for value in owner.club_ids}:
+        owner_clubs = {int(value) for value in owner.club_ids}
+        target = None
+        for club_id in selectable:
+            if club_id not in allowed_clubs or club_id not in owner_clubs:
+                continue
+            live_competition = controller.state.club_competition_membership.get(club_id)
+            if live_competition is None or int(live_competition) != competition_id:
+                continue
+            target = (club_id, competition_id)
+            break
+        if target is None:
+            missing.append(competition_id)
             continue
-        return club_id, competition_id
-    raise RuntimeError("no live TeamSelect procedural-primary club is available")
+        targets.append(target)
+
+    if require_all and missing:
+        raise RuntimeError(
+            "missing live TeamSelect procedural-primary scope targets: "
+            + ",".join(str(value) for value in missing)
+        )
+    if not targets:
+        raise RuntimeError("no live TeamSelect procedural-primary club is available")
+    return tuple(targets)
+
+
+def _first_live_procedural_primary_club(controller) -> tuple[int, int]:
+    """Return the first source-backed TeamSelect club with a live primary owner."""
+    return _live_procedural_primary_scope_targets(controller)[0]
 
 
 def run_canonical_internal_save_audit(
@@ -435,6 +467,86 @@ def run_canonical_primary_scope_internal_save_audit(
     return audit
 
 
+def run_canonical_primary_scope_internal_save_sweep(
+    game_dir: str | Path,
+    *,
+    player_seed: int = 1,
+    max_matches_before_save: int = 24,
+    post_save_matches: int = 3,
+    formation_id: int = 0,
+) -> dict:
+    """Run the non-PL save-continuation audit across every live primary scope.
+
+    This is audit tooling, not a claim that private canonical execution has
+    occurred. Each competition gets a fresh canonical controller so one scope's
+    simulation cannot influence another scope's save/reload proof.
+    """
+    max_matches_before_save = int(max_matches_before_save)
+    post_save_matches = int(post_save_matches)
+    if max_matches_before_save <= 0:
+        raise ValueError("max_matches_before_save must be positive")
+    if post_save_matches <= 0:
+        raise ValueError("post_save_matches must be positive")
+
+    game_dir = Path(game_dir)
+    discovery = HumanGameplayController.from_canonical_game_dir(
+        game_dir,
+        player_seed=int(player_seed),
+    )
+    targets = _live_procedural_primary_scope_targets(
+        discovery,
+        require_all=True,
+    )
+
+    audits: list[dict] = []
+    for club_id, competition_id in targets:
+        result = run_canonical_primary_scope_internal_save_audit(
+            game_dir,
+            player_seed=int(player_seed),
+            club_id=int(club_id),
+            max_matches_before_save=max_matches_before_save,
+            post_save_matches=post_save_matches,
+            formation_id=int(formation_id),
+        )
+        _require(
+            int(result["competition_id"]) == int(competition_id),
+            "scope audit returned a different procedural-primary competition",
+        )
+        _require(
+            int(result["human_club_id"]) == int(club_id),
+            "scope audit returned a different TeamSelect club",
+        )
+        audits.append(result)
+
+    expected_ids = [
+        int(value) for value in discovery.playable_primary_procedural_ids
+    ]
+    verified_ids = [int(result["competition_id"]) for result in audits]
+    _require(
+        verified_ids == expected_ids,
+        "procedural-primary save sweep did not preserve exact source scope order",
+    )
+
+    audit = {
+        "canonical_files_verified": True,
+        "player_seed": int(player_seed),
+        "procedural_primary_scope_count": len(expected_ids),
+        "verified_competition_ids": verified_ids,
+        "target_club_ids": [int(result["human_club_id"]) for result in audits],
+        "missing_competition_ids": [],
+        "failed_competition_ids": [],
+        "scope_audits": audits,
+        "all_primary_scopes_save_reload_equal": True,
+    }
+    payload = json.dumps(
+        audit,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("ascii")
+    audit["audit_sha256"] = sha256(payload).hexdigest()
+    return audit
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("game_dir", type=Path)
@@ -443,14 +555,30 @@ def main() -> int:
     parser.add_argument("--pre-save-fixtures", type=int, default=2)
     parser.add_argument("--post-save-fixtures", type=int, default=4)
     parser.add_argument("--formation", type=int, default=0)
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--procedural-primary",
         action="store_true",
-        help="audit a source-selected non-PL procedural-primary TeamSelect career",
+        help="audit one source-selected non-PL procedural-primary TeamSelect career",
+    )
+    mode.add_argument(
+        "--procedural-primary-all",
+        action="store_true",
+        help="audit every live procedural-primary TeamSelect competition",
     )
     parser.add_argument("--max-before-save", type=int, default=24)
     args = parser.parse_args()
-    if args.procedural_primary:
+    if args.procedural_primary_all:
+        if args.club_id != 0:
+            parser.error("--club-id cannot be combined with --procedural-primary-all")
+        audit = run_canonical_primary_scope_internal_save_sweep(
+            args.game_dir,
+            player_seed=args.player_seed,
+            max_matches_before_save=args.max_before_save,
+            post_save_matches=args.post_save_fixtures,
+            formation_id=args.formation,
+        )
+    elif args.procedural_primary:
         audit = run_canonical_primary_scope_internal_save_audit(
             args.game_dir,
             player_seed=args.player_seed,
