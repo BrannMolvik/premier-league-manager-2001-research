@@ -329,11 +329,14 @@ The canonical authorized source remains:
 Size: 511,121,336 bytes. SHA-256:
 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
 
-Recovery 194 revalidated and enumerated the exact Library source successfully,
-so the earlier process-start infrastructure blocker is no longer current.
-This recovery concentrated first on the source-closed FastView presentation
-family. The complete 64-bank audio inventory remains available for the next
-trace, but no bank/sample role is inferred from filenames alone.
+The authorized source and complete 64-bank audio inventory remain available,
+but the current private execution path is intermittently blocked before process
+startup with `caas.internal.errors.ClientError`, as recorded in
+`CURRENT_STATE.md`. Do not treat source availability as semantic evidence and
+do not repeatedly reprobe the same infrastructure failure. When sustained
+private execution is healthy, continue the bounded executable ownership/callsite
+trace; until then, pivot to independent cloud-safe FastView work. No bank/sample
+role is inferred from filenames alone.
 
 Existing startup-FMV evidence remains valid. New menu/login or match-audio bank
 semantics still require executable ownership/callsite evidence for the exact
@@ -355,8 +358,25 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-209 PlayerRow form/goal/own-goal text-event contract through
-full CI. Once canonical, trace shared row refresh `0x526470` and its producer
-`0x525BD0` to identify text cells 1..3 only through direct database/event
-accessors. Do not name the own-goal color until runtime pixel-format channels
-are independently source-closed. Gate 13 remains the earliest incomplete gate.
+The Recovery-209 PlayerRow event/text work is already canonical and has since
+advanced to source-backed ownership for all six PlayerRow text cells plus the
+energy bar. Do not retrace or re-audit those solved fields.
+
+While Gate 13 remains Codex-owned, prioritize the remaining disjoint Gate-14
+critical path in this order:
+
+1. Recover or narrow **cross-component FastView draw/z-order** so the existing
+   source-backed component planes can progress from the resolved-only masked
+   composite toward an actual complete frame without inventing overlap order.
+2. If that requires unavailable private execution, advance a **player-visible
+   Gate-14-only presentation boundary** or other source-backed composition work
+   that does not touch the Gate-13-owned management host.
+3. When sustained private execution is available, trace **audio bank ownership
+   and exact loader/callsite bindings** before assigning menu/login/match roles.
+4. Keep **SCI/3D choreography** fail-closed until scenario/animation sequencing
+   is recovered from source; filenames alone are insufficient.
+
+Do not spend a recovery re-proving existing PlayerRow, PossessionDiagram,
+PossessionFigures, TeamTable, score/table component, or resolved-only compositor
+work unless a current regression points to it. Gate 13 remains the earliest
+incomplete validation gate.
