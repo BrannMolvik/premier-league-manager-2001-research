@@ -117,6 +117,8 @@ on:
       - "reconstruction/test_gate14_audio_bank_source_trace.py"
       - "reconstruction/gate14_audio_bank_ownership.py"
       - "reconstruction/test_gate14_audio_bank_ownership.py"
+      - "reconstruction/gate14_speech_resource_ownership.py"
+      - "reconstruction/test_gate14_speech_resource_ownership.py"
       - "reconstruction/gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/test_gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
