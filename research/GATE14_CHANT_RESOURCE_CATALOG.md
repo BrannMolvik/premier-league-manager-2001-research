@@ -131,6 +131,32 @@ not infer their human-facing meaning from their arithmetic or from the
 `CHANT.eam` bytes. Match-event binding and individual chant meaning therefore
 remain unresolved.
 
+## Source-closed runtime pool choice
+
+Runtime enqueue `0x723360` maps the low-16-bit selector through the table at
+`0x7DE270`:
+
+- selector 0 -> specialized home list `0xA87984`;
+- selector 1 -> specialized away list `0xA879A0`;
+- selector 2 -> generic list `0xA87968`.
+
+Home/away selection uses `0x7234D0` and generic list walker `0x6B2550`.
+The source predicate at `0x723510` first requires either
+`now >= [record+0x0C]` or `[record+0x04] < 2`. Only eligible records consume
+presentation RNG; the already-reduced remainder is accepted when
+`RNG % total_pool_count == 0`. The list walker stops on the first accepted
+record. If specialized selection returns none, `0x723440` falls back to the
+generic selector.
+
+Generic selection at `0x723470` uses persistent cursor `0xA878DC`. A zero
+cursor reloads the current generic-list count, then selection decrements the
+cursor and reads that index. This cycles backward through the already-shuffled
+generic pool and reloads at zero.
+
+The reconstruction models reduced RNG remainders and the cursor explicitly. It
+does not claim the private RNG generator state or map selector values to a
+specific match-event meaning.
+
 ## Fidelity boundary
 
 The source control file begins with `MIDx`, but its sequencing semantics are
