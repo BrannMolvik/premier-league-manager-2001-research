@@ -11111,3 +11111,11 @@ work may continue under the deferred-blocker policy.
 - No zero default or initializer is accepted. The decisive next evidence is one Daniel-approved supervised native run to the already reached selected DBRClub5 `0x5DA538` boundary with the new continuous coverage ledger.
 - Verification on the reconciled technical head passed focused Gate-13 CI **643 tests / 22 expected skips**, full reconstruction **2,210 tests / 23 expected skips**, repository asset policy, and Windows release-candidate packaging.
 - Original-game launches remain prohibited until Daniel explicitly reapproves the exact bounded probe. Audio remains manual through Windows Volume Mixer; Azure/signing/custom mute-helper work stays stopped.
+
+
+## 5 October 2026 - Daniel approved decisive Gate-13 native probe
+
+- Daniel explicitly approved the already documented one-probe scope at about 01:12 KST: one supervised human-operated original run, max 300 seconds / 4096 debugger events, DBRClub array index 5 / qualified club ID 5, existing topmost-only presentation shim, manual Volume Mixer audio, no injected game values, stop before executing selected `0x5DA538`.
+- The temporary ChatGPT takeover environment receiving that approval has no Windows desktop/computer/shell execution surface, so no native launch or receipt was fabricated.
+- The approval blocker is cleared for this one probe. A Windows-capable continuation should generate the required live <=1-hour UTC consent renewal immediately before execution, revalidate the exact qualified private stage, and call `observe_supervised(..., club_index=5)` without weakening the expiry/safety checks.
+- No additional static/source scan is required before the probe. Its receipt is the decisive next evidence for the `+13C/+140` lifecycle.
