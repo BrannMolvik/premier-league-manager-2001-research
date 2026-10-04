@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #352 merged as canonical main 6721056c after 2,225 tests/23 skips and asset-policy success. Continue independent Gate-14 event-13 sender-class recovery: source-close PTitleMenuRow/PChildMenuRow RTTI -> vtables 0x7C3A80/0x7C3A20 -> shared slot 11 method 0x47ACF0 -> AudioHooks numeric tuple (13,0,0) only when incoming object +0x20 == 2. Keep the meaning of +0x20 and event 13 unresolved unless source ownership/type evidence directly closes it.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #354 at head abcee5b0: PTitleMenuRow/PChildMenuRow RTTI/vtables share slot 11 -> 0x47ACF0, which sends numeric AudioHooks tuple (13,0,0) only when the non-null incoming object's +0x20 dword equals 2. Keep incoming field meaning and event-13 semantics unresolved. If green, merge and continue source-closing another numeric sender class/context without touching Gate 13.",
   "last_known_main_head": "6721056c1c2fe4d2385710218148180a9cf5faaa",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 279,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 279 merged PR #352. Event-13 next anchors already privately identified: PTitleMenuRow type descriptor 0x81CDB0/vtable 0x7C3A80; PChildMenuRow type descriptor 0x81CDF0/vtable 0x7C3A20; both vtable slot 11 -> 0x47ACF0; method sends AudioHooks (13,0,0) only on incoming +0x20==2. Do not name +0x20 or event 13 without direct source proof.",
+  "note": "PR #354 opened from canonical main 6721056c. Canonical executable revalidated class descriptors/vtables and shared slot-11 method. CI pending; semantics remain fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
