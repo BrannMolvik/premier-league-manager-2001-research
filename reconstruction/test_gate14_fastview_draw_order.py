@@ -162,12 +162,21 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("direct_chrome",),
             ("possession_diagram",),
             ("possession_figures_text",),
-            ("league_scores_static", "league_table_static"),
+            ("league_scores_early_rows_static",),
+            ("league_table_static",),
+            ("league_scores_late_grid_static",),
+            ("league_scores_runtime_phase_icons",),
             ("team_table_static", "team_table_energy"),
         )
         self.assertEqual(SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS, expected_levels)
 
-        for score_component in ("league_scores_static", "league_table_static"):
+        for score_component in (
+            "league_scores_static",
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+        ):
             relation = source_closed_pairwise_order(
                 "possession_figures_text",
                 score_component,
@@ -180,6 +189,20 @@ class FastViewDrawOrderTests(unittest.TestCase):
             )
             self.assertEqual(relation.earlier_component, score_component)
             self.assertEqual(relation.later_component, "team_table_static")
+
+        phase_order = (
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+        )
+        for index, earlier in enumerate(phase_order):
+            for later in phase_order[index + 1:]:
+                with self.subTest(earlier=earlier, later=later):
+                    relation = source_closed_pairwise_order(earlier, later)
+                    self.assertEqual(relation.earlier_component, earlier)
+                    self.assertEqual(relation.later_component, later)
+                    self.assertTrue(relation.same_parent_draw_array)
 
         self.assertEqual(
             later_component("direct_chrome", "team_table_energy"),
@@ -208,6 +231,9 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("team_table_static", "team_table_energy"),
             ("direct_chrome", "unmodeled_fastview_layer"),
             ("league_scores_static", "unmodeled_fastview_layer"),
+            ("league_scores_static", "league_scores_early_rows_static"),
+            ("league_scores_static", "league_scores_late_grid_static"),
+            ("league_scores_static", "league_scores_runtime_phase_icons"),
             ("direct_chrome", "direct_chrome"),
         ):
             with self.subTest(pair=pair):
