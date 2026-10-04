@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with the approved decisive native capacity probe still requiring a Windows-capable execution surface. Gate-14 PR #356 is merged as main 888574dc after 2,228 tests/23 skips and asset-policy success. Verify replacement readiness PR #358 at head 29155c47 on current main; it only reconciles canonical font_blend_rule_recovered=true. While CI runs, continue the highest-value disjoint Gate-14 blocker that does not overlap readiness files or Gate-13-owned files.",
-  "last_known_main_head": "888574dc48b75cf7d1bbcd8a437d63a184f82439",
+  "active_task": "Gate 13 remains OPEN; Daniel's approved decisive native capacity probe still requires a Windows-capable execution surface and fresh live consent-expiry receipt. Gate-14 PR #358 merged as main 9d97a926 after 2,228 tests/23 skips and asset-policy success. Verify PR #359 at head c89abf74: source-closed six first-screen Button caption-source paths and accepted enabled press numeric AudioHooks tuple (10,0,0x40) -> menus.bnk slot 2, with live front-end binding/audibility/semantics still false. After verification, continue the next disjoint source-backed Gate-14 integration boundary.",
+  "last_known_main_head": "9d97a9267fad3d91867fd4fa42a518c4e90fb927",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 280,
+  "recovery_generation": 281,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #357 auto-closed during branch reset; identical disjoint readiness changes were replayed onto current main and reopened as PR #358. Next disjoint Gate-14 work should come from unresolved canonical readiness capabilities, preserving Gate-13 ownership and the user-approved native probe boundary.",
+  "note": "PR #359 is intentionally numeric-only. Do not name event 10 or sample slot 2 by ear. It does not edit Gate-13 presentation files and does not yet bind audio to the live first-screen host because the native owner-acceptance boundary must be preserved.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
