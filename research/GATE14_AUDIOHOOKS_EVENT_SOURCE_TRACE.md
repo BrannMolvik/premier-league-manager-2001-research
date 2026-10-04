@@ -115,6 +115,33 @@ sites have the source-bounded event set **{2, 10}**.
 
 The condition deciding 2 versus 10 is not given a UI/event name.
 
+## Event-13 menu-row sender class context
+
+Recovery 279 source-closes the higher-level native class context of the literal
+AudioHooks sender at `0x47AD13` without naming the event.
+
+MSVC RTTI and the constructor vtable installs identify two concrete row classes:
+
+- `PTitleMenuRow`: type descriptor `0x81CDB0`, vtable `0x7C3A80`;
+- `PChildMenuRow`: type descriptor `0x81CDF0`, vtable `0x7C3A20`.
+
+In both vtables, slot **11** (byte offset `0x2C`) points to the same method
+`0x47ACF0`.
+
+That method reads its first incoming object pointer from the stack. It sends the
+exact numeric AudioHooks tuple **(event 13, state 0, arg3 0)** only when:
+
+- the incoming object pointer is non-null; and
+- the dword at incoming-object offset `+0x20` equals **2**.
+
+If either condition fails, this AudioHooks send does not occur. The subsequent
+method behavior is outside this narrow sender claim.
+
+The incoming object's type and the semantic meaning of its `+0x20` field remain
+unrecovered. Event **13** also remains a numeric event ID only. The class names
+prove where this sender method is installed, not what the event or field means
+to a player.
+
 ## Derived non-control sender family
 
 Seven additional virtual senders are source-closed by local register/data-flow
@@ -172,7 +199,9 @@ This checkpoint may promote:
 - the exact numeric literal sender tuples above;
 - the exact locally derived numeric sender bounds above;
 - the exact dynamic-control sender shape above;
-- the Button@ease RTTI/vtable identity and dynamic numeric event set {2,10}.
+- the Button@ease RTTI/vtable identity and dynamic numeric event set {2,10};
+- the PTitleMenuRow/PChildMenuRow shared slot-11 sender method and its exact
+  event-13 numeric predicate.
 
 It does **not** promote:
 
@@ -188,8 +217,8 @@ Decoded audio remains non-evidence for naming events.
 
 Continue from the sender side rather than the dispatcher:
 
-1. tie only directly proven numeric sender contexts to higher-level native
-   classes or event constructors;
+1. continue tying only directly proven numeric sender contexts to higher-level
+   native classes or event constructors;
 2. recover the source meaning of Button field `+0x34` only if its
    ownership/data flow identifies that meaning directly; `+0x4A` is already
    source-closed as the native animation-group index;

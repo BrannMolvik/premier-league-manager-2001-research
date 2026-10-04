@@ -56,6 +56,21 @@ BUTTON_EASE_DISABLED_GROUP = 2
 BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET = 0xA8
 BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA = 0x5D62F0
 
+# Recovery 279: source-closed class/method context for the literal event-13
+# sender at 0x47AD13. Both row classes share vtable slot 11 -> 0x47ACF0.
+P_TITLE_MENU_ROW_DECORATED_RTTI = ".?AVPTitleMenuRow@@"
+P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA = 0x81CDB0
+P_TITLE_MENU_ROW_VTABLE_VA = 0x7C3A80
+P_CHILD_MENU_ROW_DECORATED_RTTI = ".?AVPChildMenuRow@@"
+P_CHILD_MENU_ROW_TYPE_DESCRIPTOR_VA = 0x81CDF0
+P_CHILD_MENU_ROW_VTABLE_VA = 0x7C3A20
+MENU_ROW_EVENT13_VIRTUAL_SLOT_INDEX = 11
+MENU_ROW_EVENT13_VIRTUAL_SLOT_OFFSET = 0x2C
+MENU_ROW_EVENT13_METHOD_VA = 0x47ACF0
+MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET = 0x20
+MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE = 2
+MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE = (13, 0, 0)
+
 # Exact canonical callsites where all three AudioHooks stack operands are
 # immediate literals immediately before the slot-0 indirect call.
 # Tuple fields are: callsite, event arg1, state arg2, third arg3.
@@ -153,6 +168,27 @@ def button_ease_audiohooks_event_id(
     if not object_field_34_non_null:
         return 2
     return 2 if word_field_4a == 2 else 10
+
+
+def menu_row_event13_should_send(
+    incoming_object_non_null: bool,
+    incoming_field_20: int,
+) -> bool:
+    """Mirror only 0x47ACF0's source-closed numeric send predicate.
+
+    The incoming object's class/field meaning is deliberately unresolved. The
+    method sends AudioHooks numeric tuple (13,0,0) only when the incoming
+    object is non-null and its dword at +0x20 equals 2.
+    """
+    if type(incoming_object_non_null) is not bool:
+        raise Gate14AudioHooksCallerTraceError(
+            "incoming object presence must be explicit boolean"
+        )
+    if type(incoming_field_20) is not int or not 0 <= incoming_field_20 < 1 << 32:
+        raise Gate14AudioHooksCallerTraceError(
+            "incoming +0x20 value must be uint32"
+        )
+    return incoming_object_non_null and incoming_field_20 == 2
 
 
 def _load_capstone():
@@ -435,6 +471,28 @@ def audiohooks_caller_trace_report(
         "source_closed_dynamic_control_senders": SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
         "source_closed_dynamic_control_event_ids": BUTTON_EASE_EVENT_IDS,
         "source_closed_derived_virtual_senders": SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        "menu_row_event13_source_contract": {
+            "classes": (
+                {
+                    "decorated_rtti": P_TITLE_MENU_ROW_DECORATED_RTTI,
+                    "type_descriptor_va": P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA,
+                    "vtable_va": P_TITLE_MENU_ROW_VTABLE_VA,
+                },
+                {
+                    "decorated_rtti": P_CHILD_MENU_ROW_DECORATED_RTTI,
+                    "type_descriptor_va": P_CHILD_MENU_ROW_TYPE_DESCRIPTOR_VA,
+                    "vtable_va": P_CHILD_MENU_ROW_VTABLE_VA,
+                },
+            ),
+            "shared_virtual_slot_index": MENU_ROW_EVENT13_VIRTUAL_SLOT_INDEX,
+            "shared_virtual_slot_offset": MENU_ROW_EVENT13_VIRTUAL_SLOT_OFFSET,
+            "shared_method_va": MENU_ROW_EVENT13_METHOD_VA,
+            "incoming_object_field_offset": MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET,
+            "required_field_value": MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE,
+            "audiohooks_numeric_tuple": MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE,
+            "incoming_field_semantics_recovered": False,
+            "event_semantics_recovered": False,
+        },
         "button_ease_source_contract": {
             "decorated_rtti": BUTTON_EASE_DECORATED_RTTI,
             "type_descriptor_va": BUTTON_EASE_TYPE_DESCRIPTOR_VA,
@@ -463,8 +521,9 @@ def audiohooks_caller_trace_report(
         "sample_meaning_recovered": False,
         "evidence_limit": (
             "The AudioHooks RTTI/vtable/global-object path, three-stack-argument "
-            "convention, literal/derived numeric sender tuples, and Button@ease "
-            "dynamic-control event set {2,10} are source-backed. Numeric event IDs "
+            "convention, literal/derived numeric sender tuples, Button@ease "
+            "dynamic-control event set {2,10}, and the shared PTitleMenuRow/"
+            "PChildMenuRow event-13 sender method are source-backed. Numeric event IDs "
             "are not human-readable "
             "event names, computed event results are not guessed, and decoded "
             "audio is not sample-meaning evidence."
