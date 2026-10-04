@@ -19,6 +19,8 @@ def verified_receipt() -> VerifiedWindowsMenuAudioReceipt:
         pcm_sha256="a" * 64,
         platform="Windows-11",
         python_version="3.12",
+        playback_backend_class="WindowsMemoryWaveMenuPcmBackend",
+        playback_memory_flag=4,
     )
 
 
