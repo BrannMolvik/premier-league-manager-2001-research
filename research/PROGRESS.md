@@ -60,6 +60,12 @@ PR #281 merged as `e522672a` after **1,917 tests / 23 expected skips**, asset po
 
 Recovery 253 materialized the authorized 511,121,336-byte source archive and persisted reconstruction runtime after one successful local shell probe, but subsequent process launches failed before start with `caas.internal.errors.ClientError`. GitHub inspection shows stale PR #242 carries substantial already-verified Gate-13 native report-row work; only project/status ledgers overlap current main. Next action is safe reconciliation of its disjoint technical/resource changes rather than reimplementation.
 
+### 4 October 2026 KST — Recovery 254 PMatchInfo exact staging pipeline
+
+PR #287 bound the three pending PMatchInfo scroll assets to exact disc-relative source paths and merged as `eb44dd11`. Verification passed **1,944 full tests / 23 skips**, **578 Gate-13 tests / 22 skips**, and asset policy.
+
+PR #288 added a private staging-receipt validator and merged as `14ef3211`. It accepts only one complete hashed exact-path inventory, re-hashes every staged file, requires exact candidate size/SHA identity, records raw EA444 header dimensions, and explicitly leaves scroll behavior/renderer geometry false. Verification passed **1,948 full tests / 23 skips**, **582 Gate-13 tests / 22 skips**, and asset policy. Private process startup remains blocked, so no extraction or new source-byte claim is promoted.
+
 ### 4 October 2026 KST — Recovery 254 PMatchInfo scroll-resource readiness
 
 PR #286 added a fail-closed inventory for the source-identified default PMatchInfo vertical-scroll family and merged as `df098e6d`. It verifies staged `scroller_vert.444` and `vscroll_end.444`, reports the three bar/thumb source files as pending, and keeps native geometry/behavior false. Validation passed **1,942 full tests / 23 skips**, **576 Gate-13 tests / 22 skips**, and asset policy.
