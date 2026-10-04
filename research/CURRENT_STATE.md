@@ -6,6 +6,35 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Daniel approved the decisive native capacity probe (5 October 2026 KST)
+
+At approximately **2026-10-05 01:12 KST**, Daniel explicitly approved the exact
+bounded probe described below: one supervised human-operated original-game run,
+maximum 300 seconds / 4096 debugger events, selected array index 5 / qualified
+DBRClub ID 5, existing topmost-only presentation shim, manual Volume Mixer
+audio, no injected capacity/report/registry/simulation values, and stop before
+executing the selected `0x5DA538` read.
+
+This approval removes the prior human-authorization blocker. However, the
+temporary ChatGPT takeover environment that received the approval exposes no
+Windows desktop/computer/shell execution surface and therefore did **not**
+launch `FOOTBAL.EXE`. Do not misreport a native receipt from this checkpoint.
+
+The safety contract still requires a live UTC consent expiry covering the exact
+five-minute run. A Windows-capable continuation should treat Daniel's approval
+as authorization for this one probe, create the renewed private consent receipt
+immediately before execution with a live <=1-hour UTC expiry that covers the
+300-second bound, revalidate the exact qualified private stage, and then call
+`observe_supervised(..., club_index=5)`. Do not weaken or bypass the expiry
+check merely because the approval is persisted here.
+
+No further static/source analysis is required before that probe. The next
+source-backed action after execution depends only on its receipt:
+1. if a `+13C/+140` hardware write traps, adjudicate that writer/receiver;
+2. if the selected `0x5DA538` stop is reached with uninterrupted all-user-thread
+   watch coverage and no write, classify the actual receiver bytes as unchanged
+   allocation bytes for that exact lifecycle only, not as a general zero default.
+
 ## Gate-13 takeover reconciliation / exact next probe (5 October 2026 KST)
 
 Temporary Gate-13 closure work is now reconciled onto current-main-based PR #346;
