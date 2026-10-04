@@ -154,6 +154,10 @@ def run_windows_menu_audio_audit(
         if backend is None
         else backend
     )
+    if type(real_backend) is not WindowsMemoryWaveMenuPcmBackend:
+        raise Gate14WindowsMenuAudioAuditError(
+            "real audibility audit requires exact WindowsMemoryWaveMenuPcmBackend"
+        )
     try:
         delivery = play_audiohooks_menu_pcm(
             menus_bnk,
@@ -210,6 +214,10 @@ def run_windows_menu_audio_audit(
             "channels": decoded.channels,
             "sample_count": len(decoded.pcm_samples or ()),
             "sha256": decoded.pcm_sha256,
+        },
+        "playback_backend": {
+            "class": "WindowsMemoryWaveMenuPcmBackend",
+            "memory_flag": real_backend.memory_flag,
         },
         "adapter_delivery_completed": True,
         "human_audibility_confirmation": True,
