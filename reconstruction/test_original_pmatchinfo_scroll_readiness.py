@@ -57,6 +57,24 @@ class PMatchInfoScrollReadinessTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "size mismatch"):
                 audit_pmatchinfo_scroll_resource_readiness(root)
 
+    def test_repository_stages_only_the_two_currently_proven_identities(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        result = audit_pmatchinfo_scroll_resource_readiness(repo_root)
+        self.assertEqual(
+            result["verified_staged_resource_names"],
+            ["arrow_atlas", "end_vertical"],
+        )
+        self.assertEqual(
+            result["missing_resource_names"],
+            ["bar_vertical", "bar_blue", "thumb_blue"],
+        )
+        self.assertEqual(
+            result["pending_resource_names"],
+            ["bar_vertical", "bar_blue", "thumb_blue"],
+        )
+        self.assertFalse(result["resource_inventory_complete"])
+        self.assertFalse(result["native_scroll_behavior_recovered"])
+
     def test_source_contract_keeps_exact_loader_order(self):
         self.assertEqual(
             [(lead.name, lead.loader_va) for lead in PMATCHINFO_SCROLL_RESOURCE_LEADS],
