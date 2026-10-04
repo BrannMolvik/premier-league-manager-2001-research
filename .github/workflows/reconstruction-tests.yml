@@ -87,6 +87,8 @@ on:
       - "reconstruction/test_gate14_fastview_playerrow_from_result.py"
       - "reconstruction/gate14_fastview_partial_surface.py"
       - "reconstruction/test_gate14_fastview_partial_surface.py"
+      - "reconstruction/gate14_fastview_clock.py"
+      - "reconstruction/test_gate14_fastview_clock.py"
       - "reconstruction/gate14_fastview_component_rasters.py"
       - "reconstruction/test_gate14_fastview_component_rasters.py"
       - "reconstruction/gate14_fastview_resolved_composite.py"
