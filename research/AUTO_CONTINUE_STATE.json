@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #282 is canonical as ac9a417d; status reconciled through b9ab6a93 after 1,933 full tests / 23 skips, 571 Gate13 tests / 22 skips, asset policy and Windows package passed. Exact next task: compose the stale PR #210 fail-closed --remaining-setup-only trace scope into the current gate13_live_report_producer_trace and tests/CI without replacing newer tracer work, then use it when sustained private execution returns to observe +13C/+140 allocation/write lifecycle.",
+  "active_task": "Gate 13 remains OPEN. PR #283 head 7921a2de composes the stale PR #210 fail-closed --remaining-setup-only trace scope into the current evolved tracer without replacing newer work. Gate13 focused, reconstruction and asset-policy workflows are validating this exact head. Merge only on green checks; then attempt sustained private execution for the +13C/+140 allocation/write lifecycle. If process launch still fails, preserve that blocker and continue source-safe Gate13 scroll/kit/color work.",
   "last_known_main_head": "b9ab6a9319d6c0ef69d940175bad7bf4bd8b3594",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 253,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 253: PR282 merged and ledgers reconciled; composing PR210 remaining-setup trace harness into current tracer.",
+  "note": "Recovery 253: PR #283 opened at 7921a2de; CI queued/running.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
