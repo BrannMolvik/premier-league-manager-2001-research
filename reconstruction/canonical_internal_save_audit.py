@@ -19,6 +19,7 @@ import json
 from pathlib import Path
 
 from fm2001_data import FM2001Database
+from gate17_full_scope_catalog import load_canonical_original_playable_scope
 from human_gameplay import HumanGameplayController
 from internal_save import dumps_human_gameplay, loads_human_gameplay, snapshot_human_gameplay
 from match_coefficients import MatchCoefficientMatrices
@@ -90,6 +91,33 @@ def _live_procedural_primary_scope_targets(
     if not targets:
         raise RuntimeError("no live TeamSelect procedural-primary club is available")
     return tuple(targets)
+
+
+def _catalog_scope_ids_for_competitions(
+    scope,
+    competition_ids,
+) -> tuple[str, ...]:
+    """Map exact competition IDs onto canonical TeamSelect scope IDs."""
+    by_competition: dict[int, str] = {}
+    for country in scope.countries:
+        country_id = int(country.country_id)
+        for league in country.leagues:
+            competition_id = int(league.competition_id)
+            if competition_id in by_competition:
+                raise RuntimeError(
+                    "canonical TeamSelect catalog contains duplicate competition ID "
+                    f"{competition_id}"
+                )
+            by_competition[competition_id] = f"{country_id}:{competition_id}"
+
+    requested = tuple(int(value) for value in competition_ids)
+    missing = [value for value in requested if value not in by_competition]
+    if missing:
+        raise RuntimeError(
+            "procedural-primary competition IDs missing from canonical TeamSelect "
+            "catalog: " + ",".join(str(value) for value in missing)
+        )
+    return tuple(by_competition[value] for value in requested)
 
 
 def _first_live_procedural_primary_club(controller) -> tuple[int, int]:
@@ -521,6 +549,10 @@ def run_canonical_primary_scope_internal_save_sweep(
     expected_ids = [
         int(value) for value in discovery.playable_primary_procedural_ids
     ]
+    scope = load_canonical_original_playable_scope(game_dir)
+    verified_scope_ids = list(
+        _catalog_scope_ids_for_competitions(scope, expected_ids)
+    )
     verified_ids = [int(result["competition_id"]) for result in audits]
     _require(
         verified_ids == expected_ids,
@@ -530,7 +562,9 @@ def run_canonical_primary_scope_internal_save_sweep(
     audit = {
         "canonical_files_verified": True,
         "player_seed": int(player_seed),
+        "scope_catalog_sha256": str(scope.catalog_sha256),
         "procedural_primary_scope_count": len(expected_ids),
+        "verified_scope_ids": verified_scope_ids,
         "verified_competition_ids": verified_ids,
         "target_club_ids": [int(result["human_club_id"]) for result in audits],
         "missing_competition_ids": [],
