@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Gate-14 main now includes chant runtime pool selection at 0b4f98a7 (2,049 tests / 23 expected skips, asset policy green). Active renderer checkpoint is PR #319 head ce6ba3b9: extend PictureControl trace through 0x64F6D0 -> 0x64E500/0x64D8A0 -> 0x64E5D0 -> 0x6556C0. Asset policy green; reconstruction suite running. Private source archive/executable were reverified earlier in this recovery, but fresh Python process startup again fails with caas ClientError. Do not reprobe locally this recovery; merge #319 only if exact-head CI passes, then resume manual source/destination rectangle adjudication on next healthy execution.",
-  "last_known_main_head": "0b4f98a7dc3ce76da1a34d7644514fd09c62ff08",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main is d1901bd6: PictureControl embedded render-chain tracer and font-blend tracer are merged; PR #320 verified 2,053 tests / 23 skips plus asset policy. Active checkpoint is PR #321 head 7a5292f5, a fail-closed BNK loader/sample-format source tracer; asset policy is green and reconstruction CI is running. Private process startup remains blocked by caas ClientError after the canonical source archive/executable were reverified, so do not reprobe locally this recovery. Next healthy private steps: (1) follow 0x64F6D0 -> 0x64E500/0x64D8A0 -> 0x64E5D0 -> 0x6556C0 to prove PictureControl crop-vs-stretch; (2) follow 0x657280 to prove 8-bit glyph blend over destination; (3) run BNK loader/playback trace at 0x6D01F0 and source-close sample table/codec before modern audio decode.",
+  "last_known_main_head": "d1901bd6aff086f70d63fd18dbb56c88fb2edcac",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 265,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 269 heartbeat: main 0b4f98a7; PR #319 validates embedded render-chain trace. Dynamic energy crop-vs-stretch remains unproven and must stay fail-closed.",
+  "note": "Recovery checkpoint: main d1901bd6; PR #321 validates BNK format tracer. Gate 13 lock unchanged; no Gate-14 completion claim.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
