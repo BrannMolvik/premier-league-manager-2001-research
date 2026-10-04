@@ -17,7 +17,14 @@ from gate14_first_screen_button_audio import (
     BUTTON_TEXT_CONSTRUCTOR_VA,
     FIRST_SCREEN_ACTION_BUTTON_CALLS,
     PSTARTMENU_ACTION_BUTTON_CALLS,
+    PSTARTMENU_OWNER_ACCEPT_SLOT_OFFSET,
+    PSTARTMENU_OWNER_ACCEPT_VA,
+    PSTARTMENU_VTABLE_VA,
     TEAMSELECT_ACTION_BUTTON_CALLS,
+    TEAMSELECT_OWNER_ACCEPT_SLOT_OFFSET,
+    TEAMSELECT_OWNER_ACCEPT_VA,
+    TEAMSELECT_VTABLE_VA,
+    OWNER_ACCEPT_RETURN_VALUE,
     TEAMSELECT_BACK_CAPTION_GLOBAL_PTR_VA,
     TEAMSELECT_START_CAPTION_GLOBAL_PTR_VA,
     TEAMSELECT_START_CAPTION_HELPER_VA,
@@ -51,6 +58,13 @@ class Gate14FirstScreenButtonAudioTests(unittest.TestCase):
         self.assertEqual(TEAMSELECT_BACK_CAPTION_GLOBAL_PTR_VA, 0x98211C)
         self.assertEqual(TEAMSELECT_START_CAPTION_GLOBAL_PTR_VA, 0x982124)
         self.assertEqual(TEAMSELECT_START_CAPTION_HELPER_VA, 0x4D9270)
+        self.assertEqual(PSTARTMENU_VTABLE_VA, 0x7C64E0)
+        self.assertEqual(PSTARTMENU_OWNER_ACCEPT_SLOT_OFFSET, 0x0C)
+        self.assertEqual(PSTARTMENU_OWNER_ACCEPT_VA, 0x42DE00)
+        self.assertEqual(TEAMSELECT_VTABLE_VA, 0x7C7650)
+        self.assertEqual(TEAMSELECT_OWNER_ACCEPT_SLOT_OFFSET, 0x0C)
+        self.assertEqual(TEAMSELECT_OWNER_ACCEPT_VA, 0x5CFA50)
+        self.assertEqual(OWNER_ACCEPT_RETURN_VALUE, 1)
 
     def test_verified_captioned_enabled_press_is_event10_state0_arg40_slot2(self):
         for group in (0, 1):
@@ -139,6 +153,8 @@ class Gate14FirstScreenButtonAudioTests(unittest.TestCase):
             contract["menus_sample_slot"],
             BUTTON_PRESS_MENU_SAMPLE_SLOT,
         )
+        self.assertTrue(contract["first_screen_owner_acceptance_recovered"])
+        self.assertEqual(contract["owner_accept_return_value"], 1)
         self.assertFalse(contract["semantic_event_binding_recovered"])
         self.assertFalse(contract["sample_meaning_recovered"])
         self.assertFalse(contract["front_end_binding_integrated"])
