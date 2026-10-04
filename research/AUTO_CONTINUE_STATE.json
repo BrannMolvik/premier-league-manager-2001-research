@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main now includes source-closed possession diagram->figures draw order and source-cropped dynamic PlayerRow energy bars. Active PR #305 head becd9ab1 integrates the dynamic TeamTable energy raster into the canonical component/frame pipeline while retaining unresolved TeamTable text/global z-order/blend/background/audio/3D. Require exact-head hosted CI before merge. In parallel, audit whether existing PlayerRow text/font primitives are sufficient for source-backed TeamTable text pixels; otherwise prepare the smallest private renderer trace.",
-  "last_known_main_head": "0dc0be8a4955c8eec869e349813ecd0eb2b9fc50",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes dynamic PlayerRow energy raster integrated into the frame pipeline as 29781e92 (1,997 tests / 23 expected skips, asset policy green). Active PR #306 head 487abd6f adds source-closed PlayerRow text with exact style-3 Zurich_XCn_BT_16pixel rendering and canonical English Position* strings. Validate exact-head CI and rebase if main divergence blocks merge. Exact next source task after that: source-close EventPlayerOwnGoal native color update before claiming complete PlayerRow text.",
+  "last_known_main_head": "29781e9278c4a50ca0921723fa7614314f793b0d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 260,
+  "recovery_generation": 261,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 260: main 0dc0be8a; PR #305 open awaiting hosted CI.",
+  "note": "Recovery 261: resumed at main 29781e92; validating #306 and continuing own-goal color trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
