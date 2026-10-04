@@ -70,6 +70,19 @@ SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS = (
     (0x64FD8B, 8, 0x40),
 )
 
+# Remaining non-control sender sites whose stack values are source-closed by
+# local register/data-flow rather than three immediate PUSHes. Tuple fields:
+# callsite, possible event ids, state arg2, third arg3, derivation class.
+SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS = (
+    (0x4B95F4, (1,), 1, 0, "arg3_zeroed_register"),
+    (0x5EB69B, (23, 25), 0, 0, "event_two_value_branch"),
+    (0x5EBA8A, (24, 26), 0, 0, "event_two_value_branch"),
+    (0x5EBC7B, (32,), 0, 0, "state_and_arg3_zeroed_register"),
+    (0x5EBE61, (32,), 0, 0, "state_and_arg3_zeroed_register"),
+    (0x5EC02B, (31,), 0, 0, "state_and_arg3_zeroed_register"),
+    (0x5ED5E5, (17, 18), 0, 0, "event_two_value_branch"),
+)
+
 
 @dataclass(frozen=True)
 class AudioHooksCallingConvention:
@@ -381,6 +394,7 @@ def audiohooks_caller_trace_report(
         "global_slot0_call_candidates_not_cfg_proof": virtual,
         "source_closed_literal_virtual_senders": SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS,
         "source_closed_dynamic_control_senders": SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
+        "source_closed_derived_virtual_senders": SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
         "rtti_vtable_global_path_recovered": True,
         "calling_convention_recovered": True,
         "event_argument_position_recovered": True,
@@ -391,8 +405,8 @@ def audiohooks_caller_trace_report(
         "sample_meaning_recovered": False,
         "evidence_limit": (
             "The AudioHooks RTTI/vtable/global-object path, three-stack-argument "
-            "convention, literal numeric sender tuples, and dynamic-control sender "
-            "shape are source-backed. Numeric event IDs are not human-readable "
+            "convention, literal/derived numeric sender tuples, and dynamic-control "
+            "sender shape are source-backed. Numeric event IDs are not human-readable "
             "event names, computed event results are not guessed, and decoded "
             "audio is not sample-meaning evidence."
         ),
