@@ -25,14 +25,16 @@ helper code/binary remain private/unqualified, not imported into the debugger.
 native probe helper, followed by harmless pre-play mute and exact wrapper/runtime
 qualification before any original launch. Do not whitelist the unqualified
 candidate or disable system security. Evidence, identities and bounded next
-actions are in `GATE13_NATIVE_PROBE_SAFETY.md`. The normal launch guard remains.
+actions are in `GATE13_NATIVE_PROBE_SAFETY.md`. The launch guard remains.
+Daniel's latest requirement is enforced for ALL original launches, including
+entry/CRT calibration: historical positive controls are not an exception.
 Current checkpoint validation: 34 focused checks and asset policy pass, including
 the six new offline safety checks. No fresh full-suite/Windows closure audit is
 claimed for this environment-only work.
 
 Daniel reports exclusive-fullscreen/resolution, focus/window and loud-audio
 disruption from the last original launch. No original was launched after his
-restriction. Non-calibration capacity-debugger launches now fail closed before
+restriction. All capacity-debugger launches now fail closed before
 executable access/process creation. Earlier administrator approval does not
 authorize another disruptive probe; see `CONTINUATION_INSTRUCTIONS.md`.
 
@@ -50,14 +52,14 @@ allocation/import, but neither observed a capacity writer or uncontrolled read.
 These distinct receipts must not be combined into a proven normal startup or
 initializer. Gate 13 remains OPEN; the human-away report producer stays
 fail-closed. No ownership or Gate-14 work is changed.
-After preserving main `9595291d`, 28 focused checks (including 11 debugger
+The previous checkpoint preserved main `9595291d`: 28 focused checks (including 11 debugger
 ABI/planning/launch-guard tests) and asset policy pass. No
 presentation/calculator change or new full-suite/Windows closure result is claimed.
 
 ## Gate-13 installer prerequisite advanced (4 October 2026 KST)
 
 PR #309 remains on `codex/gate13-uncontrolled-capacity-lifecycle`. Latest fetched
-main is `9595291d83ad99d02d235736e94fe87e5464c4fd`; merge `0e37603c` preserves
+main is `8b4969e01d3168a77f4f1caab45e944efea0698e`; merge `51762b6d` preserves
 its disjoint worker commits without changing Gate-14 implementation or the
 Gate-13 lock. Prior broader validation through `29781e92` remains historical.
 

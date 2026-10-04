@@ -2628,7 +2628,7 @@
   "gate13_uncontrolled_home_negative_receipt_sha256": "5a0c22887e38ad8e4a305f371528de273fdc5fa1461029fb8d77377bfb5973b2",
   "gate13_local_capacity_watch_checkpoint": {
     "canonical_main_base": "29781e9278c4a50ca0921723fa7614314f793b0d",
-    "latest_disjoint_main_preserved": "9595291d83ad99d02d235736e94fe87e5464c4fd",
+    "latest_disjoint_main_preserved": "8b4969e01d3168a77f4f1caab45e944efea0698e",
     "research": "research/GATE13_NATIVE_CAPACITY_WATCH.md",
     "native_entry_calibration_passed": true,
     "native_hardware_write_watch_calibration_passed": true,
@@ -2642,6 +2642,7 @@
     "selected_club_import_observed": true,
     "native_uncontrolled_capacity_read_observed": false,
     "non_calibration_native_launch_disabled_for_desktop_safety": true,
+    "all_native_launches_including_calibration_disabled": true,
     "non_exclusive_wrapper_configuration_checked_offline": true,
     "non_exclusive_native_execution_qualified": false,
     "pre_play_process_local_silence_qualified": false,

@@ -13,9 +13,10 @@ requirement is runtime-qualified; normal original launch remains disabled.
 After the last original run, Daniel prohibited unapproved exclusive fullscreen,
 desktop-resolution changes, unnecessary focus stealing/always-on-top and loud
 audio during probes. No further original launch was performed. The debugger
-now rejects every non-calibration launch before input access/process creation;
-there is no unsafe CLI override. Entry/CRT calibration stops before original
-main/graphics/audio startup and is not permission for an ordinary probe.
+now rejects EVERY launch, including calibration, before input access/process
+creation; there is no unsafe CLI override. Historical entry/CRT calibration
+ended before main/graphics/audio startup, but does not exempt future launches
+from Daniel's requirement to qualify both safeguards first.
 
 Next qualify source-valid windowed execution AND verified process-local silence
 before audible playback. A private existing dgVoodoo 2.87.5 DDraw wrapper/config

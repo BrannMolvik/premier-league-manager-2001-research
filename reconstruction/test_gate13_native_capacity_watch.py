@@ -11,9 +11,10 @@ from gate13_native_capacity_watch import (
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
-    def test_normal_launch_refused_before_read_or_execution_without_desktop_safety(self):
-        with self.assertRaisesRegex(CapacityWatchError, 'Non-calibration original launch disabled'):
-            observe(Path('not-an-executable'), Path('not-a-receipt'), WatchPlan())
+    def test_all_launch_modes_refused_before_read_or_execution_without_desktop_safety(self):
+        for mode in ({}, {'stop_at_entry': True}, {'calibrate_crt_writes': True}):
+            with self.subTest(mode=mode), self.assertRaisesRegex(CapacityWatchError, 'Original launch disabled'):
+                observe(Path('not-an-executable'), Path('not-a-receipt'), WatchPlan(), **mode)
 
     def test_all_four_native_resource_query_returns_are_observed(self):
         self.assertEqual({INSTALL_QUERY_RETURNS[va] for va in RESOURCE_SELECTOR_RETURNS},

@@ -6,6 +6,9 @@ INT3 probes are in-memory only; two hardware dword WRITE watches are armed at
 the allocation return, before array construction. A receipt is observational
 evidence, NEVER a report input or automatic proof of an initializer.
 
+All original launches are currently paused by a fail-closed environment gate,
+including positive-control modes. No unsafe override is offered.
+
 Win32 ABI references: Microsoft DEBUG_EVENT, WOW64_CONTEXT, WaitForDebugEvent,
 Wow64GetThreadContext and Wow64SetThreadContext documentation. No GUI input is
 generated. The launched process is terminated on every bounded exit.
@@ -115,20 +118,21 @@ def arm_writes(context: Wow64Context, club_address: int) -> None:
     context.Dr7 = 0xDD0005  # local DR0/1, each RW=01(write), LEN=11(dword)
 
 
+def require_desktop_safety_qualification() -> None:
+    # Daniel requires BOTH safeguards before ANY further original launch.
+    # No calibration/CLI exception: successful historical positive controls
+    # do not qualify windowed execution or pre-play mute. Future implementation
+    # must verify real safeguards here, not accept a boolean/unsafe override.
+    raise CapacityWatchError(
+        'Original launch disabled: first qualify non-exclusive display and '
+        'pre-play process-local silence; no calibration or unsafe override')
+
+
 def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
             calibrate_crt_writes: bool = False) -> dict:
     if stop_at_entry and calibrate_crt_writes:
         raise CapacityWatchError('Entry-only and CRT write calibration are separate probes')
-    if not (stop_at_entry or calibrate_crt_writes):
-        # Daniel's desktop-safety restriction supersedes the earlier launch
-        # authorization. SW_HIDE does NOT prevent the original from changing
-        # display mode or playing audio. No unsafe CLI override is provided.
-        # Re-enable only with a qualified non-exclusive wrapper AND a verified
-        # process-local mute boundary before any audible playback. These are
-        # debugger-environment controls, never capacity/game-logic patches.
-        raise CapacityWatchError(
-            'Non-calibration original launch disabled: first qualify non-exclusive '
-            'display and process-local silence; disruptive probes require Daniel approval')
+    require_desktop_safety_qualification()
     require_private_output_path(output)
     require_private_output_path(executable)
     pe = OriginalPE32.parse(executable.read_bytes())

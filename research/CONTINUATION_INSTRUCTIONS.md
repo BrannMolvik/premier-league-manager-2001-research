@@ -203,9 +203,10 @@ debugger; elevation is not approval for exclusive fullscreen or loud playback.
   original pixels, timing, game semantics or a safely executed probe. Preserve
   hashes/configuration privately and qualify its behavior before normal launch.
 
-The bounded capacity debugger currently rejects non-calibration launches before
-reading the executable or creating a process. Entry/CRT positive controls end
-before original main/graphics/audio startup; they do not authorize normal probes.
+The bounded capacity debugger currently rejects ALL launches, including entry/
+CRT calibration, before reading the executable or creating a process. Historical
+entry/CRT controls ended before main/graphics/audio startup; they do not exempt
+future calibration launches from Daniel's requirement to qualify both safeguards.
 First qualify non-exclusive execution and pre-play process-local silence, then
 resume the genuine fresh-club lifecycle without supplying capacity values.
 

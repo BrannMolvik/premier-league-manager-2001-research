@@ -26,7 +26,9 @@ Only the private configuration was amended to explicitly require:
 inherited, unsupported-version or unsafe settings and mismatched wrapper bytes.
 It reports offline success with **vendor-parser/runtime/silence/launch
 qualification all false**. The debugger's normal launch refusal is unchanged;
-no flag, receipt or configuration file authorizes a bypass.
+no flag, receipt or configuration file authorizes a bypass. Daniel's latest
+restriction now blocks ALL original launches, including entry/CRT calibration,
+before executable access/process creation. Historical controls are not exceptions.
 
 Private configuration SHA-256:
 `dc1b817547f98c206744f25ad0619c6b4bb9e00633213ba6be1faa4da37dd9e7`.
