@@ -19,6 +19,7 @@ from hashlib import sha256
 
 from gate14_fastview_partial_surface import FASTVIEW_SURFACE_SIZE
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
+from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
@@ -49,6 +50,7 @@ class FastViewComponentRasterPlane:
             "possession_diagram",
             "possession_figures_text",
             "team_table_static",
+            "team_table_energy",
             "league_scores_static",
             "league_table_static",
         }:
@@ -117,7 +119,10 @@ class FastViewComponentRasterSet:
                 raise FastViewComponentRasterError(
                     "TeamTable raster must be an exact component plane"
                 )
-            if self.team_table.component != "team_table_static":
+            if self.team_table.component not in {
+                "team_table_static",
+                "team_table_energy",
+            }:
                 raise FastViewComponentRasterError(
                     "TeamTable raster component identity mismatch"
                 )
@@ -328,15 +333,19 @@ def rasterize_fastview_possession_figures_plane(
 
 
 def rasterize_fastview_team_table_plane(
-    team_table: FastViewTeamStaticRaster,
+    team_table: FastViewTeamStaticRaster | FastViewTeamEnergyRaster,
 ) -> FastViewComponentRasterPlane:
-    """Lift the independently verified TeamTable static raster into the plane set."""
-    if type(team_table) is not FastViewTeamStaticRaster:
+    """Lift a verified TeamTable art raster without changing its fidelity scope."""
+    if type(team_table) is FastViewTeamStaticRaster:
+        component = "team_table_static"
+    elif type(team_table) is FastViewTeamEnergyRaster:
+        component = "team_table_energy"
+    else:
         raise FastViewComponentRasterError(
-            "team_table must be exact FastViewTeamStaticRaster"
+            "team_table must be exact static or energy TeamTable raster"
         )
     return FastViewComponentRasterPlane(
-        component="team_table_static",
+        component=component,
         size=team_table.size,
         rgba=team_table.rgba,
         source_layer_count=team_table.source_layer_count,
@@ -364,7 +373,7 @@ def build_fastview_component_rasters(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
-    team_table: FastViewTeamStaticRaster | None = None,
+    team_table: FastViewTeamStaticRaster | FastViewTeamEnergyRaster | None = None,
     score_table: FastViewScoreTableStaticRasterSet | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
