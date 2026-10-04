@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes readiness audit b6aea8c1 and BNK bounded dataflow classifier 1ec13e4d (2,064 tests / 23 expected skips, asset policy green). Active disjoint checkpoint is PR #324 head a6eec706: correlate recurring non-stack BNK memory displacements across distinct loader/playback windows without assigning object/field semantics. Merge only after exact-head reconstruction CI and asset policy pass; then continue the audio_sample_decode critical path.",
-  "last_known_main_head": "1ec13e4d31449db83d6ab28734d22a1f636a4a6c",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes roadmap readiness b6aea8c1, BNK bounded dataflow classifier 1ec13e4d, and recurring non-stack memory-offset triage 4882faec (2,066 tests / 23 expected skips, asset policy green). Active disjoint checkpoint is PR #325 head fe0d7913: recurring direct-call targets across distinct BNK loader/playback windows, explicitly not function-role proof. Merge only after exact-head CI and asset policy pass; continue audio_sample_decode path afterward.",
+  "last_known_main_head": "4882faec07446610080d4f092a6077767e0a1e75",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 267,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 267 heartbeat: validating PR #324 shared BNK offset triage; Gate 13 lock unchanged.",
+  "note": "Recovery 267 heartbeat: validating PR #325 shared BNK call-target triage; Gate 13 lock unchanged.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
