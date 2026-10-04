@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #276 head 26513995 is open to make Gate 17 full-scope preflight fail closed on the immutable source-proven six-user TeamSelect requirement. Added regressions preventing the required user count from being lowered. Validate only this newest head; no multi-human gameplay implementation is claimed.",
-  "last_known_main_head": "ac77995f4ea06dac8e9322c98b317b7f4c110683",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #276 is canonical as fc985fab; reconciliation is on main through 403de220. Next cloud-safe Gate 17 task: add a catalog-ordered save/reload capability audit to full-scope preflight so runtime-owner completeness cannot imply persistence completeness. Fixed/procedural-primary save harnesses exist; procedural-secondary must remain blocked until its own live state, serialization and post-load continuation path exist.",
+  "last_known_main_head": "403de220d079e8fc1441d4905253328d5d30b7d8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 251,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 251: PR #276 newest head 26513995 includes immutable six-user requirement and direct/preflight drift regressions; waiting for newest-head CI.",
+  "note": "Recovery 251 continued after transient connection interruption; PR #276 merged after 1,900 tests / 23 expected skips plus asset policy. Continuing with save-scope readiness invariant.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
