@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Disjoint Gate-14 recovery 270: PR #334 adds fail-closed AudioHooks::0x5DBFC0 direct-caller/PUSH source tracing; asset policy is green and the full reconstruction suite is still running. After verified merge, run the private canonical caller trace when available; meanwhile continue the numeric AudioHooks -> canonical menus.bnk decoded-PCM bridge without assigning semantic event/sample names.",
-  "last_known_main_head": "cc194b095f4828107046279ff950e1c5020732b8",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Disjoint Gate-14 work: PR #334 merged at 1873047b after 2,096 tests / 23 expected skips and green asset policy. Private next step is to run the AudioHooks caller tracer on the canonical executable. While that private step is unavailable, implement a fail-closed numeric AudioHooks -> canonical menus.bnk decoded-PCM bridge without assigning semantic event/sample names or claiming audible host integration.",
+  "last_known_main_head": "1873047b5fb31c3e34770768bfe11b137b35f305",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 270,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 270 checkpoint: PR #334 mergeable; asset policy passed; full reconstruction suite run 37199107652 still in progress.",
+  "note": "Recovery 270: #334 merged verified at 1873047b; advancing cloud-safe numeric menus PCM bridge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
