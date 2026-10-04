@@ -41,9 +41,31 @@ jobs:
           if tuple(map(len, lines)) != (2751, 2751, 2751, 2751):
               raise SystemExit(f"payload line lengths drifted: {tuple(map(len, lines))}")
           if actual_line_hashes != expected_line_hashes:
+              expected_line3_slice_hashes = (
+                  "f08f8db5b665337b7f0a8a65d9d83935ce175125acd8bc952a06dcdf4eac8a41",
+                  "46f3a37e28c0bce85a09eaedda2daac6a98b0ded3daef8648e3a946f3bea7166",
+                  "191341eb482d0bf90c4d7233645d580ef1b7e5c775c6b10833ea796bb6082696",
+                  "150d5f062734500aefd908b7edb0b409316870bbb9be8b1acd5d77c433e6d7d9",
+                  "789567b9f8b65a67ade73d77e1c57fa5b430b55af80e4883e11c8f0d9688c2da",
+                  "37bc48e5a2b6a89fb74c0dcee0a8cf252d99f91b10b0b73a5e50d73143146db0",
+                  "8611056c456db1ee374ccbe6d75cd2ec378953cfc24b6250eaa90176d1149d6d",
+                  "1b6fda8357a92b8adbdd1c77f0bf3eb2399bcd84e1fa1d87707f87084554b2c1",
+                  "2c7dad31c465201aaf77bf15775cee3daf7fe6a272112bf8ae1c952ca584cc39",
+              )
+              line3_slices = tuple(
+                  lines[2][offset:offset + 306]
+                  for offset in range(0, len(lines[2]), 306)
+              )
+              actual_line3_slice_hashes = tuple(
+                  hashlib.sha256(part.encode("ascii")).hexdigest()
+                  for part in line3_slices
+              )
               raise SystemExit(
-                  "payload line hashes drifted: "
-                  + repr(tuple(zip(actual_line_hashes, expected_line_hashes)))
+                  "payload line hashes drifted; line3 slices: "
+                  + repr(tuple(zip(
+                      actual_line3_slice_hashes,
+                      expected_line3_slice_hashes,
+                  )))
               )
           encoded = "".join(lines)
           compressed = base64.b64decode(encoded, validate=True)
