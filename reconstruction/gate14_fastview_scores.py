@@ -251,7 +251,7 @@ def score_composite_normal_local_grid_size() -> tuple[int, int]:
 
 
 @dataclass(frozen=True)
-class FastViewLeagueScoresPageLayout:
+class FastViewScoresPageLayout:
     columns: int
     rows_per_column: int
     origin: tuple[int, int]
@@ -271,13 +271,18 @@ class FastViewLeagueScoresPageLayout:
         )
 
 
+# Backwards-compatible type alias retained for existing callers; the layout
+# record itself is shared by LeagueScores and CupScores.
+FastViewLeagueScoresPageLayout = FastViewScoresPageLayout
+
+
 def fastview_league_scores_page_layout(
     source_count: int,
-) -> FastViewLeagueScoresPageLayout:
+) -> FastViewScoresPageLayout:
     """Return the true 0x523370 LeagueScores row-layout contract."""
     if type(source_count) is not int or source_count <= 0:
         raise FastViewScoresError("FastViewLeagueScores source_count must be positive")
-    return FastViewLeagueScoresPageLayout(
+    return FastViewScoresPageLayout(
         columns=1,
         rows_per_column=FASTVIEW_LEAGUE_SCORES_ROW_COUNT,
         origin=FASTVIEW_LEAGUE_SCORES_SINGLE_COLUMN_ORIGIN,
@@ -288,19 +293,19 @@ def fastview_league_scores_page_layout(
 
 def fastview_cup_scores_page_layout(
     source_count: int,
-) -> FastViewLeagueScoresPageLayout:
+) -> FastViewScoresPageLayout:
     """Return the source 0x523DF0 CupScores visible-page layout."""
     if type(source_count) is not int or source_count <= 0:
         raise FastViewScoresError("FastViewCupScores source_count must be positive")
     if source_count <= FASTVIEW_CUP_SCORES_ROW_COUNT:
-        return FastViewLeagueScoresPageLayout(
+        return FastViewScoresPageLayout(
             columns=1,
             rows_per_column=FASTVIEW_CUP_SCORES_ROW_COUNT,
             origin=FASTVIEW_CUP_SCORES_SINGLE_COLUMN_ORIGIN,
             column_step=0,
             row_step=FASTVIEW_CUP_SCORES_ROW_STEP,
         )
-    return FastViewLeagueScoresPageLayout(
+    return FastViewScoresPageLayout(
         columns=2,
         rows_per_column=FASTVIEW_CUP_SCORES_ROW_COUNT,
         origin=FASTVIEW_CUP_SCORES_TWO_COLUMN_ORIGIN,
