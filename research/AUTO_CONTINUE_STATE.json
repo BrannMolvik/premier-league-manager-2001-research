@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #367 merged as main 76b61d17 after 2,279 tests/23 skips and asset-policy success, withdrawing the false aggregate league_scores_static/league_table_static pairwise edge. Next verify the prepared LeagueScores/CupScores class-and-geometry correction: LeagueScores=0x523370 fixed left 12-row page, CupScores=0x523DF0 centered/two-column threshold-12 view with 24-row page capacity. Then split aggregate score raster by native draw phase. Keep global FastView z-order false.",
-  "last_known_main_head": "76b61d178ffb959983eb4acbf0cb335dbebd36d2",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #368 merged as main 46e40c19 after 2,279 tests/23 skips and asset-policy success, correcting LeagueScores/CupScores identity and geometry. Next verify the prepared LeagueScores draw-phase split: early ScoreComposite grid-2 rows before LeagueTable, later current_fix_grid_1 after LeagueTable, runtime phase icons as current-tail appends. Keep paired phase text, omitted controls, global FastView z-order, and complete frame false.",
+  "last_known_main_head": "46e40c19c9edf55627b4e1b98c742b500fede1dd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 286,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #367 is canonical. Private source proves vtable 0x7CA680 RTTI FastViewCupScores and 0x523DF0 setup; LeagueScores vtable 0x7CA750 uses 0x523370 and tuple (38,55,12,1,0,19). Geometry correction branch chatgpt/gate14-league-cup-scores-geometry is ready for PR. Do not promote global FastView z-order.",
+  "note": "PR #368 canonicalizes FastViewLeagueScores=0x523370 fixed-left 12-row page and FastViewCupScores=0x523DF0 centered/two-column behavior. Stacked branch chatgpt/gate14-score-draw-phases adds native score draw-phase planes and CI. Do not promote global z-order.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
