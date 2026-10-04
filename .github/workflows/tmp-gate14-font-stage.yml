@@ -28,7 +28,7 @@ jobs:
           import hashlib
 
           source = Path("research/tmp_gate14_zurich18_font.gz.b64")
-          encoded = source.read_text(encoding="ascii").strip()
+          encoded = "".join(source.read_text(encoding="ascii").split())
           compressed = base64.b64decode(encoded, validate=True)
           data = gzip.decompress(compressed)
 
