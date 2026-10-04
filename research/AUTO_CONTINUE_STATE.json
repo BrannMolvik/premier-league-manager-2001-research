@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #356 at head 2201c768: source-close RTTI/vtable ownership for all eight currently recovered numeric AudioHooks event-1 senders across PFormationPitch2k, PSquadPitch, and PSquadScreen. Keep event 1 and state 1/2 semantics unresolved. If green, merge and continue the next disjoint source-backed AudioHooks sender context.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Primary checkpoint: verify Gate-14 PR #356 at head 2201c768, which source-closes RTTI/vtable ownership for all eight known numeric AudioHooks event-1 senders. Follow-up PR #357 at head 7b488eec is already open on disjoint readiness files and only reconciles canonical font_blend_rule_recovered=true while preserving all remaining frame/audio/choreography blockers. Merge each only after its own full CI and asset-policy checks pass; then continue the highest-value disjoint Gate-14 blocker.",
   "last_known_main_head": "2e3a46a2affc9eebcfc9c5f7ba4cafdc37860724",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 279,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #356 opened from canonical main 2e3a46a2. All eight known event-1 senders are class-owned numerically; no click/selection/audio meaning is promoted. Gate 13 ownership lock remains active.",
+  "note": "PR #356 owns AudioHooks event-1 class sender files. PR #357 is disjoint readiness reconciliation. Real-Windows audibility remains false because no private passing receipt is canonical; global FastView z-order and complete frame remain false. Gate 13 ownership lock remains active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
