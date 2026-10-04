@@ -16,6 +16,8 @@ class NestedOrderTests(unittest.TestCase):
         self.assertEqual(team_table_playerrow_count(16),16)
         self.assertEqual(team_table_visible_control_count(11),105)
         self.assertEqual(team_table_visible_control_count(16),150)
+        self.assertEqual(fastview_team_visible_control_count(11,11),210)
+        self.assertEqual(fastview_team_visible_control_count(16,12),273)
 
     def test_phase_tail_is_dynamic_and_appended_as_two_controls(self):
         s=ScoreCompositePhaseTail()
@@ -39,6 +41,7 @@ class NestedOrderTests(unittest.TestCase):
     def test_contract_stays_fail_closed(self):
         c=nested_order_contract()
         self.assertTrue(c["score_phase_tail_runtime_mutation_recovered"])
+        self.assertTrue(c["team_side0_before_side1"])
         self.assertFalse(c["single_immutable_nested_order"])
         self.assertFalse(c["global_fastview_z_order_recovered"])
         self.assertFalse(c["complete_fastview_frame_recovered"])
