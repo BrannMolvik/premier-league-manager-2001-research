@@ -11101,3 +11101,13 @@ work may continue under the deferred-blocker policy.
 - Hosted tests inspect the exact WAV PCM frames and verify that an integrity mismatch blocks the platform player. A normal platform return remains adapter completion only, not proof of audible Windows output.
 - Reconstruction run `37200338931` passed **2,112 tests / 23 expected skips** and asset-policy run `37200338933` passed. PR #337 squash-merged as `418375e94a90595c121bf4b3ba7dc4071c849f9b`.
 - Exact next cloud-safe step: add a Windows 11 audible-audit harness/receipt for an explicit numeric AudioHooks event/state pair and exact canonical `menus.bnk`. The receipt must require explicit human audibility confirmation; it must not invent event/sample names or promote semantic binding.
+
+
+## 5 October 2026 - Gate-13 takeover continuous-watch closure boundary
+
+- Reconciled the preserved Codex Gate-13 checkpoint onto current-main-based PR #346 without touching `agent-runtime` or reverting Worker-1 Gate-14+ implementation. The stale `49cac599...` takeover branch remains a recovery reference.
+- Added event-by-event all-live-thread DR0/DR1/DR7 read-back before every `ContinueDebugEvent` from selected DBRClub allocation through the selected `0x5DA538` stop. New threads are armed/read back on their create-thread debug event before resume. The receipt can prove uninterrupted user-thread coverage while explicitly keeping kernel/external-writer coverage false.
+- Recovered/rehashed canonical `FOOTBAL.EXE` to `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` and completed bounded source adjudication. `405A40` constructor and `403660` import do not write `+13C/+140`; HeapAlloc flags 0 do not define zero initialization; `40BD10 -> 40BE30` copies the fields only into the separately allocated literal-`!Spare` club; `618C10` is the real capacity writer and its only direct callers `4257A6/460B82/4C4713` are on the recovered user/stadium setup path.
+- No zero default or initializer is accepted. The decisive next evidence is one Daniel-approved supervised native run to the already reached selected DBRClub5 `0x5DA538` boundary with the new continuous coverage ledger.
+- Verification on the reconciled technical head passed focused Gate-13 CI **643 tests / 22 expected skips**, full reconstruction **2,210 tests / 23 expected skips**, repository asset policy, and Windows release-candidate packaging.
+- Original-game launches remain prohibited until Daniel explicitly reapproves the exact bounded probe. Audio remains manual through Windows Volume Mixer; Azure/signing/custom mute-helper work stays stopped.
