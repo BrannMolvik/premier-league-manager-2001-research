@@ -109,6 +109,7 @@ from native_club_report_state import (
 )
 from match_team_setup import pack_tactics_word, manager_tactics_packet_fields, team_tactics_packet_fields
 from stadium_state import StadiumSourceState, TicketRuntimeState
+from native_club_capacity_state import RetainedClubAllocationCapacities
 from transfer_state import TransferRuntimeState
 from youth_state import (
     YouthTeamState,
@@ -222,6 +223,8 @@ class GameState:
     prepared_match_report_setup: dict[int, LiveReportSetupFragment] = field(default_factory=dict)
     native_setup_player_pool: NativeSetupPlayerPool | None = None
     native_club_attendance_counters: dict[int, ClubAttendanceCounter] = field(default_factory=dict)
+    # Explicit allocation bytes/provenance only. Missing clubs have NO zero default.
+    native_uncontrolled_capacity_bytes: dict[int, RetainedClubAllocationCapacities] = field(default_factory=dict)
     prepared_match_report_scalars: dict[int, dict[int, NativeCapturedScalar]] = field(default_factory=dict)
     prepared_match_report_tactics: dict[int, tuple[int, int] | None] = field(default_factory=dict)
     captured_match_reports: tuple[CompleteFixtureReport, ...] = ()
@@ -466,6 +469,9 @@ class GameState:
         state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
         state.configure_stadium_source_loader(database)
         if state.native_setup_player_pool is not None:
+            allocation_producer = getattr(database, 'fresh_club_allocation_capacities', None)
+            if callable(allocation_producer):
+                state.native_uncontrolled_capacity_bytes = allocation_producer()
             state.native_club_attendance_counters = {
                 club_id: ClubAttendanceCounter.fresh() for club_id in state.clubs}
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
@@ -1221,6 +1227,9 @@ class GameState:
         club = self.clubs.get(club_id)
         if club is None:
             raise KeyError(club_id)
+        # User/stadium setup is a different writer lifecycle. Never retain a
+        # fresh-uncontrolled observation after this club becomes controlled.
+        self.native_uncontrolled_capacity_bytes.pop(club_id, None)
         if club_id in self.finance_balances:
             self.user_controlled_club_id = club_id
             return self.finance_balances[club_id]
@@ -1723,8 +1732,11 @@ class GameState:
         """Snapshot all non-RNG gate inputs before the current result is recorded."""
         home_club_id = int(home_club_id)
         away_club_id = int(away_club_id)
-        if controlled_club_id is None or home_club_id != int(controlled_club_id):
+        if controlled_club_id is None:
             return None
+        if home_club_id != int(controlled_club_id):
+            return self._prepare_uncontrolled_home_gate_inputs(
+                home_club_id, away_club_id, home_participants, away_participants)
         if home_club_id not in self.finance_balances:
             return None
         stadium = self.stadium_sources.get(home_club_id)
@@ -1767,6 +1779,35 @@ class GameState:
             "cup_special": False,
         }
 
+    def _prepare_uncontrolled_home_gate_inputs(self, home_id, away_id, home_players, away_players):
+        retained = self.native_uncontrolled_capacity_bytes.get(home_id)
+        source = getattr(self.clubs.get(home_id), 'runtime_value_1c_source', None)
+        if (type(retained) is not RetainedClubAllocationCapacities
+                or type(source) is not int or not 0 <= source <= 0xFFFFFFFF):
+            return None
+        # 403660 imports +134/+138, NOT +13C/+140. 5DA538..5DA5CF maps
+        # the former to seating and the retained allocation dwords to terrace.
+        # Prices/facilities consult the HOME user, not an away human's stadium.
+        return dict(
+            home_fan_base_raw=self._premier_league_gate_fan_base_raw(home_id),
+            visiting_fan_base_raw=self._premier_league_gate_fan_base_raw(away_id),
+            home_tier_factor=PREMIER_LEAGUE_TIER_FACTOR,
+            visiting_tier_factor=PREMIER_LEAGUE_TIER_FACTOR,
+            home_side_modifier=self._premier_league_gate_side_modifier(home_id, home_players),
+            visiting_side_modifier=self._premier_league_gate_side_modifier(away_id, away_players),
+            seating_reference=PREMIER_LEAGUE_SEATING_REFERENCE,
+            terrace_reference=PREMIER_LEAGUE_TERRACE_REFERENCE,
+            home_seating_price_delta=0.0, visiting_seating_price_delta=0.0,
+            home_terrace_price_delta=0.0, visiting_terrace_price_delta=0.0,
+            home_seating_capacity=int(source * 0.75),
+            visiting_seating_capacity=int(source * 0.25),
+            home_terrace_capacity=retained.home_terrace,
+            visiting_terrace_capacity=retained.visiting_terrace,
+            host_seating_price=int(PREMIER_LEAGUE_SEATING_REFERENCE),
+            host_terrace_price=int(PREMIER_LEAGUE_TERRACE_REFERENCE),
+            home_facility_factor=1.0, visiting_facility_factor=1.0,
+            season_ticket_quantity=0, cup_special=False)
+
     @staticmethod
     def _draw_matchday_gate_rand15_values(rng) -> tuple[int, int, int, int]:
         """Consume 0x5DA2F0's four randomized-subtraction draws in source order."""
@@ -1783,7 +1824,16 @@ class GameState:
         """Consume the four post-calculator gate draws and post when materialized."""
         if fixture_id is not None and (type(fixture_id) is not int or fixture_id < 0):
             raise ValueError("Completion input fixture ID must be a non-negative integer")
-        rand15_values = self._draw_matchday_gate_rand15_values(rng)
+        if prepared_inputs is None:
+            rand15_values = self._draw_matchday_gate_rand15_values(rng)
+        else:
+            # Each source cell skips its entire body (including RNG) at zero
+            # capacity: 5DA981/5DAC14/5DAE92/5DB110. Zero here is a known
+            # producer result, NEVER a replacement for missing allocation bytes.
+            rand15_values = tuple(
+                0 if prepared_inputs[key] == 0 else int(rng.randbelow(32768))
+                for key in ('home_seating_capacity', 'visiting_seating_capacity',
+                            'home_terrace_capacity', 'visiting_terrace_capacity'))
         # The gate tail's byte/bit-9 writes do not depend on the unresolved
         # attendance quantities. Retain only this independent producer.
         counter = self.native_club_attendance_counters.get(int(home_club_id))
@@ -2884,6 +2934,7 @@ class GameState:
         # No proven annual +E8/+130 producer/reset is connected at this
         # boundary. Unknown is not the constructor's known-clear bit 9.
         self.native_club_attendance_counters = {}
+        self.native_uncontrolled_capacity_bytes = {}
         self.cup_results = new_registry
         self.domestic_cups = new_domestic
         self.european_cups = new_european

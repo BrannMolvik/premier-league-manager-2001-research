@@ -744,6 +744,11 @@ class FM2001Database:
         return value
 
 
+    def fresh_club_allocation_capacities(self):
+        """Windows port: read real non-zeroing allocation bytes, not zero defaults."""
+        from native_club_capacity_state import fresh_windows_club_array_capacity_bytes
+        return fresh_windows_club_array_capacity_bytes(len(self.clubs))
+
     def stadium_source_state(self, club_id: int, buildings_source):
         """Materialize the Gate-10 original stadium state for one club.
 

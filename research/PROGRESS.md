@@ -4,6 +4,24 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Automatic uncontrolled producer and calculated-away report
+
+Following the gap-free native capacity receipt, recovered the exact CRT private
+heap creation and large-array non-zeroing allocation mechanism. The Windows
+port now retains actual per-object allocation bytes, not zero defaults or the
+controlled stadium writer. Corrected +134/+138 seating and +13C/+140 terrace
+mapping and native zero-cell RNG skips. Internal schema44 preserves raw fields,
+provenance and producer kind; only the existing complete assembler publishes.
+71 focused gate/capacity/save tests pass. Genuine calculated human-away fixture2
+publishes, saves, reloads in a separate process, then renders the correct
+PMatchInfo via actual Tk right-click. Independently repeated with automatic
+Win32 allocation, without replayed original zeros or injected report state.
+The proof needed the existing paging seam; ordinary Fixtures page-arrow input
+and draw-state qualification is the next normal-play blocker. Gate13 stays open.
+Final reconciled-code validation: 2,267 tests / 23 expected skips, 134 focused
+checks, asset policy and fresh real Windows 11/Tk schema-8 all pass. This is
+not a waiver of ordinary paging or final timing/recognizability requirements.
+
 ### 5 October 2026 KST — Decisive selected capacity lifecycle proved
 
 The last of two separately approved supervised follow-ups reached DBRClub5's
