@@ -193,6 +193,33 @@ class Gate14WindowsMenuAudioAuditTests(unittest.TestCase):
                 )
         play.assert_not_called()
 
+
+    @patch("gate14_windows_menu_audio_audit.play_audiohooks_menu_pcm")
+    @patch("gate14_windows_menu_audio_audit.decode_audiohooks_menu_pcm")
+    def test_valid_source_rejects_arbitrary_backend_before_playback(
+        self,
+        decode,
+        play,
+    ):
+        decode.return_value = decoded()
+        with patch.dict(
+            CANONICAL_FM2001_BANK_PROFILES,
+            {"menus.bnk": self.identity},
+        ):
+            with self.assertRaisesRegex(
+                Gate14WindowsMenuAudioAuditError,
+                "exact WindowsMemoryWaveMenuPcmBackend",
+            ):
+                run_windows_menu_audio_audit(
+                    self.raw,
+                    event_id=17,
+                    state_value=0,
+                    backend=object(),
+                    confirmer=lambda _: AUDIBLE_CONFIRMATION_TOKEN,
+                    platform_system="Windows",
+                )
+        play.assert_not_called()
+
     @patch("gate14_windows_menu_audio_audit.play_audiohooks_menu_pcm")
     @patch("gate14_windows_menu_audio_audit.decode_audiohooks_menu_pcm")
     def test_human_confirmation_fails_closed_after_successful_adapter_delivery(
