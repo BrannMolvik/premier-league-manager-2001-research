@@ -7,6 +7,18 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 321 continuation — minimal FFmpeg contract needs explicit D3D11VA
+
+Recovery 321 resumed from canonical main `a57ba974c051ef2db29dfe17ec867acb6aaf40bb` and reconciled the older Gate-17 work-ahead PRs against the current repository state.
+
+- PR #475 (`Gate 17: pin minimal FFmpeg source contract`) and stacked PR #479 (`Gate 17: build minimal FFmpeg from pinned source`) are both still open and non-mergeable against current `main` because their branches predate later canonical Gate-14 work.
+- #475's earlier reconstruction, Windows-package and asset-policy workflows passed, but that is no longer sufficient evidence for its proposed configure contract. #479's exact-source build run `37352166679` failed deterministically in `libavcodec/mfenc.c` while compiling the pinned FFmpeg commit `46d8f462eeb87ee1f704d8c44a0ee24fca471ad1`.
+- The compile errors are missing `ID3D11DeviceContext`, `AVD3D11VADeviceContext`, `ID3D11Texture2D` and `IID_ID3D11Texture2D`. The pinned FFmpeg source includes `libavutil/hwcontext_d3d11va.h` only under `CONFIG_D3D11VA`, while the Media Foundation encoder context uses those D3D11 types. FFmpeg configure exposes D3D11VA as an autodetected capability; the proposed minimal contract uses `--disable-autodetect` and restores Media Foundation but not D3D11VA.
+- Therefore #475's minimal-helper source contract is incomplete as written. Do not merge #475 or retry #479 unchanged. The production helper remains unchanged and every minimal-helper promotion flag remains false.
+- Durable review directives were posted on #475 and #479 with this diagnosis. This is a source-backed contract correction, not a reason to weaken the fail-closed provenance/import guards or to claim legal compliance.
+
+**Exact next task:** have the implementation worker cleanly reconcile #475 onto current `main`, explicitly restore the D3D11VA capability required by the pinned `h264_mf` source path, and update the source-contract audit/tests/documentation accordingly. Re-run its focused/full/package validation. Only after that corrected contract is canonical should #479 be rebased/recreated and its exact-source Windows build proof rerun. Keep Gate 14 as the earliest incomplete validation gate and keep the real Windows 11 visible/audible WPF startup-media retest deferred until Daniel can perform it.
+
 ## Recovery 320 continuation — WPF startup-media transport canonical; external acceptance open
 
 Main advanced through the hands-on gameplay blocker fixes before this checkpoint:
