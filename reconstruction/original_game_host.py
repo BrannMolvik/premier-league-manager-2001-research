@@ -250,14 +250,13 @@ def build_original_game_presenter(
         original_zurich_font20=font20,
         original_executable=executable,
     )
-    team = load_verified_original_teamselect_inputs(
-        original_art_dir=art_root,
-        original_executable=executable,
-    )
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
-        team,
+        team_select_loader=lambda: load_verified_original_teamselect_inputs(
+            original_art_dir=art_root,
+            original_executable=executable,
+        ),
     )
 
 
