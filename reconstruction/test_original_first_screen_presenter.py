@@ -129,6 +129,36 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
             view.controls[0].exact_source_frame(23)
         self.assertEqual(built, [])
 
+    def test_teamselect_resources_can_be_loaded_lazily_at_new_game_boundary(self):
+        built = []
+        loads = []
+
+        def factory():
+            backend = StubBackend()
+            built.append(backend)
+            return backend
+
+        presenter = OriginalFirstScreenPresenter(
+            FrontEndSession(factory),
+            self.menu,
+            team_select_loader=lambda: loads.append("team") or self.team,
+        )
+
+        start = presenter.snapshot()
+        self.assertIs(start.screen, FrontEndScreen.START_MENU)
+        self.assertEqual(loads, [])
+        self.assertIsNone(presenter.team_select)
+
+        presenter.pointer(7, 478)  # recovered New Game event
+        self.assertEqual(loads, [])
+        team = presenter.snapshot()
+        self.assertIs(team.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertEqual(loads, ["team"])
+        self.assertIs(presenter.team_select, self.team)
+
+        presenter.snapshot()
+        self.assertEqual(loads, ["team"])
+
     def test_pointer_integrates_menu_teamselect_and_manager_start_boundary(self):
         presenter, built = self.presenter()
         for x, y, command in (
