@@ -1,7 +1,9 @@
 """Application-owned management art; native lookup 0x5D3490/0x5D3560.
 
-The current live source selection is bounded to all twenty Premiership clubs.
-Other leagues cannot silently substitute generic art for an unstaged original.
+The source-closed native lookup attempts the club seasonal image, the club
+unsuffixed image, the fan-base seasonal generic, then the static generic.
+Runtime selection mirrors that exact order over provenance-staged originals;
+it never invents replacement pixels when a source-backed candidate is absent.
 """
 from dataclasses import dataclass
 from hashlib import sha256
@@ -57,6 +59,20 @@ def header_variant(competition_id: int) -> str:
             50: 'LNF', 51: 'LNF'}.get(competition_id, 'generic')
 
 
+def staged_background_candidate(
+    candidates: tuple[str, ...],
+    staged_paths: dict[str, str],
+) -> str:
+    """Resolve the first provenance-staged path in native 0x5D3560 order."""
+    for candidate in candidates:
+        staged = staged_paths.get(candidate.casefold())
+        if staged is not None:
+            return staged
+    raise ManagementBackgroundError(
+        'No source-backed management background candidate is staged'
+    )
+
+
 @dataclass(frozen=True)
 class ManagementShellImage:
     source_path: str
@@ -93,11 +109,12 @@ class OriginalManagementBackground:
         candidates = background_candidates(
             club_header.graphics_directory, club_header.graphics_basename,
             club_header.current_date.month, club_header.fan_base_index)
-        # Do not treat absent staging as a native failed load. This selection
-        # explicitly includes every seasonal original for the live PL domain.
-        if club_header.competition_id != 0 or candidates[0].casefold() not in self.paths:
-            raise ManagementBackgroundError('Club background family is not source-staged')
-        base = self.paths[candidates[0].casefold()]
+        base = staged_background_candidate(candidates, self.paths)
         header = f'{HEADER_ROOT}/back_2_{header_variant(club_header.competition_id)}.444'
+        staged_header = self.paths.get(header.casefold())
+        if staged_header is None:
+            raise ManagementBackgroundError(
+                'Competition management header is not source-staged'
+            )
         return (self._image(base, (0, 0, 800, 600)),
-                self._image(self.paths[header.casefold()], (171, 0, 385, 95)))
+                self._image(staged_header, (171, 0, 385, 95)))
