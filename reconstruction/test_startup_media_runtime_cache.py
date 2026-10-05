@@ -6,7 +6,10 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from original_startup_media import ORIGINAL_STARTUP_MEDIA_SEQUENCE
+from original_startup_media import (
+    ORIGINAL_STARTUP_MEDIA_SEQUENCE,
+    WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE,
+)
 from startup_media_runtime_cache import (
     PACKAGED_FFMPEG_RELATIVE_PATH,
     RuntimeStartupMediaError,
@@ -145,6 +148,54 @@ class RuntimeStartupMediaTests(unittest.TestCase):
             tuple(item.converted_sha256 for item in second),
         )
         self.assertGreaterEqual(plans.call_count, 3)
+
+    def test_profile_change_forces_fresh_conversion_and_receipt_identity(self):
+        runner = FakeRunner()
+        candidate = WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            game = root / "game"
+            app = root / "app"
+            cache = root / "cache"
+            ffmpeg = root / "ffmpeg.exe"
+            game.mkdir()
+            app.mkdir()
+            ffmpeg.write_bytes(b"same-verified-ffmpeg-binary")
+
+            with patch(
+                "startup_media_runtime_cache.build_startup_media_conversion_plans",
+                side_effect=fake_plan_builder,
+            ):
+                prepare_runtime_startup_media(
+                    game,
+                    app,
+                    cache_root=cache,
+                    ffmpeg_executable=ffmpeg,
+                    runner=runner,
+                )
+                self.assertEqual(runner.conversions, 2)
+                prepare_runtime_startup_media(
+                    game,
+                    app,
+                    cache_root=cache,
+                    ffmpeg_executable=ffmpeg,
+                    profile=candidate,
+                    runner=runner,
+                )
+
+            self.assertEqual(runner.conversions, 4)
+            receipt = __import__("json").loads(
+                (cache / "startup-media-runtime-receipt.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(receipt["profile"]["video_encoder"], "h264_mf")
+            self.assertEqual(
+                runtime_startup_media_contract(candidate)["conversion_profile"][
+                    "video_encoder"
+                ],
+                "h264_mf",
+            )
 
     def test_cache_byte_drift_forces_fresh_conversion(self):
         runner = FakeRunner()
