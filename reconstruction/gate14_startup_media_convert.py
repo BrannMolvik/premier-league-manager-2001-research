@@ -212,8 +212,8 @@ def convert_and_receipt_startup_media(
                 "converted_sha256": _sha256_file(plan.output_path),
                 "container": verified.container_name,
                 "video_codec": verified.video_codec,
-                "video_width": plan.spec.video_width,
-                "video_height": plan.spec.video_height,
+                "video_width": profile.output_width,
+                "video_height": profile.output_height,
                 "frame_rate": plan.spec.frame_rate,
                 "decoded_video_frames": verified.video_frames,
                 "pixel_format": verified.pixel_format,
@@ -236,12 +236,16 @@ def convert_and_receipt_startup_media(
             "pixel_format": profile.pixel_format,
             "audio_encoder": profile.ffmpeg_audio_encoder,
             "audio_codec": profile.probe_audio_codec,
+            "output_width": profile.output_width,
+            "output_height": profile.output_height,
+            "video_filter": profile.video_filter,
         },
         "outputs": verified_outputs,
         "fidelity_boundary": (
             "Receipt proves exact original TGQ source identity plus converted "
-            "stream/frame/audio geometry only. It does not prove native skip "
-            "input, fade/transition timing, scaling/interlace treatment or "
+            "stream/frame/audio geometry plus the recovered 640x480 horizontal "
+            "nearest-duplicate display treatment. It does not prove native skip "
+            "input, fade/transition timing, game-window ownership or "
             "player-visible Windows playback."
         ),
         "gate14_complete": False,
