@@ -30,12 +30,14 @@ from original_league_tables_resources import (
     LEAGUE_TABLES_RESOURCES,
     LEAGUE_TABLES_RESOURCE_BY_NAME,
 )
+from gate13_original_pixel_preview import encode_rgba_png
 from original_game_host import (
     DEFAULT_SOURCE_ROOT,
     OriginalGameHostError,
     OriginalGameTkHost,
     build_original_game_presenter,
     play_configured_startup_media,
+    _scaled_rgba,
 )
 from original_management_presenter import OriginalManagementPresenter
 from original_management_text import load_verified_management_text_resources
@@ -110,7 +112,7 @@ def fake_pmenu_render():
             SimpleNamespace(
                 x=0,
                 y=0,
-                png=b"\x89PNG\r\n\x1a\nsource-backed-test-overlay",
+                png=encode_rgba_png(1, 1, bytes((1, 2, 3, 255))),
             ),
         ),
     )
@@ -319,6 +321,9 @@ class FakeTk:
             assert format == "png"
             assert b64decode(data).startswith(b"\x89PNG\r\n\x1a\n")
             self.data = data
+            raw = b64decode(data)
+            self.width = int.from_bytes(raw[16:20], "big")
+            self.height = int.from_bytes(raw[20:24], "big")
             self.zoom_factor = 1
 
         def zoom(self, x, y):
@@ -355,13 +360,11 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertAlmostEqual(host.display_scale, 7 / 3)
         self.assertEqual(host.canvas.kwargs["width"], 1867)
         self.assertEqual(host.canvas.kwargs["height"], 1400)
-        self.assertTrue(
-            all(
-                getattr(photo, "zoom_factor", 1) == 7
-                and getattr(photo, "subsample_factor", 1) == 3
-                for photo in host._first_screen_photo_cache.values()
-            )
-        )
+        background = host._first_screen_photo_cache[
+            (FrontEndScreen.START_MENU, "background")
+        ]
+        self.assertEqual((background.width, background.height), (1867, 1400))
+        self.assertEqual(getattr(background, "zoom_factor", 1), 1)
         event = SimpleNamespace(
             x=host._native_to_display(7),
             y=host._native_to_display(478),
@@ -369,6 +372,19 @@ class OriginalGameHostTests(unittest.TestCase):
         )
         native = host._normalize_pointer_event(event)
         self.assertEqual((native.x, native.y), (7, 478))
+
+    def test_direct_scaler_never_builds_an_oversized_intermediate_surface(self):
+        width, height, rgba = _scaled_rgba(
+            8,
+            6,
+            bytes((10, 20, 30, 255)) * (8 * 6),
+            7,
+            4,
+        )
+        self.assertEqual((width, height), (14, 11))
+        self.assertEqual(len(rgba), 14 * 11 * 4)
+        self.assertEqual(rgba[:4], bytes((10, 20, 30, 255)))
+        self.assertEqual(rgba[-4:], bytes((10, 20, 30, 255)))
 
     def test_quit_to_windows_destroys_host_after_recovered_event(self):
         live = presenter()
