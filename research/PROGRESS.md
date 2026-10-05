@@ -11528,3 +11528,26 @@ work may continue under the deferred-blocker policy.
   caption masks/metadata), but package-independent regeneration still requires
   exact source-proven EA444 decoder inputs or a separately proved clean-room
   equivalent.
+
+## 6 October 2026 KST — Recovery 329 PStartMenu derivative promoted
+
+- PR #486 merged as `32f02fc86f0eb404c0f410cbceb131f56f0ddaf0`.
+- Recovered and provenance-tracked the exact canonical executable-derived EA444
+  TQIA/quantization inputs, then generated the PStartMenu derivative twice in
+  Gate-13 CI and required byte-identical results.
+- Staged canonical manifest
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`
+  and XZ payload
+  `2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697`.
+- Default runtime now uses the independently pinned derivative and fails closed
+  on drift; custom source-root research retains the original source decode.
+- Final-head validation passed Gate-13 `37386883275`, Windows package
+  `37386882889`, asset policy `37386883101`, and full reconstruction
+  `37386883155`.
+- Gate 13 remains open for ordinary Squad rows, source-faithful startup-FMV
+  presentation, and Daniel's final Windows 11 acceptance/timing run.
+- Fresh FMV tracing confirms real `pIQT` headers store 320x480 while startup
+  creates/blits a 640x480 DirectDraw movie surface. The exact state-4
+  pixel-expansion/pixel-format relationship remains under source trace; no
+  interpolation method is yet claimed.
+
