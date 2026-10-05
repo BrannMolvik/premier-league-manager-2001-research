@@ -105,6 +105,9 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
             powershell_executable=r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
         )
         path = Path(r"C:\FM2001\startup media\easp.mp4")
+        backend.bind_parent_window(
+            12345, x=144, y=108, width=1152, height=864
+        )
 
         self.assertTrue(backend.play(derivative(path)))
         self.assertEqual(len(runner.calls), 1)
@@ -126,26 +129,36 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
         script = base64.b64decode(command[9]).decode("utf-16le")
         self.assertIn("PresentationFramework", script)
         self.assertIn("MediaElement", script)
-        self.assertIn("WindowState", script)
+        self.assertIn("HwndSourceParameters", script)
+        self.assertIn("ParentWindow", script)
+        self.assertIn("BitmapScalingMode", script)
+        self.assertIn("NearestNeighbor", script)
+        self.assertNotIn("New-Object Windows.Window", script)
         self.assertNotIn(str(path), script)
         self.assertEqual(
             kwargs["env"]["FM2001_STARTUP_MEDIA_PATH"],
             str(path),
         )
+        self.assertEqual(kwargs["env"]["FM2001_STARTUP_PARENT_HWND"], "12345")
+        self.assertEqual(kwargs["env"]["FM2001_STARTUP_MEDIA_X"], "144")
+        self.assertEqual(kwargs["env"]["FM2001_STARTUP_MEDIA_Y"], "108")
+        self.assertEqual(kwargs["env"]["FM2001_STARTUP_MEDIA_WIDTH"], "1152")
+        self.assertEqual(kwargs["env"]["FM2001_STARTUP_MEDIA_HEIGHT"], "864")
         self.assertFalse(kwargs["check"])
         self.assertTrue(kwargs["capture_output"])
         self.assertTrue(kwargs["text"])
         self.assertGreater(kwargs["timeout"], 30.0)
         self.assertIn("MediaFailed", script)
         self.assertIn("ErrorException.Message", script)
-        self.assertIn("ContentRendered", script)
-        self.assertIn("ShowInTaskbar", script)
+        self.assertIn("DispatcherFrame", script)
+        self.assertIn("RootVisual", script)
 
     def test_failed_wpf_process_surfaces_exit_and_stderr(self):
         backend = WindowsWpfStartupMediaBackend(
             platform_system="Windows",
             runner=RecordingRunner(returncode=3, stderr="media failed"),
         )
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
         with self.assertRaisesRegex(
             WindowsStartupMediaBackendError,
             r"exit code 3: media failed",
@@ -188,6 +201,7 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
             platform_system="Windows",
             runner=TimeoutRunner(),
         )
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
         self.assertEqual(backend._timeout_seconds(long_item), 80.0)
         with self.assertRaisesRegex(
             WindowsStartupMediaBackendError,
@@ -212,6 +226,31 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
         ):
             backend._timeout_seconds(invalid_item)
 
+
+    def test_wpf_backend_requires_valid_game_window_binding(self):
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=RecordingRunner(),
+        )
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError, "not bound to the game window"
+        ):
+            backend.play(derivative(Path(r"C:\private\a.mp4")))
+
+        for args in (
+            (0, 0, 0, 640, 480),
+            (123, -1, 0, 640, 480),
+            (123, 0, 0, 0, 480),
+        ):
+            with self.subTest(args=args):
+                with self.assertRaises(WindowsStartupMediaBackendError):
+                    backend.bind_parent_window(
+                        args[0],
+                        x=args[1],
+                        y=args[2],
+                        width=args[3],
+                        height=args[4],
+                    )
 
     def test_wpf_backend_rejects_non_windows_invalid_runner_and_wrong_codec(self):
         with self.assertRaisesRegex(WindowsStartupMediaBackendError, "requires Windows"):
