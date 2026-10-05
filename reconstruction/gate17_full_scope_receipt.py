@@ -92,6 +92,7 @@ def validate_full_scope_results(
     results_path: str | Path,
     repo_root: str | Path,
     canonical_game_dir: str | Path,
+    identity: ReleaseArtifactIdentity,
 ) -> dict:
     """Bind external per-scope results to the current canonical TeamSelect catalog."""
     root = Path(repo_root).resolve()
@@ -104,6 +105,34 @@ def validate_full_scope_results(
     if payload.get("schema_version") != RESULT_SCHEMA_VERSION:
         raise FullScopeReceiptError(
             f"full-scope results schema_version must be {RESULT_SCHEMA_VERSION}"
+        )
+    if type(identity) is not ReleaseArtifactIdentity:
+        raise FullScopeReceiptError(
+            "full-scope results require exact ReleaseArtifactIdentity"
+        )
+    expected_identity = {
+        "release_version": identity.release_version,
+        "repository_commit": identity.repository_commit,
+        "release_archive_sha256": identity.release_archive_sha256,
+        "release_archive_size": identity.release_archive_size,
+    }
+    for key, expected in expected_identity.items():
+        if payload.get(key) != expected:
+            raise FullScopeReceiptError(
+                f"full-scope results {key} does not match release candidate"
+            )
+    if payload.get("windows_11") is not True:
+        raise FullScopeReceiptError(
+            "full-scope results must prove windows_11"
+        )
+    windows_build = payload.get("windows_build")
+    if type(windows_build) is not int or windows_build < 22000:
+        raise FullScopeReceiptError(
+            "full-scope results windows_build is not Windows 11"
+        )
+    if payload.get("windows_product_type") != 1:
+        raise FullScopeReceiptError(
+            "full-scope results must come from a Windows client workstation"
         )
 
     scope = load_canonical_original_playable_scope(Path(canonical_game_dir).resolve())
@@ -185,6 +214,8 @@ def validate_full_scope_results(
         "save_reload_verified_scope_ids": expected_ids,
         "save_reload_verified_scope_entry_count": len(expected_ids),
         "simultaneous_human_users_verified": simultaneous,
+        "windows_build": windows_build,
+        "windows_product_type": 1,
     }
 
 
@@ -274,7 +305,17 @@ def run_full_scope_receipt(
         results_path=scope_results,
         repo_root=root,
         canonical_game_dir=canonical_game_dir,
+        identity=identity,
     )
+
+    if windows.get("windows_build") != checked["windows_build"]:
+        raise FullScopeReceiptError(
+            "full-scope results Windows build differs from receipt workstation"
+        )
+    if windows.get("windows_product_type") != checked["windows_product_type"]:
+        raise FullScopeReceiptError(
+            "full-scope results Windows product type differs from receipt workstation"
+        )
 
     try:
         output = require_path_outside_repo(
