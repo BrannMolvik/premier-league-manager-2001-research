@@ -288,6 +288,12 @@ class FakeRoot(FakeWidget):
     def resizable(self, x, y):
         self.values["resizable"] = (x, y)
 
+    def configure(self, **kwargs):
+        self.values["configure"] = kwargs
+
+    def attributes(self, name, value):
+        self.values.setdefault("attributes", {})[name] = value
+
 
 class FakeCanvas(FakeWidget):
     def __init__(self, *args, **kwargs):
@@ -313,6 +319,50 @@ class FakeTk:
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_game_host_starts_fullscreen_and_preserves_native_canvas_size(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values["attributes"]["-fullscreen"])
+        self.assertEqual(root.values["configure"]["background"], "black")
+        self.assertEqual(host.canvas.kwargs["width"], 800)
+        self.assertEqual(host.canvas.kwargs["height"], 600)
+        self.assertTrue(host.canvas.values["pack"]["expand"])
+
+        host.leave_fullscreen()
+        self.assertFalse(host._fullscreen)
+        self.assertFalse(root.values["attributes"]["-fullscreen"])
+        host.toggle_fullscreen()
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values["attributes"]["-fullscreen"])
+
+    def test_first_screen_photo_cache_reuses_background_and_source_frame_images(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        first_cache_size = len(host._first_screen_photo_cache)
+
+        # A redraw at the same native frame must reuse all immutable images.
+        host.redraw()
+        self.assertEqual(len(host._first_screen_photo_cache), first_cache_size)
+
+        # One native hover step may add only the newly reached source frame
+        # (and, if its endpoint color changes, one caption image), never a
+        # second 800x600 background image.
+        event = host.first_screen_frame.original_source_frame_overlays[0].event
+        rect = host.first_screen_frame.original_source_frame_overlays[0].rect
+        host.on_fixtures_pager_motion(SimpleNamespace(x=rect.x, y=rect.y))
+        root.run_idle()
+        self.assertIn(
+            (FrontEndScreen.START_MENU, "background"),
+            host._first_screen_photo_cache,
+        )
+        backgrounds = [
+            key for key in host._first_screen_photo_cache
+            if len(key) >= 2 and key[1] == "background"
+        ]
+        self.assertEqual(backgrounds, [(FrontEndScreen.START_MENU, "background")])
+
     def test_source_idle_hover_advances_and_retreats_one_frame_per_pass(self):
         root = FakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
