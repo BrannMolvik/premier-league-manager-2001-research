@@ -63,10 +63,15 @@ def validate_archive_identity(path: str | Path) -> dict:
         with zipfile.ZipFile(archive) as zf:
             names = tuple(name.replace("\\", "/") for name in zf.namelist())
             exe = tuple(name for name in names if name.endswith("/bin/ffmpeg.exe"))
+            probe = tuple(name for name in names if name.endswith("/bin/ffprobe.exe"))
             license_files = tuple(name for name in names if name.endswith("/LICENSE.txt"))
             if len(exe) != 1:
                 raise LgplFfmpegCandidateError(
                     f"candidate archive must contain one bin/ffmpeg.exe; found {len(exe)}"
+                )
+            if len(probe) != 1:
+                raise LgplFfmpegCandidateError(
+                    f"candidate archive must contain one bin/ffprobe.exe; found {len(probe)}"
                 )
             if len(license_files) != 1:
                 raise LgplFfmpegCandidateError(
@@ -81,6 +86,7 @@ def validate_archive_identity(path: str | Path) -> dict:
         "archive_name": ARCHIVE_NAME,
         "archive_sha256": digest,
         "ffmpeg_member": exe[0],
+        "ffprobe_member": probe[0],
         "license_member": license_files[0],
         "license_sha256": sha256(license_bytes).hexdigest(),
         "license_size_bytes": len(license_bytes),
@@ -112,6 +118,82 @@ def validate_version_output(text: str) -> dict:
         "version_line": lines[0],
         "configuration_line": configuration,
         "forbidden_configuration_flags_present": list(forbidden),
+    }
+
+
+def validate_ffprobe_version_output(text: str) -> dict:
+    if type(text) is not str or not text.strip():
+        raise LgplFfmpegCandidateError("candidate FFprobe -version output is empty")
+    lines = tuple(line.strip() for line in text.splitlines() if line.strip())
+    if not lines or not lines[0].lower().startswith("ffprobe version "):
+        raise LgplFfmpegCandidateError("candidate FFprobe version line is invalid")
+    if EXPECTED_VERSION_TOKEN not in lines[0]:
+        raise LgplFfmpegCandidateError(
+            "candidate FFprobe version does not match the pinned source revision"
+        )
+    return {"ffprobe_version_line": lines[0]}
+
+
+def validate_synthetic_probe_output(text: str) -> dict:
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise LgplFfmpegCandidateError(
+            "candidate FFprobe returned invalid synthetic-output JSON"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise LgplFfmpegCandidateError(
+            "candidate FFprobe synthetic-output root must be an object"
+        )
+    streams = payload.get("streams")
+    if not isinstance(streams, list) or len(streams) != 2:
+        raise LgplFfmpegCandidateError(
+            "synthetic candidate MP4 must contain exactly two streams"
+        )
+    videos = [stream for stream in streams if stream.get("codec_type") == "video"]
+    audios = [stream for stream in streams if stream.get("codec_type") == "audio"]
+    if len(videos) != 1 or len(audios) != 1:
+        raise LgplFfmpegCandidateError(
+            "synthetic candidate MP4 must contain one video and one audio stream"
+        )
+    video = videos[0]
+    audio = audios[0]
+    if (
+        video.get("codec_name") != "h264"
+        or video.get("pix_fmt") != "yuv420p"
+        or video.get("width") != 320
+        or video.get("height") != 480
+        or video.get("avg_frame_rate") != "25/1"
+    ):
+        raise LgplFfmpegCandidateError(
+            "synthetic candidate video geometry/codec differs from startup contract"
+        )
+    if (
+        audio.get("codec_name") != "aac"
+        or str(audio.get("sample_rate")) != "22050"
+        or audio.get("channels") != 2
+    ):
+        raise LgplFfmpegCandidateError(
+            "synthetic candidate audio geometry/codec differs from startup contract"
+        )
+    raw_format = payload.get("format")
+    if not isinstance(raw_format, dict):
+        raise LgplFfmpegCandidateError(
+            "synthetic candidate container metadata is missing"
+        )
+    format_names = {
+        item.strip().lower()
+        for item in str(raw_format.get("format_name", "")).split(",")
+        if item.strip()
+    }
+    if "mp4" not in format_names:
+        raise LgplFfmpegCandidateError("synthetic candidate container is not MP4")
+    return {
+        "synthetic_probe_verified": True,
+        "synthetic_probe_video_codec": "h264",
+        "synthetic_probe_pixel_format": "yuv420p",
+        "synthetic_probe_audio_codec": "aac",
+        "synthetic_probe_container": "mp4",
     }
 
 
@@ -161,8 +243,12 @@ def _run(executable: Path, *args: str) -> str:
     return result.stdout
 
 
-def validate_synthetic_h264_aac_roundtrip(executable: Path, work_root: Path) -> dict:
-    """Prove the candidate can instantiate h264_mf/AAC and decode its own MP4."""
+def validate_synthetic_h264_aac_roundtrip(
+    executable: Path,
+    ffprobe: Path,
+    work_root: Path,
+) -> dict:
+    """Exercise exact startup output options and probe/decode the resulting MP4."""
     output = work_root / "candidate-roundtrip.mp4"
     _run(
         executable,
@@ -186,6 +272,8 @@ def validate_synthetic_h264_aac_roundtrip(executable: Path, work_root: Path) -> 
         "h264_mf",
         "-pix_fmt",
         "yuv420p",
+        "-fps_mode",
+        "passthrough",
         "-c:a",
         "aac",
         "-ar",
@@ -202,6 +290,19 @@ def validate_synthetic_h264_aac_roundtrip(executable: Path, work_root: Path) -> 
         raise LgplFfmpegCandidateError(
             "candidate h264_mf/AAC roundtrip did not create an MP4"
         )
+    probe = validate_synthetic_probe_output(
+        _run(
+            ffprobe,
+            "-v",
+            "error",
+            "-count_frames",
+            "-show_streams",
+            "-show_format",
+            "-of",
+            "json",
+            str(output),
+        )
+    )
     _run(
         executable,
         "-hide_banner",
@@ -234,6 +335,8 @@ def validate_synthetic_h264_aac_roundtrip(executable: Path, work_root: Path) -> 
     )
     return {
         "synthetic_h264_aac_encode_decode_verified": True,
+        **probe,
+        "synthetic_fps_mode": "passthrough",
         "synthetic_geometry": {
             "width": 320,
             "height": 480,
@@ -258,17 +361,27 @@ def audit_candidate_archive(
     with tempfile.TemporaryDirectory(prefix="fm2001-lgpl-ffmpeg-") as temp:
         temp_root = Path(temp)
         with zipfile.ZipFile(archive) as zf:
-            member = identity["ffmpeg_member"]
+            ffmpeg_member = identity["ffmpeg_member"]
+            ffprobe_member = identity["ffprobe_member"]
             executable = temp_root / "ffmpeg.exe"
-            executable.write_bytes(zf.read(member))
+            ffprobe = temp_root / "ffprobe.exe"
+            executable.write_bytes(zf.read(ffmpeg_member))
+            ffprobe.write_bytes(zf.read(ffprobe_member))
         version = validate_version_output(_run(executable, "-version"))
+        probe_version = validate_ffprobe_version_output(_run(ffprobe, "-version"))
         codecs = validate_codec_capabilities(
             decoders_text=_run(executable, "-hide_banner", "-decoders"),
             encoders_text=_run(executable, "-hide_banner", "-encoders"),
         )
-        roundtrip = validate_synthetic_h264_aac_roundtrip(executable, temp_root)
+        roundtrip = validate_synthetic_h264_aac_roundtrip(
+            executable,
+            ffprobe,
+            temp_root,
+        )
         executable_sha256 = _sha256_file(executable)
         executable_size_bytes = executable.stat().st_size
+        ffprobe_sha256 = _sha256_file(ffprobe)
+        ffprobe_size_bytes = ffprobe.stat().st_size
 
     report = {
         "schema_version": 1,
@@ -277,10 +390,13 @@ def audit_candidate_archive(
         "archive_url": ARCHIVE_URL,
         **identity,
         **version,
+        **probe_version,
         **codecs,
         **roundtrip,
         "ffmpeg_executable_sha256": executable_sha256,
         "ffmpeg_executable_size_bytes": executable_size_bytes,
+        "ffprobe_executable_sha256": ffprobe_sha256,
+        "ffprobe_executable_size_bytes": ffprobe_size_bytes,
         "proposed_startup_video_encoder": "h264_mf",
         "existing_startup_audio_encoder": "aac",
         "production_runtime_switched": False,
