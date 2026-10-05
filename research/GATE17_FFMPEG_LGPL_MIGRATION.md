@@ -64,6 +64,35 @@ keeps all of these false:
 - windows11_playback_verified;
 - license_compliance_claimed.
 
+## Exact private conversion command
+
+PR #470 adds an opt-in private conversion profile without changing normal
+runtime defaults. Once private source execution is healthy and the exact
+original installation tree is available outside Git, run:
+
+```powershell
+python reconstruction/gate14_startup_media_convert.py `
+  --source-root "C:\path\to\FM2001" `
+  --output-root "C:\private\fm2001-lgpl-startup" `
+  --receipt "C:\private\fm2001-lgpl-startup-receipt.json" `
+  --repo-root "." `
+  --ffmpeg "C:\path\to\pinned-lgpl\ffmpeg.exe" `
+  --ffprobe "C:\path\to\pinned-lgpl\ffprobe.exe" `
+  --video-encoder h264_mf
+```
+
+The converter revalidates the canonical source sizes/SHA-256 identities before
+starting FFmpeg, writes no success receipt until both derivatives satisfy the
+H.264/AAC MP4 geometry and exact decoded-frame contract, and records
+`video_encoder: h264_mf` in the private receipt.
+
+The runtime cache API also accepts the same explicit candidate profile for
+verification work. Cache receipts are profile-bound in addition to being bound
+to the FFmpeg executable SHA-256, so a prior `libx264` cache cannot be reused
+as evidence for `h264_mf`. Normal application launch still omits the profile
+argument and therefore continues to use the unchanged `libx264` default until
+promotion is explicitly justified.
+
 ## Promotion boundary
 
 Do not replace the production helper merely because this probe passes. A
