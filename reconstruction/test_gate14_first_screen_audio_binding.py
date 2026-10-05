@@ -84,6 +84,36 @@ class Gate14FirstScreenAudioBindingTests(unittest.TestCase):
             native_group=0,
         )
 
+    def test_scaled_host_normalizes_pointer_before_audio_hit_test(self):
+        order = []
+        host = FakeHost(FrontEndScreen.START_MENU, order)
+        host._normalize_pointer_event = lambda event: SimpleNamespace(
+            x=int(event.x) // 2,
+            y=int(event.y) // 2,
+        )
+        rect = PSTARTMENU_ACTIONS[0].rect
+        scaled = SimpleNamespace(
+            x=2 * (rect.x + rect.width // 2),
+            y=2 * (rect.y + rect.height // 2),
+        )
+        summary = MenuPcmPlaybackSummary(
+            event_id=10,
+            state_value=0,
+            sample_slot=2,
+            backend_invoked=True,
+            adapter_delivery_completed=True,
+        )
+        with patch(
+            "gate14_first_screen_audio_binding.play_verified_first_screen_action_press",
+            return_value=summary,
+        ) as play:
+            binding = install_first_screen_press_audio(host, b"bank", object())
+            result = binding.on_click(scaled)
+
+        self.assertEqual(result, "host-result")
+        self.assertEqual(binding.audio_attempt_count, 1)
+        play.assert_called_once()
+
     def test_non_action_first_screen_pixel_delegates_without_audio(self):
         order = []
         host = FakeHost(FrontEndScreen.START_MENU, order)
