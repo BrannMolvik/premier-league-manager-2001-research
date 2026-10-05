@@ -90,27 +90,96 @@ with original generic fallback:
 The source disc contains club-specific families such as
 `England/arsenal_background0.444` through `background3.444`.
 
+## Dynamic club-background selector
+
+Fresh disassembly of the canonical executable SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+closes the remaining `ClubBackgroundSurface::0x5D3490/0x5D3560` selector.
+
+`0x5D3490` reads the global game-date serial at `0x9847FC` and passes it
+through date splitter `0x64CCD0`. That helper emits a 1-based month in its
+second dword. The month is then used directly as the index into literal table
+`0x83339C`.
+
+The exact month -> background variant mapping is:
+
+| Month | Variant |
+| --- | ---: |
+| January | 2 |
+| February | 2 |
+| March | 3 |
+| April | 3 |
+| May | 0 |
+| June | 0 |
+| July | 0 |
+| August | 0 |
+| September | 1 |
+| October | 1 |
+| November | 1 |
+| December | 2 |
+
+The current FastView owner passes background-client index **1**. The two
+client-cache records begin at `0x87AC68`, stride `0x0C`, so FastView uses
+the second record at `0x87AC74`. Each client record is keyed by exact club
+identity plus the month-derived background variant.
+
+Changed keys release the previous shared resource reference and acquire through
+the shared cache at `0x87AC30`. That shared cache has exactly **two** slots,
+each **0x18** bytes. `0x5D3560` reuses a matching active
+`(club, variant)` slot and increments its reference count; otherwise it
+allocates the first free slot.
+
+The source resource attempt order is also exact:
+
+1. club-specific `<club>_backgroundN.444`;
+2. club-specific unsuffixed `<club>_background.444`;
+3. generic `genericTier_backgroundN.444`.
+
+The generic tier comes from signed raw `DBRClub+0x70` without assigning that
+field a speculative higher-level label:
+
+- raw value > 20 -> tier 0;
+- raw value 9..20 -> tier 1;
+- raw value <= 8 -> tier 2.
+
+The authorized Joliet disc tree independently contains all twelve expected
+generic seasonal files:
+`generic0_background0..3.444`,
+`generic1_background0..3.444`, and
+`generic2_background0..3.444`, as well as club-specific seasonal families
+such as `England/arsenal_background0..3.444`.
+
+The full-surface club selector is also bounded more precisely. Match helper
+`0x514220` returns Match `+0x48` when that explicit club override is not
+`-1`; otherwise it falls back through Match side `+0x14`, already proven
+to be the home side. The background is therefore **override-or-home**, not an
+unconditional home-club guess.
+
 ## Fidelity boundary
 
 This checkpoint closes:
 
 - all three surfaced-control rectangles and owner callsites;
 - full-surface match-club-background ownership;
+- override-or-home background-club selection;
+- exact month-derived `background0..3` selection;
+- two-level client/shared cache identity, capacity and reference reuse;
+- exact club-specific and generic fallback order;
 - home/away badge orientation;
 - badge family, exact `badge_2` variant and generic fallback;
 - the DBRClub/DBRCountry fields that drive club-art paths.
 
 It deliberately keeps false:
 
-- the exact dynamic `Team_backgrounds` background index selected for one
-  FastView instance;
-- repository staging/decoding of badge/background source bytes;
+- repository staging/decoding of the surfaced background/badge source bytes;
+- integration of these surfaced pixels into the FastView component raster set;
 - complete FastView frame;
 - Gate 14 completion.
 
 ## Next step
 
-Source-close `ClubBackgroundSurface::0x5D3490/0x5D3560` background-index/cache
-selection. In parallel, the badge path is already sufficiently closed to stage
-and decode the exact source badges once a concrete match pair is supplied by
-the reconstructed match presentation state.
+Bind the source-closed selector to reconstructed match state and a verified
+original-game source root, decode the selected background plus home/away badge
+EA444 resources, then lift those exact pixels into the component/overlap model.
+Do not bulk-stage every club resource or choose a background independently of
+the source month/club rules.
