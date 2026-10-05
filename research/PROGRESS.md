@@ -11468,3 +11468,15 @@ work may continue under the deferred-blocker policy.
 - The exact 320x480 TGQ -> 640x480 decoder interpolation/duplication and interlace treatment remain unresolved and are not guessed.
 - Phase-1 #482 priority remains route-scoped management loading + source-closed Squad rows; this FMV trace defines the later evidence-backed presentation repair contract.
 
+
+## 6 October 2026 — Recovery 323 issue #482 Phase-1 route-loading checkpoint
+
+- Resumed from canonical main `e9635ee0f0ad9351427a311f8c14a79a3180d727` and opened PR #483 from branch `recovery323-issue482-phase1-route-load`.
+- Fresh MANAGEMENT resource ownership is now route-scoped: the initial Squad landing requests only PMenu, Squad top controls, management background and management header. Fixtures/grid/pager/PMatchInfo and League Tables/text resources remain unset until their panel family is requested.
+- Expensive family decode remains off the Tk thread. The host now records the active family, blocks re-entrant management input during every family decode, surfaces worker failures fail-closed, and caches successfully loaded families for the rest of the session.
+- Deterministic tests now assert fresh Squad excludes Fixtures, League Tables and PMatchInfo, and host-level source-accepted Fixtures / League Tables navigation requests each deferred family once and then reuses it.
+- Gate-13 CI run `37367326351` exposed one test-only lifecycle error: the first version of the later-family failure test fabricated MANAGEMENT without completing TeamSelect Start. The branch was corrected to enter MANAGEMENT through the real New Game -> TeamSelect -> Start lifecycle at commit `905dab690cf452c0c34644aec3f9a6bbe2605a49`.
+- Current PR head is `c300c23002d116a0bd74665528a5acaec28d3055`. Replacement Gate-13, reconstruction, asset-policy and Windows-package runs are queued; no active GitHub-hosted runner is currently executing them, so this checkpoint makes no green-CI claim.
+- The source-closed Squad-row renderer remains the unresolved half of Phase 1. Retained private trace proves PSquadPlayerRow role geometry `(28,1,38,14)`, display-name helper geometry `(76,1,144,14)`, the 18px Zurich player font, and an explicit branch-selected native packed color before role text construction. The display-name helper `0x5D6C50` contains its styling internally and its body is not present in the retained trace.
+- Public original Windows screenshots corroborate light ordinary row text, but they are not used to replace the missing executable branch semantics. No white/modern color substitute has been introduced.
+- The authorized original disc archive is available in the connected Library, but container, notebook Python and the separate visible Python runtime all currently fail at process start with `caas.internal.errors.ClientError`. Exact helper/pixel-format tracing is therefore an infrastructure-deferred evidence blocker. Do not infer `0x4EA3F0` / `0x5D6C50` semantics until executable inspection is healthy.
