@@ -62,6 +62,10 @@ HEADER_WINDOWS = (
     ("PSquadPlayerRow visible text setup", 0x489530, 0x800),
     ("PSCFRow visible text setup", 0x489B40, 0x600),
     ("shared ordinary eCText setup", 0x6503F0, 0x180),
+    ("shared caption text setup core", 0x651F00, 0x240),
+    ("shared caption text draw", 0x6520C0, 0x700),
+    ("shared glyph clip path", 0x6570F0, 0x300),
+    ("shared font draw path", 0x657280, 0x500),
     # Cover the existing family of source-qualified Zurich wrapper bindings so
     # any object pushed by the row setup windows can be matched to its exact
     # original .fnt path.  This remains private receipt evidence only.
@@ -79,6 +83,7 @@ HEADER_DATA_OBJECTS = (
     ("header font object", 0x8B0760, 0x40),
     ("English caption global", 0x9820F4, 0x20),
     ("header text-derived vtable", 0x7BEBCC, 0x80),
+    ("canonical eCText vtable", 0x7BE340, 0x100),
 )
 POINTER_TARGETS = (
     ("left header descriptor", 0x943A90),
