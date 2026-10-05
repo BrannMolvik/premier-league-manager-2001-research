@@ -1,6 +1,6 @@
 # Gate 15 fidelity-sweep readiness audit
 
-_Date: 3 October 2026 KST_
+_Date: 5 October 2026 KST_
 
 ## Status
 
@@ -27,26 +27,37 @@ behavior is original; it does not mean the difference disappears.
 
 ## Current canonical checkpoint
 
-This audit is reconciled through main
-`57e59f6374f8c278cabbe054b8767638a69e5a26` (PR #146). That checkpoint
-passed reconstruction workflow `37055561454` with **1,424 tests / 22 expected
-skips** and repository asset-policy workflow `37055561468`.
+This audit is reconciled through current main
+`4a80c2e832b3810b6e3a84c23ddb84b6b2596b2d`. The latest Gate-14 fidelity
+checkpoint within that head is PR #402 at
+`76774a5a87d8813ac7a2c9d58b6a4bca5cc863d5`, which passed reconstruction
+workflow `37260456096` with **2,394 tests / 23 expected skips** and repository
+asset-policy workflow `37260456145`. Gate-13 PR #365 merged afterward on the
+same main line with its previously verified ordinary Fixtures paging/PMenu
+milestone; that merge does not change the Gate-14 evidence summarized here.
 
-PR #146 source-bounded the special Cup/knockout controlled-participant
-category-1/category-2 accounting helper and materialized the exact numeric
-`0x5DBCD0` paired-XI attendance modifier. The direct caller/applicability of
-that alternate modifier remains intentionally unresolved, so full live Cup
-receipt attachment is still fail-closed.
+The earlier Gate-15 finance source boundary from PR #146 remains unchanged:
+the direct caller/applicability of the alternate Cup/knockout attendance
+modifier is still intentionally unresolved, so full live Cup receipt attachment
+remains fail-closed.
 
-## Current source-execution blocker
+Since that older audit, Gate 14 has materially narrowed its presentation
+boundary without claiming completion. Current main now carries explicit
+complete-frame guards for GoalFlash, ScoreCompositeMain, four embedded outer
+controls, and incomplete nested score/team subpanels; it source-rasterizes
+retained PlayerRow energy/text pixels; inventories the static
+ScoreCompositeNormal/LeagueTable TextControls; and provides a checksum-gated
+private tracer for their still-unresolved value/style/font/color producers.
 
-The authorized original-source archive remains known and provenance-locked, but
-the current ChatGPT execution allocation cannot start either shell/container or
-Python processes and raises `caas.internal.errors.ClientError` before process
-start. Fresh private disassembly is therefore unavailable in this worker.
+## Current private-source boundary
 
-Repository-persisted evidence remains usable. Any item that needs a new
-instruction trace is left fail-closed rather than inferred.
+Repository-persisted source evidence is usable in this worker, but the private
+canonical executable/source bytes are not part of the current GitHub-only work
+surface. Items that require a new private instruction trace therefore remain
+fail-closed. PR #402 prepares one exact bounded trace for the omitted
+ScoreCompositeNormal/LeagueTable text producer path; the existence of that
+tracer is not itself source evidence and does not promote any text semantics or
+pixels.
 
 ## Fidelity items
 
@@ -59,9 +70,9 @@ instruction trace is left fail-closed rather than inferred.
 | Due `MPMTransferPlayer` same-day ordering | Modern runtime currently executes due transfers after the date's fixture block. Persisted evidence proves `0x613EE0` is first inside `0x4A8070`, but does not preserve the outer call relation between that daily coordinator and same-day match execution. | **Blocked source question, explicitly approximated.** Do not promote the modern ordering to an original claim. Can be accepted only as a named same-day availability limitation if fresh source execution remains unavailable at final fidelity audit. |
 | Match-day / recurring commercial income | Ordinary Premier League gate receipts are live. English Cup policy/RNG primitives are source-backed. Recovery 187 adds the exact special controlled-participant category-1/category-2 accounting helper and neutral `0x5DBCD0` paired-XI numeric primitive; full live Cup attachment still depends on source-locking the alternate modifier caller/applicability. Fresh concession income remains disabled because its generator does not activate records. | **Not yet preferred for acceptance while a small source caller boundary remains.** If private execution remains unavailable, final audit may accept the missing live Cup-special attachment as a documented finance limitation, but must not call it original or infer "revenue sharing." |
 | Finance/board residuals | Ordinary Balance/cash, transfers, Premier League gate receipts, payroll, objectives and job security are integrated. Legacy chairman-budget events are proven irrelevant to the ordinary shipped fresh-game path. Exact support-staff amount materialization, broader Cup/facility behavior and some EA-facing labels remain incomplete. | **Mixed.** Legacy budget events are resolved/irrelevant. Neutral category labels are documentation-only. Support-staff amount and broader Cup finance remain real bounded cash-flow limitations and should stay named unless source-closed. |
-| Original front-end presentation | Owned by Gate 13. Schema 8 repository contract exists, while real-Windows schema 8 validation and several fail-closed native interaction/pixel boundaries remain open. | **Prerequisite blocker.** Gate 15 cannot use acceptance language to bypass Gate 13's own completion criteria. |
-| UI fidelity | Owned by Gate 13; representative source-backed management route exists but still has unresolved native interaction/pixel boundaries. | **Prerequisite blocker.** Resolve/audit with Gate 13 first. |
-| FastView/3D and original audio/match presentation | Owned by Gate 14. Semantic match-event shell and resource resolver groundwork exist, but exact source paths/placement, orientation, audio binding and recognizably original match presentation remain open. | **Prerequisite blocker.** Resolve/audit with Gate 14 first. |
+| Original front-end presentation | Owned by Gate 13. Genuine calculated human-away report/save/fresh reload now reaches the correct PMatchInfo through visible ordinary Fixtures arrows and native PMenu popup ownership without the explicit paging seam. The current Gate-13 closure audit still remains open on source-qualified first-screen timing and management-header/data-text recognizability. | **Prerequisite blocker.** Gate 15 cannot use acceptance language to bypass Gate 13's own completion criteria. |
+| UI fidelity | Owned by Gate 13. Representative source-backed management/report rendering and ordinary Fixtures navigation are now verified, but the live first-screen host still does not advance the recovered 11-step Button hover state at a source-qualified cadence, and dynamic management-header `back_4/back_4_anim` art/text plus final ordinary data/text recognizability remain open. | **Prerequisite blocker.** Resolve/audit with Gate 13 first. |
+| FastView/3D and original audio/match presentation | Owned by Gate 14. Reconstructed events feed the presentation path; retained PlayerRow energy/text pixels, direct/source-backed raster families, nested construction algorithms, GoalFlash/ScoreCompositeMain/embedded-control source boundaries, packed-16 font blending, audio-bank ownership/playback entrypoints and chant selection/timing are now source-backed. Complete nested score/team pixels, GoalFlash absolute placement/pixels, ScoreCompositeMain geometry/pixels, embedded-control geometry/pixels, global frame order/flattening, audio event binding/integration, chant semantics, 3D choreography and final recognizable-original verification remain open. | **Prerequisite blocker.** This is materially narrower than the prior audit, but Gate 15 still cannot accept or document away Gate 14's own completion criteria. |
 
 ## No-false-original audit
 
@@ -76,7 +87,10 @@ The currently bounded fallbacks satisfy Gate 15's second criterion in design:
 - Cup-special accounting uses neutral source terms and does not infer a
   business-policy label;
 - unsupported presentation pixels/actions are withheld rather than replaced and
-  described as original.
+  described as original;
+- the new static score/table TextControl inventory asserts only source-proven
+  geometry/order, while its private tracer labels linear predecessor
+  instructions explicitly as **not** constructor-argument or semantic proof.
 
 This must be rechecked against the final code/docs immediately before Gate 15
 is closed.
