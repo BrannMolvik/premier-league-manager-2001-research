@@ -160,7 +160,8 @@ autodetection is disabled. It retains only:
   select;
 - native H.264 and AAC decoders because the runtime immediately decode-verifies
   each generated derivative before accepting its cache receipt;
-- native AAC encoding;
+- native AAC encoding plus FFmpeg's internal `aresample` filter, because the
+  AAC encoder accepts FLTP while EA audio decoders may produce integer PCM;
 - Windows Media Foundation `h264_mf`;
 - the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
   muxing machinery;
