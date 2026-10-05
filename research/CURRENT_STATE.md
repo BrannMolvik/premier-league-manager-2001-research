@@ -7,6 +7,48 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 318 continuation — FFmpeg redistribution boundary canonical
+
+PR #468 merged as `fabbe1971d7c8667dc7a347498b64f7970bc1970`
+from head `03cb83e2d9fda998eb5ec265eb198fde7723f24c`.
+Reconstruction run `37336912015` passed **2,599 tests / 23 expected
+skips**. Windows release-candidate package run `37336911662` passed the
+new exact-provider install, FFmpeg identity/attestation step, focused package
+tests, PyInstaller freeze, frozen executable smoke, deterministic archive build
+and artifact upload. Repository asset-policy run `37336911707` also passed.
+
+The Windows packaging workflow now pins `imageio-ffmpeg==0.6.0` and checks
+the staged executable against the exact previously observed FFmpeg 7.1
+`essentials_build-www.gyan.dev` identity. Repository provenance records the
+observed Gyan build, compiler, GPL/version-3/static configuration, required
+configuration flags, FFmpeg library versions and upstream reference URLs. Each
+Windows package emits a SHA-bound `runtime_tools/ffmpeg.provenance.json`
+attestation for the exact executable and repository provenance.
+
+Gate 17 now fails closed on third-party release material. A final release audit
+requires the same release ZIP to contain the attested FFmpeg binary, matching
+repository provenance, and every declared FFmpeg license/source-distribution
+material with exact SHA-256 identities. The canonical provenance deliberately
+keeps `release_ready=false`, `license_material_complete=false` and
+`source_material_complete=false`; therefore this checkpoint does **not**
+claim that redistribution requirements are satisfied and does not make a legal
+compliance conclusion.
+
+A fresh private-execution retry in this recovery failed even for a trivial
+shell/Python probe with `caas.internal.errors.ClientError`. The private
+TeamTable six-base-control trace around `0x524EC0` therefore remains
+unexecuted and Gate 14 remains the earliest incomplete validation gate.
+
+**Exact next task:** audit whether the Windows 11 release can avoid redistributing
+the current static GPL-enabled FFmpeg binary while retaining the source-backed
+startup-media path. Prefer a technically sound dependency strategy that removes
+or sharply narrows the redistribution obligation; if no compatible route is
+available, preserve the #468 fail-closed boundary and document the exact
+third-party source/license material still required. Do not weaken startup-media
+fidelity, silently rely on a developer-installed executable, or mark the
+current FFmpeg material complete without exact evidence. Retry the private
+Gate-14 source route again at the next normal persistence boundary.
+
 ## Recovery 318 continuation — release disclosure guard canonical; private source still blocked
 
 PR #467 merged as `93991be9f3a147f7d8764b46792b9685091b1ddd` from head
