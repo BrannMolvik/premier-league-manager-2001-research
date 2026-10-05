@@ -7,6 +7,11 @@ import unittest
 from ea444_tables import CANONICAL_EXE_SHA256
 from gate13_button_source_trace import OriginalPE32
 from gate13_squad_source_trace import (
+    PSCF_ROW_SETUP_VA,
+    PSQUAD_PLAYER_ROW_SETUP_VA,
+    SQUAD_PLAYER_COLOR_PREDICATE_VA,
+    SQUAD_PLAYER_INDEX_HELPER_VA,
+    SQUAD_PLAYER_NAME_CONTROL_SETUP_VA,
     SQUAD_TRACE_WINDOWS,
     SQUAD_VTABLE_SEEDS,
     squad_trace_report,
@@ -49,8 +54,18 @@ class Gate13SquadSourceTraceTests(unittest.TestCase):
                 FORMATION_TEXT_FORM_SETUP_VA,
                 SQUAD_SCREEN_SETUP_VA,
                 SQUAD_SCREEN_EVENT_HANDLER_VA,
+                PSQUAD_PLAYER_ROW_SETUP_VA,
+                PSCF_ROW_SETUP_VA,
+                SQUAD_PLAYER_COLOR_PREDICATE_VA,
+                SQUAD_PLAYER_INDEX_HELPER_VA,
+                SQUAD_PLAYER_NAME_CONTROL_SETUP_VA,
             ),
         )
+        self.assertEqual(PSQUAD_PLAYER_ROW_SETUP_VA, 0x489530)
+        self.assertEqual(PSCF_ROW_SETUP_VA, 0x489B40)
+        self.assertEqual(SQUAD_PLAYER_COLOR_PREDICATE_VA, 0x4EA3F0)
+        self.assertEqual(SQUAD_PLAYER_INDEX_HELPER_VA, 0x4EA3C0)
+        self.assertEqual(SQUAD_PLAYER_NAME_CONTROL_SETUP_VA, 0x5D6C50)
         self.assertEqual(CBASE_PLAYER_LIST_VFTABLE_VA, 0x7C5BC8)
         self.assertEqual(FORMATION_TEXT_VFTABLE_VA, 0x7C5700)
         self.assertEqual(SQUAD_PITCH_VFTABLE_VA, 0x7C54A8)
