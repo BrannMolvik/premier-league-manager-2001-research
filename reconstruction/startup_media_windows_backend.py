@@ -123,7 +123,12 @@ class WindowsMciStartupMediaBackend:
     def play(self, item: VerifiedStartupMediaDerivative) -> bool:
         if not isinstance(item, VerifiedStartupMediaDerivative):
             return False
-        if item.container != "mp4" or item.video_codec != "h264" or item.audio_codec != "aac":
+        if (
+            item.container != "mp4"
+            or item.video_codec != "h264"
+            or item.audio_codec != "aac"
+            or item.pixel_format != "yuv420p"
+        ):
             return False
 
         alias = self._alias(item)
@@ -159,34 +164,53 @@ if ([string]::IsNullOrWhiteSpace($path) -or -not [IO.File]::Exists($path)) {
 }
 
 $script:mediaFailed = $false
+$script:mediaEnded = $false
 $window = New-Object Windows.Window
 $window.WindowStyle = [Windows.WindowStyle]::None
 $window.ResizeMode = [Windows.ResizeMode]::NoResize
 $window.WindowState = [Windows.WindowState]::Maximized
 $window.Topmost = $true
+$window.ShowInTaskbar = $false
 $window.Background = [Windows.Media.Brushes]::Black
 
 $media = New-Object Windows.Controls.MediaElement
 $media.LoadedBehavior = [Windows.Controls.MediaState]::Manual
 $media.UnloadedBehavior = [Windows.Controls.MediaState]::Stop
 $media.Stretch = [Windows.Media.Stretch]::Uniform
-$media.Source = [Uri]::new([IO.Path]::GetFullPath($path))
+$media.Volume = 1.0
+try {
+    $media.Source = [Uri]::new([IO.Path]::GetFullPath($path), [UriKind]::Absolute)
+} catch {
+    [Console]::Error.WriteLine($_.Exception.Message)
+    exit 2
+}
 
 $media.Add_MediaEnded({
+    $script:mediaEnded = $true
     $window.Close()
 })
 $media.Add_MediaFailed({
+    param($sender, $eventArgs)
     $script:mediaFailed = $true
+    if ($eventArgs -and $eventArgs.ErrorException) {
+        [Console]::Error.WriteLine($eventArgs.ErrorException.Message)
+    }
     $window.Close()
 })
-$window.Add_Loaded({
-    $media.Play()
+$window.Add_ContentRendered({
+    try {
+        $media.Play()
+    } catch {
+        $script:mediaFailed = $true
+        [Console]::Error.WriteLine($_.Exception.Message)
+        $window.Close()
+    }
 })
 $window.Content = $media
 
 [void]$window.ShowDialog()
-$media.Stop()
-if ($script:mediaFailed) {
+try { $media.Stop() } catch {}
+if ($script:mediaFailed -or -not $script:mediaEnded) {
     exit 3
 }
 exit 0
@@ -232,6 +256,19 @@ class WindowsWpfStartupMediaBackend:
             _WPF_PLAYBACK_SCRIPT.encode("utf-16le")
         ).decode("ascii")
 
+    @staticmethod
+    def _timeout_seconds(item: VerifiedStartupMediaDerivative) -> float:
+        frames = int(item.spec.decoded_video_frames)
+        rate = int(item.spec.frame_rate)
+        if frames <= 0 or rate <= 0:
+            raise WindowsStartupMediaBackendError(
+                "startup-media timing contract is invalid"
+            )
+        # Bound a broken WPF/media stack without constraining the source-proven
+        # clip duration. Both startup clips receive at least 30 seconds of
+        # initialization headroom beyond their decoded duration.
+        return max(30.0, frames / rate + 30.0)
+
     def play(self, item: VerifiedStartupMediaDerivative) -> bool:
         if not isinstance(item, VerifiedStartupMediaDerivative):
             return False
@@ -260,7 +297,12 @@ class WindowsWpfStartupMediaBackend:
                 text=True,
                 env=env,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                timeout=self._timeout_seconds(item),
             )
+        except subprocess.TimeoutExpired as exc:
+            raise WindowsStartupMediaBackendError(
+                f"Windows WPF startup-media playback timed out: {item.path}"
+            ) from exc
         except Exception as exc:
             raise WindowsStartupMediaBackendError(
                 "Windows WPF startup-media player failed to launch"
