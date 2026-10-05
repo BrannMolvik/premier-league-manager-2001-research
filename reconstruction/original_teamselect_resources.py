@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
+from runtime_diagnostics import timed_stage
 from ea_font import EAFont
 from ea_language_strings import parse_language_pair
 from original_pstartmenu_labels import PStartMenuCaption
@@ -176,85 +177,94 @@ def load_verified_original_teamselect_inputs(
     *, original_art_dir: Path, original_executable: Path
 ) -> OriginalTeamSelectResources:
     """Load the checksum-gated native TeamSelect presentation inputs."""
-    executable = Path(original_executable).read_bytes()
-    tables = tables_from_original_executable(executable)
-    quant = quantization_from_verified_executable(executable)
-    base = decode_ea444(
-        _read_verified_art(
-            original_art_dir, GLOBAL_BACKGROUND_PATH, GLOBAL_BACKGROUND_SHA256
-        ),
-        tables=tables, quant=quant,
-    )
-    team = decode_ea444(
-        _read_verified_art(
-            original_art_dir,
-            TEAMSELECT_BACKGROUND_PATH,
-            TEAMSELECT_BACKGROUND_SHA256,
-        ),
-        tables=tables, quant=quant,
-    )
-    buttons = decode_verified_original_button_atlas(
-        _read_verified_art(
-            original_art_dir,
-            TEAMSELECT_BUTTON_ATLAS.source_path,
-            TEAMSELECT_BUTTON_ATLAS.source_sha256,
-        ),
-        spec=TEAMSELECT_BUTTON_ATLAS,
-        tables=tables,
-        quant=quant,
-    )
-    hierarchy_art = decode_verified_hierarchy_art(
-        _read_verified_art(
-            original_art_dir, HIERARCHY_ANIM_SPEC.path,
-            HIERARCHY_ANIM_SPEC.source_sha256,
-        ),
-        _read_verified_art(
-            original_art_dir, HIERARCHY_BARS_SPEC.path,
-            HIERARCHY_BARS_SPEC.source_sha256,
-        ),
-        tables=tables,
-        quant=quant,
-    )
-    source_root = Path(original_art_dir).parent
-    native_hierarchy = decode_verified_teamselect_native_inputs(
-        _read_verified_art(
-            original_art_dir,
-            TEAMSELECT_CLUB_ANIM_PATH,
-            TEAMSELECT_CLUB_ANIM_SHA256,
-        ),
-        _read_verified_art(
-            original_art_dir,
-            TEAMSELECT_CLUB_BARS_PATH,
-            TEAMSELECT_CLUB_BARS_SHA256,
-        ),
-        _read_verified_root(
-            source_root,
-            TEAMSELECT_LEAGUE_FONT_PATH,
-            TEAMSELECT_LEAGUE_FONT_SHA256,
-        ),
-        _read_verified_root(
-            source_root,
-            TEAMSELECT_CLUB_FONT_PATH,
-            TEAMSELECT_CLUB_FONT_SHA256,
-        ),
-        tables=tables,
-        quant=quant,
-    )
-    font = EAFont.from_bytes(_read_verified_root(
-        source_root, TEAMSELECT_ACTION_FONT_PATH, TEAMSELECT_ACTION_FONT_SHA256,
-    ))
-    strings, index = parse_language_pair(
-        _read_verified_root(source_root, "English.str", ENGLISH_STR_SHA256),
-        _read_verified_root(source_root, "English.idx", ENGLISH_IDX_SHA256),
-    )
-    result = assemble_original_teamselect_inputs(
-        base, team, buttons, hierarchy_art, native_hierarchy,
-        prepare_original_teamselect_captions(font, strings, index),
-    )
-    if sha256(result.background_rgba).hexdigest() != (
-        TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256
-    ):
-        raise OriginalTeamSelectResourceError(
-            "Source-backed original TeamSelect background RGBA regression"
+    with timed_stage("teamselect.resources.executable_tables"):
+        executable = Path(original_executable).read_bytes()
+        tables = tables_from_original_executable(executable)
+        quant = quantization_from_verified_executable(executable)
+
+    with timed_stage("teamselect.resources.global_background_decode"):
+        base = decode_ea444(
+            _read_verified_art(
+                original_art_dir, GLOBAL_BACKGROUND_PATH, GLOBAL_BACKGROUND_SHA256
+            ),
+            tables=tables, quant=quant,
         )
+    with timed_stage("teamselect.resources.screen_background_decode"):
+        team = decode_ea444(
+            _read_verified_art(
+                original_art_dir,
+                TEAMSELECT_BACKGROUND_PATH,
+                TEAMSELECT_BACKGROUND_SHA256,
+            ),
+            tables=tables, quant=quant,
+        )
+    with timed_stage("teamselect.resources.action_atlas_decode"):
+        buttons = decode_verified_original_button_atlas(
+            _read_verified_art(
+                original_art_dir,
+                TEAMSELECT_BUTTON_ATLAS.source_path,
+                TEAMSELECT_BUTTON_ATLAS.source_sha256,
+            ),
+            spec=TEAMSELECT_BUTTON_ATLAS,
+            tables=tables,
+            quant=quant,
+        )
+    with timed_stage("teamselect.resources.hierarchy_art_decode"):
+        hierarchy_art = decode_verified_hierarchy_art(
+            _read_verified_art(
+                original_art_dir, HIERARCHY_ANIM_SPEC.path,
+                HIERARCHY_ANIM_SPEC.source_sha256,
+            ),
+            _read_verified_art(
+                original_art_dir, HIERARCHY_BARS_SPEC.path,
+                HIERARCHY_BARS_SPEC.source_sha256,
+            ),
+            tables=tables,
+            quant=quant,
+        )
+    source_root = Path(original_art_dir).parent
+    with timed_stage("teamselect.resources.native_rows_decode"):
+        native_hierarchy = decode_verified_teamselect_native_inputs(
+            _read_verified_art(
+                original_art_dir,
+                TEAMSELECT_CLUB_ANIM_PATH,
+                TEAMSELECT_CLUB_ANIM_SHA256,
+            ),
+            _read_verified_art(
+                original_art_dir,
+                TEAMSELECT_CLUB_BARS_PATH,
+                TEAMSELECT_CLUB_BARS_SHA256,
+            ),
+            _read_verified_root(
+                source_root,
+                TEAMSELECT_LEAGUE_FONT_PATH,
+                TEAMSELECT_LEAGUE_FONT_SHA256,
+            ),
+            _read_verified_root(
+                source_root,
+                TEAMSELECT_CLUB_FONT_PATH,
+                TEAMSELECT_CLUB_FONT_SHA256,
+            ),
+            tables=tables,
+            quant=quant,
+        )
+    with timed_stage("teamselect.resources.font_language"):
+        font = EAFont.from_bytes(_read_verified_root(
+            source_root, TEAMSELECT_ACTION_FONT_PATH, TEAMSELECT_ACTION_FONT_SHA256,
+        ))
+        strings, index = parse_language_pair(
+            _read_verified_root(source_root, "English.str", ENGLISH_STR_SHA256),
+            _read_verified_root(source_root, "English.idx", ENGLISH_IDX_SHA256),
+        )
+        captions = prepare_original_teamselect_captions(font, strings, index)
+    with timed_stage("teamselect.resources.compose_verify"):
+        result = assemble_original_teamselect_inputs(
+            base, team, buttons, hierarchy_art, native_hierarchy, captions,
+        )
+        if sha256(result.background_rgba).hexdigest() != (
+            TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256
+        ):
+            raise OriginalTeamSelectResourceError(
+                "Source-backed original TeamSelect background RGBA regression"
+            )
     return result
