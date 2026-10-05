@@ -468,26 +468,34 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertTrue(root.values["destroyed"])
         self.assertEqual(host.last_status, "QUIT_TO_WINDOWS")
 
-    def test_management_resources_are_loaded_only_on_explicit_management_boundary(self):
+    def test_management_resources_are_route_scoped_and_cached_once(self):
         calls = []
-        payload = {
-            "management_pmenu_resources": object(),
-            "league_fixtures_grid_art": object(),
-            "fixtures_pager_art": object(),
-            "squad_top_resources": object(),
-            "league_tables_header_art": object(),
-            "pmatchinfo_snapshot": object(),
-            "pmatchinfo_font": object(),
-            "pmatchinfo_nested_font": object(),
-            "pmatchinfo_script_art": object(),
-            "management_background": object(),
-            "management_header_resources": object(),
-            "management_text_resources": object(),
+        payloads = {
+            "squad": {
+                "management_pmenu_resources": object(),
+                "squad_top_resources": object(),
+                "management_background": object(),
+                "management_header_resources": object(),
+            },
+            "fixtures": {
+                "league_fixtures_grid_art": object(),
+                "fixtures_pager_art": object(),
+                "pmatchinfo_snapshot": object(),
+                "pmatchinfo_font": object(),
+                "pmatchinfo_nested_font": object(),
+                "pmatchinfo_script_art": object(),
+                "_fixture_resource_names": ("fixture-grid",),
+            },
+            "league_tables": {
+                "league_tables_header_art": object(),
+                "management_text_resources": object(),
+                "_league_table_resource_names": ("league-table",),
+            },
         }
 
-        def loader():
-            calls.append("load")
-            return payload
+        def loader(family):
+            calls.append(family)
+            return payloads[family]
 
         host = OriginalGameTkHost(
             presenter(),
@@ -498,34 +506,155 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(calls, [])
         self.assertFalse(host._management_resources_loaded)
 
-        host._ensure_management_resources()
-        self.assertEqual(calls, ["load"])
+        host._ensure_management_resources("squad")
+        self.assertEqual(calls, ["squad"])
         self.assertTrue(host._management_resources_loaded)
-        host._ensure_management_resources()
-        self.assertEqual(calls, ["load"])
-        for name, value in payload.items():
-            self.assertIs(getattr(host, name), value)
+        self.assertEqual(host._management_resource_families_loaded, {"squad"})
+        self.assertIsNone(host.league_fixtures_grid_art)
+        self.assertIsNone(host.fixtures_pager_art)
+        self.assertIsNone(host.league_tables_header_art)
+        self.assertIsNone(host.pmatchinfo_snapshot)
+        self.assertIsNone(host.management_text_resources)
 
-    def test_teamselect_start_defers_management_resource_decode_off_tk_thread(self):
+        host._ensure_management_resources("squad")
+        self.assertEqual(calls, ["squad"])
+
+        host._ensure_management_resources("fixtures")
+        self.assertEqual(calls, ["squad", "fixtures"])
+        self.assertEqual(
+            host._management_resource_families_loaded,
+            {"squad", "fixtures"},
+        )
+        host._ensure_management_resources("fixtures")
+        self.assertEqual(calls, ["squad", "fixtures"])
+
+        host._ensure_management_resources("league_tables")
+        self.assertEqual(calls, ["squad", "fixtures", "league_tables"])
+        self.assertEqual(
+            host._management_resource_families_loaded,
+            {"squad", "fixtures", "league_tables"},
+        )
+        host._ensure_management_resources("league_tables")
+        self.assertEqual(calls, ["squad", "fixtures", "league_tables"])
+
+        for family in ("squad", "fixtures", "league_tables"):
+            for name, value in payloads[family].items():
+                self.assertIs(getattr(host, name), value)
+
+    def test_source_accepted_panel_routes_load_each_family_once_then_reuse_it(self):
+        calls = []
+        threads = []
+        payloads = {
+            "fixtures": {
+                "league_fixtures_grid_art": object(),
+                "fixtures_pager_art": object(),
+                "pmatchinfo_snapshot": object(),
+                "pmatchinfo_font": object(),
+                "pmatchinfo_nested_font": object(),
+                "pmatchinfo_script_art": object(),
+                "_fixture_resource_names": ("fixture-grid",),
+            },
+            "league_tables": {
+                "league_tables_header_art": object(),
+                "management_text_resources": object(),
+                "_league_table_resource_names": ("league-table",),
+            },
+        }
+
+        def loader(family):
+            calls.append(family)
+            return payloads[family]
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_resource_loader=None,
+            management_thread_factory=thread_factory,
+        )
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        with patch.object(host, "redraw"):
+            host.on_click(SimpleNamespace(x=426, y=301))
+        self.assertTrue(live.session.started)
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+
+        # The fresh Squad family is the only family considered ready when the
+        # deferred route-loader seam is installed for this host-level test.
+        host.management_resource_loader = loader
+        host._management_resource_families_loaded = {"squad"}
+        host._management_resources_loaded = True
+
+        class RoutePresenter:
+            def __init__(self):
+                self.panel_class = "PLeagueFixtures"
+
+            def source_accepted_pmenu_action(self, row_kind, menu_id, source_flags):
+                return SimpleNamespace(
+                    action=SimpleNamespace(action_kind="open_panel"),
+                    presentation=SimpleNamespace(panel_class=self.panel_class),
+                )
+
+        route = RoutePresenter()
+        host.management_presenter = route
+
+        first = host.apply_source_accepted_pmenu_action("child", 0x25C, 0)
+        self.assertEqual(first.presentation.panel_class, "PLeagueFixtures")
+        self.assertEqual(len(threads), 1)
+        self.assertEqual(host._management_loading_family, "fixtures")
+        self.assertEqual(calls, [])
+
+        with patch.object(host, "redraw") as redraw:
+            threads[0].run()
+            root.run_timer()
+            redraw.assert_called_once_with()
+        self.assertEqual(calls, ["fixtures"])
+        self.assertIn("fixtures", host._management_resource_families_loaded)
+
+        with patch.object(host, "redraw") as redraw:
+            host.apply_source_accepted_pmenu_action("child", 0x25C, 0)
+            redraw.assert_called_once_with()
+        self.assertEqual(len(threads), 1)
+        self.assertEqual(calls, ["fixtures"])
+
+        route.panel_class = "PLeagueTables"
+        host.apply_source_accepted_pmenu_action("child", 0x25A, 0)
+        self.assertEqual(len(threads), 2)
+        self.assertEqual(host._management_loading_family, "league_tables")
+
+        with patch.object(host, "redraw") as redraw:
+            threads[1].run()
+            root.run_timer()
+            redraw.assert_called_once_with()
+        self.assertEqual(calls, ["fixtures", "league_tables"])
+        self.assertIn("league_tables", host._management_resource_families_loaded)
+
+        with patch.object(host, "redraw") as redraw:
+            host.apply_source_accepted_pmenu_action("child", 0x25A, 0)
+            redraw.assert_called_once_with()
+        self.assertEqual(len(threads), 2)
+        self.assertEqual(calls, ["fixtures", "league_tables"])
+
+    def test_teamselect_start_defers_only_fresh_squad_resources_off_tk_thread(self):
         calls = []
         threads = []
         payload = {
             "management_pmenu_resources": object(),
-            "league_fixtures_grid_art": object(),
-            "fixtures_pager_art": object(),
             "squad_top_resources": object(),
-            "league_tables_header_art": object(),
-            "pmatchinfo_snapshot": object(),
-            "pmatchinfo_font": object(),
-            "pmatchinfo_nested_font": object(),
-            "pmatchinfo_script_art": object(),
             "management_background": object(),
             "management_header_resources": object(),
-            "management_text_resources": object(),
         }
 
-        def loader():
-            calls.append("load")
+        def loader(family):
+            calls.append(family)
+            self.assertEqual(family, "squad")
             return payload
 
         def thread_factory(**kwargs):
@@ -554,6 +683,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(calls, [])
             self.assertEqual(len(threads), 1)
             self.assertTrue(threads[0].started)
+            self.assertEqual(host._management_loading_family, "squad")
             self.assertFalse(host._management_resources_loaded)
             self.assertIsNotNone(host._management_load_poll)
             redraw.assert_not_called()
@@ -562,18 +692,25 @@ class OriginalGameHostTests(unittest.TestCase):
             threads[0].run()
             root.run_timer()
 
-            self.assertEqual(calls, ["load"])
+            self.assertEqual(calls, ["squad"])
             self.assertTrue(host._management_resources_loaded)
+            self.assertEqual(host._management_resource_families_loaded, {"squad"})
             redraw.assert_called_once_with()
             self.assertEqual(root.values["configure"]["cursor"], "")
             for name, value in payload.items():
                 self.assertIs(getattr(host, name), value)
+            self.assertIsNone(host.league_fixtures_grid_art)
+            self.assertIsNone(host.fixtures_pager_art)
+            self.assertIsNone(host.league_tables_header_art)
+            self.assertIsNone(host.pmatchinfo_snapshot)
+            self.assertIsNone(host.management_text_resources)
 
     def test_teamselect_async_management_loader_surfaces_worker_exception(self):
         threads = []
         messages = []
 
-        def loader():
+        def loader(family):
+            self.assertEqual(family, "squad")
             raise RuntimeError("management decode exploded")
 
         def thread_factory(**kwargs):
@@ -614,7 +751,8 @@ class OriginalGameHostTests(unittest.TestCase):
     def test_management_input_is_ignored_while_async_resources_are_loading(self):
         threads = []
 
-        def loader():
+        def loader(family):
+            self.assertEqual(family, "squad")
             raise AssertionError("deferred worker should not have run yet")
 
         def thread_factory(**kwargs):
@@ -642,9 +780,84 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertIsNone(host.management_presenter)
         self.assertEqual(
             host.last_status,
-            "Preparing source-backed management resources...",
+            "Preparing source-backed management squad resources...",
         )
         self.assertEqual(len(threads), 1)
+
+    def test_later_management_route_decode_blocks_input_and_surfaces_failure(self):
+        threads = []
+        messages = []
+        squad_payload = {
+            "management_pmenu_resources": object(),
+            "squad_top_resources": object(),
+            "management_background": object(),
+            "management_header_resources": object(),
+        }
+
+        def loader(family):
+            if family == "squad":
+                return squad_payload
+            if family == "fixtures":
+                raise RuntimeError("fixture decode exploded")
+            raise AssertionError(f"unexpected family {family}")
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_presenter_factory=management_factory,
+            management_resource_loader=loader,
+            management_thread_factory=thread_factory,
+            error_reporter=messages.append,
+        )
+
+        # Reach MANAGEMENT through the real recovered lifecycle before testing a
+        # later route family. The initial Squad decode is completed under a
+        # redraw stub because this test exercises loading/error lifecycle, not
+        # bitmap rendering of the deliberately minimal object payload.
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        with patch.object(host, "redraw"):
+            host.on_click(SimpleNamespace(x=426, y=301))
+            self.assertEqual(len(threads), 1)
+            self.assertEqual(host._management_loading_family, "squad")
+            threads[0].run()
+            root.run_timer()
+
+        self.assertTrue(live.session.started)
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+        self.assertEqual(host._management_resource_families_loaded, {"squad"})
+        self.assertTrue(host._management_resources_loaded)
+
+        host._begin_management_resource_load("fixtures")
+        self.assertEqual(host._management_loading_family, "fixtures")
+        self.assertEqual(len(threads), 2)
+
+        with patch.object(host, "redraw") as redraw:
+            host.on_click(SimpleNamespace(x=400, y=300))
+            self.assertEqual(
+                host.last_status,
+                "Preparing source-backed management fixtures resources...",
+            )
+            redraw.assert_not_called()
+
+            threads[1].run()
+            root.run_timer()
+
+        self.assertEqual(messages, ["RuntimeError: fixture decode exploded"])
+        self.assertEqual(host.last_status, "RuntimeError: fixture decode exploded")
+        self.assertNotIn("fixtures", host._management_resource_families_loaded)
+        self.assertIsNone(host._management_load_thread)
+        self.assertIsNone(host._management_load_queue)
+        self.assertIsNone(host._management_loading_family)
+        self.assertEqual(root.values["configure"]["cursor"], "")
 
     def test_game_host_starts_fullscreen_and_preserves_native_canvas_size(self):
         root = FakeRoot()
