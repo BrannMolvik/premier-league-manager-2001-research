@@ -84,6 +84,12 @@ POINTER_TARGETS = (
     ("right header descriptor", 0x943AD0),
     ("header font object", 0x8B0760),
     ("English caption global", 0x9820F4),
+    # Management-specific methods immediately following the compound
+    # constructor.  Raw pointer occurrences can locate their vtable ownership
+    # in the next private receipt without naming their semantics in advance.
+    ("header method candidate 0x4314D0", 0x4314D0),
+    ("header method candidate 0x431500", 0x431500),
+    ("header method candidate 0x431590", 0x431590),
 )
 
 
