@@ -39,6 +39,14 @@ class ReleaseReadinessError(RuntimeError):
 
 REQUIRED_PREREQUISITE_GATES = tuple(range(1, 17))
 
+REQUIRED_EXTERNAL_RECEIPT_AUDIT_KINDS = {
+    "clean_windows_install": "gate17_clean_windows_install",
+    "new_game_management_loop": "gate17_new_game_management_loop",
+    "season_progression": "gate17_season_progression",
+    "save_reload": "gate17_save_reload",
+    "full_original_scope": "gate17_full_original_scope",
+}
+
 REQUIRED_EXTERNAL_RECEIPTS = {
     "clean_windows_install": (
         "windows_11",
@@ -414,6 +422,19 @@ def validate_external_receipts(
             ) from exc
         if not isinstance(payload, dict) or payload.get("passed") is not True:
             raise ReleaseReadinessError(f"{name} receipt does not declare passed=true")
+        expected_audit_kind = REQUIRED_EXTERNAL_RECEIPT_AUDIT_KINDS[name]
+        if payload.get("audit_kind") != expected_audit_kind:
+            raise ReleaseReadinessError(
+                f"{name} receipt audit_kind must be {expected_audit_kind}"
+            )
+        release_archive_size = payload.get("release_archive_size")
+        if (
+            type(release_archive_size) is not int
+            or release_archive_size != evidence.archive.size_bytes
+        ):
+            raise ReleaseReadinessError(
+                f"{name} receipt release_archive_size does not match release archive"
+            )
         if payload.get("repository_commit") != evidence.repository_commit:
             raise ReleaseReadinessError(
                 f"{name} receipt was produced for a different repository commit"
@@ -469,6 +490,8 @@ def validate_external_receipts(
             "path": str(path),
             "sha256": actual_sha,
             "required_flags": list(required_flags),
+            "audit_kind": expected_audit_kind,
+            "release_archive_size": release_archive_size,
             "windows_build": windows_build,
             "windows_product_type": product_type,
             **(
