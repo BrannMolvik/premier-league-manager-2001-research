@@ -138,6 +138,10 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must retain internal aresample for AAC sample-format conversion"
         )
+    if minimal.get("required_protocols") != ["file", "pipe"]:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper protocol metadata must remain file+pipe"
+        )
     if "--enable-muxer=mp4" not in args or "--enable-protocol=file,pipe" not in args:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must retain file/pipe I/O and the actual mp4 muxer"
