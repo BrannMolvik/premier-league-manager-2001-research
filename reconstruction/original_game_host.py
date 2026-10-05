@@ -110,6 +110,7 @@ from original_squad_top_controls import (
     build_fresh_squad_top_render,
     load_verified_squad_top_resources,
 )
+from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
 from startup_media_playback import (
     load_and_play_verified_startup_sequence,
     play_verified_startup_sequence,
@@ -471,6 +472,61 @@ class OriginalGameTkHost:
         self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
         self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
+
+    def startup_media_child_binding(self) -> dict[str, int]:
+        """Return the game-owned child-HWND rectangle for source-faithful FMVs."""
+        for method_name in ("update_idletasks", "winfo_id"):
+            if not callable(getattr(self.root, method_name, None)):
+                raise OriginalGameHostError(
+                    "Startup-media child hosting requires a realized Tk window"
+                )
+        for method_name in ("winfo_x", "winfo_y"):
+            if not callable(getattr(self.canvas, method_name, None)):
+                raise OriginalGameHostError(
+                    "Startup-media child hosting requires realized canvas geometry"
+                )
+        self.root.update_idletasks()
+        presentation = ORIGINAL_STARTUP_FMV_PRESENTATION
+        return {
+            "parent_hwnd": int(self.root.winfo_id()),
+            "x": int(self.canvas.winfo_x())
+            + self._native_to_display(presentation.movie_x),
+            "y": int(self.canvas.winfo_y())
+            + self._native_to_display(presentation.movie_y),
+            "width": self._native_to_display(presentation.movie_width),
+            "height": self._native_to_display(presentation.movie_height),
+        }
+
+    def show_startup_media_backdrop(self) -> None:
+        """Hide the menu behind the native black startup-movie presentation field."""
+        create = getattr(self.canvas, "create_rectangle", None)
+        if not callable(create):
+            raise OriginalGameHostError(
+                "Startup-media backdrop requires a drawable game canvas"
+            )
+        self._startup_media_backdrop = create(
+            0,
+            0,
+            self.display_width,
+            self.display_height,
+            fill="black",
+            outline="",
+        )
+        raise_item = getattr(self.canvas, "tag_raise", None)
+        if callable(raise_item):
+            raise_item(self._startup_media_backdrop)
+        update = getattr(self.root, "update", None)
+        if callable(update):
+            update()
+        elif callable(getattr(self.root, "update_idletasks", None)):
+            self.root.update_idletasks()
+
+    def hide_startup_media_backdrop(self) -> None:
+        item = getattr(self, "_startup_media_backdrop", None)
+        if item is not None:
+            self.canvas.delete(item)
+            self._startup_media_backdrop = None
+            self.redraw()
 
     def _set_fullscreen(self, enabled: bool) -> None:
         self._fullscreen = bool(enabled)
@@ -1873,13 +1929,6 @@ def run_original_game_ui(
     audio binding immediately before mainloop. Normal application launches leave
     it as None.
     """
-    with timed_stage("startup.media"):
-        play_configured_startup_media(
-            receipt_path=startup_media_receipt,
-            backend=startup_media_backend,
-            repo_root=repo_root,
-            derivatives=startup_media_derivatives,
-        )
     resolved_source_root = (
         DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
     )
@@ -2015,6 +2064,39 @@ def run_original_game_ui(
         ),
         management_resource_loader=load_management_resources,
     )
+    if startup_media_backend is not None:
+        host.show_startup_media_backdrop()
+        try:
+            bind_parent = getattr(
+                startup_media_backend, "bind_parent_window", None
+            )
+            if callable(bind_parent):
+                binding = host.startup_media_child_binding()
+                bind_parent(
+                    binding["parent_hwnd"],
+                    x=binding["x"],
+                    y=binding["y"],
+                    width=binding["width"],
+                    height=binding["height"],
+                )
+            with timed_stage("startup.media"):
+                play_configured_startup_media(
+                    receipt_path=startup_media_receipt,
+                    backend=startup_media_backend,
+                    repo_root=repo_root,
+                    derivatives=startup_media_derivatives,
+                )
+        finally:
+            host.hide_startup_media_backdrop()
+    else:
+        with timed_stage("startup.media"):
+            play_configured_startup_media(
+                receipt_path=startup_media_receipt,
+                backend=None,
+                repo_root=repo_root,
+                derivatives=startup_media_derivatives,
+            )
+
     audio_binding = None
     try:
         audio_binding = install_live_first_screen_audio(host, game_dir)
