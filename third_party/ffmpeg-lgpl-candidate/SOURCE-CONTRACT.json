@@ -39,7 +39,7 @@
       "--enable-demuxer=ea",
       "--enable-decoder=eatgq,adpcm_ea,adpcm_ea_r1,adpcm_ea_r2,adpcm_ea_r3,adpcm_ima_ea_eacs,adpcm_ima_ea_sead,adpcm_psx,pcm_mulaw,pcm_s16le,pcm_s16le_planar,pcm_s8,mp3",
       "--enable-encoder=h264_mf,aac",
-      "--enable-muxer=mov"
+      "--enable-muxer=mp4"
     ],
     "ea_demuxer_codec_superset": [
       "eatgq",
@@ -58,7 +58,7 @@
     ],
     "required_output_encoder": "h264_mf",
     "required_audio_encoder": "aac",
-    "required_output_container": "mp4 via mov muxer",
+    "required_output_container": "mp4 muxer (which selects shared MOV muxing machinery)",
     "required_protocol": "file",
     "build_verified": false,
     "synthetic_roundtrip_verified": false,
