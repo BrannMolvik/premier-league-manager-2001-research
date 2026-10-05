@@ -148,6 +148,24 @@ class Gate17MultiHumanAdjudicationTests(unittest.TestCase):
         ):
             build_multi_human_adjudication_plan(report)
 
+    def test_exact_source_anchor_contract_cannot_drift(self):
+        cases = (
+            ("teamselect_start_event_va", 0x4DA481),
+            ("teamselect_start_continuation_va", 0x4C41C1),
+            ("teamselect_saturation_va", 0x4DA4D1),
+            ("global_user_count_va", 0x8755E8),
+            ("user_selected_club_pointer_offset", 0x5B8),
+        )
+        for key, value in cases:
+            report = neutral_trace_report()
+            report["source_contract"][key] = value
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(
+                    Gate17MultiHumanAdjudicationError,
+                    "source contract drifted",
+                ):
+                    build_multi_human_adjudication_plan(report)
+
     def test_missing_required_candidate_family_fails_closed(self):
         report = neutral_trace_report()
         report["direct_call_candidates"] = [
