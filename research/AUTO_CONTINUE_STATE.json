@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Surfaced loader PR #389 is canonical at 116386b4. Clean rebased surfaced-raster PR #392 is canonical at ab2a8bc8 after 2,364 tests/23 skips and asset policy. Clean integration-only PR #393 is under CI from head 643ce6a0; merge only after green. In parallel continue disjoint Gate-14 GoalFlash source trace from canonical executable: exact Receiver<EventGoal>/Receiver<EventScore>/Receiver<EventPenaltyShootoutShot> topology, five style-1 TextControls per flash row, raw flags/geometry, normal-goal and shootout formatter inputs/suffixes. Keep unresolved event field semantics neutral. Do not touch Gate 13.",
-  "last_known_main_head": "ab2a8bc828f8de2600632dbf25ed0fbf17600f48",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Main is now 47f24bf3 after Gate-14 surfaced-resource integration PR #393 merged with verified CI. Continue the disjoint Gate-14 GoalFlash source trace from the canonical executable: exact Receiver<EventGoal>/Receiver<EventScore>/Receiver<EventPenaltyShootoutShot> topology, five style-1 TextControls per flash row, raw flags/geometry, normal-goal and shootout formatter inputs/suffixes; then persist the next source-backed GoalFlash slice without touching Gate 13. Keep unresolved event field semantics neutral.",
+  "last_known_main_head": "47f24bf39333e9d4246c387db004eee2c622d199",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 296,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Conflicted dependent PRs #390/#391 were safely closed and recreated as clean rebases #392/#393; no force merge/ref rewrite. Static GoalFlash trace is read-only against canonical executable hash 833bf95e...",
+  "recovery_generation": 297,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered after same-chat fallback. PR #393 is merged on main at 47f24bf3. Continue disjoint Gate-14 GoalFlash static/source work; Gate 13 remains locked to Codex.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
