@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-17 tracer #406 merged on main 47039febe5318c9109f71e90b88789ca39833b90 after reconstruction run 37263001970 passed 2,408 tests / 23 expected skips and asset-policy run 37263001977 passed. Continue disjoint Gate-17 cloud-safe work by defining a fail-closed private adjudication plan over the tracer report: prioritize ordinary runtime traversal ownership (0x615C10) and later season/finalization ownership (0x616A70), require explicit secondary-global/this-pointer evidence before any capability promotion, then separately map human dispatch and save/reload owners. Do not implement procedural-secondary gameplay from candidate calls alone.",
-  "last_known_main_head": "47039febe5318c9109f71e90b88789ca39833b90",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-17 secondary-owner adjudication plan #407 is canonical at main 33a4ad53d78638f2f9154ba156683dda699bdf14 after reconstruction run 37264492487 passed 2,415 tests / 23 expected skips and asset-policy run 37264492501 passed. The actual secondary-owner semantics now require private canonical-source adjudication and remain deferred. Continue the next independent cloud-safe Gate-17 blocker: add a fail-closed private tracer for the already source-proven multi-human TeamSelect Start/user-list seam (0x4DA480 -> 0x4C41C0; user resolvers 0x4139D0/0x413B10; six-user saturation 0x4DA4D0 and global count 0x8755E4), keeping shared-runtime ordering, simultaneous human fixture dispatch, multi-human save/reload and Gate17 completion false.",
+  "last_known_main_head": "33a4ad53d78638f2f9154ba156683dda699bdf14",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 300,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #406 is canonical. Next work must turn its neutral candidate contract into a deterministic private-source adjudication checklist/validator, not semantic claims. Gate 13 remains open; Gate 17 cannot complete until earlier gates and real Windows 11 evidence pass.",
+  "note": "Secondary-owner candidate interpretation is now explicitly blocked on private source, with daily ownership first. Cloud-safe work proceeds to the independent six-user multi-human handoff boundary. Also reconcile the stale schema-43 wording in the multi-human capability docstring against current internal save schema 44 when touching that area.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
