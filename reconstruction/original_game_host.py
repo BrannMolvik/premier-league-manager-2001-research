@@ -233,6 +233,8 @@ class OriginalGameTkHost:
         self._first_screen_pointer = None
         self._first_screen_idle = None
         self.last_status = "Source-backed FM2001 host ready"
+        self.first_screen_audio_binding = None
+        self.first_screen_audio_error = None
 
         self.root.title("Premier League Manager 2001")
         self.root.resizable(False, False)
