@@ -61,7 +61,6 @@
     "required_output_encoder": "h264_mf",
     "required_audio_encoder": "aac",
     "required_output_container": "mp4 muxer (which selects shared MOV muxing machinery)",
-    "required_protocol": "file",
     "build_verified": false,
     "synthetic_roundtrip_verified": false,
     "exact_original_tgq_verified": false,
@@ -88,7 +87,11 @@
       "reason": "EA audio decoders may produce integer PCM while the native AAC encoder accepts FLTP."
     },
     "required_derivative_input_demuxer": "mov",
-    "license_scope_note": "Selected bounded FFmpeg source/components are LGPL 2.1-or-later; the minimal target does not enable GPL, nonfree, or version3-only mode."
+    "license_scope_note": "Selected bounded FFmpeg source/components are LGPL 2.1-or-later; the minimal target does not enable GPL, nonfree, or version3-only mode.",
+    "required_protocols": [
+      "file",
+      "pipe"
+    ]
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
 }
