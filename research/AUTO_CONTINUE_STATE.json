@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate14 is earliest incomplete; Gate13 is closed. Canonical main is 1f64c599 after gameplay-test responsiveness/fullscreen fixes #430/#431. Active PlayerRows integration PR #429 was cleanly replayed onto this main at exact head ac6297569227254a30b8974169b5c67f3d55175b after fixing two regression-test issues without weakening production invariants. Asset-policy run 37288675593 and reconstruction run 37288675790 are queued/running; merge only exact green head. Independent TeamTable six-base-control neutral source-tracer PR #432 exact head bd48e68dc5c729fb8508837efbb6c0b860e37189 is also in CI (asset policy 37288554401 passed; reconstruction 37288554354 running). It promotes only the already-canonical count of six and keeps identities/geometry/resources/text/pixels/complete TeamTable false.",
-  "last_known_main_head": "1f64c5990033a962ab359dc7e15c53968eed20cc",
+  "active_task": "Gate14 is earliest incomplete; Gate13 is closed. Canonical main is 93964e7181fc9324b3e1d38385e03b358fe37c5c after gameplay scaler-stability PR #433. Active PlayerRows integration PR #429 is replayed exactly one commit atop that main at 6eb0e10ad5d5221a976c9550c2bcc6228b6dc548; asset policy 37289738085 passed and reconstruction 37289737897 is running. Merge #429 first only if exact head is green. Independent TeamTable six-base-control neutral source tracer PR #432 head bd48e68dc5c729fb8508837efbb6c0b860e37189 has both reconstruction 37288554354 and asset policy 37288554401 green but is behind current main; replay it after #429 merges before merging. Live first-screen canonical menu-audio integration PR #434 head 7cb5d012bed16872d5ee6a92739b39d42ea1c183 is in CI and must also be replayed onto post-#429/#432 main before merge.",
+  "last_known_main_head": "93964e7181fc9324b3e1d38385e03b358fe37c5c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 308,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Private process execution in this worker still fails with caas ClientError. No private Gate14 audibility receipt is present in /FM2001 Library. Do not invent TeamTable base-control semantics, score/table text, GoalFlash/ScoreComposite geometry/pixels, audio event binding, audibility, choreography, or Gate14 completion. After #429/#432 validation, continue source-backed Gate14 work only.",
+  "note": "PR #434 reads canonical DATA/AUDIO/SFXS/menus.bnk only from user game_dir, validates exact 159324-byte/SHA identity, installs the already source-closed press route with Windows memory-WAV backend, normalizes fullscreen pointer coordinates, and fails open for missing/wrong audio/backend. It does NOT promote Windows audibility, hover/general audio semantics, audio_event_binding_recovered, login_menu_audio_integrated, or Gate14 completion. Private process execution remains unavailable with caas ClientError; no private audibility receipt in Library.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
