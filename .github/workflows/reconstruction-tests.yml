@@ -265,6 +265,8 @@ on:
       - "reconstruction/test_gate17_multi_human_adjudication.py"
       - "reconstruction/gate17_objective_rng_caller_source_trace.py"
       - "reconstruction/test_gate17_objective_rng_caller_source_trace.py"
+      - "reconstruction/gate17_objective_rng_adjudication.py"
+      - "reconstruction/test_gate17_objective_rng_adjudication.py"
       - "research/GATE17_RELEASE_READINESS.md"
       - "research/RELEASE_LIMITATIONS.md"
       - "reconstruction/test_gate16_consecutive_seasons.py"
