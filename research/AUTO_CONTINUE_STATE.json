@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #470 is open on head 97463a335da3f9f2440abe745807aad0ba2dca84. It keeps libx264 as production default, adds an explicit h264_mf candidate profile, makes runtime startup caches profile-bound, and exposes --video-encoder h264_mf for the exact private TGQ audit. Private shell and notebook execution both still fail with caas.internal.errors.ClientError; wait for #470 CI, merge if fully green, then retry the private exact-TGQ conversion.",
-  "last_known_main_head": "2f2409f80ad22c35e7c8b47e83f5b8e2721e713c",
+  "active_task": "PR #470 is merged and canonical. PR #471 has green Windows/asset checks and is awaiting full reconstruction run 37344093250; merge only after success. Then retry the private exact-TGQ h264_mf + matching FFprobe audit. Production conversion remains libx264.",
+  "last_known_main_head": "66441a2cdbd21c90b49f66784edaaedd63bf2d2e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 319,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 319: #469 already canonical. Fresh private archive access failed in both container and Python notebook with ClientError. #470 prepares the h264_mf exact-TGQ path without changing production defaults; exact private command is documented in GATE17_FFMPEG_LGPL_MIGRATION.md.",
+  "note": "Recovery 319 persisted PR #470 and current private-execution blocker. #471 Windows proof passed, including pinned FFprobe SHA 46a86ca9eb512c2989354ebe68eb1562fcb73b16d8041d54d54b5f4b244f958c and -fps_mode passthrough geometry; full reconstruction remains pending.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
