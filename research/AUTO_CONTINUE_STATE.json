@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate14 is earliest incomplete. Gate17 PR #427 is canonical at main 9d2d20de after 2,497 tests / 23 expected skips. Main then advanced with disjoint fullscreen/first-screen performance #428 to 72aedde1. Active Gate14 PR #429 exact head 6ee16a395dcaa6f35bf366e5259da63730faf9b6 integrates the already source-closed complete retained PlayerRows raster (name grid + six English text controls + static/dynamic energy) into canonical completed-human FastView frames as team_table_player_rows at the existing TeamTable paint position. Asset policy run 37284861284 passed; reconstruction run 37284861267 is in progress. Merge only exact green head; retain complete_team_table=false because six table-level controls remain unresolved.",
-  "last_known_main_head": "72aedde11690ecaa2d9290482b477eb1440f44a7",
+  "active_task": "Gate14 is earliest incomplete; Gate13 is closed. Canonical main is 1f64c599 after gameplay-test responsiveness/fullscreen fixes #430/#431. Active PlayerRows integration PR #429 was cleanly replayed onto this main at exact head ac6297569227254a30b8974169b5c67f3d55175b after fixing two regression-test issues without weakening production invariants. Asset-policy run 37288675593 and reconstruction run 37288675790 are queued/running; merge only exact green head. Independent TeamTable six-base-control neutral source-tracer PR #432 exact head bd48e68dc5c729fb8508837efbb6c0b860e37189 is also in CI (asset policy 37288554401 passed; reconstruction 37288554354 running). It promotes only the already-canonical count of six and keeps identities/geometry/resources/text/pixels/complete TeamTable false.",
+  "last_known_main_head": "1f64c5990033a962ab359dc7e15c53968eed20cc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 307,
+  "recovery_generation": 308,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Private process execution in this worker still fails with caas ClientError. TeamTable's six non-row controls and score/table static text remain source-unresolved; do not invent them. No private Gate14 audibility receipt is present in /FM2001 Library. Next cloud-safe work should use already-persisted source evidence only.",
+  "note": "Private process execution in this worker still fails with caas ClientError. No private Gate14 audibility receipt is present in /FM2001 Library. Do not invent TeamTable base-control semantics, score/table text, GoalFlash/ScoreComposite geometry/pixels, audio event binding, audibility, choreography, or Gate14 completion. After #429/#432 validation, continue source-backed Gate14 work only.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
