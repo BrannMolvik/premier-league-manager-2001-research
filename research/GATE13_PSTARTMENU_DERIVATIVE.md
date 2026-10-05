@@ -95,3 +95,51 @@ After independent verification, stage the derivative under
 `original_assets/converted/pstartmenu-v1/`, record conversion provenance in
 `original_assets/MANIFEST.md`, add package/asset-policy regeneration or
 verification, and only then wire the normal runtime to it.
+
+## Recovery 329 verified promotion receipts
+
+Private/source execution recovered the canonical root `footballmanager.exe`
+again from the authorized 511,121,336-byte source ZIP and reverified its
+SHA-256 as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Two minimal executable-derived decoder inputs are now provenance-tracked under
+`original_assets/source/decoder/`:
+
+- `ea444_tqia_dat.bin`: 0x420 bytes, SHA-256
+  `c62a13efbb812fb2157c067aaa3eae8afbbb52283dc5dc3eaf6cb86c5a11e8da`;
+- `ea444_quant_source.bin`: 0x100 bytes, SHA-256
+  `6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb`.
+
+They are byte-identical slices of the authorized canonical executable, not
+guessed constants, and allow deterministic derivative generation without
+shipping or executing the legacy EXE.
+
+Gate-13 CI run `37383441523` at PR #486 head
+`9b057de5b9ba37669a5f4391842d65d1435e3681` generated the derivative twice
+from repository-tracked original inputs and compared both outputs byte for
+byte. The run passed and retained artifact `gate13-pstartmenu-derivative`.
+The independently downloaded artifact verified as:
+
+- artifact ZIP SHA-256:
+  `049ba3af3802b7151c6ed828168df79585b44c1d91105a365d21f573451b7a1c`;
+- canonical manifest SHA-256:
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`;
+- stored XZ payload: 718,884 bytes, SHA-256
+  `2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697`;
+- decoded render payload: 2,315,939 bytes, SHA-256
+  `a73badbb141334441ed0893114238d9fedc75de0580588bddb2f894e986c3f55`;
+- exact composed background SHA-256 remains
+  `e5b9190b830440a340f162a81eab59270182b74a15bae0a3f24660a7c5d21046`.
+
+The normal runtime promotion pins the manifest hash independently of the
+manifest's internal payload hashes. A self-consistent replacement pair therefore
+fails closed. Explicit custom `source_root` research calls retain the original
+source-decode path; the default packaged/repository launch uses only the pinned
+derivative and must not silently fall back to the measured 26-second decode.
+
+The remaining acceptance boundary after this promotion is empirical Windows
+timing: Daniel's next normal Windows 11 run must show that
+`startup.presenter_build` no longer carries the prior 26.301-second cold
+source-conversion cost. This timing acceptance is separate from source fidelity.
+
