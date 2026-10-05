@@ -4,6 +4,7 @@ from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 import base64
+import platform
 import subprocess
 import unittest
 
@@ -70,6 +71,32 @@ class RecordingRunner:
 
 
 class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
+    @unittest.skipUnless(platform.system() == "Windows", "requires stock Windows WPF")
+    def test_stock_windows_runtime_loads_wpf_mediaelement(self):
+        completed = subprocess.run(
+            (
+                "powershell.exe",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Sta",
+                "-Command",
+                (
+                    "Add-Type -AssemblyName PresentationFramework; "
+                    "$m = New-Object System.Windows.Controls.MediaElement; "
+                    "if ($null -eq $m) { exit 7 }; exit 0"
+                ),
+            ),
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual(
+            completed.returncode,
+            0,
+            msg=(completed.stderr or completed.stdout),
+        )
+
     def test_verified_mp4_uses_hidden_sta_wpf_process_and_environment_path(self):
         runner = RecordingRunner()
         backend = WindowsWpfStartupMediaBackend(
