@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 objective-RNG adjudication #413 is canonical at main 61c6a41c1ee4dece25d27134329c862180645a48 after reconstruction run 37268358963 passed 2,447 tests / 23 expected skips and asset-policy run 37268358956 passed. Private objective-RNG source adjudication remains deferred because container/Python byte execution is unavailable despite successful Library materialization. Continue the next independent cloud-safe Gate-17 blocker: transplant the prepared sporting-objective progression source tracer onto current main, register full CI, validate/merge only if green. Keep non-PL branch semantics, promotion/relegation classification, progression readiness and Gate17 completion false.",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective source tracer PR #414 is active on exact head 66d93273b5e2ff16daa16cb1d212f36f2633dd6f; asset-policy run 37269114680 passed and reconstruction run 37269114633 is still running. Merge only this exact head if green. Then transplant prep branch chatgpt/gate17-sporting-objective-adjudication-prep onto the resulting main, register CI/research, and validate the three-stage proof contract (annual owner chronology -> non-PL branch/classification semantics -> +0x68/+0x9C state/evaluation ordering).",
   "last_known_main_head": "61c6a41c1ee4dece25d27134329c862180645a48",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 301,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Sporting progression prep branch chatgpt/gate17-sporting-objective-progression-trace-prep contains only neutral tracer/tests/research. It preserves persisted source anchors plus 17-way objective +0x64 switch and annual pass sequence (1,0) around 0x4F9010, without assigning non-PL branch semantics.",
+  "note": "PR #414 was corrected so sporting_objective_pass_sequence is persisted as JSON [1,0], avoiding tuple/list mismatch in private report consumption. Prep adjudication plan consumes that JSON-stable contract. Private executable byte access remains blocked by caas ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
