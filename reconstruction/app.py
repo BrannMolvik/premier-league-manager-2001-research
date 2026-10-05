@@ -717,10 +717,18 @@ def configure_startup_media(
         or args.startup_media_player is not None
         or bool(args.startup_media_player_arg)
     )
+    skip_startup_media = bool(getattr(args, "skip_startup_media", False))
     if args.prototype_ui:
         if startup_requested:
             raise ValueError(
                 "Startup media is available only on the source-backed FM2001 host."
+            )
+        return None, None, None
+
+    if skip_startup_media:
+        if startup_requested:
+            raise ValueError(
+                "--skip-startup-media cannot be combined with an explicit startup-media player."
             )
         return None, None, None
 
@@ -773,6 +781,14 @@ def main():
         type=Path,
         default=None,
         help='Override the verified original_assets/source root used by the source-backed host.',
+    )
+    ap.add_argument(
+        '--skip-startup-media',
+        action='store_true',
+        help=(
+            'Developer/test-only: bypass startup FMVs so other gameplay paths '
+            'can be tested while media playback is being diagnosed.'
+        ),
     )
     ap.add_argument(
         '--startup-media-receipt',
