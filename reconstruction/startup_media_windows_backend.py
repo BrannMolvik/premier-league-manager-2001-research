@@ -22,7 +22,7 @@ class WindowsStartupMediaBackendError(RuntimeError):
     pass
 
 
-def _default_mci_sender() -> Callable[[str], int]:
+def _default_mci_sender() -> tuple[Callable[[str], int], Callable[[int], str]]:
     try:
         winmm = ctypes.WinDLL("winmm")
     except (AttributeError, OSError) as exc:
@@ -33,10 +33,20 @@ def _default_mci_sender() -> Callable[[str], int]:
     sender.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint, ctypes.c_void_p)
     sender.restype = ctypes.c_uint
 
+    error_string = winmm.mciGetErrorStringW
+    error_string.argtypes = (ctypes.c_uint, ctypes.c_wchar_p, ctypes.c_uint)
+    error_string.restype = ctypes.c_bool
+
     def call(command: str) -> int:
         return int(sender(command, None, 0, None))
 
-    return call
+    def describe(status: int) -> str:
+        buffer = ctypes.create_unicode_buffer(512)
+        if error_string(int(status), buffer, len(buffer)):
+            return buffer.value.strip()
+        return "Unknown Windows MCI error"
+
+    return call, describe
 
 
 class WindowsMciStartupMediaBackend:
@@ -47,15 +57,26 @@ class WindowsMciStartupMediaBackend:
         *,
         platform_system: str | None = None,
         sender: Callable[[str], int] | None = None,
+        error_describer: Callable[[int], str] | None = None,
     ):
         system = platform.system() if platform_system is None else platform_system
         if system != "Windows":
             raise WindowsStartupMediaBackendError(
                 "built-in startup-media playback requires Windows"
             )
-        self._sender = _default_mci_sender() if sender is None else sender
+        if sender is None:
+            self._sender, self._error_describer = _default_mci_sender()
+        else:
+            self._sender = sender
+            self._error_describer = (
+                error_describer
+                if error_describer is not None
+                else lambda status: f"MCI status {int(status)}"
+            )
         if not callable(self._sender):
             raise WindowsStartupMediaBackendError("MCI sender must be callable")
+        if not callable(self._error_describer):
+            raise WindowsStartupMediaBackendError("MCI error describer must be callable")
 
     @staticmethod
     def _alias(item: VerifiedStartupMediaDerivative) -> str:
@@ -74,7 +95,7 @@ class WindowsMciStartupMediaBackend:
             )
         return f'"{path}"'
 
-    def _send(self, command: str) -> bool:
+    def _send(self, command: str) -> None:
         try:
             result = self._sender(command)
         except Exception as exc:
@@ -85,7 +106,16 @@ class WindowsMciStartupMediaBackend:
             raise WindowsStartupMediaBackendError(
                 "Windows MCI sender returned a non-integer status"
             )
-        return result == 0
+        if result != 0:
+            try:
+                detail = str(self._error_describer(result)).strip()
+            except Exception:
+                detail = f"MCI status {result}"
+            if not detail:
+                detail = f"MCI status {result}"
+            raise WindowsStartupMediaBackendError(
+                f"Windows MCI command failed ({result}: {detail}): {command}"
+            )
 
     def play(self, item: VerifiedStartupMediaDerivative) -> bool:
         if not isinstance(item, VerifiedStartupMediaDerivative):
@@ -97,12 +127,18 @@ class WindowsMciStartupMediaBackend:
         quoted = self._quoted_path(item)
         opened = False
         try:
-            if not self._send(f"open {quoted} alias {alias}"):
-                return False
+            self._send(f"open {quoted} alias {alias}")
             opened = True
             # Digital-video MCI recognizes the fullscreen play flag. wait keeps
             # the source-proven startup sequence synchronous.
-            return self._send(f"play {alias} fullscreen wait")
+            self._send(f"play {alias} fullscreen wait")
+            return True
         finally:
             if opened:
-                self._send(f"close {alias}")
+                try:
+                    self._send(f"close {alias}")
+                except WindowsStartupMediaBackendError:
+                    # Preserve the primary open/play failure if one is already
+                    # unwinding; a close failure after successful playback is
+                    # not evidence that the media itself failed to complete.
+                    pass
