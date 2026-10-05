@@ -7,8 +7,8 @@
   "mode": "continuous",
   "status": "working",
   "work_owner": "chatgpt",
-  "active_gate": 14,
-  "active_task": "Implementation worker action required: cleanly reconcile PR #475 onto current main, add the explicit native D3D11VA capability required by pinned h264_mf after --disable-autodetect, update fail-closed contract tests/docs, and verify focused/full/package CI. Then rebuild/reconcile #479. Overseer must review evidence before merge. Gate 14 external WPF playback acceptance remains deferred; production FFmpeg migration remains false.",
+  "active_gate": 13,
+  "active_task": "PRIORITY REGRESSION #482: implementation worker must restore real Windows playability before continuing independent release work. Audit and repair the current path from startup FMVs through PStartMenu, TeamSelect and Southport -> first Squad/management landing. Fix the separate WPF/PowerShell feel and source-unqualified 320x480 Uniform display treatment, eliminate multi-second startup/click/redraw work by caching/preconverting immutable presentation assets and lazy-loading only screen-required resources, and restore a complete usable recognizably-FM2001 first management/Squad screen. Preserve source/provenance/fail-closed semantics. Reconcile Gate-13 closure/status because external recognizability acceptance has failed. Do not call #482 fixed until CI passes and Daniel externally confirms the issue acceptance criteria. AFTER #482 external acceptance, hand continuous work back to the suspended normal task: corrected #475 D3D11VA minimal-FFmpeg contract, then #479, then earliest incomplete gate onward through Gate 17.",
   "last_known_main_head": "6030cbae46d8a15386d6b6114a11bcd35e8984dc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 321,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 321 oversight is persisted on main 6030cbae. Source audit proved the #479 failure is a missing D3D11VA capability in #475's minimal contract, and PR comments 6000643223, 6000643763, and 6000692840 contain exact worker acceptance criteria. Current ChatGPT toolset has GitHub oversight/review access but no separate implementation-worker/Codex execution tool; do not have the overseer write the implementation. Preserve status=working so a capable worker/recovery can continue without Daniel having to reconstruct context.",
+  "note": "Daniel's fresh external screenshots invalidate the prior practical acceptance framing: WPF playback now works but is separate-window/wrong-aspect; menu/button latency remains severe; Southport reaches an incomplete Squad shell. Umbrella issue #482 records the audit and worker acceptance criteria and links #436/#437/#438. This is a temporary regression priority. Once #482 is CI-verified and Daniel-machine accepted, restore the suspended normal mission beginning with #475/#479 D3D11VA/minimal-FFmpeg work and continue through Gate 17 without waiting for a new user instruction.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
