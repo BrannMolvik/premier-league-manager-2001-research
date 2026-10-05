@@ -7,6 +7,74 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 320 continuation — WPF startup-media transport canonical; external acceptance open
+
+Main advanced through the hands-on gameplay blocker fixes before this checkpoint:
+
+- PR #476 merged as `9bda514e673fff97621110f49b4bf506ecf15fdb`, mirroring the
+  recovered source-backed generic seasonal management-background fallback so
+  Southport/non-Premiership clubs do not fail on an unstaged club-specific
+  background.
+- PR #477 merged as `282d9fd1b1b09c772306575d811f47704185682a`, optimizing
+  source-faithful EA444 decode reuse and exposing front-end latency stages.
+  Its verified full suite passed **2,613 tests / 23 expected skips**.
+- PR #480 merged as `8195eedac48a5d361b9dac8f116c0baa6b9ec00d`, adding
+  per-family timing inside the previously measured
+  `management.resources.load_all` aggregate without changing resource
+  semantics. Reconstruction run `37352814705` passed **2,613 tests / 23
+  expected skips**; its Windows package, Gate-13 and asset-policy workflows
+  also passed.
+
+Issue #437 was then isolated on Daniel's real Windows 11 client. The exact
+source-verified startup cache is reached, but the built-in MCI transport fails
+at **open**, before playback, with status 277:
+`A problem occurred in initializing MCI.` The verified derivative is
+`%LOCALAPPDATA%\\FM2001-Windows11\\startup-media\\easp.mp4`; this is a
+transport regression, not evidence against the TGQ extraction/conversion/cache
+contract.
+
+PR #481 merged as `cb69cc583e367e4ff5d7b65c960eae56e8b81d21` from head
+`c59ffc049bfdc813434da54b53a8a0d8eb297e32`. It replaces normal automatic
+Windows MCI playback with a stock-Windows WPF `MediaElement` transport hosted
+by a synchronous hidden Windows PowerShell STA process. The verified derivative
+path is passed through a child-process environment variable rather than
+interpolated into PowerShell. The transport uses a borderless maximized black
+window with uniform scaling, starts after WPF content rendering, waits for
+`MediaEnded`, surfaces `MediaFailed` detail, and bounds a stuck player by the
+source-proven decoded clip duration plus 30 seconds of initialization headroom.
+The explicit developer external-player override and
+`--skip-startup-media` bypass remain intact. The legacy MCI adapter remains
+only as a regression/diagnostic seam.
+
+PR #481 final-head validation:
+- reconstruction run `37353925792`: **2,619 tests / 24 expected skips**;
+- Windows package run `37353925786`: passed exact candidate staging, the
+  package-specific tests including a real Windows
+  `PresentationFramework`/`MediaElement` instantiation smoke, PyInstaller
+  freeze, frozen executable smoke, deterministic archive build and upload;
+- focused Gate-13 run `37353925825`: passed;
+- repository asset-policy run `37353926007`: passed.
+
+PR #480 changed only `reconstruction/original_game_host.py`; PR #481 changed
+`app.py`, `startup_media_windows_backend.py` and their tests, so the two
+canonical changes are textually non-overlapping. Their full/package checks
+passed independently. The repository intentionally does not auto-run these
+manual/PR-only workflows on main pushes.
+
+**Gate-14 boundary remains open.** Hosted Windows CI proves the stock WPF
+runtime is present, not that Daniel's real Windows 11 client visibly and
+audibly plays both verified startup clips. Do not close issue #437, claim
+startup-media Windows acceptance, or mark Gate 14 complete until a normal
+external launch confirms both clips. Native skip input, fades/transition timing
+and exact original display treatment also remain unrecovered.
+
+**Exact next task:** treat the external WPF playback retest as a deferred
+specific user-action blocker and continue independent cloud-safe critical-path
+work. Prioritize the Gate-17 minimal upstream FFmpeg helper/source-provenance
+route (#475/#479) while keeping Gate 14 as the earliest incomplete validation
+gate. Before promoting those older stacked branches, reconcile them against
+current main and preserve the fail-closed production-migration boundary.
+
 ## Recovery 319 continuation — matching FFprobe/output contract canonical
 
 PR #473 merged as `18a2266507eec2a1b5663e047e89671e20a713a5`
