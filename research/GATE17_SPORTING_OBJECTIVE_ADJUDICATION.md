@@ -8,6 +8,8 @@ The source tracer bounds the annual sporting-objective area without assigning br
 
 Decoded direct CALL candidates remain discovery records. The already-proven 17-way switch and annual pass sequence establish structure, not the meaning of every branch.
 
+The private trace is serialized as JSON, so `sporting_objective_pass_sequence` is stored and validated as the JSON array `[1, 0]`; no tuple/list coercion is used to hide report drift.
+
 ## Stage 1: annual sporting owner chronology
 
 First prove the normal per-user annual lifecycle around `0x4A8628` and `0x5E1C00`.
