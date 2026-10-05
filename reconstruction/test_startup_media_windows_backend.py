@@ -2,12 +2,17 @@ from __future__ import annotations
 
 from hashlib import sha256
 from pathlib import Path
+from types import SimpleNamespace
+import base64
+import platform
+import subprocess
 import unittest
 
 from original_startup_media import OriginalStartupMediaSpec
 from startup_media_derivatives import VerifiedStartupMediaDerivative
 from startup_media_windows_backend import (
     WindowsMciStartupMediaBackend,
+    WindowsWpfStartupMediaBackend,
     WindowsStartupMediaBackendError,
 )
 
@@ -48,6 +53,201 @@ class RecordingSender:
     def __call__(self, command):
         self.calls.append(command)
         return self.statuses.pop(0) if self.statuses else 0
+
+
+class RecordingRunner:
+    def __init__(self, *, returncode=0, stderr=""):
+        self.returncode = returncode
+        self.stderr = stderr
+        self.calls = []
+
+    def __call__(self, command, **kwargs):
+        self.calls.append((command, kwargs))
+        return SimpleNamespace(
+            returncode=self.returncode,
+            stderr=self.stderr,
+            stdout="",
+        )
+
+
+class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
+    @unittest.skipUnless(platform.system() == "Windows", "requires stock Windows WPF")
+    def test_stock_windows_runtime_loads_wpf_mediaelement(self):
+        completed = subprocess.run(
+            (
+                "powershell.exe",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Sta",
+                "-Command",
+                (
+                    "Add-Type -AssemblyName PresentationFramework; "
+                    "$m = New-Object System.Windows.Controls.MediaElement; "
+                    "if ($null -eq $m) { exit 7 }; exit 0"
+                ),
+            ),
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual(
+            completed.returncode,
+            0,
+            msg=(completed.stderr or completed.stdout),
+        )
+
+    def test_verified_mp4_uses_hidden_sta_wpf_process_and_environment_path(self):
+        runner = RecordingRunner()
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=runner,
+            powershell_executable=r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+        )
+        path = Path(r"C:\FM2001\startup media\easp.mp4")
+
+        self.assertTrue(backend.play(derivative(path)))
+        self.assertEqual(len(runner.calls), 1)
+        command, kwargs = runner.calls[0]
+        self.assertEqual(
+            command[:9],
+            (
+                r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Sta",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-WindowStyle",
+                "Hidden",
+                "-EncodedCommand",
+            ),
+        )
+        script = base64.b64decode(command[9]).decode("utf-16le")
+        self.assertIn("PresentationFramework", script)
+        self.assertIn("MediaElement", script)
+        self.assertIn("WindowState", script)
+        self.assertNotIn(str(path), script)
+        self.assertEqual(
+            kwargs["env"]["FM2001_STARTUP_MEDIA_PATH"],
+            str(path),
+        )
+        self.assertFalse(kwargs["check"])
+        self.assertTrue(kwargs["capture_output"])
+        self.assertTrue(kwargs["text"])
+        self.assertGreater(kwargs["timeout"], 30.0)
+        self.assertIn("MediaFailed", script)
+        self.assertIn("ErrorException.Message", script)
+        self.assertIn("ContentRendered", script)
+        self.assertIn("ShowInTaskbar", script)
+
+    def test_failed_wpf_process_surfaces_exit_and_stderr(self):
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=RecordingRunner(returncode=3, stderr="media failed"),
+        )
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            r"exit code 3: media failed",
+        ):
+            backend.play(derivative(Path(r"C:\private\a.mp4")))
+
+    def test_timeout_is_source_duration_bounded_and_surfaces_failure(self):
+        item = derivative(Path(r"C:\private\long.mp4"))
+        long_spec = OriginalStartupMediaSpec(
+            source_path=item.spec.source_path,
+            source_sha256=item.spec.source_sha256,
+            size_bytes=item.spec.size_bytes,
+            startup_callsite_va=item.spec.startup_callsite_va,
+            playback_wrapper_va=item.spec.playback_wrapper_va,
+            playback_flag_bit0=item.spec.playback_flag_bit0,
+            video_width=item.spec.video_width,
+            video_height=item.spec.video_height,
+            frame_rate=25,
+            decoded_video_frames=1250,
+            audio_sample_rate=item.spec.audio_sample_rate,
+            audio_channels=item.spec.audio_channels,
+        )
+        long_item = VerifiedStartupMediaDerivative(
+            sequence=item.sequence,
+            spec=long_spec,
+            path=item.path,
+            converted_sha256=item.converted_sha256,
+            converted_size_bytes=item.converted_size_bytes,
+            container=item.container,
+            video_codec=item.video_codec,
+            pixel_format=item.pixel_format,
+            audio_codec=item.audio_codec,
+        )
+
+        class TimeoutRunner:
+            def __call__(self, command, **kwargs):
+                raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=TimeoutRunner(),
+        )
+        self.assertEqual(backend._timeout_seconds(long_item), 80.0)
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            "playback timed out",
+        ):
+            backend.play(long_item)
+
+    def test_invalid_timing_contract_is_defensively_rejected(self):
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=RecordingRunner(),
+        )
+        invalid_item = SimpleNamespace(
+            spec=SimpleNamespace(
+                decoded_video_frames=10,
+                frame_rate=0,
+            )
+        )
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            "timing contract is invalid",
+        ):
+            backend._timeout_seconds(invalid_item)
+
+
+    def test_wpf_backend_rejects_non_windows_invalid_runner_and_wrong_codec(self):
+        with self.assertRaisesRegex(WindowsStartupMediaBackendError, "requires Windows"):
+            WindowsWpfStartupMediaBackend(
+                platform_system="Linux",
+                runner=lambda *args, **kwargs: None,
+            )
+        with self.assertRaisesRegex(WindowsStartupMediaBackendError, "runner must be callable"):
+            WindowsWpfStartupMediaBackend(
+                platform_system="Windows",
+                runner=object(),
+            )
+
+        runner = RecordingRunner()
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=runner,
+        )
+        self.assertFalse(backend.play(object()))
+        item = derivative(Path(r"C:\private\a.mp4"))
+        self.assertFalse(
+            backend.play(
+                VerifiedStartupMediaDerivative(
+                    sequence=item.sequence,
+                    spec=item.spec,
+                    path=item.path,
+                    converted_sha256=item.converted_sha256,
+                    converted_size_bytes=item.converted_size_bytes,
+                    container=item.container,
+                    video_codec="vp9",
+                    pixel_format=item.pixel_format,
+                    audio_codec=item.audio_codec,
+                )
+            )
+        )
+        self.assertEqual(runner.calls, [])
 
 
 class WindowsStartupMediaBackendTests(unittest.TestCase):
