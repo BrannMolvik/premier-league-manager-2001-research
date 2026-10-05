@@ -4,6 +4,22 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Current-main paging closure validation
+
+Preserved canonical main through Gate14 #400 (`07eb4f7b`) on PR #365;
+no Gate14 file differs from that main. Fresh genuine automatic human-away
+calculation and schema44 disk save, separate-process reload, ordinary visible
+bidirectional arrows and correct rendered right-click PMatchInfo PASS.
+Private receipt6ee688...3111d4; exact hash in CURRENT_STATE/Fixtures trace.
+Full regression2395/23 expected skips PASS at reconciled `fafd2882`, final
+changed-module4 and focused Gate13 tests44 PASS at `a8e0eaed`.
+Fresh real Windows/Tk schema8, asset policy and patch hygiene PASS.
+Corrected stale machine-readable current/next-task fields: paging is proven;
+live first-screen animation cadence and required management header/data-text
+recognizability remain actual Gate13 closure gaps. Weekly usage reached the
+validation reserve. No guessed timer/pixels, original launch, capacity/report
+retrace, agent-runtime or ownership changes; Gate13 remains OPEN.
+
 ### 5 October 2026 KST — Ordinary Fixtures arrows and native menu popup
 
 Recovered exact left/right `toogle` resources, four-state27x18 bitmap controls,

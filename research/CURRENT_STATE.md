@@ -49,6 +49,19 @@ This is not Daniel-machine frozen-package acceptance or Gate17 certification.
 Verified implementation/research is on PR **#365**,
 `codex/gate13-fixtures-paging-closure`; original/proprietary reports and save
 remain private. `agent-runtime` and ownership are unchanged.
+Latest reconciliation preserves canonical `07eb4f7bc21bac3f0c2f6f1952c579fb9131dde1`
+(including the worker's Gate14 PRs through #400) at code head
+`a8e0eaed7a2c45b0ce5e170f812f88448aa9cb0c`. A fresh genuine automatic
+human-away calculation/save and separate Windows/Tk process repeat again pass
+with ordinary arrows and no paging seam; private receipt SHA-256:
+`6ee68869cd9fdcb997f00ce3045b8e441ba629b15e13b81136299eee323111d4`.
+Full regression at the preceding reconciled `fafd2882` passes **2,395 tests /
+23 expected skips**; the final disjoint #400 module separately passes4 tests,
+and final focused Gate13 tests44 PASS. The fresh schema8 receipt retains the
+correct identity above; asset policy and patch hygiene pass.
+No original game was executed and no Gate14 file differs
+from this reconciled main. Weekly usage reached the final validation reserve;
+do not substitute guessed timing or renderers to claim closure.
 Final reconciliation also preserves the newer disjoint worker PR #364 at
 `a99f1e029036c8cb37d66f36641c6093214d883a`; its changed-module regression
 passes7 tests. This introduces no new Gate13 source/runtime discrepancy.

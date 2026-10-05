@@ -109,6 +109,26 @@ or Gate17 certification is inferred from packaging.
 
 ## Private source receipt identities
 
+### Latest-main repeat
+
+Reconciled code `fafd288274676ae2655efb5dcf0924a57705fd2d` preserves main
+`dc87c68e8ffce0cf22a0f962184b342787c9343a` and all disjoint Gate14 work.
+Fresh automatic calculated fixture2 (home5/human-away11), complete publication,
+schema44 disk save, separate-process reload, visible bidirectional ordinary
+arrow press/release and correct rendered PMatchInfo PASS. No paging seam or
+capacity/report/scalar/link injection. The zero-script-row limitation remains.
+Private receipt SHA-256:
+`6ee68869cd9fdcb997f00ce3045b8e441ba629b15e13b81136299eee323111d4`;
+save SHA-256 `facdbae50708161caa021840bb9eead096869ca768a1b0ddf838c6eadcc7711c`.
+Fresh Windows/Tk schema8 retains
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+Asset policy and patch hygiene PASS. This still does not satisfy the unresolved
+timing/header/ordinary-data recognizability criteria below.
+Full reconciled regression2395/23 expected skips PASS at `fafd2882`.
+Final reconciliation preserves worker #400/main `07eb4f7b` at `a8e0eaed`;
+changed-module tests4 and focused Gate13 tests44 PASS. No Gate14 file differs
+from that main, and no completed capacity/report work was reopened.
+
 Resources: `a9d4a39332720290d6031ba00c667962761bad7801461cc000361dffc23bcdfc`.
 Concrete controls/bounds: `67950af908a05eb28c1e2cae814ad0e23563869cfadc298e59198e2a9ebafeb9`.
 Draw/frame/container: `04b42bc14f1da6d1ba9cf9440474c4849f34c65b5db81d7308bf00aef6397a3f`.

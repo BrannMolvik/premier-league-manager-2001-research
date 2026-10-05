@@ -56,6 +56,20 @@ Daniel-machine clean install/ordinary frozen-game acceptance or Gate17 closure.
 The criterion failures above are concrete implementation gaps, not merely a
 request for another broad audit. Do not retrace completed report/capacity work.
 
+## Latest-main closure validation
+
+Latest reconciliation preserves main `07eb4f7b` through disjoint Gate14 #400.
+At preceding code head `fafd2882`, full Windows regression PASS:
+**2,395 tests /23 expected skips** (427.437s). Final changed-module checks4
+and focused Gate13 tests44 PASS at `a8e0eaed`. Fresh automatic calculation,
+schema44 save, separate-process ordinary arrows/right-click/rendered PMatchInfo
+PASS; private receipt SHA-256:
+`6ee68869cd9fdcb997f00ce3045b8e441ba629b15e13b81136299eee323111d4`.
+Fresh Windows/Tk schema8 retains the corrected131866...e8cc9 identity above;
+asset policy and patch hygiene PASS. The criterion decision remains OPEN:
+fixed-frame first-screen timing and required header/ordinary-data rendering
+are actual unresolved implementation boundaries, not waived audit items.
+
 ## Historical probe checkpoints (superseded next-actions)
 
 ## 5 October: decisive user-thread capacity lifecycle proof
