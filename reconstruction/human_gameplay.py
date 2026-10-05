@@ -143,11 +143,41 @@ class HumanGameplayController:
     ) -> "HumanGameplayController":
         """Create the same canonical shipped-data runtime used by Gates 5/6."""
 
-        # Local imports keep the lightweight/synthetic controller independent
-        # from canonical-file verification and FOOTBAL.EXE coefficient loading.
+        # Keep the initial canonical boundary limited to verification + parsing.
+        # Schedule, GameState, coefficient and playable-scope materialization live
+        # only in from_verified_canonical_database below.
+        from fm2001_data import FM2001Database
+        from verify import verify_canonical_files
+
+        game_dir = Path(game_dir)
+        verify_canonical_files(game_dir)
+        database = FM2001Database(game_dir)
+        return cls.from_verified_canonical_database(
+            game_dir,
+            database,
+            player_seed=player_seed,
+            start_date=start_date,
+            match_engine_seed=match_engine_seed,
+        )
+
+    @classmethod
+    def from_verified_canonical_database(
+        cls,
+        game_dir: str | Path,
+        database,
+        *,
+        player_seed: int = 1,
+        start_date: date = date(2000, 7, 4),
+        match_engine_seed: int | None = None,
+    ) -> "HumanGameplayController":
+        """Materialize gameplay from an already verified canonical database.
+
+        This is the heavy world/schedule boundary used after TeamSelect. The
+        caller owns canonical-file verification and may reuse the exact parsed
+        database that supplied the TeamSelect catalog, avoiding a second parse.
+        """
         from canonical_matchday_audit import reconstruct_canonical_primary_schedule
         from competition_runtime import partition_root_procedural_league_ids
-        from fm2001_data import FM2001Database
         from gate17_country_allocation_scope import (
             derive_playable_country_allocation_plan,
         )
@@ -160,11 +190,13 @@ class HumanGameplayController:
             partition_annual_type3_league_sources,
             required_annual_type3_sources,
         )
-        from verify import verify_canonical_files
 
         game_dir = Path(game_dir)
-        verify_canonical_files(game_dir)
-        database = FM2001Database(game_dir)
+        database_game_dir = Path(getattr(database, "game_dir", game_dir))
+        if database_game_dir != game_dir:
+            raise ValueError(
+                "Verified canonical database does not belong to requested game directory"
+            )
         playable_scope = derive_original_playable_scope(database)
         playable_runtime_plan = derive_playable_league_runtime_plan(
             playable_scope,

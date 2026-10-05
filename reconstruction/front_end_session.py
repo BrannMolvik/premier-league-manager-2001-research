@@ -40,11 +40,16 @@ class FrontEndSessionOutcome:
 
 @dataclass
 class FrontEndSession:
-    """Keep original navigation, team choice and backend startup separate.
+    """Keep original navigation, TeamSelect data and backend startup separate.
 
-    The factory runs on confirmed PStartMenu New Game (event 2), matching the
-    source's database-load boundary. Native TeamSelect row toggles create/remove
-    original user objects immediately, and up to six selected clubs can coexist.
+    Synthetic callers may still build their injected backend on confirmed
+    PStartMenu New Game (event 2). The canonical Windows path instead verifies
+    and parses its TeamSelect catalog at that source database-load boundary,
+    while full GameState/schedule materialization is deferred until the
+    source-backed Start/Continue action. Native TeamSelect row toggles
+    create/remove original user objects immediately, and up to six selected
+    clubs can coexist.
+
     The current modern gameplay backend still exposes one HumanManagerState, so
     this seam records the source-backed selection set but defers its single-club
     backend activation until Start/Continue. Multiple selected users therefore
@@ -56,8 +61,11 @@ class FrontEndSession:
     """
 
     gameplay_factory: Callable[[], GameplaySelectionBackend]
+    team_select_catalog_factory: Callable[[], object] | None = None
+    gameplay_from_catalog_factory: Callable[[object], GameplaySelectionBackend] | None = None
     navigation: FrontEndState = field(default_factory=FrontEndState)
     gameplay: GameplaySelectionBackend | None = None
+    team_select_catalog: object | None = None
     selected_club_ids: tuple[int, ...] = ()
     started: bool = False
 
@@ -74,12 +82,36 @@ class FrontEndSession:
 
         canonical_dir = Path(game_dir)
 
+        def make_catalog() -> object:
+            from fm2001_data import FM2001Database
+            from verify import verify_canonical_files
+
+            verify_canonical_files(canonical_dir)
+            return FM2001Database(canonical_dir)
+
         def make_gameplay() -> GameplaySelectionBackend:
             from human_gameplay import HumanGameplayController
 
             return HumanGameplayController.from_canonical_game_dir(canonical_dir)
 
-        return cls(gameplay_factory=make_gameplay)
+        def make_gameplay_from_catalog(catalog: object) -> GameplaySelectionBackend:
+            from fm2001_data import FM2001Database
+            from human_gameplay import HumanGameplayController
+
+            if not isinstance(catalog, FM2001Database):
+                raise FrontEndSessionError(
+                    "Canonical TeamSelect catalog type changed before Start."
+                )
+            return HumanGameplayController.from_verified_canonical_database(
+                canonical_dir,
+                catalog,
+            )
+
+        return cls(
+            gameplay_factory=make_gameplay,
+            team_select_catalog_factory=make_catalog,
+            gameplay_from_catalog_factory=make_gameplay_from_catalog,
+        )
 
     def set_club_selections(self, club_ids) -> None:
         """Replace source-backed TeamSelect user choices without starting gameplay."""
@@ -129,25 +161,58 @@ class FrontEndSession:
             raise FrontEndSessionError("TeamSelect Start has already completed.")
 
         if screen is FrontEndScreen.START_MENU and control == StartMenuControl.NEW_GAME:
-            # Do not move off PStartMenu if the database cannot be loaded.
-            with timed_stage("teamselect.backend_build"):
-                backend = self.gameplay_factory()
-            if backend is None:
-                raise FrontEndSessionError("New Game backend factory returned nothing.")
-            transition = self.navigation.dispatch(control)
-            self.gameplay = backend
+            # Canonical New Game must still fail closed before TeamSelect, but
+            # TeamSelect itself needs only the verified country/competition/club
+            # catalog. Defer full GameState/schedule materialization until Start.
+            if self.team_select_catalog_factory is not None:
+                with timed_stage("teamselect.catalog_build"):
+                    catalog = self.team_select_catalog_factory()
+                if catalog is None:
+                    raise FrontEndSessionError(
+                        "New Game TeamSelect catalog factory returned nothing."
+                    )
+                transition = self.navigation.dispatch(control)
+                self.gameplay = None
+                self.team_select_catalog = catalog
+            else:
+                with timed_stage("teamselect.backend_build"):
+                    backend = self.gameplay_factory()
+                if backend is None:
+                    raise FrontEndSessionError(
+                        "New Game backend factory returned nothing."
+                    )
+                transition = self.navigation.dispatch(control)
+                self.gameplay = backend
+                self.team_select_catalog = None
             self.selected_club_ids = ()
             self.started = False
             return FrontEndSessionOutcome(transition)
 
         if screen is FrontEndScreen.TEAM_SELECT and control == TeamSelectControl.START_CONTINUE:
-            if self.gameplay is None or not self.selected_club_ids:
+            if not self.selected_club_ids:
                 raise FrontEndSessionError("Choose a club before starting the game.")
             if len(self.selected_club_ids) != 1:
                 raise FrontEndSessionError(
                     "Multiple original TeamSelect users are source-proven, but the "
                     "modern gameplay backend currently supports one human manager."
                 )
+            if self.gameplay is None:
+                if (
+                    self.gameplay_from_catalog_factory is None
+                    or self.team_select_catalog is None
+                ):
+                    raise FrontEndSessionError(
+                        "TeamSelect Start has no verified gameplay source."
+                    )
+                with timed_stage("teamselect.backend_build"):
+                    backend = self.gameplay_from_catalog_factory(
+                        self.team_select_catalog
+                    )
+                if backend is None:
+                    raise FrontEndSessionError(
+                        "TeamSelect Start gameplay factory returned nothing."
+                    )
+                self.gameplay = backend
             # Backend validates eligibility and roster. A rejected selection
             # leaves TeamSelect active and can be retried with a different club.
             selected_club_id = self.selected_club_ids[0]

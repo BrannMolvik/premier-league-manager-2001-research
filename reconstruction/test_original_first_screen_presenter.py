@@ -159,6 +159,71 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         presenter.snapshot()
         self.assertEqual(loads, ["team"])
 
+    def test_teamselect_snapshot_can_render_from_catalog_before_gameplay_exists(self):
+        country_order = (
+            (26, "England"), (66, "Scotland"), (33, "Germany"),
+            (40, "Italy"), (73, "Spain"), (31, "France"),
+            (24, "Holland"), (9, "Belgium"),
+        )
+        countries = tuple(
+            SimpleNamespace(id=key, name=name)
+            for key, name in country_order
+        )
+        competitions = (
+            SimpleNamespace(
+                id=0,
+                name="F.A. Premier League",
+                initialization_order_value=9,
+                country_region_id=26,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+            ),
+        )
+        clubs = (
+            SimpleNamespace(index=0, name="Arsenal", competition_id=0),
+            SimpleNamespace(index=1, name="Aston Villa", competition_id=0),
+        )
+        catalog = SimpleNamespace(
+            countries=countries,
+            competitions=competitions,
+            clubs=clubs,
+        )
+        gameplay_builds = []
+
+        session = FrontEndSession(
+            lambda: (_ for _ in ()).throw(
+                AssertionError("fallback gameplay factory must stay unused")
+            ),
+            team_select_catalog_factory=lambda: catalog,
+            gameplay_from_catalog_factory=lambda source: (
+                gameplay_builds.append(source) or StubBackend()
+            ),
+        )
+        presenter = OriginalFirstScreenPresenter(session, self.menu, self.team)
+
+        presenter.pointer(7, 478)
+        self.assertIsNone(session.gameplay)
+        self.assertIs(session.team_select_catalog, catalog)
+        self.assertEqual(gameplay_builds, [])
+
+        view = presenter.snapshot()
+        self.assertIs(view.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertTrue(view.hierarchy_rows)
+        self.assertEqual(
+            tuple(item.text for item in view.club_rows),
+            ("Arsenal", "Aston Villa"),
+        )
+        self.assertIsNone(session.gameplay)
+
+        presenter.choose_club(0)
+        outcome = presenter.pointer(426, 301)
+        self.assertIs(
+            outcome.transition.command,
+            FrontEndCommand.TEAMSELECT_START_CONTINUE,
+        )
+        self.assertEqual(gameplay_builds, [catalog])
+        self.assertIsNotNone(session.gameplay)
+
     def test_pointer_integrates_menu_teamselect_and_manager_start_boundary(self):
         presenter, built = self.presenter()
         for x, y, command in (

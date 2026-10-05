@@ -104,12 +104,17 @@ class OriginalFirstScreenPresenter:
         if self.hierarchy is not None:
             return self.hierarchy
         team_select = self._ensure_team_select_resources()
-        if team_select.native_hierarchy is None or self.session.gameplay is None:
+        if team_select.native_hierarchy is None:
             return None
-        state = getattr(self.session.gameplay, "state", None)
-        if state is None:
+        if self.session.gameplay is not None:
+            state = getattr(self.session.gameplay, "state", None)
+            if state is not None:
+                self.hierarchy = TeamSelectHierarchyModel.from_game_state(state)
+                return self.hierarchy
+        catalog = getattr(self.session, "team_select_catalog", None)
+        if catalog is None:
             return None
-        self.hierarchy = TeamSelectHierarchyModel.from_game_state(state)
+        self.hierarchy = TeamSelectHierarchyModel.from_catalog(catalog)
         return self.hierarchy
 
     def snapshot(self) -> OriginalFirstScreenSnapshot:
