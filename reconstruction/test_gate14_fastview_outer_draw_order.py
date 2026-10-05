@@ -206,9 +206,22 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
     def test_outer_boundary_refuses_global_promotion(self):
         self.assertTrue(SOURCE_BOUNDARY.outer_draw_array_exhaustively_recovered)
         self.assertTrue(SOURCE_BOUNDARY.outer_forward_order_recovered)
+        self.assertTrue(SOURCE_BOUNDARY.score_subpanel_parameterized_construction_recovered)
+        self.assertTrue(SOURCE_BOUNDARY.team_subpanel_parameterized_construction_recovered)
         self.assertFalse(SOURCE_BOUNDARY.score_subpanel_internal_inventory_complete)
         self.assertFalse(SOURCE_BOUNDARY.team_subpanel_internal_inventory_complete)
         self.assertFalse(SOURCE_BOUNDARY.global_fastview_z_order_recovered)
+        for field in (
+            "score_subpanel_parameterized_construction_recovered",
+            "team_subpanel_parameterized_construction_recovered",
+        ):
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(
+                    FastViewOuterDrawOrderError,
+                    "cannot weaken recovered outer/nested construction evidence",
+                ):
+                    replace(SOURCE_BOUNDARY, **{field: False})
+
         with self.assertRaisesRegex(
             FastViewOuterDrawOrderError,
             "cannot promote",
