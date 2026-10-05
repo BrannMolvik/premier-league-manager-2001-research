@@ -1770,8 +1770,15 @@ def run_original_game_ui(
     startup_media_backend=None,
     startup_media_derivatives=None,
     repo_root: str | Path | None = None,
+    host_ready_callback=None,
 ) -> None:
-    """Launch verified startup media, then the current source-backed UI surface."""
+    """Launch verified startup media, then the current source-backed UI surface.
+
+    host_ready_callback is an audit-only observation seam. When supplied, it is
+    called exactly once with the production host and the installed first-screen
+    audio binding immediately before mainloop. Normal application launches leave
+    it as None.
+    """
     with timed_stage("startup.media"):
         play_configured_startup_media(
             receipt_path=startup_media_receipt,
@@ -1874,12 +1881,17 @@ def run_original_game_ui(
         ),
         management_resource_loader=load_management_resources,
     )
+    audio_binding = None
     try:
-        install_live_first_screen_audio(host, game_dir)
+        audio_binding = install_live_first_screen_audio(host, game_dir)
     except Gate14LiveFirstScreenAudioError as exc:
         print(
             f"[FM2001 audio] first-screen audio unavailable: {exc}",
             file=sys.stderr,
             flush=True,
         )
+    if host_ready_callback is not None:
+        if not callable(host_ready_callback):
+            raise OriginalGameHostError("host_ready_callback must be callable")
+        host_ready_callback(host, audio_binding)
     root.mainloop()
