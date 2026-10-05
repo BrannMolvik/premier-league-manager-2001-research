@@ -267,6 +267,8 @@ on:
       - "reconstruction/test_gate17_objective_rng_caller_source_trace.py"
       - "reconstruction/gate17_objective_rng_adjudication.py"
       - "reconstruction/test_gate17_objective_rng_adjudication.py"
+      - "reconstruction/gate17_sporting_objective_progression_source_trace.py"
+      - "reconstruction/test_gate17_sporting_objective_progression_source_trace.py"
       - "reconstruction/gate17_sporting_objective_adjudication.py"
       - "reconstruction/test_gate17_sporting_objective_adjudication.py"
       - "research/GATE17_SPORTING_OBJECTIVE_ADJUDICATION.md"
