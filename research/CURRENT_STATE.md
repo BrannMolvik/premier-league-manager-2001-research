@@ -7,27 +7,48 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
-## Hands-on gameplay-test blockers (5 October 2026 KST)
+## Recovery 311 — gameplay-test fixes canonical; Gate 14 remains active
 
-Player-facing testing on Windows 11 is **paused** at `main`
-`55229fb3469c0129c02517e0acc1cc7795a4ec39` until three reproducible blockers
-are resolved:
+Current `main` includes the two repository-side fixes prepared from Daniel's
+5 October Windows 11 playtest:
 
-- issue #436 — source launch takes approximately 1–2 minutes before the main
-  menu becomes usable;
-- issue #437 — normal launch plays no startup intro and no audio was heard in
-  the tested front-end path;
-- issue #438 — England -> Conference -> Southport -> Start Game freezes the
-  application into a white screen before management is reached.
+- #450 / `520b8202` integrates the source-backed first-screen press-audio route
+  on the current fullscreen host. It verifies the canonical installed
+  `DATA/AUDIO/SFXS/menus.bnk`, uses the Windows in-memory WAV backend and
+  remains presentation-fail-soft. All repository, presentation, reconstruction
+  and Windows-package CI passed.
+- #451 / `fb3c770e` moves only the pure management resource decode bundle off
+  the Tk Start Game callback, keeps the TeamSelect frame visible while loading,
+  polls the worker result back on Tk, ignores premature management clicks and
+  surfaces worker exceptions. All four CI workflows passed. This is the
+  repository-side fix candidate for issue #438; the exact
+  England -> Conference -> Southport -> Start Game route still requires a real
+  Windows acceptance run before issue #438 may close.
 
-The main menu is reasonably responsive and TeamSelect itself is now usable
-after the incremental-rendering fixes. Thin 4:3 fullscreen bars are currently
-acceptable and are not a blocker.
+Issue #437 is now split cleanly. First-screen press audio is integrated, but the
+startup FMVs are still absent on a normal launch because `app.py` creates a
+startup-media backend only when both `--startup-media-receipt` and
+`--startup-media-player` are supplied; `play_configured_startup_media()`
+returns immediately when both are absent. The packaged/default launcher supplies
+neither. The verified original `easp.tgq` / `premintro.tgq` source evidence
+and conversion/playback modules remain canonical.
 
-Workers should reproduce/instrument these three issues locally before asking for
-another manual test. In particular, time the Start->Management boundary and
-surface any exception/traceback instead of leaving the Tk event loop blocked.
-Do not treat CI green status alone as proof that the hands-on path is ready.
+The authorized 511,121,336-byte Library ZIP was successfully resolved and
+materialized during Recovery 311, but both the container and Python execution
+sandboxes then failed even on trivial execution with
+`caas.internal.errors.ClientError`. Therefore no new extraction, hash,
+conversion or startup-media derivative claim was made. No existing private
+startup derivative/receipt was found in `/FM2001`.
+
+Issue #436's TeamSelect/startup decode deferral is already canonical from #445,
+but its actual Windows launch-time acceptance remains unverified. Do not close
+#436 or #438 from CI alone.
+
+**Exact next Gate-14 task:** continue issue #437 toward an automatic,
+provenance-tracked default startup-FMV runtime/package path as soon as sustained
+private execution is healthy. While that execution blocker persists, continue
+independent cloud-safe Gate-14 FastView/audio work; do not invent TGQ bytes,
+skip/fade semantics or Windows audibility.
 
 ## Gate 13 CLOSED — advance to Gate 14 (5 October 2026 KST)
 
