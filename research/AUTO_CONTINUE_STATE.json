@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. PR #397 merged on main at 88df6b1435bf19b4599440f539f94c9cdf8ecfd3 after reconstruction run 37257655293 passed 2,379 tests / 23 expected skips and asset-policy run 37257655235 passed. Continue disjoint Gate-14 cloud-safe work on the next canonical omitted visible outer family: the four embedded FastView controls at parent +0x388/+0x3D4 and post-team +0x424/+0x478. Encode only their source-proven registration/constructor/order topology; keep semantics, geometry, resource identity, state behavior and pixels fail-closed; add omission-readiness blockers without touching Gate 13.",
-  "last_known_main_head": "88df6b1435bf19b4599440f539f94c9cdf8ecfd3",
+  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #398 merged at 403f63a777b23bc121707902b0d2c49c24ef3bb4 after reconstruction run 37258248001 passed 2,385 tests / 23 expected skips and asset-policy run 37258247949 passed. Continue the exact already-started Gate-14 cloud-safe audit of nested visible FastView omissions before any stronger global-z/complete-frame claim. Reconcile stale nested-inventory flags against merged PR #366 and identify/render-readiness blockers for visible Score/LeagueTable/TeamTable controls that current partial rasters still omit. Do not touch Gate 13.",
+  "last_known_main_head": "403f63a777b23bc121707902b0d2c49c24ef3bb4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 298,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #397 merged cleanly. ScoreCompositeMain topology is now canonical while its geometry/rasterization remain explicit blockers. Next disjoint task is the four outer embedded controls already proven by the exhaustive outer draw trace; private native execution remains unavailable, so do not invent their missing geometry/content.",
+  "note": "Embedded outer-control omission guard is canonical. Next work is not to promote global z-order yet: first reconcile nested inventory evidence and make remaining nested visible pixel omissions explicit and fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
