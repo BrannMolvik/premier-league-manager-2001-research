@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Issue #437 startup FMV transport: replace failing Windows MCI open path with a stock Windows WPF media transport over the already verified H.264/AAC MP4 derivatives; preserve explicit developer-player override and fail closed; validate with focused/full/package CI before one combined Windows retest.",
-  "last_known_main_head": "282d9fd1b1b09c772306575d811f47704185682a",
+  "active_task": "Gate-14 external WPF playback acceptance remains deferred to Daniel's real Windows 11 retest. Continue the independent cloud-safe critical path by reconciling the Gate-17 minimal upstream FFmpeg helper/source-provenance work in #475/#479 against current main, preserving the fail-closed production-migration boundary and not closing Gate 14 without external visible/audible acceptance.",
+  "last_known_main_head": "a57ba974c051ef2db29dfe17ec867acb6aaf40bb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 320,
-  "last_recovery_reason": "new-chat-handoff",
-  "note": "Recovery 320: #438 fixed/merged as 9bda514e. #436 latency candidate PR #477 merged as 282d9fd1 after Gate13 716 tests/22 skips, full reconstruction 2613 tests/23 skips, Windows package and asset policy all passed. Continue #437 transport; no Windows speed/playback success claim until Daniel retests.",
+  "recovery_generation": 321,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 321 resumed from canonical main a57ba974. PR #481 WPF MediaElement transport is merged and CI-verified, but real Windows 11 visible/audible playback remains an external acceptance blocker. Continue #475/#479 source-provenance/helper work against current main; do not treat that work-ahead as closing Gate 14 or migrate production without the existing fail-closed evidence boundary.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
