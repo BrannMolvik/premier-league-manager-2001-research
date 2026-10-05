@@ -129,6 +129,8 @@ on:
       - "reconstruction/gate13_first_screen_selection.py"
       - "reconstruction/gate13_first_screen_manifest_readiness.py"
       - "reconstruction/test_gate13_first_screen_manifest_readiness.py"
+      - "reconstruction/gate13_pstartmenu_derivative.py"
+      - "reconstruction/test_gate13_pstartmenu_derivative.py"
       - "reconstruction/test_gate13_first_screen_selection.py"
       - "research/GATE13_FIRST_SCREEN_EXACT_PATHS.txt"
       - "reconstruction/test_original_teamselect_resources.py"
@@ -238,6 +240,7 @@ jobs:
             test_gate13_asset_import \
             test_gate13_first_screen_selection \
             test_gate13_first_screen_manifest_readiness \
+            test_gate13_pstartmenu_derivative \
             test_gate13_button_source_trace \
             test_gate13_button_vtable_xref_candidates \
             test_gate13_button_rtti_candidates \
