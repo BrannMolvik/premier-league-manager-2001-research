@@ -22,6 +22,7 @@ import argparse
 from dataclasses import dataclass
 from hashlib import sha256
 import json
+import lzma
 from pathlib import Path
 import re
 
@@ -75,7 +76,7 @@ from original_pstartmenu_resources import (
 SCHEMA_VERSION = 1
 CONVERTER_ID = "fm2001-pstartmenu-render-derivative-v1"
 MANIFEST_NAME = "manifest.json"
-PAYLOAD_NAME = "payload.bin"
+PAYLOAD_NAME = "payload.bin.xz"
 TQIA_SOURCE_SHA256 = (
     "c62a13efbb812fb2157c067aaa3eae8afbbb52283dc5dc3eaf6cb86c5a11e8da"
 )
@@ -392,6 +393,9 @@ def build_pstartmenu_derivative_bundle(
         )
 
     payload_bytes = bytes(payload)
+    stored_payload = lzma.compress(
+        payload_bytes, format=lzma.FORMAT_XZ, preset=9
+    )
     atlas_bytes = payload_bytes[
         buttons_offset : buttons_offset + buttons_size
     ]
@@ -411,8 +415,11 @@ def build_pstartmenu_derivative_bundle(
         },
         "payload": {
             "file": PAYLOAD_NAME,
-            "size": len(payload_bytes),
-            "sha256": sha256(payload_bytes).hexdigest(),
+            "compression": "xz",
+            "size": len(stored_payload),
+            "sha256": sha256(stored_payload).hexdigest(),
+            "decoded_size": len(payload_bytes),
+            "decoded_sha256": sha256(payload_bytes).hexdigest(),
             "background": {
                 "offset": background_offset,
                 "size": background_size,
@@ -433,7 +440,7 @@ def build_pstartmenu_derivative_bundle(
     directory.mkdir(parents=True, exist_ok=True)
     payload_path = directory / PAYLOAD_NAME
     manifest_path = directory / MANIFEST_NAME
-    payload_path.write_bytes(payload_bytes)
+    payload_path.write_bytes(stored_payload)
     manifest_path.write_bytes(_canonical_json(manifest))
     return manifest_path, payload_path
 
@@ -585,17 +592,23 @@ def load_verified_pstartmenu_derivative_bundle(
         payload_meta,
         {
             "file",
+            "compression",
             "size",
             "sha256",
+            "decoded_size",
+            "decoded_sha256",
             "background",
             "button_atlas",
             "captions",
         },
         "payload",
     )
-    if payload_meta["file"] != PAYLOAD_NAME:
+    if (
+        payload_meta["file"] != PAYLOAD_NAME
+        or payload_meta["compression"] != "xz"
+    ):
         raise PStartMenuDerivativeError(
-            "Derivative payload file name differs"
+            "Derivative payload storage contract differs"
         )
     if (
         payload_meta["size"] != len(payload)
@@ -605,6 +618,23 @@ def load_verified_pstartmenu_derivative_bundle(
         raise PStartMenuDerivativeError(
             "Derivative payload identity differs"
         )
+    try:
+        decoded_payload = lzma.decompress(
+            payload, format=lzma.FORMAT_XZ
+        )
+    except lzma.LZMAError as exc:
+        raise PStartMenuDerivativeError(
+            "Derivative payload XZ stream is invalid"
+        ) from exc
+    if (
+        payload_meta["decoded_size"] != len(decoded_payload)
+        or payload_meta["decoded_sha256"]
+        != sha256(decoded_payload).hexdigest()
+    ):
+        raise PStartMenuDerivativeError(
+            "Derivative decoded payload identity differs"
+        )
+    payload = decoded_payload
 
     background_meta = payload_meta["background"]
     if not isinstance(background_meta, dict):
