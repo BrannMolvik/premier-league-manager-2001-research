@@ -32,7 +32,10 @@ from original_league_tables_resources import (
 )
 from gate13_original_pixel_preview import encode_rgba_png
 from original_game_host import (
+    DEFAULT_PSTARTMENU_DERIVATIVE_ROOT,
     DEFAULT_SOURCE_ROOT,
+    PSTARTMENU_DERIVATIVE_DECODER,
+    PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
     OriginalGameHostError,
     OriginalGameTkHost,
     build_original_game_presenter,
@@ -1662,6 +1665,45 @@ class OriginalGameHostTests(unittest.TestCase):
             "source",
         )
         self.assertEqual(DEFAULT_SOURCE_ROOT.parent.name, "original_assets")
+
+
+    def test_default_presenter_uses_only_pinned_pstartmenu_derivative(self):
+        calls = {}
+
+        def load_derivative(bundle_dir, **kwargs):
+            calls["derivative"] = (bundle_dir, kwargs)
+            return object()
+
+        def reject_source(**kwargs):
+            raise AssertionError("default runtime must not cold-decode PStartMenu")
+
+        fake_session = object()
+        with tempfile.TemporaryDirectory() as temp:
+            game_dir = Path(temp) / "game"
+            game_dir.mkdir()
+            with patch(
+                "original_game_host.load_verified_pstartmenu_derivative_bundle",
+                side_effect=load_derivative,
+            ), patch(
+                "original_game_host.load_verified_english_pstartmenu_inputs",
+                side_effect=reject_source,
+            ), patch(
+                "original_game_host.FrontEndSession.for_canonical_game_dir",
+                return_value=fake_session,
+            ):
+                built = build_original_game_presenter(game_dir)
+
+        self.assertIs(built.session, fake_session)
+        bundle_dir, kwargs = calls["derivative"]
+        self.assertEqual(bundle_dir, DEFAULT_PSTARTMENU_DERIVATIVE_ROOT)
+        self.assertEqual(
+            kwargs["expected_decoder"], PSTARTMENU_DERIVATIVE_DECODER
+        )
+        self.assertEqual(
+            kwargs["expected_manifest_sha256"],
+            PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+        )
+        self.assertEqual(len(kwargs["expected_sources"]), 6)
 
     def test_presenter_loader_uses_canonical_game_executable_and_imported_source_root(self):
         calls = {}
