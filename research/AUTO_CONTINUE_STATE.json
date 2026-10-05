@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 active. PR #452 is merged/verified and carries all already verified optional FastView planes through completed-human presentation. PR #453 implements the automatic provenance-tracked Windows startup-FMV runtime/package path; Windows package, Gate13 and asset-policy CI pass, and the Linux full-suite fixture was corrected at head 15f733d0. Wait only for the new full reconstruction result, then merge if green. Real Windows FMV visibility/audibility, #436 launch timing and #438 Southport acceptance remain open. Private source ZIP materializes but execution fails with ClientError immediately afterward, so continue cloud-safe work if private execution remains unavailable.",
+  "active_task": "Gate 14 active. PR #454, the current-main successor to #453 for automatic provenance-tracked Windows startup FMVs, is fully green and ready to merge. After merge, update canonical state and continue the next source-backed Gate 14 closure item; keep real Windows FMV visibility/audibility, #436 launch timing and #438 Southport acceptance open until real Windows evidence exists.",
   "last_known_main_head": "de482cabbd5bd0bac4506343d9c799d330ff9c26",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 312,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 312 checkpoint: #452 merged as f896ecf9 and canonical state/progress updated through main de482cab. #453 packaging passes; full-suite fixture fixed at 15f733d0. Private ZIP materializes but sandbox execution still fails after materialization.",
+  "recovery_generation": 313,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 313 resumed from main de482cab after stale-repository-activity; PR #454 all required CI green and is the immediate merge target.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
