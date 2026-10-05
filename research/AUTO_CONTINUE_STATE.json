@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Main is now 47f24bf3 after Gate-14 surfaced-resource integration PR #393 merged with verified CI. Continue the disjoint Gate-14 GoalFlash source trace from the canonical executable: exact Receiver<EventGoal>/Receiver<EventScore>/Receiver<EventPenaltyShootoutShot> topology, five style-1 TextControls per flash row, raw flags/geometry, normal-goal and shootout formatter inputs/suffixes; then persist the next source-backed GoalFlash slice without touching Gate 13. Keep unresolved event field semantics neutral.",
-  "last_known_main_head": "47f24bf39333e9d4246c387db004eee2c622d199",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. GoalFlash source contract merged on main at 2d51dffa with fresh CI: 2,372 tests passed / 23 expected skips plus asset-policy success. Private shell and Python execution still fail caas.internal.errors.ClientError, so new canonical-executable adjudication of GoalFlash scorer/tick fields, EventScore counter semantics, and absolute mover positions is deferred. Continue disjoint cloud-safe Gate-14 work by making the source-backed but unrasterized GoalFlash family explicit in fail-closed FastView frame/readiness accounting without inventing pixels or absolute positions; verify/merge, then continue the highest-priority independent Gate-14 task.",
+  "last_known_main_head": "2d51dffab5a3f304dbb00bdec0f2095f7e102175",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 297,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered after same-chat fallback. PR #393 is merged on main at 47f24bf3. Continue disjoint Gate-14 GoalFlash static/source work; Gate 13 remains locked to Codex.",
+  "note": "PR #395 merged GoalFlash source contract as 2d51dffa after reconstruction run 37254783650 (2,372 tests / 23 expected skips) and asset-policy run 37254783682 passed. Process sandbox remains unavailable for new private executable-byte work. Continuing disjoint Gate-14 omission/readiness accounting; Gate 13 remains locked to Codex.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
