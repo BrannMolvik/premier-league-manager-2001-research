@@ -11458,3 +11458,13 @@ work may continue under the deferred-blocker policy.
 - Detailed implementation/acceptance directions were persisted on issue #482 (comment 6001127354). Gate 13 was reopened in ROADMAP; #475/#479 remain suspended until the regression is CI-verified and externally accepted.
 - Exact next implementation slice: route-scope the management resource loader and render the source-closed ordinary Squad row subset, with tests proving fresh Squad does not initialize Fixtures/Tables/PMatchInfo.
 
+## 6 October 2026 — Recovery 322 native startup-FMV geometry trace
+
+- The authorized 511,121,336-byte Library ZIP materialized successfully. The container shell path still fails with `caas.internal.errors.ClientError`, but notebook Python can now read it.
+- The notebook extracted the 631,627,248-byte MODE1/2352 track, enumerated the Joliet level-3 filesystem, extracted root `footballmanager.exe`, and reverified canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Exact disassembly of `0x461900` proves startup playback creates a **640x480** movie surface. Active display mode 0 maps to 640x480 with offset (0,0); mode 1 maps to 800x600 with offset (80,60).
+- Present callback `0x461CD0` blits source rectangle (0,0)-(640,480) to destination (offset)-(offset+640x480) on the game-owned DirectDraw display surface.
+- Therefore the current separate maximized WPF `MediaElement.Stretch=Uniform` path is source-incompatible with the original player-visible geometry, not merely aesthetically different.
+- The exact 320x480 TGQ -> 640x480 decoder interpolation/duplication and interlace treatment remain unresolved and are not guessed.
+- Phase-1 #482 priority remains route-scoped management loading + source-closed Squad rows; this FMV trace defines the later evidence-backed presentation repair contract.
+
