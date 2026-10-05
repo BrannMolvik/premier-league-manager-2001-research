@@ -16,11 +16,15 @@ from original_pstartmenu_labels import PStartMenuCaption
 from original_pstartmenu_resources import OriginalPStartMenuResources
 from gate13_pstartmenu_derivative import (
     CONVERTER_ID,
+    DECODER_QUANT_RELATIVE,
+    DECODER_TQIA_RELATIVE,
     MANIFEST_NAME,
     PAYLOAD_NAME,
+    TQIA_SOURCE_SHA256,
     PStartMenuDecoderProvenance,
     PStartMenuDerivativeError,
     build_pstartmenu_derivative_bundle,
+    decoder_inputs_from_source_blocks,
     load_verified_pstartmenu_derivative_bundle,
 )
 
@@ -264,6 +268,33 @@ class PStartMenuDerivativeTests(unittest.TestCase):
                 "caption binding",
             ):
                 self._load(directory)
+
+
+    def test_repository_decoder_blocks_are_exact_source_provenance(self):
+        root = Path(__file__).resolve().parent.parent
+        tqia = (root / DECODER_TQIA_RELATIVE).read_bytes()
+        quant = (root / DECODER_QUANT_RELATIVE).read_bytes()
+        tables, decoded_quant, provenance = (
+            decoder_inputs_from_source_blocks(tqia, quant)
+        )
+        self.assertEqual(
+            sha256(tables.raw_section).hexdigest(),
+            TQIA_SOURCE_SHA256,
+        )
+        self.assertEqual(
+            provenance.tqia_section_sha256,
+            TQIA_SOURCE_SHA256,
+        )
+        self.assertEqual(len(decoded_quant.original_source), 64)
+
+        changed = bytearray(tqia)
+        changed[0] ^= 1
+        with self.assertRaisesRegex(
+            PStartMenuDerivativeError, "TQIA"
+        ):
+            decoder_inputs_from_source_blocks(
+                bytes(changed), quant
+            )
 
     def test_decoder_identity_rejects_noncanonical_executable_or_quant_source(
         self,
