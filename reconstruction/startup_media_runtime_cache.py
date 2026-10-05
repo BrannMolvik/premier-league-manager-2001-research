@@ -25,6 +25,7 @@ from original_startup_media import (
     DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE,
     ORIGINAL_STARTUP_MEDIA_SEQUENCE,
     OriginalStartupMediaError,
+    StartupMediaConversionProfile,
     build_startup_media_conversion_plans,
 )
 from startup_media_derivatives import VerifiedStartupMediaDerivative
@@ -182,8 +183,9 @@ def _validate_derivative_decode(
     )
 
 
-def _profile_receipt() -> dict:
-    profile = DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE
+def _profile_receipt(
+    profile: StartupMediaConversionProfile = DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE,
+) -> dict:
     return {
         "container": profile.container_name,
         "video_encoder": profile.ffmpeg_video_encoder,
@@ -217,6 +219,7 @@ def _load_cache(
     cache_root: Path,
     *,
     ffmpeg_sha256: str,
+    profile: StartupMediaConversionProfile = DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE,
 ) -> tuple[VerifiedStartupMediaDerivative, ...] | None:
     receipt = cache_root / CACHE_RECEIPT_NAME
     if not receipt.is_file():
@@ -230,7 +233,7 @@ def _load_cache(
     if (
         payload.get("schema_version") != CACHE_SCHEMA_VERSION
         or payload.get("audit_kind") != "runtime_original_startup_media_conversion"
-        or payload.get("profile") != _profile_receipt()
+        or payload.get("profile") != _profile_receipt(profile)
         or payload.get("ffmpeg_sha256") != ffmpeg_sha256
         or payload.get("gate14_complete") is not False
     ):
@@ -288,6 +291,7 @@ def prepare_runtime_startup_media(
     *,
     cache_root: str | Path | None = None,
     ffmpeg_executable: str | Path | None = None,
+    profile: StartupMediaConversionProfile = DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE,
     runner: Callable[..., object] = subprocess.run,
 ) -> tuple[VerifiedStartupMediaDerivative, ...]:
     """Return cached verified derivatives, converting exact originals if needed."""
@@ -310,6 +314,7 @@ def prepare_runtime_startup_media(
             source,
             cache / ".source-contract-probe",
             ffmpeg_executable=str(ffmpeg),
+            profile=profile,
         )
     except (OSError, OriginalStartupMediaError) as exc:
         raise RuntimeStartupMediaError(
@@ -322,7 +327,7 @@ def prepare_runtime_startup_media(
         raise RuntimeStartupMediaError("startup source sequence is incomplete")
 
     ffmpeg_digest = _sha256_file(ffmpeg)
-    cached = _load_cache(cache, ffmpeg_sha256=ffmpeg_digest)
+    cached = _load_cache(cache, ffmpeg_sha256=ffmpeg_digest, profile=profile)
     if cached is not None:
         return cached
 
@@ -336,6 +341,7 @@ def prepare_runtime_startup_media(
             source,
             staging,
             ffmpeg_executable=str(ffmpeg),
+            profile=profile,
         )
         outputs = []
         for sequence, plan in enumerate(plans):
@@ -361,10 +367,10 @@ def prepare_runtime_startup_media(
                     "filename": path.name,
                     "converted_size_bytes": path.stat().st_size,
                     "converted_sha256": _sha256_file(path),
-                    "container": "mp4",
-                    "video_codec": "h264",
-                    "pixel_format": "yuv420p",
-                    "audio_codec": "aac",
+                    "container": profile.container_name,
+                    "video_codec": profile.probe_video_codec,
+                    "pixel_format": profile.pixel_format,
+                    "audio_codec": profile.probe_audio_codec,
                     "audio_geometry_enforced_by_conversion": True,
                     "video_decode_verified": True,
                     "audio_decode_verified": True,
@@ -383,7 +389,7 @@ def prepare_runtime_startup_media(
         "ffmpeg_path": str(ffmpeg),
         "ffmpeg_sha256": ffmpeg_digest,
         "ffmpeg_version": _ffmpeg_version(ffmpeg, runner),
-        "profile": _profile_receipt(),
+        "profile": _profile_receipt(profile),
         "outputs": outputs,
         "fidelity_boundary": (
             "Cache proves exact source TGQ identity, deterministic conversion "
@@ -397,7 +403,7 @@ def prepare_runtime_startup_media(
         json.dumps(receipt_payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    loaded = _load_cache(cache, ffmpeg_sha256=ffmpeg_digest)
+    loaded = _load_cache(cache, ffmpeg_sha256=ffmpeg_digest, profile=profile)
     if loaded is None:
         raise RuntimeStartupMediaError(
             "fresh startup-media conversion cache failed self-verification"
@@ -405,12 +411,14 @@ def prepare_runtime_startup_media(
     return loaded
 
 
-def runtime_startup_media_contract() -> dict:
+def runtime_startup_media_contract(
+    profile: StartupMediaConversionProfile = DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE,
+) -> dict:
     return {
         "source_paths": tuple(
             item.source_path for item in ORIGINAL_STARTUP_MEDIA_SEQUENCE
         ),
-        "conversion_profile": _profile_receipt(),
+        "conversion_profile": _profile_receipt(profile),
         "packaged_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "one_time_private_cache": True,
         "source_hash_reverified_before_cache_use": True,
