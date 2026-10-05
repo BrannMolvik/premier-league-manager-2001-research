@@ -80,6 +80,29 @@ class AppPresentationBoundaryTests(unittest.TestCase):
 
 
 
+    def test_default_source_module_does_not_eagerly_import_prototype_dependencies(self):
+        source = APP_PATH.read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=str(APP_PATH))
+        top_level_modules = {
+            node.module
+            for node in tree.body
+            if isinstance(node, ast.ImportFrom)
+        }
+        for module in (
+            "fm2001_data",
+            "human_gameplay",
+            "gate13_management_source_data",
+            "original_league_tables_presenter",
+            "internal_save",
+            "match_team_setup",
+        ):
+            with self.subTest(module=module):
+                self.assertNotIn(module, top_level_modules)
+
+        self.assertIn("def _load_prototype_dependencies()", source)
+        self.assertIn("_load_prototype_dependencies()\n        super().__init__()", source)
+        self.assertIn("FM2001_STARTUP_TIMING", source)
+
     def test_normal_launch_uses_source_backed_host_and_prototype_is_explicit_opt_in(self):
         source = APP_PATH.read_text(encoding="utf-8")
         self.assertIn("from original_game_host import run_original_game_ui", source)
