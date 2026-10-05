@@ -7,6 +7,45 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 314 continuation — current-base acceptance/readiness checkpoint
+
+PR #458 merged as `3465043767cffb40a822df15b01a6fb20dd37747`. It adds a
+strict **external Windows 11 client** startup-FMV acceptance audit that reuses
+the exact runtime TGQ cache, source-proven startup order and Windows MCI backend.
+A passing private receipt requires explicit human confirmation that both videos
+were visible, both audio tracks were audible and order was correct. No receipt
+exists yet, so canonical real-Windows startup-media acceptance remains false.
+Reconstruction run 37309256252 and asset-policy run 37309256060 passed.
+
+PR #459 merged as `9c0e22c63c5c9c17953648ae4eb2619c6d9569c2` after
+reconstruction run 37313356333 and asset-policy run 37313356314 passed. The
+current-base readiness model now records three already-canonical bounded facts:
+first-screen press audio is bound, normal Windows startup media is integrated,
+and the resolved-only FastView preview has an operator-visible surface. It
+continues to keep broad semantic/application-wide audio binding, human-heard
+Windows output, full login/menu audio integration, a source FastView navigation
+trigger, complete FastView fidelity and recognizable-original-workflow
+verification false. Diverged #456 and its obsolete #457 predecessor were closed
+in favor of current-base #459/#458 rather than merging stacked history.
+
+Gate 14 therefore remains open. The private executable/container execution
+failure still blocks source-byte closure for remaining FastView geometry/order
+and broader AudioHooks sender semantics. Real Windows client evidence also
+remains required for the player-facing #436 launch-time check, #437 startup and
+bound-audio acceptance, and #438 Southport Start Game route; hosted CI cannot
+close those issues.
+
+**Exact next Gate-14 task:** add a fail-closed external Windows 11 acceptance
+harness for the **already integrated normal-application first-screen press audio
+path**. It must exercise a real Tk bound first-screen action through the
+production host, require the exact canonical menus bank and source-backed
+(10,0)->slot-2 delivery summary, require explicit human confirmation that the
+sound was heard, reject hosted/server CI, and keep the receipt private outside
+Git. This must not promote broad semantic event/sample meaning, hover audio,
+full login/menu audio integration, or Gate-14 completion. After that verified
+cloud-safe tooling lands, continue the next source-backed task or preserve the
+private/real-Windows blockers and advance only independent later-gate work.
+
 ## Recovery 313 continuation — resolved FastView surface merged
 
 PR #455 merged as `6ad4416be3fc91dcac7ff3e007fcaa7cb04c8ad9`.
