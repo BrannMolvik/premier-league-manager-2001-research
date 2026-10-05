@@ -48,7 +48,13 @@ The candidate is rejected unless:
 - its configuration does not contain --enable-gpl, --enable-nonfree,
   --enable-libx264, or --enable-libx265;
 - its decoder inventory contains eatgq;
-- its encoder inventory contains both h264_mf and aac.
+- its encoder inventory contains both h264_mf and aac;
+- on Windows CI it can actually instantiate h264_mf and native AAC, write a
+  320x480 / 25 fps / 22,050 Hz stereo MP4, and decode both streams again.
+
+The synthetic roundtrip proves candidate executable/runtime capability only; it
+does not substitute for converting the two exact original TGQs or for real
+Windows 11 visible/audible acceptance.
 
 The receipt records the exact candidate executable and license hashes, but
 keeps all of these false:
