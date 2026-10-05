@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Issue #482 Phase 1, PR #483 head 394bb556: route-scoped management loading checkpoint is durable. Current reconstruction run 37368687944 is in progress; Gate-13/package checks queued. Continue the same PR by closing the source-backed ordinary Squad-row renderer without inventing unresolved native color/name-helper semantics. Retained trace and authorized source are the evidence boundary; if exact helper inspection remains execution-blocked, continue other independent #482 work while preserving this blocker.",
+  "active_task": "Issue #482 Phase 1 PR #483 at head 394bb556: route-scoped management loading implemented; fix canonical Gate-15 fidelity-ledger drift introduced when #482 reopened Gate 13 (12 active gaps vs 11 ledger items), rerun CI, then continue source-closed Squad row renderer evidence/implementation. Do not guess unresolved row colors/helper semantics.",
   "last_known_main_head": "e9635ee0f0ad9351427a311f8c14a79a3180d727",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 324,
-  "last_recovery_reason": "transient connection interruption",
-  "note": "Recovery 324 resumed after transient chat connection interruption. Main remains e9635ee0; PR #483 is open/mergeable at 394bb556. Route-loader changes and recovery-323 progress checkpoint are durable. Do not restart completed investigation. Process-start ClientError blocked exact private helper inspection in recovery 323; hosted GitHub CI remains usable.",
+  "recovery_generation": 325,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery resumed after connection/stale interruption. PR #483 persisted seven commits through 394bb556. Windows package and asset policy passed at run set 373686879xx; reconstruction failed only Gate15 ledger audit because main FIDELITY_GAPS has 12 active rows while ledger/tests still encode 11. Gate13 run was cancelled/superseded, not a new implementation failure. Continue fixing audit bookkeeping, then verify PR.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
