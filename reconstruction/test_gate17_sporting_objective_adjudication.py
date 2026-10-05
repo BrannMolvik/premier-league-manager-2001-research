@@ -34,7 +34,7 @@ def neutral_trace_report() -> dict:
             "objective_progression_gate_offset": 0x68,
             "objective_progression_state_offset": 0x9C,
             "sporting_objective_switch_case_count": 17,
-            "sporting_objective_pass_sequence": (1, 0),
+            "sporting_objective_pass_sequence": [1, 0],
             "same_premier_league_slice_recovered": True,
             "annual_evaluation_year_gate_recovered": True,
         },
@@ -136,7 +136,7 @@ class Gate17SportingObjectiveAdjudicationTests(unittest.TestCase):
             ("objective_progression_gate_offset", 0x69),
             ("objective_progression_state_offset", 0x9D),
             ("sporting_objective_switch_case_count", 16),
-            ("sporting_objective_pass_sequence", (0, 1)),
+            ("sporting_objective_pass_sequence", [0, 1]),
         )
         for key, value in cases:
             report = neutral_trace_report()
