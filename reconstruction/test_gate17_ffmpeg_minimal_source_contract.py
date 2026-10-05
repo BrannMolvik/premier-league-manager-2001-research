@@ -61,6 +61,19 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             ):
                 audit_source_contract(root)
 
+    def test_minimal_contract_requires_actual_mp4_muxer(self):
+        payload = self.canonical()
+        args = payload["minimal_helper_target"]["configure_args"]
+        args[args.index("--enable-muxer=mp4")] = "--enable-muxer=mov"
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "actual mp4 muxer",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_rejects_third_party_enable_flags(self):
         payload = self.canonical()
         payload["minimal_helper_target"]["configure_args"].append("--enable-libx264")
