@@ -46,7 +46,10 @@ class Gate14ReadinessEvidence:
     audio_playback_entrypoints_recovered: bool
     audio_sample_decode_ready: bool
     first_screen_press_audio_bound: bool
+    first_screen_press_audio_windows_acceptance_tooling: bool
+    first_screen_press_audio_real_windows_verified: bool
     startup_media_default_windows_path_integrated: bool
+    startup_media_windows_acceptance_tooling: bool
     startup_media_real_windows_verified: bool
     audio_event_binding_recovered: bool
     audible_windows_verified: bool
@@ -84,11 +87,31 @@ class Gate14ReadinessEvidence:
             raise Gate14ReadinessError(
                 "first-screen press audio binding requires source-backed bank/playback/decode"
             )
-        if self.startup_media_real_windows_verified and not (
+        if self.first_screen_press_audio_windows_acceptance_tooling and not (
+            self.first_screen_press_audio_bound
+        ):
+            raise Gate14ReadinessError(
+                "first-screen audio Windows acceptance tooling requires the bound runtime path"
+            )
+        if self.first_screen_press_audio_real_windows_verified and not (
+            self.first_screen_press_audio_bound
+            and self.first_screen_press_audio_windows_acceptance_tooling
+        ):
+            raise Gate14ReadinessError(
+                "first-screen audio Windows acceptance requires bound runtime tooling"
+            )
+        if self.startup_media_windows_acceptance_tooling and not (
             self.startup_media_default_windows_path_integrated
         ):
             raise Gate14ReadinessError(
-                "startup-media Windows acceptance requires the default runtime path"
+                "startup-media Windows acceptance tooling requires the default runtime path"
+            )
+        if self.startup_media_real_windows_verified and not (
+            self.startup_media_default_windows_path_integrated
+            and self.startup_media_windows_acceptance_tooling
+        ):
+            raise Gate14ReadinessError(
+                "startup-media Windows acceptance requires default runtime tooling"
             )
 
         if self.login_menu_audio_integrated and not (
@@ -170,6 +193,10 @@ class Gate14ReadinessEvidence:
         blockers: list[str] = []
         if not self.audio_sample_decode_ready:
             blockers.append("audio_sample_decode")
+        if not self.first_screen_press_audio_real_windows_verified:
+            blockers.append("first_screen_press_audio_real_windows_acceptance")
+        if not self.startup_media_real_windows_verified:
+            blockers.append("startup_media_real_windows_acceptance")
         if not self.audio_event_binding_recovered:
             blockers.append("audio_event_binding")
         if not self.audible_windows_verified:
@@ -246,7 +273,10 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         audio_playback_entrypoints_recovered=True,
         audio_sample_decode_ready=True,
         first_screen_press_audio_bound=True,
+        first_screen_press_audio_windows_acceptance_tooling=True,
+        first_screen_press_audio_real_windows_verified=False,
         startup_media_default_windows_path_integrated=True,
+        startup_media_windows_acceptance_tooling=True,
         startup_media_real_windows_verified=False,
         audio_event_binding_recovered=False,
         audible_windows_verified=False,
