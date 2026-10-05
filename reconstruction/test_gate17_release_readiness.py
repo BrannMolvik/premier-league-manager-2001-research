@@ -684,7 +684,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             raw["schema_version"] = 1
             with self.assertRaisesRegex(
                 ReleaseReadinessError,
-                "schema_version must be 2",
+                "schema_version must be exact integer 2",
             ):
                 parse_release_evidence(raw)
 
