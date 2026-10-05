@@ -686,8 +686,16 @@ class OriginalGameHostTests(unittest.TestCase):
     def test_later_management_route_decode_blocks_input_and_surfaces_failure(self):
         threads = []
         messages = []
+        squad_payload = {
+            "management_pmenu_resources": object(),
+            "squad_top_resources": object(),
+            "management_background": object(),
+            "management_header_resources": object(),
+        }
 
         def loader(family):
+            if family == "squad":
+                return squad_payload
             if family == "fixtures":
                 raise RuntimeError("fixture decode exploded")
             raise AssertionError(f"unexpected family {family}")
@@ -698,7 +706,6 @@ class OriginalGameHostTests(unittest.TestCase):
             return thread
 
         live = presenter()
-        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
         root = FakeRoot()
         host = OriginalGameTkHost(
             live,
@@ -709,12 +716,28 @@ class OriginalGameHostTests(unittest.TestCase):
             management_thread_factory=thread_factory,
             error_reporter=messages.append,
         )
-        host._management_resource_families_loaded.add("squad")
-        host._management_resources_loaded = True
+
+        # Reach MANAGEMENT through the real recovered lifecycle before testing a
+        # later route family. The initial Squad decode is completed under a
+        # redraw stub because this test exercises loading/error lifecycle, not
+        # bitmap rendering of the deliberately minimal object payload.
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        with patch.object(host, "redraw"):
+            host.on_click(SimpleNamespace(x=426, y=301))
+            self.assertEqual(len(threads), 1)
+            self.assertEqual(host._management_loading_family, "squad")
+            threads[0].run()
+            root.run_timer()
+
+        self.assertTrue(live.session.started)
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+        self.assertEqual(host._management_resource_families_loaded, {"squad"})
+        self.assertTrue(host._management_resources_loaded)
 
         host._begin_management_resource_load("fixtures")
         self.assertEqual(host._management_loading_family, "fixtures")
-        self.assertEqual(len(threads), 1)
+        self.assertEqual(len(threads), 2)
 
         with patch.object(host, "redraw") as redraw:
             host.on_click(SimpleNamespace(x=400, y=300))
@@ -724,7 +747,7 @@ class OriginalGameHostTests(unittest.TestCase):
             )
             redraw.assert_not_called()
 
-            threads[0].run()
+            threads[1].run()
             root.run_timer()
 
         self.assertEqual(messages, ["RuntimeError: fixture decode exploded"])
