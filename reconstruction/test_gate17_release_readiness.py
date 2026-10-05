@@ -944,6 +944,13 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
 
             self.assertTrue(result["passed"])
             self.assertEqual(
+                result["release_evidence_manifest"],
+                {
+                    "path": str(evidence_path.resolve()),
+                    "sha256": sha256(evidence_path.read_bytes()).hexdigest(),
+                },
+            )
+            self.assertEqual(
                 result["implementation_preflight"],
                 preflight_payload,
             )
