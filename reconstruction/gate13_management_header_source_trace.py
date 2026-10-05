@@ -89,7 +89,9 @@ POINTER_TARGETS = (
     # in the next private receipt without naming their semantics in advance.
     ("header method candidate 0x4314D0", 0x4314D0),
     ("header method candidate 0x431500", 0x431500),
-    ("header method candidate 0x431590", 0x431590),
+    ("header text-derived constructor", 0x431540),
+    ("header method candidate 0x431570", 0x431570),
+    ("header text-derived vtable", 0x7BEBCC),
 )
 
 
