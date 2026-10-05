@@ -14,7 +14,6 @@ capture stay fail-closed; the host does not invent a replacement skin.
 from __future__ import annotations
 
 from base64 import b64encode
-from fractions import Fraction
 from functools import lru_cache
 from pathlib import Path
 from types import SimpleNamespace
@@ -241,13 +240,23 @@ class OriginalGameTkHost:
         # preserving FM2001's native 4:3 aspect ratio. A small rational scale
         # keeps Tk's nearest-neighbour zoom/subsample path deterministic without
         # falling all the way back to 1x on 16:9 displays such as 1920x1080.
-        fit_scale = min(
-            screen_width / SCREEN_SIZE[0],
-            screen_height / SCREEN_SIZE[1],
+        fit_scale = max(
+            1.0,
+            min(
+                screen_width / SCREEN_SIZE[0],
+                screen_height / SCREEN_SIZE[1],
+            ),
         )
-        ratio = Fraction(max(1.0, fit_scale)).limit_denominator(4)
-        self.display_scale_num = int(ratio.numerator)
-        self.display_scale_den = int(ratio.denominator)
+        # Choose the largest small rational that never exceeds the physical
+        # display. Limiting the denominator bounds Tk's transient zoom size.
+        candidates = []
+        for denominator in range(1, 5):
+            numerator = max(1, int(fit_scale * denominator))
+            if numerator / denominator <= fit_scale:
+                candidates.append((numerator / denominator, numerator, denominator))
+        _ratio, numerator, denominator = max(candidates)
+        self.display_scale_num = int(numerator)
+        self.display_scale_den = int(denominator)
         self.display_scale = self.display_scale_num / self.display_scale_den
         self.display_width = (
             SCREEN_SIZE[0] * self.display_scale_num + self.display_scale_den - 1
