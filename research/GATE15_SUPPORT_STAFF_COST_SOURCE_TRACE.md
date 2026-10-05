@@ -6,6 +6,8 @@ _Date: 5 October 2026 KST_
 
 **Private-source adjudication tooling only. This does not close the fidelity gap or Gate 15.**
 
+Recovery 317 rebases this tooling on the post-#464 fidelity-ledger baseline. The active Finance/board gap keeps the same ledger key and Planned gate, so the one-to-one Gate-15 coverage audit remains authoritative.
+
 The ordinary monthly support-staff accounting path is already source-qualified.
 The remaining boundary is the value returned by one CSupportStaff virtual.
 
