@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Main e4474919a255d203337f3fde514b225c27a94497 now defers TeamSelect decode from startup. Next: validate/merge PR #449 runtime diagnostics for Southport Start->Management white-screen; continue #437 menu/startup audio work without requesting another manual test until instrumentation is canonical.",
-  "last_known_main_head": "e4474919a255d203337f3fde514b225c27a94497",
+  "active_task": "PR #450 replays verified first-screen menu audio onto current main and is awaiting only full reconstruction CI. After merge: continue issue #437 default startup FMV integration; private source is materialized from Library but both container and Python execution currently fail with caas.internal.errors.ClientError, so do not claim conversion/extraction. If that blocker persists, continue independent cloud-safe Gate14 match-presentation work.",
+  "last_known_main_head": "5fc2f57f56ca95e91bab348b72c4b5f85171bf56",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 311,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 311 active. Resumed from main e4474919a255d203337f3fde514b225c27a94497. Continue PR #449 Southport Start->Management diagnostics first; then Gate14 startup/menu audio work (#447/#448) if the diagnostic subtask verifies.",
+  "note": "Recovery generation 311. #449 diagnostics merged as 5fc2f57. #450 passes asset policy, Gate13 presentation tests, and Windows package; reconstruction CI run 37297916786 still in progress. Canonical 511,121,336-byte Library ZIP materialized successfully, but container/Python execution fails with ClientError before hash/extraction.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
