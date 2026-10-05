@@ -130,7 +130,8 @@ class FrontEndSession:
 
         if screen is FrontEndScreen.START_MENU and control == StartMenuControl.NEW_GAME:
             # Do not move off PStartMenu if the database cannot be loaded.
-            backend = self.gameplay_factory()
+            with timed_stage("teamselect.backend_build"):
+                backend = self.gameplay_factory()
             if backend is None:
                 raise FrontEndSessionError("New Game backend factory returned nothing.")
             transition = self.navigation.dispatch(control)
