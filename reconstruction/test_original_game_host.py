@@ -304,12 +304,23 @@ class FakeCanvas(FakeWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.images = []
+        self.delete_count = 0
+        self.itemconfigure_count = 0
 
     def delete(self, *args):
+        self.delete_count += 1
         self.images = []
 
     def create_image(self, x, y, **kwargs):
         self.images.append((x, y, kwargs))
+        return len(self.images)
+
+    def itemconfigure(self, item_id, **kwargs):
+        self.itemconfigure_count += 1
+        x, y, current = self.images[item_id - 1]
+        updated = dict(current)
+        updated.update(kwargs)
+        self.images[item_id - 1] = (x, y, updated)
 
 
 class FakeTk:
@@ -351,19 +362,42 @@ class LargeFakeRoot(FakeRoot):
         return 1440
 
 
+class FullHDFakeRoot(FakeRoot):
+    def winfo_screenwidth(self):
+        return 1920
+
+    def winfo_screenheight(self):
+        return 1080
+
+
 class OriginalGameHostTests(unittest.TestCase):
+    def test_fullhd_fullscreen_fills_height_without_vertical_bars(self):
+        root = FullHDFakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+
+        self.assertEqual(
+            (host.display_scale_num, host.display_scale_den),
+            (9, 5),
+        )
+        self.assertEqual(host.canvas.kwargs["width"], 1440)
+        self.assertEqual(host.canvas.kwargs["height"], 1080)
+        background = host._first_screen_photo_cache[
+            (FrontEndScreen.START_MENU, "background")
+        ]
+        self.assertEqual((background.width, background.height), (1440, 1080))
+
     def test_high_resolution_fullscreen_uses_fractional_scale_and_native_pointer_mapping(self):
         root = LargeFakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
 
-        self.assertEqual((host.display_scale_num, host.display_scale_den), (7, 3))
-        self.assertAlmostEqual(host.display_scale, 7 / 3)
-        self.assertEqual(host.canvas.kwargs["width"], 1867)
-        self.assertEqual(host.canvas.kwargs["height"], 1400)
+        self.assertEqual((host.display_scale_num, host.display_scale_den), (12, 5))
+        self.assertAlmostEqual(host.display_scale, 12 / 5)
+        self.assertEqual(host.canvas.kwargs["width"], 1920)
+        self.assertEqual(host.canvas.kwargs["height"], 1440)
         background = host._first_screen_photo_cache[
             (FrontEndScreen.START_MENU, "background")
         ]
-        self.assertEqual((background.width, background.height), (1867, 1400))
+        self.assertEqual((background.width, background.height), (1920, 1440))
         self.assertEqual(getattr(background, "zoom_factor", 1), 1)
         event = SimpleNamespace(
             x=host._native_to_display(7),
@@ -487,6 +521,64 @@ class OriginalGameHostTests(unittest.TestCase):
             if len(key) >= 2 and key[1] == "background"
         ]
         self.assertEqual(backgrounds, [(FrontEndScreen.START_MENU, "background")])
+
+    def test_teamselect_club_toggle_updates_only_existing_row_layers(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        host.presenter.session.navigation.screen = FrontEndScreen.TEAM_SELECT
+
+        row = SimpleNamespace(
+            row_kind="club",
+            source_id=77,
+            animation_source_index=0,
+            bar_source_index=0,
+            animation_frame=SimpleNamespace(
+                width=1, height=1, rgba=bytes((1, 2, 3, 255))
+            ),
+            bar_frame=SimpleNamespace(
+                width=1, height=1, rgba=bytes((4, 5, 6, 255))
+            ),
+            glyph_mask=SimpleNamespace(
+                width=1, height=1, alpha=bytes((255,))
+            ),
+            native_color_16=0xFFFF,
+            text="Southport",
+        )
+        host.presenter.snapshot = lambda: SimpleNamespace(
+            screen=FrontEndScreen.TEAM_SELECT,
+            club_rows=(row,),
+        )
+        host.canvas.images = [
+            (0, 0, {"image": object()}),
+            (0, 0, {"image": object()}),
+            (0, 0, {"image": object()}),
+        ]
+        host._first_screen_items = {
+            ("team-row-animation", "club", 77): 1,
+            ("team-row-bar", "club", 77): 2,
+            ("team-row-text", "club", 77): 3,
+        }
+        before_delete_count = host.canvas.delete_count
+
+        self.assertTrue(host._update_teamselect_club_row(77))
+        self.assertEqual(host.canvas.delete_count, before_delete_count)
+        self.assertEqual(host.canvas.itemconfigure_count, 3)
+
+    def test_first_screen_idle_animation_does_not_rebuild_canvas(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        overlay = host.first_screen_frame.original_source_frame_overlays[0]
+        before_delete_count = host.canvas.delete_count
+        before_items = len(host.canvas.images)
+
+        host.on_fixtures_pager_motion(
+            SimpleNamespace(x=overlay.rect.x, y=overlay.rect.y)
+        )
+        root.run_idle()
+
+        self.assertEqual(host.canvas.delete_count, before_delete_count)
+        self.assertEqual(len(host.canvas.images), before_items)
+        self.assertGreater(host.canvas.itemconfigure_count, 0)
 
     def test_source_idle_hover_advances_and_retreats_one_frame_per_pass(self):
         root = FakeRoot()
