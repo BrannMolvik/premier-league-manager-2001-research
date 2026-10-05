@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 PR #418 is canonical at main fab3793b52ed020186efd49b22b6659ec326e443 after reconstruction run 37277057079 passed 2,471 tests / 23 expected skips, asset-policy run 37277057092 passed, and Windows package run 37277057095 passed. Active independent Gate17 task is clean PR #420 head 966cd74162ab2c0e8e7928aabef727b6874ba859: final audit must independently require exact audit_kind and exact release_archive_size on all five external receipts, with wrong-kind/size/bool spoof regressions. Merge only exact green head.",
-  "last_known_main_head": "fab3793b52ed020186efd49b22b6659ec326e443",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 PR #420 is canonical at main 791abe16f90ddc919942c55f2a9599a63327bb41 after reconstruction run 37277926931 passed 2,472 tests / 23 expected skips and asset-policy run 37277926870 passed. Continue independent Gate17 release-evidence hardening: final evidence parsing and external receipt validation must reject bool/string coercion for schema_version, archive size_bytes, windows_build, and windows_product_type. Add exact-int regressions and merge only an exact green head.",
+  "last_known_main_head": "791abe16f90ddc919942c55f2a9599a63327bb41",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 304,
+  "recovery_generation": 305,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Private inputs are present in Library: /FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip (511,121,336 bytes) and /FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip. Current container/process execution fails before startup with caas.internal.errors.ClientError, so no new private source hash, private canonical save/reload receipt, or original-game execution is claimed. Do not create a full-scope-results producer that fabricates pass rows while secondary save/runtime and six-user capability remain incomplete.",
+  "note": "Do not fabricate full-scope pass rows or promote Gate17 capability. Private source/runtime blockers remain real. This task is release-evidence contract hardening only.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
