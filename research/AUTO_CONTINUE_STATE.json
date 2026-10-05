@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 active. PR #455 is merged and recorded on main. Verify PR #456 readiness reconciliation and PR #457 strict external Windows 11 startup-FMV visibility/audibility receipt against current main aafe42e843fe67ced8b4fa29d908be2260f2d943; merge only if current-base CI and fail-closed semantics pass. Then continue the highest-priority independent cloud-safe Gate-14 task while private source/container execution remains blocked.",
-  "last_known_main_head": "aafe42e843fe67ced8b4fa29d908be2260f2d943",
+  "active_task": "Gate 14 active. PR #458 strict external Windows 11 startup-FMV visibility/audibility audit merged at 3465043767cffb40a822df15b01a6fb20dd37747. PR #459 is the current-base minimal successor to diverged #456 and is validating readiness reconciliation; merge only after reconstruction CI passes, then retire #456 and continue the next cloud-safe Gate-14 task.",
+  "last_known_main_head": "3465043767cffb40a822df15b01a6fb20dd37747",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 314,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 314 started from canonical main aafe42e843fe67ced8b4fa29d908be2260f2d943 after no-progress fallback. Continuing persisted Gate-14 PR #456/#457 validation; no completed work is being restarted.",
+  "note": "Recovery 314 checkpoint: #458 merged on current main; #459 asset policy passed and reconstruction CI is running. Runtime remains continuous/working.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
