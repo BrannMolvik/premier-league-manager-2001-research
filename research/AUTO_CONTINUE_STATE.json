@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 PR #417 current full-original-scope receipt producer is open on exact head 2c15862f646065ffe264718384c15038121e0214. Asset policy 37273644255 passed; reconstruction run 37273644193 is in progress. The producer now additionally requires the external per-scope result file itself to match release_version, repository_commit, release archive SHA/size, Windows 11 build/product type, exact canonical TeamSelect catalog/order, per-scope human/progression/subsystem/save-reload flags, and six-user multi-human proof, preventing stale scope evidence from being relabeled. Merge only exact green head. A stacked transaction branch exists but must be reconciled onto post-#417 main before PR.",
-  "last_known_main_head": "79e05cdd13914748fc3934b4bf981fcd543812bd",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 full-original-scope receipt producer #417 is canonical at main 6374c00f48502bd1111372cc790dd181f86bdd4a after reconstruction run 37273888904 passed 2,469 tests / 23 expected skips and asset-policy run 37273888949 passed. Continue the already-prepared transaction integration on a clean branch from this main: external validation should accept the release-bound external full-scope results file, prevalidate it before expensive implementation audit, mint full_original_scope.json inside the rollback-safe work root, assemble evidence from that generated receipt, and delete all partial evidence on any failure. Ensure external-validation paths trigger reconstruction CI.",
+  "last_known_main_head": "6374c00f48502bd1111372cc790dd181f86bdd4a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 303,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Prepared stacked branch chatgpt/gate17-full-scope-receipt-transaction changes external validation to accept --full-original-scope-results and mint full_original_scope.json inside rollback-safe final transaction; includes producer-failure cleanup test. Do not open/merge it until #417 is canonical, then transplant only transaction files if squash history makes branch dirty.",
+  "note": "Do not reuse the history-diverged stacked branch as a main PR. Transplant only its transaction code/test/workflow/doc delta onto post-#417 main. #417 closes only release tooling, not Gate17 capability or external evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
