@@ -43,10 +43,9 @@ class Gate14FastViewHostSurfaceTests(unittest.TestCase):
             "play_user_fixture",
             "match_simulation",
             "match_calculator",
-            "presenter.session",
-            "navigation",
-            "on_click(",
-            "source_accepted_pmenu",
+            "self.presenter",
+            "self.on_click",
+            "source_accepted_pmenu_action(",
         ):
             self.assertNotIn(forbidden, source)
 
