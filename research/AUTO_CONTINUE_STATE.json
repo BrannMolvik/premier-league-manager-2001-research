@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #475 source-minimization contract is frozen on head 1204fdbae4da3a6c96a187d8417a017f71602faa. Finish current-head Windows/reconstruction/asset CI and merge only if all pass. Private source archive remains blocked by caas.internal.errors.ClientError. After merge, create a dedicated Windows CI build proof for the minimal helper from FFmpeg commit 46d8f462eeb87ee1f704d8c44a0ee24fca471ad1; do not change production.",
-  "last_known_main_head": "7bcc5bfab79fca1d06c583ce4abddd84e38497f8",
+  "active_task": "Issue #437 startup FMV transport: replace failing Windows MCI open path with a stock Windows WPF media transport over the already verified H.264/AAC MP4 derivatives; preserve explicit developer-player override and fail closed; validate with focused/full/package CI before one combined Windows retest.",
+  "last_known_main_head": "282d9fd1b1b09c772306575d811f47704185682a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 320,
   "last_recovery_reason": "new-chat-handoff",
-  "note": "Recovery 319: #475 final source contract now includes explicit mediafoundation, w32threads, mp4 muxer, mov demuxer, H264/AAC derivative decoders, aresample, file+pipe protocols and null muxer. Head 1204fdba under CI. Broad BtbN candidate remains non-minimal; all minimal-helper proof flags remain false.",
+  "note": "Recovery 320: #438 fixed/merged as 9bda514e. #436 latency candidate PR #477 merged as 282d9fd1 after Gate13 716 tests/22 skips, full reconstruction 2613 tests/23 skips, Windows package and asset policy all passed. Continue #437 transport; no Windows speed/playback success claim until Daniel retests.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
