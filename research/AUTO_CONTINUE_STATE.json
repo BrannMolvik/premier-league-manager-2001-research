@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #400 merged on main at 07eb4f7bc21bac3f0c2f6f1952c579fb9131dde1 after reconstruction run 37259835230 passed 2,389 tests / 23 expected skips and asset-policy run 37259835233 passed. PR #401 was closed unmerged as stale-base and cleanly replayed as PR #402 from current main. Validate #402 full combined CI; if green, merge it, then use the tracer only on a healthy private canonical-executable path or continue another independent cloud-safe omission without inventing text semantics/style/resources.",
-  "last_known_main_head": "07eb4f7bc21bac3f0c2f6f1952c579fb9131dde1",
+  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #402 merged on main at 76774a5a87d8813ac7a2c9d58b6a4bca5cc863d5 after reconstruction run 37260456096 passed 2,394 tests / 23 expected skips and asset-policy run 37260456145 passed. Continue cloud-safe Gate-15 fidelity-sweep reconciliation: refresh GATE15_READINESS_AUDIT.md and the FastView/3D row in FIDELITY_GAPS.md against current canonical Gate-14 evidence, removing only stale resolved blockers and preserving every remaining fail-closed presentation/audio/private-source boundary. Do not mark Gate 15 complete and do not touch Gate 13.",
+  "last_known_main_head": "76774a5a87d8813ac7a2c9d58b6a4bca5cc863d5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 298,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Canonical main now explicitly inventories four static ScoreCompositeNormal TextControls per visible score row plus 7 heading/9 per-row LeagueTable TextControls, while keeping semantics/style/font/color/pixels false. #402 prepares exact bounded private source tracing for their constructor arguments.",
+  "note": "Canonical Gate-14 now includes nested pixel-completeness guards, a static score/table TextControl inventory, and a bounded private source tracer for their unresolved argument/style/value producers. Gate 16 is already prevalidated by its existing audit; no redundant stress work is needed. Next is a research-only Gate-15 ledger refresh.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
