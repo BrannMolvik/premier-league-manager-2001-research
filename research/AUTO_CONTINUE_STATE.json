@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-15 fidelity ledger (#404) and current pre-release limitations reconciliation (#405) are now canonical; #405 is main a5817f4c56e155b998ed4f3f551ca6c2fab6140a after reconstruction run 37262565646 passed 2,403 tests / 23 expected skips. Continue disjoint Gate-17 cloud-safe source evidence tooling in PR #406: validate the procedural-secondary runtime-owner tracer with full reconstruction and asset-policy CI, merge only if green, then use its persisted candidate contract to define the next private-source adjudication without claiming secondary gameplay.",
-  "last_known_main_head": "a5817f4c56e155b998ed4f3f551ca6c2fab6140a",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-17 tracer #406 merged on main 47039febe5318c9109f71e90b88789ca39833b90 after reconstruction run 37263001970 passed 2,408 tests / 23 expected skips and asset-policy run 37263001977 passed. Continue disjoint Gate-17 cloud-safe work by defining a fail-closed private adjudication plan over the tracer report: prioritize ordinary runtime traversal ownership (0x615C10) and later season/finalization ownership (0x616A70), require explicit secondary-global/this-pointer evidence before any capability promotion, then separately map human dispatch and save/reload owners. Do not implement procedural-secondary gameplay from candidate calls alone.",
+  "last_known_main_head": "47039febe5318c9109f71e90b88789ca39833b90",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 299,
+  "recovery_generation": 300,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Release limitations are current and still pre-release. Gate16 remains prevalidated. PR #406 adds only fail-closed private source tracing for secondary schedule owner lifecycle; it does not implement live secondary runtime/save/human support.",
+  "note": "PR #406 is canonical. Next work must turn its neutral candidate contract into a deterministic private-source adjudication checklist/validator, not semantic claims. Gate 13 remains open; Gate 17 cannot complete until earlier gates and real Windows 11 evidence pass.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
