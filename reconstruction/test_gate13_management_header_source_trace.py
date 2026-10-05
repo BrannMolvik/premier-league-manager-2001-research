@@ -50,9 +50,17 @@ class Gate13ManagementHeaderSourceTraceTests(unittest.TestCase):
         self.assertEqual(report["known_geometry"]["right_child_local_rect"], [30, 0, 70, 95])
         self.assertEqual(report["known_geometry"]["caption_local_rect"], [32, 62, 70, 30])
         self.assertEqual(report["known_geometry"]["caption_style"], 10)
-        self.assertEqual(len(report["windows"]), 12)
+        self.assertEqual(len(report["windows"]), 17)
         self.assertEqual(len(report["data_objects"]), 4)
         self.assertEqual(len(report["pointer_candidates"]), 4)
+        labels = {item["label"] for item in report["windows"]}
+        self.assertTrue({
+            "PLeagueTableRow visible text setup",
+            "PSquadPlayerRow visible text setup",
+            "PSCFRow visible text setup",
+            "shared ordinary eCText setup",
+            "management font wrapper binding family",
+        }.issubset(labels))
         for value in report["conclusions_intentionally_not_promoted"].values():
             self.assertIsNone(value)
         self.assertIsNone(report["resources"])
