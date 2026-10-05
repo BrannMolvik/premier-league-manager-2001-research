@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 external WPF visible/audible acceptance remains deferred. Gate-17 work-ahead #475/#479 is now source-diagnosed: the minimal FFmpeg contract disables autodetection but fails to restore D3D11VA required by pinned h264_mf mfenc.c. Implementation worker must cleanly reconcile #475 onto current main, explicitly restore the narrow D3D11VA platform capability with fail-closed audit/tests/docs, verify CI, then rebuild #479; production migration remains false.",
+  "active_task": "Implementation worker action required: cleanly reconcile PR #475 onto current main, add the explicit native D3D11VA capability required by pinned h264_mf after --disable-autodetect, update fail-closed contract tests/docs, and verify focused/full/package CI. Then rebuild/reconcile #479. Overseer must review evidence before merge. Gate 14 external WPF playback acceptance remains deferred; production FFmpeg migration remains false.",
   "last_known_main_head": "6030cbae46d8a15386d6b6114a11bcd35e8984dc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 321,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 321 oversight checkpoint: main 6030cbae records the #479 deterministic compile failure and pinned-source D3D11VA diagnosis; PR comments 6000643223 (#475) and 6000643763 (#479) contain worker directives. Continue source audit of the dependency boundary, then implementation must be delegated rather than performed by the overseer.",
+  "note": "Recovery 321 oversight is persisted on main 6030cbae. Source audit proved the #479 failure is a missing D3D11VA capability in #475's minimal contract, and PR comments 6000643223, 6000643763, and 6000692840 contain exact worker acceptance criteria. Current ChatGPT toolset has GitHub oversight/review access but no separate implementation-worker/Codex execution tool; do not have the overseer write the implementation. Preserve status=working so a capable worker/recovery can continue without Daniel having to reconstruct context.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
