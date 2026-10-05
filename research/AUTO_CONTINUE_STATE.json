@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Issue #482 Phase 1 worker PR #483: route-scoped fresh-Squad management loading is implemented and under CI at head 0ada632a. Continue same PR with the source-closed ordinary Squad row subset; retained private trace proves row fonts and branch-selected native color plumbing, but generic non-endpoint color conversion/display-name helper still requires exact evidence. Do not substitute white/modern palette. If the process sandbox remains ClientError-blocked, persist that evidence blocker and continue other cloud-safe #482 verification/work.",
+  "active_task": "Issue #482 Phase 1, PR #483 head 394bb556: route-scoped management loading checkpoint is durable. Current reconstruction run 37368687944 is in progress; Gate-13/package checks queued. Continue the same PR by closing the source-backed ordinary Squad-row renderer without inventing unresolved native color/name-helper semantics. Retained trace and authorized source are the evidence boundary; if exact helper inspection remains execution-blocked, continue other independent #482 work while preserving this blocker.",
   "last_known_main_head": "e9635ee0f0ad9351427a311f8c14a79a3180d727",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 323,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 323 checkpoint: PR #483 created from e9635ee0. Phase 1a splits squad/fixtures/league_tables resource families and deterministic tests assert fresh Squad excludes Fixtures, Tables, PMatchInfo. Four hosted workflows are queued. Library contains authorized original disc image and retained gate13-final-header trace; local/container archive inspection still fails with process-start ClientError. Private trace confirms PSquadPlayerRow role uses a source-computed packed color and display name uses separate helper; do not invent unresolved conversion. #475/#479 remain suspended.",
+  "recovery_generation": 324,
+  "last_recovery_reason": "transient connection interruption",
+  "note": "Recovery 324 resumed after transient chat connection interruption. Main remains e9635ee0; PR #483 is open/mergeable at 394bb556. Route-loader changes and recovery-323 progress checkpoint are durable. Do not restart completed investigation. Process-start ClientError blocked exact private helper inspection in recovery 323; hosted GitHub CI remains usable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
