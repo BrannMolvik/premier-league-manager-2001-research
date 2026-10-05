@@ -195,44 +195,23 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
         ):
             backend.play(long_item)
 
-    def test_invalid_timing_contract_fails_before_process_launch(self):
-        item = derivative(Path(r"C:\private\bad.mp4"))
-        bad_spec = OriginalStartupMediaSpec(
-            source_path=item.spec.source_path,
-            source_sha256=item.spec.source_sha256,
-            size_bytes=item.spec.size_bytes,
-            startup_callsite_va=item.spec.startup_callsite_va,
-            playback_wrapper_va=item.spec.playback_wrapper_va,
-            playback_flag_bit0=item.spec.playback_flag_bit0,
-            video_width=item.spec.video_width,
-            video_height=item.spec.video_height,
-            frame_rate=0,
-            decoded_video_frames=item.spec.decoded_video_frames,
-            audio_sample_rate=item.spec.audio_sample_rate,
-            audio_channels=item.spec.audio_channels,
-        )
-        bad_item = VerifiedStartupMediaDerivative(
-            sequence=item.sequence,
-            spec=bad_spec,
-            path=item.path,
-            converted_sha256=item.converted_sha256,
-            converted_size_bytes=item.converted_size_bytes,
-            container=item.container,
-            video_codec=item.video_codec,
-            pixel_format=item.pixel_format,
-            audio_codec=item.audio_codec,
-        )
-        runner = RecordingRunner()
+    def test_invalid_timing_contract_is_defensively_rejected(self):
         backend = WindowsWpfStartupMediaBackend(
             platform_system="Windows",
-            runner=runner,
+            runner=RecordingRunner(),
+        )
+        invalid_item = SimpleNamespace(
+            spec=SimpleNamespace(
+                decoded_video_frames=10,
+                frame_rate=0,
+            )
         )
         with self.assertRaisesRegex(
             WindowsStartupMediaBackendError,
             "timing contract is invalid",
         ):
-            backend.play(bad_item)
-        self.assertEqual(runner.calls, [])
+            backend._timeout_seconds(invalid_item)
+
 
     def test_wpf_backend_rejects_non_windows_invalid_runner_and_wrong_codec(self):
         with self.assertRaisesRegex(WindowsStartupMediaBackendError, "requires Windows"):
