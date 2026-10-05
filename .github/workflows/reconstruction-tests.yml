@@ -195,6 +195,8 @@ on:
       - "reconstruction/test_gate14_chant_runtime_pool_selection.py"
       - "reconstruction/gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/test_gate14_fastview_picturecontrol_source_trace.py"
+      - "reconstruction/gate14_fastview_static_text_source_trace.py"
+      - "reconstruction/test_gate14_fastview_static_text_source_trace.py"
       - "reconstruction/gate14_fastview_owner_order_source_trace.py"
       - "reconstruction/test_gate14_fastview_owner_order_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
