@@ -7,6 +7,35 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 317 continuation — Gate-15 ledger canonical; Gate 14 still active
+
+PR #464 merged as `79d4457f38112f57fe5cfbc57f0e6a02baac64cd`.
+Its head `c5103024e163e5473e8a8a431e993bebeefb82cd` passed the full
+reconstruction suite in run `37324348013` with **2,586 tests / 23 expected
+skips**, and repository asset-policy run `37324348957` also passed.
+
+The merged Gate-15 schema-1 fidelity ledger now covers all 11 live
+`research/FIDELITY_GAPS.md` rows exactly once. Ten rows remain Gate-15-owned
+or deferred; the `FastView/3D and original audio/match presentation` row
+remains an explicit Gate-14 prerequisite. The audit rejects missing, duplicate
+or extra rows, Planned-gate drift, fallback-as-original claims, accepted
+limitations without release disclosure, relabeling the Gate-14 prerequisite as
+a Gate-15 acceptance, and any Gate-15 completion declaration before Gate 14 is
+closed and every Gate-15-owned row has a terminal disposition.
+
+This checkpoint is omission-proofing only. It does **not** adjudicate any
+remaining fidelity gap and does **not** complete Gate 15. Gate 14 remains the
+earliest incomplete validation gate.
+
+**Exact next task:** retry the private execution path at this persistence
+boundary. If process execution has recovered, resume the highest-priority
+source-backed Gate-14 closure item from the authorized original source and
+preserve source evidence. If private execution is still unavailable, record the
+precise blocker and continue only independent cloud-safe critical-path work.
+Do not infer unresolved FastView geometry/order, broader AudioHooks semantics,
+procedural-secondary ownership, six-user runtime semantics, or non-PL objective
+progression by analogy.
+
 ## Recovery 315 continuation — acceptance tooling and later-gate handoff canonical
 
 Canonical main has advanced through three verified Recovery-315 checkpoints:
