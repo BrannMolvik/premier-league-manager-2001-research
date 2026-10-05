@@ -26,6 +26,7 @@ from gate17_release_readiness import (
     validate_limitations_document,
     validate_release_archive,
     validate_roadmap_prerequisites,
+    validate_third_party_ffmpeg_release,
 )
 
 
@@ -945,6 +946,51 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             ):
                 require_path_outside_repo(inside, repo, label="release archive")
 
+    def test_ffmpeg_release_boundary_normalizes_third_party_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo = root / "repo"
+            repo.mkdir()
+            provenance = repo / "third_party" / "ffmpeg"
+            provenance.mkdir(parents=True)
+            (provenance / "PROVENANCE.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "component": "FFmpeg",
+                        "bundled_binary_path": "runtime_tools/ffmpeg.exe",
+                        "provider_package": {
+                            "name": "imageio-ffmpeg",
+                            "version": "0.6.0",
+                        },
+                        "binary_identity": {
+                            "version_line": "ffmpeg version synthetic",
+                            "compiler_line": "built synthetic",
+                            "required_configuration_flags": ["--enable-gpl"],
+                            "library_versions": {"libavutil": "1"},
+                        },
+                        "release_materials": {
+                            "release_ready": False,
+                            "license_material_complete": False,
+                            "source_material_complete": False,
+                            "required_files": [
+                                "third_party/ffmpeg/LICENSE.txt"
+                            ],
+                            "sha256": {},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            archive = root / "release.zip"
+            archive.write_bytes(b"not needed before completeness guard")
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "bundled FFmpeg release boundary failed",
+            ):
+                validate_third_party_ffmpeg_release(repo, archive)
+
     def test_pre_release_limitations_document_cannot_pass_final_audit(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, _archive, raw = self.fixture(temp)
@@ -1085,6 +1131,14 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 patch(
                     "gate17_release_readiness.validate_release_archive",
                     return_value={"sha256": RELEASE_ARCHIVE_SHA256},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_third_party_ffmpeg_release",
+                    return_value={
+                        "component": "FFmpeg",
+                        "release_materials_complete": True,
+                        "legal_compliance_claimed": False,
+                    },
                 ),
                 patch(
                     "gate17_release_readiness.validate_limitations_document",
