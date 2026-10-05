@@ -12,10 +12,11 @@ external receipt it requires:
 - a green canonical full-scope implementation preflight over that game directory;
 - a fresh external work root.
 
-Only after those checks pass does it require a separately produced full-original-
-scope receipt, run the clean-install receipt and the three canonical gameplay
-receipts, assemble one release-evidence manifest and execute
-the final release-readiness audit. If any later step fails, the newly created
+Only after those checks pass does it accept a separately produced per-scope
+audit result, run the clean-install and canonical gameplay receipts, produce
+full_original_scope.json from that exact result set, assemble one release-
+evidence manifest and execute the final release-readiness audit. If any later
+step fails, the newly created
 work root is removed so a partial receipt set cannot be mistaken for final
 release evidence.
 """
@@ -28,6 +29,7 @@ import shutil
 
 from gate17_clean_windows_install import run_clean_windows_install_receipt
 from gate17_full_scope_preflight import run_canonical_full_scope_preflight
+from gate17_full_scope_receipt import run_full_scope_receipt
 from gate17_release_evidence import assemble_release_evidence
 from gate17_release_readiness import (
     ReleaseReadinessError,
@@ -105,7 +107,7 @@ def preflight_external_release_validation(
     repository_commit: str,
     release_archive: str | Path,
     canonical_game_dir: str | Path,
-    full_original_scope_receipt: str | Path,
+    full_original_scope_results: str | Path,
     work_root: str | Path,
     player_seed: int = 1,
     max_days: int = 420,
@@ -138,10 +140,10 @@ def preflight_external_release_validation(
         repo_root=root,
         label="canonical FM2001 game directory",
     )
-    scope_receipt = _external_existing_file(
-        full_original_scope_receipt,
+    scope_results = _external_existing_file(
+        full_original_scope_results,
         repo_root=root,
-        label="full original scope receipt",
+        label="full original scope results",
     )
     implementation_preflight = run_canonical_full_scope_preflight(
         game_dir,
@@ -163,7 +165,7 @@ def preflight_external_release_validation(
         "identity": identity,
         "release_archive": archive,
         "canonical_game_dir": game_dir,
-        "full_original_scope_receipt": scope_receipt,
+        "full_original_scope_results": scope_results,
         "implementation_preflight": implementation_preflight,
         "work_root": output_root,
     }
@@ -188,7 +190,7 @@ def run_external_release_validation(
     repository_commit: str,
     release_archive: str | Path,
     canonical_game_dir: str | Path,
-    full_original_scope_receipt: str | Path,
+    full_original_scope_results: str | Path,
     work_root: str | Path,
     player_seed: int = 1,
     max_days: int = 420,
@@ -200,7 +202,7 @@ def run_external_release_validation(
         repository_commit=repository_commit,
         release_archive=release_archive,
         canonical_game_dir=canonical_game_dir,
-        full_original_scope_receipt=full_original_scope_receipt,
+        full_original_scope_results=full_original_scope_results,
         work_root=work_root,
         player_seed=int(player_seed),
         max_days=int(max_days),
@@ -210,6 +212,7 @@ def run_external_release_validation(
     output_root = Path(preflight["work_root"])
     receipts_dir = output_root / "receipts"
     install_root = output_root / "install"
+    full_scope_receipt_path = receipts_dir / "full_original_scope.json"
     evidence_path = output_root / "release-evidence.json"
     final_receipt_path = output_root / "gate17-final-release.json"
 
@@ -233,6 +236,17 @@ def run_external_release_validation(
             player_seed=int(player_seed),
             max_days=int(max_days),
         )
+        full_scope_receipt = run_full_scope_receipt(
+            repo_root=root,
+            canonical_game_dir=preflight["canonical_game_dir"],
+            release_version=release_version,
+            repository_commit=repository_commit,
+            release_archive=preflight["release_archive"],
+            scope_results=preflight["full_original_scope_results"],
+            output_path=full_scope_receipt_path,
+            player_seed=int(player_seed),
+            max_days=int(max_days),
+        )
         evidence = assemble_release_evidence(
             release_version=release_version,
             repository_commit=repository_commit,
@@ -242,7 +256,7 @@ def run_external_release_validation(
                 "new_game_management_loop": gameplay["new_game_management_loop"],
                 "season_progression": gameplay["season_progression"],
                 "save_reload": gameplay["save_reload"],
-                "full_original_scope": preflight["full_original_scope_receipt"],
+                "full_original_scope": full_scope_receipt,
             },
             output_path=evidence_path,
             repo_root=root,
@@ -266,7 +280,7 @@ def run_external_release_validation(
         "new_game_management_loop": gameplay["new_game_management_loop"],
         "season_progression": gameplay["season_progression"],
         "save_reload": gameplay["save_reload"],
-        "full_original_scope": preflight["full_original_scope_receipt"],
+        "full_original_scope": full_scope_receipt,
         "release_evidence": evidence,
         "final_release_receipt": final_receipt_path,
     }
@@ -279,7 +293,7 @@ def main() -> int:
     parser.add_argument("--repository-commit", required=True)
     parser.add_argument("--release-archive", type=Path, required=True)
     parser.add_argument("--canonical-game-dir", type=Path, required=True)
-    parser.add_argument("--full-original-scope-receipt", type=Path, required=True)
+    parser.add_argument("--full-original-scope-results", type=Path, required=True)
     parser.add_argument("--work-root", type=Path, required=True)
     parser.add_argument("--player-seed", type=int, default=1)
     parser.add_argument("--max-days", type=int, default=420)
@@ -291,7 +305,7 @@ def main() -> int:
         repository_commit=args.repository_commit,
         release_archive=args.release_archive,
         canonical_game_dir=args.canonical_game_dir,
-        full_original_scope_receipt=args.full_original_scope_receipt,
+        full_original_scope_results=args.full_original_scope_results,
         work_root=args.work_root,
         player_seed=args.player_seed,
         max_days=args.max_days,
