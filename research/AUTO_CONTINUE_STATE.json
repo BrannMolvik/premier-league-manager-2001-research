@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #470 is merged and canonical. PR #471 has green Windows/asset checks and is awaiting full reconstruction run 37344093250; merge only after success. Then retry the private exact-TGQ h264_mf + matching FFprobe audit. Production conversion remains libx264.",
-  "last_known_main_head": "66441a2cdbd21c90b49f66784edaaedd63bf2d2e",
+  "active_task": "PR #473 is merged and canonical. Retry the authorized private archive once; if execution is healthy, run exact easp.tgq + premintro.tgq through pinned LGPL h264_mf and matching FFprobe. If ClientError persists, continue minimal upstream FFmpeg helper/source-provenance work without changing production.",
+  "last_known_main_head": "7bcc5bfab79fca1d06c583ce4abddd84e38497f8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 319,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 319 persisted PR #470 and current private-execution blocker. #471 Windows proof passed, including pinned FFprobe SHA 46a86ca9eb512c2989354ebe68eb1562fcb73b16d8041d54d54b5f4b244f958c and -fps_mode passthrough geometry; full reconstruction remains pending.",
+  "note": "Recovery 319: #470 and #473 are canonical. Candidate binds h264_mf FFmpeg c15ef2e... plus FFprobe 46a86c... with fps_mode passthrough and exact synthetic H264/yuv420p/AAC/MP4 checks. Exact TGQ conversion still false; production remains libx264.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
