@@ -18,34 +18,57 @@ inputs and a real canonical derivative have been independently verified.
 """
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
 import re
 
+from ea444_decoder import decode_ea444
 from ea444_quantization import (
+    EA444Quantization,
     ORIGINAL_QUANT_SHA256,
     quantization_from_verified_executable,
 )
 from ea444_tables import (
     CANONICAL_EXE_SHA256,
+    EA444Tables,
     tables_from_original_executable,
 )
-from ea_font import EATextMask
+from ea_font import EAFont, EATextMask
+from ea_language_strings import parse_language_pair
 from gate13_first_screen_manifest_readiness import assert_first_screen_manifest_ready
 from gate13_first_screen_selection import ExpectedSource, FIRST_SCREEN_ORIGINALS
 from original_button_frames import (
     OriginalButtonAtlas,
     OriginalButtonFrame,
     PSTARTMENU_BUTTON_ATLAS,
+    decode_verified_original_button_atlas,
 )
-from original_front_end_layout import OriginalRect, PSTARTMENU_ACTIONS, SCREEN_SIZE
-from original_pstartmenu_labels import PStartMenuCaption
+from original_front_end_layout import (
+    GLOBAL_BACKGROUND_PATH,
+    PSTARTMENU_ACTIONS,
+    PSTARTMENU_BACKGROUND_PATH,
+    OriginalRect,
+    SCREEN_SIZE,
+)
+from original_pstartmenu_labels import (
+    PStartMenuCaption,
+    prepare_original_pstartmenu_captions,
+)
 from original_pstartmenu_resources import (
     COMPOSED_BACKGROUND_RGBA_SHA256,
     ENGLISH_ACTION_TEXTS,
+    ENGLISH_IDX_SHA256,
+    ENGLISH_STR_SHA256,
+    GLOBAL_BACKGROUND_SHA256,
+    MENU_BACKGROUND_SHA256,
+    ZURICH_FONT20_SHA256,
     OriginalPStartMenuResources,
+    _read_art,
+    _read_verified,
+    assemble_original_pstartmenu_inputs,
 )
 
 
@@ -53,6 +76,15 @@ SCHEMA_VERSION = 1
 CONVERTER_ID = "fm2001-pstartmenu-render-derivative-v1"
 MANIFEST_NAME = "manifest.json"
 PAYLOAD_NAME = "payload.bin"
+TQIA_SOURCE_SHA256 = (
+    "c62a13efbb812fb2157c067aaa3eae8afbbb52283dc5dc3eaf6cb86c5a11e8da"
+)
+DECODER_TQIA_RELATIVE = Path(
+    "original_assets/source/decoder/ea444_tqia_dat.bin"
+)
+DECODER_QUANT_RELATIVE = Path(
+    "original_assets/source/decoder/ea444_quant_source.bin"
+)
 PSTARTMENU_SOURCE_PATHS = (
     "FM2001_Art/Generic/bground.444",
     "FM2001_Art/Generic/main_menu/main_menu_bground.444",
@@ -113,6 +145,127 @@ def decoder_provenance_from_verified_executable(
         executable_sha256=sha256(executable).hexdigest(),
         tqia_section_sha256=sha256(tables.raw_section).hexdigest(),
         quant_source_sha256=ORIGINAL_QUANT_SHA256,
+    )
+
+
+
+def decoder_inputs_from_source_blocks(
+    tqia_section: bytes,
+    quant_source: bytes,
+) -> tuple[
+    EA444Tables,
+    EA444Quantization,
+    PStartMenuDecoderProvenance,
+]:
+    """Validate executable-derived decoder blocks without a runtime EXE dependency."""
+    if sha256(tqia_section).hexdigest() != TQIA_SOURCE_SHA256:
+        raise PStartMenuDerivativeError(
+            "EA444 TQIA source block identity differs"
+        )
+    tables = EA444Tables.from_section(tqia_section)
+    quant = EA444Quantization.from_source_bytes(quant_source)
+    provenance = PStartMenuDecoderProvenance(
+        executable_sha256=CANONICAL_EXE_SHA256,
+        tqia_section_sha256=TQIA_SOURCE_SHA256,
+        quant_source_sha256=ORIGINAL_QUANT_SHA256,
+    )
+    return tables, quant, provenance
+
+
+def load_repository_pstartmenu_source_resources(
+    repo_root: Path,
+) -> tuple[
+    OriginalPStartMenuResources,
+    PStartMenuDecoderProvenance,
+]:
+    """Decode the exact repository-staged originals using verified source blocks."""
+    root = Path(repo_root).resolve()
+    assert_first_screen_manifest_ready(
+        root, expected_assets=PSTARTMENU_SOURCE_ORIGINALS
+    )
+    tqia = _read_verified(
+        root / DECODER_TQIA_RELATIVE, TQIA_SOURCE_SHA256
+    )
+    quant_source = _read_verified(
+        root / DECODER_QUANT_RELATIVE, ORIGINAL_QUANT_SHA256
+    )
+    tables, quant, provenance = decoder_inputs_from_source_blocks(
+        tqia, quant_source
+    )
+
+    source_root = root / "original_assets" / "source"
+    art_root = source_root / "FM2001_Art"
+    global_background = decode_ea444(
+        _read_art(
+            art_root,
+            GLOBAL_BACKGROUND_PATH,
+            GLOBAL_BACKGROUND_SHA256,
+        ),
+        tables=tables,
+        quant=quant,
+    )
+    menu_background = decode_ea444(
+        _read_art(
+            art_root,
+            PSTARTMENU_BACKGROUND_PATH,
+            MENU_BACKGROUND_SHA256,
+        ),
+        tables=tables,
+        quant=quant,
+    )
+    button_atlas = decode_verified_original_button_atlas(
+        _read_art(
+            art_root,
+            PSTARTMENU_BUTTON_ATLAS.source_path,
+            PSTARTMENU_BUTTON_ATLAS.source_sha256,
+        ),
+        spec=PSTARTMENU_BUTTON_ATLAS,
+        tables=tables,
+        quant=quant,
+    )
+    font = EAFont.from_bytes(
+        _read_verified(
+            source_root / "Fonts" / "Zurich_BdXCn_BT_20pixel.fnt",
+            ZURICH_FONT20_SHA256,
+        )
+    )
+    strings, index = parse_language_pair(
+        _read_verified(
+            source_root / "English.str", ENGLISH_STR_SHA256
+        ),
+        _read_verified(
+            source_root / "English.idx", ENGLISH_IDX_SHA256
+        ),
+    )
+    captions = prepare_original_pstartmenu_captions(
+        font, strings, index
+    )
+    resources = assemble_original_pstartmenu_inputs(
+        global_background,
+        menu_background,
+        button_atlas,
+        captions,
+    )
+    _require_expected_resources(
+        resources,
+        expected_background_sha256=COMPOSED_BACKGROUND_RGBA_SHA256,
+        expected_caption_texts=ENGLISH_ACTION_TEXTS,
+    )
+    return resources, provenance
+
+
+def build_repository_pstartmenu_derivative(
+    repo_root: Path,
+    output_dir: Path,
+) -> tuple[Path, Path]:
+    """Generate the canonical bundle from only provenance-tracked repository inputs."""
+    resources, provenance = (
+        load_repository_pstartmenu_source_resources(repo_root)
+    )
+    return build_pstartmenu_derivative_bundle(
+        resources,
+        output_dir,
+        decoder=provenance,
     )
 
 
@@ -666,3 +819,32 @@ def assert_repository_pstartmenu_derivative_ready(
         expected_manifest_sha256=expected_manifest_sha256,
         expected_sources=expected_sources,
     )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate the deterministic Gate-13 PStartMenu derivative "
+            "from provenance-tracked original source bytes."
+        )
+    )
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path(__file__).resolve().parent.parent,
+    )
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args()
+    manifest, payload = build_repository_pstartmenu_derivative(
+        args.repo_root, args.output_dir
+    )
+    print(
+        "PStartMenu derivative generated: "
+        f"manifest_sha256={sha256(manifest.read_bytes()).hexdigest()} "
+        f"payload_sha256={sha256(payload.read_bytes()).hexdigest()}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
