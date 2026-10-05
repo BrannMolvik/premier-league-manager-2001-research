@@ -11392,3 +11392,8 @@ work may continue under the deferred-blocker policy.
 - The FastView/audio row remains owned by Gate 14 as an explicit prerequisite; Gate 14 is still the earliest incomplete validation gate and Gate 15 remains incomplete.
 - Next canonical action is to retry private process execution. If it remains unavailable, continue only independent cloud-safe critical-path work without inventing unresolved source semantics.
 - Recovery 317 private-execution retry was only partially healthy: trivial shell/Python startup succeeded and the exact 511,121,336-byte authorized Library archive materialized, but both real `unzip -l` access and an independent notebook `zipfile` open failed with `caas.internal.errors.ClientError`. The prepared TeamTable six-base-control trace at `0x524EC0` therefore remains unexecuted and no private source semantics were promoted.
+
+- PR #466 merged as `5a324004d92ac80e0d74ecbaa4010f6c638f3bc2` from head `7b4027602d311be76583ee882ef47ba38a4a18db` after reconstruction run `37329789390` passed **2,591 tests with 23 expected skips** and asset-policy run `37329789327` passed.
+- #466 cleanly replaces stale #465 on the post-#464 main baseline. The checksum-gated CSupportStaff +0x24 tracer and tests are canonical; value semantics/materialization remain unresolved, so the Finance/board gap and Gate 15 remain open. PR #465 was closed as superseded.
+- Next cloud-safe critical-path hardening is to bind final Gate-15 `accepted_documented` items to the final Gate-17 release-limitations disclosure. This does not advance any gate-complete flag.
+
