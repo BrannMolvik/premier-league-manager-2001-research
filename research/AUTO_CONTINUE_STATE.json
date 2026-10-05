@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete; merged #408 at main 8ec773e5 closes the first-screen Button animation blocker and leaves only the bounded management header/data-text slice plus final Gate13 criterion audit. Disjoint Gate17 PR #409 has been cleanly rebuilt/rebased onto this main; exact head 8ed47fb592a2f184d639f0d046404603b41191e6 is mergeable and running fresh reconstruction/asset-policy CI. Validate and merge #409 only if this exact head passes, then continue the independent cloud-safe multi-human private adjudication contract; do not infer shared-runtime/save semantics from trace candidates.",
-  "last_known_main_head": "8ec773e5f338c907127352f3c19362d44a48cd7a",
+  "active_task": "Gate 13 remains earliest incomplete; merged #408 left only the bounded management header/data-text slice plus final Gate13 closure audit. Gate17 #409 is canonical on main 4a1234b0 after 2,425 tests / 23 expected skips and asset policy passed. PR #410 has been flattened onto current main at head 8e04a22baec18d60fc03aae577a23aab11f2898c and now contains only the multi-human private adjudication contract. Validate this exact head and merge only if green. The plan must keep current one-manager runtime/save capability false until private source proves ordered Start iteration, shared runtime, multi-human fixture arbitration, and save/reload.",
+  "last_known_main_head": "4a1234b03a5bc7c1257457da01d6c627d39e2a19",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 300,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered stale activity and reconciled Gate17 multi-human Start tracer over merged Gate13 #408. PR #409 now ahead of current main with no conflict; CI runs 37265309916/37265309923 pending. Procedural-secondary private adjudication remains deferred; no Gate17 completion claim.",
+  "note": "PR #409 merged successfully after reconciliation over Gate13 #408. PR #410 is retargeted to main and running fresh CI. Secondary-owner and multi-human semantic source adjudication remain deferred; no Gate17 completion claim.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
