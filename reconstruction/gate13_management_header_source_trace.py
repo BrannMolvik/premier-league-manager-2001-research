@@ -49,7 +49,23 @@ HEADER_WINDOWS = (
     ("header resource loader xrefs", 0x5FA640, 0x280),
     ("Zurich 24px font loader/binding", 0x604554, 0x180),
     ("header font-object loader continuation", 0x6047F0, 0x180),
-    ("English caption loader xref", 0x64AA80, 0x180),
+    # The larger English window spans the same contiguous loader run down to
+    # the already-source-mapped 0x9820A8 family.  This is still only bounded
+    # source evidence; the caption index is promoted only after manual
+    # instruction-by-instruction adjudication.
+    ("English caption loader xref", 0x64AA80, 0x500),
+    # Ordinary management text controls required by the fixed Gate-13 closure
+    # slice.  These entry points are already proven by the Squad/League Tables
+    # presentation research; the trace only exposes their raw font/style
+    # arguments so aliases can be qualified without guessing.
+    ("PLeagueTableRow visible text setup", 0x446930, 0x800),
+    ("PSquadPlayerRow visible text setup", 0x489530, 0x800),
+    ("PSCFRow visible text setup", 0x489B40, 0x600),
+    ("shared ordinary eCText setup", 0x6503F0, 0x180),
+    # Cover the existing family of source-qualified Zurich wrapper bindings so
+    # any object pushed by the row setup windows can be matched to its exact
+    # original .fnt path.  This remains private receipt evidence only.
+    ("management font wrapper binding family", 0x603F00, 0xA00),
     ("shared picture source-frame mapper", 0x652780, 0x160),
     ("shared picture setup core", 0x6528D0, 0x100),
     ("shared header picture/control setup", 0x652940, 0x180),
