@@ -99,6 +99,11 @@ from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_popup import pmenu_open_press, pmenu_app_pointer_dismiss
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
+from gate13_pstartmenu_derivative import (
+    PSTARTMENU_SOURCE_ORIGINALS,
+    PStartMenuDecoderProvenance,
+    load_verified_pstartmenu_derivative_bundle,
+)
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 from original_squad_top_controls import (
     OriginalSquadTopResources,
@@ -115,6 +120,23 @@ from runtime_diagnostics import timed_stage
 
 REPO_ROOT = application_root()
 DEFAULT_SOURCE_ROOT = bundled_source_root()
+DEFAULT_PSTARTMENU_DERIVATIVE_ROOT = (
+    REPO_ROOT / "original_assets" / "converted" / "pstartmenu-v1"
+)
+PSTARTMENU_DERIVATIVE_MANIFEST_SHA256 = (
+    "cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e"
+)
+PSTARTMENU_DERIVATIVE_DECODER = PStartMenuDecoderProvenance(
+    executable_sha256=(
+        "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"
+    ),
+    tqia_section_sha256=(
+        "c62a13efbb812fb2157c067aaa3eae8afbbb52283dc5dc3eaf6cb86c5a11e8da"
+    ),
+    quant_source_sha256=(
+        "6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb"
+    ),
+)
 SCREEN_SIZE = (800, 600)
 
 MANAGEMENT_RESOURCE_FAMILY_BY_PANEL = {
@@ -257,19 +279,34 @@ def build_original_game_presenter(
     *,
     source_root: str | Path | None = None,
 ) -> OriginalFirstScreenPresenter:
-    """Load all currently integrated first-screen inputs from verified originals."""
+    """Load the first screen from the pinned derivative in normal runtime.
+
+    Explicit custom source roots retain the original source-decoder path for
+    research/verification. The default packaged/repository runtime must use the
+    separately pinned deterministic derivative and fails closed if it is absent
+    or differs; it never silently falls back to a 26-second cold source decode.
+    """
     game_dir = Path(game_dir)
     root = DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
     executable = game_dir / "FOOTBAL.EXE"
     art_root = root / "FM2001_Art"
-    font20 = root / "Fonts" / "Zurich_BdXCn_BT_20pixel.fnt"
 
-    menu = load_verified_english_pstartmenu_inputs(
-        original_art_dir=art_root,
-        original_language_dir=root,
-        original_zurich_font20=font20,
-        original_executable=executable,
-    )
+    if source_root is None or root.resolve() == DEFAULT_SOURCE_ROOT.resolve():
+        menu = load_verified_pstartmenu_derivative_bundle(
+            DEFAULT_PSTARTMENU_DERIVATIVE_ROOT,
+            expected_decoder=PSTARTMENU_DERIVATIVE_DECODER,
+            expected_manifest_sha256=PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+            expected_sources=PSTARTMENU_SOURCE_ORIGINALS,
+        )
+    else:
+        font20 = root / "Fonts" / "Zurich_BdXCn_BT_20pixel.fnt"
+        menu = load_verified_english_pstartmenu_inputs(
+            original_art_dir=art_root,
+            original_language_dir=root,
+            original_zurich_font20=font20,
+            original_executable=executable,
+        )
+
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
