@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 326,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 326: canonical docs updated after Phase2 merge. Current main includes CURRENT_STATE/PROGRESS checkpoint commits after 3c325a5d. Continue Phase3 derivative format/tests independently while process execution remains ClientError-blocked.",
+  "recovery_generation": 327,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 327: resumed from canonical main after same-chat recovery made no repository progress. Continuing the exact Gate 13 #482 cloud-safe task: deterministic fail-closed PStartMenu render-derivative container/provenance scaffolding; do not wire normal runtime or guess private decoder semantics.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
