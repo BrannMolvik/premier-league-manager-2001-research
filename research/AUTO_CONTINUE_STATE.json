@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 active. PR #458 strict external Windows 11 startup-FMV visibility/audibility audit merged at 3465043767cffb40a822df15b01a6fb20dd37747. PR #459 is the current-base minimal successor to diverged #456 and is validating readiness reconciliation; merge only after reconstruction CI passes, then retire #456 and continue the next cloud-safe Gate-14 task.",
-  "last_known_main_head": "3465043767cffb40a822df15b01a6fb20dd37747",
+  "active_task": "Gate 14: implement a fail-closed external Windows 11 acceptance receipt for the already-integrated normal-application first-screen press-audio path. Exercise a real Tk production-host binding and canonical (10,0)->menus.bnk slot-2 delivery, require explicit human audibility confirmation, and keep broad semantic/login-menu integration false.",
+  "last_known_main_head": "ddc2179d40d0241efee7c9a9130bdd8e7d2f4312",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 314,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 314 checkpoint: #458 merged on current main; #459 asset policy passed and reconstruction CI is running. Runtime remains continuous/working.",
+  "note": "Recovery 314: #458/#459 merged and canonical state reconciled through ddc2179d. Starting bound application first-screen audio Windows acceptance tooling.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
