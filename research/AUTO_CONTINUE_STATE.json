@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 325,
+  "recovery_generation": 326,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 325: PR #484 merged. PR #483 old reconstruction passed; old focused Gate13 job was cancelled during base advance, not an assertion failure. New checkpoint head 2e9a55ac triggered valid post-main-advance workflows against merge ref ca5d1528 (base b8fab87b). Continue CI-first; merge #483 only when all new relevant checks are green.",
+  "note": "Recovery 326 resumed from canonical main b8fab87b. Continue CI-first on PR #483 resynchronized head 2e9a55ac; merge only after fresh post-main-advance checks are green. Then resynchronize Phase-2 PR #485. Ordinary Squad row renderer remains evidence-blocked on exact helper/color semantics; do not guess.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
