@@ -26,6 +26,11 @@ from gate14_fastview_direct_header_raster import (
     DIRECT_HEADER_TEXT_COMPONENT,
     FastViewDirectHeaderRaster,
 )
+from gate14_fastview_surfaced_resource_raster import (
+    BACKGROUND_COMPONENT,
+    BADGES_COMPONENT,
+    FastViewSurfacedRasterSet,
+)
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
@@ -65,6 +70,8 @@ class FastViewComponentRasterPlane:
 
     def __post_init__(self) -> None:
         if self.component not in {
+            "match_background_surface",
+            "club_badge_surfaces",
             "direct_chrome",
             "clock_text",
             "possession_diagram",
@@ -124,6 +131,8 @@ class FastViewComponentRasterSet:
     chrome: FastViewComponentRasterPlane
     possession_diagram: FastViewComponentRasterPlane
     possession_figures: FastViewComponentRasterPlane
+    match_background: FastViewComponentRasterPlane | None = None
+    club_badges: FastViewComponentRasterPlane | None = None
     team_table: FastViewComponentRasterPlane | None = None
     league_scores: FastViewComponentRasterPlane | None = None
     league_scores_early_rows: FastViewComponentRasterPlane | None = None
@@ -150,6 +159,20 @@ class FastViewComponentRasterSet:
             if plane.component != component:
                 raise FastViewComponentRasterError(
                     "FastView raster set component identity mismatch"
+                )
+        for plane, component, label in (
+            (self.match_background, BACKGROUND_COMPONENT, "Match background"),
+            (self.club_badges, BADGES_COMPONENT, "Club badges"),
+        ):
+            if plane is None:
+                continue
+            if type(plane) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    f"{label} raster must be an exact component plane"
+                )
+            if plane.component != component:
+                raise FastViewComponentRasterError(
+                    f"{label} raster component identity mismatch"
                 )
         if self.clock is not None:
             if type(self.clock) is not FastViewComponentRasterPlane:
@@ -438,6 +461,24 @@ def rasterize_fastview_team_table_plane(
     )
 
 
+def _lift_surfaced_raster_plane(
+    plane,
+    *,
+    expected_component: str,
+) -> FastViewComponentRasterPlane:
+    if plane.component != expected_component:
+        raise FastViewComponentRasterError(
+            "surfaced raster plane component identity mismatch"
+        )
+    return FastViewComponentRasterPlane(
+        component=plane.component,
+        size=plane.size,
+        rgba=plane.rgba,
+        source_layer_count=plane.source_layer_count,
+        rgba_sha256=plane.rgba_sha256,
+    )
+
+
 def _lift_direct_header_raster(
     raster: FastViewDirectHeaderRaster,
 ) -> FastViewComponentRasterPlane:
@@ -528,8 +569,13 @@ def build_fastview_component_rasters(
     score_phase_text: FastViewScorePhaseTextRaster | None = None,
     clock: FastViewClockRaster | None = None,
     direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
+    if surfaced is not None and type(surfaced) is not FastViewSurfacedRasterSet:
+        raise FastViewComponentRasterError(
+            "surfaced must be exact FastViewSurfacedRasterSet"
+        )
     if clock is not None and type(clock) is not FastViewClockRaster:
         raise FastViewComponentRasterError(
             "clock must be exact FastViewClockRaster"
@@ -566,6 +612,22 @@ def build_fastview_component_rasters(
         )
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
+        match_background=(
+            None
+            if surfaced is None
+            else _lift_surfaced_raster_plane(
+                surfaced.background,
+                expected_component=BACKGROUND_COMPONENT,
+            )
+        ),
+        club_badges=(
+            None
+            if surfaced is None
+            else _lift_surfaced_raster_plane(
+                surfaced.badges,
+                expected_component=BADGES_COMPONENT,
+            )
+        ),
         clock=(None if clock is None else _lift_clock_raster(clock)),
         possession_diagram=rasterize_fastview_possession_plane(possession),
         possession_figures=rasterize_fastview_possession_figures_plane(figures),
