@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14: implement a fail-closed external Windows 11 acceptance receipt for the already-integrated normal-application first-screen press-audio path. Exercise a real Tk production-host binding and canonical (10,0)->menus.bnk slot-2 delivery, require explicit human audibility confirmation, and keep broad semantic/login-menu integration false.",
-  "last_known_main_head": "ddc2179d40d0241efee7c9a9130bdd8e7d2f4312",
+  "active_task": "Gate 14: reconcile merged PR #460 against current CI/state, then continue the next source-backed cloud-safe audio/match-presentation closure item while preserving real-Windows/private-source blockers fail-closed.",
+  "last_known_main_head": "1882ce3e36b1ded7919230319c6d7c73538a9b85",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 314,
+  "recovery_generation": 315,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 314: #458/#459 merged and canonical state reconciled through ddc2179d. Starting bound application first-screen audio Windows acceptance tooling.",
+  "note": "Recovery 315: main already advanced through #460 at 1882ce3e. Reconcile its verification/state, then continue the next independent Gate-14 closure task without promoting missing real-Windows or private-source evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
