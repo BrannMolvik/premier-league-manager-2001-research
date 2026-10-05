@@ -6,11 +6,12 @@ _Date: 5 October 2026 KST_
 
 **Work-ahead audit only. Do not mark Gate 15 complete yet.**
 
-Gate 13 remains the earliest incomplete validation gate and Gate 14 still has
-unresolved original match-presentation/audio work. Gate 15 may therefore be
-prepared out of order under the deferred-blocker policy, but it must not be
-declared passed until the earlier prerequisites close and this audit is
-reconciled against the then-current `research/FIDELITY_GAPS.md`.
+Gate 13 is complete as of 5 October 2026. Gate 14 is now the earliest
+incomplete validation gate and still has unresolved original
+match-presentation/audio work. Gate 15 may therefore continue to be prepared
+out of order under the deferred-blocker policy, but it must not be declared
+passed until Gate 14 closes and this audit is reconciled against the
+then-current `research/FIDELITY_GAPS.md`.
 
 The Gate-15 roadmap criterion is not "every difference must be reverse
 engineered." It is:
@@ -27,14 +28,19 @@ behavior is original; it does not mean the difference disappears.
 
 ## Current canonical checkpoint
 
-This audit is reconciled through current main
-`4a80c2e832b3810b6e3a84c23ddb84b6b2596b2d`. The latest Gate-14 fidelity
-checkpoint within that head is PR #402 at
-`76774a5a87d8813ac7a2c9d58b6a4bca5cc863d5`, which passed reconstruction
-workflow `37260456096` with **2,394 tests / 23 expected skips** and repository
-asset-policy workflow `37260456145`. Gate-13 PR #365 merged afterward on the
-same main line with its previously verified ordinary Fixtures paging/PMenu
-milestone; that merge does not change the Gate-14 evidence summarized here.
+This audit is reconciled through canonical main
+`774629a983780bf35e4d4736968d4cca20fd0c0e`. Gate 13 is formally closed by
+`research/GATE13_CLOSURE_AUDIT.md` and `ROADMAP.md`; its non-blocking
+secondary/pixel-perfect presentation differences now belong to this Gate-15
+fidelity sweep rather than remaining an earlier-gate prerequisite.
+
+Gate 14 remains open. PR #460 made the production-host bounded first-screen
+audio Windows-acceptance transaction canonical, and PR #462 added a
+transactional coordinator for that receipt plus the already-canonical startup
+FMV acceptance receipt. PR #462 passed reconstruction workflow
+`37320506035` and repository asset-policy workflow `37320506527`. Neither
+tooling path is itself external Windows evidence, and neither closes broad
+audio integration or recognizable original match presentation.
 
 The earlier Gate-15 finance source boundary from PR #146 remains unchanged:
 the direct caller/applicability of the alternate Cup/knockout attendance
@@ -51,12 +57,13 @@ private tracer for their still-unresolved value/style/font/color producers.
 
 ## Current private-source boundary
 
-Repository-persisted source evidence is usable in this worker, but the private
-canonical executable/source bytes are not part of the current GitHub-only work
-surface. Items that require a new private instruction trace therefore remain
-fail-closed. PR #402 prepares one exact bounded trace for the omitted
-ScoreCompositeNormal/LeagueTable text producer path; the existence of that
-tracer is not itself source evidence and does not promote any text semantics or
+The exact authorized 511,121,336-byte Library source archive resolves and
+materializes successfully in Recovery 315, so source availability itself is no
+longer the current blocker. Process execution is: both a trivial shell/Python
+probe and the notebook Python route fail with
+`caas.internal.errors.ClientError`. Items requiring a new private instruction
+trace therefore remain fail-closed. Existing tracer code is preparation only;
+its presence does not promote candidate instructions into source semantics or
 pixels.
 
 ## Fidelity items
@@ -70,8 +77,8 @@ pixels.
 | Due `MPMTransferPlayer` same-day ordering | Modern runtime currently executes due transfers after the date's fixture block. Persisted evidence proves `0x613EE0` is first inside `0x4A8070`, but does not preserve the outer call relation between that daily coordinator and same-day match execution. | **Blocked source question, explicitly approximated.** Do not promote the modern ordering to an original claim. Can be accepted only as a named same-day availability limitation if fresh source execution remains unavailable at final fidelity audit. |
 | Match-day / recurring commercial income | Ordinary Premier League gate receipts are live. English Cup policy/RNG primitives are source-backed. Recovery 187 adds the exact special controlled-participant category-1/category-2 accounting helper and neutral `0x5DBCD0` paired-XI numeric primitive; full live Cup attachment still depends on source-locking the alternate modifier caller/applicability. Fresh concession income remains disabled because its generator does not activate records. | **Not yet preferred for acceptance while a small source caller boundary remains.** If private execution remains unavailable, final audit may accept the missing live Cup-special attachment as a documented finance limitation, but must not call it original or infer "revenue sharing." |
 | Finance/board residuals | Ordinary Balance/cash, transfers, Premier League gate receipts, payroll, objectives and job security are integrated. Legacy chairman-budget events are proven irrelevant to the ordinary shipped fresh-game path. Exact support-staff amount materialization, broader Cup/facility behavior and some EA-facing labels remain incomplete. | **Mixed.** Legacy budget events are resolved/irrelevant. Neutral category labels are documentation-only. Support-staff amount and broader Cup finance remain real bounded cash-flow limitations and should stay named unless source-closed. |
-| Original front-end presentation | Owned by Gate 13. Genuine calculated human-away report/save/fresh reload now reaches the correct PMatchInfo through visible ordinary Fixtures arrows and native PMenu popup ownership without the explicit paging seam. The current Gate-13 closure audit still remains open on source-qualified first-screen timing and management-header/data-text recognizability. | **Prerequisite blocker.** Gate 15 cannot use acceptance language to bypass Gate 13's own completion criteria. |
-| UI fidelity | Owned by Gate 13. Representative source-backed management/report rendering and ordinary Fixtures navigation are now verified, but the live first-screen host still does not advance the recovered 11-step Button hover state at a source-qualified cadence, and dynamic management-header `back_4/back_4_anim` art/text plus final ordinary data/text recognizability remain open. | **Prerequisite blocker.** Resolve/audit with Gate 13 first. |
+| Original front-end / management presentation secondary fidelity | Gate 13 is complete. Required fresh Squad/PMenu management presentation, management header/MENU caption, ordinary League Tables data/text, Fixtures/report flow, source navigation/timing and real-Windows/package validation are canonical. `FIDELITY_GAPS.md` deliberately carries remaining Squad dynamic color/status-icon details, held-repeat/thumb/shirt secondary states and minor/pixel-perfect refinements into Gate 15. | **Gate-15 fidelity backlog, no longer an earlier-gate blocker.** Each residual must be fixed, proven irrelevant, or explicitly accepted/documented at final Gate-15 closure; none may be guessed and described as original. |
+| UI fidelity | Gate 13 is complete with source-qualified serialized first-screen Button updates rather than an invented fixed-ms timer. Native elapsed hover duration remains execution/hardware dependent, and optional/secondary visual states remain deliberately deferred. | **Bounded documented fidelity item.** Preserve the source update ordering and do not invent a hardware-independent wall-clock duration. Secondary visual states remain Gate-15 adjudication items, not grounds to reopen Gate 13. |
 | FastView/3D and original audio/match presentation | Owned by Gate 14. Reconstructed events feed the presentation path; retained PlayerRow energy/text pixels, direct/source-backed raster families, nested construction algorithms, GoalFlash/ScoreCompositeMain/embedded-control source boundaries, packed-16 font blending, audio-bank ownership/playback entrypoints and chant selection/timing are now source-backed. Complete nested score/team pixels, GoalFlash absolute placement/pixels, ScoreCompositeMain geometry/pixels, embedded-control geometry/pixels, global frame order/flattening, audio event binding/integration, chant semantics, 3D choreography and final recognizable-original verification remain open. | **Prerequisite blocker.** This is materially narrower than the prior audit, but Gate 15 still cannot accept or document away Gate 14's own completion criteria. |
 
 ## No-false-original audit
@@ -95,9 +102,9 @@ The currently bounded fallbacks satisfy Gate 15's second criterion in design:
 This must be rechecked against the final code/docs immediately before Gate 15
 is closed.
 
-## Gate-15 closure path after Gates 13-14
+## Gate-15 closure path after Gate 14
 
-When Gate 13 and Gate 14 have passed:
+When Gate 14 has passed:
 
 1. refresh `research/FIDELITY_GAPS.md` against current code;
 2. source-close any newly practical small gaps;
@@ -113,7 +120,7 @@ When Gate 13 and Gate 14 have passed:
 ## Gate 16/17 consequence
 
 Gate 16 already has strong work-ahead evidence, including two canonical
-three-cycle shipped-data receipts, but remains prevalidated until Gates 13-15
+three-cycle shipped-data receipts, but remains prevalidated until Gates 14-15
 close. Gate 17 must carry every intentionally accepted Gate-15 limitation into
 the final non-pre-release `research/RELEASE_LIMITATIONS.md`; the release audit
 must not erase them merely to pass.
