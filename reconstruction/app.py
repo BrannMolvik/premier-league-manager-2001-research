@@ -1,23 +1,66 @@
 from __future__ import annotations
+
+from time import perf_counter
+_APP_IMPORT_STARTED = perf_counter()
+
 import argparse
 import json
 from pathlib import Path
+import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from fm2001_data import FM2001Database, PLAYER_SKILLS
-from human_gameplay import HumanGameplayController
-from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
-from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
+
 from original_game_host import run_original_game_ui
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
-from internal_save import load_human_gameplay, save_human_gameplay
-from match_team_setup import TeamTacticalState
 from runtime_layout import application_root, bundled_source_root
+
+_APP_IMPORT_COMPLETED = perf_counter()
+_PROTOTYPE_DEPENDENCIES_LOADED = False
+
+
+def _load_prototype_dependencies() -> None:
+    """Load legacy notebook-only gameplay modules only when that UI is opened."""
+    global _PROTOTYPE_DEPENDENCIES_LOADED
+    global FM2001Database, PLAYER_SKILLS
+    global HumanGameplayController
+    global ManagementSourceDataBridge, ManagementPresentationError
+    global build_league_tables_snapshot, OriginalLeagueTablesPresentationError
+    global load_human_gameplay, save_human_gameplay
+    global TeamTacticalState
+
+    if _PROTOTYPE_DEPENDENCIES_LOADED:
+        return
+
+    from fm2001_data import FM2001Database, PLAYER_SKILLS
+    from human_gameplay import HumanGameplayController
+    from gate13_management_source_data import (
+        ManagementSourceDataBridge,
+        ManagementPresentationError,
+    )
+    from original_league_tables_presenter import (
+        build_league_tables_snapshot,
+        OriginalLeagueTablesPresentationError,
+    )
+    from internal_save import load_human_gameplay, save_human_gameplay
+    from match_team_setup import TeamTacticalState
+
+    _PROTOTYPE_DEPENDENCIES_LOADED = True
+
+
+def _report_startup_timing(phase: str, seconds: float) -> None:
+    print(
+        f"FM2001_STARTUP_TIMING phase={phase} seconds={float(seconds):.3f}",
+        file=sys.stderr,
+        flush=True,
+    )
+
 
 DEFAULT_GAME_DIR = Path(r'C:\Games\FM2001')
 
+
 class App(tk.Tk):
     def __init__(self, game_dir: Path):
+        _load_prototype_dependencies()
         super().__init__()
         self.title('FM2001 Windows 11 Port Prototype')
         self.geometry('1180x760')
@@ -699,6 +742,7 @@ def choose_dir() -> Path | None:
     return Path(p) if p else None
 
 def main():
+    main_started = perf_counter()
     ap = argparse.ArgumentParser()
     ap.add_argument('game_dir', nargs='?', default=str(DEFAULT_GAME_DIR))
     ap.add_argument(
@@ -735,6 +779,15 @@ def main():
         help='Repeatable argument passed to the configured startup-media player before the media path.',
     )
     args = ap.parse_args()
+    if not args.package_smoke:
+        _report_startup_timing(
+            "app_module_imports",
+            _APP_IMPORT_COMPLETED - _APP_IMPORT_STARTED,
+        )
+        _report_startup_timing(
+            "argument_parse",
+            perf_counter() - main_started,
+        )
     if args.package_smoke:
         print(json.dumps(package_smoke_report(), sort_keys=True))
         return
@@ -772,6 +825,7 @@ def main():
                 source_root=args.source_root,
                 startup_media_receipt=args.startup_media_receipt,
                 startup_media_backend=startup_backend,
+                startup_timing_reporter=_report_startup_timing,
             )
     except Exception as exc:
         root = tk.Tk()
