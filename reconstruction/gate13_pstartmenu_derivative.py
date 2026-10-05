@@ -328,6 +328,7 @@ def load_verified_pstartmenu_derivative_bundle(
     bundle_dir: Path,
     *,
     expected_decoder: PStartMenuDecoderProvenance,
+    expected_manifest_sha256: str,
     expected_sources: tuple[
         ExpectedSource, ...
     ] = PSTARTMENU_SOURCE_ORIGINALS,
@@ -339,9 +340,8 @@ def load_verified_pstartmenu_derivative_bundle(
     manifest_path = directory / MANIFEST_NAME
     payload_path = directory / PAYLOAD_NAME
     try:
-        manifest = json.loads(
-            manifest_path.read_text(encoding="utf-8")
-        )
+        manifest_bytes = manifest_path.read_bytes()
+        manifest = json.loads(manifest_bytes.decode("utf-8"))
         payload = payload_path.read_bytes()
     except (
         OSError,
@@ -354,6 +354,14 @@ def load_verified_pstartmenu_derivative_bundle(
     if not isinstance(manifest, dict):
         raise PStartMenuDerivativeError(
             "PStartMenu derivative manifest must be an object"
+        )
+    if (
+        not _HEX64.fullmatch(expected_manifest_sha256)
+        or sha256(manifest_bytes).hexdigest()
+        != expected_manifest_sha256
+    ):
+        raise PStartMenuDerivativeError(
+            "Derivative manifest identity differs from the pinned receipt"
         )
 
     _require_keys(
@@ -642,6 +650,7 @@ def assert_repository_pstartmenu_derivative_ready(
         / "pstartmenu-v1"
     ),
     expected_decoder: PStartMenuDecoderProvenance,
+    expected_manifest_sha256: str,
     expected_sources: tuple[
         ExpectedSource, ...
     ] = PSTARTMENU_SOURCE_ORIGINALS,
@@ -654,5 +663,6 @@ def assert_repository_pstartmenu_derivative_ready(
     return load_verified_pstartmenu_derivative_bundle(
         root / bundle_relative,
         expected_decoder=expected_decoder,
+        expected_manifest_sha256=expected_manifest_sha256,
         expected_sources=expected_sources,
     )
