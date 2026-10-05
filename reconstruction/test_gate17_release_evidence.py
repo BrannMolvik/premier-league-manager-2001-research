@@ -25,6 +25,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
         *,
         archive_sha: str,
         kind: str,
+        archive_size: int = len(b"candidate"),
         release_version: str = VERSION,
         repository_commit: str = COMMIT,
     ) -> Path:
@@ -55,11 +56,20 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 "simultaneous_human_users_verified": 6,
             },
         }
+        audit_kinds = {
+            "clean_windows_install": "gate17_clean_windows_install",
+            "new_game_management_loop": "gate17_new_game_management_loop",
+            "season_progression": "gate17_season_progression",
+            "save_reload": "gate17_save_reload",
+            "full_original_scope": "gate17_full_original_scope",
+        }
         payload = {
             "passed": True,
+            "audit_kind": audit_kinds[kind],
             "release_version": release_version,
             "repository_commit": repository_commit,
             "release_archive_sha256": archive_sha,
+            "release_archive_size": archive_size,
             "windows_11": True,
             "windows_build": 26200,
             "windows_product_type": 1,
