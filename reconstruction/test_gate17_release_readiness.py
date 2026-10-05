@@ -284,6 +284,56 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                     ):
                         parse_release_evidence(mutated)
 
+    def test_release_evidence_identity_fields_require_exact_strings(self):
+        with tempfile.TemporaryDirectory() as temp:
+            _repo, _private, _archive, raw = self.fixture(temp)
+
+            top_level_cases = (
+                ("release_version", 7, "release_version"),
+                ("release_version", " rc-test ", "release_version"),
+                ("repository_commit", 1, "repository_commit"),
+                ("limitations_path", 1, "limitations_path"),
+            )
+            for field, value, message in top_level_cases:
+                with self.subTest(field=field, value=value):
+                    mutated = dict(raw)
+                    mutated[field] = value
+                    with self.assertRaisesRegex(ReleaseReadinessError, message):
+                        parse_release_evidence(mutated)
+
+            name = "save_reload"
+            for value in (123, True, " /tmp/save.json "):
+                with self.subTest(receipt_path=value):
+                    mutated = dict(raw)
+                    mutated["external_receipts"] = {
+                        key: dict(item)
+                        for key, item in raw["external_receipts"].items()
+                    }
+                    mutated["external_receipts"][name]["path"] = value
+                    with self.assertRaisesRegex(
+                        ReleaseReadinessError,
+                        "receipt path",
+                    ):
+                        parse_release_evidence(mutated)
+
+            for target, value, message in (
+                ("receipt_sha", 1, "sha256"),
+                ("archive_sha", True, "sha256"),
+            ):
+                with self.subTest(target=target):
+                    mutated = dict(raw)
+                    if target == "receipt_sha":
+                        mutated["external_receipts"] = {
+                            key: dict(item)
+                            for key, item in raw["external_receipts"].items()
+                        }
+                        mutated["external_receipts"][name]["sha256"] = value
+                    else:
+                        mutated["archive"] = dict(raw["archive"])
+                        mutated["archive"]["sha256"] = value
+                    with self.assertRaisesRegex(ReleaseReadinessError, message):
+                        parse_release_evidence(mutated)
+
     def test_complete_external_evidence_and_archive_validate(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, archive, raw = self.fixture(temp)
@@ -574,9 +624,29 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                     "save_reload_missing_scope_ids",
                 ),
                 (
+                    "verified_scope_entry_count",
+                    True,
+                    "verified_scope_entry_count is invalid",
+                ),
+                (
+                    "verified_scope_entry_count",
+                    "2",
+                    "verified_scope_entry_count is invalid",
+                ),
+                (
                     "save_reload_verified_scope_entry_count",
                     1,
                     "save/reload for every catalog scope entry",
+                ),
+                (
+                    "save_reload_verified_scope_entry_count",
+                    True,
+                    "save_reload_verified_scope_entry_count is invalid",
+                ),
+                (
+                    "save_reload_verified_scope_entry_count",
+                    "2",
+                    "save_reload_verified_scope_entry_count is invalid",
                 ),
             )
             for field, bad_value, message in cases:
