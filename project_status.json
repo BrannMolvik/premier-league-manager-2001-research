@@ -14,7 +14,7 @@
   "last_verified_test_count": 1553,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Gate 14 remains active. PR #460's external Windows 11 bound first-screen audio acceptance tooling is canonical and CI-verified, but no private human-heard receipt exists. Private source archive recovery succeeds while process execution still fails with caas.internal.errors.ClientError. Continue only source-established cloud-safe critical-path work; do not infer secondary-owner, multi-human, non-PL objective, broader AudioHooks, or unresolved FastView semantics.",
+  "active_task": "Gate 14 remains the earliest incomplete validation gate. PRs #462/#461/#463 are canonical. Finish validating PR #464 Gate-15 fidelity coverage ledger; merge only after current full reconstruction and asset-policy checks pass. Private source materializes but shell and notebook execution remain blocked by caas.internal.errors.ClientError; both external Gate-14 Windows receipts remain absent.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -304,7 +304,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 14 remains active. PR #460's external Windows 11 bound first-screen audio acceptance tooling is canonical and CI-verified, but no private human-heard receipt exists. Private source archive recovery succeeds while process execution still fails with caas.internal.errors.ClientError. Continue only source-established cloud-safe critical-path work; do not infer secondary-owner, multi-human, non-PL objective, broader AudioHooks, or unresolved FastView semantics.",
+  "current_task": "Gate 14 remains the earliest incomplete validation gate. PRs #462/#461/#463 are canonical. Finish validating PR #464 Gate-15 fidelity coverage ledger; merge only after current full reconstruction and asset-policy checks pass. Private source materializes but shell and notebook execution remain blocked by caas.internal.errors.ClientError; both external Gate-14 Windows receipts remain absent.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "gate11_danger_morale_request_integrated": true,
@@ -2857,5 +2857,16 @@
   "recovery315_private_source_library_size_bytes": 511121336,
   "recovery315_private_source_execution_available": false,
   "recovery315_private_source_execution_blocker": "caas.internal.errors.ClientError on trivial shell/Python execution immediately after successful Library materialization",
-  "recovery315_private_source_archive_sha_reverified": false
+  "recovery315_private_source_archive_sha_reverified": false,
+  "recovery315_gate14_windows_acceptance_coordinator_merge": "774629a983780bf35e4d4736968d4cca20fd0c0e",
+  "recovery315_gate14_windows_acceptance_coordinator_reconstruction_run": 37320506035,
+  "recovery315_gate14_windows_acceptance_coordinator_asset_policy_run": 37320506527,
+  "recovery315_gate14_readiness_evidence_merge": "53b8ad95389fc1c9226d47a5a07863e8ca875507",
+  "recovery315_gate14_readiness_reconstruction_run": 37320843836,
+  "recovery315_gate14_readiness_asset_policy_run": 37320843885,
+  "recovery315_later_gate_handoff_reconciliation_merge": "7eccca00151672e7933ed33d482c5adddf7e8615",
+  "recovery315_later_gate_handoff_reconstruction_run": 37322157361,
+  "gate14_startup_media_real_windows_verified": false,
+  "gate15_complete": false,
+  "gate15_fidelity_ledger_pr": 464
 }
