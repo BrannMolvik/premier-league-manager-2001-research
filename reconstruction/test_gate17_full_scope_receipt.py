@@ -147,6 +147,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                         results_path=results,
                         repo_root=repo,
                         canonical_game_dir=game,
+                        identity=release_identity(),
                     )
 
         with tempfile.TemporaryDirectory() as temp:
@@ -161,6 +162,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                         results_path=results,
                         repo_root=repo,
                         canonical_game_dir=game,
+                        identity=release_identity(),
                     )
 
         with tempfile.TemporaryDirectory() as temp:
@@ -175,6 +177,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                         results_path=results,
                         repo_root=repo,
                         canonical_game_dir=game,
+                        identity=release_identity(),
                     )
 
     def test_results_reject_release_identity_and_windows_provenance_drift(self):
