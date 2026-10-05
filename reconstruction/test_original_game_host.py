@@ -679,9 +679,61 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertIsNone(host.management_presenter)
         self.assertEqual(
             host.last_status,
-            "Preparing source-backed management resources...",
+            "Preparing source-backed management squad resources...",
         )
         self.assertEqual(len(threads), 1)
+
+    def test_later_management_route_decode_blocks_input_and_surfaces_failure(self):
+        threads = []
+        messages = []
+
+        def loader(family):
+            if family == "fixtures":
+                raise RuntimeError("fixture decode exploded")
+            raise AssertionError(f"unexpected family {family}")
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_presenter_factory=management_factory,
+            management_resource_loader=loader,
+            management_thread_factory=thread_factory,
+            error_reporter=messages.append,
+        )
+        host._management_resource_families_loaded.add("squad")
+        host._management_resources_loaded = True
+
+        host._begin_management_resource_load("fixtures")
+        self.assertEqual(host._management_loading_family, "fixtures")
+        self.assertEqual(len(threads), 1)
+
+        with patch.object(host, "redraw") as redraw:
+            host.on_click(SimpleNamespace(x=400, y=300))
+            self.assertEqual(
+                host.last_status,
+                "Preparing source-backed management fixtures resources...",
+            )
+            redraw.assert_not_called()
+
+            threads[0].run()
+            root.run_timer()
+
+        self.assertEqual(messages, ["RuntimeError: fixture decode exploded"])
+        self.assertEqual(host.last_status, "RuntimeError: fixture decode exploded")
+        self.assertNotIn("fixtures", host._management_resource_families_loaded)
+        self.assertIsNone(host._management_load_thread)
+        self.assertIsNone(host._management_load_queue)
+        self.assertIsNone(host._management_loading_family)
+        self.assertEqual(root.values["configure"]["cursor"], "")
 
     def test_game_host_starts_fullscreen_and_preserves_native_canvas_size(self):
         root = FakeRoot()
