@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Issue #482 Phase 1 implementation remains first: route-scope management resources for fresh Squad and render source-closed ordinary Squad rows with deterministic lazy-load/renderer tests. Oversight has additionally recovered native startup-FMV geometry: 640x480 movie surface centered at (80,60) in 800x600; current separate WPF Uniform path is source-incompatible. Continue private trace for exact 320x480->640x480 pixel treatment while implementation worker handles Phase 1. #475/#479 suspended.",
+  "active_task": "Issue #482 Phase 1 worker PR #483: route-scoped fresh-Squad management loading is implemented and under CI at head 0ada632a. Continue same PR with the source-closed ordinary Squad row subset; retained private trace proves row fonts and branch-selected native color plumbing, but generic non-endpoint color conversion/display-name helper still requires exact evidence. Do not substitute white/modern palette. If the process sandbox remains ClientError-blocked, persist that evidence blocker and continue other cloud-safe #482 verification/work.",
   "last_known_main_head": "e9635ee0f0ad9351427a311f8c14a79a3180d727",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 323,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 323 resumed from canonical main e9635ee0 after same-chat no-progress escalation. Continue issue #482 Phase 1 first: fresh-Squad route-scoped management loads plus source-closed ordinary Squad row rendering and deterministic regression coverage. Native startup-FMV geometry evidence remains persisted; do not guess unresolved 320x480->640x480 treatment. #475/#479 remain suspended.",
+  "note": "Recovery 323 checkpoint: PR #483 created from e9635ee0. Phase 1a splits squad/fixtures/league_tables resource families and deterministic tests assert fresh Squad excludes Fixtures, Tables, PMatchInfo. Four hosted workflows are queued. Library contains authorized original disc image and retained gate13-final-header trace; local/container archive inspection still fails with process-start ClientError. Private trace confirms PSquadPlayerRow role uses a source-computed packed color and display name uses separate helper; do not invent unresolved conversion. #475/#479 remain suspended.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
