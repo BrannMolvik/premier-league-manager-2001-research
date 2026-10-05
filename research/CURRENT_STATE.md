@@ -7,6 +7,57 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 315 continuation — #460 canonical; private execution still blocked
+
+PR #460 merged as `1882ce3e36b1ded7919230319c6d7c73538a9b85`. It adds the
+fail-closed external **Windows 11 client** acceptance transaction for the
+already-integrated production-host first-screen press-audio route. The audit
+drives a real Tk **Start New Game** click, requires the canonical `menus.bnk`
+identity and exact source-backed `AudioHooks (10,0) -> slot 2` delivery through
+`WindowsMemoryWaveMenuPcmBackend`, and requires explicit human
+`YES-HEARD` confirmation before a private receipt may mark this bounded route
+audible. Ordinary launches remain unchanged and audio failure still delegates
+gameplay.
+
+PR #460's head `a5148bba1527ecf8ded85ec221998cc6949fae59` passed the
+reconstruction suite (run 37315028568), Windows release-candidate package
+(run 37315028421), Gate-13 presentation regression (run 37315028868), and
+repository asset policy (run 37315028543). No private Windows receipt exists,
+so canonical human-heard bound-audio acceptance remains false. Broad semantic
+AudioHooks binding, sample meaning, hover audio, full login/menu audio
+integration, startup-media acceptance, recognizable match workflow and Gate 14
+completion also remain false.
+
+Recovery 315 re-resolved the exact authorized Library source at
+`/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`
+and materialized the 511,121,336-byte archive into the current private
+workspace. Immediately afterward, a trivial shell/Python execution probe failed
+with `caas.internal.errors.ClientError`. Therefore the private source bytes are
+recoverable, but this execution allocation still cannot inspect or hash them.
+No new executable-byte, disassembly, archive-SHA or source-semantic claim is
+made from this recovery.
+
+Gate 14 remains the earliest incomplete validation gate. Real Windows client
+evidence is still required for #436 launch-time acceptance, #437 startup-media
+and bounded-audio acceptance, and #438 Southport Start Game acceptance. Private
+execution is still required for the unresolved FastView geometry/order,
+broader AudioHooks sender semantics, source FastView navigation, and other
+byte-level source questions. The already-prevalidated Gate-16 stress work does
+not need speculative duplication. Gate-17 secondary-owner, six-user
+multi-human, and non-PL sporting-objective progression remain explicitly
+source-locked and must not be implemented by analogy while private execution is
+unavailable.
+
+**Exact next task:** keep Gate 14 fail-closed and continue only independent
+cloud-safe critical-path work whose source contract is already established.
+First reconcile the current-base Gate-14 readiness/status after #460 and audit
+the existing Gate-17 full-scope blockers for any implementation step that does
+not depend on unresolved private-source semantics. Revisit the materialized
+private source immediately when process execution becomes healthy; do not route
+procedural-secondary owners through the primary engine, duplicate the
+single-human runtime six times, or generalize non-PL objective progression
+without the required source proof.
+
 ## Recovery 314 continuation — current-base acceptance/readiness checkpoint
 
 PR #458 merged as `3465043767cffb40a822df15b01a6fb20dd37747`. It adds a
