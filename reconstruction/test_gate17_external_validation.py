@@ -24,6 +24,14 @@ def ready_implementation_preflight():
     )
 
 
+def valid_scope_result_validation():
+    return {
+        "sha256": "d" * 64,
+        "scope_catalog_sha256": "c" * 64,
+        "verified_scope_entry_count": 1,
+    }
+
+
 def blocked_implementation_preflight():
     return SimpleNamespace(
         ready_for_full_runtime_validation=False,
@@ -138,6 +146,59 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     )
             self.assertFalse(work.exists())
 
+    def test_preflight_rejects_stale_scope_results_before_implementation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, game, archive, scope, work = self._paths(temp)
+            with (
+                patch(
+                    "gate17_external_validation.require_external_windows_11_workstation",
+                    return_value={
+                        "windows_11": True,
+                        "windows_build": 26200,
+                        "windows_product_type": 1,
+                    },
+                ),
+                patch(
+                    "gate17_external_validation.validate_clean_repository",
+                    return_value={"working_tree_clean": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_roadmap_prerequisites",
+                    return_value={"all_prerequisites_complete": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_limitations_document",
+                    return_value={"path": "research/RELEASE_LIMITATIONS.md"},
+                ),
+                patch(
+                    "gate17_external_validation.resolve_release_artifact_identity",
+                    return_value=SimpleNamespace(
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                    ),
+                ),
+                patch(
+                    "gate17_external_validation.validate_full_scope_results",
+                    side_effect=RuntimeError("release candidate mismatch"),
+                ),
+                patch(
+                    "gate17_external_validation.run_canonical_full_scope_preflight",
+                ) as implementation,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "candidate mismatch"):
+                    preflight_external_release_validation(
+                        repo_root=repo,
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        canonical_game_dir=game,
+                        full_original_scope_results=scope,
+                        work_root=work,
+                    )
+
+            implementation.assert_not_called()
+            self.assertFalse(work.exists())
+
     def test_preflight_rejects_incomplete_canonical_full_scope_before_work_root(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, game, archive, scope, work = self._paths(temp)
@@ -170,6 +231,10 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     ),
                 ),
                 patch(
+                    "gate17_external_validation.validate_full_scope_results",
+                    return_value=valid_scope_result_validation(),
+                ) as scope_validation,
+                patch(
                     "gate17_external_validation.run_canonical_full_scope_preflight",
                     return_value=blocked_implementation_preflight(),
                 ) as implementation,
@@ -191,6 +256,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         work_root=work,
                     )
 
+            scope_validation.assert_called_once()
             implementation.assert_called_once_with(
                 game.resolve(),
                 player_seed=1,
@@ -301,6 +367,10 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     ),
                 ),
                 patch(
+                    "gate17_external_validation.validate_full_scope_results",
+                    return_value=valid_scope_result_validation(),
+                ) as scope_validation,
+                patch(
                     "gate17_external_validation.run_canonical_full_scope_preflight",
                     return_value=ready_implementation_preflight(),
                 ) as implementation,
@@ -342,6 +412,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                 )
 
             self.assertTrue(work.is_dir())
+            scope_validation.assert_called_once()
             implementation.assert_called_once_with(
                 game.resolve(),
                 player_seed=7,
@@ -430,6 +501,10 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     ),
                 ),
                 patch(
+                    "gate17_external_validation.validate_full_scope_results",
+                    return_value=valid_scope_result_validation(),
+                ) as scope_validation,
+                patch(
                     "gate17_external_validation.run_canonical_full_scope_preflight",
                     return_value=ready_implementation_preflight(),
                 ),
@@ -498,6 +573,10 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                     ),
                 ),
+                patch(
+                    "gate17_external_validation.validate_full_scope_results",
+                    return_value=valid_scope_result_validation(),
+                ) as scope_validation,
                 patch(
                     "gate17_external_validation.run_canonical_full_scope_preflight",
                     return_value=ready_implementation_preflight(),
