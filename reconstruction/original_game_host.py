@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from base64 import b64encode
 from functools import lru_cache
+from math import gcd
 from pathlib import Path
 import struct
 import zlib
@@ -364,8 +365,9 @@ class OriginalGameTkHost:
             if numerator / denominator <= fit_scale:
                 candidates.append((numerator / denominator, numerator, denominator))
         _ratio, numerator, denominator = max(candidates)
-        self.display_scale_num = int(numerator)
-        self.display_scale_den = int(denominator)
+        divisor = gcd(int(numerator), int(denominator))
+        self.display_scale_num = int(numerator) // divisor
+        self.display_scale_den = int(denominator) // divisor
         self.display_scale = self.display_scale_num / self.display_scale_den
         self.display_width = (
             SCREEN_SIZE[0] * self.display_scale_num + self.display_scale_den - 1
