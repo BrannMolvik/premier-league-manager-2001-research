@@ -95,6 +95,8 @@ on:
       - "reconstruction/test_gate14_fastview_direct_header_text.py"
       - "reconstruction/gate14_fastview_direct_header_raster.py"
       - "reconstruction/test_gate14_fastview_direct_header_raster.py"
+      - "reconstruction/gate14_fastview_goalflash_source.py"
+      - "reconstruction/test_gate14_fastview_goalflash_source.py"
       - "reconstruction/gate14_fastview_surfaced_picture_source.py"
       - "reconstruction/test_gate14_fastview_surfaced_picture_source.py"
       - "reconstruction/gate14_fastview_surfaced_picture_selection.py"
