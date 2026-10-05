@@ -65,6 +65,14 @@ class Gate17ObjectiveRngCallerSourceTraceTests(unittest.TestCase):
 
         self.assertEqual(report["source_sha256"], pe.sha256)
         contract = report["source_contract"]
+        self.assertEqual(contract["dbruser_constructor_va"], 0x425680)
+        self.assertEqual(contract["objective_setup_va"], 0x5DF670)
+        self.assertEqual(contract["fresh_objective_generator_va"], 0x5DFD30)
+        self.assertEqual(contract["shared_crt_bounded_rng_va"], 0x64D540)
+        self.assertEqual(contract["hierarchy_class_helper_va"], 0x4FA520)
+        self.assertEqual(contract["first_class_helper_va"], 0x4FA570)
+        self.assertEqual(contract["last_class_equal_helper_va"], 0x4FA590)
+        self.assertEqual(contract["promotion_playoff_status_helper_va"], 0x4F88C0)
         self.assertEqual(contract["objective_rng_bound"], 100)
         self.assertEqual(contract["objective_rng_lower_branch_max_inclusive"], 50)
         self.assertEqual(contract["objective_setup_slot_count"], 3)
