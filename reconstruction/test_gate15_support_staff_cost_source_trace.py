@@ -71,7 +71,7 @@ SYNTH_WINDOWS = (
 )
 SYNTH_SLOTS = (
     ("staff_type", 0x14, True),
-    ("monthly_cost_value", 0x24, False),
+    ("monthly_cost_value", 0x24, True),
     ("effective_training_rating", 0x40, True),
 )
 
@@ -167,6 +167,17 @@ class Gate15SupportStaffCostSourceTraceTests(unittest.TestCase):
                             slot_roles=SYNTH_SLOTS,
                             target_window_size=size,
                         )
+
+            with self.assertRaisesRegex(
+                Gate15SupportStaffCostTraceError,
+                "exactly one \\+0x24",
+            ):
+                support_staff_cost_trace_report(
+                    pe,
+                    windows=SYNTH_WINDOWS,
+                    slot_roles=(("staff_type", 0x14, True),),
+                    target_window_size=0x20,
+                )
 
     def test_cli_emits_private_neutral_trace_contract(self):
         pe = parse_fixture()
