@@ -114,6 +114,13 @@ class StartupMediaConversionProfile:
 
 DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE = StartupMediaConversionProfile()
 
+# Candidate-only Windows profile proven synthetically in PR #469. Keep the
+# default above unchanged until both exact original TGQs pass the private
+# conversion audit and external Windows playback acceptance.
+WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE = (
+    StartupMediaConversionProfile(ffmpeg_video_encoder="h264_mf")
+)
+
 
 @dataclass(frozen=True)
 class StartupMediaConversionPlan:

@@ -19,6 +19,7 @@ from typing import Iterable
 
 from original_startup_media import (
     DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE,
+    WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE,
     ORIGINAL_STARTUP_MEDIA_SEQUENCE,
     OriginalStartupMediaError,
     OriginalStartupMediaSpec,
@@ -264,7 +265,22 @@ def main() -> int:
     )
     parser.add_argument("--ffmpeg", default="ffmpeg")
     parser.add_argument("--ffprobe", default="ffprobe")
+    parser.add_argument(
+        "--video-encoder",
+        choices=("libx264", "h264_mf"),
+        default="libx264",
+        help=(
+            "Select the bounded startup derivative video encoder. libx264 remains "
+            "the production default; h264_mf is the verified LGPL-candidate path."
+        ),
+    )
     args = parser.parse_args()
+
+    profile = (
+        WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE
+        if args.video_encoder == "h264_mf"
+        else DEFAULT_STARTUP_MEDIA_CONVERSION_PROFILE
+    )
 
     result = convert_and_receipt_startup_media(
         source_root=args.source_root,
@@ -273,6 +289,7 @@ def main() -> int:
         repo_root=args.repo_root,
         ffmpeg_executable=args.ffmpeg,
         ffprobe_executable=args.ffprobe,
+        profile=profile,
     )
     print(
         "Verified private FM2001 startup-media conversion receipt: "
