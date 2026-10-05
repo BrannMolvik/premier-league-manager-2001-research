@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Issue #482 Gate 13 regression recovery. PR #483 route-scoped management loading is at 8d932e82 with Windows package green and remaining Python/Gate13/asset checks queued. PR #484 adds bounded ordinary Squad helper trace anchors at 3dee5e7d; checks queued. PR #485 defers canonical GameState/schedule construction from New Game to TeamSelect Start while reusing the exact parsed canonical database; current head 185bb03a, checks queued. Continue fixing any CI failures first. The Squad renderer itself remains evidence-blocked on exact native color/display-name helper semantics; do not substitute white/modern styling.",
-  "last_known_main_head": "e9635ee0f0ad9351427a311f8c14a79a3180d727",
+  "last_known_main_head": "b8fab87b63cb5daa0f01489e6c3413adc5c76c5b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 325,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 325 ongoing. GitHub Actions currently shows no in-progress jobs while new PR checks remain queued. Productive cloud-safe work continued under deferred-blocker policy. Container/notebook process-start ClientError still blocks fresh private executable helper disassembly. Route-loader, trace narrowing, and TeamSelect lifecycle changes are isolated in separate PRs and must not be merged/claimed complete without green relevant CI.",
+  "note": "Recovery 325 ongoing. GitHub Actions currently shows no in-progress jobs while new PR checks remain queued. Productive cloud-safe work continued under deferred-blocker policy. Container/notebook process-start ClientError still blocks fresh private executable helper disassembly. Route-loader, trace narrowing, and TeamSelect lifecycle changes are isolated in separate PRs and must not be merged/claimed complete without green relevant CI.\nPR #484 merged canonically as b8fab87b after Gate13 + asset-policy success. PR #483 and #485 remain unmerged pending their own checks.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
