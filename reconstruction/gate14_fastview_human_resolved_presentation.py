@@ -37,6 +37,11 @@ from gate14_fastview_resolved_preview import (
     build_fastview_frame_preview,
 )
 from gate14_fastview_score_table_static_raster import FastViewScoreTableStaticRasterSet
+from gate14_fastview_score_draw_phases import FastViewLeagueScoresDrawPhases
+from gate14_fastview_score_phase_text_raster import FastViewScorePhaseTextRaster
+from gate14_fastview_clock_raster import FastViewClockRaster
+from gate14_fastview_direct_header_raster import FastViewDirectHeaderRaster
+from gate14_fastview_surfaced_resource_raster import FastViewSurfacedRasterSet
 from gate14_fastview_tk_surface import (
     FastViewResolvedTkDraw,
     draw_fastview_preview_on_tk_canvas,
@@ -183,6 +188,12 @@ def build_human_fastview_resolved_presentation(
     figures: OriginalFastViewPossessionFiguresArt,
     team_art: OriginalFastViewTeamArt,
     score_table_static: FastViewScoreTableStaticRasterSet | None = None,
+    *,
+    score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> HumanFastViewResolvedPresentation:
     """Build one source-bounded partial presentation from a completed outcome."""
     frame = build_human_fastview_frame_plan(
@@ -192,6 +203,11 @@ def build_human_fastview_resolved_presentation(
         figures,
         team_art,
         score_table_static=score_table_static,
+        score_draw_phases=score_draw_phases,
+        score_phase_text=score_phase_text,
+        clock=clock,
+        direct_header=direct_header,
+        surfaced=surfaced,
     )
     return _presentation_from_frame(frame)
 
@@ -207,6 +223,11 @@ def build_human_fastview_resolved_presentation_from_retained_histories(
     global_tick: int,
     energy_rng6_rolls: Mapping[tuple[int, int], int],
     score_table_static: FastViewScoreTableStaticRasterSet | None = None,
+    score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> HumanFastViewResolvedPresentation:
     """Use the existing retained-history row path, then bind preview/coverage."""
     frame = build_human_fastview_frame_plan_from_retained_histories(
@@ -219,6 +240,11 @@ def build_human_fastview_resolved_presentation_from_retained_histories(
         global_tick=global_tick,
         energy_rng6_rolls=energy_rng6_rolls,
         score_table_static=score_table_static,
+        score_draw_phases=score_draw_phases,
+        score_phase_text=score_phase_text,
+        clock=clock,
+        direct_header=direct_header,
+        surfaced=surfaced,
     )
     return _presentation_from_frame(frame)
 
