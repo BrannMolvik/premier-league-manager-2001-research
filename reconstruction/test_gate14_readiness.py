@@ -42,7 +42,10 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.audio_playback_entrypoints_recovered)
         self.assertTrue(state.audio_sample_decode_ready)
         self.assertTrue(state.first_screen_press_audio_bound)
+        self.assertTrue(state.first_screen_press_audio_windows_acceptance_tooling)
+        self.assertFalse(state.first_screen_press_audio_real_windows_verified)
         self.assertTrue(state.startup_media_default_windows_path_integrated)
+        self.assertTrue(state.startup_media_windows_acceptance_tooling)
         self.assertFalse(state.startup_media_real_windows_verified)
         self.assertFalse(state.audible_windows_verified)
         self.assertTrue(state.chant_runtime_selection_recovered)
@@ -53,6 +56,8 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertEqual(
             blockers,
             (
+                "first_screen_press_audio_real_windows_acceptance",
+                "startup_media_real_windows_acceptance",
                 "audio_event_binding",
                 "audible_windows_output",
                 "login_menu_audio_integration",
@@ -105,11 +110,39 @@ class Gate14ReadinessTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             Gate14ReadinessError,
-            "startup-media Windows acceptance",
+            "first-screen audio Windows acceptance tooling",
+        ):
+            replace(
+                state,
+                first_screen_press_audio_bound=False,
+            )
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "first-screen audio Windows acceptance requires",
+        ):
+            replace(
+                state,
+                first_screen_press_audio_windows_acceptance_tooling=False,
+                first_screen_press_audio_real_windows_verified=True,
+            )
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "startup-media Windows acceptance tooling",
         ):
             replace(
                 state,
                 startup_media_default_windows_path_integrated=False,
+            )
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "startup-media Windows acceptance requires",
+        ):
+            replace(
+                state,
+                startup_media_windows_acceptance_tooling=False,
                 startup_media_real_windows_verified=True,
             )
 
@@ -334,6 +367,7 @@ class Gate14ReadinessTests(unittest.TestCase):
             source_fastview_navigation_trigger_recovered=True,
             audio_sample_decode_ready=True,
             audio_event_binding_recovered=True,
+            first_screen_press_audio_real_windows_verified=True,
             startup_media_real_windows_verified=True,
             audible_windows_verified=True,
             login_menu_audio_integrated=True,
