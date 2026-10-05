@@ -95,7 +95,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIn("'--startup-media-player'", source)
         self.assertIn("'--startup-media-player-arg'", source)
         self.assertIn("SynchronousCommandStartupMediaBackend", source)
-        self.assertIn("WindowsMciStartupMediaBackend", source)
+        self.assertIn("WindowsWpfStartupMediaBackend", source)
         self.assertIn("prepare_runtime_startup_media", source)
         self.assertIn("startup_media_receipt=startup_receipt", source)
         self.assertIn("startup_media_backend=startup_backend", source)
@@ -121,7 +121,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             return_value=derivatives,
         ) as prepare, patch.object(
             app_module,
-            "WindowsMciStartupMediaBackend",
+            "WindowsWpfStartupMediaBackend",
             return_value=backend,
         ) as make_backend:
             receipt, selected_backend, selected_derivatives = (
@@ -152,7 +152,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         )
         with (
             patch.object(app_module, "prepare_runtime_startup_media") as prepare,
-            patch.object(app_module, "WindowsMciStartupMediaBackend") as backend,
+            patch.object(app_module, "WindowsWpfStartupMediaBackend") as backend,
         ):
             self.assertEqual(
                 app_module.configure_startup_media(
