@@ -7,6 +7,42 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 312 — verified FastView integration landed; startup-FMV branch under final regression
+
+PR #452 merged as `f896ecf9302dc20b953866054237013811146144`.
+The completed-human FastView frame/resolved adapters now carry every already
+source-verified optional plane supported by the canonical component compositor:
+surfaced match background/badges, ClockControl text, direct header text,
+LeagueScores phase planes/runtime phase text, LeagueTable, and the complete
+retained PlayerRows raster. Frame-integrity hashes are derived from canonical
+component order, so a caller-provided verified plane cannot be silently omitted.
+No unresolved z-order, native blend, audio, omitted-control pixels, or 3D
+semantics were promoted. Reconstruction CI run 37303703674 and asset-policy run
+37303703640 both passed.
+
+Issue #437's repository-side default startup-media fix is now PR #453. Its
+Windows package path successfully stages bundled FFmpeg, freezes the onedir
+candidate, and passes package smoke on run 37303921886. The first full-suite
+attempt exposed only a Linux package-smoke fixture that had not created the new
+required `runtime_tools/ffmpeg.exe`; the fixture was corrected on PR head
+`15f733d043c664d8b4e7a53a9763333349aac876` without weakening the package
+guard. Do not merge #453 until the new full reconstruction run also passes.
+
+Recovery 312 re-resolved and materialized the exact authorized
+511,121,336-byte Library ZIP through `ORIGINAL_SOURCE_LOCATOR.md`. A trivial
+container/Python probe worked before materialization, but immediately afterward
+the execution sandbox again returned `caas.internal.errors.ClientError` even
+for `ls`, `sha256sum`, and a trivial Python call. Therefore the private
+source is available but private execution is not sustained; no new TeamTable
+adjudication or source-byte claim is made from this recovery.
+
+**Exact next Gate-14 task:** finish PR #453's full regression, merge it only if
+all required CI is green, and keep Windows FMV visibility/audibility, native
+skip/fade behavior, #436 launch timing, and #438 Southport Start acceptance
+open until real Windows evidence exists. If #453 lands, continue the next
+independent cloud-safe FastView/audio closure item while the private execution
+sandbox remains unstable.
+
 ## Recovery 311 — gameplay-test fixes canonical; Gate 14 remains active
 
 Current `main` includes the two repository-side fixes prepared from Daniel's
