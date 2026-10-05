@@ -117,9 +117,13 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must enable h264_mf and native AAC"
         )
-    if "--enable-muxer=mp4" not in args or "--enable-protocol=file" not in args:
+    if "--enable-muxer=mp4" not in args or "--enable-protocol=file,pipe" not in args:
         raise MinimalFfmpegSourceContractError(
-            "minimal helper must retain file I/O and the actual mp4 muxer"
+            "minimal helper must retain file/pipe I/O and the actual mp4 muxer"
+        )
+    if "--enable-muxer=null" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must retain the null muxer for runtime decode verification"
         )
     if "--enable-muxer=mov" in args and "--enable-muxer=mp4" not in args:
         raise MinimalFfmpegSourceContractError(
@@ -146,6 +150,16 @@ def audit_source_contract(repo_root: str | Path) -> dict:
     if minimal.get("required_derivative_validation_decoders") != ["h264", "aac"]:
         raise MinimalFfmpegSourceContractError(
             "derivative validation decoder contract drifted"
+        )
+
+    plumbing = minimal.get("required_runtime_validation_plumbing")
+    if plumbing != {
+        "protocols": ["file", "pipe"],
+        "muxers": ["mp4", "null"],
+        "reason": "Runtime startup cache uses -progress pipe:1 and -f null decode verification.",
+    }:
+        raise MinimalFfmpegSourceContractError(
+            "runtime validation plumbing contract drifted"
         )
 
     proof_flags = (
