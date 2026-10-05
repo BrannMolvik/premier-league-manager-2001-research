@@ -11,7 +11,10 @@ from gate14_startup_media_convert import (
     convert_and_receipt_startup_media,
     require_outside_repository,
 )
-from original_startup_media import OriginalStartupMediaSpec
+from original_startup_media import (
+    OriginalStartupMediaSpec,
+    WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE,
+)
 
 
 def synthetic_spec(path: str, payload: bytes, *, frames: int, flag: bool):
@@ -138,6 +141,34 @@ class Gate14StartupMediaConversionTests(unittest.TestCase):
                     item["converted_sha256"],
                     sha256(converted.read_bytes()).hexdigest(),
                 )
+
+    def test_candidate_profile_is_explicit_in_private_conversion_receipt(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, source, output, receipt, specs = self.fixture(temp)
+            runner = self.fake_runner({
+                "first": valid_probe(7),
+                "second": valid_probe(11),
+            })
+            with patch(
+                "gate14_startup_media_convert._run_command",
+                side_effect=runner,
+            ):
+                result = convert_and_receipt_startup_media(
+                    source_root=source,
+                    output_root=output,
+                    receipt_path=receipt,
+                    repo_root=repo,
+                    ffmpeg_executable="ffmpeg-test",
+                    ffprobe_executable="ffprobe-test",
+                    specs=specs,
+                    profile=WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE,
+                )
+
+        self.assertEqual(result["profile"]["video_encoder"], "h264_mf")
+        self.assertEqual(result["profile"]["video_codec"], "h264")
+        self.assertEqual(result["profile"]["audio_encoder"], "aac")
+        self.assertTrue(result["passed"])
+        self.assertFalse(result["gate14_complete"])
 
     def test_tampered_source_fails_before_any_external_command_or_receipt(self):
         with tempfile.TemporaryDirectory() as temp:
