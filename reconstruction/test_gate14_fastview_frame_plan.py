@@ -1,7 +1,9 @@
 """Tests for the immutable Gate-14 FastView frame plan."""
 from dataclasses import replace
+from hashlib import sha256
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from ea444_decoder import EA444DecodedImage
 from fastview_semantic_shell import FastViewSemanticShell
@@ -9,6 +11,8 @@ from gate14_fastview_frame_plan import (
     FastViewFramePlanError,
     build_fastview_frame_plan,
 )
+from gate14_fastview_component_rasters import FastViewComponentRasterPlane
+from gate14_fastview_resolved_composite import compose_fastview_resolved_only_pixels
 from gate14_fastview_frame_coverage import audit_fastview_frame_coverage
 from gate14_fastview_team_text_raster import rasterize_fastview_playerrow_text
 from gate14_fastview_playerrows_raster import compose_fastview_player_rows_raster
@@ -325,6 +329,92 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertFalse(coverage.cross_component_z_order_recovered)
         self.assertFalse(coverage.background_binding_recovered)
         self.assertFalse(coverage.complete_fastview_frame)
+
+    def test_frame_integrity_tracks_optional_planes_in_compositor_order(self):
+        frame = build_fastview_frame_plan(
+            exact_shell(),
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+        )
+        transparent = bytes(800 * 600 * 4)
+        clock = FastViewComponentRasterPlane(
+            component="clock_text",
+            size=(800, 600),
+            rgba=transparent,
+            source_layer_count=0,
+            rgba_sha256=sha256(transparent).hexdigest(),
+        )
+        rasters = replace(frame.component_rasters, clock=clock)
+        composite = compose_fastview_resolved_only_pixels(rasters)
+
+        extended = replace(
+            frame,
+            component_rasters=rasters,
+            resolved_composite=composite,
+        )
+
+        self.assertIs(extended.component_rasters.clock, clock)
+        self.assertEqual(
+            extended.resolved_composite.source_plane_sha256,
+            (
+                ("direct_chrome", rasters.chrome.rgba_sha256),
+                ("clock_text", clock.rgba_sha256),
+                ("possession_diagram", rasters.possession_diagram.rgba_sha256),
+                ("possession_figures_text", rasters.possession_figures.rgba_sha256),
+                ("team_table_player_rows", rasters.team_table.rgba_sha256),
+            ),
+        )
+
+    def test_forwards_advanced_verified_artifacts_without_deriving_them(self):
+        shell = exact_shell()
+        chrome = exact_chrome()
+        possession = exact_possession()
+        figures = exact_figures()
+        team_art = exact_team_art()
+        base = build_fastview_frame_plan(
+            shell,
+            chrome,
+            possession,
+            figures,
+            team_art,
+        )
+        sentinels = {
+            "score_table": object(),
+            "score_draw_phases": object(),
+            "score_phase_text": object(),
+            "clock": object(),
+            "direct_header": object(),
+            "surfaced": object(),
+        }
+
+        with patch(
+            "gate14_fastview_frame_plan.build_fastview_component_rasters",
+            return_value=base.component_rasters,
+        ) as build_components:
+            frame = build_fastview_frame_plan(
+                shell,
+                chrome,
+                possession,
+                figures,
+                team_art,
+                score_table_static=sentinels["score_table"],
+                score_draw_phases=sentinels["score_draw_phases"],
+                score_phase_text=sentinels["score_phase_text"],
+                clock=sentinels["clock"],
+                direct_header=sentinels["direct_header"],
+                surfaced=sentinels["surfaced"],
+            )
+
+        self.assertEqual(frame.match_reference, shell.match_reference)
+        _args, kwargs = build_components.call_args
+        self.assertIs(kwargs["score_table"], sentinels["score_table"])
+        self.assertIs(kwargs["score_draw_phases"], sentinels["score_draw_phases"])
+        self.assertIs(kwargs["score_phase_text"], sentinels["score_phase_text"])
+        self.assertIs(kwargs["clock"], sentinels["clock"])
+        self.assertIs(kwargs["direct_header"], sentinels["direct_header"])
+        self.assertIs(kwargs["surfaced"], sentinels["surfaced"])
 
     def test_rejects_resolved_composite_drift_from_component_planes(self):
         frame = build_fastview_frame_plan(
