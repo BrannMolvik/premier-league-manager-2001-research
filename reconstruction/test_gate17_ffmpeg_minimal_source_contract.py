@@ -74,6 +74,20 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             ):
                 audit_source_contract(root)
 
+    def test_minimal_contract_requires_derivative_validation_decoders(self):
+        payload = self.canonical()
+        args = payload["minimal_helper_target"]["configure_args"]
+        index = next(i for i, arg in enumerate(args) if arg.startswith("--enable-decoder="))
+        args[index] = args[index].replace(",h264,aac", "")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "H.264/AAC derivative validation decoders",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_rejects_third_party_enable_flags(self):
         payload = self.canonical()
         payload["minimal_helper_target"]["configure_args"].append("--enable-libx264")
