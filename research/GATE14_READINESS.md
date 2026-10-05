@@ -40,6 +40,7 @@ The current audit records these solved sub-capabilities:
 - English PlayerRow text pixels;
 - source-closed relative draw order across the currently rasterized FastView component families;
 - the source-closed two-row GoalFlash receiver/control/formatting contract, while its absolute placement and pixels remain explicitly absent;
+- the source-closed one-instance ScoreCompositeMain outer ownership/control-order contract, while its branch geometry/content and pixels remain explicitly absent;
 - native packed-16 font destination read, alpha endpoints, /256 mask-wise blend rule and color-key behavior;
 - ownership and selected playback entrypoints for the four canonical BNK banks;
 - chant pool selection and timing arithmetic.
@@ -55,6 +56,7 @@ The audit exposes the unresolved capabilities directly:
 - audible Windows output and login/menu audio integration;
 - GoalFlash absolute timing/position;
 - GoalFlash pixel rasterization and resolved-composite integration;
+- ScoreCompositeMain exact geometry and pixel rasterization;
 - global FastView z-order across omitted/unbound layers;
 - a complete FastView frame;
 - chant event semantics;
@@ -78,8 +80,9 @@ The data model rejects invalid promotion paths. In particular:
   playback entrypoints and sample decode are ready;
 - a complete FastView frame cannot be asserted before the resolved human path,
   energy/text pixels, the source-closed GoalFlash contract, absolute GoalFlash
-  placement, GoalFlash rasterization, global z-order and the already
-  source-closed font blend prerequisite are all satisfied;
+  placement, GoalFlash rasterization, the source-closed ScoreCompositeMain
+  contract, exact ScoreCompositeMain geometry/pixels, global z-order and the
+  already source-closed font blend prerequisite are all satisfied;
 - recognizable original workflow cannot be asserted without at least one
   completed source-backed match presentation path.
 
@@ -108,3 +111,23 @@ mover/timing position and produce source-backed pixels before
 `complete_fastview_frame_recovered` can become true. The unresolved
 EventGoal field labels remain neutral and are not prerequisites invented by
 this readiness guard.
+
+## ScoreCompositeMain omission guard
+
+The exhaustive outer registration trace also proves a separate visible
+`ScoreCompositeMain` family. Exactly one of three owner branches constructs
+it through `0x51B400` or `0x51B330`, both flowing through
+`ScoreComposite::0x51A730`. The shared builder appends one PictureControl and
+four TextControls at outer ranks 16..20.
+
+That evidence does **not** justify borrowing the already reconstructed
+`ScoreCompositeNormal` LeagueScores row geometry. The two families have
+different constructors and ownership paths. The readiness model therefore
+carries:
+
+- `scorecomposite_main_source_contract_recovered = true`;
+- `scorecomposite_main_geometry_recovered = false`;
+- `scorecomposite_main_pixels_rasterized = false`.
+
+This keeps the complete-frame criterion false until the outer main composite's
+own branch geometry/content and pixels are recovered from source.
