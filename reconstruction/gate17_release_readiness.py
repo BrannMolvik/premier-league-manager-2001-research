@@ -873,6 +873,10 @@ def run_final_release_audit(
         "passed": True,
         "release_version": evidence.release_version,
         "repository_commit": evidence.repository_commit,
+        "release_evidence_manifest": {
+            "path": str(evidence_file),
+            "sha256": _sha256_file(evidence_file),
+        },
         "windows": windows,
         "repository": repository,
         "roadmap_prerequisites": roadmap_prerequisites,
