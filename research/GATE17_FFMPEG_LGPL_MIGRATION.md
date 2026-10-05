@@ -37,8 +37,9 @@ The probe intentionally targets one immutable BtbN artifact:
 - upstream FFmpeg revision token: n9.0.2-22-g46d8f462ee.
 
 reconstruction/gate17_ffmpeg_lgpl_candidate.py verifies the archive hash,
-requires exactly one packaged bin/ffmpeg.exe and LICENSE.txt, and then checks
-the executable itself.
+requires exactly one packaged bin/ffmpeg.exe, bin/ffprobe.exe and LICENSE.txt.
+Both tools must identify the same pinned FFmpeg source revision. The probe
+records both executable hashes before any later promotion decision.
 
 ## Required executable properties
 
@@ -49,8 +50,11 @@ The candidate is rejected unless:
   --enable-libx264, or --enable-libx265;
 - its decoder inventory contains eatgq;
 - its encoder inventory contains both h264_mf and aac;
-- on Windows CI it can actually instantiate h264_mf and native AAC, write a
-  320x480 / 25 fps / 22,050 Hz stereo MP4, and decode both streams again.
+- on Windows CI it can actually instantiate h264_mf and native AAC using the
+  production conversion path's `-fps_mode passthrough`, write a 320x480 /
+  25 fps / 22,050 Hz stereo MP4, and decode both streams again;
+- the archive's own ffprobe must report exactly H.264/yuv420p video, AAC
+  22,050 Hz stereo audio and an MP4 container for that synthetic derivative.
 
 The synthetic roundtrip proves candidate executable/runtime capability only; it
 does not substitute for converting the two exact original TGQs or for real
