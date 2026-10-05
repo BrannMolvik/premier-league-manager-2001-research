@@ -18,6 +18,7 @@ from functools import lru_cache
 from math import gcd
 from pathlib import Path
 import struct
+import sys
 import zlib
 from types import SimpleNamespace
 from original_management_background import OriginalManagementBackground
@@ -45,6 +46,10 @@ from original_pmenu_chrome import validate_original_pmenu_font
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
+from gate14_live_first_screen_audio import (
+    Gate14LiveFirstScreenAudioError,
+    install_live_first_screen_audio,
+)
 from original_first_screen_presenter import (
     OriginalFirstScreenPresenter,
     OriginalHierarchyInteraction,
@@ -1710,7 +1715,7 @@ def run_original_game_ui(
 
     with timed_stage("startup.tk_root"):
         root = tk.Tk()
-    OriginalGameTkHost(
+    host = OriginalGameTkHost(
         presenter,
         root,
         tk,
@@ -1725,4 +1730,12 @@ def run_original_game_ui(
         ),
         management_resource_loader=load_management_resources,
     )
+    try:
+        install_live_first_screen_audio(host, game_dir)
+    except Gate14LiveFirstScreenAudioError as exc:
+        print(
+            f"[FM2001 audio] first-screen audio unavailable: {exc}",
+            file=sys.stderr,
+            flush=True,
+        )
     root.mainloop()
