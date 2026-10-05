@@ -54,7 +54,7 @@ jobs:
 
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_gate17_package_candidate test_gate17_clean_windows_install test_gate17_external_validation
+        run: python -m unittest -v test_runtime_layout test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_clean_windows_install test_gate17_external_validation
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction
