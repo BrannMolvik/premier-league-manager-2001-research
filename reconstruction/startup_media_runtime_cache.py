@@ -35,7 +35,7 @@ class RuntimeStartupMediaError(RuntimeError):
     pass
 
 
-CACHE_SCHEMA_VERSION = 1
+CACHE_SCHEMA_VERSION = 2
 CACHE_DIRECTORY_NAME = "FM2001-Windows11"
 CACHE_MEDIA_DIRECTORY_NAME = "startup-media"
 CACHE_RECEIPT_NAME = "startup-media-runtime-receipt.json"
@@ -193,6 +193,9 @@ def _profile_receipt(
         "pixel_format": profile.pixel_format,
         "audio_encoder": profile.ffmpeg_audio_encoder,
         "audio_codec": profile.probe_audio_codec,
+        "output_width": profile.output_width,
+        "output_height": profile.output_height,
+        "video_filter": profile.video_filter,
     }
 
 
@@ -371,6 +374,9 @@ def prepare_runtime_startup_media(
                     "video_codec": profile.probe_video_codec,
                     "pixel_format": profile.pixel_format,
                     "audio_codec": profile.probe_audio_codec,
+                    "presentation_video_width": profile.output_width,
+                    "presentation_video_height": profile.output_height,
+                    "video_filter": profile.video_filter,
                     "audio_geometry_enforced_by_conversion": True,
                     "video_decode_verified": True,
                     "audio_decode_verified": True,
@@ -393,9 +399,10 @@ def prepare_runtime_startup_media(
         "outputs": outputs,
         "fidelity_boundary": (
             "Cache proves exact source TGQ identity, deterministic conversion "
-            "command geometry, decoded source frame counts and decodable audio. "
-            "It does not prove native skip input, fade/transition timing, display "
-            "treatment, or human-visible/audible Windows playback."
+            "command geometry, recovered 640x480 nearest-duplicate display treatment, "
+            "decoded source frame counts and decodable audio. It does not prove native "
+            "skip input, fade/transition timing, game-window ownership, or "
+            "human-visible/audible Windows playback."
         ),
         "gate14_complete": False,
     }
