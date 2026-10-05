@@ -221,3 +221,21 @@ save/reload lists are emitted empty only after the complete input has passed.
 This producer creates no capability and is not evidence by itself. Gate 17
 remains blocked until a real external receipt is produced from the final
 Windows release candidate and the final release audit passes.
+
+
+## Transactional full-scope receipt generation
+
+The final external validator consumes the external per-scope audit result rather
+than a prebuilt `full_original_scope.json`. After all immutable preflight
+checks pass, it creates the clean-install and canonical gameplay receipts, then
+runs the current full-scope receipt producer inside the same fresh work root.
+
+The generated `receipts/full_original_scope.json` is the file supplied to
+release-evidence assembly. Any failure in scope-result validation, receipt
+generation, evidence assembly, or final audit removes the entire work root.
+Therefore a rejected or stale per-scope audit cannot leave behind a partial set
+of release-looking receipts.
+
+The command-line input is
+`--full-original-scope-results <external-json>`; a caller must not provide a
+manually prebuilt fifth receipt to this transaction.
