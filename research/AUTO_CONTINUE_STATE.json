@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #464 is merged and canonical. Retry private process execution; if recovered, resume the highest-priority source-backed Gate-14 closure item. If still blocked, record the blocker and continue only independent cloud-safe critical-path work.",
-  "last_known_main_head": "a762b6bc1cbcd768c3d03b5cf4cea3746cda4a7a",
+  "active_task": "Private archive access remains blocked. Current cloud-safe task is PR #466 on head 41470b8a: clean current-main Gate-15 support-staff cost tracer transplant replacing stale #465. Await current-head reconstruction + asset-policy CI; merge only after both pass, then reconcile main and close stale #465.",
+  "last_known_main_head": "bcab7d3809afd82e55d8ffd8801e4da03b66558b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 317,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 317 checkpoint: PR #464 merged as 79d4457f and canonical main reconciled through a762b6bc; Gate 14 remains earliest incomplete. Next action is the private execution retry.",
+  "note": "Recovery 317: #464 merged/canonical; real private archive access still ClientError. PR #466 cleanly transplants support-staff cost tracer onto current main. Prior #465 head passed 2574 tests/23 skips, but #466 current-head CI is still required.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
