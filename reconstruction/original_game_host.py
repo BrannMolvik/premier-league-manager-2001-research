@@ -326,6 +326,7 @@ class OriginalGameTkHost:
         self._generic_photo_cache = {}
         self.first_screen_animation = OriginalFirstScreenAnimation()
         self.first_screen_frame = None
+        self._first_screen_items = {}
         self._first_screen_pointer = None
         self._first_screen_idle = None
         self.last_status = "Source-backed FM2001 host ready"
@@ -515,6 +516,7 @@ class OriginalGameTkHost:
         self._schedule_first_screen_update(view)
         self.canvas.delete("all")
         self._photos = []
+        self._first_screen_items = {}
 
         background = self._photo_from_rgba(
             (view.screen, "background"),
@@ -522,7 +524,9 @@ class OriginalGameTkHost:
             SCREEN_SIZE[1],
             view.background_rgba,
         )
-        self._create_native_image(0, 0, image=background, anchor=self.tk.NW)
+        self._first_screen_items[("background", None)] = self._create_native_image(
+            0, 0, image=background, anchor=self.tk.NW
+        )
 
         controls_by_event = {control.event: control for control in view.controls}
         for overlay in frame.original_source_frame_overlays:
@@ -535,11 +539,13 @@ class OriginalGameTkHost:
                 source.height,
                 source.rgba,
             )
-            self._create_native_image(
-                overlay.rect.x,
-                overlay.rect.y,
-                image=art,
-                anchor=self.tk.NW,
+            self._first_screen_items[("button", overlay.event)] = (
+                self._create_native_image(
+                    overlay.rect.x,
+                    overlay.rect.y,
+                    image=art,
+                    anchor=self.tk.NW,
+                )
             )
 
         for caption in frame.native_caption_overlays:
@@ -558,11 +564,13 @@ class OriginalGameTkHost:
                 mask.height,
                 glyph_rgba,
             )
-            self._create_native_image(
-                caption.line_origin_x,
-                caption.line_origin_y,
-                image=glyphs,
-                anchor=self.tk.NW,
+            self._first_screen_items[("caption", caption.event)] = (
+                self._create_native_image(
+                    caption.line_origin_x,
+                    caption.line_origin_y,
+                    image=glyphs,
+                    anchor=self.tk.NW,
+                )
             )
 
         for row in (*view.hierarchy_rows, *view.club_rows):
@@ -630,6 +638,89 @@ class OriginalGameTkHost:
         if self._first_screen_idle is None and self.first_screen_animation.pending(view):
             self._first_screen_idle = self.root.after_idle(self._advance_first_screen)
 
+    def _update_first_screen_animation_layers(self, view) -> None:
+        """Swap only Button/caption layers whose native source state changed.
+
+        TeamSelect can have more than one hundred persistent row/background
+        canvas items. Rebuilding all of them for every one of the eleven native
+        hover subframes made the recovered animation unusably slow. The original
+        control update changes only the affected Button child, so mirror that
+        ownership here rather than performing a full-screen redraw.
+        """
+        previous = self.first_screen_frame
+        frame = build_original_debug_frame(
+            view,
+            self.first_screen_animation.frames(view),
+        )
+        self.first_screen_frame = frame
+        controls_by_event = {control.event: control for control in view.controls}
+        previous_frames = (
+            {}
+            if previous is None or previous.screen is not frame.screen
+            else {
+                overlay.event: overlay.source_frame_index
+                for overlay in previous.original_source_frame_overlays
+            }
+        )
+        previous_colors = (
+            {}
+            if previous is None or previous.screen is not frame.screen
+            else {
+                caption.event: caption.native_color_16
+                for caption in previous.native_caption_overlays
+            }
+        )
+
+        for overlay in frame.original_source_frame_overlays:
+            if previous_frames.get(overlay.event) == overlay.source_frame_index:
+                continue
+            item = self._first_screen_items.get(("button", overlay.event))
+            if item is None:
+                # A screen transition or unexpected ownership change requires a
+                # normal full draw rather than fabricating an incremental item.
+                self._draw_first_screen()
+                return
+            source = controls_by_event[overlay.event].exact_source_frame(
+                overlay.source_frame_index
+            )
+            art = self._photo_from_rgba(
+                (
+                    view.screen,
+                    "button",
+                    overlay.event,
+                    overlay.source_frame_index,
+                ),
+                source.width,
+                source.height,
+                source.rgba,
+            )
+            self.canvas.itemconfigure(item, image=art)
+
+        for caption in frame.native_caption_overlays:
+            if previous_colors.get(caption.event) == caption.native_color_16:
+                continue
+            item = self._first_screen_items.get(("caption", caption.event))
+            if item is None:
+                continue
+            control = controls_by_event[caption.event]
+            mask = control.caption.glyph_mask
+            glyph_rgba = endpoint_text_rgba(mask.alpha, caption.native_color_16)
+            glyphs = self._photo_from_rgba(
+                (
+                    view.screen,
+                    "caption",
+                    caption.event,
+                    caption.native_color_16,
+                    caption.original_text,
+                ),
+                mask.width,
+                mask.height,
+                glyph_rgba,
+            )
+            self.canvas.itemconfigure(item, image=glyphs)
+
+        self._schedule_first_screen_update(view)
+
     def _advance_first_screen(self):
         self._first_screen_idle = None
         if self.presenter.session.navigation.screen not in (
@@ -638,7 +729,7 @@ class OriginalGameTkHost:
         view = self.presenter.snapshot()
         self.first_screen_animation.observe(view, self._first_screen_pointer)
         if self.first_screen_animation.advance(view):
-            self.redraw()
+            self._update_first_screen_animation_layers(view)
 
     def _ensure_management_resources(self) -> None:
         if self._management_resources_loaded:
