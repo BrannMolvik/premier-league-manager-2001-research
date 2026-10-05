@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock, patch
+
+import app as app_module
 
 
 APP_PATH = Path(__file__).with_name("app.py")
@@ -90,12 +94,117 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIn("'--startup-media-player'", source)
         self.assertIn("'--startup-media-player-arg'", source)
         self.assertIn("SynchronousCommandStartupMediaBackend", source)
-        self.assertIn("startup_media_receipt=args.startup_media_receipt", source)
+        self.assertIn("WindowsMciStartupMediaBackend", source)
+        self.assertIn("load_bundled_startup_media_derivatives", source)
+        self.assertIn("startup_media_receipt=startup_receipt", source)
         self.assertIn("startup_media_backend=startup_backend", source)
+        self.assertIn("startup_media_derivatives=startup_derivatives", source)
         self.assertLess(
             source.index("if args.prototype_ui:"),
             source.index("run_original_game_ui("),
         )
+
+
+    def test_normal_windows_launch_selects_verified_bundled_media_and_builtin_backend(self):
+        args = SimpleNamespace(
+            prototype_ui=False,
+            startup_media_receipt=None,
+            startup_media_player=None,
+            startup_media_player_arg=[],
+        )
+        derivatives = (object(), object())
+        backend = object()
+        with patch.object(
+            app_module,
+            "load_bundled_startup_media_derivatives",
+            return_value=derivatives,
+        ) as load, patch.object(
+            app_module,
+            "WindowsMciStartupMediaBackend",
+            return_value=backend,
+        ) as make_backend:
+            receipt, selected_backend, selected_derivatives = (
+                app_module.configure_startup_media(
+                    args,
+                    app_root=Path("/package"),
+                    platform_system="Windows",
+                )
+            )
+
+        self.assertIsNone(receipt)
+        self.assertIs(selected_backend, backend)
+        self.assertIs(selected_derivatives, derivatives)
+        load.assert_called_once_with(Path("/package"))
+        make_backend.assert_called_once_with(platform_system="Windows")
+
+    def test_non_windows_default_does_not_invent_startup_backend(self):
+        args = SimpleNamespace(
+            prototype_ui=False,
+            startup_media_receipt=None,
+            startup_media_player=None,
+            startup_media_player_arg=[],
+        )
+        with patch.object(
+            app_module,
+            "load_bundled_startup_media_derivatives",
+        ) as load:
+            self.assertEqual(
+                app_module.configure_startup_media(
+                    args,
+                    platform_system="Linux",
+                ),
+                (None, None, None),
+            )
+        load.assert_not_called()
+
+    def test_explicit_startup_player_remains_override(self):
+        receipt = Path("/private/receipt.json")
+        args = SimpleNamespace(
+            prototype_ui=False,
+            startup_media_receipt=receipt,
+            startup_media_player="player.exe",
+            startup_media_player_arg=["--fullscreen"],
+        )
+        backend = object()
+        with patch.object(
+            app_module,
+            "SynchronousCommandStartupMediaBackend",
+            return_value=backend,
+        ) as make_backend, patch.object(
+            app_module,
+            "load_bundled_startup_media_derivatives",
+        ) as load:
+            selected = app_module.configure_startup_media(
+                args,
+                platform_system="Windows",
+            )
+
+        self.assertEqual(selected, (receipt, backend, None))
+        make_backend.assert_called_once_with(
+            "player.exe",
+            ("--fullscreen",),
+        )
+        load.assert_not_called()
+
+    def test_prototype_or_partial_override_fails_closed(self):
+        prototype = SimpleNamespace(
+            prototype_ui=True,
+            startup_media_receipt=Path("/private/receipt.json"),
+            startup_media_player="player.exe",
+            startup_media_player_arg=[],
+        )
+        with self.assertRaisesRegex(ValueError, "source-backed FM2001 host"):
+            app_module.configure_startup_media(prototype, platform_system="Windows")
+
+        partial = SimpleNamespace(
+            prototype_ui=False,
+            startup_media_receipt=Path("/private/receipt.json"),
+            startup_media_player=None,
+            startup_media_player_arg=[],
+        )
+        with self.assertRaisesRegex(ValueError, "requires both"):
+            app_module.configure_startup_media(partial, platform_system="Windows")
+
 
 
 if __name__ == "__main__":
