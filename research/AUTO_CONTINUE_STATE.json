@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 311,
+  "recovery_generation": 312,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 311 canonical through main ad3e996f: CURRENT_STATE and PROGRESS reconciled, stale Gate13 ownership released, superseded audio/async PR stacks closed. Container/Python execution still ClientError; no new TGQ conversion claim.",
+  "note": "Recovery 312 resumed from canonical main ad3e996f after fresh-chat fallback. Gate 14 remains active; continue exact cloud-safe task while private execution is unavailable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
