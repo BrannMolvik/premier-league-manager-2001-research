@@ -37,6 +37,16 @@ A backlog item is not necessarily a bug or fidelity error. Known deviations from
 - Integrate original login/menu music and front-end audio during the presentation gates.
 - Leave FastView/3D presentation until Gate 14 unless a presentation structure is needed to understand simulation semantics.
 
+## Release packaging / third-party runtime
+
+- Before the Gate-17 release is declared final, audit the bundled
+  `runtime_tools/ffmpeg.exe` third-party license/provenance and ship whatever
+  notices/source-offer information the selected redistributable requires. The
+  Windows #454 package log identifies the current `imageio-ffmpeg 0.6.0`
+  executable as an FFmpeg 7.1 Gyan essentials build configured with
+  `--enable-gpl` and `--enable-libx264`. This is a release-packaging audit
+  item, not a Gate-14 fidelity blocker and not by itself a legal conclusion.
+
 ## Tooling / quality
 
 - Add more real-data invariant checks without storing copyrighted data in Git.
