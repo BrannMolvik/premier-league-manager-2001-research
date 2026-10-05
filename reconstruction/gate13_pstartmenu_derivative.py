@@ -125,6 +125,10 @@ class PStartMenuDecoderProvenance:
             raise PStartMenuDerivativeError(
                 "Decoder executable is not the canonical FM2001 build"
             )
+        if self.tqia_section_sha256 != TQIA_SOURCE_SHA256:
+            raise PStartMenuDerivativeError(
+                "Decoder TQIA source identity differs"
+            )
         if self.quant_source_sha256 != ORIGINAL_QUANT_SHA256:
             raise PStartMenuDerivativeError(
                 "Decoder quantization source identity differs"
