@@ -7,6 +7,38 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 319 continuation — matching FFprobe/output contract canonical
+
+PR #473 merged as `18a2266507eec2a1b5663e047e89671e20a713a5`
+from head `6dd7cdfd31a5ee84a4f4eef40b39a82c46239c5b`.
+The clean rebased PR contained only the three FFprobe/output-contract files.
+Current-head reconstruction runs `37345064573` and `37345270284` both
+passed **2,609 tests / 23 expected skips**. Windows package run
+`37345270265` and repository asset-policy run `37345270184` passed.
+
+The pinned LGPL migration candidate now requires both `ffmpeg.exe` and
+`ffprobe.exe` from the same immutable BtbN archive and the same FFmpeg source
+revision `n9.0.2-22-g46d8f462ee`. The verified FFprobe executable SHA-256 is
+`46a86ca9eb512c2989354ebe68eb1562fcb73b16d8041d54d54b5f4b244f958c`
+(size 134,300,160 bytes). The synthetic Windows proof uses the real private
+converter's `-fps_mode passthrough` option and then requires FFprobe to report
+H.264/yuv420p 320x480 @ 25 fps plus AAC 22,050 Hz stereo in MP4 before
+independent video/audio decode checks pass.
+
+This does **not** migrate production packaging. Exact original
+`easp.tgq` / `premintro.tgq` conversion remains unexecuted in Recovery 319
+because the materialized private archive still cannot be opened by either the
+container or notebook execution path. The current production default remains
+`libx264` under the #468 fail-closed release-material boundary.
+
+**Exact next task:** retry the authorized private archive at this persistence
+boundary. If execution is healthy, run both exact source-verified TGQs through
+the pinned LGPL `h264_mf` + matching FFprobe path and preserve an outside-Git
+receipt. If execution remains blocked, do not spin on the same infrastructure
+failure; continue the independent Gate-17 minimal-upstream-helper/source
+provenance route while keeping Gate 14 as the earliest incomplete validation
+gate.
+
 ## Recovery 319 continuation — h264_mf private-audit path canonical
 
 PR #470 merged as `bb32e74cff669b2fdd489058f118a8476f207ad1`
