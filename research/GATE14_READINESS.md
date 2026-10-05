@@ -1,6 +1,6 @@
 # Gate 14 readiness audit
 
-_Status: fail-closed roadmap audit while Gate 13 remains Codex-owned._
+_Status: fail-closed active Gate-14 roadmap audit after Gate 13 closure._
 
 ## Purpose
 
@@ -31,11 +31,50 @@ Two criteria remain open:
 
 The audit therefore requires `gate14_ready=false`.
 
+## Recovery 313 capability reconciliation
+
+Three player-visible/runtime seams are now canonical without promoting either
+open roadmap criterion:
+
+- **First-screen press audio is bound on Windows.** The source-backed
+  PStartMenu/TeamSelect Button press route delivers numeric
+  `AudioHooks(10, 0, 0x40)` to canonical `menus.bnk` slot 2 through the
+  in-memory Windows PCM backend. This is a real source event binding for that
+  bounded Button path, but the broad readiness field
+  `audio_event_binding_recovered` remains false because it represents the
+  still-unrecovered semantic/application-wide login/menu audio boundary.
+  Human-heard bound-path Windows evidence is also still absent.
+- **Default startup FMVs are integrated on normal Windows launch.** The exact
+  original `easp.tgq` / `premintro.tgq` files are revalidated, converted
+  once into a private verified H.264/AAC cache, rehashed on reuse, and played
+  through the built-in synchronous Windows MCI backend. Hosted Windows package
+  CI proves packaging and runtime construction, not actual human-visible/
+  audible playback, native skip input, fades, or exact display treatment.
+- **Resolved FastView pixels have an operator-visible Tk surface.** An
+  already-built `HumanFastViewResolvedPresentation` can be shown in a native
+  800x600 child window using its canonical resolved-preview PNG unchanged.
+  Unresolved overlap pixels stay transparent. No source navigation trigger is
+  invented, so ordinary management play does not automatically enter this
+  window yet.
+
+The readiness model records these separately as
+`first_screen_press_audio_bound`,
+`startup_media_default_windows_path_integrated`,
+`startup_media_real_windows_verified`,
+`operator_visible_resolved_fastview_surface`, and
+`source_fastview_navigation_trigger_recovered`. Their canonical values are
+true, true, false, true, and false respectively.
+
 ## Source-backed capabilities already retained
 
 The current audit records these solved sub-capabilities:
 
 - completed human outcome -> resolved-only FastView -> Tk draw path;
+- operator-visible 800x600 Tk child surface for that exact resolved preview,
+  without an invented source navigation trigger;
+- default Windows startup-media runtime/package path for the exact verified
+  original startup TGQs;
+- live source-backed first-screen Button press PCM binding on Windows;
 - dynamic PlayerRow energy pixels;
 - English PlayerRow text pixels;
 - source-closed parameterized FastViewScores and FastViewTeam nested construction/count algorithms;
@@ -54,8 +93,13 @@ roadmap criterion.
 
 The audit exposes the unresolved capabilities directly:
 
-- exact audio event/sample binding;
-- audible Windows output and login/menu audio integration;
+- broad semantic/application-wide audio event/sample binding beyond the
+  bounded first-screen Button press route;
+- human-heard bound-path Windows output and full login/menu audio integration;
+- real-Windows startup-FMV visibility/audibility plus native skip/fade/display
+  fidelity;
+- a source-backed ordinary runtime trigger into the operator-visible FastView
+  presentation surface;
 - complete FastViewScores/LeagueTable nested pixels;
 - complete FastViewTeam nested pixels beyond the already-complete retained PlayerRows;
 - GoalFlash absolute timing/position;
