@@ -113,6 +113,10 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         )
     if "--enable-demuxer=ea" not in args:
         raise MinimalFfmpegSourceContractError("minimal helper must enable the EA demuxer")
+    if "--enable-demuxer=mov" not in args or minimal.get("required_derivative_input_demuxer") != "mov":
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must retain the MOV/MP4 input demuxer for derivative verification"
+        )
     if "--enable-encoder=h264_mf,aac" not in args:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must enable h264_mf and native AAC"
