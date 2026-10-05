@@ -392,11 +392,19 @@ def validate_full_original_scope_binding(
 def validate_external_receipts(
     evidence: ReleaseEvidence,
     repo_root: Path,
+    *,
+    expected_windows: Mapping[str, object] | None = None,
 ) -> dict[str, dict]:
-    """Hash and inspect every externally produced Windows release receipt."""
+    """Hash and inspect every externally produced Windows release receipt.
+
+    All five receipts must come from one exact Windows client build. When the
+    final audit provides expected_windows, that receipt build must also equal
+    the workstation currently executing the final audit.
+    """
     checked: dict[str, dict] = {}
     root = Path(repo_root).resolve()
     used_paths: dict[Path, str] = {}
+    receipt_windows_build: int | None = None
 
     for name, required_flags in REQUIRED_EXTERNAL_RECEIPTS.items():
         spec = evidence.external_receipts[name]
@@ -478,6 +486,29 @@ def validate_external_receipts(
             raise ReleaseReadinessError(
                 f"{name} receipt does not prove a Windows client workstation"
             )
+        if receipt_windows_build is None:
+            receipt_windows_build = windows_build
+        elif windows_build != receipt_windows_build:
+            raise ReleaseReadinessError(
+                f"{name} receipt Windows build {windows_build} differs from "
+                f"the release receipt set build {receipt_windows_build}"
+            )
+        if expected_windows is not None:
+            expected_build = expected_windows.get("windows_build")
+            expected_product_type = expected_windows.get("windows_product_type")
+            if type(expected_build) is not int or type(expected_product_type) is not int:
+                raise ReleaseReadinessError(
+                    "final audit Windows identity is incomplete"
+                )
+            if windows_build != expected_build:
+                raise ReleaseReadinessError(
+                    f"{name} receipt Windows build {windows_build} differs from "
+                    f"final audit workstation build {expected_build}"
+                )
+            if product_type != expected_product_type:
+                raise ReleaseReadinessError(
+                    f"{name} receipt Windows product type differs from final audit workstation"
+                )
 
         for flag in required_flags:
             if payload.get(flag) is not True:
@@ -797,7 +828,11 @@ def run_final_release_audit(
             + ",".join(implementation_preflight.blocker_codes)
         )
 
-    receipts = validate_external_receipts(evidence, root)
+    receipts = validate_external_receipts(
+        evidence,
+        root,
+        expected_windows=windows,
+    )
     full_scope_binding = validate_full_original_scope_binding(
         evidence,
         root,
