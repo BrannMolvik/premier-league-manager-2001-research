@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Validate and merge PR #451 asynchronous Southport Start->Management resource loading. Asset policy, presentation tests, and Windows package pass; full reconstruction run 37298844281 is still running. After merge, preserve #438 as requiring Windows Southport revalidation while continuing #437 automatic startup FMV integration or independent cloud-safe Gate14 presentation work.",
-  "last_known_main_head": "520b82026ccd640377286e226a63788f8a5a7394",
+  "active_task": "Gate 14 remains active. #450 first-screen press audio and #451 nonblocking Southport Start->Management loader are merged and fully CI-verified; #438 still requires real Windows Southport acceptance. #437 default startup FMV path is structurally absent and private execution remains blocked by ClientError. Continue the highest-priority independent cloud-safe Gate14 FastView/audio task until private execution is healthy, then implement provenance-tracked automatic startup FMV packaging/runtime.",
+  "last_known_main_head": "ad3e996f695fd44284f646940487e1187ac21d5d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 311,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 311. #450 first-screen press audio merged as 520b8202 with all CI green. #451 replays #443 responsiveness onto current host without old duplicate timing state. #437 issue now records that default launch structurally skips startup media unless receipt/player CLI flags are supplied. Canonical private ZIP materialized, but container/Python execution remains blocked by ClientError.",
+  "note": "Recovery 311 canonical through main ad3e996f: CURRENT_STATE and PROGRESS reconciled, stale Gate13 ownership released, superseded audio/async PR stacks closed. Container/Python execution still ClientError; no new TGQ conversion claim.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
