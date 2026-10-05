@@ -104,10 +104,16 @@ class PStartMenuDerivativeTests(unittest.TestCase):
             expected_background_sha256=self.background_sha,
         )
 
-    def _load(self, directory, decoder=DECODER):
+    def _load(self, directory, decoder=DECODER, manifest_sha=None):
+        root = Path(directory)
+        if manifest_sha is None:
+            manifest_sha = sha256(
+                (root / MANIFEST_NAME).read_bytes()
+            ).hexdigest()
         return load_verified_pstartmenu_derivative_bundle(
-            Path(directory),
+            root,
             expected_decoder=decoder,
+            expected_manifest_sha256=manifest_sha,
             expected_background_sha256=self.background_sha,
         )
 
@@ -178,6 +184,23 @@ class PStartMenuDerivativeTests(unittest.TestCase):
                 "payload identity",
             ):
                 self._load(directory)
+
+    def test_manifest_requires_independently_pinned_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self._build(directory)
+            path = Path(directory) / MANIFEST_NAME
+            pinned = sha256(path.read_bytes()).hexdigest()
+            manifest = json.loads(
+                path.read_text(encoding="utf-8")
+            )
+            path.write_text(
+                json.dumps(manifest, indent=2), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(
+                PStartMenuDerivativeError,
+                "pinned receipt",
+            ):
+                self._load(directory, manifest_sha=pinned)
 
     def test_source_or_decoder_provenance_drift_fails_closed(
         self,
