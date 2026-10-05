@@ -468,26 +468,34 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertTrue(root.values["destroyed"])
         self.assertEqual(host.last_status, "QUIT_TO_WINDOWS")
 
-    def test_management_resources_are_loaded_only_on_explicit_management_boundary(self):
+    def test_management_resources_are_route_scoped_and_cached_once(self):
         calls = []
-        payload = {
-            "management_pmenu_resources": object(),
-            "league_fixtures_grid_art": object(),
-            "fixtures_pager_art": object(),
-            "squad_top_resources": object(),
-            "league_tables_header_art": object(),
-            "pmatchinfo_snapshot": object(),
-            "pmatchinfo_font": object(),
-            "pmatchinfo_nested_font": object(),
-            "pmatchinfo_script_art": object(),
-            "management_background": object(),
-            "management_header_resources": object(),
-            "management_text_resources": object(),
+        payloads = {
+            "squad": {
+                "management_pmenu_resources": object(),
+                "squad_top_resources": object(),
+                "management_background": object(),
+                "management_header_resources": object(),
+            },
+            "fixtures": {
+                "league_fixtures_grid_art": object(),
+                "fixtures_pager_art": object(),
+                "pmatchinfo_snapshot": object(),
+                "pmatchinfo_font": object(),
+                "pmatchinfo_nested_font": object(),
+                "pmatchinfo_script_art": object(),
+                "_fixture_resource_names": ("fixture-grid",),
+            },
+            "league_tables": {
+                "league_tables_header_art": object(),
+                "management_text_resources": object(),
+                "_league_table_resource_names": ("league-table",),
+            },
         }
 
-        def loader():
-            calls.append("load")
-            return payload
+        def loader(family):
+            calls.append(family)
+            return payloads[family]
 
         host = OriginalGameTkHost(
             presenter(),
@@ -498,34 +506,54 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(calls, [])
         self.assertFalse(host._management_resources_loaded)
 
-        host._ensure_management_resources()
-        self.assertEqual(calls, ["load"])
+        host._ensure_management_resources("squad")
+        self.assertEqual(calls, ["squad"])
         self.assertTrue(host._management_resources_loaded)
-        host._ensure_management_resources()
-        self.assertEqual(calls, ["load"])
-        for name, value in payload.items():
-            self.assertIs(getattr(host, name), value)
+        self.assertEqual(host._management_resource_families_loaded, {"squad"})
+        self.assertIsNone(host.league_fixtures_grid_art)
+        self.assertIsNone(host.fixtures_pager_art)
+        self.assertIsNone(host.league_tables_header_art)
+        self.assertIsNone(host.pmatchinfo_snapshot)
+        self.assertIsNone(host.management_text_resources)
 
-    def test_teamselect_start_defers_management_resource_decode_off_tk_thread(self):
+        host._ensure_management_resources("squad")
+        self.assertEqual(calls, ["squad"])
+
+        host._ensure_management_resources("fixtures")
+        self.assertEqual(calls, ["squad", "fixtures"])
+        self.assertEqual(
+            host._management_resource_families_loaded,
+            {"squad", "fixtures"},
+        )
+        host._ensure_management_resources("fixtures")
+        self.assertEqual(calls, ["squad", "fixtures"])
+
+        host._ensure_management_resources("league_tables")
+        self.assertEqual(calls, ["squad", "fixtures", "league_tables"])
+        self.assertEqual(
+            host._management_resource_families_loaded,
+            {"squad", "fixtures", "league_tables"},
+        )
+        host._ensure_management_resources("league_tables")
+        self.assertEqual(calls, ["squad", "fixtures", "league_tables"])
+
+        for family in ("squad", "fixtures", "league_tables"):
+            for name, value in payloads[family].items():
+                self.assertIs(getattr(host, name), value)
+
+    def test_teamselect_start_defers_only_fresh_squad_resources_off_tk_thread(self):
         calls = []
         threads = []
         payload = {
             "management_pmenu_resources": object(),
-            "league_fixtures_grid_art": object(),
-            "fixtures_pager_art": object(),
             "squad_top_resources": object(),
-            "league_tables_header_art": object(),
-            "pmatchinfo_snapshot": object(),
-            "pmatchinfo_font": object(),
-            "pmatchinfo_nested_font": object(),
-            "pmatchinfo_script_art": object(),
             "management_background": object(),
             "management_header_resources": object(),
-            "management_text_resources": object(),
         }
 
-        def loader():
-            calls.append("load")
+        def loader(family):
+            calls.append(family)
+            self.assertEqual(family, "squad")
             return payload
 
         def thread_factory(**kwargs):
@@ -554,6 +582,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(calls, [])
             self.assertEqual(len(threads), 1)
             self.assertTrue(threads[0].started)
+            self.assertEqual(host._management_loading_family, "squad")
             self.assertFalse(host._management_resources_loaded)
             self.assertIsNotNone(host._management_load_poll)
             redraw.assert_not_called()
@@ -562,18 +591,25 @@ class OriginalGameHostTests(unittest.TestCase):
             threads[0].run()
             root.run_timer()
 
-            self.assertEqual(calls, ["load"])
+            self.assertEqual(calls, ["squad"])
             self.assertTrue(host._management_resources_loaded)
+            self.assertEqual(host._management_resource_families_loaded, {"squad"})
             redraw.assert_called_once_with()
             self.assertEqual(root.values["configure"]["cursor"], "")
             for name, value in payload.items():
                 self.assertIs(getattr(host, name), value)
+            self.assertIsNone(host.league_fixtures_grid_art)
+            self.assertIsNone(host.fixtures_pager_art)
+            self.assertIsNone(host.league_tables_header_art)
+            self.assertIsNone(host.pmatchinfo_snapshot)
+            self.assertIsNone(host.management_text_resources)
 
     def test_teamselect_async_management_loader_surfaces_worker_exception(self):
         threads = []
         messages = []
 
-        def loader():
+        def loader(family):
+            self.assertEqual(family, "squad")
             raise RuntimeError("management decode exploded")
 
         def thread_factory(**kwargs):
@@ -614,7 +650,8 @@ class OriginalGameHostTests(unittest.TestCase):
     def test_management_input_is_ignored_while_async_resources_are_loading(self):
         threads = []
 
-        def loader():
+        def loader(family):
+            self.assertEqual(family, "squad")
             raise AssertionError("deferred worker should not have run yet")
 
         def thread_factory(**kwargs):
