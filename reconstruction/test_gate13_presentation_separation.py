@@ -60,7 +60,10 @@ class Gate13PresentationSeparationAuditTests(unittest.TestCase):
             nearest_function_names.append(
                 None if parent is None else parent.name
             )
-        self.assertEqual(nearest_function_names, ["make_gameplay"])
+        self.assertEqual(
+            nearest_function_names,
+            ["make_gameplay", "make_gameplay_from_catalog"],
+        )
 
     def test_original_first_screen_presenter_has_no_simulation_imports(self):
         modules = set(top_level_import_modules("original_first_screen_presenter.py"))
