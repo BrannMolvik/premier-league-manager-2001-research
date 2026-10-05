@@ -163,6 +163,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("clock_text",),
             ("possession_diagram",),
             ("possession_figures_text",),
+            ("direct_header_text",),
             ("league_scores_early_rows_static",),
             ("league_table_static",),
             ("league_scores_late_grid_static",),
@@ -199,6 +200,36 @@ class FastViewDrawOrderTests(unittest.TestCase):
             "league_scores_static",
         )
         self.assertTrue(aggregate_clock.nested_subpanel_bridge_recovered)
+
+        header_after_figures = source_closed_pairwise_order(
+            "possession_figures_text",
+            "direct_header_text",
+        )
+        self.assertEqual(
+            header_after_figures.earlier_component,
+            "possession_figures_text",
+        )
+        self.assertEqual(
+            header_after_figures.later_component,
+            "direct_header_text",
+        )
+        self.assertTrue(header_after_figures.same_parent_draw_array)
+
+        for score_component in (
+            "league_scores_static",
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
+        ):
+            relation = source_closed_pairwise_order(
+                "direct_header_text",
+                score_component,
+            )
+            self.assertEqual(relation.earlier_component, "direct_header_text")
+            self.assertEqual(relation.later_component, score_component)
+            self.assertTrue(relation.nested_subpanel_bridge_recovered)
 
         for score_component in (
             "league_scores_static",

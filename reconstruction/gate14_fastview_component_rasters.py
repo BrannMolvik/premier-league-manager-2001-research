@@ -22,6 +22,10 @@ from gate14_fastview_clock_raster import (
     CLOCK_TEXT_COMPONENT,
     FastViewClockRaster,
 )
+from gate14_fastview_direct_header_raster import (
+    DIRECT_HEADER_TEXT_COMPONENT,
+    FastViewDirectHeaderRaster,
+)
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
@@ -65,6 +69,7 @@ class FastViewComponentRasterPlane:
             "clock_text",
             "possession_diagram",
             "possession_figures_text",
+            "direct_header_text",
             "team_table_static",
             "team_table_energy",
             "league_scores_static",
@@ -127,6 +132,7 @@ class FastViewComponentRasterSet:
     league_scores_runtime_icons: FastViewComponentRasterPlane | None = None
     league_scores_runtime_text: FastViewComponentRasterPlane | None = None
     clock: FastViewComponentRasterPlane | None = None
+    direct_header: FastViewComponentRasterPlane | None = None
     cross_component_z_order_recovered: bool = False
     flattened_frame_available: bool = False
 
@@ -153,6 +159,15 @@ class FastViewComponentRasterSet:
             if self.clock.component != CLOCK_TEXT_COMPONENT:
                 raise FastViewComponentRasterError(
                     "Clock raster component identity mismatch"
+                )
+        if self.direct_header is not None:
+            if type(self.direct_header) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    "Direct header raster must be an exact component plane"
+                )
+            if self.direct_header.component != DIRECT_HEADER_TEXT_COMPONENT:
+                raise FastViewComponentRasterError(
+                    "Direct header raster component identity mismatch"
                 )
         if self.team_table is not None:
             if type(self.team_table) is not FastViewComponentRasterPlane:
@@ -423,6 +438,22 @@ def rasterize_fastview_team_table_plane(
     )
 
 
+def _lift_direct_header_raster(
+    raster: FastViewDirectHeaderRaster,
+) -> FastViewComponentRasterPlane:
+    if type(raster) is not FastViewDirectHeaderRaster:
+        raise FastViewComponentRasterError(
+            "direct_header must be exact FastViewDirectHeaderRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component=raster.component,
+        size=raster.size,
+        rgba=raster.rgba,
+        source_layer_count=raster.source_layer_count,
+        rgba_sha256=raster.rgba_sha256,
+    )
+
+
 def _lift_clock_raster(
     raster: FastViewClockRaster,
 ) -> FastViewComponentRasterPlane:
@@ -496,11 +527,16 @@ def build_fastview_component_rasters(
     score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
     score_phase_text: FastViewScorePhaseTextRaster | None = None,
     clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
     if clock is not None and type(clock) is not FastViewClockRaster:
         raise FastViewComponentRasterError(
             "clock must be exact FastViewClockRaster"
+        )
+    if direct_header is not None and type(direct_header) is not FastViewDirectHeaderRaster:
+        raise FastViewComponentRasterError(
+            "direct_header must be exact FastViewDirectHeaderRaster"
         )
     if score_table is not None and type(score_table) is not FastViewScoreTableStaticRasterSet:
         raise FastViewComponentRasterError(
@@ -533,6 +569,11 @@ def build_fastview_component_rasters(
         clock=(None if clock is None else _lift_clock_raster(clock)),
         possession_diagram=rasterize_fastview_possession_plane(possession),
         possession_figures=rasterize_fastview_possession_figures_plane(figures),
+        direct_header=(
+            None
+            if direct_header is None
+            else _lift_direct_header_raster(direct_header)
+        ),
         team_table=(
             None
             if team_table is None
