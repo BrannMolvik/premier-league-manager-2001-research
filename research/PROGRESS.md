@@ -11414,3 +11414,11 @@ work may continue under the deferred-blocker policy.
 - A fresh trivial shell/Python process probe still failed with `caas.internal.errors.ClientError`; the private Gate-14 TeamTable trace remains blocked.
 - Next cloud-safe task is to audit whether a Windows release dependency strategy can avoid redistributing the current static GPL-enabled FFmpeg binary without weakening the startup-media path.
 
+## 5 October 2026 — Recovery 318 LGPL FFmpeg candidate checkpoint
+
+- PR #469 merged as `4f0443ffe40ff93ad48fd93b4d196dbb5ab394e4` from verified head `e21159de5508f187ab154f53dbe9463be38a862d`.
+- Reconstruction run `37339029246` passed **2,604 tests / 23 expected skips**; Windows package run `37339029237` and asset-policy run `37339029157` passed.
+- The pinned BtbN win64 LGPL FFmpeg archive `3fc85bae...08714` was verified to contain the EA TGQ decoder, `h264_mf`, and native AAC while omitting the current GPL/nonfree/libx264/libx265 enable flags.
+- Windows CI successfully performed a 320x480, 25 fps, 22,050 Hz stereo `h264_mf` + AAC MP4 encode/decode roundtrip with executable SHA-256 `c15ef2e3...954aa8`.
+- Production packaging has **not** switched. Exact original TGQ conversion, external Windows 11 playback acceptance, and exact LGPL distribution materials remain required.
+
