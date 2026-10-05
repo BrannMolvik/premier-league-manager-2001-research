@@ -78,6 +78,7 @@ HEADER_DATA_OBJECTS = (
     ("right header descriptor", 0x943AD0, 0x40),
     ("header font object", 0x8B0760, 0x40),
     ("English caption global", 0x9820F4, 0x20),
+    ("header text-derived vtable", 0x7BEBCC, 0x80),
 )
 POINTER_TARGETS = (
     ("left header descriptor", 0x943A90),
@@ -189,6 +190,45 @@ def inspect_source_resources(source_root: Path) -> dict:
     }
 
 
+def _pointer_target_record(pe: OriginalPE32, label: str, va: int) -> dict:
+    hits = pe.pointer_byte_candidates(va)
+    contexts = []
+    for hit in hits:
+        candidate_va = int(hit["candidate_va"])
+        try:
+            section, _ = pe.section_for_va(candidate_va)
+        except OriginalPETraceError:
+            continue
+        # Code hits are already covered by the bounded disassembly windows.
+        # For file-backed data candidates, retain a small aligned neighborhood
+        # so an analyst can identify a possible vtable slot without treating a
+        # raw byte occurrence as an xref.
+        if section.name == ".text":
+            continue
+        start_va = candidate_va - (candidate_va % 4) - 0x20
+        try:
+            raw = pe.bounded_window(start_va, 0x80)
+        except OriginalPETraceError:
+            continue
+        contexts.append({
+            "candidate_va": candidate_va,
+            "context_start_va": start_va,
+            "section": section.name,
+            "raw_hex": raw.hex(),
+            "u32_words": [
+                struct.unpack_from("<I", raw, offset)[0]
+                for offset in range(0, len(raw) - (len(raw) % 4), 4)
+            ],
+            "classification": "raw_file_backed_candidate_context_only",
+        })
+    return {
+        "target_name": label,
+        "target_va": va,
+        "byte_occurrences_not_proven_xrefs": hits,
+        "file_backed_data_candidate_contexts": contexts,
+    }
+
+
 def management_header_trace_report(
     pe: OriginalPE32,
     *,
@@ -203,11 +243,10 @@ def management_header_trace_report(
         _optional_data_record(pe, label, va, size)
         for label, va, size in HEADER_DATA_OBJECTS
     )
-    pointer_candidates = tuple({
-        "target_name": label,
-        "target_va": va,
-        "byte_occurrences_not_proven_xrefs": pe.pointer_byte_candidates(va),
-    } for label, va in POINTER_TARGETS)
+    pointer_candidates = tuple(
+        _pointer_target_record(pe, label, va)
+        for label, va in POINTER_TARGETS
+    )
     return {
         "source_sha256": pe.sha256,
         "image_base": pe.image_base,
