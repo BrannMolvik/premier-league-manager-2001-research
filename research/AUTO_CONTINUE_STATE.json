@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 remains active. #450 first-screen press audio and #451 nonblocking Southport Start->Management loader are merged and fully CI-verified; #438 still requires real Windows Southport acceptance. #437 default startup FMV path is structurally absent and private execution remains blocked by ClientError. Continue the highest-priority independent cloud-safe Gate14 FastView/audio task until private execution is healthy, then implement provenance-tracked automatic startup FMV packaging/runtime.",
-  "last_known_main_head": "ad3e996f695fd44284f646940487e1187ac21d5d",
+  "active_task": "Gate 14 active. PR #452 is merged/verified and carries all already verified optional FastView planes through completed-human presentation. PR #453 implements the automatic provenance-tracked Windows startup-FMV runtime/package path; Windows package, Gate13 and asset-policy CI pass, and the Linux full-suite fixture was corrected at head 15f733d0. Wait only for the new full reconstruction result, then merge if green. Real Windows FMV visibility/audibility, #436 launch timing and #438 Southport acceptance remain open. Private source ZIP materializes but execution fails with ClientError immediately afterward, so continue cloud-safe work if private execution remains unavailable.",
+  "last_known_main_head": "de482cabbd5bd0bac4506343d9c799d330ff9c26",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 312,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 312 resumed from canonical main ad3e996f after fresh-chat fallback. Gate 14 remains active; continue exact cloud-safe task while private execution is unavailable.",
+  "note": "Recovery 312 checkpoint: #452 merged as f896ecf9 and canonical state/progress updated through main de482cab. #453 packaging passes; full-suite fixture fixed at 15f733d0. Private ZIP materializes but sandbox execution still fails after materialization.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
