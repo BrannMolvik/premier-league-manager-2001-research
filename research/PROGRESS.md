@@ -4,6 +4,30 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Recovery 312 FastView/default-FMV continuation
+
+Merged #452 as `f896ecf9`: completed-human FastView presentation now forwards
+all already verified optional component planes through the canonical frame and
+resolved adapters, with integrity derived from compositor ordering. Full
+reconstruction run 37303703674 and asset policy run 37303703640 passed. This
+advances recognizable match presentation but deliberately leaves incomplete
+TeamTable/score pixels, global z/blend fidelity, audio completion, and 3D
+choreography open.
+
+PR #453 now supplies the repository-side automatic Windows startup-FMV path:
+exact original TGQs are revalidated, converted into a private per-user cache,
+and played by a built-in Windows backend; the release workflow bundles FFmpeg.
+Windows package run 37303921886 completed freeze/smoke successfully. A Linux
+full-suite failure was traced to the package-smoke fixture omitting the newly
+required bundled FFmpeg file; the fixture was corrected without relaxing the
+runtime requirement, and the new full regression is pending before merge.
+
+The authorized Library ZIP was again materialized successfully, but container
+and Python execution returned `caas.internal.errors.ClientError` immediately
+afterward even for trivial commands. Private source availability is therefore
+not the blocker; sustained execution is. No private TeamTable/source
+adjudication was inferred.
+
 ### 5 October 2026 KST — Recovery 311 gameplay-test preparation
 
 Merged #450 as `520b8202`: the current fullscreen host now installs the
