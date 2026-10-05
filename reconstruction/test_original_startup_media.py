@@ -9,6 +9,7 @@ from original_startup_media import (
     EA_SPORTS_STARTUP_MEDIA,
     ORIGINAL_STARTUP_MEDIA_SEQUENCE,
     PREMIER_LEAGUE_INTRO_MEDIA,
+    WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE,
     OriginalStartupMediaError,
     OriginalStartupMediaSpec,
     build_startup_media_conversion_plans,
@@ -147,6 +148,48 @@ class OriginalStartupMediaTests(unittest.TestCase):
                     output_root,
                     specs=(first, second),
                 )
+
+    def test_media_foundation_candidate_profile_changes_only_video_encoder(self):
+        profile = WINDOWS_MEDIA_FOUNDATION_STARTUP_MEDIA_CONVERSION_PROFILE
+        self.assertEqual(profile.ffmpeg_video_encoder, "h264_mf")
+        self.assertEqual(profile.probe_video_codec, "h264")
+        self.assertEqual(profile.ffmpeg_audio_encoder, "aac")
+        self.assertEqual(profile.probe_audio_codec, "aac")
+        self.assertEqual(profile.pixel_format, "yuv420p")
+        self.assertEqual(profile.container_name, "mp4")
+
+        payload = b"synthetic tgq for media foundation plan"
+        spec = OriginalStartupMediaSpec(
+            source_path="FMV/test.tgq",
+            source_sha256=sha256(payload).hexdigest(),
+            size_bytes=len(payload),
+            startup_callsite_va=0x1000,
+            playback_wrapper_va=0x2000,
+            playback_flag_bit0=False,
+            video_width=320,
+            video_height=480,
+            frame_rate=25,
+            decoded_video_frames=1,
+            audio_sample_rate=22_050,
+            audio_channels=2,
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "source"
+            (source / "FMV").mkdir(parents=True)
+            (source / spec.source_path).write_bytes(payload)
+            plans = build_startup_media_conversion_plans(
+                source,
+                root / "output",
+                specs=(spec,),
+                ffmpeg_executable="ffmpeg-candidate",
+                profile=profile,
+            )
+        self.assertEqual(len(plans), 1)
+        self.assertIn("h264_mf", plans[0].ffmpeg_args)
+        self.assertNotIn("libx264", plans[0].ffmpeg_args)
+        self.assertIn("aac", plans[0].ffmpeg_args)
+        self.assertIn("yuv420p", plans[0].ffmpeg_args)
 
     def test_probe_validator_requires_exact_stream_shape_and_original_geometry(self):
         spec = PREMIER_LEAGUE_INTRO_MEDIA
