@@ -294,6 +294,9 @@ class FakeRoot(FakeWidget):
     def attributes(self, name, value):
         self.values.setdefault("attributes", {})[name] = value
 
+    def destroy(self):
+        self.values["destroyed"] = True
+
 
 class FakeCanvas(FakeWidget):
     def __init__(self, *args, **kwargs):
@@ -316,9 +319,100 @@ class FakeTk:
             assert format == "png"
             assert b64decode(data).startswith(b"\x89PNG\r\n\x1a\n")
             self.data = data
+            self.zoom_factor = 1
+
+        def zoom(self, x, y):
+            assert x == y
+            clone = object.__new__(type(self))
+            clone.data = self.data
+            clone.zoom_factor = self.zoom_factor * x
+            return clone
+
+
+class LargeFakeRoot(FakeRoot):
+    def winfo_screenwidth(self):
+        return 2560
+
+    def winfo_screenheight(self):
+        return 1440
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_high_resolution_fullscreen_uses_crisp_integer_scale_and_native_pointer_mapping(self):
+        root = LargeFakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+
+        self.assertEqual(host.display_scale, 2)
+        self.assertEqual(host.canvas.kwargs["width"], 1600)
+        self.assertEqual(host.canvas.kwargs["height"], 1200)
+        self.assertTrue(
+            all(
+                getattr(photo, "zoom_factor", 1) == 2
+                for photo in host._first_screen_photo_cache.values()
+            )
+        )
+        event = SimpleNamespace(x=14, y=956, widget=host.canvas)
+        native = host._normalize_pointer_event(event)
+        self.assertEqual((native.x, native.y), (7, 478))
+
+    def test_quit_to_windows_destroys_host_after_recovered_event(self):
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk)
+        quit_overlay = next(
+            item
+            for item in host.first_screen_frame.original_source_frame_overlays
+            if item.event == 4
+        )
+
+        host.on_click(
+            SimpleNamespace(
+                x=quit_overlay.rect.x + 1,
+                y=quit_overlay.rect.y + 1,
+            )
+        )
+
+        self.assertTrue(root.values["destroyed"])
+        self.assertEqual(host.last_status, "QUIT_TO_WINDOWS")
+
+    def test_management_resources_are_loaded_only_on_explicit_management_boundary(self):
+        calls = []
+        payload = {
+            "management_pmenu_resources": object(),
+            "league_fixtures_grid_art": object(),
+            "fixtures_pager_art": object(),
+            "squad_top_resources": object(),
+            "league_tables_header_art": object(),
+            "pmatchinfo_snapshot": object(),
+            "pmatchinfo_font": object(),
+            "pmatchinfo_nested_font": object(),
+            "pmatchinfo_script_art": object(),
+            "management_background": object(),
+            "management_header_resources": object(),
+            "management_text_resources": object(),
+        }
+
+        def loader():
+            calls.append("load")
+            return payload
+
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_resource_loader=loader,
+        )
+        self.assertEqual(calls, [])
+        self.assertFalse(host._management_resources_loaded)
+
+        host._ensure_management_resources()
+        self.assertEqual(calls, ["load"])
+        self.assertTrue(host._management_resources_loaded)
+        host._ensure_management_resources()
+        self.assertEqual(calls, ["load"])
+        for name, value in payload.items():
+            self.assertIs(getattr(host, name), value)
+
     def test_game_host_starts_fullscreen_and_preserves_native_canvas_size(self):
         root = FakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
