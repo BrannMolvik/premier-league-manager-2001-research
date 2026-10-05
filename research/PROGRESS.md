@@ -20,7 +20,8 @@ save/reload remain separate proofs. Full reconstruction CI passed **2,415 tests 
 full-scope readiness and Gate17 completion remain false. With the actual private
 source adjudication deferred, cloud-safe work advanced to the independent
 source-proven six-user TeamSelect Start/user-list boundary; no Gate13 code or
-release status was changed.
+release status was changed. The branch was then reconciled onto merged Gate13
+#408 / main `8ec773e5`, preserving its animation/workflow/progress changes.
 
 ### 5 October 2026 KST — Fixed-slice Button checkpoint / requested wrap-up
 
