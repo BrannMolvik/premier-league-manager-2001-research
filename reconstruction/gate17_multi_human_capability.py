@@ -118,7 +118,7 @@ def run_current_multi_human_capability() -> MultiHumanCapabilityAudit:
 
     Source-backed TeamSelect already retains up to six ordered club selections.
     FrontEndSession deliberately refuses Start for more than one selected user;
-    HumanGameplayController and schema-43 internal saves each contain one
+    HumanGameplayController and schema-44 internal saves each contain one
     HumanManagerState. Those are implementation facts, not inferred original
     behavior.
     """
