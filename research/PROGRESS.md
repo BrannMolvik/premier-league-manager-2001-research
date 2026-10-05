@@ -4,6 +4,33 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Recovery 311 gameplay-test preparation
+
+Merged #450 as `520b8202`: the current fullscreen host now installs the
+already source-backed first-screen Button press-audio route from the canonical
+installed `menus.bnk` through the Windows in-memory WAV backend. The stale
+#434/#442/#447/#448 stacks were closed as superseded. Asset policy, presentation
+tests, full reconstruction and Windows candidate package all passed.
+
+Merged #451 as `fb3c770e`: the Start Game path no longer synchronously decodes
+the entire management resource bundle inside the Tk click/redraw path. Only the
+pure verified resource load runs on a daemon worker; the last TeamSelect canvas
+remains visible, Tk polls a queue, resources are applied and management is first
+drawn back on Tk, premature management input is ignored and worker errors are
+surfaced. This replays the useful part of stale #443 while retaining #449's
+flushed stage diagnostics and #450 audio. All four CI workflows passed. The
+Southport Windows acceptance remains required before issue #438 closes.
+
+Issue #437 investigation proved normal launch structurally omits startup FMVs:
+the launcher only configures playback when both a private conversion receipt and
+external player are explicitly supplied. The canonical private source ZIP was
+resolved/materialized from Library, but container and Python execution both
+failed with `caas.internal.errors.ClientError` before new extraction/conversion.
+No derivative/receipt was found in `/FM2001`, so no unsupported media claim was
+made. The finding was persisted on issue #437. The obsolete Gate-13 Codex
+ownership lock was released after its recorded release condition had already
+been satisfied.
+
 ### 5 October 2026 KST — Gate 17 secondary-owner evidence contract
 
 Merged PR #406 at `47039feb`: added a checksum-gated private source tracer for
