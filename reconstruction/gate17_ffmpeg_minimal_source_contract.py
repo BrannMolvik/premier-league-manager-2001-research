@@ -91,12 +91,25 @@ def audit_source_contract(repo_root: str | Path) -> dict:
 
     if _sha(minimal.get("source_commit"), "minimal FFmpeg source commit") != PINNED_FFMPEG_COMMIT:
         raise MinimalFfmpegSourceContractError("minimal helper source commit drifted")
+    if minimal.get("license_file") != "COPYING.LGPLv2.1":
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper license-file identity must remain COPYING.LGPLv2.1"
+        )
     args = minimal.get("configure_args")
     if not isinstance(args, list) or any(type(arg) is not str for arg in args):
         raise MinimalFfmpegSourceContractError("minimal configure_args must be a string list")
     if "--disable-everything" not in args or "--disable-autodetect" not in args:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must disable everything and autodetection"
+        )
+    forbidden_license_flags = [
+        flag for flag in ("--enable-gpl", "--enable-nonfree", "--enable-version3")
+        if flag in args
+    ]
+    if forbidden_license_flags:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper unexpectedly elevates its license mode: "
+            + ", ".join(forbidden_license_flags)
         )
     external_flags = [arg for arg in args if arg.startswith("--enable-lib")]
     if external_flags:
