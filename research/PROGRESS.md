@@ -11356,3 +11356,11 @@ work may continue under the deferred-blocker policy.
 - The temporary ChatGPT takeover environment receiving that approval has no Windows desktop/computer/shell execution surface, so no native launch or receipt was fabricated.
 - The approval blocker is cleared for this one probe. A Windows-capable continuation should generate the required live <=1-hour UTC consent renewal immediately before execution, revalidate the exact qualified private stage, and call `observe_supervised(..., club_index=5)` without weakening the expiry/safety checks.
 - No additional static/source scan is required before the probe. Its receipt is the decisive next evidence for the `+13C/+140` lifecycle.
+
+## 2026-10-05 — Recovery 314 current-base Gate-14 acceptance/readiness
+
+- Recovered from canonical main `aafe42e843fe67ced8b4fa29d908be2260f2d943` and corrected the agent-runtime lease to continuous/working generation 314.
+- Confirmed PR #457 was intentionally superseded, then verified its current-base successor #458 was cleanly ahead of main and passed reconstruction run 37309256252 plus asset-policy run 37309256060. Squash-merged #458 as `3465043767cffb40a822df15b01a6fb20dd37747`.
+- Refused to merge diverged stacked PR #456 despite its green CI because its comparison replayed #455 implementation history. Replayed only the three intended readiness files onto current main as #459, closed #456 as superseded, and verified #459 with reconstruction run 37313356333 plus asset-policy run 37313356314.
+- Squash-merged #459 as `9c0e22c63c5c9c17953648ae4eb2619c6d9569c2`. Canonical readiness now distinguishes bounded first-screen audio/default startup media/operator-visible FastView from still-false real-Windows acceptance, broad audio semantics/integration, source FastView navigation, complete FastView fidelity and recognizable-original-workflow closure.
+- No private Windows acceptance flag was promoted. Exact next cloud-safe Gate-14 task is a strict real-Windows receipt for the already-bound normal-application first-screen press-audio path.
