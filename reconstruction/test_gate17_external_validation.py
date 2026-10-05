@@ -382,6 +382,87 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             self.assertEqual(final_audit.call_args.kwargs["player_seed"], 7)
             self.assertEqual(final_audit.call_args.kwargs["max_days"], 430)
 
+    def test_full_scope_receipt_failure_removes_prior_receipts_and_work_root(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, game, archive, scope, work = self._paths(temp)
+
+            def clean_runner(**kwargs):
+                output = Path(kwargs["output_dir"])
+                output.mkdir(parents=True, exist_ok=True)
+                path = output / "clean_windows_install.json"
+                path.write_text("clean", encoding="utf-8")
+                return path
+
+            def gameplay_runner(**kwargs):
+                output = Path(kwargs["output_dir"])
+                output.mkdir(parents=True, exist_ok=True)
+                paths = {
+                    "new_game_management_loop": output / "new_game_management_loop.json",
+                    "season_progression": output / "season_progression.json",
+                    "save_reload": output / "save_reload.json",
+                }
+                for path in paths.values():
+                    path.write_text("gameplay", encoding="utf-8")
+                return paths
+
+            with (
+                patch(
+                    "gate17_external_validation.require_external_windows_11_workstation",
+                    return_value={"windows_11": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_clean_repository",
+                    return_value={"working_tree_clean": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_roadmap_prerequisites",
+                    return_value={"all_prerequisites_complete": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_limitations_document",
+                    return_value={"path": "research/RELEASE_LIMITATIONS.md"},
+                ),
+                patch(
+                    "gate17_external_validation.resolve_release_artifact_identity",
+                    return_value=SimpleNamespace(
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                    ),
+                ),
+                patch(
+                    "gate17_external_validation.run_canonical_full_scope_preflight",
+                    return_value=ready_implementation_preflight(),
+                ),
+                patch(
+                    "gate17_external_validation.run_clean_windows_install_receipt",
+                    side_effect=clean_runner,
+                ),
+                patch(
+                    "gate17_external_validation.run_windows_gameplay_receipts",
+                    side_effect=gameplay_runner,
+                ),
+                patch(
+                    "gate17_external_validation.run_full_scope_receipt",
+                    side_effect=RuntimeError("scope result identity mismatch"),
+                ),
+                patch(
+                    "gate17_external_validation.assemble_release_evidence",
+                ) as evidence,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "identity mismatch"):
+                    run_external_release_validation(
+                        repo_root=repo,
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        canonical_game_dir=game,
+                        full_original_scope_results=scope,
+                        work_root=work,
+                    )
+
+            evidence.assert_not_called()
+            self.assertFalse(work.exists())
+
     def test_late_failure_removes_all_partial_external_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, game, archive, scope, work = self._paths(temp)
