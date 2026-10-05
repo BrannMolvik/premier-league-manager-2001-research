@@ -68,6 +68,11 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_text import (
+    OriginalManagementTextResources,
+    league_tables_row_text_overlays,
+    load_verified_management_text_resources,
+)
 from original_pmatchinfo_art import (
     OriginalPMatchInfoPopupArt,
     build_pmatchinfo_popup_art,
@@ -150,6 +155,7 @@ class OriginalGameTkHost:
         error_reporter=None,
         management_background=None,
         management_header_resources=None,
+        management_text_resources=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -174,6 +180,7 @@ class OriginalGameTkHost:
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.management_header_resources = management_header_resources
+        self.management_text_resources = management_text_resources
         self.management_header_state = OriginalManagementHeaderState()
         self._management_header_idle = None
         self.last_pmenu_activation = None
@@ -468,6 +475,38 @@ class OriginalGameTkHost:
         )
         return 1
 
+    def _draw_league_tables_row_text(self, frame) -> int:
+        """Draw only the source-qualified PLeagueTableRow visible strings."""
+        if frame.presentation.panel_class != "PLeagueTables":
+            return 0
+        snapshot = frame.presentation.league_tables
+        if snapshot is None:
+            raise OriginalGameHostError(
+                "League Tables text renderer lost its source-backed snapshot"
+            )
+        resources = self.management_text_resources
+        if resources is None:
+            return 0
+        if not isinstance(resources, OriginalManagementTextResources):
+            raise OriginalGameHostError(
+                "League Tables text renderer requires verified source font resources"
+            )
+        overlays = league_tables_row_text_overlays(snapshot, resources)
+        for overlay in overlays:
+            self.canvas.create_image(
+                overlay.x,
+                overlay.y,
+                image=self._photo(
+                    encode_rgba_png(
+                        overlay.width,
+                        overlay.height,
+                        overlay.rgba,
+                    )
+                ),
+                anchor=self.tk.NW,
+            )
+        return len(overlays)
+
     def _fixtures_page_controls(self):
         if (self.active_pmatchinfo_art is not None
                 or self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
@@ -621,7 +660,10 @@ class OriginalGameTkHost:
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         fixture_image_count += self._draw_fixtures_pager()
         table_image_count = self._draw_league_tables_header_art(frame)
-        panel_image_count = squad_image_count + fixture_image_count + table_image_count
+        table_text_count = self._draw_league_tables_row_text(frame)
+        panel_image_count = (
+            squad_image_count + fixture_image_count + table_image_count + table_text_count
+        )
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in (menu_render.overlays if self.pmenu_popup_active else ()):
@@ -1074,6 +1116,9 @@ def run_original_game_ui(
         resolved_source_root,
         original_executable,
     )
+    management_text_resources = load_verified_management_text_resources(
+        resolved_source_root,
+    )
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
     pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
         runtime_repo_root,
@@ -1109,5 +1154,6 @@ def run_original_game_ui(
         management_background=OriginalManagementBackground(
             resolved_source_root, original_executable),
         management_header_resources=management_header_resources,
+        management_text_resources=management_text_resources,
     )
     root.mainloop()
