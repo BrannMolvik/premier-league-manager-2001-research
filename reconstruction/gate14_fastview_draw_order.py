@@ -94,9 +94,9 @@ LEAGUE_SCORES_TITLE_BAR_22_PICTURE_CALLSITE_VA = 0x523554
 LEAGUE_SCORES_CURRENT_FIX_GRID_1_PICTURE_CALLSITE_VA = 0x5239F3
 
 # Each tuple is one native paint position among the currently rasterized
-# families. team_table_static and team_table_energy are alternative
-# reconstruction views of the same native TeamTable position, not two native
-# siblings, so no relation is exposed between those aliases.
+# families. team_table_static, team_table_energy and team_table_player_rows are
+# alternative reconstruction views of the same native TeamTable position, not
+# separate native siblings, so no relation is exposed between those aliases.
 SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("match_background_surface",),
     ("direct_chrome",),
@@ -109,7 +109,7 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("league_table_static",),
     ("league_scores_late_grid_static",),
     ("league_scores_runtime_phase_icons", "league_scores_runtime_phase_text"),
-    ("team_table_static", "team_table_energy"),
+    ("team_table_static", "team_table_energy", "team_table_player_rows"),
 )
 
 _COMPONENT_PARENT_GROUP = {
@@ -128,6 +128,7 @@ _COMPONENT_PARENT_GROUP = {
     "league_scores_runtime_phase_text": "fastview_scores",
     "team_table_static": "fastview_team",
     "team_table_energy": "fastview_team",
+    "team_table_player_rows": "fastview_team",
 }
 
 
@@ -214,7 +215,7 @@ for earlier in ("match_background_surface", "direct_chrome", "clock_text", "club
     _SOURCE_CLOSED_PAIRWISE_RELATIONS[
         frozenset((earlier, "league_scores_static"))
     ] = relation
-for later in ("team_table_static", "team_table_energy"):
+for later in ("team_table_static", "team_table_energy", "team_table_player_rows"):
     relation = _relation("league_scores_static", later)
     _SOURCE_CLOSED_PAIRWISE_RELATIONS[
         frozenset(("league_scores_static", later))
