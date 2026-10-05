@@ -29,7 +29,10 @@ import shutil
 
 from gate17_clean_windows_install import run_clean_windows_install_receipt
 from gate17_full_scope_preflight import run_canonical_full_scope_preflight
-from gate17_full_scope_receipt import run_full_scope_receipt
+from gate17_full_scope_receipt import (
+    run_full_scope_receipt,
+    validate_full_scope_results,
+)
 from gate17_release_evidence import assemble_release_evidence
 from gate17_release_readiness import (
     ReleaseReadinessError,
@@ -145,6 +148,12 @@ def preflight_external_release_validation(
         repo_root=root,
         label="full original scope results",
     )
+    result_validation = validate_full_scope_results(
+        results_path=scope_results,
+        repo_root=root,
+        canonical_game_dir=game_dir,
+        identity=identity,
+    )
     implementation_preflight = run_canonical_full_scope_preflight(
         game_dir,
         player_seed=int(player_seed),
@@ -166,6 +175,7 @@ def preflight_external_release_validation(
         "release_archive": archive,
         "canonical_game_dir": game_dir,
         "full_original_scope_results": scope_results,
+        "full_original_scope_result_validation": result_validation,
         "implementation_preflight": implementation_preflight,
         "work_root": output_root,
     }
