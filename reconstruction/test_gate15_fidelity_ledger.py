@@ -12,6 +12,7 @@ from gate15_fidelity_ledger import (
     audit_repository_gate15,
     load_fidelity_ledger,
     parse_active_fidelity_gaps,
+    roadmap_gate_complete,
 )
 
 
@@ -70,7 +71,7 @@ def _synthetic_final_payload(*, declared: bool = True) -> dict:
 
 class Gate15FidelityLedgerTests(unittest.TestCase):
     def test_canonical_ledger_covers_every_active_gap_exactly_once(self):
-        audit = audit_repository_gate15(REPO_ROOT, gate14_complete=False)
+        audit = audit_repository_gate15(REPO_ROOT)
 
         self.assertEqual(audit.active_gap_count, 11)
         self.assertEqual(audit.ledger_item_count, 11)
@@ -85,6 +86,38 @@ class Gate15FidelityLedgerTests(unittest.TestCase):
             ("FastView/3D and original audio/match presentation",),
         )
         self.assertIn(("prerequisite_gate_14", 1), audit.status_counts)
+
+    def test_repository_audit_derives_gate14_open_from_roadmap(self):
+        audit = audit_repository_gate15(REPO_ROOT)
+
+        self.assertFalse(audit.gate14_complete)
+        self.assertFalse(audit.gate15_ready)
+
+    def test_roadmap_gate_complete_requires_all_gate14_criteria_checked(self):
+        open_roadmap = """# Roadmap
+## Gate 14 - Audio
+- [x] One
+- [ ] Two
+## Gate 15 - Fidelity
+- [ ] Three
+"""
+        closed_roadmap = open_roadmap.replace("- [ ] Two", "- [x] Two")
+
+        self.assertFalse(roadmap_gate_complete(open_roadmap, 14))
+        self.assertTrue(roadmap_gate_complete(closed_roadmap, 14))
+
+    def test_roadmap_gate_complete_rejects_missing_or_empty_gate(self):
+        with self.assertRaisesRegex(
+            Gate15FidelityLedgerError,
+            "missing Gate 14",
+        ):
+            roadmap_gate_complete("## Gate 13 - Old\n- [x] Done\n", 14)
+
+        with self.assertRaisesRegex(
+            Gate15FidelityLedgerError,
+            "has no completion criteria",
+        ):
+            roadmap_gate_complete("## Gate 14 - Audio\nNo checkboxes yet\n", 14)
 
     def test_gate14_completion_alone_cannot_accept_pending_gate15_items(self):
         audit = audit_gate15_fidelity(
