@@ -105,19 +105,17 @@ def _sha256_file(path: Path) -> str:
 
 
 def _require_hex_digest(value: object, *, label: str) -> str:
-    text = str(value)
-    if not re.fullmatch(r"[0-9a-f]{64}", text):
-        raise ReleaseReadinessError(f"{label} must be a lowercase SHA-256")
-    return text
+    if type(value) is not str or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+        raise ReleaseReadinessError(f"{label} must be a lowercase SHA-256 string")
+    return value
 
 
 def _require_commit(value: object) -> str:
-    text = str(value)
-    if not re.fullmatch(r"[0-9a-f]{40}", text):
+    if type(value) is not str or re.fullmatch(r"[0-9a-f]{40}", value) is None:
         raise ReleaseReadinessError(
-            "repository_commit must be one complete lowercase Git commit SHA"
+            "repository_commit must be one complete lowercase Git commit SHA string"
         )
-    return text
+    return value
 
 
 def parse_release_evidence(payload: Mapping[str, object]) -> ReleaseEvidence:
@@ -128,13 +126,22 @@ def parse_release_evidence(payload: Mapping[str, object]) -> ReleaseEvidence:
             "release evidence schema_version must be exact integer 2"
         )
 
-    release_version = str(payload.get("release_version", "")).strip()
-    if not release_version:
-        raise ReleaseReadinessError("release_version is required")
+    release_version = payload.get("release_version")
+    if (
+        type(release_version) is not str
+        or not release_version
+        or release_version != release_version.strip()
+    ):
+        raise ReleaseReadinessError(
+            "release_version must be a non-empty trimmed string"
+        )
 
     repository_commit = _require_commit(payload.get("repository_commit", ""))
-    limitations_path = str(payload.get("limitations_path", "")).strip()
-    if limitations_path != "research/RELEASE_LIMITATIONS.md":
+    limitations_path = payload.get("limitations_path")
+    if (
+        type(limitations_path) is not str
+        or limitations_path != "research/RELEASE_LIMITATIONS.md"
+    ):
         raise ReleaseReadinessError(
             "limitations_path must be research/RELEASE_LIMITATIONS.md"
         )
@@ -154,9 +161,11 @@ def parse_release_evidence(payload: Mapping[str, object]) -> ReleaseEvidence:
         raw = raw_receipts[name]
         if not isinstance(raw, Mapping):
             raise ReleaseReadinessError(f"{name} receipt descriptor must be an object")
-        path = str(raw.get("path", "")).strip()
-        if not path:
-            raise ReleaseReadinessError(f"{name} receipt path is required")
+        path = raw.get("path")
+        if type(path) is not str or not path or path != path.strip():
+            raise ReleaseReadinessError(
+                f"{name} receipt path must be a non-empty trimmed string"
+            )
         receipts[name] = ExternalReceiptSpec(
             path=path,
             sha256=_require_hex_digest(
@@ -312,12 +321,11 @@ def validate_full_original_scope_binding(
                 "the canonical TeamSelect catalog"
             )
 
-    try:
-        verified_count = int(payload.get("verified_scope_entry_count", -1))
-    except (TypeError, ValueError) as exc:
+    verified_count = payload.get("verified_scope_entry_count")
+    if type(verified_count) is not int:
         raise ReleaseReadinessError(
             "full_original_scope receipt verified_scope_entry_count is invalid"
-        ) from exc
+        )
     if verified_count != expected["scope_entry_count"]:
         raise ReleaseReadinessError(
             "full_original_scope receipt did not verify every catalog scope entry"
@@ -341,15 +349,14 @@ def validate_full_original_scope_binding(
             "full_original_scope receipt still has failed_scope_ids"
         )
 
-    try:
-        save_reload_verified_count = int(
-            payload.get("save_reload_verified_scope_entry_count", -1)
-        )
-    except (TypeError, ValueError) as exc:
+    save_reload_verified_count = payload.get(
+        "save_reload_verified_scope_entry_count"
+    )
+    if type(save_reload_verified_count) is not int:
         raise ReleaseReadinessError(
             "full_original_scope receipt save_reload_verified_scope_entry_count "
             "is invalid"
-        ) from exc
+        )
     if save_reload_verified_count != expected["scope_entry_count"]:
         raise ReleaseReadinessError(
             "full_original_scope receipt did not verify save/reload for every "
