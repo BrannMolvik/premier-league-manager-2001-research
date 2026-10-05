@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective source tracer PR #414 is active on exact head 66d93273b5e2ff16daa16cb1d212f36f2633dd6f; asset-policy run 37269114680 passed and reconstruction run 37269114633 is still running. Merge only this exact head if green. Then transplant prep branch chatgpt/gate17-sporting-objective-adjudication-prep onto the resulting main, register CI/research, and validate the three-stage proof contract (annual owner chronology -> non-PL branch/classification semantics -> +0x68/+0x9C state/evaluation ordering).",
-  "last_known_main_head": "61c6a41c1ee4dece25d27134329c862180645a48",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective source tracer #414 is canonical at main 92e5b50042dc19f0850bde5999b575b29d572e41 after reconstruction run 37269114633 passed 2,452 tests / 23 expected skips and asset-policy run 37269114680 passed. Gate17 sporting-objective adjudication PR #415 is active on exact head 2d3e5a3b306f65beed1b315cead7349bf5cdf4df. Validate reconstruction + asset-policy and merge only this exact head if green. Then continue the next disjoint source-backed blocker; private-source stages remain deferred while canonical executable byte execution is unavailable.",
+  "last_known_main_head": "92e5b50042dc19f0850bde5999b575b29d572e41",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 301,
+  "recovery_generation": 302,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #414 was corrected so sporting_objective_pass_sequence is persisted as JSON [1,0], avoiding tuple/list mismatch in private report consumption. Prep adjudication plan consumes that JSON-stable contract. Private executable byte access remains blocked by caas ClientError.",
+  "note": "PR #415 validates three private-source stages only: annual per-user owner chronology, non-PL 17-way branch/classification semantics, then +0x68/+0x9C state/evaluation ordering. It consumes tracer sporting_objective_pass_sequence as JSON [1,0]. Do not promote runtime sporting readiness from the plan. Private archive exists but caas container/Python byte execution was previously blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
