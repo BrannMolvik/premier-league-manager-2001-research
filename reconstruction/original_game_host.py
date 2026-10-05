@@ -16,6 +16,14 @@ from __future__ import annotations
 from base64 import b64encode
 from pathlib import Path
 from original_management_background import OriginalManagementBackground
+from original_management_header import (
+    HEADER_COMPOUND_RECT,
+    OriginalManagementHeaderResources,
+    OriginalManagementHeaderState,
+    load_verified_management_header_resources,
+    management_header_caption_overlay,
+    management_header_overlays,
+)
 from original_fixtures_pager import (
     OriginalFixturesPagerArt, fixtures_page_controls, fixtures_page_press,
     load_verified_fixtures_pager_art,
@@ -60,6 +68,11 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_text import (
+    OriginalManagementTextResources,
+    league_tables_row_text_overlays,
+    load_verified_management_text_resources,
+)
 from original_pmatchinfo_art import (
     OriginalPMatchInfoPopupArt,
     build_pmatchinfo_popup_art,
@@ -141,6 +154,8 @@ class OriginalGameTkHost:
         pmatchinfo_script_art=None,
         error_reporter=None,
         management_background=None,
+        management_header_resources=None,
+        management_text_resources=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -164,6 +179,10 @@ class OriginalGameTkHost:
         self.pmatchinfo_script_art = pmatchinfo_script_art
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
+        self.management_header_resources = management_header_resources
+        self.management_text_resources = management_text_resources
+        self.management_header_state = OriginalManagementHeaderState()
+        self._management_header_idle = None
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self.last_league_fixtures_grid_activation = None
@@ -211,6 +230,9 @@ class OriginalGameTkHost:
         return photo
 
     def _draw_first_screen(self) -> None:
+        if self._management_header_idle is not None:
+            self.root.after_cancel(self._management_header_idle)
+            self._management_header_idle = None
         view = self.presenter.snapshot()
         self.first_screen_animation.observe(view, self._first_screen_pointer)
         frame = build_original_debug_frame(view, self.first_screen_animation.frames(view))
@@ -298,6 +320,66 @@ class OriginalGameTkHost:
         self.first_screen_animation.observe(view, self._first_screen_pointer)
         if self.first_screen_animation.advance(view):
             self.redraw()
+
+    def _schedule_management_header_update(self) -> None:
+        if (
+            isinstance(self.management_header_resources, OriginalManagementHeaderResources)
+            and self._management_header_idle is None
+            and self.management_header_state.pending()
+        ):
+            self._management_header_idle = self.root.after_idle(
+                self._advance_management_header
+            )
+
+    def _advance_management_header(self) -> None:
+        self._management_header_idle = None
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            return
+        if self.management_header_state.update():
+            self.redraw()
+
+    def _draw_management_header(self) -> int:
+        resources = self.management_header_resources
+        if resources is None:
+            return 0
+        if not isinstance(resources, OriginalManagementHeaderResources):
+            raise OriginalGameHostError(
+                "Management header requires verified original header resources"
+            )
+
+        self.management_header_state.set_selected(self.pmenu_popup_active)
+        frame = self.management_header_state.source_frame()
+        count = 0
+        for overlay in management_header_overlays(resources, frame):
+            png = encode_rgba_png(
+                overlay.width,
+                overlay.height,
+                overlay.rgba,
+            )
+            self.canvas.create_image(
+                overlay.x,
+                overlay.y,
+                image=self._photo(png),
+                anchor=self.tk.NW,
+            )
+            count += 1
+
+        caption = management_header_caption_overlay(resources)
+        self.canvas.create_image(
+            caption.x,
+            caption.y,
+            image=self._photo(
+                encode_rgba_png(
+                    caption.width,
+                    caption.height,
+                    caption.rgba,
+                )
+            ),
+            anchor=self.tk.NW,
+        )
+        count += 1
+        self._schedule_management_header_update()
+        return count
 
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
@@ -393,6 +475,38 @@ class OriginalGameTkHost:
         )
         return 1
 
+    def _draw_league_tables_row_text(self, frame) -> int:
+        """Draw only the source-qualified PLeagueTableRow visible strings."""
+        if frame.presentation.panel_class != "PLeagueTables":
+            return 0
+        snapshot = frame.presentation.league_tables
+        if snapshot is None:
+            raise OriginalGameHostError(
+                "League Tables text renderer lost its source-backed snapshot"
+            )
+        resources = self.management_text_resources
+        if resources is None:
+            return 0
+        if not isinstance(resources, OriginalManagementTextResources):
+            raise OriginalGameHostError(
+                "League Tables text renderer requires verified source font resources"
+            )
+        overlays = league_tables_row_text_overlays(snapshot, resources)
+        for overlay in overlays:
+            self.canvas.create_image(
+                overlay.x,
+                overlay.y,
+                image=self._photo(
+                    encode_rgba_png(
+                        overlay.width,
+                        overlay.height,
+                        overlay.rgba,
+                    )
+                ),
+                anchor=self.tk.NW,
+            )
+        return len(overlays)
+
     def _fixtures_page_controls(self):
         if (self.active_pmatchinfo_art is not None
                 or self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
@@ -420,6 +534,15 @@ class OriginalGameTkHost:
             self.first_screen_animation.observe(view, self._first_screen_pointer)
             self._schedule_first_screen_update(view)
             return
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            x, y, width, height = HEADER_COMPOUND_RECT
+            inside_header = (
+                x <= int(event.x) < x + width
+                and y <= int(event.y) < y + height
+            )
+            self.management_header_state.set_pointer_inside(inside_header)
+            self.management_header_state.set_selected(self.pmenu_popup_active)
+            self._schedule_management_header_update()
         changed = False
         if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
                 and self.active_pmatchinfo_art is None and self.pmenu_popup_active
@@ -532,11 +655,15 @@ class OriginalGameTkHost:
                 photo = self._photo(encode_rgba_png(image.width, image.height, image.rgba))
                 self.canvas.create_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
+        header_image_count = self._draw_management_header()
         squad_image_count = self._draw_squad_top_controls(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         fixture_image_count += self._draw_fixtures_pager()
         table_image_count = self._draw_league_tables_header_art(frame)
-        panel_image_count = squad_image_count + fixture_image_count + table_image_count
+        table_text_count = self._draw_league_tables_row_text(frame)
+        panel_image_count = (
+            squad_image_count + fixture_image_count + table_image_count + table_text_count
+        )
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in (menu_render.overlays if self.pmenu_popup_active else ()):
@@ -560,12 +687,21 @@ class OriginalGameTkHost:
             if dialog_image_count
             else ""
         )
+        header_status = (
+            f"; {header_image_count} source management-header layers rendered"
+            if header_image_count
+            else ""
+        )
+        if self.management_background is not None and header_image_count:
+            shell_status = "native management base and event-2 header rendered"
+        elif self.management_background is not None:
+            shell_status = "native management base rendered; event-2 header unresolved"
+        else:
+            shell_status = "surrounding management background unresolved"
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            f"source PMenu {'rows rendered' if self.pmenu_popup_active else 'popup closed'}{panel_status}{dialog_status}; "
-            + ("native management base/header rendered; remaining shell controls unresolved"
-               if self.management_background is not None
-               else "surrounding management background unresolved")
+            f"source PMenu {'rows rendered' if self.pmenu_popup_active else 'popup closed'}"
+            f"{panel_status}{dialog_status}{header_status}; {shell_status}"
         )
 
     def redraw(self) -> None:
@@ -976,6 +1112,13 @@ def run_original_game_ui(
         resolved_source_root,
         original_executable,
     )
+    management_header_resources = load_verified_management_header_resources(
+        resolved_source_root,
+        original_executable,
+    )
+    management_text_resources = load_verified_management_text_resources(
+        resolved_source_root,
+    )
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
     pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
         runtime_repo_root,
@@ -1010,5 +1153,7 @@ def run_original_game_ui(
             runtime_repo_root, original_executable, game_dir=game_dir),
         management_background=OriginalManagementBackground(
             resolved_source_root, original_executable),
+        management_header_resources=management_header_resources,
+        management_text_resources=management_text_resources,
     )
     root.mainloop()

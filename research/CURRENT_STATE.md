@@ -6,6 +6,26 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+
+## Gate 13 CLOSED — advance to Gate 14 (5 October 2026 KST)
+
+Gate 13 now passes all four ROADMAP criteria. The final fixed slice integrates
+the source-qualified application-owned `back_4_anim/back_4` management header,
+exact MENU caption/Zurich 24px font, and source-rasterized ordinary League
+Tables row text/data on top of the already-closed Button timing, PMenu,
+Fixtures arrows, report/save/reload and PMatchInfo route.
+
+Final pre-closure-doc code head `1a3009042d547b9043235bdca2b09d87f4f024da`
+passes the Gate-13 source suite, full reconstruction suite, Windows candidate
+package and repository asset policy. Exact run IDs and private receipt hashes
+are in `GATE13_CLOSURE_AUDIT.md` and `GATE13_FINAL_MANAGEMENT_TEXT.md`.
+
+The earliest incomplete validation gate is now **Gate 14 — Original audio and
+match presentation**. Do not reopen Gate-13 capacity/report/paging/header/text
+work unless a later regression proves a concrete criterion failure. Secondary
+management pixels, Squad dynamic colors/status icons, held-repeat/thumb/shirt
+states and similar exact-fidelity refinements are Gate-15 items.
+
 ## Daniel approved the decisive native capacity probe (5 October 2026 KST)
 
 ### Fixed closure boundary: live Button implementation checkpoint

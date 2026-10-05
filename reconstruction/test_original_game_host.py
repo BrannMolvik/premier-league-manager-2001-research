@@ -38,6 +38,12 @@ from original_game_host import (
     play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_text import load_verified_management_text_resources
+from original_league_tables_presenter import build_league_tables_snapshot
+from original_management_header import (
+    HEADER_COMPOUND_RECT,
+    OriginalManagementHeaderResources,
+)
 from original_pmatchinfo_presenter import build_staged_pmatchinfo_snapshot
 from original_pmatchinfo_resources import (
     PMATCHINFO_RESOURCE_BY_NAME,
@@ -123,6 +129,42 @@ def fake_squad_top_resources():
             transparent_pixels=0,
         ),
         font,
+    )
+
+
+class FakeHeaderFont:
+    def measure_text(self, text):
+        if text != "MENU":
+            raise AssertionError(text)
+        return 20
+
+    def render_text_alpha(self, text):
+        if text != "MENU":
+            raise AssertionError(text)
+        return SimpleNamespace(
+            width=20,
+            height=5,
+            alpha=bytes([255]) * 100,
+        )
+
+
+def fake_management_header_resources():
+    return OriginalManagementHeaderResources(
+        EA444DecodedImage(
+            30,
+            4845,
+            bytes((11, 11, 11, 255)) * (30 * 4845),
+            consumed_bits=0,
+            transparent_pixels=0,
+        ),
+        EA444DecodedImage(
+            70,
+            380,
+            bytes((22, 22, 22, 255)) * (70 * 380),
+            consumed_bits=0,
+            transparent_pixels=0,
+        ),
+        FakeHeaderFont(),
     )
 
 
@@ -385,6 +427,70 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
             self.assertEqual(len(host.canvas.images), 7)
 
+    def test_management_header_draws_exact_two_bitmaps_plus_menu_caption(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+
+        count = host._draw_management_header()
+
+        self.assertEqual(count, 3)
+        self.assertEqual(len(host.canvas.images), 3)
+        self.assertEqual(host.canvas.images[0][:2], (599, 0))
+        self.assertEqual(host.canvas.images[1][:2], (629, 0))
+        self.assertEqual(host.canvas.images[2][:2], (681, 62))
+
+    def test_management_header_hover_uses_one_idle_update_per_pass(self):
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = object()
+
+        x, y, _w, _h = HEADER_COMPOUND_RECT
+        with patch.object(host, "redraw") as redraw:
+            host.on_fixtures_pager_motion(SimpleNamespace(x=x, y=y))
+            self.assertEqual(len(root.values["idle"]), 1)
+            root.run_idle()
+            redraw.assert_called_once_with()
+
+        self.assertEqual(host.management_header_state.left_subframe, 1)
+        self.assertEqual(host.management_header_state.right_subframe, 1)
+
+        with patch.object(host, "redraw") as redraw:
+            host.on_fixtures_pager_leave(None)
+            root.run_idle()
+            redraw.assert_called_once_with()
+        self.assertEqual(host.management_header_state.left_subframe, 0)
+        self.assertEqual(host.management_header_state.right_subframe, 0)
+
+    def test_management_header_selected_state_follows_open_pmenu(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        host.pmenu_popup_active = True
+        host.canvas.delete("all")
+        host._photos = []
+
+        host._draw_management_header()
+        self.assertTrue(host.management_header_state.pending())
+        host.management_header_state.update()
+        frame = host.management_header_state.source_frame()
+        self.assertEqual((frame.left_source_row, frame.right_source_row), (50, 2))
+
     def test_squad_landing_draws_only_six_source_backed_top_control_overlays(self):
         host = OriginalGameTkHost(
             presenter(),
@@ -628,6 +734,47 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(len(host.canvas.images), 1)
         self.assertEqual(len(host._photos), 1)
         self.assertEqual(host.canvas.images[0][:2], LEAGUE_TABLES_BAR_RECT[:2])
+
+    def test_league_tables_draws_source_qualified_row_text(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_text_resources=load_verified_management_text_resources(source_root),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        snapshot = build_league_tables_snapshot(
+            (
+                SimpleNamespace(
+                    position=1,
+                    club_id=0,
+                    club_name="Arsenal",
+                    played=1,
+                    wins=1,
+                    draws=0,
+                    losses=0,
+                    goals_for=2,
+                    goals_against=0,
+                    points=3,
+                ),
+            )
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueTables",
+                league_tables=snapshot,
+            )
+        )
+
+        count = host._draw_league_tables_row_text(frame)
+
+        self.assertEqual(count, 9)
+        self.assertEqual(len(host.canvas.images), 9)
+        self.assertEqual(len(host._photos), 9)
+        # Club text is left-aligned in the exact 214x12 source control.
+        self.assertEqual(host.canvas.images[1][0], 316)
 
     def test_league_tables_header_fails_closed_without_complete_staging(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
