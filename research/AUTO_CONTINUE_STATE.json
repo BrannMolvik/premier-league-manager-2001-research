@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 305,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not fabricate full-scope pass rows or promote Gate17 capability. Private source/runtime blockers remain real. This task is release-evidence contract hardening only.",
+  "note": "Private source inputs are successfully materializable from Library: original disc ZIP at /mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip and working runtime ZIP at /mnt/data/fm2001-runtime/FM2001-reconstruction-runtime-120400bd.zip. However both container.exec and python process execution fail before startup with caas.internal.errors.ClientError in this worker, so the Gate13 final-header private static trace still cannot be generated here. Do not claim a private trace/hash or original execution. Continue GitHub-only verified work until a functioning process surface exists.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
