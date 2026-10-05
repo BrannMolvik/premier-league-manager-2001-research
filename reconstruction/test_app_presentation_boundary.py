@@ -95,7 +95,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIn("'--startup-media-player-arg'", source)
         self.assertIn("SynchronousCommandStartupMediaBackend", source)
         self.assertIn("WindowsMciStartupMediaBackend", source)
-        self.assertIn("load_bundled_startup_media_derivatives", source)
+        self.assertIn("prepare_runtime_startup_media", source)
         self.assertIn("startup_media_receipt=startup_receipt", source)
         self.assertIn("startup_media_backend=startup_backend", source)
         self.assertIn("startup_media_derivatives=startup_derivatives", source)
@@ -116,9 +116,9 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         backend = object()
         with patch.object(
             app_module,
-            "load_bundled_startup_media_derivatives",
+            "prepare_runtime_startup_media",
             return_value=derivatives,
-        ) as load, patch.object(
+        ) as prepare, patch.object(
             app_module,
             "WindowsMciStartupMediaBackend",
             return_value=backend,
@@ -126,6 +126,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             receipt, selected_backend, selected_derivatives = (
                 app_module.configure_startup_media(
                     args,
+                    Path("/game"),
                     app_root=Path("/package"),
                     platform_system="Windows",
                 )
@@ -134,7 +135,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIsNone(receipt)
         self.assertIs(selected_backend, backend)
         self.assertIs(selected_derivatives, derivatives)
-        load.assert_called_once_with(Path("/package"))
+        prepare.assert_called_once_with(Path("/game"), Path("/package"))
         make_backend.assert_called_once_with(platform_system="Windows")
 
     def test_non_windows_default_does_not_invent_startup_backend(self):
@@ -146,16 +147,17 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         )
         with patch.object(
             app_module,
-            "load_bundled_startup_media_derivatives",
-        ) as load:
+            "prepare_runtime_startup_media",
+        ) as prepare:
             self.assertEqual(
                 app_module.configure_startup_media(
                     args,
+                    Path("/game"),
                     platform_system="Linux",
                 ),
                 (None, None, None),
             )
-        load.assert_not_called()
+        prepare.assert_not_called()
 
     def test_explicit_startup_player_remains_override(self):
         receipt = Path("/private/receipt.json")
@@ -172,10 +174,11 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             return_value=backend,
         ) as make_backend, patch.object(
             app_module,
-            "load_bundled_startup_media_derivatives",
-        ) as load:
+            "prepare_runtime_startup_media",
+        ) as prepare:
             selected = app_module.configure_startup_media(
                 args,
+                Path("/game"),
                 platform_system="Windows",
             )
 
@@ -184,7 +187,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             "player.exe",
             ("--fullscreen",),
         )
-        load.assert_not_called()
+        prepare.assert_not_called()
 
     def test_prototype_or_partial_override_fails_closed(self):
         prototype = SimpleNamespace(
@@ -194,7 +197,11 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             startup_media_player_arg=[],
         )
         with self.assertRaisesRegex(ValueError, "source-backed FM2001 host"):
-            app_module.configure_startup_media(prototype, platform_system="Windows")
+            app_module.configure_startup_media(
+                prototype,
+                Path("/game"),
+                platform_system="Windows",
+            )
 
         partial = SimpleNamespace(
             prototype_ui=False,
@@ -203,7 +210,11 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             startup_media_player_arg=[],
         )
         with self.assertRaisesRegex(ValueError, "requires both"):
-            app_module.configure_startup_media(partial, platform_system="Windows")
+            app_module.configure_startup_media(
+                partial,
+                Path("/game"),
+                platform_system="Windows",
+            )
 
 
 
