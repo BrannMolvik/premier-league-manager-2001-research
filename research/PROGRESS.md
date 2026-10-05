@@ -11364,3 +11364,13 @@ work may continue under the deferred-blocker policy.
 - Refused to merge diverged stacked PR #456 despite its green CI because its comparison replayed #455 implementation history. Replayed only the three intended readiness files onto current main as #459, closed #456 as superseded, and verified #459 with reconstruction run 37313356333 plus asset-policy run 37313356314.
 - Squash-merged #459 as `9c0e22c63c5c9c17953648ae4eb2619c6d9569c2`. Canonical readiness now distinguishes bounded first-screen audio/default startup media/operator-visible FastView from still-false real-Windows acceptance, broad audio semantics/integration, source FastView navigation, complete FastView fidelity and recognizable-original-workflow closure.
 - No private Windows acceptance flag was promoted. Exact next cloud-safe Gate-14 task is a strict real-Windows receipt for the already-bound normal-application first-screen press-audio path.
+
+
+## 2026-10-05 — Recovery 315 post-#460 reconciliation
+
+- Resumed from canonical main `1882ce3e36b1ded7919230319c6d7c73538a9b85`; the previous live-state task had already been completed by merged PR #460 rather than requiring reimplementation.
+- Verified PR #460 head `a5148bba1527ecf8ded85ec221998cc6949fae59` passed reconstruction run 37315028568, Windows package run 37315028421, Gate-13 presentation run 37315028868 and asset-policy run 37315028543.
+- The merged harness now gives the already-bound normal application first-screen press an exact external Windows 11 acceptance transaction: real Tk Start New Game input, canonical `menus.bnk`, source-backed `(10,0)->slot 2`, exact Windows memory-wave backend and mandatory human `YES-HEARD` confirmation. No private receipt exists, so audibility and broad login/menu audio integration remain false.
+- Re-resolved the canonical private Library ZIP by its documented identity and successfully materialized its exact 511,121,336-byte object into the current workspace. The first trivial shell/Python execution probe immediately failed with `caas.internal.errors.ClientError`; consequently no new ZIP hash, executable-byte trace or semantic source claim was made.
+- Audited later-gate critical-path work. Gate 16 is already materially prevalidated. Gate 17's procedural-secondary owner, six-user multi-human runtime and non-PL sporting-objective progression each have explicit source adjudication contracts and cannot be safely implemented by analogy while private execution is unavailable.
+- Gate 14 remains the earliest incomplete validation gate. Continue only independent source-established cloud-safe work, retain real-Windows #436/#437/#438 acceptance as external blockers, and retry the recovered private source as soon as process execution becomes healthy.
