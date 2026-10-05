@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 active. PR #454, the current-main successor to #453 for automatic provenance-tracked Windows startup FMVs, is fully green and ready to merge. After merge, update canonical state and continue the next source-backed Gate 14 closure item; keep real Windows FMV visibility/audibility, #436 launch timing and #438 Southport acceptance open until real Windows evidence exists.",
-  "last_known_main_head": "de482cabbd5bd0bac4506343d9c799d330ff9c26",
+  "active_task": "Gate 14 active. #454 is merged and canonical state now points to the next task: expose the existing completed-human resolved FastView bundle on a bounded operator-visible Tk/Windows surface without inventing a management navigation trigger or unresolved pixels/z/blend/audio/3D semantics.",
+  "last_known_main_head": "e0518fb18014ebc9f5548e4ee76f60c2007e3595",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 313,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 313 resumed from main de482cab after stale-repository-activity; PR #454 all required CI green and is the immediate merge target.",
+  "note": "Recovery 313 checkpoint after startup-FMV merge and status reconciliation; main=e0518fb18014ebc9f5548e4ee76f60c2007e3595. Beginning bounded FastView operator-surface integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
