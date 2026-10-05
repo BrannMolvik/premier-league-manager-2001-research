@@ -1803,59 +1803,89 @@ def run_original_game_ui(
         # Startup must expose the first screen promptly. Decode the much larger
         # management/report surface only after TeamSelect Start actually enters
         # MANAGEMENT, then retain the verified objects for the session.
-        pmenu_resources = load_verified_management_pmenu_resources(
-            resolved_source_root,
-            original_executable,
-        )
-        fixture_resources = validate_original_league_fixtures_resources(
-            resolved_source_root
-        )
-        league_table_resources = validate_original_league_tables_resources(
-            resolved_source_root
-        )
-        return {
-            "management_pmenu_resources": pmenu_resources,
-            "league_fixtures_grid_art": load_verified_league_fixtures_grid_art(
+        #
+        # Keep each source-backed family separately timed. External Windows
+        # traces showed this aggregate taking 16.724s, which is too opaque to
+        # choose a safe lazy-loading boundary without knowing the real hot
+        # resources.
+        with timed_stage("management.resources.pmenu"):
+            pmenu_resources = load_verified_management_pmenu_resources(
                 resolved_source_root,
                 original_executable,
-            ),
-            "fixtures_pager_art": load_verified_fixtures_pager_art(
+            )
+        with timed_stage("management.resources.fixture_contracts"):
+            fixture_resources = validate_original_league_fixtures_resources(
+                resolved_source_root
+            )
+        with timed_stage("management.resources.league_table_contracts"):
+            league_table_resources = validate_original_league_tables_resources(
+                resolved_source_root
+            )
+        with timed_stage("management.resources.league_fixtures_grid_art"):
+            league_fixtures_grid_art = load_verified_league_fixtures_grid_art(
                 resolved_source_root,
                 original_executable,
-            ),
-            "squad_top_resources": load_verified_squad_top_resources(
+            )
+        with timed_stage("management.resources.fixtures_pager_art"):
+            fixtures_pager_art = load_verified_fixtures_pager_art(
                 resolved_source_root,
                 original_executable,
-            ),
-            "league_tables_header_art": load_verified_league_tables_header_art(
+            )
+        with timed_stage("management.resources.squad_top"):
+            squad_top_resources = load_verified_squad_top_resources(
                 resolved_source_root,
                 original_executable,
-            ),
-            "pmatchinfo_snapshot": load_staged_pmatchinfo_snapshot(
+            )
+        with timed_stage("management.resources.league_tables_header"):
+            league_tables_header_art = load_verified_league_tables_header_art(
+                resolved_source_root,
+                original_executable,
+            )
+        with timed_stage("management.resources.pmatchinfo_snapshot"):
+            pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
                 runtime_repo_root,
                 original_executable,
                 require_complete_dialog=True,
-            ),
-            "pmatchinfo_font": validate_original_pmenu_font(resolved_source_root),
-            "pmatchinfo_nested_font": load_pmatchinfo_nested_font(
+            )
+        with timed_stage("management.resources.pmatchinfo_font"):
+            pmatchinfo_font = validate_original_pmenu_font(resolved_source_root)
+        with timed_stage("management.resources.pmatchinfo_nested_font"):
+            pmatchinfo_nested_font = load_pmatchinfo_nested_font(
                 resolved_source_root
-            ),
-            "pmatchinfo_script_art": load_script_row_art(
+            )
+        with timed_stage("management.resources.pmatchinfo_script_art"):
+            pmatchinfo_script_art = load_script_row_art(
                 runtime_repo_root,
                 original_executable,
                 game_dir=game_dir,
-            ),
-            "management_background": OriginalManagementBackground(
+            )
+        with timed_stage("management.resources.background"):
+            management_background = OriginalManagementBackground(
                 resolved_source_root,
                 original_executable,
-            ),
-            "management_header_resources": load_verified_management_header_resources(
+            )
+        with timed_stage("management.resources.header"):
+            management_header_resources = load_verified_management_header_resources(
                 resolved_source_root,
                 original_executable,
-            ),
-            "management_text_resources": load_verified_management_text_resources(
+            )
+        with timed_stage("management.resources.text"):
+            management_text_resources = load_verified_management_text_resources(
                 resolved_source_root,
-            ),
+            )
+        return {
+            "management_pmenu_resources": pmenu_resources,
+            "league_fixtures_grid_art": league_fixtures_grid_art,
+            "fixtures_pager_art": fixtures_pager_art,
+            "squad_top_resources": squad_top_resources,
+            "league_tables_header_art": league_tables_header_art,
+            "pmatchinfo_snapshot": pmatchinfo_snapshot,
+            "pmatchinfo_font": pmatchinfo_font,
+            "pmatchinfo_nested_font": pmatchinfo_nested_font,
+            "pmatchinfo_script_art": pmatchinfo_script_art,
+            "management_background": management_background,
+            "management_header_resources": management_header_resources,
+            "management_text_resources": management_text_resources,
             "_fixture_resource_names": tuple(
                 resource.name for resource in fixture_resources
             ),
