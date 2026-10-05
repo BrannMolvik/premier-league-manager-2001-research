@@ -7,6 +7,68 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 326 continuation — route/New-Game latency slices canonical; Gate 13 still open
+
+Canonical `main` is now `3c325a5d1d81b44d1f43da6dc53d4d1e33f988f1`.
+
+Issue #482 Phase 1 and Phase 2 are both merged and verified:
+
+- PR #483 merged as `4c045b0b75fc4d6061e06e23d8089c2a08a5c475`.
+  Fresh MANAGEMENT is route-scoped: Squad loads only PMenu, Squad top controls,
+  management background and management header; Fixtures/PMatchInfo and League
+  Tables load only on their first route entry, remain off the Tk thread, fail
+  closed on errors and are cached thereafter. Fresh post-base checks passed:
+  reconstruction `37372720405`, Gate-13 `37372720352`, asset policy
+  `37372720354` and Windows package `37372720390`.
+- PR #485 merged as `3c325a5d1d81b44d1f43da6dc53d4d1e33f988f1`.
+  Canonical New Game now verifies/parses the canonical database into a
+  TeamSelect catalog but does **not** construct GameState, the primary schedule
+  or the full gameplay world. TeamSelect renders from countries/competitions/
+  clubs in that catalog; Start materializes `HumanGameplayController` from the
+  same parsed database, so it does not parse canonical files a second time.
+  Deferred world-build failures keep TeamSelect retryable. The final head
+  `b8efab946ad8a834fabd3b3286f6a64e4efd0dae` passed Gate-13 run
+  `37376279197`, repository asset policy `37376279127`, and full
+  reconstruction run `37376279059`. The Windows package workflow is
+  path-filtered away from these files; no package-pass claim is inferred from
+  non-triggering.
+- The catalog boundary deliberately still uses the existing eager
+  `FM2001Database` parser. It removes the heavier world/schedule construction
+  from New Game without introducing a second parser. The new
+  `teamselect.catalog_build` timing should be measured on Daniel's next normal
+  Windows run before deciding whether a narrower catalog parser is warranted.
+
+Gate 13 is **not** closed. The remaining #482 acceptance blockers are:
+
+1. The fresh Squad landing still lacks the ordinary player-row renderer. Exact
+   role/name geometry and fonts are source-closed, but the player-row packed
+   color branch (`0x4EA3F0`) and display-name helper (`0x5D6C50`) remain
+   insufficiently traced. Do not substitute white or a modern palette.
+2. Cold `startup.presenter_build` previously measured 26.301 seconds. A
+   deterministic staged first-screen derivative is the preferred fix, but the
+   exact EA444 decoder inputs needed for package-independent generation are not
+   yet available as a clean-room public constant set. The authorized private
+   executable remains the source of truth.
+3. Startup FMV presentation must move from the separate top-level WPF player to
+   the source-proven game-owned 640x480 movie rectangle centered at (80,60) in
+   800x600 mode. Exact 320x480 -> 640x480 pixel expansion/interlace treatment
+   remains evidence-open.
+4. Daniel must perform a meaningful normal Windows 11 acceptance run after these
+   repairs. #482 and Gate 13 cannot close from CI alone.
+
+Private/source execution is again infrastructure-blocked: trivial container,
+notebook Python and visible Python process starts currently raise
+`caas.internal.errors.ClientError`. The authorized disc/archive and retained
+trace remain available through connected Files, but missing executable helper
+semantics must not be invented.
+
+**Exact next task:** continue the highest-priority independent Gate-13 repair
+that does not require guessed private semantics. Prefer source-safe cold-start
+derivative infrastructure/provenance work that can be completed without the
+missing decoder bytes, while periodically retrying private execution to close
+the Squad helper and decoder-input evidence. Do not start external Windows
+acceptance until the renderer/startup regressions have a meaningful candidate.
+
 ## Recovery 322 continuation — external Windows playability regression #482 reopens Gate 13
 
 Daniel's real Windows 11 hands-on run supersedes the prior Gate-13 external
