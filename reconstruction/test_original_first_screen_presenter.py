@@ -10,6 +10,7 @@ from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
 from original_button_frames import (
     OriginalButtonAtlasError,
+    OriginalButtonFrame,
     PSTARTMENU_BUTTON_ATLAS,
     TEAMSELECT_BUTTON_ATLAS,
     split_original_button_atlas,
@@ -32,7 +33,13 @@ from original_front_end_layout import (
 from original_pstartmenu_labels import prepare_original_pstartmenu_captions
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_teamselect_resources import assemble_original_teamselect_inputs
-from original_teamselect_native import TeamSelectHierarchyModel
+from original_teamselect_native import (
+    CLUB_ANIM_FRAME_SIZE,
+    CLUB_BAR_FRAME_SIZE,
+    OriginalClubHierarchyStrip,
+    OriginalTeamSelectNativeInputs,
+    TeamSelectHierarchyModel,
+)
 from test_ea_font import build_fixture
 from test_ea_language_strings import make_str
 
@@ -76,21 +83,71 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         cls.menu = assemble_original_pstartmenu_inputs(
             global_bg, menu_bg, menu_atlas, captions
         )
+        # Production hierarchy controls address the complete native source
+        # groups: animation indices 0..22 and league-bar indices 0..4. Keep the
+        # headless fixture source-complete so a real catalog snapshot exercises
+        # the same fail-closed frame lookup as production.
         anim = split_hierarchy_source_strip(
-            solid(HIERARCHY_ANIM_SPEC.frame_width,
-                  HIERARCHY_ANIM_SPEC.frame_height,
-                  (18, 19, 20, 255)),
+            solid(
+                HIERARCHY_ANIM_SPEC.frame_width,
+                HIERARCHY_ANIM_SPEC.frame_height * 23,
+                (18, 19, 20, 255),
+            ),
             HIERARCHY_ANIM_SPEC,
         )
         bars = split_hierarchy_source_strip(
-            solid(HIERARCHY_BARS_SPEC.frame_width,
-                  HIERARCHY_BARS_SPEC.frame_height,
-                  (21, 22, 23, 255)),
+            solid(
+                HIERARCHY_BARS_SPEC.frame_width,
+                HIERARCHY_BARS_SPEC.frame_height * 5,
+                (21, 22, 23, 255),
+            ),
             HIERARCHY_BARS_SPEC,
         )
+        fixture_font = EAFont.from_bytes(build_fixture())
+        club_anim_width, club_anim_height = CLUB_ANIM_FRAME_SIZE
+        club_bar_width, club_bar_height = CLUB_BAR_FRAME_SIZE
+        club_animation = OriginalClubHierarchyStrip(
+            "fixture/choice_team_but_anim.444",
+            club_anim_height * 23 + 1,
+            club_anim_width,
+            club_anim_height,
+            tuple(
+                OriginalButtonFrame(
+                    club_anim_width,
+                    club_anim_height,
+                    bytes((24, 25, 26, 255))
+                    * (club_anim_width * club_anim_height),
+                )
+                for _ in range(23)
+            ),
+            1,
+        )
+        club_bars = OriginalClubHierarchyStrip(
+            "fixture/choice_team_but_bars.444",
+            club_bar_height * 4,
+            club_bar_width,
+            club_bar_height,
+            tuple(
+                OriginalButtonFrame(
+                    club_bar_width,
+                    club_bar_height,
+                    bytes((27, 28, 29, 255))
+                    * (club_bar_width * club_bar_height),
+                )
+                for _ in range(4)
+            ),
+        )
         cls.team = assemble_original_teamselect_inputs(
-            global_bg, team_bg, team_atlas,
+            global_bg,
+            team_bg,
+            team_atlas,
             OriginalTeamSelectHierarchyArt(anim, bars),
+            OriginalTeamSelectNativeInputs(
+                club_animation,
+                club_bars,
+                fixture_font,
+                fixture_font,
+            ),
         )
 
     def presenter(self):
@@ -158,6 +215,71 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
 
         presenter.snapshot()
         self.assertEqual(loads, ["team"])
+
+    def test_teamselect_snapshot_can_render_from_catalog_before_gameplay_exists(self):
+        country_order = (
+            (26, "England"), (66, "Scotland"), (33, "Germany"),
+            (40, "Italy"), (73, "Spain"), (31, "France"),
+            (24, "Holland"), (9, "Belgium"),
+        )
+        countries = tuple(
+            SimpleNamespace(id=key, name=name)
+            for key, name in country_order
+        )
+        competitions = (
+            SimpleNamespace(
+                id=0,
+                name="F.A. Premier League",
+                initialization_order_value=9,
+                country_region_id=26,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+            ),
+        )
+        clubs = (
+            SimpleNamespace(index=0, name="Arsenal", competition_id=0),
+            SimpleNamespace(index=1, name="Aston Villa", competition_id=0),
+        )
+        catalog = SimpleNamespace(
+            countries=countries,
+            competitions=competitions,
+            clubs=clubs,
+        )
+        gameplay_builds = []
+
+        session = FrontEndSession(
+            lambda: (_ for _ in ()).throw(
+                AssertionError("fallback gameplay factory must stay unused")
+            ),
+            team_select_catalog_factory=lambda: catalog,
+            gameplay_from_catalog_factory=lambda source: (
+                gameplay_builds.append(source) or StubBackend()
+            ),
+        )
+        presenter = OriginalFirstScreenPresenter(session, self.menu, self.team)
+
+        presenter.pointer(7, 478)
+        self.assertIsNone(session.gameplay)
+        self.assertIs(session.team_select_catalog, catalog)
+        self.assertEqual(gameplay_builds, [])
+
+        view = presenter.snapshot()
+        self.assertIs(view.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertTrue(view.hierarchy_rows)
+        self.assertEqual(
+            tuple(item.text for item in view.club_rows),
+            ("Arsenal", "Aston Villa"),
+        )
+        self.assertIsNone(session.gameplay)
+
+        presenter.choose_club(0)
+        outcome = presenter.pointer(426, 301)
+        self.assertIs(
+            outcome.transition.command,
+            FrontEndCommand.TEAMSELECT_START_CONTINUE,
+        )
+        self.assertEqual(gameplay_builds, [catalog])
+        self.assertIsNotNone(session.gameplay)
 
     def test_pointer_integrates_menu_teamselect_and_manager_start_boundary(self):
         presenter, built = self.presenter()
