@@ -34,12 +34,24 @@ RELEASE_ARCHIVE_BYTES = b"release bytes"
 RELEASE_ARCHIVE_SHA256 = sha256(RELEASE_ARCHIVE_BYTES).hexdigest()
 
 
+AUDIT_KIND_BY_RECEIPT = {
+    "clean_windows_install": "gate17_clean_windows_install",
+    "new_game_management_loop": "gate17_new_game_management_loop",
+    "season_progression": "gate17_season_progression",
+    "save_reload": "gate17_save_reload",
+    "full_original_scope": "gate17_full_original_scope",
+}
+
+
 def write_receipt(path, **flags):
+    name = Path(path).stem
     payload = {
         "passed": True,
+        "audit_kind": AUDIT_KIND_BY_RECEIPT[name],
         "repository_commit": COMMIT,
         "release_version": RELEASE_VERSION,
         "release_archive_sha256": RELEASE_ARCHIVE_SHA256,
+        "release_archive_size": len(RELEASE_ARCHIVE_BYTES),
         "windows_11": True,
         "windows_build": 26200,
         "windows_product_type": 1,
@@ -284,6 +296,35 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "outside_development_environment",
             ):
                 validate_external_receipts(evidence, repo)
+
+    def test_external_receipt_kind_and_archive_size_fail_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "save_reload"
+            path = Path(raw["external_receipts"][name]["path"])
+
+            cases = (
+                ("audit_kind", "gate17_other", "audit_kind"),
+                ("release_archive_size", len(RELEASE_ARCHIVE_BYTES) + 1, "release_archive_size"),
+                ("release_archive_size", True, "release_archive_size"),
+            )
+            for field, value, message in cases:
+                with self.subTest(field=field, value=value):
+                    payload = json.loads(path.read_text(encoding="utf-8"))
+                    payload[field] = value
+                    path.write_text(json.dumps(payload), encoding="utf-8")
+                    raw["external_receipts"][name]["sha256"] = sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    with self.assertRaisesRegex(ReleaseReadinessError, message):
+                        validate_external_receipts(
+                            parse_release_evidence(raw),
+                            repo,
+                        )
+                    raw["external_receipts"][name]["sha256"] = write_receipt(
+                        path,
+                        save_reload=True,
+                    )
 
     def test_external_receipt_host_metadata_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
