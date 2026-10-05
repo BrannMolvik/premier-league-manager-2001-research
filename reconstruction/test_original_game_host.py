@@ -304,12 +304,23 @@ class FakeCanvas(FakeWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.images = []
+        self.delete_count = 0
+        self.itemconfigure_count = 0
 
     def delete(self, *args):
+        self.delete_count += 1
         self.images = []
 
     def create_image(self, x, y, **kwargs):
         self.images.append((x, y, kwargs))
+        return len(self.images)
+
+    def itemconfigure(self, item_id, **kwargs):
+        self.itemconfigure_count += 1
+        x, y, current = self.images[item_id - 1]
+        updated = dict(current)
+        updated.update(kwargs)
+        self.images[item_id - 1] = (x, y, updated)
 
 
 class FakeTk:
@@ -487,6 +498,22 @@ class OriginalGameHostTests(unittest.TestCase):
             if len(key) >= 2 and key[1] == "background"
         ]
         self.assertEqual(backgrounds, [(FrontEndScreen.START_MENU, "background")])
+
+    def test_first_screen_idle_animation_does_not_rebuild_canvas(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        overlay = host.first_screen_frame.original_source_frame_overlays[0]
+        before_delete_count = host.canvas.delete_count
+        before_items = len(host.canvas.images)
+
+        host.on_fixtures_pager_motion(
+            SimpleNamespace(x=overlay.rect.x, y=overlay.rect.y)
+        )
+        root.run_idle()
+
+        self.assertEqual(host.canvas.delete_count, before_delete_count)
+        self.assertEqual(len(host.canvas.images), before_items)
+        self.assertGreater(host.canvas.itemconfigure_count, 0)
 
     def test_source_idle_hover_advances_and_retreats_one_frame_per_pass(self):
         root = FakeRoot()
