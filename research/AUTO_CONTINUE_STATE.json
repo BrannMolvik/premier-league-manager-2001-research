@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 Recovery 316: PR #462 merged at 774629a9; finish verification/merge of PR #461 on current main, then audit the existing Gate-17 full-scope blockers for independent source-backed work while private process execution remains blocked.",
-  "last_known_main_head": "774629a983780bf35e4d4736968d4cca20fd0c0e",
+  "active_task": "Gate 14 remains earliest incomplete. PRs #462 and #461 are canonical; verify/merge PR #463 post-Gate13 Gates 15-17 readiness reconciliation, then checkpoint canonical state and continue only source-established work while private execution and real-Windows receipts remain blocked.",
+  "last_known_main_head": "53b8ad95389fc1c9226d47a5a07863e8ca875507",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 316,
   "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 316 checkpoint: #462 external Windows acceptance coordinator merged after green reconstruction 37320506035 and asset policy 37320506527. #461 remains open with reconstruction CI still resolving.",
+  "note": "Recovery 315 heartbeat: main 53b8ad95 after #462/#461. PR #463 open; no Gate14 completion claim. Private source materialized but shell and notebook execution still fail with caas ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
