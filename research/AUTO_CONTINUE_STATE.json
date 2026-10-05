@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #467 head 61a1690f is the exact active cloud-safe task. Asset policy is green; wait only for one terminal successful current-head reconstruction run, then merge, reconcile stale source_execution_blocker metadata, and continue the next canonical task.",
-  "last_known_main_head": "96fb6d77a71f5cca6dc2b510bdd391fd8be27dc3",
+  "active_task": "Gate 14 private source remains blocked by Recovery-318 caas ClientError. PR #467 is merged/verified and main reconciled. Current cloud-safe task: Gate-17 bundled FFmpeg provenance/license fail-closed packaging audit; pin/identify the shipped binary and require corresponding third-party material without claiming legal sufficiency by inference.",
+  "last_known_main_head": "3115c28345c2c2144ff6096aaf6d41cd7423a2fd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 318,
   "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 318 resumed without restarting completed work. Main 96fb6d77; PR #467 current head 61a1690f; asset policy green; duplicate current-head reconstruction runs exist due final docs update.",
+  "note": "Recovery 318 canonical through PR #467 and main 3115c283. Top-level source_execution_blocker is current. Next: bundled imageio-ffmpeg/Gyan FFmpeg release provenance/license guard.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
