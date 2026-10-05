@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 297,
+  "recovery_generation": 298,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #396 merged as dbf9a136. GoalFlash is now an explicit complete-frame blocker until absolute placement and rasterization are recovered. Continue ScoreCompositeMain source/omission contract from already canonical outer-order evidence; process sandbox still blocks new executable adjudication.",
+  "note": "Recovery generation 298: resumed from canonical main dbf9a136. Gate 13 remains earliest incomplete with native paging qualification blocked by unavailable private execution. Continue the exact disjoint Gate-14 cloud-safe task already recorded: ScoreCompositeMain outer topology/registration/position contract and omission-readiness integration, keeping branch semantics, geometry/content, absolute placement and rasterization fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
