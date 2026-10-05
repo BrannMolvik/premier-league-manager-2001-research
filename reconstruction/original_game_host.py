@@ -16,6 +16,10 @@ from __future__ import annotations
 from base64 import b64encode
 from pathlib import Path
 from original_management_background import OriginalManagementBackground
+from original_fixtures_pager import (
+    OriginalFixturesPagerArt, fixtures_page_controls, fixtures_page_press,
+    load_verified_fixtures_pager_art,
+)
 from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_summary_lines, summary_line_pixels,
     ordinary_pmatchinfo_pitch_pixels,
@@ -64,6 +68,7 @@ from original_pmatchinfo_presenter import (
     load_staged_pmatchinfo_snapshot,
 )
 from original_pmenu_activation import resolve_pmenu_pointer_press
+from original_pmenu_popup import pmenu_open_press, pmenu_app_pointer_dismiss
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
@@ -126,6 +131,7 @@ class OriginalGameTkHost:
         management_presenter_factory=None,
         management_pmenu_resources=None,
         league_fixtures_grid_art=None,
+        fixtures_pager_art=None,
         squad_top_resources=None,
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
@@ -145,6 +151,10 @@ class OriginalGameTkHost:
         self.management_presenter = None
         self.management_pmenu_resources = management_pmenu_resources
         self.league_fixtures_grid_art = league_fixtures_grid_art
+        self.fixtures_pager_art = fixtures_pager_art
+        self.fixtures_pager_flags = {-1: 0x183, 1: 0x183}
+        # PMenu is pushed by application event 2, not a permanent panel layer.
+        self.pmenu_popup_active = False
         self.squad_top_resources = squad_top_resources
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
@@ -177,6 +187,8 @@ class OriginalGameTkHost:
         self.canvas.bind("<Button-3>", self.on_fixture_report_press)
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<ButtonRelease-1>", self.on_script_arrow_release)
+        self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
+        self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
 
     def _show_transition_error(self, message: str) -> None:
@@ -359,6 +371,46 @@ class OriginalGameTkHost:
         )
         return 1
 
+    def _fixtures_page_controls(self):
+        if (self.active_pmatchinfo_art is not None
+                or self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
+                or self.management_presenter is None
+                or not isinstance(self.fixtures_pager_art, OriginalFixturesPagerArt)):
+            return ()
+        snapshot = self.management_presenter.snapshot()
+        if snapshot.panel_class != 'PLeagueFixtures' or snapshot.league_fixtures is None:
+            return ()
+        return fixtures_page_controls(self.management_presenter.league_fixtures_column_offset,
+            len(snapshot.league_fixtures.member_club_ids), self.fixtures_pager_flags)
+
+    def _draw_fixtures_pager(self):
+        controls = self._fixtures_page_controls()
+        for control in controls:
+            image = self._photo(encode_rgba_png(27, 18, self.fixtures_pager_art.pixels(control)))
+            self.canvas.create_image(*control.rect[:2], image=image, anchor=self.tk.NW)
+        return len(controls)
+
+    def on_fixtures_pager_motion(self, event):
+        changed = False
+        if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+                and self.active_pmatchinfo_art is None and self.pmenu_popup_active
+                and pmenu_app_pointer_dismiss(int(event.x), int(event.y))):
+            self.pmenu_popup_active = False
+            changed = True
+        for control in self._fixtures_page_controls():
+            x, y, w, h = control.rect
+            old = self.fixtures_pager_flags[control.direction]
+            inside = (not self.pmenu_popup_active
+                      and x <= int(event.x) < x+w and y <= int(event.y) < y+h)
+            new = old | 8 if inside else old & ~8
+            self.fixtures_pager_flags[control.direction] = new
+            changed |= old != new
+        if changed:
+            self.redraw()
+
+    def on_fixtures_pager_leave(self, event):
+        self.on_fixtures_pager_motion(type('Outside', (), {'x': -1, 'y': -1})())
+
     def _draw_pmatchinfo_dialog(self) -> int:
         """Draw the popup and source-closed ordinary summary/default pitch."""
         art = self.active_pmatchinfo_art
@@ -450,11 +502,12 @@ class OriginalGameTkHost:
 
         squad_image_count = self._draw_squad_top_controls(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
+        fixture_image_count += self._draw_fixtures_pager()
         table_image_count = self._draw_league_tables_header_art(frame)
         panel_image_count = squad_image_count + fixture_image_count + table_image_count
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
-        for overlay in menu_render.overlays:
+        for overlay in (menu_render.overlays if self.pmenu_popup_active else ()):
             art = self._photo(overlay.png)
             self.canvas.create_image(
                 menu_x + overlay.x,
@@ -477,7 +530,7 @@ class OriginalGameTkHost:
         )
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            f"source PMenu rows rendered{panel_status}{dialog_status}; "
+            f"source PMenu {'rows rendered' if self.pmenu_popup_active else 'popup closed'}{panel_status}{dialog_status}; "
             + ("native management base/header rendered; remaining shell controls unresolved"
                if self.management_background is not None
                else "surrounding management background unresolved")
@@ -574,7 +627,9 @@ class OriginalGameTkHost:
         self.last_status = (
             "Applied source-accepted League Fixtures page transition: "
             f"{activation.previous_offset} -> {activation.column_offset}; "
-            "ordinary page-button pointer mapping remains fail-closed"
+            + ("ordinary page-button pointer mapping remains fail-closed without verified art"
+               if self.fixtures_pager_art is None
+               else "ordinary page-button pointer mapping is separately source-qualified")
         )
         return activation
 
@@ -646,11 +701,14 @@ class OriginalGameTkHost:
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
 
         Opening requires the native captured-report owner, not completion or a
-        score. Current backend capture production remains incomplete, so an
-        ordinary uncaptured fixture is still a source-compatible no-op.
+        score. The complete ordinary producer publishes explicit owner/link
+        state; an uncaptured fixture is still a source-compatible no-op.
         """
         if (self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
                 or self.active_pmatchinfo_art is not None):
+            return
+        if self.pmenu_popup_active:
+            self.last_status = 'PMenu popup owns input; fixture report press blocked'
             return
         if self.management_presenter is None:
             self.management_presenter = self.management_presenter_factory(self.presenter.session)
@@ -679,6 +737,11 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_script_arrow_release(self, event) -> None:
+        pager_changed = any(flags & 0x10 for flags in self.fixtures_pager_flags.values())
+        self.fixtures_pager_flags = {direction: flags & ~0x10
+                                    for direction, flags in self.fixtures_pager_flags.items()}
+        if pager_changed:
+            self.redraw()
         # 64F860 -> 64F470(0) clears bit4; no second scroll on release.
         if self.pmatchinfo_script_pressed is not None:
             self.pmatchinfo_script_pressed = None
@@ -719,13 +782,29 @@ class OriginalGameTkHost:
                     self.presenter.session
                 )
             frame = build_management_canvas_frame(self.management_presenter)
-            candidate = candidate_pmenu_row_at_screen_point(
+            if pmenu_open_press(int(event.x), int(event.y), active=self.pmenu_popup_active):
+                self.pmenu_popup_active = True
+                self.redraw()
+                self.last_status += '; native application event 2: PMenu popup opened'
+                return
+            page = (None if self.pmenu_popup_active else fixtures_page_press(
+                self._fixtures_page_controls(), int(event.x), int(event.y)))
+            if page is not None:
+                self.fixtures_pager_flags[page.direction] |= 0x10
+                activation = self.management_presenter.source_accepted_league_fixtures_page(page.direction)
+                self.redraw()
+                self.last_status = f'League Fixtures native event {page.event_id}: offset {activation.column_offset}'
+                return
+            candidate = (candidate_pmenu_row_at_screen_point(
                 frame.presentation.menu,
                 int(event.x),
                 int(event.y),
-            )
+            ) if self.pmenu_popup_active else None)
             if candidate is None:
                 self.last_pmenu_activation = None
+                if self.pmenu_popup_active:
+                    self.last_status = 'PMenu popup owns input; no source-bounded PMenu candidate row'
+                    return
                 try:
                     grid = self.management_presenter.league_fixtures_grid_pointer_press(
                         int(event.x),
@@ -889,6 +968,7 @@ def run_original_game_ui(
         ),
         management_pmenu_resources=pmenu_resources,
         league_fixtures_grid_art=fixture_grid_art,
+        fixtures_pager_art=load_verified_fixtures_pager_art(resolved_source_root, original_executable),
         squad_top_resources=squad_top_resources,
         league_tables_header_art=league_tables_header_art,
         pmatchinfo_snapshot=pmatchinfo_snapshot,

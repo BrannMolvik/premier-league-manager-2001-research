@@ -310,6 +310,9 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
+            self.assertFalse(host.pmenu_popup_active)
+            self.assertEqual(len(host.canvas.images), 6)
+            host.on_click(SimpleNamespace(x=600, y=1))
             self.assertEqual(len(host.canvas.images), 7)
             self.assertIn("source PMenu rows rendered", host.last_status)
             self.assertIn("6 source panel bitmaps rendered", host.last_status)
@@ -428,6 +431,7 @@ class OriginalGameHostTests(unittest.TestCase):
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
+            host.on_click(SimpleNamespace(x=600, y=1))
             self.assertEqual(len(host.canvas.images), 7)
 
             activation = host.apply_source_accepted_squad_view(4)

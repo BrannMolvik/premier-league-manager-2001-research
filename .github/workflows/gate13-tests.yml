@@ -12,6 +12,7 @@ on:
       - "reconstruction/gate13_*.py"
       - "original_assets/source/reused_art/generic/main_menu_windows_buttons.png"
       - "original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/*scroll_end.444"
+      - "original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/toogle_arrow_*.444"
       - "reconstruction/ea444_header.py"
       - "reconstruction/ea444_bits.py"
       - "reconstruction/ea444_tables.py"
@@ -62,6 +63,10 @@ on:
       - "reconstruction/original_management_canvas.py"
       - "reconstruction/test_original_management_canvas.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/original_fixtures_pager.py"
+      - "reconstruction/test_original_fixtures_pager.py"
+      - "reconstruction/original_pmenu_popup.py"
+      - "reconstruction/test_original_pmenu_popup.py"
       - "reconstruction/original_fixture_match_info_link.py"
       - "reconstruction/original_fixture_report_capture.py"
       - "reconstruction/complete_fixture_report.py"
@@ -185,6 +190,8 @@ jobs:
             test_original_management_presenter \
             test_original_management_canvas \
             test_original_game_host \
+            test_original_fixtures_pager \
+            test_original_pmenu_popup \
             test_original_fixture_match_info_link \
             test_original_fixture_report_capture \
             test_complete_fixture_report \

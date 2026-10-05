@@ -439,7 +439,8 @@ def expected_clean_host_photo_dimensions(host, resources) -> list[list[int]]:
             )
         expected.append([art.width, art.height])
 
-    expected.extend(expected_management_pmenu_photo_dimensions(frame, resources))
+    if getattr(host, 'pmenu_popup_active', True):
+        expected.extend(expected_management_pmenu_photo_dimensions(frame, resources))
 
     popup = getattr(host, "active_pmatchinfo_art", None)
     if popup is not None:
@@ -877,6 +878,12 @@ def run_real_windows_graphical_audit(
                 raise WindowsFirstScreenAuditError(
                     "Default clean host did not construct its PMenu presenter"
                 )
+            if clean_host.pmenu_popup_active:
+                raise WindowsFirstScreenAuditError('PMenu must not be a permanent initial overlay')
+            clean_host.canvas.event_generate('<Button-1>', x=600, y=1)
+            _pump(root)
+            if not clean_host.pmenu_popup_active:
+                raise WindowsFirstScreenAuditError('Native application event 2 did not open PMenu')
             clean_frame = build_management_canvas_frame(
                 clean_host.management_presenter
             )
@@ -1021,6 +1028,10 @@ def run_real_windows_graphical_audit(
             fixture_cell = next(cell for cell in
                                 clean_host.management_presenter.snapshot().league_fixtures.cells
                                 if cell.fixture_id is not None)
+            clean_host.canvas.event_generate('<Motion>', x=523, y=214)
+            _pump(root)
+            if clean_host.pmenu_popup_active:
+                raise WindowsFirstScreenAuditError('Native pointer dismissal left PMenu above Fixtures')
             clean_host.canvas.event_generate(
                 "<Button-3>", x=378 + fixture_cell.column * 29,
                 y=235 + fixture_cell.row * 14)
@@ -1029,6 +1040,11 @@ def run_real_windows_graphical_audit(
                 clean_host.last_status != 'Native fixture report unavailable; no score-derived context'
             ):
                 raise WindowsFirstScreenAuditError('Uncaptured native right-press fabricated a report')
+
+            # Restore the explicitly open menu stack used by this bitmap audit;
+            # the separately retained genuine-away proof uses a closed menu.
+            clean_host.canvas.event_generate('<Button-1>', x=600, y=1)
+            _pump(root)
 
             match_info_action = clean_host.apply_source_accepted_fixture_match_info(
                 fixture_present=True,
