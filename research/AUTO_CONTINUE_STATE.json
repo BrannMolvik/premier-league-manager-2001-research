@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. GoalFlash omission-readiness guard merged on main at dbf9a136 after reconstruction run 37255589665 passed 2,373 tests / 23 expected skips and asset-policy run 37255589792 passed. Private shell/Python execution still fails caas.internal.errors.ClientError, so new executable-byte GoalFlash semantics remain deferred. Continue disjoint Gate-14 cloud-safe work on the next canonical omitted visible outer family, ScoreCompositeMain: encode its exact one-instance three-branch constructor topology, five outer registrations and source-order position while keeping branch selector semantics, control geometry/content, absolute placement and pixels fail-closed; integrate omission into Gate-14 readiness and verify without touching Gate 13.",
-  "last_known_main_head": "dbf9a136f15c5d1d005f5ec95341cae4eb506d91",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. PR #397 merged on main at 88df6b1435bf19b4599440f539f94c9cdf8ecfd3 after reconstruction run 37257655293 passed 2,379 tests / 23 expected skips and asset-policy run 37257655235 passed. Continue disjoint Gate-14 cloud-safe work on the next canonical omitted visible outer family: the four embedded FastView controls at parent +0x388/+0x3D4 and post-team +0x424/+0x478. Encode only their source-proven registration/constructor/order topology; keep semantics, geometry, resource identity, state behavior and pixels fail-closed; add omission-readiness blockers without touching Gate 13.",
+  "last_known_main_head": "88df6b1435bf19b4599440f539f94c9cdf8ecfd3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 298,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 298: resumed from canonical main dbf9a136. Gate 13 remains earliest incomplete with native paging qualification blocked by unavailable private execution. Continue the exact disjoint Gate-14 cloud-safe task already recorded: ScoreCompositeMain outer topology/registration/position contract and omission-readiness integration, keeping branch semantics, geometry/content, absolute placement and rasterization fail-closed.",
+  "note": "PR #397 merged cleanly. ScoreCompositeMain topology is now canonical while its geometry/rasterization remain explicit blockers. Next disjoint task is the four outer embedded controls already proven by the exhaustive outer draw trace; private native execution remains unavailable, so do not invent their missing geometry/content.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
