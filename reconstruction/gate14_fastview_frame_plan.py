@@ -171,17 +171,22 @@ def build_fastview_frame_plan(
         team_text,
         shell.player_row_render_plans,
     )
+    component_kwargs = {"score_table": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            component_kwargs[name] = value
     component_rasters = build_fastview_component_rasters(
         chrome,
         possession,
         figures,
         player_rows,
-        score_table=score_table_static,
-        score_draw_phases=score_draw_phases,
-        score_phase_text=score_phase_text,
-        clock=clock,
-        direct_header=direct_header,
-        surfaced=surfaced,
+        **component_kwargs,
     )
 
     resolved_composite = compose_fastview_resolved_only_pixels(component_rasters)
