@@ -102,6 +102,10 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must not enable third-party libraries: " + ", ".join(external_flags)
         )
+    if "--enable-mediafoundation" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must explicitly re-enable Windows Media Foundation"
+        )
     if "--enable-demuxer=ea" not in args:
         raise MinimalFfmpegSourceContractError("minimal helper must enable the EA demuxer")
     if "--enable-encoder=h264_mf,aac" not in args:
