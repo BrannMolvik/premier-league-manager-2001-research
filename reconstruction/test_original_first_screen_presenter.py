@@ -83,16 +83,24 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         cls.menu = assemble_original_pstartmenu_inputs(
             global_bg, menu_bg, menu_atlas, captions
         )
+        # Production hierarchy controls address the complete native source
+        # groups: animation indices 0..22 and league-bar indices 0..4. Keep the
+        # headless fixture source-complete so a real catalog snapshot exercises
+        # the same fail-closed frame lookup as production.
         anim = split_hierarchy_source_strip(
-            solid(HIERARCHY_ANIM_SPEC.frame_width,
-                  HIERARCHY_ANIM_SPEC.frame_height,
-                  (18, 19, 20, 255)),
+            solid(
+                HIERARCHY_ANIM_SPEC.frame_width,
+                HIERARCHY_ANIM_SPEC.frame_height * 23,
+                (18, 19, 20, 255),
+            ),
             HIERARCHY_ANIM_SPEC,
         )
         bars = split_hierarchy_source_strip(
-            solid(HIERARCHY_BARS_SPEC.frame_width,
-                  HIERARCHY_BARS_SPEC.frame_height,
-                  (21, 22, 23, 255)),
+            solid(
+                HIERARCHY_BARS_SPEC.frame_width,
+                HIERARCHY_BARS_SPEC.frame_height * 5,
+                (21, 22, 23, 255),
+            ),
             HIERARCHY_BARS_SPEC,
         )
         fixture_font = EAFont.from_bytes(build_fixture())
