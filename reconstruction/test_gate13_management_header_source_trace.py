@@ -5,6 +5,7 @@ import struct
 import tempfile
 import unittest
 
+from ea_language_strings import parse_language_pair
 from gate13_button_source_trace import OriginalPETraceError
 from gate13_management_header_source_trace import (
     HEADER_ART,
@@ -102,6 +103,17 @@ class Gate13ManagementHeaderSourceTraceTests(unittest.TestCase):
             spec["sha256"] = "0" * 64
             with self.assertRaisesRegex(ValueError, "SHA-256"):
                 _resource_record(root, spec)
+
+    def test_caption_candidate_2497_resolves_from_proven_original_language_pair(self):
+        root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        strings, index = parse_language_pair(
+            (root / "English.str").read_bytes(),
+            (root / "English.idx").read_bytes(),
+        )
+        caption = index.resolve(strings, 2497)
+        print(f"GATE13_HEADER_CAPTION_ENTRY_2497={caption!r}")
+        self.assertIsInstance(caption, str)
+        self.assertTrue(caption)
 
     def test_header_assets_are_pinned_to_only_the_two_handoff_resources(self):
         self.assertEqual(
