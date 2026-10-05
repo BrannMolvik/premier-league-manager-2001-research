@@ -46,9 +46,16 @@ HEADER_FONT_PATH = "Fonts/Zurich_XCn_BT_24pixel.fnt"
 HEADER_WINDOWS = (
     ("management header compound constructor", 0x4313B0, 0x180),
     ("management header caption setup", 0x431480, 0x120),
+    ("header resource loader xrefs", 0x5FA640, 0x280),
+    ("Zurich 24px font loader/binding", 0x604554, 0x180),
+    ("header font-object loader continuation", 0x6047F0, 0x180),
+    ("English caption loader xref", 0x64AA80, 0x180),
+    ("shared picture source-frame mapper", 0x652780, 0x160),
+    ("shared picture setup core", 0x6528D0, 0x100),
     ("shared header picture/control setup", 0x652940, 0x180),
     ("shared header text setup", 0x652980, 0x180),
-    ("Zurich 24px font loader/binding", 0x604554, 0x180),
+    ("shared picture state selector continuation", 0x652A90, 0x120),
+    ("shared picture update predicate", 0x652F80, 0x120),
 )
 HEADER_DATA_OBJECTS = (
     ("left header descriptor", 0x943A90, 0x40),
