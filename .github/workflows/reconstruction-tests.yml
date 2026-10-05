@@ -71,6 +71,8 @@ on:
       - "reconstruction/test_startup_media_runtime_cache.py"
       - "reconstruction/startup_media_windows_backend.py"
       - "reconstruction/test_startup_media_windows_backend.py"
+      - "reconstruction/gate14_windows_startup_media_audit.py"
+      - "reconstruction/test_gate14_windows_startup_media_audit.py"
       - "reconstruction/match_presentation_feed.py"
       - "reconstruction/test_match_presentation_feed.py"
       - "reconstruction/human_match_presentation.py"
