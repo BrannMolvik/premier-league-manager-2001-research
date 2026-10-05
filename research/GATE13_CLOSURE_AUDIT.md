@@ -2,6 +2,41 @@
 
 _Audit refreshed: 5 October 2026 KST_
 
+## Final criterion-by-criterion closure decision: CLOSED
+
+Gate 13 passes all four ROADMAP completion criteria on the final bounded
+management-presentation slice. This decision supersedes every older OPEN/PARTIAL
+checkpoint retained below as historical chronology.
+
+Final Gate-13 branch head before closure-doc updates:
+`1a3009042d547b9043235bdca2b09d87f4f024da`.
+
+| ROADMAP criterion | Final result | Closure evidence |
+| --- | --- | --- |
+| Simulation logic remains separated from presentation | **PASS** | Existing separation audit remains intact. The final header/text work is confined to presentation/resource adapters and consumes immutable management snapshots rather than duplicating simulation logic. |
+| Accessible original graphics/resources and recoverable layout/navigation data are reused | **PASS** | Exact `back_4_anim.444`, `back_4.444`, Zurich 24px header font, League Tables art/fonts, Fixtures arrows, PMenu/TeamSelect/management assets and recovered geometry/navigation are checksum-gated and provenance-tracked under `original_assets/`. No substitute pixels are used for the final required header/table slice. |
+| Main-menu/login presentation, screen structure/navigation/timing closely follow the original | **PASS** | First-screen Button owner/update cadence is source-qualified and uses serialized idle passes rather than an invented fixed-ms timer. The application-owned event-2 management header now uses its recovered 26/1/0 and 2/1/1 state groups, exact MENU caption/font/rect, and the existing source-backed navigation/popup lifecycle. |
+| Normal play is recognizably FM2001 rather than a generic replacement | **PASS** | Fresh Squad/PMenu management shell, source-backed Fixtures/report workflow, League Tables source art plus native row typography/data, original management background/header, original popup/report resources, and ordinary human-away calculate/save/fresh-reload/right-click PMatchInfo route are live together in the 800x600 host. |
+
+Final private source identities:
+- canonical archive SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`;
+- canonical executable SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`;
+- final management trace SHA-256 `7fdf1a539a2a5da916afc81e634d0ac399e92e461e8f200be82b54880dc63ae4`;
+- approved three-asset bundle SHA-256 `70addedecfda3a0212bd2e4b0f06f9409861335dee310f88f835ac4721dcff32`.
+
+Final automated validation at `1a300904...`:
+- Gate 13 presentation source tests: **PASS** (run 37280201762);
+- Reconstruction test suite: **PASS** (run 37280201972);
+- Windows release-candidate package: **PASS** (run 37280201780);
+- Repository asset policy: **PASS** (run 37280201967).
+
+The final ordinary management text adjudication is recorded in
+`GATE13_FINAL_MANAGEMENT_TEXT.md`. Squad dynamic color/status-icon refinements,
+minor pixels, held-repeat/thumb/shirt secondary states and other non-blocking
+exact-fidelity details remain fail-closed and move to Gate 15; they are not
+Gate-13 blockers under the fixed closure slice.
+
+
 ## Current criterion-by-criterion closure decision: OPEN
 
 This section supersedes the historical probe next-actions below. The native
