@@ -62,6 +62,9 @@ BACKGROUND_RESOURCE_SLOT_VARIANT_KEY_OFFSET = 0x10
 BACKGROUND_RESOURCE_SLOT_OBJECT_OFFSET = 0x18
 
 DBRCLUB_BACKGROUND_TIER_SOURCE_OFFSET = 0x70
+COMPACT_CLUB_READER_VA = 0x4022D0
+RUNTIME_CLUB_IMPORT_VA = 0x403660
+MASTER_CLUB_FAN_BASE_INDEX_OFFSET = 94
 
 
 @dataclass(frozen=True)
@@ -177,6 +180,8 @@ def surfaced_picture_source_contract() -> dict:
             "genericTier_backgroundN",
         ),
         "background_generic_tier_source_offset": DBRCLUB_BACKGROUND_TIER_SOURCE_OFFSET,
+        "background_generic_tier_master_offset": MASTER_CLUB_FAN_BASE_INDEX_OFFSET,
+        "background_generic_tier_cleanroom_field": "Club.fan_base_index",
         "surfaced_picture_pixels_staged": False,
         "complete_fastview_frame_recovered": False,
         "gate14_complete": False,
