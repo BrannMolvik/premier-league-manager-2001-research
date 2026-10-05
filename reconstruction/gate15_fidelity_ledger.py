@@ -282,8 +282,8 @@ def roadmap_gate_complete(markdown: str, gate: int) -> bool:
     if type(gate) is not int or gate < 1:
         raise Gate15FidelityLedgerError("roadmap gate must be positive integer")
 
-    heading = re.compile(r"^## Gate (\\d+)\\b")
-    checkbox = re.compile(r"^- \\[([ xX])\\]")
+    heading = re.compile(r"^## Gate (\d+)\b")
+    checkbox = re.compile(r"^- \[([ xX])\]")
     seen = False
     checked = 0
     unchecked = 0
