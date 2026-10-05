@@ -181,3 +181,13 @@ requires an actual build from the pinned FFmpeg commit, synthetic conversion
 proof, exact original-TGQ conversion, external Windows 11 playback acceptance,
 and source/license material completion. The contract is technical provenance,
 not a legal-compliance determination.
+
+
+The minimal target also deliberately omits `--enable-version3`. The selected
+pinned FFmpeg sources for TGQ/EA demuxing, Media Foundation encoding, native
+AAC, MOV/MP4 muxing and internal audio resampling carry the project's LGPL
+2.1-or-later notice, and the selected configure dependencies do not require
+GPL or version-3-only mode. The minimal target therefore pins
+`COPYING.LGPLv2.1` rather than inheriting the broad BtbN build's
+`COPYING.LGPLv3`. This is a source/license-mode observation, not a legal
+redistribution-compliance conclusion.
