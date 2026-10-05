@@ -28,6 +28,9 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.scorecomposite_main_source_contract_recovered)
         self.assertFalse(state.scorecomposite_main_geometry_recovered)
         self.assertFalse(state.scorecomposite_main_pixels_rasterized)
+        self.assertTrue(state.embedded_outer_controls_source_contract_recovered)
+        self.assertFalse(state.embedded_outer_controls_geometry_recovered)
+        self.assertFalse(state.embedded_outer_controls_pixels_rasterized)
         self.assertTrue(state.font_blend_rule_recovered)
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
@@ -48,6 +51,8 @@ class Gate14ReadinessTests(unittest.TestCase):
                 "goalflash_rasterization",
                 "scorecomposite_main_geometry",
                 "scorecomposite_main_rasterization",
+                "embedded_outer_controls_geometry",
+                "embedded_outer_controls_rasterization",
                 "global_fastview_z_order",
                 "complete_fastview_frame",
                 "chant_event_semantics",
@@ -113,6 +118,10 @@ class Gate14ReadinessTests(unittest.TestCase):
         state = canonical_gate14_readiness()
         otherwise_ready = replace(
             state,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
         )
         with self.assertRaisesRegex(
@@ -143,6 +152,8 @@ class Gate14ReadinessTests(unittest.TestCase):
             state,
             goalflash_absolute_position_recovered=True,
             goalflash_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
         )
         with self.assertRaisesRegex(
@@ -157,6 +168,38 @@ class Gate14ReadinessTests(unittest.TestCase):
         geometry_only = replace(
             otherwise_ready,
             scorecomposite_main_geometry_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                geometry_only,
+                complete_fastview_frame_recovered=True,
+            )
+
+    def test_complete_frame_requires_embedded_outer_control_geometry_and_pixels(self):
+        state = canonical_gate14_readiness()
+        otherwise_ready = replace(
+            state,
+            goalflash_absolute_position_recovered=True,
+            goalflash_pixels_rasterized=True,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
+            global_fastview_z_order_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                otherwise_ready,
+                complete_fastview_frame_recovered=True,
+            )
+
+        geometry_only = replace(
+            otherwise_ready,
+            embedded_outer_controls_geometry_recovered=True,
         )
         with self.assertRaisesRegex(
             Gate14ReadinessError,
@@ -183,6 +226,8 @@ class Gate14ReadinessTests(unittest.TestCase):
             goalflash_pixels_rasterized=True,
             scorecomposite_main_geometry_recovered=True,
             scorecomposite_main_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
             font_blend_rule_recovered=True,
             complete_fastview_frame_recovered=True,

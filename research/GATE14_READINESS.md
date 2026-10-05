@@ -41,6 +41,7 @@ The current audit records these solved sub-capabilities:
 - source-closed relative draw order across the currently rasterized FastView component families;
 - the source-closed two-row GoalFlash receiver/control/formatting contract, while its absolute placement and pixels remain explicitly absent;
 - the source-closed one-instance ScoreCompositeMain outer ownership/control-order contract, while its branch geometry/content and pixels remain explicitly absent;
+- the source-closed four-control embedded outer registration/constructor/order contract, while their roles, geometry/resources/state behavior and pixels remain explicitly absent;
 - native packed-16 font destination read, alpha endpoints, /256 mask-wise blend rule and color-key behavior;
 - ownership and selected playback entrypoints for the four canonical BNK banks;
 - chant pool selection and timing arithmetic.
@@ -57,6 +58,7 @@ The audit exposes the unresolved capabilities directly:
 - GoalFlash absolute timing/position;
 - GoalFlash pixel rasterization and resolved-composite integration;
 - ScoreCompositeMain exact geometry and pixel rasterization;
+- four embedded outer controls' exact geometry and pixel rasterization;
 - global FastView z-order across omitted/unbound layers;
 - a complete FastView frame;
 - chant event semantics;
@@ -81,8 +83,10 @@ The data model rejects invalid promotion paths. In particular:
 - a complete FastView frame cannot be asserted before the resolved human path,
   energy/text pixels, the source-closed GoalFlash contract, absolute GoalFlash
   placement, GoalFlash rasterization, the source-closed ScoreCompositeMain
-  contract, exact ScoreCompositeMain geometry/pixels, global z-order and the
-  already source-closed font blend prerequisite are all satisfied;
+  contract, exact ScoreCompositeMain geometry/pixels, the source-closed four-
+  control embedded outer contract, exact embedded-control geometry/pixels,
+  global z-order and the already source-closed font blend prerequisite are all
+  satisfied;
 - recognizable original workflow cannot be asserted without at least one
   completed source-backed match presentation path.
 
@@ -131,3 +135,24 @@ carries:
 
 This keeps the complete-frame criterion false until the outer main composite's
 own branch geometry/content and pixels are recovered from source.
+
+
+## Embedded outer-control omission guard
+
+The exhaustive outer registration trace proves four additional visible controls
+that are not present in the current component raster set. The two pre-GoalFlash
+objects live at parent offsets `+0x388/+0x3D4` and outer ranks 4/5; the
+post-team loop contributes `+0x424/+0x478` at ranks 34/35.
+
+Only their registration/constructor/order topology is currently source-closed.
+No current evidence assigns their rectangles, resources, visible roles, control
+state semantics or pixels. The readiness model therefore carries:
+
+- `embedded_outer_controls_source_contract_recovered = true`;
+- `embedded_outer_controls_geometry_recovered = false`;
+- `embedded_outer_controls_pixels_rasterized = false`.
+
+This is intentionally separate from `direct_chrome`, which contains only the
+source-bound top-bar and ticker PictureControls. Complete-frame promotion must
+remain false until these four omitted outer controls have their own exact
+source-qualified geometry and pixels.

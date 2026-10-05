@@ -29,6 +29,9 @@ class Gate14ReadinessEvidence:
     scorecomposite_main_source_contract_recovered: bool
     scorecomposite_main_geometry_recovered: bool
     scorecomposite_main_pixels_rasterized: bool
+    embedded_outer_controls_source_contract_recovered: bool
+    embedded_outer_controls_geometry_recovered: bool
+    embedded_outer_controls_pixels_rasterized: bool
     global_fastview_z_order_recovered: bool
     font_blend_rule_recovered: bool
     complete_fastview_frame_recovered: bool
@@ -73,6 +76,9 @@ class Gate14ReadinessEvidence:
             and self.scorecomposite_main_source_contract_recovered
             and self.scorecomposite_main_geometry_recovered
             and self.scorecomposite_main_pixels_rasterized
+            and self.embedded_outer_controls_source_contract_recovered
+            and self.embedded_outer_controls_geometry_recovered
+            and self.embedded_outer_controls_pixels_rasterized
             and self.global_fastview_z_order_recovered
             and self.font_blend_rule_recovered
         ):
@@ -142,6 +148,12 @@ class Gate14ReadinessEvidence:
             blockers.append("scorecomposite_main_geometry")
         if not self.scorecomposite_main_pixels_rasterized:
             blockers.append("scorecomposite_main_rasterization")
+        if not self.embedded_outer_controls_source_contract_recovered:
+            blockers.append("embedded_outer_controls_source_contract")
+        if not self.embedded_outer_controls_geometry_recovered:
+            blockers.append("embedded_outer_controls_geometry")
+        if not self.embedded_outer_controls_pixels_rasterized:
+            blockers.append("embedded_outer_controls_rasterization")
         if not self.global_fastview_z_order_recovered:
             blockers.append("global_fastview_z_order")
         if not self.font_blend_rule_recovered:
@@ -173,6 +185,9 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         scorecomposite_main_source_contract_recovered=True,
         scorecomposite_main_geometry_recovered=False,
         scorecomposite_main_pixels_rasterized=False,
+        embedded_outer_controls_source_contract_recovered=True,
+        embedded_outer_controls_geometry_recovered=False,
+        embedded_outer_controls_pixels_rasterized=False,
         global_fastview_z_order_recovered=False,
         font_blend_rule_recovered=True,
         complete_fastview_frame_recovered=False,
