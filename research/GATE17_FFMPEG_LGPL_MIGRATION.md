@@ -164,7 +164,8 @@ autodetection is disabled. It retains only:
   AAC encoder accepts FLTP while EA audio decoders may produce integer PCM;
 - Windows Media Foundation `h264_mf`;
 - the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
-  muxing machinery;
+  muxing machinery, plus the `mov` demuxer so FFprobe and runtime decode
+  verification can reopen the generated MP4;
 - the `pipe` protocol and `null` muxer because the runtime verifier uses
   `-progress pipe:1` and decodes accepted derivatives to `-f null -`;
 - the `ffmpeg` and `ffprobe` command-line programs.
