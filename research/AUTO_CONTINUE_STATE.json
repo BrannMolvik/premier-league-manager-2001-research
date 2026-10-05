@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 is now the earliest incomplete validation gate after Gate 13 closure at main 84d509c21737f624d2e89e5bc0a7024bf86be738. Preserve independent Gate17 PR #427 head 5da7bc213c52bb979daf43a9f326b9601f624ef1 until its combined post-Gate13 CI is green, but return substantive work to Gate14. Read the current Gate14 readiness/fidelity ledger and continue the highest-priority unresolved source-backed match-presentation/audio slice without reopening Gate13.",
-  "last_known_main_head": "84d509c21737f624d2e89e5bc0a7024bf86be738",
+  "active_task": "Gate14 is earliest incomplete. Gate17 PR #427 is canonical at main 9d2d20de after 2,497 tests / 23 expected skips. Main then advanced with disjoint fullscreen/first-screen performance #428 to 72aedde1. Active Gate14 PR #429 exact head 6ee16a395dcaa6f35bf366e5259da63730faf9b6 integrates the already source-closed complete retained PlayerRows raster (name grid + six English text controls + static/dynamic energy) into canonical completed-human FastView frames as team_table_player_rows at the existing TeamTable paint position. Asset policy run 37284861284 passed; reconstruction run 37284861267 is in progress. Merge only exact green head; retain complete_team_table=false because six table-level controls remain unresolved.",
+  "last_known_main_head": "72aedde11690ecaa2d9290482b477eb1440f44a7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 306,
+  "recovery_generation": 307,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate13 is closed and must not be reopened without a concrete regression. Private process execution in this worker still fails with caas ClientError, so prefer GitHub/cloud-safe Gate14 work that uses already-persisted source evidence; do not invent missing private semantics.",
+  "note": "Private process execution in this worker still fails with caas ClientError. TeamTable's six non-row controls and score/table static text remain source-unresolved; do not invent them. No private Gate14 audibility receipt is present in /FM2001 Library. Next cloud-safe work should use already-persisted source evidence only.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
