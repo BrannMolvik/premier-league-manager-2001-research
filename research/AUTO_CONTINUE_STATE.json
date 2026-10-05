@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 305,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Private source inputs are successfully materializable from Library: original disc ZIP at /mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip and working runtime ZIP at /mnt/data/fm2001-runtime/FM2001-reconstruction-runtime-120400bd.zip. However both container.exec and python process execution fail before startup with caas.internal.errors.ClientError in this worker, so the Gate13 final-header private static trace still cannot be generated here. Do not claim a private trace/hash or original execution. Continue GitHub-only verified work until a functioning process surface exists.",
+  "note": "Gate13 draft #411 current head 1a3009042d547b9043235bdca2b09d87f4f024da has source-qualified/imported final header assets and ordinary League Tables text, with focused Gate13 CI 37280201762 PASS, asset policy 37280201967 PASS, Windows package 37280201780 PASS, and full reconstruction 37280201972 PASS. Gate13 still cannot be marked complete because the final integrated header/text code has no fresh real Windows 11/Tk live recognizability/timing receipt; Gate13 focused CI is ubuntu-latest and package CI is not that audit. Private source/runtime files materialize successfully, but this worker's container.exec and python execution still fail pre-start with caas.internal.errors.ClientError, so it cannot produce the missing local receipt. Do not mark the remaining Gate13 ROADMAP criteria complete until that exact final-head Windows/Tk validation exists.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
