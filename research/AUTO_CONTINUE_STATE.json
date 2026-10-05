@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Resolve hands-on gameplay blockers #436/#438 before another manual test. PR #445 defers TeamSelect decode from first-screen startup and is in CI at head 93954943bd3ce0849a8b942a1a2b0ce9737716f2; transition diagnostics are staged separately for Start->Management timing/traceback.",
-  "last_known_main_head": "3cdaaac3dacb4ce8b1a1e685c5dcd107cb2b43e8",
+  "active_task": "Main e4474919a255d203337f3fde514b225c27a94497 now defers TeamSelect decode from startup. Next: validate/merge PR #449 runtime diagnostics for Southport Start->Management white-screen; continue #437 menu/startup audio work without requesting another manual test until instrumentation is canonical.",
+  "last_known_main_head": "e4474919a255d203337f3fde514b225c27a94497",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 310,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 309 remains active. GitHub main is canonical; Gate 13 is closed, Gate 14 is earliest incomplete. Hands-on testing remains paused pending instrumented startup/Start Game fixes.",
+  "note": "Recovery generation 309 active. #436 source startup fix merged but remains open pending Windows timing. #449 diagnostics retargeted to main. #447/#448 are Gate14 first-screen audio preparation/integration stacks.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
