@@ -10,7 +10,11 @@
     "license_sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
     "btbn_build_repo_commit": "9acad4a9ef1583096af7836cc1e9c8cbcb4d3950",
     "ffmpeg_source_commit": "46d8f462eeb87ee1f704d8c44a0ee24fca471ad1",
-    "btbn_build_arguments": ["win64", "lgpl", "9.0"],
+    "btbn_build_arguments": [
+      "win64",
+      "lgpl",
+      "9.0"
+    ],
     "ffmpeg_branch": "release/9.0",
     "packaged_ffmpeg_license_file": "COPYING.LGPLv3",
     "external_dependency_surface_minimal": false,
@@ -22,11 +26,12 @@
     "source_commit": "46d8f462eeb87ee1f704d8c44a0ee24fca471ad1",
     "license_file": "COPYING.LGPLv3",
     "platform": "win64",
-    "third_party_library_policy": "No --enable-lib* flags; --disable-autodetect is mandatory.",
+    "third_party_library_policy": "No --enable-lib* flags; --disable-autodetect is mandatory. Windows Media Foundation must be explicitly re-enabled as the native h264_mf platform dependency.",
     "configure_args": [
       "--disable-everything",
       "--disable-autodetect",
       "--enable-version3",
+      "--enable-mediafoundation",
       "--enable-ffmpeg",
       "--enable-ffprobe",
       "--enable-protocol=file",
