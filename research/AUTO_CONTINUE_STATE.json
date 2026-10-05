@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Private archive access remains blocked. Current cloud-safe task is PR #466 on head 41470b8a: clean current-main Gate-15 support-staff cost tracer transplant replacing stale #465. Await current-head reconstruction + asset-policy CI; merge only after both pass, then reconcile main and close stale #465.",
-  "last_known_main_head": "bcab7d3809afd82e55d8ffd8801e4da03b66558b",
+  "active_task": "PR #466 is merged/verified. Private archive access remains blocked. Current cloud-safe critical-path task: harden Gate-17 final release readiness so every final Gate-15 accepted_documented item is machine-linked to RELEASE_LIMITATIONS.md; do not advance any gate-complete flag.",
+  "last_known_main_head": "96fb6d77a71f5cca6dc2b510bdd391fd8be27dc3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 317,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 317: #464 merged/canonical; real private archive access still ClientError. PR #466 cleanly transplants support-staff cost tracer onto current main. Prior #465 head passed 2574 tests/23 skips, but #466 current-head CI is still required.",
+  "note": "Recovery 317: #464 and #466 are canonical. #466 passed 2591 tests/23 skips and asset policy; stale #465 closed. Gate 14 remains earliest incomplete. Next cloud-safe task is Gate15 accepted-documented -> Gate17 release-limitations coverage.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
