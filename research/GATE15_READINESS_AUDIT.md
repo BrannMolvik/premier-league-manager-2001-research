@@ -29,18 +29,21 @@ behavior is original; it does not mean the difference disappears.
 ## Current canonical checkpoint
 
 This audit is reconciled through canonical main
-`774629a983780bf35e4d4736968d4cca20fd0c0e`. Gate 13 is formally closed by
+`53b8ad95389fc1c9226d47a5a07863e8ca875507`. Gate 13 is formally closed by
 `research/GATE13_CLOSURE_AUDIT.md` and `ROADMAP.md`; its non-blocking
 secondary/pixel-perfect presentation differences now belong to this Gate-15
 fidelity sweep rather than remaining an earlier-gate prerequisite.
 
 Gate 14 remains open. PR #460 made the production-host bounded first-screen
-audio Windows-acceptance transaction canonical, and PR #462 added a
-transactional coordinator for that receipt plus the already-canonical startup
-FMV acceptance receipt. PR #462 passed reconstruction workflow
-`37320506035` and repository asset-policy workflow `37320506527`. Neither
-tooling path is itself external Windows evidence, and neither closes broad
-audio integration or recognizable original match presentation.
+audio Windows-acceptance transaction canonical. PR #462 added a transactional
+coordinator for that receipt plus the already-canonical startup FMV acceptance
+receipt and passed reconstruction workflow `37320506035` plus asset-policy
+workflow `37320506527`. PR #461 then made the readiness model distinguish
+acceptance-tool presence from actual external Windows evidence; its corrected
+head passed reconstruction workflow `37320843836` plus asset-policy workflow
+`37320843885`. Both real-Windows verification flags remain false. Neither
+tooling path closes broad audio integration or recognizable original match
+presentation.
 
 The earlier Gate-15 finance source boundary from PR #146 remains unchanged:
 the direct caller/applicability of the alternate Cup/knockout attendance
