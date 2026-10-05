@@ -27,12 +27,21 @@ This checkpoint is omission-proofing only. It does **not** adjudicate any
 remaining fidelity gap and does **not** complete Gate 15. Gate 14 remains the
 earliest incomplete validation gate.
 
-**Exact next task:** retry the private execution path at this persistence
-boundary. If process execution has recovered, resume the highest-priority
-source-backed Gate-14 closure item from the authorized original source and
-preserve source evidence. If private execution is still unavailable, record the
-precise blocker and continue only independent cloud-safe critical-path work.
-Do not infer unresolved FastView geometry/order, broader AudioHooks semantics,
+Recovery 317 retried the private source path at this checkpoint. A trivial shell
+launch and Python version probe succeeded, and the exact authorized
+511,121,336-byte Library archive materialized again. However, the first real
+source-access command (`unzip -l`) failed with
+`caas.internal.errors.ClientError`, and an independent notebook `zipfile`
+open of the same materialized archive failed with the same error. The canonical
+private next step remains the already-prepared TeamTable six-base-control trace
+around `0x524EC0`; it has **not** been run or adjudicated in Recovery 317.
+
+**Exact next task:** treat private executable/archive access as unavailable
+despite the trivial process probe. Continue the highest-priority independent
+cloud-safe critical-path work while preserving Gate 14 as the earliest
+incomplete validation gate. Revisit the TeamTable base-control private trace
+when real archive access, not merely process startup, succeeds. Do not infer
+ unresolved FastView geometry/order, broader AudioHooks semantics,
 procedural-secondary ownership, six-user runtime semantics, or non-PL objective
 progression by analogy.
 
