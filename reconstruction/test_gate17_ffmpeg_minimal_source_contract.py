@@ -37,6 +37,18 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             all(value is False for value in result["minimal_helper_proofs"].values())
         )
 
+    def test_minimal_contract_requires_mediafoundation_after_disabling_autodetect(self):
+        payload = self.canonical()
+        payload["minimal_helper_target"]["configure_args"].remove("--enable-mediafoundation")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "explicitly re-enable Windows Media Foundation",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_rejects_third_party_enable_flags(self):
         payload = self.canonical()
         payload["minimal_helper_target"]["configure_args"].append("--enable-libx264")
