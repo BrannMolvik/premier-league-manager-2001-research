@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from hashlib import sha256
 from pathlib import Path
+from types import SimpleNamespace
+import base64
 import unittest
 
 from original_startup_media import OriginalStartupMediaSpec
 from startup_media_derivatives import VerifiedStartupMediaDerivative
 from startup_media_windows_backend import (
     WindowsMciStartupMediaBackend,
+    WindowsWpfStartupMediaBackend,
     WindowsStartupMediaBackendError,
 )
 
@@ -48,6 +51,109 @@ class RecordingSender:
     def __call__(self, command):
         self.calls.append(command)
         return self.statuses.pop(0) if self.statuses else 0
+
+
+class RecordingRunner:
+    def __init__(self, *, returncode=0, stderr=""):
+        self.returncode = returncode
+        self.stderr = stderr
+        self.calls = []
+
+    def __call__(self, command, **kwargs):
+        self.calls.append((command, kwargs))
+        return SimpleNamespace(
+            returncode=self.returncode,
+            stderr=self.stderr,
+            stdout="",
+        )
+
+
+class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
+    def test_verified_mp4_uses_hidden_sta_wpf_process_and_environment_path(self):
+        runner = RecordingRunner()
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=runner,
+            powershell_executable=r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+        )
+        path = Path(r"C:\FM2001\startup media\easp.mp4")
+
+        self.assertTrue(backend.play(derivative(path)))
+        self.assertEqual(len(runner.calls), 1)
+        command, kwargs = runner.calls[0]
+        self.assertEqual(
+            command[:9],
+            (
+                r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+                "-NoProfile",
+                "-NonInteractive",
+                "-Sta",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-WindowStyle",
+                "Hidden",
+                "-EncodedCommand",
+            ),
+        )
+        script = base64.b64decode(command[9]).decode("utf-16le")
+        self.assertIn("PresentationFramework", script)
+        self.assertIn("MediaElement", script)
+        self.assertIn("WindowState", script)
+        self.assertNotIn(str(path), script)
+        self.assertEqual(
+            kwargs["env"]["FM2001_STARTUP_MEDIA_PATH"],
+            str(path),
+        )
+        self.assertFalse(kwargs["check"])
+        self.assertTrue(kwargs["capture_output"])
+        self.assertTrue(kwargs["text"])
+
+    def test_failed_wpf_process_surfaces_exit_and_stderr(self):
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=RecordingRunner(returncode=3, stderr="media failed"),
+        )
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            r"exit code 3: media failed",
+        ):
+            backend.play(derivative(Path(r"C:\private\a.mp4")))
+
+    def test_wpf_backend_rejects_non_windows_invalid_runner_and_wrong_codec(self):
+        with self.assertRaisesRegex(WindowsStartupMediaBackendError, "requires Windows"):
+            WindowsWpfStartupMediaBackend(
+                platform_system="Linux",
+                runner=lambda *args, **kwargs: None,
+            )
+        with self.assertRaisesRegex(WindowsStartupMediaBackendError, "runner must be callable"):
+            WindowsWpfStartupMediaBackend(
+                platform_system="Windows",
+                runner=object(),
+            )
+
+        runner = RecordingRunner()
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=runner,
+        )
+        self.assertFalse(backend.play(object()))
+        item = derivative(Path(r"C:\private\a.mp4"))
+        self.assertFalse(
+            backend.play(
+                VerifiedStartupMediaDerivative(
+                    sequence=item.sequence,
+                    spec=item.spec,
+                    path=item.path,
+                    converted_sha256=item.converted_sha256,
+                    converted_size_bytes=item.converted_size_bytes,
+                    container=item.container,
+                    video_codec="vp9",
+                    pixel_format=item.pixel_format,
+                    audio_codec=item.audio_codec,
+                )
+            )
+        )
+        self.assertEqual(runner.calls, [])
 
 
 class WindowsStartupMediaBackendTests(unittest.TestCase):
