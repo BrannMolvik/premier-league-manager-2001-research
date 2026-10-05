@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 fresh-objective RNG caller tracer #412 is canonical at main a841ed0959f1f0b4484c1549e8470f7d91a4a0cd after reconstruction run 37267738192 passed 2,439 tests / 23 expected skips and asset-policy run 37267738151 passed. Continue the exact next cloud-safe Gate-17 step: define a fail-closed objective-RNG private adjudication plan over #412. Require ordinary 0x5DF670 caller/owner chronology first, exact shared CRT entry-state connection to the startup ledger second, and exact RNG-bearing slot/draw position third. Keep replay readiness, all-scope fresh-objective readiness and Gate17 completion false until private source and implementation prove them.",
-  "last_known_main_head": "a841ed0959f1f0b4484c1549e8470f7d91a4a0cd",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 objective-RNG adjudication #413 is canonical at main 61c6a41c1ee4dece25d27134329c862180645a48 after reconstruction run 37268358963 passed 2,447 tests / 23 expected skips and asset-policy run 37268358956 passed. Private objective-RNG source adjudication remains deferred because container/Python byte execution is unavailable despite successful Library materialization. Continue the next independent cloud-safe Gate-17 blocker: transplant the prepared sporting-objective progression source tracer onto current main, register full CI, validate/merge only if green. Keep non-PL branch semantics, promotion/relegation classification, progression readiness and Gate17 completion false.",
+  "last_known_main_head": "61c6a41c1ee4dece25d27134329c862180645a48",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 301,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Private archive is materializable at exact 511121336-byte Library size, but container/Python byte execution is still blocked by caas ClientError. Adjudication tooling may be prepared in GitHub; do not claim the tracer has run on the canonical executable.",
+  "note": "Sporting progression prep branch chatgpt/gate17-sporting-objective-progression-trace-prep contains only neutral tracer/tests/research. It preserves persisted source anchors plus 17-way objective +0x64 switch and annual pass sequence (1,0) around 0x4F9010, without assigning non-PL branch semantics.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
