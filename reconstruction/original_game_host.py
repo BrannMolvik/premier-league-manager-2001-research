@@ -16,6 +16,8 @@ from __future__ import annotations
 from base64 import b64encode
 from functools import lru_cache
 from pathlib import Path
+import struct
+import zlib
 from types import SimpleNamespace
 from original_management_background import OriginalManagementBackground
 from original_management_header import (
@@ -105,6 +107,110 @@ SCREEN_SIZE = (800, 600)
 @lru_cache(maxsize=1024)
 def _cached_runtime_png(width: int, height: int, rgba: bytes) -> bytes:
     return encode_rgba_png(width, height, rgba)
+
+
+@lru_cache(maxsize=32)
+def _scaled_rgba(
+    width: int,
+    height: int,
+    rgba: bytes,
+    numerator: int,
+    denominator: int,
+) -> tuple[int, int, bytes]:
+    """Nearest-neighbour scale directly to the final rational-size surface.
+
+    This deliberately avoids Tk's zoom(n)->subsample(d) path, which can create
+    very large transient images (for example 5600x4200 for a 7/4 scale of the
+    800x600 background) and caused hands-on TeamSelect stalls/crashes.
+    """
+    if numerator <= 0 or denominator <= 0:
+        raise OriginalGameHostError("Invalid display scale")
+    if len(rgba) != width * height * 4:
+        raise OriginalGameHostError("RGBA source size does not match geometry")
+    if numerator == denominator:
+        return width, height, rgba
+
+    out_width = (width * numerator + denominator - 1) // denominator
+    out_height = (height * numerator + denominator - 1) // denominator
+
+    # Cache each scaled source row; vertical nearest-neighbour scaling often
+    # reuses source rows, while the horizontal mapping is identical for every
+    # row of the image.
+    xmap = tuple(
+        min(width - 1, x * denominator // numerator)
+        for x in range(out_width)
+    )
+    row_cache: dict[int, bytes] = {}
+    output = bytearray(out_width * out_height * 4)
+    for out_y in range(out_height):
+        src_y = min(height - 1, out_y * denominator // numerator)
+        scaled_row = row_cache.get(src_y)
+        if scaled_row is None:
+            src_start = src_y * width * 4
+            source_row = rgba[src_start:src_start + width * 4]
+            row = bytearray(out_width * 4)
+            for out_x, src_x in enumerate(xmap):
+                src = src_x * 4
+                dst = out_x * 4
+                row[dst:dst + 4] = source_row[src:src + 4]
+            scaled_row = bytes(row)
+            row_cache[src_y] = scaled_row
+        dst_start = out_y * out_width * 4
+        output[dst_start:dst_start + len(scaled_row)] = scaled_row
+    return out_width, out_height, bytes(output)
+
+
+@lru_cache(maxsize=256)
+def _decode_generated_rgba_png(png: bytes) -> tuple[int, int, bytes]:
+    """Decode PNGs produced by this reconstruction's filter-0 RGBA encoder."""
+    signature = b"\x89PNG\r\n\x1a\n"
+    if not png.startswith(signature):
+        raise OriginalGameHostError("Unsupported non-PNG management layer")
+    cursor = len(signature)
+    width = height = None
+    compressed = bytearray()
+    while cursor + 12 <= len(png):
+        size = struct.unpack(">I", png[cursor:cursor + 4])[0]
+        kind = png[cursor + 4:cursor + 8]
+        data_start = cursor + 8
+        data_end = data_start + size
+        if data_end + 4 > len(png):
+            raise OriginalGameHostError("Truncated generated PNG")
+        data = png[data_start:data_end]
+        if kind == b"IHDR":
+            if len(data) != 13:
+                raise OriginalGameHostError("Invalid generated PNG IHDR")
+            width, height, bit_depth, color_type, compression, filter_method, interlace = struct.unpack(
+                ">IIBBBBB", data
+            )
+            if (
+                bit_depth != 8
+                or color_type != 6
+                or compression != 0
+                or filter_method != 0
+                or interlace != 0
+            ):
+                raise OriginalGameHostError("Unsupported generated PNG format")
+        elif kind == b"IDAT":
+            compressed.extend(data)
+        elif kind == b"IEND":
+            break
+        cursor = data_end + 4
+    if width is None or height is None:
+        raise OriginalGameHostError("Generated PNG is missing IHDR")
+    scanlines = zlib.decompress(bytes(compressed))
+    row_bytes = width * 4
+    expected = height * (row_bytes + 1)
+    if len(scanlines) != expected:
+        raise OriginalGameHostError("Generated PNG scanline size mismatch")
+    rgba = bytearray(width * height * 4)
+    for row in range(height):
+        src = row * (row_bytes + 1)
+        if scanlines[src] != 0:
+            raise OriginalGameHostError("Generated PNG used an unexpected filter")
+        dst = row * row_bytes
+        rgba[dst:dst + row_bytes] = scanlines[src + 1:src + 1 + row_bytes]
+    return width, height, bytes(rgba)
 
 
 @lru_cache(maxsize=512)
@@ -217,6 +323,7 @@ class OriginalGameTkHost:
         self.active_pmatchinfo_art = None
         self._photos = []
         self._first_screen_photo_cache = {}
+        self._generic_photo_cache = {}
         self.first_screen_animation = OriginalFirstScreenAnimation()
         self.first_screen_frame = None
         self._first_screen_pointer = None
@@ -315,18 +422,24 @@ class OriginalGameTkHost:
             )
         return event
 
-    def _scale_photo(self, photo):
-        if self.display_scale_num == self.display_scale_den:
-            return photo
-        # Tk performs this nearest-neighbour transform in native code. Zoom
-        # first, then subsample, preserves all original source pixels.
-        return photo.zoom(
-            self.display_scale_num,
-            self.display_scale_num,
-        ).subsample(
-            self.display_scale_den,
-            self.display_scale_den,
-        )
+    def _photo_from_rgba(self, key, width: int, height: int, rgba: bytes):
+        photo = self._first_screen_photo_cache.get(key)
+        if photo is None:
+            scaled_width, scaled_height, scaled_rgba = _scaled_rgba(
+                width,
+                height,
+                rgba,
+                self.display_scale_num,
+                self.display_scale_den,
+            )
+            png = encode_rgba_png(scaled_width, scaled_height, scaled_rgba)
+            photo = self.tk.PhotoImage(
+                data=b64encode(png).decode("ascii"),
+                format="png",
+            )
+            self._first_screen_photo_cache[key] = photo
+        self._photos.append(photo)
+        return photo
 
     def _native_to_display(self, value: int) -> int:
         return (
@@ -341,13 +454,18 @@ class OriginalGameTkHost:
         )
 
     def _first_screen_photo(self, key, png: bytes):
+        """Cache an already-display-sized PNG.
+
+        Kept for compatibility with source-backed callers that already provide
+        final-size pixels. Native first-screen controls now use _photo_from_rgba
+        to avoid transient Tk zoom allocations.
+        """
         photo = self._first_screen_photo_cache.get(key)
         if photo is None:
-            base = self.tk.PhotoImage(
+            photo = self.tk.PhotoImage(
                 data=b64encode(png).decode("ascii"),
                 format="png",
             )
-            photo = self._scale_photo(base)
             self._first_screen_photo_cache[key] = photo
         self._photos.append(photo)
         return photo
@@ -359,11 +477,30 @@ class OriginalGameTkHost:
                              parent=self.root)
 
     def _photo(self, png: bytes):
-        base = self.tk.PhotoImage(
-            data=b64encode(png).decode("ascii"),
-            format="png",
-        )
-        photo = self._scale_photo(base)
+        # All host-generated management/report PNGs use the reconstruction's
+        # deterministic RGBA/filter-0 encoder. Decode once, scale directly to
+        # the final rational display size, and retain the Tk image by source
+        # bytes so redraws do not repeat conversion or allocation.
+        photo = self._generic_photo_cache.get(png)
+        if photo is None:
+            width, height, rgba = _decode_generated_rgba_png(png)
+            scaled_width, scaled_height, scaled_rgba = _scaled_rgba(
+                width,
+                height,
+                rgba,
+                self.display_scale_num,
+                self.display_scale_den,
+            )
+            scaled_png = encode_rgba_png(
+                scaled_width,
+                scaled_height,
+                scaled_rgba,
+            )
+            photo = self.tk.PhotoImage(
+                data=b64encode(scaled_png).decode("ascii"),
+                format="png",
+            )
+            self._generic_photo_cache[png] = photo
         self._photos.append(photo)
         return photo
 
@@ -379,16 +516,24 @@ class OriginalGameTkHost:
         self.canvas.delete("all")
         self._photos = []
 
-        background = self._first_screen_photo(
+        background = self._photo_from_rgba(
             (view.screen, "background"),
-            frame.background_png,
+            SCREEN_SIZE[0],
+            SCREEN_SIZE[1],
+            view.background_rgba,
         )
         self._create_native_image(0, 0, image=background, anchor=self.tk.NW)
 
+        controls_by_event = {control.event: control for control in view.controls}
         for overlay in frame.original_source_frame_overlays:
-            art = self._first_screen_photo(
+            source = controls_by_event[overlay.event].exact_source_frame(
+                overlay.source_frame_index
+            )
+            art = self._photo_from_rgba(
                 (view.screen, "button", overlay.event, overlay.source_frame_index),
-                overlay.source_frame_png,
+                source.width,
+                source.height,
+                source.rgba,
             )
             self._create_native_image(
                 overlay.rect.x,
@@ -398,7 +543,10 @@ class OriginalGameTkHost:
             )
 
         for caption in frame.native_caption_overlays:
-            glyphs = self._first_screen_photo(
+            control = controls_by_event[caption.event]
+            mask = control.caption.glyph_mask
+            glyph_rgba = endpoint_text_rgba(mask.alpha, caption.native_color_16)
+            glyphs = self._photo_from_rgba(
                 (
                     view.screen,
                     "caption",
@@ -406,7 +554,9 @@ class OriginalGameTkHost:
                     caption.native_color_16,
                     caption.original_text,
                 ),
-                caption.glyph_rgba_png,
+                mask.width,
+                mask.height,
+                glyph_rgba,
             )
             self._create_native_image(
                 caption.line_origin_x,
@@ -416,12 +566,7 @@ class OriginalGameTkHost:
             )
 
         for row in (*view.hierarchy_rows, *view.club_rows):
-            animation_png = _cached_runtime_png(
-                row.animation_frame.width,
-                row.animation_frame.height,
-                row.animation_frame.rgba,
-            )
-            animation = self._first_screen_photo(
+            animation = self._photo_from_rgba(
                 (
                     view.screen,
                     "team-row-animation",
@@ -429,14 +574,11 @@ class OriginalGameTkHost:
                     row.source_id,
                     row.animation_source_index,
                 ),
-                animation_png,
+                row.animation_frame.width,
+                row.animation_frame.height,
+                row.animation_frame.rgba,
             )
-            bar_png = _cached_runtime_png(
-                row.bar_frame.width,
-                row.bar_frame.height,
-                row.bar_frame.rgba,
-            )
-            bar = self._first_screen_photo(
+            bar = self._photo_from_rgba(
                 (
                     view.screen,
                     "team-row-bar",
@@ -444,15 +586,15 @@ class OriginalGameTkHost:
                     row.source_id,
                     row.bar_source_index,
                 ),
-                bar_png,
+                row.bar_frame.width,
+                row.bar_frame.height,
+                row.bar_frame.rgba,
             )
-            glyph_png = _cached_endpoint_png(
-                row.glyph_mask.width,
-                row.glyph_mask.height,
+            glyph_rgba = endpoint_text_rgba(
                 row.glyph_mask.alpha,
                 row.native_color_16,
             )
-            glyphs = self._first_screen_photo(
+            glyphs = self._photo_from_rgba(
                 (
                     view.screen,
                     "team-row-text",
@@ -461,7 +603,9 @@ class OriginalGameTkHost:
                     row.text,
                     row.native_color_16,
                 ),
-                glyph_png,
+                row.glyph_mask.width,
+                row.glyph_mask.height,
+                glyph_rgba,
             )
             self._create_native_image(
                 row.animation_rect.x,
