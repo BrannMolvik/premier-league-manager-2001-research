@@ -44,7 +44,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
         game.mkdir()
         archive = root / "release.zip"
         archive.write_bytes(b"candidate")
-        scope = root / "full_original_scope.json"
+        scope = root / "full-scope-results.json"
         scope.write_text("{}", encoding="utf-8")
         work = root / "external-validation"
         return repo, game, archive, scope, work
@@ -83,14 +83,14 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
-                        full_original_scope_receipt=scope,
+                        full_original_scope_results=scope,
                         work_root=work,
                     )
 
             limitations.assert_not_called()
             self.assertFalse(work.exists())
 
-    def test_preflight_requires_existing_external_full_scope_receipt(self):
+    def test_preflight_requires_existing_external_full_scope_results(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, game, archive, scope, work = self._paths(temp)
             scope.unlink()
@@ -125,7 +125,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             ):
                 with self.assertRaisesRegex(
                     ExternalReleaseValidationError,
-                    "full original scope receipt does not exist",
+                    "full original scope results does not exist",
                 ):
                     preflight_external_release_validation(
                         repo_root=repo,
@@ -133,7 +133,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
-                        full_original_scope_receipt=scope,
+                        full_original_scope_results=scope,
                         work_root=work,
                     )
             self.assertFalse(work.exists())
@@ -187,7 +187,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
-                        full_original_scope_receipt=scope,
+                        full_original_scope_results=scope,
                         work_root=work,
                     )
 
@@ -230,7 +230,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
-                        full_original_scope_receipt=scope,
+                        full_original_scope_results=scope,
                         work_root=work,
                     )
 
@@ -245,6 +245,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             management_path = receipts / "new_game_management_loop.json"
             season_path = receipts / "season_progression.json"
             save_path = receipts / "save_reload.json"
+            full_scope_path = receipts / "full_original_scope.json"
             evidence_path = work / "release-evidence.json"
 
             def clean_runner(**kwargs):
@@ -261,6 +262,11 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     "season_progression": season_path,
                     "save_reload": save_path,
                 }
+
+            def full_scope_runner(**kwargs):
+                Path(kwargs["output_path"]).parent.mkdir(parents=True, exist_ok=True)
+                Path(kwargs["output_path"]).write_text("{}", encoding="utf-8")
+                return Path(kwargs["output_path"])
 
             def evidence_runner(**kwargs):
                 Path(kwargs["output_path"]).write_text("{}", encoding="utf-8")
@@ -307,6 +313,10 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     side_effect=gameplay_runner,
                 ) as gameplay,
                 patch(
+                    "gate17_external_validation.run_full_scope_receipt",
+                    side_effect=full_scope_runner,
+                ) as full_scope,
+                patch(
                     "gate17_external_validation.assemble_release_evidence",
                     side_effect=evidence_runner,
                 ) as evidence,
@@ -325,7 +335,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     repository_commit=COMMIT,
                     release_archive=archive,
                     canonical_game_dir=game,
-                    full_original_scope_receipt=scope,
+                    full_original_scope_results=scope,
                     work_root=work,
                     player_seed=7,
                     max_days=430,
@@ -352,10 +362,22 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             self.assertEqual(gameplay.call_args.kwargs["max_days"], 430)
             self.assertEqual(evidence.call_args.kwargs["release_archive"], archive.resolve())
             self.assertEqual(
-                evidence.call_args.kwargs["receipt_paths"]["full_original_scope"],
+                full_scope.call_args.kwargs["scope_results"],
                 scope.resolve(),
             )
-            self.assertEqual(result["full_original_scope"], scope.resolve())
+            self.assertEqual(
+                full_scope.call_args.kwargs["canonical_game_dir"],
+                game.resolve(),
+            )
+            self.assertEqual(
+                full_scope.call_args.kwargs["output_path"],
+                full_scope_path,
+            )
+            self.assertEqual(
+                evidence.call_args.kwargs["receipt_paths"]["full_original_scope"],
+                full_scope_path,
+            )
+            self.assertEqual(result["full_original_scope"], full_scope_path)
             self.assertEqual(final_audit.call_args.kwargs["release_archive"], archive.resolve())
             self.assertEqual(final_audit.call_args.kwargs["player_seed"], 7)
             self.assertEqual(final_audit.call_args.kwargs["max_days"], 430)
@@ -415,7 +437,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
-                        full_original_scope_receipt=scope,
+                        full_original_scope_results=scope,
                         work_root=work,
                     )
 
@@ -471,7 +493,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=inside_game,
-                        full_original_scope_receipt=root / "scope.json",
+                        full_original_scope_results=root / "scope.json",
                         work_root=root / "work",
                     )
 
