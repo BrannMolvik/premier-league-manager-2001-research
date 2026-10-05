@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "c59ffc049bfdc813434da54b53a8a0d8eb297e32",
+  "last_verified_reconstruction_ci_head": "2e0366467e966c0a83a60b9ece40afc7e474daf9",
   "last_verified_test_count": 2619,
-  "asset_policy_validated_head": "c59ffc049bfdc813434da54b53a8a0d8eb297e32",
+  "asset_policy_validated_head": "2e0366467e966c0a83a60b9ece40afc7e474daf9",
   "asset_policy_status": "passed",
-  "active_task": "Issue #482 priority regression. First implementation slice: split management resources by route so fresh Squad loads only shell/background/header/Squad dependencies; add fail-closed tests that Fixtures, League Tables and PMatchInfo are not loaded; render the already source-closed ordinary Squad row subset without inventing unresolved side-column color/status semantics. Then focused/full/package CI, followed by cold-start/New-Game latency repair and evidence-led seamless startup-FMV presentation. Gate-17 #475/#479 remains suspended until external acceptance.",
+  "active_task": "Issue #482 Gate 13. PStartMenu cold-start derivative is canonical. Continue source-backed startup-FMV 320x480 pIQT -> 640x480 game-owned surface trace (actual display bit depth/pixel packing/state-4 writer), then ordinary Squad row helper evidence; do not guess unresolved presentation semantics. External Windows acceptance remains required after repairs.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -3049,5 +3049,12 @@
   ],
   "recovery322_startup_fmv_game_owned_surface_verified": true,
   "recovery322_startup_fmv_320x480_to_640x480_interpolation_recovered": false,
-  "recovery322_wpf_uniform_geometry_source_incompatible": true
+  "recovery322_wpf_uniform_geometry_source_incompatible": true,
+  "gate13_pstartmenu_derivative_merged_head": "32f02fc86f0eb404c0f410cbceb131f56f0ddaf0",
+  "gate13_pstartmenu_manifest_sha256": "cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e",
+  "gate13_pstartmenu_payload_sha256": "2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697",
+  "gate13_pstartmenu_decoded_sha256": "a73badbb141334441ed0893114238d9fedc75de0580588bddb2f894e986c3f55",
+  "gate13_pstartmenu_gate13_ci": 37386883275,
+  "gate13_pstartmenu_windows_package_ci": 37386882889,
+  "gate13_pstartmenu_full_reconstruction_ci": 37386883155
 }
