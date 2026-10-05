@@ -22,6 +22,7 @@ source adjudication deferred, cloud-safe work advanced to the independent
 source-proven six-user TeamSelect Start/user-list boundary; no Gate13 code or
 release status was changed. The branch was then reconciled onto merged Gate13
 #408 / main `8ec773e5`, preserving its animation/workflow/progress changes.
+The reconciled Gate17 trace remains fail-closed and does not modify Gate13 ownership.
 
 ### 5 October 2026 KST — Fixed-slice Button checkpoint / requested wrap-up
 
