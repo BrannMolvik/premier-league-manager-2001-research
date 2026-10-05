@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate 14 surfaced-controls PR 386 merged to main d08c6250 after 2,346 tests/23 expected skips and asset-policy success. Continue exact disjoint Gate 14 task: source-close ClubBackgroundSurface 0x5D3490/0x5D3560 background-index/cache selection for the 800x600 FastView surfaced control. Preserve already-closed home/away badge ownership. Do not guess Team_Backgrounds backgroundN index and do not touch Gate 13.",
-  "last_known_main_head": "d08c6250b6ecf89d9c8c9cc35fcac14813cc3a90",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate 14 background-selector PR 387 merged to main c5595b26 after 2,350 tests/23 expected skips and asset-policy success. Continue exact disjoint Gate 14 task: bind the surfaced background/home-badge/away-badge selector to reconstructed match/database state as a pure resource-selection plan. Use existing Club.graphics_basename, CountryDefinition.graphics_directory, and the newly source-proven Master.dat +94 -> DBRClub +0x70 -> Club.fan_base_index binding. Keep explicit Match +0x48 override optional; do not guess it when absent. Then add verified source-root loading/EA444 decoding as a separate layer. Do not touch Gate 13.",
+  "last_known_main_head": "c5595b262f606be30d66f9841f2912020ad12b51",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 296,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR 386 canonical at d08c6250. Remaining surfaced-control blocker is dynamic Team_Backgrounds background index/cache selection only; source-byte staging and complete frame remain false.",
+  "note": "PR 387 canonical at c5595b26. Canonical executable SHA reverified. Background seasonal table/cache/fallback are source-closed. Compact Master reader consumes 94 bytes before its 4-byte DBRClub+0x70 field, proving it is packed Master.dat+94, already parsed as Club.fan_base_index.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
