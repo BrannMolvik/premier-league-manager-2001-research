@@ -201,8 +201,8 @@ def build_fastview_surfaced_resource_selection(
             "background override must be non-negative integer or explicit None"
         )
 
-    home = _club_art_source(clubs, countries, int(home_club_id))
-    away = _club_art_source(clubs, countries, int(away_club_id))
+    home = _club_art_source(clubs, countries, home_club_id)
+    away = _club_art_source(clubs, countries, away_club_id)
     background_id = (
         home.club_id
         if background_club_override_id is None
