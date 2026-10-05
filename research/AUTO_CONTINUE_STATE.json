@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 full-original-scope receipt producer #417 is canonical at main 6374c00f48502bd1111372cc790dd181f86bdd4a after reconstruction run 37273888904 passed 2,469 tests / 23 expected skips and asset-policy run 37273888949 passed. Continue the already-prepared transaction integration on a clean branch from this main: external validation should accept the release-bound external full-scope results file, prevalidate it before expensive implementation audit, mint full_original_scope.json inside the rollback-safe work root, assemble evidence from that generated receipt, and delete all partial evidence on any failure. Ensure external-validation paths trigger reconstruction CI.",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. PR #417 is canonical at main 6374c00f48502bd1111372cc790dd181f86bdd4a, verified by reconstruction run 37273888904 (2,469 tests / 23 expected skips) and asset-policy run 37273888949. Active independent Gate17 task is PR #418 head cd9ce12dccdc9f5e694de2994844031254bf4e73: make final external Windows validation accept release-bound external per-scope results, prevalidate them before the work root, mint full_original_scope.json inside the rollback-safe transaction, revalidate at mint time, and register the external-validation files in CI. Merge only exact green head; Gate17 remains incomplete until all runtime blockers and real external Windows receipts/final audit pass.",
   "last_known_main_head": "6374c00f48502bd1111372cc790dd181f86bdd4a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 303,
+  "recovery_generation": 304,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not reuse the history-diverged stacked branch as a main PR. Transplant only its transaction code/test/workflow/doc delta onto post-#417 main. #417 closes only release tooling, not Gate17 capability or external evidence.",
+  "note": "After #418, next independent release-tooling question is whether the repository has a canonical producer for the external gate17_full_scope_results schema. Do not invent pass rows; inspect current runtime audit/capability machinery and build only a fail-closed runner if source-backed execution can populate the required per-scope fields.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
