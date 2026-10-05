@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 active. #454 is merged and canonical state now points to the next task: expose the existing completed-human resolved FastView bundle on a bounded operator-visible Tk/Windows surface without inventing a management navigation trigger or unresolved pixels/z/blend/audio/3D semantics.",
-  "last_known_main_head": "e0518fb18014ebc9f5548e4ee76f60c2007e3595",
+  "active_task": "Gate 14 active. #455 bounded operator-visible FastView surface is revalidating after a test-only guard fix; #456 readiness reconciliation is stacked on #455; #457 adds a strict external Windows 11 startup-FMV visibility/audibility receipt. Private container execution remains blocked by ClientError, so source-byte geometry work is deferred. Merge verified PRs cleanly/replay onto current main as needed, then continue the next cloud-safe Gate14 task.",
+  "last_known_main_head": "7964a131513c3b3440ce12edc15dbf2655e3124e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 313,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 313 checkpoint after startup-FMV merge and status reconciliation; main=e0518fb18014ebc9f5548e4ee76f60c2007e3595. Beginning bounded FastView operator-surface integration.",
+  "note": "Recovery 313 persistence checkpoint: main 7964a131513c3b3440ce12edc15dbf2655e3124e; #455/#456/#457 in CI, private execution still ClientError. FFmpeg third-party release audit recorded in BACKLOG.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
