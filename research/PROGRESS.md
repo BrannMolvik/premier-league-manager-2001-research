@@ -11422,3 +11422,11 @@ work may continue under the deferred-blocker policy.
 - Windows CI successfully performed a 320x480, 25 fps, 22,050 Hz stereo `h264_mf` + AAC MP4 encode/decode roundtrip with executable SHA-256 `c15ef2e3...954aa8`.
 - Production packaging has **not** switched. Exact original TGQ conversion, external Windows 11 playback acceptance, and exact LGPL distribution materials remain required.
 
+## 6 October 2026 — Recovery 319 h264_mf private-audit path checkpoint
+
+- PR #470 merged as `bb32e74cff669b2fdd489058f118a8476f207ad1` from head `97463a335da3f9f2440abe745807aad0ba2dca84`.
+- Reconstruction run `37343527426` passed **2,607 tests / 23 expected skips**; Windows package run `37343527442` and asset-policy run `37343527679` passed.
+- A named candidate-only `h264_mf` startup conversion profile now exists without changing the production `libx264` default. Private conversion and runtime cache receipts are profile-bound, and profile changes invalidate stale derivative caches.
+- The authorized source archive materialized again, but both container and notebook Python execution failed with `caas.internal.errors.ClientError`; exact original-TGQ conversion remains unexecuted.
+- PR #471 is open as the dependent FFprobe/output-geometry hardening step. Its Windows proof is green; full reconstruction must pass before merge.
+
