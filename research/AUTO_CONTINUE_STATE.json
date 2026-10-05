@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #475 minimal FFmpeg source contract is open on corrected head ebd5709f18112c7a85b1614042ba3478dbda6b7a. Private archive retry failed at first real zipfile access with caas.internal.errors.ClientError; do not spin on it. Finish #475 CI and merge only if corrected-head reconstruction, Windows package and asset-policy checks pass. Then continue the minimal helper build-proof route without changing production.",
-  "last_known_main_head": "7bcc5bfab79fca1d06c583ce4abddd84e38497f8",
+  "active_task": "Issue #436 latency: split startup.presenter_build (26.301s) and first Start New Game click (3.355s) into concrete stages, fix the dominant synchronous work without moving lag elsewhere, then profile management.resources.load_all (16.724s).",
+  "last_known_main_head": "9bda514e673fff97621110f49b4bf506ecf15fdb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 320,
   "last_recovery_reason": "new-chat-handoff",
-  "note": "Recovery 319 checkpoint: exact private archive access still blocked. #475 now pins broad BtbN source chain and a fail-closed minimal FFmpeg helper target. Review fixed --disable-autodetect interaction by explicitly requiring --enable-mediafoundation. Corrected head ebd5709f is under CI; production remains unchanged.",
+  "note": "Recovery 320: #438 source-backed management-background fallback merged in PR #476 as 9bda514e. Focused presentation CI 37349442653 passed 716 tests with 22 expected skips; asset policy 37349442555 passed. Continue #436 latency before asking Daniel for another Windows retest.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
