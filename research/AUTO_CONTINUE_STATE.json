@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Priority regression #482: audit current Windows path from startup FMVs through PStartMenu, TeamSelect, Southport -> first Squad landing; identify exact current latency/redraw and incomplete-presentation causes, then direct an implementation worker to repair them. Suspend #475/#479 until #482 is CI-verified and externally accepted. Do not close Gate 13/14 on hosted CI alone.",
-  "last_known_main_head": "6030cbae46d8a15386d6b6114a11bcd35e8984dc",
+  "active_task": "Issue #482 Phase 1 implementation: route-scope management resources so fresh Squad does not initialize Fixtures/League Tables/PMatchInfo; render the already source-closed ordinary Squad row subset without inventing unresolved status/color semantics; add tests proving both boundaries, then focused/full/package CI. After verification continue cold-start/New-Game latency and evidence-led startup-FMV presentation. #475/#479 suspended.",
+  "last_known_main_head": "b669b2537932ed5c61cbe920413956d6086923ea",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 322,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 322: issue #482 is the live regression priority based on Daniel's external Windows screenshots. No #482 worker branch exists yet. Overseer is auditing current hot paths and historical caching/lazy-load checkpoints to produce exact worker directives; normal #475/#479 work remains suspended until external playability is restored.",
+  "note": "Recovery 322 formal reconciliation complete: Gate 13 reopened on main b669b253 after real Windows external acceptance failure. ROADMAP, CURRENT_STATE, FIDELITY_GAPS, historical Gate13 note, PROGRESS and project_status are updated. Issue #482 comment 6001127354 contains source-backed A-E diagnosis. Next worker slice is management route lazy-load + ordinary Squad rows with fail-closed tests.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
