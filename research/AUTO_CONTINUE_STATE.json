@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Issue #482 Gate 13 regression recovery. PR #483 route-scoped management loading is at 8d932e82 with Windows package green and remaining Python/Gate13/asset checks queued. PR #484 adds bounded ordinary Squad helper trace anchors at 3dee5e7d; checks queued. PR #485 defers canonical GameState/schedule construction from New Game to TeamSelect Start while reusing the exact parsed canonical database; current head 185bb03a, checks queued. Continue fixing any CI failures first. The Squad renderer itself remains evidence-blocked on exact native color/display-name helper semantics; do not substitute white/modern styling.",
+  "active_task": "Gate 13 issue #482. PR #483 route-scoped management loading is resynchronized at 2e9a55ac; live merge ref ca5d1528 merges it into current main b8fab87b. Reconstruction is running; Gate13/asset/package checks queued. PR #485 Phase-2 TeamSelect catalog lifecycle is at 185bb03a and must be resynchronized after #483 lands. Ordinary Squad row renderer remains evidence-blocked on exact 0x4EA3F0/0x5D6C50 semantics; helper trace anchors are now canonical via b8fab87b. Do not guess colors.",
   "last_known_main_head": "b8fab87b63cb5daa0f01489e6c3413adc5c76c5b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 325,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 325 ongoing. GitHub Actions currently shows no in-progress jobs while new PR checks remain queued. Productive cloud-safe work continued under deferred-blocker policy. Container/notebook process-start ClientError still blocks fresh private executable helper disassembly. Route-loader, trace narrowing, and TeamSelect lifecycle changes are isolated in separate PRs and must not be merged/claimed complete without green relevant CI.\nPR #484 merged canonically as b8fab87b after Gate13 + asset-policy success. PR #483 and #485 remain unmerged pending their own checks.",
+  "note": "Recovery 325: PR #484 merged. PR #483 old reconstruction passed; old focused Gate13 job was cancelled during base advance, not an assertion failure. New checkpoint head 2e9a55ac triggered valid post-main-advance workflows against merge ref ca5d1528 (base b8fab87b). Continue CI-first; merge #483 only when all new relevant checks are green.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
