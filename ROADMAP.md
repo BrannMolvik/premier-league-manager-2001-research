@@ -23,9 +23,10 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 13 - Restore original management presentation
-- **Next gate:** Gate 14 - Original audio and match presentation
-- **Work-ahead:** Independent, bounded groundwork currently exists in Gates 14, 16, and 17 while Gate 13 remains the earliest incomplete validation gate.
+- **Active gate:** Gate 14 - Original audio and match presentation
+- **Next gate:** Gate 15 - Fidelity sweep
+- **Work-ahead:** Independent, bounded groundwork already exists in Gates 15, 16, and 17; Gate 14 is now the earliest incomplete validation gate.
+- **Gate 13 completed:** 5 October 2026
 - **Gate 12 completed:** 30 September 2026
 - **Gate 11 completed:** 29 September 2026
 - **Gate 10 completed:** 28 September 2026
@@ -277,7 +278,7 @@ Evidence: `research/GATE12_COMPLETION_AUDIT.md`.
 
 ## Gate 13 - Restore original management presentation
 
-**Status: ACTIVE (30 September 2026)**
+**Status: COMPLETE (5 October 2026)**
 
 Goal: restore the original FM2001 interaction flow and visual identity after gameplay is stable. Reuse the original UI assets, screen/layout data, strings, navigation/timing data, and other recoverable presentation resources by default; reconstruct only the incompatible or inaccessible portions needed to drive them on the modern runtime.
 
@@ -304,9 +305,13 @@ Manager Home panel without new source evidence.
 Completion criteria:
 
 - [x] Simulation logic remains separated from presentation code. See `research/GATE13_PRESENTATION_SEPARATION_AUDIT.md`.
-- [ ] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
-- [ ] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
-- [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI.
+- [x] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
+- [x] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
+- [x] Normal play feels recognizably like FM2001 rather than a generic replacement UI.
+
+Closure evidence: `research/GATE13_CLOSURE_AUDIT.md` and
+`research/GATE13_FINAL_MANAGEMENT_TEXT.md`. Secondary pixel-perfect states
+remain explicitly deferred to Gate 15 and do not reopen this gate.
 
 ## Gate 14 - Original audio and match presentation
 
