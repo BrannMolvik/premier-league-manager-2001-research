@@ -326,6 +326,15 @@ class FakeTk:
             clone = object.__new__(type(self))
             clone.data = self.data
             clone.zoom_factor = self.zoom_factor * x
+            clone.subsample_factor = getattr(self, "subsample_factor", 1)
+            return clone
+
+        def subsample(self, x, y):
+            assert x == y
+            clone = object.__new__(type(self))
+            clone.data = self.data
+            clone.zoom_factor = getattr(self, "zoom_factor", 1)
+            clone.subsample_factor = getattr(self, "subsample_factor", 1) * x
             return clone
 
 
@@ -338,20 +347,26 @@ class LargeFakeRoot(FakeRoot):
 
 
 class OriginalGameHostTests(unittest.TestCase):
-    def test_high_resolution_fullscreen_uses_crisp_integer_scale_and_native_pointer_mapping(self):
+    def test_high_resolution_fullscreen_uses_fractional_scale_and_native_pointer_mapping(self):
         root = LargeFakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
 
-        self.assertEqual(host.display_scale, 2)
-        self.assertEqual(host.canvas.kwargs["width"], 1600)
-        self.assertEqual(host.canvas.kwargs["height"], 1200)
+        self.assertEqual((host.display_scale_num, host.display_scale_den), (7, 3))
+        self.assertAlmostEqual(host.display_scale, 7 / 3)
+        self.assertEqual(host.canvas.kwargs["width"], 1867)
+        self.assertEqual(host.canvas.kwargs["height"], 1400)
         self.assertTrue(
             all(
-                getattr(photo, "zoom_factor", 1) == 2
+                getattr(photo, "zoom_factor", 1) == 7
+                and getattr(photo, "subsample_factor", 1) == 3
                 for photo in host._first_screen_photo_cache.values()
             )
         )
-        event = SimpleNamespace(x=14, y=956, widget=host.canvas)
+        event = SimpleNamespace(
+            x=host._native_to_display(7),
+            y=host._native_to_display(478),
+            widget=host.canvas,
+        )
         native = host._normalize_pointer_event(event)
         self.assertEqual((native.x, native.y), (7, 478))
 
