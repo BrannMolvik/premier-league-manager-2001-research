@@ -91,3 +91,33 @@ chain is exact should the clean-room runtime consume the actual next
 
 No fixed seed, per-club reseed, guessed draw index, or unrelated match-engine RNG
 may be substituted.
+
+
+## Deterministic private adjudication order
+
+The neutral tracer is followed by
+`reconstruction/gate17_objective_rng_adjudication.py`. This plan does not
+convert any decoded CALL candidate into objective semantics. It locks the
+already-proven source constants and requires three private-source proofs in
+order:
+
+1. **Objective setup owner chronology.** Classify the ordinary callers of
+   `0x5DF670`, identify the fresh-user lifecycle owner, place setup relative
+   to user creation and competition startup, and separate fresh setup from
+   later refresh/progression paths.
+2. **Exact shared CRT entry state.** Connect that ordinary setup path to the
+   same process-global MSVC CRT stream used by the recovered startup ledger,
+   account for every intervening CRT consumer, rule out a hidden reseed or
+   independent stream, and recover the exact state immediately before setup.
+3. **RNG-bearing draw position.** Prove slot-0/1/2 invocation chronology,
+   identify exactly which recovered branch consumes `RNG(100)`, recover that
+   draw's position in the shared stream, and account for sequential users whose
+   objective draws advance the same process-global state.
+
+Passing these source stages still does not by itself authorize runtime
+promotion. The clean-room implementation must then consume the proven shared
+CRT state at the proven point and re-audit every TeamSelect scope. The
+adjudication contract therefore keeps
+`fresh_objective_rng_replay_ready`,
+`all_playable_scope_fresh_objectives_ready`,
+full-scope readiness and Gate 17 completion false.
