@@ -37,6 +37,7 @@
       "--enable-ffprobe",
       "--enable-protocol=file,pipe",
       "--enable-demuxer=ea",
+      "--enable-demuxer=mov",
       "--enable-decoder=eatgq,adpcm_ea,adpcm_ea_r1,adpcm_ea_r2,adpcm_ea_r3,adpcm_ima_ea_eacs,adpcm_ima_ea_sead,adpcm_psx,pcm_mulaw,pcm_s16le,pcm_s16le_planar,pcm_s8,mp3,h264,aac",
       "--enable-encoder=h264_mf,aac",
       "--enable-filter=aresample",
@@ -86,7 +87,8 @@
     "required_internal_audio_conversion": {
       "filter": "aresample",
       "reason": "EA audio decoders may produce integer PCM while the native AAC encoder accepts FLTP."
-    }
+    },
+    "required_derivative_input_demuxer": "mov"
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
 }
