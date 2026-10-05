@@ -276,13 +276,26 @@ class FakeRoot(FakeWidget):
         queue[key] = callback
         return key
 
+    def after(self, delay_ms, callback):
+        queue = self.values.setdefault('timers', {})
+        key = max(queue, default=1000) + 1
+        queue[key] = (delay_ms, callback)
+        return key
+
     def after_cancel(self, key):
         self.values.setdefault('idle', {}).pop(key, None)
+        self.values.setdefault('timers', {}).pop(key, None)
 
     def run_idle(self):
         queue = self.values.setdefault('idle', {})
         key = next(iter(queue))
         queue.pop(key)()
+
+    def run_timer(self):
+        queue = self.values.setdefault('timers', {})
+        key = next(iter(queue))
+        _delay_ms, callback = queue.pop(key)
+        callback()
 
     def title(self, value):
         self.values["title"] = value
@@ -291,7 +304,7 @@ class FakeRoot(FakeWidget):
         self.values["resizable"] = (x, y)
 
     def configure(self, **kwargs):
-        self.values["configure"] = kwargs
+        self.values.setdefault("configure", {}).update(kwargs)
 
     def attributes(self, name, value):
         self.values.setdefault("attributes", {})[name] = value
@@ -352,6 +365,21 @@ class FakeTk:
             clone.zoom_factor = getattr(self, "zoom_factor", 1)
             clone.subsample_factor = getattr(self, "subsample_factor", 1) * x
             return clone
+
+
+class DeferredThread:
+    def __init__(self, *, target, daemon):
+        self.target = target
+        self.daemon = daemon
+        self.started = False
+
+    def start(self):
+        self.started = True
+
+    def run(self):
+        if not self.started:
+            raise AssertionError("thread must be started before run")
+        self.target()
 
 
 class LargeFakeRoot(FakeRoot):
@@ -477,6 +505,146 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(calls, ["load"])
         for name, value in payload.items():
             self.assertIs(getattr(host, name), value)
+
+    def test_teamselect_start_defers_management_resource_decode_off_tk_thread(self):
+        calls = []
+        threads = []
+        payload = {
+            "management_pmenu_resources": object(),
+            "league_fixtures_grid_art": object(),
+            "fixtures_pager_art": object(),
+            "squad_top_resources": object(),
+            "league_tables_header_art": object(),
+            "pmatchinfo_snapshot": object(),
+            "pmatchinfo_font": object(),
+            "pmatchinfo_nested_font": object(),
+            "pmatchinfo_script_art": object(),
+            "management_background": object(),
+            "management_header_resources": object(),
+            "management_text_resources": object(),
+        }
+
+        def loader():
+            calls.append("load")
+            return payload
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_presenter_factory=management_factory,
+            management_resource_loader=loader,
+            management_thread_factory=thread_factory,
+        )
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+
+        with patch.object(host, "redraw") as redraw:
+            host.on_click(SimpleNamespace(x=426, y=301))
+
+            self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+            self.assertTrue(live.session.started)
+            self.assertEqual(calls, [])
+            self.assertEqual(len(threads), 1)
+            self.assertTrue(threads[0].started)
+            self.assertFalse(host._management_resources_loaded)
+            self.assertIsNotNone(host._management_load_poll)
+            redraw.assert_not_called()
+            self.assertEqual(root.values["configure"]["cursor"], "watch")
+
+            threads[0].run()
+            root.run_timer()
+
+            self.assertEqual(calls, ["load"])
+            self.assertTrue(host._management_resources_loaded)
+            redraw.assert_called_once_with()
+            self.assertEqual(root.values["configure"]["cursor"], "")
+            for name, value in payload.items():
+                self.assertIs(getattr(host, name), value)
+
+    def test_teamselect_async_management_loader_surfaces_worker_exception(self):
+        threads = []
+        messages = []
+
+        def loader():
+            raise RuntimeError("management decode exploded")
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_presenter_factory=management_factory,
+            management_resource_loader=loader,
+            management_thread_factory=thread_factory,
+            error_reporter=messages.append,
+        )
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+
+        with patch.object(host, "redraw") as redraw:
+            host.on_click(SimpleNamespace(x=426, y=301))
+            self.assertEqual(messages, [])
+            self.assertEqual(len(threads), 1)
+
+            threads[0].run()
+            root.run_timer()
+
+        self.assertEqual(messages, ["RuntimeError: management decode exploded"])
+        self.assertEqual(host.last_status, "RuntimeError: management decode exploded")
+        self.assertFalse(host._management_resources_loaded)
+        self.assertIsNone(host._management_load_thread)
+        self.assertIsNone(host._management_load_queue)
+        self.assertEqual(root.values["configure"]["cursor"], "")
+        redraw.assert_not_called()
+
+    def test_management_input_is_ignored_while_async_resources_are_loading(self):
+        threads = []
+
+        def loader():
+            raise AssertionError("deferred worker should not have run yet")
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_presenter_factory=management_factory,
+            management_resource_loader=loader,
+            management_thread_factory=thread_factory,
+        )
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        host.on_click(SimpleNamespace(x=426, y=301))
+        self.assertEqual(len(threads), 1)
+
+        host.on_click(SimpleNamespace(x=400, y=300))
+
+        self.assertIsNone(host.management_presenter)
+        self.assertEqual(
+            host.last_status,
+            "Preparing source-backed management resources...",
+        )
+        self.assertEqual(len(threads), 1)
 
     def test_game_host_starts_fullscreen_and_preserves_native_canvas_size(self):
         root = FakeRoot()

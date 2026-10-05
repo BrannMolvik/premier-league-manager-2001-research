@@ -17,8 +17,11 @@ from base64 import b64encode
 from functools import lru_cache
 from math import gcd
 from pathlib import Path
+from queue import Empty, Queue
+from threading import Thread
 import struct
 import sys
+import traceback
 import zlib
 from types import SimpleNamespace
 from original_management_background import OriginalManagementBackground
@@ -290,6 +293,7 @@ class OriginalGameTkHost:
         management_header_resources=None,
         management_text_resources=None,
         management_resource_loader=None,
+        management_thread_factory=Thread,
     ):
         self.presenter = presenter
         self.root = root
@@ -316,7 +320,13 @@ class OriginalGameTkHost:
         self.management_header_resources = management_header_resources
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
+        if not callable(management_thread_factory):
+            raise OriginalGameHostError("management_thread_factory must be callable")
+        self.management_thread_factory = management_thread_factory
         self._management_resources_loaded = management_resource_loader is None
+        self._management_load_queue = None
+        self._management_load_thread = None
+        self._management_load_poll = None
         self.management_header_state = OriginalManagementHeaderState()
         self._management_header_idle = None
         self.last_pmenu_activation = None
@@ -804,15 +814,7 @@ class OriginalGameTkHost:
         if self.first_screen_animation.advance(view):
             self._update_first_screen_animation_layers(view)
 
-    def _ensure_management_resources(self) -> None:
-        if self._management_resources_loaded:
-            return
-        loader = self.management_resource_loader
-        if loader is None:
-            self._management_resources_loaded = True
-            return
-        with timed_stage("management.resources.load_all"):
-            loaded = loader()
+    def _apply_management_resources(self, loaded) -> None:
         if not isinstance(loaded, dict):
             raise OriginalGameHostError(
                 "Management resource loader must return a resource mapping"
@@ -839,6 +841,91 @@ class OriginalGameTkHost:
         for name in required:
             setattr(self, name, loaded[name])
         self._management_resources_loaded = True
+
+    def _ensure_management_resources(self) -> None:
+        """Synchronous compatibility helper used outside the live Tk transition."""
+        if self._management_resources_loaded:
+            return
+        loader = self.management_resource_loader
+        if loader is None:
+            self._management_resources_loaded = True
+            return
+        with timed_stage("management.resources.load_all"):
+            loaded = loader()
+        self._apply_management_resources(loaded)
+
+    def _schedule_management_resource_poll(self) -> None:
+        if self._management_load_poll is None:
+            self._management_load_poll = self.root.after(
+                25,
+                self._poll_management_resource_load,
+            )
+
+    def _begin_management_resource_load(self) -> None:
+        """Decode the verified management bundle without blocking Tk."""
+        if self._management_resources_loaded:
+            with timed_stage("management.first_draw"):
+                self.redraw()
+            return
+        if self._management_load_thread is not None:
+            return
+        loader = self.management_resource_loader
+        if loader is None:
+            self._management_resources_loaded = True
+            with timed_stage("management.first_draw"):
+                self.redraw()
+            return
+
+        self.last_status = "Preparing source-backed management resources..."
+        self.root.configure(cursor="watch")
+        result_queue = Queue()
+        self._management_load_queue = result_queue
+
+        def worker():
+            try:
+                with timed_stage("management.resources.load_all"):
+                    loaded = loader()
+            except Exception as exc:
+                result_queue.put(("error", exc, traceback.format_exc()))
+            else:
+                result_queue.put(("ok", loaded, None))
+
+        thread = self.management_thread_factory(target=worker, daemon=True)
+        self._management_load_thread = thread
+        thread.start()
+        self._schedule_management_resource_poll()
+
+    def _poll_management_resource_load(self) -> None:
+        self._management_load_poll = None
+        result_queue = self._management_load_queue
+        if result_queue is None:
+            return
+        try:
+            status, payload, traceback_text = result_queue.get_nowait()
+        except Empty:
+            self._schedule_management_resource_poll()
+            return
+
+        self._management_load_thread = None
+        self._management_load_queue = None
+        if status == "error":
+            self.root.configure(cursor="")
+            self.last_status = f"{type(payload).__name__}: {payload}"
+            if traceback_text:
+                print(traceback_text, file=sys.stderr, flush=True)
+            self.error_reporter(self.last_status)
+            return
+
+        try:
+            self._apply_management_resources(payload)
+            self.root.configure(cursor="")
+            with timed_stage("management.first_draw"):
+                self.redraw()
+        except Exception as exc:
+            self.root.configure(cursor="")
+            self.last_status = f"{type(exc).__name__}: {exc}"
+            traceback.print_exc(file=sys.stderr)
+            self.error_reporter(self.last_status)
 
     def _schedule_management_header_update(self) -> None:
         if (
@@ -1443,6 +1530,15 @@ class OriginalGameTkHost:
 
     def on_click(self, event) -> None:
         event = self._normalize_pointer_event(event)
+        if (
+            self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+            and not self._management_resources_loaded
+        ):
+            if self._management_load_thread is None:
+                self._begin_management_resource_load()
+            else:
+                self.last_status = "Preparing source-backed management resources..."
+            return
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.active_pmatchinfo_art is not None:
                 if (self.active_pmatchinfo_context is not None
@@ -1571,6 +1667,12 @@ class OriginalGameTkHost:
                     return
             elif result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE:
                 self.last_status = "Entered recovered PMenu management host"
+                if (
+                    self.management_resource_loader is not None
+                    and not self._management_resources_loaded
+                ):
+                    self._begin_management_resource_load()
+                    return
             elif result.transition.command is FrontEndCommand.QUIT_TO_WINDOWS:
                 self.last_status = "QUIT_TO_WINDOWS"
                 if self._first_screen_idle is not None:
@@ -1579,6 +1681,9 @@ class OriginalGameTkHost:
                 if self._management_header_idle is not None:
                     self.root.after_cancel(self._management_header_idle)
                     self._management_header_idle = None
+                if self._management_load_poll is not None:
+                    self.root.after_cancel(self._management_load_poll)
+                    self._management_load_poll = None
                 self.root.destroy()
                 return
             elif result.transition.command is not None:
