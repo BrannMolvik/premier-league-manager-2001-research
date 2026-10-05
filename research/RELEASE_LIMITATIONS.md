@@ -8,36 +8,30 @@ still identifies itself as pre-release.
 
 ## Current unresolved release blockers
 
-- Gate 13 remains the earliest incomplete validation gate. A fresh real
-  Windows 11/Tk schema-8 audit now passes, and the genuine calculated
-  human-away route survives schema-44 save/fresh-process reload, uses the
-  source-backed ordinary Fixtures arrows in both directions, respects native
-  PMenu popup visibility/input ownership, and opens the correct PMatchInfo
-  without the explicit paging seam. The remaining Gate-13 closure blockers are
-  narrower: the live first-screen host still renders fixed Button frame 0
-  instead of advancing the recovered 11-step hover sequence at a
-  source-qualified original update cadence, and the required management-header
-  `back_4.444` / `back_4_anim.444` presentation plus final ordinary
-  data/text recognizability have not passed the roadmap audit. These cannot be
-  waived by the successful schema-8 or report-navigation receipts.
-
-- Gate 14 remains work-ahead and is not complete. The match presentation
+- Gate 14 is the earliest incomplete validation gate. The match presentation
   consumes reconstructed match state/events without duplicating simulation
   logic and remains separated from core management play. Source-backed progress
-  now includes retained PlayerRow dynamic-energy and English text pixels,
-  multiple FastView component rasters, parameterized score/team nested
-  construction, GoalFlash relative row/formatting behavior, ScoreCompositeMain
-  outer ownership, four embedded outer-control registrations, the native
-  packed-16 font blend rule, canonical BNK bank ownership/playback entrypoints
-  and sample decoding, plus chant selection/timing. The current release
-  blockers are complete score/team nested pixels; GoalFlash absolute
-  timing/position and raster pixels; ScoreCompositeMain geometry/content/pixels;
-  the four embedded controls' geometry/resources/state/pixels; complete global
-  FastView ordering/flattening; exact semantic audio event/sample binding and
-  actual login/menu application integration; chant event semantics;
-  source-backed SCI/3D choreography; and final recognizable-original match
-  workflow verification. The bounded static score/table text tracer is evidence
-  tooling only and does not prove missing value/style/font/color semantics.
+  includes retained PlayerRow dynamic-energy and English text pixels, multiple
+  FastView component rasters, parameterized score/team nested construction,
+  GoalFlash relative row/formatting behavior, ScoreCompositeMain outer
+  ownership, four embedded outer-control registrations, the native packed-16
+  font blend rule, canonical BNK bank ownership/playback entrypoints and sample
+  decoding, plus chant selection/timing. Normal Windows startup media and the
+  bounded first-screen `AudioHooks (10,0) -> menus.bnk slot 2` press route are
+  integrated. Strict external Windows 11 acceptance tooling exists for both and
+  PR #462 can run the two human-confirmed checks transactionally, but neither
+  private external receipt exists yet. The current release blockers are broad
+  semantic/application-wide audio binding and login/menu integration; those two
+  real-Windows acceptance receipts; complete score/team nested pixels;
+  GoalFlash absolute timing/position and raster pixels; ScoreCompositeMain
+  geometry/content/pixels; the four embedded controls'
+  geometry/resources/state/pixels; complete global FastView
+  ordering/flattening; chant event semantics; source-backed SCI/3D choreography;
+  source navigation into FastView; and final recognizable-original match
+  workflow verification. The authorized private source archive can be
+  materialized, but current shell and notebook execution fail with
+  `caas.internal.errors.ClientError`; no missing source semantics are inferred
+  from that infrastructure failure.
 
 - Gate 15 remains a work-ahead fidelity sweep. The active ledger is
   `research/FIDELITY_GAPS.md` and the current reconciliation is
@@ -46,8 +40,9 @@ still identifies itself as pre-release.
   league-table qsort ties, original PLM2001 save compatibility, residual player
   negotiation branches, same-day transfer ordering, the remaining special Cup
   receipt caller/applicability boundary, and finance/board residuals. Gate 13
-  and Gate 14 presentation blockers remain prerequisites rather than
-  limitations that Gate 15 may accept away. Deterministic fallbacks and
+  presentation residuals deliberately deferred by the completed Gate 13 are
+  now Gate-15 fidelity backlog items. Gate 14's still-open roadmap criteria
+  remain prerequisites rather than limitations that Gate 15 may accept away. Deterministic fallbacks and
   fail-closed behavior must continue to be labeled honestly until every final
   item is fixed, proven irrelevant, or explicitly accepted in the final audit.
 
@@ -56,7 +51,7 @@ still identifies itself as pre-release.
   and save-growth soaks, five years of autonomous transfer churn, mixed
   shared-primary competition stress, and two independent canonical shipped-data
   seeds that each completed three annual qualification/regeneration cycles.
-  Gate 16 is intentionally not marked complete while Gates 13-15 remain open.
+  Gate 16 is intentionally not marked complete while Gates 14-15 remain open.
   When those prerequisites close, the relevant full suite must be rerun and
   `research/GATE16_READINESS_AUDIT.md` reconciled against the then-current
   runtime rather than repeating already-proven stress work now.
@@ -81,7 +76,7 @@ still identifies itself as pre-release.
 ## Final-review rule
 
 Before release, replace this working list with the actual limitations that
-remain intentionally accepted after Gates 13 through 16 are audited. Do not
+remain intentionally accepted after Gates 14 through 16 are audited. Do not
 remove a limitation merely to satisfy the release tool. The final document
 must describe the shipped build accurately, and the final Windows release audit
 must run against the same clean repository commit and archived build recorded

@@ -1,10 +1,10 @@
 # Gate 17 release-readiness audit
 
-_Date: 1 October 2026 KST_
+_Date: 5 October 2026 KST_
 
 ## Status
 
-This is release-audit groundwork. Gate 17 is not complete, and Gate 13 remains the earliest incomplete validation gate.
+This is release-audit groundwork. Gate 17 is not complete. Gate 13 is complete, and Gate 14 is the earliest incomplete validation gate.
 
 The final audit in reconstruction/gate17_release_readiness.py is designed to run on the actual Windows 11 release candidate. It joins repository checks with separate clean-install and gameplay evidence rather than treating hosted CI as proof of a successful Windows release.
 
@@ -50,12 +50,13 @@ Gate 16 is no longer missing canonical real-data multi-season evidence. Its
 work-ahead readiness audit records two independent shipped-data seeds, each
 completing three annual qualification/regeneration cycles, plus the synthetic,
 save/reload, transfer-churn, mixed-primary, and state-growth stress coverage.
-Those criteria remain prevalidated rather than complete because Gates 13-15
-are still open and the final current-runtime rerun has not happened.
+Those criteria remain prevalidated rather than complete because Gates 14-15
+are still open and the final current-runtime rerun has not happened. Gate 13
+is complete and no longer part of this prerequisite block.
 
 The pre-release limitations ledger must therefore describe Gate 16 as
 prevalidated-but-blocked-by-prerequisites, not as lacking canonical
-multi-season evidence. Gate 13 remains the earliest incomplete validation gate,
+multi-season evidence. Gate 14 remains the earliest incomplete validation gate,
 and Gate 14/15 work remains unfinished.
 
 
@@ -175,7 +176,7 @@ lives below the one external work root. If any post-preflight step fails, that
 newly created work root is removed so a partial set of receipts cannot be
 mistaken for final release evidence.
 
-The runner therefore **cannot pass today** while Gates 13-16 remain open and
+The runner therefore **cannot pass today** while Gates 14-16 remain open and
 the limitations ledger is intentionally marked pre-release. That is the desired
 fail-closed behavior, not a missing bypass.
 

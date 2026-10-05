@@ -1,14 +1,15 @@
 # Gate 16 readiness audit
 
-_Date: 1 October 2026 KST_
+_Date: 5 October 2026 KST_
 
 ## Status
 
 **Criteria prevalidated by work-ahead; do not mark Gate 16 complete yet.**
 
-Gate 13 remains the earliest incomplete validation gate, and Gate 15 has open
-fidelity items. Under the deferred-blocker policy, later-gate work may advance
-but Gate 16 must not be declared passed before its prerequisites close.
+Gate 13 is complete. Gate 14 is now the earliest incomplete validation gate,
+and Gate 15 has open fidelity items. Under the deferred-blocker policy,
+later-gate work may advance, but Gate 16 must not be declared passed before
+Gates 14-15 close and the current runtime is rerun against this evidence.
 
 ## Completion-criteria evidence
 
@@ -102,7 +103,7 @@ effects, not stale cross-season accumulation.
 
 ## Gate transition rule
 
-Do not check Gate 16 complete in `ROADMAP.md` yet. When Gates 13-15 are
+Do not check Gate 16 complete in `ROADMAP.md` yet. When Gates 14-15 are
 actually closed, rerun the relevant full suite and reconcile this audit against
 the then-current runtime. If no intervening change invalidates these results,
 this evidence is sufficient to satisfy Gate 16's present roadmap criteria.
