@@ -15,6 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gate14_fastview_league_table import (
+    FastViewLeagueTableError,
     league_table_heading_rects,
     league_table_row_rects,
     league_table_visible_row_count,
@@ -113,7 +114,7 @@ def league_table_static_text_inventory(
     """Return the heading and visible-row TextControls in source order."""
     try:
         visible_rows = league_table_visible_row_count(source_count)
-    except Exception as exc:
+    except FastViewLeagueTableError as exc:
         raise FastViewStaticTextInventoryError(str(exc)) from exc
 
     _heading_grid, heading_text = league_table_heading_rects()
