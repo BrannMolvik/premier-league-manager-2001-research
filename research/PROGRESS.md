@@ -11489,3 +11489,42 @@ work may continue under the deferred-blocker policy.
 - Its queued Gate-13 workflow was then cancelled while the base branch advanced; GitHub reported the workflow run as failed even though no test assertion executed. This checkpoint deliberately resynchronizes the PR so hosted checks run again against the current `main` merge base.
 - The route-loading implementation itself is unchanged by this checkpoint: fresh Squad remains limited to PMenu/Squad/background/header resources; Fixtures/PMatchInfo and League Tables remain deferred and cached by route; management input remains blocked during every active family decode.
 - The ordinary Squad row renderer is still evidence-open on exact packed-color/display-name helper semantics and is not claimed complete here.
+
+
+## 6 October 2026 — Recovery 326 Phase-1/Phase-2 #482 latency checkpoint
+
+- PR #483 completed the route-scoped management-loader slice and merged as
+  `4c045b0b75fc4d6061e06e23d8089c2a08a5c475` after reconstruction
+  `37372720405`, Gate-13 `37372720352`, asset-policy `37372720354` and
+  Windows-package `37372720390` all passed.
+- Fresh Squad now initializes only its own management shell/background/header
+  resources. Fixtures/PMatchInfo and League Tables are deferred to their routes,
+  remain asynchronous/fail-closed and are reused after the first successful
+  family load.
+- PR #485 then split canonical TeamSelect from full gameplay-world
+  materialization. New Game verifies/parses the canonical database and exposes
+  the same country/competition/club hierarchy without constructing GameState or
+  the primary schedule; Start builds gameplay from that exact already-parsed
+  database.
+- During verification, CI caught three fixture/audit assumptions rather than
+  production regressions: the presentation-separation audit needed to recognize
+  both lazy gameplay factories, the new catalog-render test needed native
+  TeamSelect strips/fonts, and its hierarchy art needed the complete native
+  23-frame animation / 5-frame league-bar groups. Those tests were corrected
+  without weakening production fail-closed behavior.
+- Final PR #485 head
+  `b8efab946ad8a834fabd3b3286f6a64e4efd0dae` passed Gate-13
+  `37376279197`, asset-policy `37376279127`, and full reconstruction
+  `37376279059`; it merged as
+  `3c325a5d1d81b44d1f43da6dc53d4d1e33f988f1`.
+- The eager `FM2001Database` parse remains on New Game by design for this
+  bounded step. External `teamselect.catalog_build` timing will determine
+  whether a narrower parser is justified.
+- Ordinary Squad rows remain evidence-blocked on exact `0x4EA3F0` /
+  `0x5D6C50` semantics, and the process sandbox still fails at startup with
+  `caas.internal.errors.ClientError`. No guessed text color was introduced.
+- Cold-start derivative analysis confirmed the render-ready PStartMenu bundle is
+  deterministic (800x600 RGBA background, 23 169x25 RGBA button frames and four
+  caption masks/metadata), but package-independent regeneration still requires
+  exact source-proven EA444 decoder inputs or a separately proved clean-room
+  equivalent.
