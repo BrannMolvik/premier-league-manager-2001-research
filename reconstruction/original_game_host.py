@@ -1831,19 +1831,53 @@ def run_original_game_ui(
     startup_media_receipt: str | Path | None = None,
     startup_media_backend=None,
     repo_root: str | Path | None = None,
+    startup_timing_reporter=None,
 ) -> None:
     """Launch verified startup media, then the current source-backed UI surface."""
+    if startup_timing_reporter is None:
+        def startup_timing_reporter(phase, seconds):
+            print(
+                f"FM2001_STARTUP_TIMING phase={phase} seconds={float(seconds):.3f}",
+                file=sys.stderr,
+                flush=True,
+            )
+    elif not callable(startup_timing_reporter):
+        raise OriginalGameHostError("startup_timing_reporter must be callable")
+
+    total_started = perf_counter()
+
+    if startup_media_receipt is None and startup_media_backend is None:
+        print(
+            "FM2001_STARTUP_MEDIA skipped "
+            "reason=no_verified_derivative_receipt_and_player; "
+            "original TGQ media is never converted or played implicitly",
+            file=sys.stderr,
+            flush=True,
+        )
+
+    phase_started = perf_counter()
     play_configured_startup_media(
         receipt_path=startup_media_receipt,
         backend=startup_media_backend,
         repo_root=repo_root,
     )
+    startup_timing_reporter(
+        "startup_media",
+        perf_counter() - phase_started,
+    )
+
     resolved_source_root = (
         DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
     )
+
+    phase_started = perf_counter()
     presenter = build_original_game_presenter(
         game_dir,
         source_root=resolved_source_root,
+    )
+    startup_timing_reporter(
+        "presenter_build",
+        perf_counter() - phase_started,
     )
     original_executable = Path(game_dir) / "FOOTBAL.EXE"
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
@@ -1963,9 +1997,15 @@ def run_original_game_ui(
             "_load_timings": phase_timings,
         }
 
+    phase_started = perf_counter()
     import tkinter as tk
-
     root = tk.Tk()
+    startup_timing_reporter(
+        "tk_root_creation",
+        perf_counter() - phase_started,
+    )
+
+    phase_started = perf_counter()
     host = OriginalGameTkHost(
         presenter,
         root,
@@ -1981,8 +2021,22 @@ def run_original_game_ui(
         ),
         management_resource_loader=load_management_resources,
     )
+    startup_timing_reporter(
+        "host_construct_and_first_draw",
+        perf_counter() - phase_started,
+    )
+
+    phase_started = perf_counter()
     install_available_first_screen_press_audio(
         host,
         game_dir,
+    )
+    startup_timing_reporter(
+        "first_screen_audio_install",
+        perf_counter() - phase_started,
+    )
+    startup_timing_reporter(
+        "source_ui_ready_total",
+        perf_counter() - total_started,
     )
     root.mainloop()

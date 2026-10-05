@@ -1506,6 +1506,8 @@ class OriginalGameHostTests(unittest.TestCase):
         game_dir = Path("/original/game")
         source_root = Path("/bundled/source")
 
+        timings = []
+
         with (
             patch.dict(sys.modules, {"tkinter": fake_tk}),
             patch("original_game_host.play_configured_startup_media") as startup,
@@ -1520,14 +1522,40 @@ class OriginalGameHostTests(unittest.TestCase):
             patch(
                 "original_game_host.install_available_first_screen_press_audio",
             ) as install,
+            patch("builtins.print") as printed,
         ):
-            run_original_game_ui(game_dir, source_root=source_root)
+            run_original_game_ui(
+                game_dir,
+                source_root=source_root,
+                startup_timing_reporter=lambda phase, seconds: timings.append(
+                    (phase, seconds)
+                ),
+            )
 
         startup.assert_called_once()
         build.assert_called_once_with(game_dir, source_root=source_root)
         self.assertIs(host_ctor.call_args.args[0], fake_presenter)
         install.assert_called_once_with(fake_host, game_dir)
         fake_root.mainloop.assert_called_once_with()
+        self.assertEqual(
+            tuple(phase for phase, _seconds in timings),
+            (
+                "startup_media",
+                "presenter_build",
+                "tk_root_creation",
+                "host_construct_and_first_draw",
+                "first_screen_audio_install",
+                "source_ui_ready_total",
+            ),
+        )
+        self.assertTrue(all(seconds >= 0 for _phase, seconds in timings))
+        self.assertTrue(
+            any(
+                call.args
+                and str(call.args[0]).startswith("FM2001_STARTUP_MEDIA skipped")
+                for call in printed.call_args_list
+            )
+        )
 
     def test_default_source_root_is_repository_original_asset_store(self):
         self.assertEqual(
