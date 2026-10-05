@@ -37,6 +37,10 @@ REQUIRED_BUNDLED_FILES = (
     "original_assets/source/FM2001_Art/Generic/menu_popup/menu_anim.444",
     "original_assets/source/FM2001_Art/Generic/match_report/info_popup.444",
     "original_assets/source/Fonts/Zurich_XCn_BT_16pixel.fnt",
+    "runtime_tools/ffmpeg.exe",
+    "runtime_tools/ffmpeg.provenance.json",
+    "third_party/ffmpeg/PROVENANCE.json",
+    "third_party/ffmpeg/README.md",
 )
 
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "component": "FFmpeg",
+  "bundled_binary_path": "runtime_tools/ffmpeg.exe",
+  "provider_package": {
+    "name": "imageio-ffmpeg",
+    "version": "0.6.0",
+    "wheel_observed": "imageio_ffmpeg-0.6.0-py3-none-win_amd64.whl",
+    "release_url": "https://github.com/imageio/imageio-ffmpeg/releases/tag/v0.6.0"
+  },
+  "observed_package_run": {
+    "workflow_run_id": 37305008767,
+    "job_id": 111746454372,
+    "repository_commit": "1bcbf4ea387b5ac2e870ceb8fe71c3c1d14a9900"
+  },
+  "binary_identity": {
+    "version_line": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+    "compiler_line": "built with gcc 14.2.0 (Rev1, Built by MSYS2 project)",
+    "required_configuration_flags": [
+      "--enable-gpl",
+      "--enable-version3",
+      "--enable-static",
+      "--enable-libx264",
+      "--enable-libx265",
+      "--enable-librubberband"
+    ],
+    "library_versions": {
+      "libavutil": "59. 39.100",
+      "libavcodec": "61. 19.100",
+      "libavformat": "61.  7.100",
+      "libavdevice": "61.  3.100",
+      "libavfilter": "10.  4.100",
+      "libswscale": "8.  3.100",
+      "libswresample": "5.  3.100",
+      "libpostproc": "58.  3.100"
+    }
+  },
+  "upstream_references": {
+    "ffmpeg_license": "https://ffmpeg.org/legal.html",
+    "ffmpeg_source": "https://github.com/FFmpeg/FFmpeg",
+    "gyan_builds": "https://www.gyan.dev/ffmpeg/builds/",
+    "imageio_ffmpeg_source": "https://github.com/imageio/imageio-ffmpeg"
+  },
+  "release_materials": {
+    "release_ready": false,
+    "license_material_complete": false,
+    "source_material_complete": false,
+    "required_files": [
+      "third_party/ffmpeg/LICENSE.txt",
+      "third_party/ffmpeg/SOURCE-PROVENANCE.json"
+    ],
+    "sha256": {}
+  },
+  "legal_boundary": "This record preserves observed provenance and creates a fail-closed release boundary. It is not a legal-compliance opinion. release_ready must remain false until the selected redistributed binary has corresponding license/source material reviewed and staged for the release."
+}
