@@ -88,6 +88,20 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             ):
                 audit_source_contract(root)
 
+    def test_minimal_contract_requires_runtime_pipe_and_null_plumbing(self):
+        payload = self.canonical()
+        args = payload["minimal_helper_target"]["configure_args"]
+        args[args.index("--enable-protocol=file,pipe")] = "--enable-protocol=file"
+        args.remove("--enable-muxer=null")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "file/pipe I/O",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_rejects_third_party_enable_flags(self):
         payload = self.canonical()
         payload["minimal_helper_target"]["configure_args"].append("--enable-libx264")
