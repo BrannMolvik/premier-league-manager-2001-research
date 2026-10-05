@@ -77,7 +77,10 @@ still identifies itself as pre-release.
 
 Before release, replace this working list with the actual limitations that
 remain intentionally accepted after Gates 14 through 16 are audited. Do not
-remove a limitation merely to satisfy the release tool. The final document
-must describe the shipped build accurately, and the final Windows release audit
-must run against the same clean repository commit and archived build recorded
-in its evidence receipts.
+remove a limitation merely to satisfy the release tool. Every Gate-15 ledger
+row finalized as `accepted_documented` must be carried here using its exact gap
+name, followed by a meaningful user-facing explanation; fixed and
+`proven_irrelevant` rows are not release limitations. The final document must
+describe the shipped build accurately, and the final Windows release audit must
+run against the same clean repository commit and archived build recorded in its
+evidence receipts.
