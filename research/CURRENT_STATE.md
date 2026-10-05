@@ -30,6 +30,10 @@ save/reload or PMatchInfo. Gate13 remains open pending this fixed slice and
 final validation. No original execution, ownership or agent-runtime change.
 
 Daniel requested wrap-up at the usage limit. No further source work is running.
+Final reconciliation preserves current-main `47039febe5318c9109f71e90b88789ca39833b90`
+and the worker's disjoint #405/#406 changes; none are modified by this branch.
+Reconciled focused regression plus the worker's changed tracer module passes
+**43 tests /1 expected skip**, using the existing private Capstone dependency.
 Header source/asset handoff is in the fixed-slice evidence file: verified private
 back_4/back_4_anim extraction, compound child origins/geometry and24pixel Zurich
 caption producer. These are not yet integrated. Resume ONLY that accepted
