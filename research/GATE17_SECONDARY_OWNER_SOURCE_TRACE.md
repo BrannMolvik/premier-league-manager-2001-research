@@ -75,3 +75,41 @@ Run the tracer on a machine that has the authorized original executable and
 write its JSON output to a private path outside the repository. Use
 `--disassemble` only as an analyst aid; linear decode remains non-semantic
 evidence.
+
+
+## Next private-source adjudication contract
+
+The neutral trace is now followed by a deterministic four-stage adjudication
+plan in `reconstruction/gate17_secondary_owner_adjudication.py`. The plan does
+not classify any current candidate as a lifecycle proof. It exists so the next
+private-source pass cannot silently conflate raw address occurrences, decoded
+direct CALLs, and actual runtime ownership.
+
+The required source-inspection order is:
+
+1. **Daily runtime owner.** Start from direct callers of `0x615C10` and prove
+   which ordinary calendar/day owner reaches the function, including the
+   concrete receiver/`this` value or selected schedule-container global.
+   Promotion requires affirmative evidence that secondary global `0x947AF0`
+   participates in ordinary traversal, not merely startup construction.
+2. **Season continuation.** Adjudicate callers of `0x616A70` and
+   `0x615BE0`, prove any secondary receiver/ownership, and establish the
+   lifecycle ordering from a completed season into the next schedule state.
+   New-game-only setup cannot satisfy this step.
+3. **Human match dispatch.** Trace a secondary-owned due fixture from ordinary
+   traversal to the human-control branch and its continuation owner. The primary
+   procedural human route must not be reused unless source equivalence is
+   actually demonstrated.
+4. **Save/reload persistence.** Find the serializer and reload ownership for the
+   secondary schedule object/state and prove that a reloaded game resumes the
+   same logical secondary owner rather than rebuilding unrelated startup state.
+
+Only the first two stages are directly seeded by the current lifecycle CALL
+candidate families. The latter two deliberately require new source tracing from
+the proven live owner boundary.
+
+The plan rejects a trace report if any unresolved capability flag has already
+been changed to true, if required candidate families are absent, or if decoded
+CALL candidates lose their explicit non-semantic classification. Therefore the
+cloud-safe plan cannot itself promote procedural-secondary gameplay, full-scope
+readiness, or Gate 17 completion.
