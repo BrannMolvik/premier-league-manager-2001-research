@@ -11383,3 +11383,11 @@ work may continue under the deferred-blocker policy.
 - Merged PR #463 as `7eccca00151672e7933ed33d482c5adddf7e8615` after reconstruction run `37322157361` passed. Gate 13 is consistently complete across Gate-15/16/17 readiness and the pre-release limitations ledger; Gate 14 is the earliest incomplete validation gate. Gate-13 secondary/pixel-perfect visual residuals now flow into Gate 15 rather than reopening Gate 13.
 - Recovery 315 private execution remains unavailable despite successful materialization of the exact authorized 511,121,336-byte Library archive: both trivial shell/container execution and notebook Python execution return `caas.internal.errors.ClientError`. No source semantics were inferred.
 - Opened PR #464 to make Gate-15 fidelity coverage omission-proof. Its schema-1 ledger maps every active `FIDELITY_GAPS.md` row one-to-one, keeps the Gate-14 presentation row as a prerequisite, rejects fallback-as-original claims and premature acceptance, derives Gate-14 completion from `ROADMAP.md`, and refuses Gate-15 completion until every Gate-15-owned live row has a terminal disposition.
+
+## 5 October 2026 — Recovery 317 Gate-15 fidelity-ledger checkpoint
+
+- PR #464 merged as `79d4457f38112f57fe5cfbc57f0e6a02baac64cd` after its head `c5103024e163e5473e8a8a431e993bebeefb82cd` passed reconstruction run `37324348013`: **2,586 tests, 23 expected skips**.
+- Repository asset-policy run `37324348957` passed for the same PR head.
+- The schema-1 Gate-15 ledger now maps all 11 live `FIDELITY_GAPS.md` rows one-to-one and fails closed on omissions, extras, duplicates, Planned-gate drift, fallback-as-original claims, unreported accepted limitations and premature completion.
+- The FastView/audio row remains owned by Gate 14 as an explicit prerequisite; Gate 14 is still the earliest incomplete validation gate and Gate 15 remains incomplete.
+- Next canonical action is to retry private process execution. If it remains unavailable, continue only independent cloud-safe critical-path work without inventing unresolved source semantics.
