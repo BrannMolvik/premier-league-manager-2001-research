@@ -117,6 +117,10 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must enable h264_mf and native AAC"
         )
+    if "--enable-filter=aresample" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must retain internal aresample for AAC sample-format conversion"
+        )
     if "--enable-muxer=mp4" not in args or "--enable-protocol=file,pipe" not in args:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must retain file/pipe I/O and the actual mp4 muxer"
@@ -150,6 +154,15 @@ def audit_source_contract(repo_root: str | Path) -> dict:
     if minimal.get("required_derivative_validation_decoders") != ["h264", "aac"]:
         raise MinimalFfmpegSourceContractError(
             "derivative validation decoder contract drifted"
+        )
+
+    audio_conversion = minimal.get("required_internal_audio_conversion")
+    if audio_conversion != {
+        "filter": "aresample",
+        "reason": "EA audio decoders may produce integer PCM while the native AAC encoder accepts FLTP.",
+    }:
+        raise MinimalFfmpegSourceContractError(
+            "internal audio conversion contract drifted"
         )
 
     plumbing = minimal.get("required_runtime_validation_plumbing")
