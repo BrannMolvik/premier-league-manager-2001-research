@@ -14,7 +14,7 @@
   "last_verified_test_count": 2619,
   "asset_policy_validated_head": "c59ffc049bfdc813434da54b53a8a0d8eb297e32",
   "asset_policy_status": "passed",
-  "active_task": "Gate 14 remains earliest incomplete. PR #481 WPF startup transport is merged and CI-verified, but real Windows 11 visible/audible startup acceptance remains a deferred external user-action blocker. Continue independent Gate-17 minimal upstream FFmpeg helper/source-provenance work by reconciling #475/#479 against current main; do not promote production FFmpeg or close Gate 14 without exact evidence.",
+  "active_task": "Gate 14 remains earliest incomplete; real Windows 11 WPF startup playback acceptance is deferred. Gate-17 work-ahead PR #475/#479 is blocked on a source-backed minimal-FFmpeg contract defect: --disable-autodetect removes D3D11VA although pinned h264_mf mfenc.c requires its D3D11 types. Implementation worker must reconcile #475 onto current main, explicitly restore D3D11VA, update fail-closed audits/tests/docs, verify CI, then rebuild #479. Production FFmpeg migration remains false.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -2991,5 +2991,13 @@
   "gate14_startup_media_default_windows_transport": "WindowsWpfStartupMediaBackend",
   "gate14_startup_media_mci_open_status_277_reproduced": true,
   "gate14_startup_media_wpf_transport_ci_verified": true,
-  "gate14_startup_media_wpf_runtime_smoke_verified": true
+  "gate14_startup_media_wpf_runtime_smoke_verified": true,
+  "recovery321_main_head_at_audit": "a57ba974c051ef2db29dfe17ec867acb6aaf40bb",
+  "recovery321_gate17_minimal_source_contract_pr": 475,
+  "recovery321_gate17_minimal_build_pr": 479,
+  "recovery321_gate17_minimal_build_run": 37352166679,
+  "recovery321_gate17_minimal_build_passed": false,
+  "recovery321_gate17_minimal_build_failure": "Pinned FFmpeg mfenc.c compile failure: D3D11 types unavailable because minimal --disable-autodetect contract did not explicitly restore D3D11VA.",
+  "recovery321_gate17_minimal_contract_d3d11va_required": true,
+  "recovery321_gate17_minimal_contract_canonical": false
 }
