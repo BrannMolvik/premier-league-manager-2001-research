@@ -14,6 +14,9 @@ on:
       - "reconstruction/gate17_package_candidate.py"
       - "reconstruction/gate17_third_party_ffmpeg.py"
       - "reconstruction/test_gate17_third_party_ffmpeg.py"
+      - "reconstruction/gate17_ffmpeg_lgpl_candidate.py"
+      - "reconstruction/test_gate17_ffmpeg_lgpl_candidate.py"
+      - "research/GATE17_FFMPEG_LGPL_MIGRATION.md"
       - "third_party/ffmpeg/**"
       - "reconstruction/gate17_clean_windows_install.py"
       - "reconstruction/gate17_external_validation.py"
@@ -56,9 +59,20 @@ jobs:
           python gate17_third_party_ffmpeg.py --ffmpeg-exe "_runtime_tools\ffmpeg.exe" --output-attestation "_runtime_tools\ffmpeg.provenance.json"
           .\_runtime_tools\ffmpeg.exe -version
 
+      - name: Probe pinned LGPL FFmpeg migration candidate
+        working-directory: reconstruction
+        shell: pwsh
+        run: |
+          $url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-10-03-18-14/ffmpeg-n9.0.2-22-g46d8f462ee-win64-lgpl-9.0.zip"
+          $archive = Join-Path "${{ runner.temp }}" "ffmpeg-lgpl-candidate.zip"
+          $receipt = Join-Path "${{ runner.temp }}" "ffmpeg-lgpl-candidate.json"
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          python gate17_ffmpeg_lgpl_candidate.py --archive $archive --output-receipt $receipt
+          Get-Content $receipt
+
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_clean_windows_install test_gate17_external_validation
+        run: python -m unittest -v test_runtime_layout test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_ffmpeg_lgpl_candidate test_gate17_clean_windows_install test_gate17_external_validation
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction
