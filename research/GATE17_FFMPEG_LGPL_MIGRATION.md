@@ -164,6 +164,8 @@ autodetection is disabled. It retains only:
 - Windows Media Foundation `h264_mf`;
 - the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
   muxing machinery;
+- the `pipe` protocol and `null` muxer because the runtime verifier uses
+  `-progress pipe:1` and decodes accepted derivatives to `-f null -`;
 - the `ffmpeg` and `ffprobe` command-line programs.
 
 FFmpeg's upstream source identifies `eatgq` as the Electronic Arts TGQ video
