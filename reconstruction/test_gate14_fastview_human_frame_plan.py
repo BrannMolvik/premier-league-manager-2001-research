@@ -2,6 +2,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from ea444_decoder import EA444DecodedImage
 from gate14_fastview_human_frame_plan import (
@@ -207,6 +208,45 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
         self.assertFalse(frame.complete_raster_frame)
         self.assertFalse(frame.audio_ready)
         self.assertFalse(frame.choreography_3d_ready)
+
+    def test_forwards_caller_owned_advanced_presentation_artifacts(self):
+        outcome, *_ = completed_outcome()
+        expected = object()
+        advanced = {
+            "score_table": object(),
+            "score_draw_phases": object(),
+            "score_phase_text": object(),
+            "clock": object(),
+            "direct_header": object(),
+            "surfaced": object(),
+        }
+
+        with patch(
+            "gate14_fastview_human_frame_plan.build_fastview_frame_plan",
+            return_value=expected,
+        ) as build:
+            result = build_human_fastview_frame_plan(
+                outcome,
+                exact_chrome(),
+                exact_possession(),
+                exact_figures(),
+                exact_team_art(),
+                score_table_static=advanced["score_table"],
+                score_draw_phases=advanced["score_draw_phases"],
+                score_phase_text=advanced["score_phase_text"],
+                clock=advanced["clock"],
+                direct_header=advanced["direct_header"],
+                surfaced=advanced["surfaced"],
+            )
+
+        self.assertIs(result, expected)
+        _args, kwargs = build.call_args
+        self.assertIs(kwargs["score_table_static"], advanced["score_table"])
+        self.assertIs(kwargs["score_draw_phases"], advanced["score_draw_phases"])
+        self.assertIs(kwargs["score_phase_text"], advanced["score_phase_text"])
+        self.assertIs(kwargs["clock"], advanced["clock"])
+        self.assertIs(kwargs["direct_header"], advanced["direct_header"])
+        self.assertIs(kwargs["surfaced"], advanced["surfaced"])
 
     def test_builds_completed_human_frame_from_retained_histories_without_mutation(self):
         outcome, goal, possession = completed_outcome_with_retained_histories()

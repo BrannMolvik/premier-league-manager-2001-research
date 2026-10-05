@@ -19,6 +19,7 @@ from gate14_fastview_component_rasters import (
 from gate14_fastview_resolved_composite import (
     FastViewResolvedOnlyComposite,
     compose_fastview_resolved_only_pixels,
+    ordered_fastview_component_planes,
 )
 from gate14_fastview_partial_surface import (
     FastViewPartialSurfaceLayout,
@@ -28,6 +29,11 @@ from gate14_fastview_team_energy_raster import rasterize_fastview_team_energy_ro
 from gate14_fastview_team_text_raster import rasterize_fastview_playerrow_text
 from gate14_fastview_playerrows_raster import compose_fastview_player_rows_raster
 from gate14_fastview_score_table_static_raster import FastViewScoreTableStaticRasterSet
+from gate14_fastview_score_draw_phases import FastViewLeagueScoresDrawPhases
+from gate14_fastview_score_phase_text_raster import FastViewScorePhaseTextRaster
+from gate14_fastview_clock_raster import FastViewClockRaster
+from gate14_fastview_direct_header_raster import FastViewDirectHeaderRaster
+from gate14_fastview_surfaced_resource_raster import FastViewSurfacedRasterSet
 from gate14_fastview_playerrow_snapshot import (
     FastViewPlayerRowRenderPlan,
     build_fastview_player_row_render_plan,
@@ -70,18 +76,7 @@ class FastViewFramePlan:
             raise FastViewFramePlanError(
                 "frame plan requires exact resolved-only FastView composite"
             )
-        planes = [
-            self.component_rasters.chrome,
-            self.component_rasters.possession_diagram,
-            self.component_rasters.possession_figures,
-        ]
-        for optional in (
-            self.component_rasters.team_table,
-            self.component_rasters.league_scores,
-            self.component_rasters.league_table,
-        ):
-            if optional is not None:
-                planes.append(optional)
+        planes = ordered_fastview_component_planes(self.component_rasters)
         expected_source_hashes = tuple(
             (plane.component, plane.rgba_sha256)
             for plane in planes
@@ -123,13 +118,19 @@ def build_fastview_frame_plan(
     score_table_static: FastViewScoreTableStaticRasterSet | None = None,
     *,
     asset_root: str | Path | None = None,
+    score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> FastViewFramePlan:
     """Compose one renderer input from already retained/source-closed state.
 
-    score_table_static is accepted only as an already-built presentation
-    artifact. asset_root defaults to the runtime application root so the same
-    provenance-tracked PlayerRow font path works in development and frozen
-    packages. This layer never derives fixture/table counts or phase state.
+    Every optional presentation value is accepted only as an already-built,
+    source-verified artifact. asset_root defaults to the runtime application
+    root so the same provenance-tracked PlayerRow font path works in
+    development and frozen packages. This layer never derives fixture/table
+    counts, phase state, clock/header text, or surfaced selections.
     """
     if type(shell) is not FastViewSemanticShell:
         raise FastViewFramePlanError("shell must be an exact FastViewSemanticShell")
@@ -170,12 +171,22 @@ def build_fastview_frame_plan(
         team_text,
         shell.player_row_render_plans,
     )
+    component_kwargs = {"score_table": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            component_kwargs[name] = value
     component_rasters = build_fastview_component_rasters(
         chrome,
         possession,
         figures,
         player_rows,
-        score_table=score_table_static,
+        **component_kwargs,
     )
 
     resolved_composite = compose_fastview_resolved_only_pixels(component_rasters)

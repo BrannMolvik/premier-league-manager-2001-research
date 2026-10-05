@@ -13,6 +13,11 @@ from typing import Mapping
 from fastview_semantic_shell import build_fastview_semantic_shell
 from gate14_fastview_frame_plan import FastViewFramePlan, build_fastview_frame_plan
 from gate14_fastview_score_table_static_raster import FastViewScoreTableStaticRasterSet
+from gate14_fastview_score_draw_phases import FastViewLeagueScoresDrawPhases
+from gate14_fastview_score_phase_text_raster import FastViewScorePhaseTextRaster
+from gate14_fastview_clock_raster import FastViewClockRaster
+from gate14_fastview_direct_header_raster import FastViewDirectHeaderRaster
+from gate14_fastview_surfaced_resource_raster import FastViewSurfacedRasterSet
 from gate14_fastview_playerrow_from_result import (
     FastViewRetainedPlayerRowIdentity,
     build_fastview_player_rows_from_retained_histories,
@@ -31,6 +36,12 @@ def build_human_fastview_frame_plan(
     figures: OriginalFastViewPossessionFiguresArt,
     team_art: OriginalFastViewTeamArt,
     score_table_static: FastViewScoreTableStaticRasterSet | None = None,
+    *,
+    score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> FastViewFramePlan:
     """Compose the source-bounded FastView renderer input for one completed match.
 
@@ -40,13 +51,23 @@ def build_human_fastview_frame_plan(
     """
     presentation = build_human_match_presentation(outcome)
     shell = build_fastview_semantic_shell(presentation)
+    frame_kwargs = {"score_table_static": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            frame_kwargs[name] = value
     return build_fastview_frame_plan(
         shell,
         chrome,
         possession,
         figures,
         team_art,
-        score_table_static=score_table_static,
+        **frame_kwargs,
     )
 
 def build_human_fastview_frame_plan_from_retained_histories(
@@ -60,6 +81,11 @@ def build_human_fastview_frame_plan_from_retained_histories(
     global_tick: int,
     energy_rng6_rolls: Mapping[tuple[int, int], int],
     score_table_static: FastViewScoreTableStaticRasterSet | None = None,
+    score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> FastViewFramePlan:
     """Compose a frame from retained histories without mutating the outcome.
 
@@ -82,12 +108,22 @@ def build_human_fastview_frame_plan_from_retained_histories(
     )
     presentation = replace(presentation, player_rows=rows)
     shell = build_fastview_semantic_shell(presentation)
+    frame_kwargs = {"score_table_static": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            frame_kwargs[name] = value
     return build_fastview_frame_plan(
         shell,
         chrome,
         possession,
         figures,
         team_art,
-        score_table_static=score_table_static,
+        **frame_kwargs,
     )
 

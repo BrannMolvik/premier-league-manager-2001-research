@@ -200,7 +200,7 @@ class FastViewResolvedOnlyComposite:
             )
 
 
-def _ordered_component_planes(
+def ordered_fastview_component_planes(
     rasters: FastViewComponentRasterSet,
 ) -> tuple[FastViewComponentRasterPlane, ...]:
     if type(rasters) is not FastViewComponentRasterSet:
@@ -241,6 +241,13 @@ def _ordered_component_planes(
             "resolved-only component plane identities must be unique"
         )
     return tuple(planes)
+
+
+def _ordered_component_planes(
+    rasters: FastViewComponentRasterSet,
+) -> tuple[FastViewComponentRasterPlane, ...]:
+    """Backward-compatible private alias for the canonical source-plane order."""
+    return ordered_fastview_component_planes(rasters)
 
 
 def compose_fastview_resolved_only_pixels(
