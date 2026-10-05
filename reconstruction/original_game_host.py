@@ -1605,15 +1605,16 @@ class OriginalGameTkHost:
 
     def on_click(self, event) -> None:
         event = self._normalize_pointer_event(event)
-        if (
-            self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
-            and not self._management_resources_loaded
-        ):
-            if self._management_load_thread is None:
-                self._begin_management_resource_load()
-            else:
-                self.last_status = "Preparing source-backed management resources..."
-            return
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            if self._management_load_thread is not None:
+                self.last_status = (
+                    "Preparing source-backed management "
+                    f"{self._management_loading_family or 'squad'} resources..."
+                )
+                return
+            if not self._management_resources_loaded:
+                self._begin_management_resource_load("squad")
+                return
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.active_pmatchinfo_art is not None:
                 if (self.active_pmatchinfo_context is not None
