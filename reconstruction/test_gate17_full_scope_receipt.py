@@ -46,6 +46,8 @@ def binding():
 def scope_results():
     return {
         "schema_version": 2,
+        "audit_kind": "gate17_full_scope_results",
+        "passed": True,
         "release_version": VERSION,
         "repository_commit": COMMIT,
         "release_archive_sha256": "b" * 64,
@@ -54,6 +56,9 @@ def scope_results():
         "windows_build": 26200,
         "windows_product_type": 1,
         "scope_catalog_sha256": "c" * 64,
+        "scope_country_count": 2,
+        "scope_entry_count": 2,
+        "scope_selectable_club_row_count": 4,
         "multi_human_management": True,
         "simultaneous_human_users_verified": 6,
         "results": [
@@ -179,6 +184,31 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                         canonical_game_dir=game,
                         identity=release_identity(),
                     )
+
+    def test_results_reject_wrong_audit_kind_pass_state_and_scope_counts(self):
+        cases = (
+            ("audit_kind", "other"),
+            ("passed", False),
+            ("scope_country_count", 3),
+            ("scope_entry_count", 1),
+            ("scope_selectable_club_row_count", 5),
+        )
+        for key, value in cases:
+            with self.subTest(key=key):
+                with tempfile.TemporaryDirectory() as temp:
+                    repo, game, results, _archive, _output = self._fixture(temp)
+                    payload = scope_results()
+                    payload[key] = value
+                    results.write_text(json.dumps(payload), encoding="utf-8")
+                    p1, p2 = self._catalog_patches()
+                    with p1, p2:
+                        with self.assertRaises(FullScopeReceiptError):
+                            validate_full_scope_results(
+                                results_path=results,
+                                repo_root=repo,
+                                canonical_game_dir=game,
+                                identity=release_identity(),
+                            )
 
     def test_results_reject_release_identity_and_windows_provenance_drift(self):
         drift_cases = (
