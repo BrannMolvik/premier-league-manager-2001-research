@@ -161,7 +161,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   gate13:
@@ -170,6 +170,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -288,6 +291,25 @@ jobs:
             ${{ runner.temp }}/pstartmenu-a/manifest.json
             ${{ runner.temp }}/pstartmenu-a/payload.bin.xz
           if-no-files-found: error
+
+      - name: Stage pinned derivative on internal PR head
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          set -euo pipefail
+          test "$(sha256sum "$RUNNER_TEMP/pstartmenu-a/manifest.json" | cut -d' ' -f1)" = "cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e"
+          test "$(sha256sum "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz" | cut -d' ' -f1)" = "2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697"
+          mkdir -p original_assets/converted/pstartmenu-v1
+          cp "$RUNNER_TEMP/pstartmenu-a/manifest.json" original_assets/converted/pstartmenu-v1/manifest.json
+          cp "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz" original_assets/converted/pstartmenu-v1/payload.bin.xz
+          git add original_assets/converted/pstartmenu-v1/manifest.json original_assets/converted/pstartmenu-v1/payload.bin.xz
+          if git diff --cached --quiet; then
+            echo "Canonical derivative already staged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Assets: stage canonical PStartMenu derivative"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
 
   native-mute-build:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.native_mute_build_only }}
