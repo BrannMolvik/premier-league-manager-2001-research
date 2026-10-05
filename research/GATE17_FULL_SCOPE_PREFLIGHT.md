@@ -1,6 +1,6 @@
 # Gate 17 full-scope implementation preflight
 
-_Status: prepared cloud-safe work-ahead while Gate 13 remains the earliest open validation gate._
+_Status: prepared cloud-safe work-ahead while Gate 14 remains the earliest open validation gate._
 
 ## Purpose
 
@@ -131,9 +131,9 @@ regeneration, full per-scope Windows 11 validation against the final archive,
 and a `full_original_scope.json` receipt bound to the exact canonical catalog
 and release archive.
 
-Gate 13 remains the earliest incomplete gate. This work is independent Gate 17
-readiness infrastructure only and must not be used to bypass Gate 13 or declare
-a later gate complete early.
+Gate 13 is complete. Gate 14 remains the earliest incomplete gate. This work
+is independent Gate-17 readiness infrastructure only and must not be used to
+bypass Gate 14 or declare a later gate complete early.
 
 The runtime-owner capability input distinguishes fresh objective creation from
 season-end sporting-objective progression. A scope that can materialize a fresh
