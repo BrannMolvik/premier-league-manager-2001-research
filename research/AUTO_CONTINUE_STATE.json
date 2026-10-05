@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482. PR #486 head 2e036646 has the exact staged XZ PStartMenu derivative, pinned receipt, default runtime loading, end-to-end tracked-bundle test, and read-only regeneration-vs-tracked CI guards. Await current CI, merge if green, update canonical state, then continue next independent #482 blocker (startup FMV display treatment / Squad helper evidence).",
-  "last_known_main_head": "1ff263f27f508935fb40c1d753b822a9d1bf4028",
+  "active_task": "Gate 13 issue #482. PStartMenu derivative is canonical at main b6e8f23f. Continue source-backed startup-FMV 320x480 pIQT -> 640x480 game-owned surface trace, especially actual display BPP/pixel packing/state-4 writer. If unresolved, continue ordinary Squad helper trace. Windows acceptance remains deferred until these repairs have a candidate.",
+  "last_known_main_head": "b6e8f23f53e15fa5fb667008a95e8a10783718ab",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 329,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 329 checkpoint: exact derivative staged by CI commit 759265b6, auto-write hook removed, read-only verification restored. Local exact XZ decode median ~29 ms; Windows timing acceptance still external.",
+  "note": "Recovery 329 canonical-state reconciliation completed after PR #486. Continuing FMV source trace; no decoder blocker remains.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
