@@ -31,6 +31,35 @@ Two criteria remain open:
 
 The audit therefore requires `gate14_ready=false`.
 
+## Recovery 315 acceptance-evidence reconciliation
+
+PR #460 makes the external bound-audio acceptance transaction canonical, but
+the existence of that harness is not a Windows receipt. The readiness model now
+tracks the acceptance boundary explicitly instead of relying on prose:
+
+- `first_screen_press_audio_windows_acceptance_tooling = true`;
+- `first_screen_press_audio_real_windows_verified = false`;
+- `startup_media_windows_acceptance_tooling = true`;
+- `startup_media_real_windows_verified = false`.
+
+The first pair covers the production-host real-Tk Start New Game transaction
+added by #460. The second pair covers the previously merged exact startup-TGQ
+Windows acceptance transaction. Both verification fields remain false until a
+new private receipt is produced on an external Windows 11 client under the
+respective fail-closed contract.
+
+The broad readiness field `audible_windows_verified` remains separate and
+false. A human-heard receipt for the single recovered first-screen
+`AudioHooks (10,0) -> menus.bnk slot 2` route cannot by itself prove
+application-wide/login-menu sound binding. Likewise, acceptance-tool presence
+cannot satisfy either open Gate-14 roadmap criterion.
+
+The blocker list now names the two missing external receipts independently as
+`first_screen_press_audio_real_windows_acceptance` and
+`startup_media_real_windows_acceptance`. This is evidence accounting only;
+it does not add runtime behavior or claim that either Windows transaction has
+been executed.
+
 ## Recovery 313 capability reconciliation
 
 Three player-visible/runtime seams are now canonical without promoting either
@@ -57,13 +86,16 @@ open roadmap criterion:
   invented, so ordinary management play does not automatically enter this
   window yet.
 
-The readiness model records these separately as
+The readiness model records the runtime and acceptance layers separately as
 `first_screen_press_audio_bound`,
+`first_screen_press_audio_windows_acceptance_tooling`,
+`first_screen_press_audio_real_windows_verified`,
 `startup_media_default_windows_path_integrated`,
+`startup_media_windows_acceptance_tooling`,
 `startup_media_real_windows_verified`,
 `operator_visible_resolved_fastview_surface`, and
 `source_fastview_navigation_trigger_recovered`. Their canonical values are
-true, true, false, true, and false respectively.
+true, true, false, true, true, false, true, and false respectively.
 
 ## Source-backed capabilities already retained
 
