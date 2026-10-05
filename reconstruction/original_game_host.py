@@ -321,7 +321,7 @@ class OriginalGameTkHost:
 
     def _native_to_display(self, value: int) -> int:
         return (
-            int(value) * self.display_scale_num + self.display_scale_den // 2
+            int(value) * self.display_scale_num + self.display_scale_den - 1
         ) // self.display_scale_den
 
     def _create_native_image(self, x, y, **kwargs):
