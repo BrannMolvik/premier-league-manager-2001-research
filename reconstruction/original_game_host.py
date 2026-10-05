@@ -98,6 +98,7 @@ from original_squad_top_controls import (
 )
 from startup_media_playback import load_and_play_verified_startup_sequence
 from runtime_layout import application_root, bundled_source_root
+from runtime_diagnostics import timed_stage
 
 
 REPO_ROOT = application_root()
@@ -805,7 +806,8 @@ class OriginalGameTkHost:
         if loader is None:
             self._management_resources_loaded = True
             return
-        loaded = loader()
+        with timed_stage("management.resources.load_all"):
+            loaded = loader()
         if not isinstance(loaded, dict):
             raise OriginalGameHostError(
                 "Management resource loader must return a resource mapping"
@@ -1148,19 +1150,22 @@ class OriginalGameTkHost:
             self.root.after_cancel(self._first_screen_idle)
             self._first_screen_idle = None
         if self.management_presenter is None:
-            self.management_presenter = self.management_presenter_factory(
-                self.presenter.session
-            )
-        frame = build_management_canvas_frame(self.management_presenter)
+            with timed_stage("management.presenter.construct"):
+                self.management_presenter = self.management_presenter_factory(
+                    self.presenter.session
+                )
+        with timed_stage("management.first_snapshot"):
+            frame = build_management_canvas_frame(self.management_presenter)
         if self.management_pmenu_resources is None:
             raise OriginalGameHostError(
                 "Management PMenu renderer requires verified original row resources"
             )
 
-        menu_render = build_management_pmenu_render(
-            frame,
-            self.management_pmenu_resources,
-        )
+        with timed_stage("management.pmenu.render"):
+            menu_render = build_management_pmenu_render(
+                frame,
+                self.management_pmenu_resources,
+            )
         self.canvas.delete("all")
         self._photos = []
 
@@ -1545,7 +1550,9 @@ class OriginalGameTkHost:
                     self.last_status = f"{type(exc).__name__}: {exc}"
             return
         try:
-            result = self.presenter.pointer(int(event.x), int(event.y))
+            pointer_screen = self.presenter.session.navigation.screen
+            with timed_stage(f"frontend.pointer screen={pointer_screen.value}"):
+                result = self.presenter.pointer(int(event.x), int(event.y))
             if result is None:
                 self.last_status = "No recovered action at this pixel"
             elif isinstance(result, OriginalHierarchyInteraction):
@@ -1577,7 +1584,15 @@ class OriginalGameTkHost:
             self.last_status = f"{type(exc).__name__}: {exc}"
             self.error_reporter(self.last_status)
             return
-        self.redraw()
+        if (
+            result is not None
+            and getattr(result, "transition", None) is not None
+            and result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE
+        ):
+            with timed_stage("management.first_draw"):
+                self.redraw()
+        else:
+            self.redraw()
 
 
 def play_configured_startup_media(
@@ -1609,18 +1624,20 @@ def run_original_game_ui(
     repo_root: str | Path | None = None,
 ) -> None:
     """Launch verified startup media, then the current source-backed UI surface."""
-    play_configured_startup_media(
-        receipt_path=startup_media_receipt,
-        backend=startup_media_backend,
-        repo_root=repo_root,
-    )
+    with timed_stage("startup.media"):
+        play_configured_startup_media(
+            receipt_path=startup_media_receipt,
+            backend=startup_media_backend,
+            repo_root=repo_root,
+        )
     resolved_source_root = (
         DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
     )
-    presenter = build_original_game_presenter(
-        game_dir,
-        source_root=resolved_source_root,
-    )
+    with timed_stage("startup.presenter_build"):
+        presenter = build_original_game_presenter(
+            game_dir,
+            source_root=resolved_source_root,
+        )
     original_executable = Path(game_dir) / "FOOTBAL.EXE"
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
 
@@ -1691,7 +1708,8 @@ def run_original_game_ui(
 
     import tkinter as tk
 
-    root = tk.Tk()
+    with timed_stage("startup.tk_root"):
+        root = tk.Tk()
     OriginalGameTkHost(
         presenter,
         root,
