@@ -7,6 +7,47 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 313 — automatic startup FMVs merged; live FastView surface is next
+
+PR #454 merged as `7b2c8d4eb32bd82e01570d3ed09b30a1b057f5ba`.
+Normal Windows source-backed launch now revalidates the exact original
+`FMV/easp.tgq` and `FMV/premintro.tgq`, converts them once into a private
+per-user H.264/AAC cache, verifies exact source-backed decoded frame counts plus
+audio decode, rehashes cached derivatives, and plays them through the built-in
+synchronous Windows MCI transport. The Windows candidate bundles FFmpeg and
+package smoke requires it. The explicit receipt/external-player path remains a
+developer override. Current-base CI passed: reconstruction run 37305008796,
+Windows package run 37305008767, Gate-13 regression run 37305008731, and asset
+policy run 37305008736.
+
+This closes the repository-side *absence* of the startup FMV path, but it does
+not prove real Windows visibility/audibility, native skip input, fades, or exact
+display treatment. Issue #437 therefore remains an acceptance/fidelity item
+rather than being closed from hosted CI. Likewise #436 launch-time acceptance
+and #438 England -> Conference -> Southport -> Start Game acceptance remain
+real-Windows checks.
+
+The Gate-14 audio readiness contract must also remain fail-closed: first-screen
+press routing is source-bound and live on Windows, but no current canonical
+receipt proves the bound application path was audibly heard. Broad login/menu
+audio integration therefore remains false.
+
+A fresh live-host audit found a separate actionable integration gap:
+`OriginalGameTkHost` has no FastView/completed-match rendering references at
+all. PR #452 already carries every currently verified optional FastView plane
+through the completed-human frame/resolved adapters, but those verified pixels
+are not yet exposed on an operator-visible runtime surface.
+
+**Exact next Gate-14 task:** add a presentation-only Windows/Tk FastView surface
+that consumes the existing completed-human resolved presentation bundle,
+without duplicating simulation state or inventing unrecovered z-order/blend,
+omitted controls, audio, or 3D choreography. Keep the surface explicitly
+partial/fail-closed and regression-lock that the displayed bytes come from the
+canonical resolved preview. If a source-backed runtime trigger cannot yet be
+proven, expose only a bounded presentation seam rather than inventing a
+management navigation command. After that, continue the next FastView/audio
+closure item while private source execution remains unstable.
+
 ## Recovery 312 — verified FastView integration landed; startup-FMV branch under final regression
 
 PR #452 merged as `f896ecf9302dc20b953866054237013811146144`.
