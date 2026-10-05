@@ -192,6 +192,7 @@ class OriginalGameTkHost:
         self.pmatchinfo_script_pressed = None
         self.active_pmatchinfo_art = None
         self._photos = []
+        self._first_screen_photo_cache = {}
         self.first_screen_animation = OriginalFirstScreenAnimation()
         self.first_screen_frame = None
         self._first_screen_pointer = None
@@ -200,6 +201,9 @@ class OriginalGameTkHost:
 
         self.root.title("Premier League Manager 2001")
         self.root.resizable(False, False)
+        self._fullscreen = False
+        if hasattr(self.root, "configure"):
+            self.root.configure(background="black")
         self.canvas = tk.Canvas(
             root,
             width=SCREEN_SIZE[0],
@@ -207,13 +211,44 @@ class OriginalGameTkHost:
             highlightthickness=0,
             borderwidth=0,
         )
-        self.canvas.pack()
+        # Keep native 800x600 game coordinates intact. In fullscreen the
+        # canvas is centered rather than stretched, avoiding interpolation and
+        # preserving every recovered pointer rectangle exactly.
+        self.canvas.pack(expand=True)
+        self.root.bind("<F11>", self.toggle_fullscreen)
+        self.root.bind("<Alt-Return>", self.toggle_fullscreen)
+        self.root.bind("<Escape>", self.leave_fullscreen)
+        self._set_fullscreen(True)
         self.canvas.bind("<Button-3>", self.on_fixture_report_press)
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<ButtonRelease-1>", self.on_script_arrow_release)
         self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
         self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
+
+    def _set_fullscreen(self, enabled: bool) -> None:
+        self._fullscreen = bool(enabled)
+        self.root.attributes("-fullscreen", self._fullscreen)
+
+    def toggle_fullscreen(self, event=None):
+        self._set_fullscreen(not self._fullscreen)
+        return "break"
+
+    def leave_fullscreen(self, event=None):
+        if self._fullscreen:
+            self._set_fullscreen(False)
+        return "break"
+
+    def _first_screen_photo(self, key, png: bytes):
+        photo = self._first_screen_photo_cache.get(key)
+        if photo is None:
+            photo = self.tk.PhotoImage(
+                data=b64encode(png).decode("ascii"),
+                format="png",
+            )
+            self._first_screen_photo_cache[key] = photo
+        self._photos.append(photo)
+        return photo
 
     def _show_transition_error(self, message: str) -> None:
         # Port compatibility feedback, not a claimed original-game dialog.
@@ -241,11 +276,17 @@ class OriginalGameTkHost:
         self.canvas.delete("all")
         self._photos = []
 
-        background = self._photo(frame.background_png)
+        background = self._first_screen_photo(
+            (view.screen, "background"),
+            frame.background_png,
+        )
         self.canvas.create_image(0, 0, image=background, anchor=self.tk.NW)
 
         for overlay in frame.original_source_frame_overlays:
-            art = self._photo(overlay.source_frame_png)
+            art = self._first_screen_photo(
+                (view.screen, "button", overlay.event, overlay.source_frame_index),
+                overlay.source_frame_png,
+            )
             self.canvas.create_image(
                 overlay.rect.x,
                 overlay.rect.y,
@@ -254,7 +295,16 @@ class OriginalGameTkHost:
             )
 
         for caption in frame.native_caption_overlays:
-            glyphs = self._photo(caption.glyph_rgba_png)
+            glyphs = self._first_screen_photo(
+                (
+                    view.screen,
+                    "caption",
+                    caption.event,
+                    caption.native_color_16,
+                    caption.original_text,
+                ),
+                caption.glyph_rgba_png,
+            )
             self.canvas.create_image(
                 caption.line_origin_x,
                 caption.line_origin_y,

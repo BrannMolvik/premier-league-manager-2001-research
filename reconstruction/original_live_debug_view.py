@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
 from collections.abc import Mapping
+from functools import lru_cache
 
 from front_end_state import FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
@@ -23,6 +24,24 @@ from original_front_end_layout import OriginalRect, SCREEN_SIZE
 
 class OriginalLiveDebugError(ValueError):
     pass
+
+
+@lru_cache(maxsize=8)
+def _cached_background_png(screen: FrontEndScreen, rgba: bytes) -> bytes:
+    # First-screen backgrounds are immutable source pixels. Cache their PNG
+    # conversion so a native Button update does not recompress 800x600 on
+    # every serialized UI pass.
+    return encode_rgba_png(*SCREEN_SIZE, rgba)
+
+
+@lru_cache(maxsize=256)
+def _cached_control_png(width: int, height: int, rgba: bytes) -> bytes:
+    return encode_rgba_png(width, height, rgba)
+
+
+@lru_cache(maxsize=64)
+def _cached_caption_png(width: int, height: int, rgba: bytes) -> bytes:
+    return encode_rgba_png(width, height, rgba)
 
 
 @dataclass(frozen=True)
@@ -114,7 +133,7 @@ def build_original_debug_frame(
                 event=control.event,
                 source_frame_index=index,
                 rect=control.rect,
-                source_frame_png=encode_rgba_png(
+                source_frame_png=_cached_control_png(
                     source.width, source.height, source.rgba
                 ),
                 source_frame_rgba_sha256=sha256(source.rgba).hexdigest(),
@@ -152,13 +171,13 @@ def build_original_debug_frame(
                     line_origin_y=caption.line_origin_y,
                     clip_rect=caption.clip_rect,
                     native_color_16=native_color,
-                    glyph_rgba_png=encode_rgba_png(mask.width, mask.height, rgba),
+                    glyph_rgba_png=_cached_caption_png(mask.width, mask.height, rgba),
                     glyph_rgba_sha256=sha256(rgba).hexdigest(),
                 )
             )
     return OriginalLiveDebugFrame(
         screen=snapshot.screen,
-        background_png=encode_rgba_png(*SCREEN_SIZE, snapshot.background_rgba),
+        background_png=_cached_background_png(snapshot.screen, snapshot.background_rgba),
         original_source_frame_overlays=tuple(overlays),
         native_caption_overlays=tuple(captions),
         hierarchy_row_origins_not_interactive=snapshot.hierarchy_row_origins,
