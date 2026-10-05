@@ -24,13 +24,12 @@
   "minimal_helper_target": {
     "source_repository": "https://github.com/FFmpeg/FFmpeg",
     "source_commit": "46d8f462eeb87ee1f704d8c44a0ee24fca471ad1",
-    "license_file": "COPYING.LGPLv3",
+    "license_file": "COPYING.LGPLv2.1",
     "platform": "win64",
     "third_party_library_policy": "No --enable-lib* flags; --disable-autodetect is mandatory. Windows Media Foundation and the native w32threads backend must be explicitly re-enabled after autodetection is disabled.",
     "configure_args": [
       "--disable-everything",
       "--disable-autodetect",
-      "--enable-version3",
       "--enable-mediafoundation",
       "--enable-w32threads",
       "--enable-ffmpeg",
@@ -88,7 +87,8 @@
       "filter": "aresample",
       "reason": "EA audio decoders may produce integer PCM while the native AAC encoder accepts FLTP."
     },
-    "required_derivative_input_demuxer": "mov"
+    "required_derivative_input_demuxer": "mov",
+    "license_scope_note": "Selected bounded FFmpeg source/components are LGPL 2.1-or-later; the minimal target does not enable GPL, nonfree, or version3-only mode."
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
 }
