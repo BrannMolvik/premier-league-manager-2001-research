@@ -7,6 +7,42 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 318 continuation — LGPL FFmpeg candidate probe canonical
+
+PR #469 merged as `4f0443ffe40ff93ad48fd93b4d196dbb5ab394e4`
+from head `e21159de5508f187ab154f53dbe9463be38a862d`.
+Reconstruction run `37339029246` passed **2,604 tests / 23 expected
+skips**. Windows package run `37339029237` and repository asset-policy run
+`37339029157` passed on the same head.
+
+The pinned BtbN Windows x64 LGPL candidate is
+`ffmpeg-n9.0.2-22-g46d8f462ee-win64-lgpl-9.0.zip`, release tag
+`autobuild-2026-10-03-18-14`, archive SHA-256
+`3fc85bae9f9643a03d15c2d2de12fb017dcd9fdabe819bfb1a94f54fea108714`.
+The verified executable SHA-256 is
+`c15ef2e38620f3efb81355c2b25afe054e93a69ce7300a35e640508e92954aa8`;
+its packaged LICENSE SHA-256 is
+`da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768`.
+The candidate reports FFmpeg revision `n9.0.2-22-g46d8f462ee`, contains the
+EA TGQ decoder plus `h264_mf` and native AAC encoders, and omits the
+current GPL/nonfree/libx264/libx265 enable flags. A real Windows CI synthetic
+roundtrip at 320x480, 25 fps, 22,050 Hz stereo successfully encoded H.264/AAC
+MP4 with `h264_mf` and decoded both streams again.
+
+This is still a **candidate-only** result. Production packaging remains on the
+#468 imageio-ffmpeg/Gyan helper. No exact original TGQ has yet been converted
+through this candidate in canonical evidence, no external Windows 11
+visibility/audibility receipt exists for candidate-produced derivatives, and no
+legal-compliance claim is made.
+
+**Exact next task:** retry the authorized private archive and run both exact
+startup TGQs through the verified LGPL candidate with `h264_mf`, preserving
+the existing source hashes, frame-count checks, audio decode checks and private
+receipt boundary. Only after that private conversion succeeds should the
+production conversion profile/package provider be migrated. In parallel, keep
+the #468 final-release third-party material guard fail-closed until exact
+license/source/build-script distribution material is staged and hash-bound.
+
 ## Recovery 318 continuation — FFmpeg redistribution boundary canonical
 
 PR #468 merged as `fabbe1971d7c8667dc7a347498b64f7970bc1970`
