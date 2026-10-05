@@ -11480,3 +11480,12 @@ work may continue under the deferred-blocker policy.
 - The source-closed Squad-row renderer remains the unresolved half of Phase 1. Retained private trace proves PSquadPlayerRow role geometry `(28,1,38,14)`, display-name helper geometry `(76,1,144,14)`, the 18px Zurich player font, and an explicit branch-selected native packed color before role text construction. The display-name helper `0x5D6C50` contains its styling internally and its body is not present in the retained trace.
 - Public original Windows screenshots corroborate light ordinary row text, but they are not used to replace the missing executable branch semantics. No white/modern color substitute has been introduced.
 - The authorized original disc archive is available in the connected Library, but container, notebook Python and the separate visible Python runtime all currently fail at process start with `caas.internal.errors.ClientError`. Exact helper/pixel-format tracing is therefore an infrastructure-deferred evidence blocker. Do not infer `0x4EA3F0` / `0x5D6C50` semantics until executable inspection is healthy.
+
+
+## 6 October 2026 — Recovery 325 route-loading revalidation checkpoint
+
+- Independent fail-closed Squad helper tracing PR #484 passed its focused Gate-13 and asset-policy checks and merged to `main` as `b8fab87b63cb5daa0f01489e6c3413adc5c76c5b`.
+- PR #483's ledger-corrected head `8d932e82206d33e142ac9d2b421f42bee6bf4003` had already passed Windows packaging and repository asset policy.
+- Its queued Gate-13 workflow was then cancelled while the base branch advanced; GitHub reported the workflow run as failed even though no test assertion executed. This checkpoint deliberately resynchronizes the PR so hosted checks run again against the current `main` merge base.
+- The route-loading implementation itself is unchanged by this checkpoint: fresh Squad remains limited to PMenu/Squad/background/header resources; Fixtures/PMatchInfo and League Tables remain deferred and cached by route; management input remains blocked during every active family decode.
+- The ordinary Squad row renderer is still evidence-open on exact packed-color/display-name helper semantics and is not claimed complete here.
