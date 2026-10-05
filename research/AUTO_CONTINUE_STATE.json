@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482. Phase-2 PR #485 head b8efab94 now has source-complete TeamSelect hierarchy test art (23 animation frames, five league-bar frames) after focused CI exposed the prior one-frame fixture. Gate13 is running; reconstruction pending. Merge only after fresh checks are green.",
-  "last_known_main_head": "4c045b0b75fc4d6061e06e23d8089c2a08a5c475",
+  "active_task": "Gate 13 issue #482. Phase 1 route-loading and Phase 2 deferred world-build are canonical. Next cloud-safe task: build deterministic fail-closed PStartMenu render-derivative container/provenance scaffolding on current main, without wiring normal runtime until exact source-derived decoder inputs/derivative are verified. Squad row helpers remain private-evidence blocked; do not guess.",
+  "last_known_main_head": "1ff263f27f508935fb40c1d753b822a9d1bf4028",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 326,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 326: Phase-2 production behavior unchanged through test fixes. First full run found two test-contract failures; second focused run found one fixture frame-count error. All corrected by making tests reflect the existing fail-closed source requirements. Asset policy already green on prior head; fresh head b8efab94 under CI.",
+  "note": "Recovery 326: canonical docs updated after Phase2 merge. Current main includes CURRENT_STATE/PROGRESS checkpoint commits after 3c325a5d. Continue Phase3 derivative format/tests independently while process execution remains ClientError-blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
