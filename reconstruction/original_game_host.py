@@ -14,6 +14,7 @@ capture stay fail-closed; the host does not invent a replacement skin.
 from __future__ import annotations
 
 from base64 import b64encode
+from functools import lru_cache
 from pathlib import Path
 from types import SimpleNamespace
 from original_management_background import OriginalManagementBackground
@@ -99,6 +100,25 @@ from runtime_layout import application_root, bundled_source_root
 REPO_ROOT = application_root()
 DEFAULT_SOURCE_ROOT = bundled_source_root()
 SCREEN_SIZE = (800, 600)
+
+
+@lru_cache(maxsize=1024)
+def _cached_runtime_png(width: int, height: int, rgba: bytes) -> bytes:
+    return encode_rgba_png(width, height, rgba)
+
+
+@lru_cache(maxsize=512)
+def _cached_endpoint_png(
+    width: int,
+    height: int,
+    alpha: bytes,
+    native_color_16: int,
+) -> bytes:
+    return encode_rgba_png(
+        width,
+        height,
+        endpoint_text_rgba(alpha, native_color_16),
+    )
 
 
 class OriginalGameHostError(RuntimeError):
@@ -216,19 +236,40 @@ class OriginalGameTkHost:
             if hasattr(self.root, "winfo_screenheight")
             else SCREEN_SIZE[1]
         )
-        # Keep exact source pixels and hitboxes while making the 800x600
-        # surface materially larger on high-resolution displays. Integer
-        # nearest-neighbour scaling avoids interpolation of the original art.
-        self.display_scale = max(
-            1,
-            min(screen_width // SCREEN_SIZE[0], screen_height // SCREEN_SIZE[1]),
+        # Fill the available display height as closely as practical while
+        # preserving FM2001's native 4:3 aspect ratio. A small rational scale
+        # keeps Tk's nearest-neighbour zoom/subsample path deterministic without
+        # falling all the way back to 1x on 16:9 displays such as 1920x1080.
+        fit_scale = max(
+            1.0,
+            min(
+                screen_width / SCREEN_SIZE[0],
+                screen_height / SCREEN_SIZE[1],
+            ),
         )
+        # Choose the largest small rational that never exceeds the physical
+        # display. Limiting the denominator bounds Tk's transient zoom size.
+        candidates = []
+        for denominator in range(1, 5):
+            numerator = max(1, int(fit_scale * denominator))
+            if numerator / denominator <= fit_scale:
+                candidates.append((numerator / denominator, numerator, denominator))
+        _ratio, numerator, denominator = max(candidates)
+        self.display_scale_num = int(numerator)
+        self.display_scale_den = int(denominator)
+        self.display_scale = self.display_scale_num / self.display_scale_den
+        self.display_width = (
+            SCREEN_SIZE[0] * self.display_scale_num + self.display_scale_den - 1
+        ) // self.display_scale_den
+        self.display_height = (
+            SCREEN_SIZE[1] * self.display_scale_num + self.display_scale_den - 1
+        ) // self.display_scale_den
         if hasattr(self.root, "configure"):
             self.root.configure(background="black")
         self.canvas = tk.Canvas(
             root,
-            width=SCREEN_SIZE[0] * self.display_scale,
-            height=SCREEN_SIZE[1] * self.display_scale,
+            width=self.display_width,
+            height=self.display_height,
             highlightthickness=0,
             borderwidth=0,
         )
@@ -265,24 +306,37 @@ class OriginalGameTkHost:
         # display coordinates. Direct source/unit adapters intentionally pass
         # native coordinates without a widget and therefore remain unchanged.
         if (
-            self.display_scale != 1
+            (self.display_scale_num != self.display_scale_den)
             and getattr(event, "widget", None) is self.canvas
         ):
             return SimpleNamespace(
-                x=int(event.x) // self.display_scale,
-                y=int(event.y) // self.display_scale,
+                x=int(event.x) * self.display_scale_den // self.display_scale_num,
+                y=int(event.y) * self.display_scale_den // self.display_scale_num,
             )
         return event
 
     def _scale_photo(self, photo):
-        if self.display_scale == 1:
+        if self.display_scale_num == self.display_scale_den:
             return photo
-        return photo.zoom(self.display_scale, self.display_scale)
+        # Tk performs this nearest-neighbour transform in native code. Zoom
+        # first, then subsample, preserves all original source pixels.
+        return photo.zoom(
+            self.display_scale_num,
+            self.display_scale_num,
+        ).subsample(
+            self.display_scale_den,
+            self.display_scale_den,
+        )
+
+    def _native_to_display(self, value: int) -> int:
+        return (
+            int(value) * self.display_scale_num + self.display_scale_den - 1
+        ) // self.display_scale_den
 
     def _create_native_image(self, x, y, **kwargs):
         return self.canvas.create_image(
-            int(x) * self.display_scale,
-            int(y) * self.display_scale,
+            self._native_to_display(x),
+            self._native_to_display(y),
             **kwargs,
         )
 
@@ -362,30 +416,52 @@ class OriginalGameTkHost:
             )
 
         for row in (*view.hierarchy_rows, *view.club_rows):
-            animation = self._photo(
-                encode_rgba_png(
-                    row.animation_frame.width,
-                    row.animation_frame.height,
-                    row.animation_frame.rgba,
-                )
+            animation_png = _cached_runtime_png(
+                row.animation_frame.width,
+                row.animation_frame.height,
+                row.animation_frame.rgba,
             )
-            bar = self._photo(
-                encode_rgba_png(
-                    row.bar_frame.width,
-                    row.bar_frame.height,
-                    row.bar_frame.rgba,
-                )
+            animation = self._first_screen_photo(
+                (
+                    view.screen,
+                    "team-row-animation",
+                    row.row_kind,
+                    row.source_id,
+                    row.animation_source_index,
+                ),
+                animation_png,
             )
-            glyph_rgba = endpoint_text_rgba(
+            bar_png = _cached_runtime_png(
+                row.bar_frame.width,
+                row.bar_frame.height,
+                row.bar_frame.rgba,
+            )
+            bar = self._first_screen_photo(
+                (
+                    view.screen,
+                    "team-row-bar",
+                    row.row_kind,
+                    row.source_id,
+                    row.bar_source_index,
+                ),
+                bar_png,
+            )
+            glyph_png = _cached_endpoint_png(
+                row.glyph_mask.width,
+                row.glyph_mask.height,
                 row.glyph_mask.alpha,
                 row.native_color_16,
             )
-            glyphs = self._photo(
-                encode_rgba_png(
-                    row.glyph_mask.width,
-                    row.glyph_mask.height,
-                    glyph_rgba,
-                )
+            glyphs = self._first_screen_photo(
+                (
+                    view.screen,
+                    "team-row-text",
+                    row.row_kind,
+                    row.source_id,
+                    row.text,
+                    row.native_color_16,
+                ),
+                glyph_png,
             )
             self._create_native_image(
                 row.animation_rect.x,

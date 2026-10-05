@@ -17,7 +17,7 @@ synthesize a recovered manager-home renderer.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from front_end_session import FrontEndSession, FrontEndSessionOutcome
 from front_end_state import FrontEndScreen
@@ -86,6 +86,10 @@ class OriginalFirstScreenPresenter:
     start_menu: OriginalPStartMenuResources
     team_select: OriginalTeamSelectResources
     hierarchy: TeamSelectHierarchyModel | None = None
+    _teamselect_cache_key: tuple | None = field(default=None, init=False, repr=False)
+    _teamselect_cache_rows: tuple = field(
+        default_factory=lambda: ((), ()), init=False, repr=False
+    )
 
     def _ensure_hierarchy(self) -> TeamSelectHierarchyModel | None:
         if self.hierarchy is not None:
@@ -137,11 +141,20 @@ class OriginalFirstScreenPresenter:
                 and self.team_select.hierarchy_art is not None
                 and self.team_select.native_hierarchy is not None
             ):
-                hierarchy_rows, club_rows = build_teamselect_presentations(
-                    model,
-                    self.team_select.hierarchy_art,
-                    self.team_select.native_hierarchy,
+                cache_key = (
+                    int(model.selected_country_id),
+                    None if model.selected_competition_id is None
+                    else int(model.selected_competition_id),
+                    tuple(int(value) for value in model.selected_club_ids),
                 )
+                if cache_key != self._teamselect_cache_key:
+                    self._teamselect_cache_rows = build_teamselect_presentations(
+                        model,
+                        self.team_select.hierarchy_art,
+                        self.team_select.native_hierarchy,
+                    )
+                    self._teamselect_cache_key = cache_key
+                hierarchy_rows, club_rows = self._teamselect_cache_rows
             return OriginalFirstScreenSnapshot(
                 screen,
                 self.team_select.background_rgba,
@@ -191,6 +204,8 @@ class OriginalFirstScreenPresenter:
             and outcome.transition.screen is FrontEndScreen.START_MENU
         ):
             self.hierarchy = None
+            self._teamselect_cache_key = None
+            self._teamselect_cache_rows = ((), ())
         return outcome
 
     def choose_club(self, club_id: int) -> None:
