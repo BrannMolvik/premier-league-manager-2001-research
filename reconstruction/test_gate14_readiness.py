@@ -143,8 +143,6 @@ class Gate14ReadinessTests(unittest.TestCase):
             state,
             goalflash_absolute_position_recovered=True,
             goalflash_pixels_rasterized=True,
-            scorecomposite_main_geometry_recovered=True,
-            scorecomposite_main_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
         )
         with self.assertRaisesRegex(
@@ -183,6 +181,8 @@ class Gate14ReadinessTests(unittest.TestCase):
             state,
             goalflash_absolute_position_recovered=True,
             goalflash_pixels_rasterized=True,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
             font_blend_rule_recovered=True,
             complete_fastview_frame_recovered=True,
