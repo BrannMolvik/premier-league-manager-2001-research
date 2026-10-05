@@ -65,3 +65,41 @@ It keeps:
 
 This checkpoint does not add non-row TeamTable presentation, global FastView
 z-order, background ownership, audio, or 3D choreography.
+
+
+## Canonical completed-human frame integration
+
+The source-closed retained PlayerRows raster is now the TeamTable view carried
+by `build_fastview_frame_plan()` and therefore by both completed-human frame
+adapters. The older energy-only raster remains a useful intermediate artifact,
+but it is no longer the final TeamTable plane attached to a normal human
+FastView frame.
+
+The component identity is:
+
+`team_table_player_rows`
+
+It occupies the exact same native FastViewTeam/TeamTable paint position as the
+existing `team_table_static` and `team_table_energy` reconstruction views.
+Those names are aliases for alternative fidelity views of one native subtree,
+not separate siblings. The partial draw-order model therefore exposes no
+pairwise ordering relation among the three aliases.
+
+Each retained row contributes exactly nine constructed native controls to this
+plane:
+
+1. one name-grid PictureControl;
+2. six TextControls;
+3. one static energy-bar PictureControl;
+4. one dynamic energy-bar PictureControl.
+
+The frame builder rasterizes the verified dynamic-energy view, rasterizes all
+source-closed English PlayerRow text from the provenance-tracked Zurich 16px
+font under the runtime application root, composes those already-proven planes,
+and only then hands the complete retained-row plane to the component model.
+
+This integration promotes no broader completeness. The six non-row TeamTable
+controls remain outside the retained PlayerRows raster, so
+`complete_team_table=false` and `complete_fastview_frame=false` remain
+mandatory. Cross-component overlap pixels also retain the existing native-blend
+blocker.
