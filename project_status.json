@@ -3012,5 +3012,42 @@
   "recovery322_squad_rows_live_host_rendered": false,
   "recovery322_management_route_lazy_loading_required": true,
   "recovery322_wpf_display_treatment_accepted": false,
-  "recovery322_gate17_ffmpeg_work_suspended": true
+  "recovery322_gate17_ffmpeg_work_suspended": true,
+  "recovery322_private_source_library_materialized": true,
+  "recovery322_private_source_library_size_bytes": 511121336,
+  "recovery322_private_archive_notebook_access_available": true,
+  "recovery322_private_archive_shell_access_available": false,
+  "recovery322_private_archive_shell_blocker": "caas.internal.errors.ClientError",
+  "recovery322_raw_disc_size_bytes": 631627248,
+  "recovery322_canonical_executable_sha_reverified": true,
+  "recovery322_canonical_executable_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3",
+  "recovery322_startup_fmv_native_movie_surface": [
+    640,
+    480
+  ],
+  "recovery322_startup_fmv_display_mode_0": [
+    640,
+    480
+  ],
+  "recovery322_startup_fmv_display_mode_0_offset": [
+    0,
+    0
+  ],
+  "recovery322_startup_fmv_display_mode_1": [
+    800,
+    600
+  ],
+  "recovery322_startup_fmv_display_mode_1_offset": [
+    80,
+    60
+  ],
+  "recovery322_startup_fmv_present_source_rect": [
+    0,
+    0,
+    640,
+    480
+  ],
+  "recovery322_startup_fmv_game_owned_surface_verified": true,
+  "recovery322_startup_fmv_320x480_to_640x480_interpolation_recovered": false,
+  "recovery322_wpf_uniform_geometry_source_incompatible": true
 }
