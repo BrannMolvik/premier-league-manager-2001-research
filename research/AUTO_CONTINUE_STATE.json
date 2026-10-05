@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 322,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 322 checkpoint main e9635ee0. Private Library ZIP and canonical EXE are notebook-accessible; shell still ClientError. STARTUP_PRESENTATION/EXECUTABLE_ANALYSIS/CURRENT_STATE/PROGRESS/project_status persist the 640x480 native FMV surface + game-owned DirectDraw blit evidence. Issue #482 comments 6001127354, 6001201926, 6001226163, 6001242271, 6001412974 define Phases 1-3 and FMV acceptance. Do not guess interpolation.",
+  "recovery_generation": 323,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 323 resumed from canonical main e9635ee0 after same-chat no-progress escalation. Continue issue #482 Phase 1 first: fresh-Squad route-scoped management loads plus source-closed ordinary Squad row rendering and deterministic regression coverage. Native startup-FMV geometry evidence remains persisted; do not guess unresolved 320x480->640x480 treatment. #475/#479 remain suspended.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
