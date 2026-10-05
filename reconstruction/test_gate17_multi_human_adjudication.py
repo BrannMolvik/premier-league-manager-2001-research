@@ -144,7 +144,7 @@ class Gate17MultiHumanAdjudicationTests(unittest.TestCase):
         report["source_contract"]["source_proven_hard_user_cap"] = 5
         with self.assertRaisesRegex(
             Gate17MultiHumanAdjudicationError,
-            "drifted from six",
+            "source contract drifted for source_proven_hard_user_cap",
         ):
             build_multi_human_adjudication_plan(report)
 
