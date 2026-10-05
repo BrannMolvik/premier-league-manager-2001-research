@@ -70,6 +70,16 @@ jobs:
           python gate17_ffmpeg_lgpl_candidate.py --archive $archive --output-receipt $receipt
           Get-Content $receipt
 
+      - name: Probe stock Windows WPF media runtime
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName PresentationCore
+          Add-Type -AssemblyName PresentationFramework
+          Add-Type -AssemblyName WindowsBase
+          if (-not ('System.Windows.Controls.MediaElement' -as [type])) {
+            throw 'Stock Windows WPF MediaElement is unavailable'
+          }
+
       - name: Run package-specific unit tests
         working-directory: reconstruction
         run: python -m unittest -v test_runtime_layout test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_ffmpeg_lgpl_candidate test_gate17_clean_windows_install test_gate17_external_validation
