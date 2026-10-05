@@ -1,4 +1,5 @@
 name: Windows release candidate package
+# Packaging-only trigger for the post-Gate-13 hands-on gameplay test build.
 
 on:
   pull_request:
