@@ -53,6 +53,7 @@ from gate14_live_first_screen_audio import (
     Gate14LiveFirstScreenAudioError,
     install_live_first_screen_audio,
 )
+from gate14_fastview_human_tk_window import open_human_fastview_tk_window
 from original_first_screen_presenter import (
     OriginalFirstScreenPresenter,
     OriginalHierarchyInteraction,
@@ -349,6 +350,7 @@ class OriginalGameTkHost:
         self._first_screen_pointer = None
         self._first_screen_idle = None
         self.last_status = "Source-backed FM2001 host ready"
+        self.last_fastview_window = None
 
         self.root.title("Premier League Manager 2001")
         self.root.resizable(False, False)
@@ -1327,6 +1329,26 @@ class OriginalGameTkHost:
             self._draw_management_host()
             return
         raise OriginalGameHostError(f"Unsupported source-backed screen: {screen!r}")
+
+    def present_completed_match_fastview(self, presentation):
+        """Open the existing resolved FastView bundle without inventing navigation.
+
+        The caller must already own a completed-human presentation bundle. This
+        host method creates no match state and is deliberately not called from
+        on_click() or any PMenu transition until the original runtime trigger is
+        source-qualified.
+        """
+        opened = open_human_fastview_tk_window(
+            presentation,
+            self.tk,
+            self.root,
+        )
+        self.last_fastview_window = opened
+        self.last_status = (
+            "Opened source-bounded partial FastView presentation; "
+            "source navigation trigger remains unrecovered"
+        )
+        return opened
 
     def apply_source_accepted_pmenu_action(
         self,
