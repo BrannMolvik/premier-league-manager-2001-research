@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #469 LGPL FFmpeg candidate probe is open. Windows run 37339029237 and asset-policy run 37339029157 passed on head e21159de5508f187ab154f53dbe9463be38a862d, including exact archive/hash/configuration checks and a synthetic h264_mf+AAC encode/decode roundtrip. Full reconstruction run 37339029246 is still in progress; do not merge until it completes successfully. Production FFmpeg remains unchanged. Gate 14 private TeamTable trace remains blocked by caas.internal.errors.ClientError.",
-  "last_known_main_head": "0f441d12813bff06685b28063815cbadf4ff0516",
+  "active_task": "PR #470 is open on head 97463a335da3f9f2440abe745807aad0ba2dca84. It keeps libx264 as production default, adds an explicit h264_mf candidate profile, makes runtime startup caches profile-bound, and exposes --video-encoder h264_mf for the exact private TGQ audit. Private shell and notebook execution both still fail with caas.internal.errors.ClientError; wait for #470 CI, merge if fully green, then retry the private exact-TGQ conversion.",
+  "last_known_main_head": "2f2409f80ad22c35e7c8b47e83f5b8e2721e713c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 318,
-  "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery continuation checkpoint after interruption: #469 Windows proof green, full reconstruction still running. Candidate executable c15ef2e38620f3efb81355c2b25afe054e93a69ce7300a35e640508e92954aa8; bundled license da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768. No production migration yet.",
+  "recovery_generation": 319,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 319: #469 already canonical. Fresh private archive access failed in both container and Python notebook with ClientError. #470 prepares the h264_mf exact-TGQ path without changing production defaults; exact private command is documented in GATE17_FFMPEG_LGPL_MIGRATION.md.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
