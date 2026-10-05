@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-15 fidelity ledger PR #404 is canonical on main at 186ed2970c9803284280005b97a26e47d37e1eaf after reconstruction run 37262011678 passed 2,403 tests / 23 expected skips. Continue the next bounded cloud-safe reconciliation: refresh research/RELEASE_LIMITATIONS.md against current Gate-13/14/15 evidence while retaining the pre-release marker, all actual Gate-17 full-scope/external-Windows blockers, and Gate16 prevalidated status. Do not mark any gate complete and do not modify Gate13 implementation.",
-  "last_known_main_head": "186ed2970c9803284280005b97a26e47d37e1eaf",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-15 fidelity ledger (#404) and current pre-release limitations reconciliation (#405) are now canonical; #405 is main a5817f4c56e155b998ed4f3f551ca6c2fab6140a after reconstruction run 37262565646 passed 2,403 tests / 23 expected skips. Continue disjoint Gate-17 cloud-safe source evidence tooling in PR #406: validate the procedural-secondary runtime-owner tracer with full reconstruction and asset-policy CI, merge only if green, then use its persisted candidate contract to define the next private-source adjudication without claiming secondary gameplay.",
+  "last_known_main_head": "a5817f4c56e155b998ed4f3f551ca6c2fab6140a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 299,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate15 ledger refresh merged. Next task is research-only pre-release limitations reconciliation; current file is stale on Gate13 schema8/Fixtures paging and Gate14 FastView/audio progress. Gate16 should not be redundantly rerun.",
+  "note": "Release limitations are current and still pre-release. Gate16 remains prevalidated. PR #406 adds only fail-closed private source tracing for secondary schedule owner lifecycle; it does not implement live secondary runtime/save/human support.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
