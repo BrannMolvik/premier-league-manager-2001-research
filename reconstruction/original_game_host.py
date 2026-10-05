@@ -351,6 +351,7 @@ class OriginalGameTkHost:
         self._first_screen_idle = None
         self.last_status = "Source-backed FM2001 host ready"
         self.last_fastview_window = None
+        self.first_screen_audio_binding = None
 
         self.root.title("Premier League Manager 2001")
         self.root.resizable(False, False)
@@ -1770,8 +1771,21 @@ def run_original_game_ui(
     startup_media_backend=None,
     startup_media_derivatives=None,
     repo_root: str | Path | None = None,
+    first_screen_audio_audit_callback=None,
 ) -> None:
-    """Launch verified startup media, then the current source-backed UI surface."""
+    """Launch verified startup media, then the current source-backed UI surface.
+
+    The optional audit callback is invoked only after Tk exits and is never
+    supplied by ordinary launch. It exists solely to bind external acceptance
+    evidence to the actual production first-screen audio wrapper.
+    """
+    if (
+        first_screen_audio_audit_callback is not None
+        and not callable(first_screen_audio_audit_callback)
+    ):
+        raise OriginalGameHostError(
+            "first_screen_audio_audit_callback must be callable"
+        )
     with timed_stage("startup.media"):
         play_configured_startup_media(
             receipt_path=startup_media_receipt,
@@ -1875,11 +1889,20 @@ def run_original_game_ui(
         management_resource_loader=load_management_resources,
     )
     try:
-        install_live_first_screen_audio(host, game_dir)
+        host.first_screen_audio_binding = install_live_first_screen_audio(
+            host,
+            game_dir,
+        )
     except Gate14LiveFirstScreenAudioError as exc:
+        host.first_screen_audio_binding = None
         print(
             f"[FM2001 audio] first-screen audio unavailable: {exc}",
             file=sys.stderr,
             flush=True,
         )
     root.mainloop()
+    if first_screen_audio_audit_callback is not None:
+        first_screen_audio_audit_callback(
+            host,
+            host.first_screen_audio_binding,
+        )
