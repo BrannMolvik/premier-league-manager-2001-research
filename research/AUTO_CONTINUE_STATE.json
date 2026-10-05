@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411 (current head 1a3009042d547b9043235bdca2b09d87f4f024da). Gate17 PR #421 exact head af5ad28ac968b547ec0e27e46acdc86542213d62 hardens release evidence numeric metadata to exact integers. Asset policy run 37280155006 passed; reconstruction run 37280155005 is in progress after fixing one stale expected-error-message regression from prior run 37279630326 (2,473 tests, 1 assertion-message failure, 23 skips). Merge only exact green head. Follow-up branch chatgpt/gate17-exact-evidence-types is persisted but must be replayed cleanly after #421 merges.",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 PR #421 exact head af5ad28ac968b547ec0e27e46acdc86542213d62 requires exact integer schema/archive/Windows metadata; asset policy 37280155006 passed and reconstruction 37280155005 is in progress. Stacked PR #422 exact head 344ab9cb70fd3a22e4ef13a1b96b618a022ac617 is based on #421 and binds all five external receipts to one exact Windows build plus the final-audit workstation; its CI is queued/running in parallel. Merge order is strictly #421 then clean replay/retarget of #422 only after #421 is canonical.",
   "last_known_main_head": "791abe16f90ddc919942c55f2a9599a63327bb41",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
