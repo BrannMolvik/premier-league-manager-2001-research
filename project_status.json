@@ -14,7 +14,7 @@
   "last_verified_test_count": 1553,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Gate 14: add a fail-closed external Windows 11 acceptance receipt for the already-integrated normal-application first-screen press-audio path. Exercise the real Tk bound action and canonical (10,0)->menus.bnk slot 2 delivery; require human audibility confirmation. Do not promote broad semantic audio binding, login/menu integration, or Gate 14 completion.",
+  "active_task": "Gate 14 remains active. PR #460's external Windows 11 bound first-screen audio acceptance tooling is canonical and CI-verified, but no private human-heard receipt exists. Private source archive recovery succeeds while process execution still fails with caas.internal.errors.ClientError. Continue only source-established cloud-safe critical-path work; do not infer secondary-owner, multi-human, non-PL objective, broader AudioHooks, or unresolved FastView semantics.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -304,7 +304,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 14: add a fail-closed external Windows 11 acceptance receipt for the already-integrated normal-application first-screen press-audio path. Exercise the real Tk bound action and canonical (10,0)->menus.bnk slot 2 delivery; require human audibility confirmation. Do not promote broad semantic audio binding, login/menu integration, or Gate 14 completion.",
+  "current_task": "Gate 14 remains active. PR #460's external Windows 11 bound first-screen audio acceptance tooling is canonical and CI-verified, but no private human-heard receipt exists. Private source archive recovery succeeds while process execution still fails with caas.internal.errors.ClientError. Continue only source-established cloud-safe critical-path work; do not infer secondary-owner, multi-human, non-PL objective, broader AudioHooks, or unresolved FastView semantics.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "gate11_danger_morale_request_integrated": true,
@@ -2845,5 +2845,17 @@
   "gate14_startup_media_windows_acceptance_asset_policy_run": 37309256060,
   "gate14_readiness_reconciliation_merge": "9c0e22c63c5c9c17953648ae4eb2619c6d9569c2",
   "gate14_readiness_reconstruction_run": 37313356333,
-  "gate14_readiness_asset_policy_run": 37313356314
+  "gate14_readiness_asset_policy_run": 37313356314,
+  "gate14_bound_first_screen_audio_windows_acceptance_audit_tooling": true,
+  "gate14_bound_first_screen_audio_windows_acceptance_audit_merge": "1882ce3e36b1ded7919230319c6d7c73538a9b85",
+  "gate14_bound_first_screen_audio_windows_acceptance_audit_head": "a5148bba1527ecf8ded85ec221998cc6949fae59",
+  "gate14_bound_first_screen_audio_windows_acceptance_reconstruction_run": 37315028568,
+  "gate14_bound_first_screen_audio_windows_acceptance_windows_package_run": 37315028421,
+  "gate14_bound_first_screen_audio_windows_acceptance_gate13_run": 37315028868,
+  "gate14_bound_first_screen_audio_windows_acceptance_asset_policy_run": 37315028543,
+  "recovery315_private_source_library_materialized": true,
+  "recovery315_private_source_library_size_bytes": 511121336,
+  "recovery315_private_source_execution_available": false,
+  "recovery315_private_source_execution_blocker": "caas.internal.errors.ClientError on trivial shell/Python execution immediately after successful Library materialization",
+  "recovery315_private_source_archive_sha_reverified": false
 }
