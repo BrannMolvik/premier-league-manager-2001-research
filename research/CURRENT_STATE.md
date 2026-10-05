@@ -1,11 +1,63 @@
 # Current State
 
-_Last reconciled: 5 October 2026 KST_
+_Last reconciled: 6 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+
+## Recovery 322 continuation — external Windows playability regression #482 reopens Gate 13
+
+Daniel's real Windows 11 hands-on run supersedes the prior Gate-13 external
+acceptance interpretation. Current `main` at the start of this audit was
+`6030cbae46d8a15386d6b6114a11bcd35e8984dc`. Issue #482 is now the priority
+regression and Gate 13 is again the earliest incomplete validation gate.
+
+The audit separates the observed problem into source-backed implementation
+boundaries rather than one generic performance complaint:
+
+- The first-screen caching work from `72aedde11690ecaa2d9290482b477eb1440f44a7`
+  is still present. The remaining measured `startup.presenter_build = 26.301s`
+  is cold source conversion: executable table/quantization derivation, EA444
+  background/button decode, font/language parsing and final source-identity
+  verification.
+- Start New Game still constructs the full canonical gameplay world and primary
+  schedule synchronously inside `FrontEndSession.dispatch()` before TeamSelect
+  appears. Daniel's measured first pointer transaction was **3.355s**.
+- The first management transition still waits for one broad loader containing
+  PMenu, fixtures, League Tables, PMatchInfo, Squad, background, header and text.
+  The prior external aggregate was **16.724s**. Fixtures/Tables/PMatchInfo are
+  unrelated to the fresh Squad landing and must not gate it.
+- The management presenter already materializes up to **20 source-backed Squad
+  rows**, with recovered 17-pixel row cadence, player/side-column geometry and
+  source font identities. The Tk host nevertheless renders only the three
+  Squad top buttons. Daniel's sparse Southport screenshot is therefore a real
+  renderer omission, not missing backend roster data.
+- Some Squad side-column native color transforms, status icons and
+  club-relative-assignment styling remain unresolved. Those exact details stay
+  fail-closed, but they do not justify omitting the already-recovered row
+  geometry/data/font subset.
+- The current startup-video backend deliberately creates a separate maximized
+  topmost WPF/PowerShell window with `MediaElement.Stretch=Uniform`. Repository
+  research still marks the original 320x480 stream's display/interlace/scaling
+  treatment unresolved. Visible/audible playback alone therefore does not
+  qualify the current wrong-aspect/separate-window presentation as accepted.
+
+A detailed worker directive with these boundaries is persisted on issue #482
+(comment 6001127354). Gate-17 FFmpeg work-ahead #475/#479 remains suspended
+until this regression is repaired and externally accepted.
+
+**Exact next task:** repair the highest-confidence cloud-safe slice first:
+split management resources by route so a fresh Squad landing loads only its
+shell/background/header/Squad requirements, and add regression tests proving
+Fixtures, League Tables and PMatchInfo resources are not loaded for that first
+draw. In the same worker branch, render the already source-closed ordinary
+Squad row subset that can be drawn without inventing unresolved status/color
+semantics. Verify focused tests and then the relevant full/package CI before
+moving to startup/New-Game latency. Keep startup-FMV display-treatment work
+evidence-led and require Daniel's normal Windows 11 acceptance before #482 or
+Gate 13 can close.
 
 ## Recovery 321 continuation — minimal FFmpeg contract needs explicit D3D11VA
 
