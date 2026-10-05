@@ -93,11 +93,30 @@ class OriginalManagementBackground:
         candidates = background_candidates(
             club_header.graphics_directory, club_header.graphics_basename,
             club_header.current_date.month, club_header.fan_base_index)
-        # Do not treat absent staging as a native failed load. This selection
-        # explicitly includes every seasonal original for the live PL domain.
-        if club_header.competition_id != 0 or candidates[0].casefold() not in self.paths:
-            raise ManagementBackgroundError('Club background family is not source-staged')
-        base = self.paths[candidates[0].casefold()]
+
+        # Native 0x5D3490/0x5D3560 tries the club-specific seasonal art first,
+        # then the club's unseasoned art, then source-owned generic seasonal
+        # families, then generic. Preserve that recovered fallback order rather
+        # than rejecting every non-Premiership club merely because its exact
+        # club family has not been staged.
+        base = next(
+            (self.paths[candidate.casefold()]
+             for candidate in candidates
+             if candidate.casefold() in self.paths),
+            None,
+        )
+        if base is None:
+            raise ManagementBackgroundError(
+                'No source-staged management background candidate'
+            )
+
         header = f'{HEADER_ROOT}/back_2_{header_variant(club_header.competition_id)}.444'
-        return (self._image(base, (0, 0, 800, 600)),
-                self._image(self.paths[header.casefold()], (171, 0, 385, 95)))
+        header_key = header.casefold()
+        if header_key not in self.paths:
+            raise ManagementBackgroundError(
+                'Competition header family is not source-staged'
+            )
+        return (
+            self._image(base, (0, 0, 800, 600)),
+            self._image(self.paths[header_key], (171, 0, 385, 95)),
+        )
