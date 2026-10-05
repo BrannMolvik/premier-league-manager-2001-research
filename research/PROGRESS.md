@@ -11397,3 +11397,10 @@ work may continue under the deferred-blocker policy.
 - #466 cleanly replaces stale #465 on the post-#464 main baseline. The checksum-gated CSupportStaff +0x24 tracer and tests are canonical; value semantics/materialization remain unresolved, so the Finance/board gap and Gate 15 remain open. PR #465 was closed as superseded.
 - Next cloud-safe critical-path hardening is to bind final Gate-15 `accepted_documented` items to the final Gate-17 release-limitations disclosure. This does not advance any gate-complete flag.
 
+## 5 October 2026 — Recovery 318 release-disclosure checkpoint
+
+- PR #467 merged as `93991be9f3a147f7d8764b46792b9685091b1ddd` from head `61a1690f05ff4b79b6193425354d90c1d43c9be8`.
+- Reconstruction run `37331984582` passed **2,593 tests with 23 expected skips**; repository asset-policy run `37331984552` passed on the same head.
+- Gate 17 now reruns the canonical Gate-15 fidelity audit and fails if a final `accepted_documented` Gate-15 item is omitted by exact gap name from `RELEASE_LIMITATIONS.md`. The final receipt records the Gate-15 ledger hash/disclosure list. No gate-complete flag changed.
+- Recovery 318 re-materialized the exact 511,121,336-byte authorized source archive, but real Python `zipfile` access immediately failed with `caas.internal.errors.ClientError`. The prepared TeamTable private trace remains unexecuted.
+- Next cloud-safe critical-path task is the Gate-17 bundled-FFmpeg provenance/license guard. The package currently stages the `imageio-ffmpeg` Windows executable as `runtime_tools/ffmpeg.exe`; do not claim release compliance until exact binary provenance, license and corresponding-source/source-offer handling are fail-closed and documented.
