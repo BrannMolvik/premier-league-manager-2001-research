@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #468 is merged and verified. Private execution still fails with caas.internal.errors.ClientError. Audit whether the Windows release can avoid redistributing the current static GPL-enabled FFmpeg binary without weakening source-backed startup-media behavior; otherwise preserve the fail-closed third-party material boundary.",
+  "active_task": "PR #469 LGPL FFmpeg candidate probe is open. Windows run 37339029237 and asset-policy run 37339029157 passed on head e21159de5508f187ab154f53dbe9463be38a862d, including exact archive/hash/configuration checks and a synthetic h264_mf+AAC encode/decode roundtrip. Full reconstruction run 37339029246 is still in progress; do not merge until it completes successfully. Production FFmpeg remains unchanged. Gate 14 private TeamTable trace remains blocked by caas.internal.errors.ClientError.",
   "last_known_main_head": "0f441d12813bff06685b28063815cbadf4ff0516",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 318,
   "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 318 checkpoint: #468 merged as fabbe197; main reconciled through 0f441d12. FFmpeg binary identity/provenance is attested, but release/license/source completion flags remain false. Private process execution remains blocked.",
+  "note": "Recovery continuation checkpoint after interruption: #469 Windows proof green, full reconstruction still running. Candidate executable c15ef2e38620f3efb81355c2b25afe054e93a69ce7300a35e640508e92954aa8; bundled license da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768. No production migration yet.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
