@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. PR #389 adds the exact read-only fixed-Premier-League surfaced-resource adapter plus verified source-root EA444 loader and is under CI. Dependent PR #390 adds separate source-correct match_background_surface and club_badge_surfaces raster planes and is also under CI; do not merge #390 before #389. After #389/#390 verify and merge in order, continue disjoint Gate-14 component/draw-order/overlap integration for those two planes. Do not touch Gate 13.",
-  "last_known_main_head": "54c1c8816bb7b63428a99b033485e41814e70489",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Surfaced loader PR #389 is canonical at 116386b4. Clean rebased surfaced-raster PR #392 is canonical at ab2a8bc8 after 2,364 tests/23 skips and asset policy. Clean integration-only PR #393 is under CI from head 643ce6a0; merge only after green. In parallel continue disjoint Gate-14 GoalFlash source trace from canonical executable: exact Receiver<EventGoal>/Receiver<EventScore>/Receiver<EventPenaltyShootoutShot> topology, five style-1 TextControls per flash row, raw flags/geometry, normal-goal and shootout formatter inputs/suffixes. Keep unresolved event field semantics neutral. Do not touch Gate 13.",
+  "last_known_main_head": "ab2a8bc828f8de2600632dbf25ed0fbf17600f48",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 296,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at main 54c1c881. Avoided reopening #386-#388. #389 and #390 are the active dependency chain; both keep terminal background fallback, cross-component blend, complete frame and Gate14 completion fail-closed.",
+  "note": "Conflicted dependent PRs #390/#391 were safely closed and recreated as clean rebases #392/#393; no force merge/ref rewrite. Static GoalFlash trace is read-only against canonical executable hash 833bf95e...",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
