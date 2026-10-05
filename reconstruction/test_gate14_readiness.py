@@ -19,6 +19,8 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertFalse(state.gate14_ready)
 
         self.assertTrue(state.completed_human_resolved_fastview_path)
+        self.assertTrue(state.operator_visible_resolved_fastview_surface)
+        self.assertFalse(state.source_fastview_navigation_trigger_recovered)
         self.assertTrue(state.playerrow_energy_pixels_recovered)
         self.assertTrue(state.playerrow_text_pixels_recovered)
         self.assertTrue(state.score_subpanel_parameterized_construction_recovered)
@@ -39,6 +41,9 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
         self.assertTrue(state.audio_sample_decode_ready)
+        self.assertTrue(state.first_screen_press_audio_bound)
+        self.assertTrue(state.startup_media_default_windows_path_integrated)
+        self.assertFalse(state.startup_media_real_windows_verified)
         self.assertFalse(state.audible_windows_verified)
         self.assertTrue(state.chant_runtime_selection_recovered)
         self.assertTrue(state.chant_runtime_timing_recovered)
@@ -67,6 +72,47 @@ class Gate14ReadinessTests(unittest.TestCase):
             ),
         )
 
+    def test_new_capability_flags_keep_their_own_prerequisites_fail_closed(self):
+        state = canonical_gate14_readiness()
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "operator-visible FastView surface",
+        ):
+            replace(
+                state,
+                completed_human_resolved_fastview_path=False,
+            )
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "source FastView navigation trigger",
+        ):
+            replace(
+                state,
+                operator_visible_resolved_fastview_surface=False,
+                source_fastview_navigation_trigger_recovered=True,
+            )
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "first-screen press audio binding",
+        ):
+            replace(
+                state,
+                audio_sample_decode_ready=False,
+            )
+
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "startup-media Windows acceptance",
+        ):
+            replace(
+                state,
+                startup_media_default_windows_path_integrated=False,
+                startup_media_real_windows_verified=True,
+            )
+
     def test_audio_integration_cannot_bypass_decode_prerequisites(self):
         state = canonical_gate14_readiness()
         with self.assertRaisesRegex(
@@ -76,6 +122,7 @@ class Gate14ReadinessTests(unittest.TestCase):
             replace(
                 state,
                 audio_sample_decode_ready=False,
+                first_screen_press_audio_bound=False,
                 login_menu_audio_integrated=True,
             )
 
@@ -284,8 +331,10 @@ class Gate14ReadinessTests(unittest.TestCase):
             global_fastview_z_order_recovered=True,
             font_blend_rule_recovered=True,
             complete_fastview_frame_recovered=True,
+            source_fastview_navigation_trigger_recovered=True,
             audio_sample_decode_ready=True,
             audio_event_binding_recovered=True,
+            startup_media_real_windows_verified=True,
             audible_windows_verified=True,
             login_menu_audio_integrated=True,
             chant_event_semantics_recovered=True,
