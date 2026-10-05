@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective adjudication #416 is canonical at main 79e05cdd13914748fc3934b4bf981fcd543812bd after reconstruction run 37271360353 passed 2,460 tests / 23 expected skips and asset-policy run 37271360363 passed. Continue independent Gate-17 release tooling: add a current-contract full_original_scope receipt producer that refuses to write unless the canonical full-scope implementation preflight is green, the external per-scope results exactly match the current TeamSelect catalog, every scope proves human career/competition progression/required subsystems/save-reload, and the external result proves six-user multi-human support. Bind output to exact archive/version/commit/catalog and keep Gate17 completion false until the actual Windows receipt exists.",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 PR #417 current full-original-scope receipt producer is open on exact head 2c15862f646065ffe264718384c15038121e0214. Asset policy 37273644255 passed; reconstruction run 37273644193 is in progress. The producer now additionally requires the external per-scope result file itself to match release_version, repository_commit, release archive SHA/size, Windows 11 build/product type, exact canonical TeamSelect catalog/order, per-scope human/progression/subsystem/save-reload flags, and six-user multi-human proof, preventing stale scope evidence from being relabeled. Merge only exact green head. A stacked transaction branch exists but must be reconciled onto post-#417 main before PR.",
   "last_known_main_head": "79e05cdd13914748fc3934b4bf981fcd543812bd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 303,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not revive the obsolete static GATE17_ORIGINAL_SCOPE_CATALOG.json prototype from old branch. Current source of truth is gate17_full_scope_catalog.py plus canonical game files. Private source-dependent secondary/objective/sporting adjudications remain deferred; this receipt producer is independent fail-closed release tooling.",
+  "note": "Prepared stacked branch chatgpt/gate17-full-scope-receipt-transaction changes external validation to accept --full-original-scope-results and mint full_original_scope.json inside rollback-safe final transaction; includes producer-failure cleanup test. Do not open/merge it until #417 is canonical, then transplant only transaction files if squash history makes branch dirty.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
