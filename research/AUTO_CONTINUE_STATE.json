@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate 14 direct FastView header raster PR 384 merged to main 66b384ce after 2,339 tests with 23 expected skips and asset-policy success. Continue disjoint Gate 14 direct-header component integration on chatgpt/gate14-direct-header-component: lift direct_header_text after possession_figures and before score planes, add source pairwise draw-order relation, preserve overlap masking, verify and merge. Do not touch Gate 13.",
-  "last_known_main_head": "66b384ceba7adbc3865749a72a18150cc90d5aee",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate 14 direct-header component PR 385 merged to main b8e11f59 after 2,342 tests/23 expected skips and asset-policy success. Continue disjoint Gate 14 FastView SurfacedPictureControl source trace: source-close the full 800x600 match-club background surface and the 135x93 home/away badge controls, including club/country art-path data fields and badge fallback. Keep the dynamic Team_Backgrounds backgroundN selector unresolved until its source index/cache logic is proven. Do not touch Gate 13.",
+  "last_known_main_head": "b8e11f591438570191e38fca2934dccb47695056",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 296,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR 384 is canonical at 66b384ce. Component branch already contains lift, resolved-composite ordering, draw-order ledger, overlap-readiness tests, and docs.",
+  "note": "PR 385 canonical at b8e11f59. Private canonical executable trace proves left badge receives Match +0x14 (home) and right badge Match +0x28 (away) through fixed fixture +0x0C/+0x10 constructor dataflow. Full surface comes from Match::514220 club -> DBTClubs -> ClubBackgroundSurface 5D3490.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
