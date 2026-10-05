@@ -85,7 +85,7 @@ DECODER = PStartMenuDecoderProvenance(
         "833bf95e92a1c76ade47106f8ad7d3ca307069b7e"
         "5778a7067cd0658838b7cc3"
     ),
-    tqia_section_sha256="1" * 64,
+    tqia_section_sha256=TQIA_SOURCE_SHA256,
     quant_source_sha256=(
         "6fb2af66cb6a51e4b3fa7da9bacab417fa40f180"
         "aa0c18c85adb2550c04c89eb"
@@ -227,14 +227,30 @@ class PStartMenuDerivativeTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             self._build(directory)
-            other = replace(
-                DECODER, tqia_section_sha256="2" * 64
+            path = Path(directory) / MANIFEST_NAME
+            manifest = json.loads(
+                path.read_text(encoding="utf-8")
             )
+            manifest["decoder"]["tqia_section_sha256"] = "0" * 64
+            path.write_text(
+                json.dumps(
+                    manifest,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ) + "\n",
+                encoding="utf-8",
+            )
+            changed_manifest_sha = sha256(
+                path.read_bytes()
+            ).hexdigest()
             with self.assertRaisesRegex(
                 PStartMenuDerivativeError,
                 "decoder provenance",
             ):
-                self._load(directory, decoder=other)
+                self._load(
+                    directory,
+                    manifest_sha=changed_manifest_sha,
+                )
 
     def test_schema_and_caption_binding_drift_fail_closed(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -308,11 +324,19 @@ class PStartMenuDerivativeTests(unittest.TestCase):
                 quant_source_sha256=DECODER.quant_source_sha256,
             )
         with self.assertRaisesRegex(
+            PStartMenuDerivativeError, "TQIA"
+        ):
+            PStartMenuDecoderProvenance(
+                executable_sha256=DECODER.executable_sha256,
+                tqia_section_sha256="0" * 64,
+                quant_source_sha256=DECODER.quant_source_sha256,
+            )
+        with self.assertRaisesRegex(
             PStartMenuDerivativeError, "quantization"
         ):
             PStartMenuDecoderProvenance(
                 executable_sha256=DECODER.executable_sha256,
-                tqia_section_sha256="1" * 64,
+                tqia_section_sha256=TQIA_SOURCE_SHA256,
                 quant_source_sha256="0" * 64,
             )
 
