@@ -104,7 +104,10 @@ from original_squad_top_controls import (
     build_fresh_squad_top_render,
     load_verified_squad_top_resources,
 )
-from startup_media_playback import load_and_play_verified_startup_sequence
+from startup_media_playback import (
+    load_and_play_verified_startup_sequence,
+    play_verified_startup_sequence,
+)
 from runtime_layout import application_root, bundled_source_root
 from runtime_diagnostics import timed_stage
 
@@ -1710,8 +1713,20 @@ def play_configured_startup_media(
     receipt_path: str | Path | None,
     backend,
     repo_root: str | Path | None = None,
+    derivatives=None,
 ):
-    """Run verified startup media only when both explicit inputs are configured."""
+    """Play either private-receipt or already-verified bundled startup media."""
+    if derivatives is not None:
+        if receipt_path is not None:
+            raise OriginalGameHostError(
+                "Startup media cannot combine bundled derivatives with a private receipt"
+            )
+        if backend is None:
+            raise OriginalGameHostError(
+                "Verified bundled startup media requires a playback backend"
+            )
+        return play_verified_startup_sequence(derivatives, backend)
+
     if receipt_path is None and backend is None:
         return None
     if receipt_path is None or backend is None:
@@ -1731,6 +1746,7 @@ def run_original_game_ui(
     source_root: str | Path | None = None,
     startup_media_receipt: str | Path | None = None,
     startup_media_backend=None,
+    startup_media_derivatives=None,
     repo_root: str | Path | None = None,
 ) -> None:
     """Launch verified startup media, then the current source-backed UI surface."""
@@ -1739,6 +1755,7 @@ def run_original_game_ui(
             receipt_path=startup_media_receipt,
             backend=startup_media_backend,
             repo_root=repo_root,
+            derivatives=startup_media_derivatives,
         )
     resolved_source_root = (
         DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
