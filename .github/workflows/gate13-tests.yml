@@ -278,7 +278,10 @@ jobs:
             --output-dir "$RUNNER_TEMP/pstartmenu-b"
           cmp "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-b/manifest.json"
           cmp "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz" "$RUNNER_TEMP/pstartmenu-b/payload.bin.xz"
-          sha256sum "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz"
+          cmp "$RUNNER_TEMP/pstartmenu-a/manifest.json" "../original_assets/converted/pstartmenu-v1/manifest.json"
+          cmp "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz" "../original_assets/converted/pstartmenu-v1/payload.bin.xz"
+          test "$(sha256sum "$RUNNER_TEMP/pstartmenu-a/manifest.json" | cut -d' ' -f1)" = "cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e"
+          test "$(sha256sum "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz" | cut -d' ' -f1)" = "2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697"
 
       - name: Upload verified PStartMenu derivative
         uses: actions/upload-artifact@v4
