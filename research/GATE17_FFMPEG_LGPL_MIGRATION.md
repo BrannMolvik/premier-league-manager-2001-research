@@ -160,7 +160,8 @@ autodetection is disabled. It retains only:
   select;
 - native AAC;
 - Windows Media Foundation `h264_mf`;
-- the MP4-capable `mov` muxer;
+- the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
+  muxing machinery;
 - the `ffmpeg` and `ffprobe` command-line programs.
 
 FFmpeg's upstream source identifies `eatgq` as the Electronic Arts TGQ video
