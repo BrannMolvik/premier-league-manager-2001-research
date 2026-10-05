@@ -39,6 +39,7 @@ The current audit records these solved sub-capabilities:
 - dynamic PlayerRow energy pixels;
 - English PlayerRow text pixels;
 - source-closed relative draw order across the currently rasterized FastView component families;
+- the source-closed two-row GoalFlash receiver/control/formatting contract, while its absolute placement and pixels remain explicitly absent;
 - native packed-16 font destination read, alpha endpoints, /256 mask-wise blend rule and color-key behavior;
 - ownership and selected playback entrypoints for the four canonical BNK banks;
 - chant pool selection and timing arithmetic.
@@ -50,11 +51,12 @@ roadmap criterion.
 
 The audit exposes the unresolved capabilities directly:
 
-- BNK sample decode;
 - exact audio event/sample binding;
-- login/menu audio integration;
+- audible Windows output and login/menu audio integration;
+- GoalFlash absolute timing/position;
+- GoalFlash pixel rasterization and resolved-composite integration;
 - global FastView z-order across omitted/unbound layers;
-- a complete FastView frame, including the remaining runtime-mask / packed-16-to-modern-RGBA translation boundary;
+- a complete FastView frame;
 - chant event semantics;
 - source-backed 3D choreography;
 - final recognizable-original-workflow verification.
@@ -75,10 +77,34 @@ The data model rejects invalid promotion paths. In particular:
 - login/menu audio cannot be declared integrated before bank ownership,
   playback entrypoints and sample decode are ready;
 - a complete FastView frame cannot be asserted before the resolved human path,
-  energy/text pixels, global z-order and the already source-closed font blend
-  prerequisite are all satisfied;
+  energy/text pixels, the source-closed GoalFlash contract, absolute GoalFlash
+  placement, GoalFlash rasterization, global z-order and the already
+  source-closed font blend prerequisite are all satisfied;
 - recognizable original workflow cannot be asserted without at least one
   completed source-backed match presentation path.
 
 This audit does not change presentation behavior. It only makes the current
 Gate-14 closure boundary machine-checkable.
+
+## GoalFlash omission guard
+
+The source contract merged from the canonical executable proves the two
+GoalFlash rows, their three typed receiver families, five style-1 text controls
+per row, exact relative cell geometry/flags, normal-goal formatting shape, and
+penalty-shootout suffix/highlight behavior. That is sufficient to prove that
+GoalFlash is a real visible FastView family, but not sufficient to place its
+pixels on the 800x600 frame.
+
+The readiness model therefore carries three separate facts:
+
+- `goalflash_source_contract_recovered = true`;
+- `goalflash_absolute_position_recovered = false`;
+- `goalflash_pixels_rasterized = false`.
+
+This distinction is deliberate. A resolved-only composite with zero remaining
+pixel overlaps is still not a complete original frame while a source-backed
+visible family is omitted. Future GoalFlash work must recover the absolute
+mover/timing position and produce source-backed pixels before
+`complete_fastview_frame_recovered` can become true. The unresolved
+EventGoal field labels remain neutral and are not prerequisites invented by
+this readiness guard.
