@@ -544,7 +544,10 @@ class OriginalGameHostTests(unittest.TestCase):
             native_color_16=0xFFFF,
             text="Southport",
         )
-        host.presenter.snapshot = lambda: SimpleNamespace(club_rows=(row,))
+        host.presenter.snapshot = lambda: SimpleNamespace(
+            screen=FrontEndScreen.TEAM_SELECT,
+            club_rows=(row,),
+        )
         host.canvas.images = [
             (0, 0, {"image": object()}),
             (0, 0, {"image": object()}),
