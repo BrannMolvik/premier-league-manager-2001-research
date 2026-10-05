@@ -4,6 +4,21 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Recovery 313 resolved FastView surface
+
+Merged #455 as `6ad4416b`. An existing completed-human resolved FastView
+bundle can now be shown on an operator-visible native 800x600 Tk child window
+from the source-backed host without adding a simulation or navigation trigger.
+The displayed bytes are the canonical resolved preview; ambiguous overlap
+pixels remain transparent and complete-frame/z/blend/audio/3D claims stay
+false. Reconstruction 37307918883, Windows package 37307919062, Gate-13
+regression 37307919034 and asset policy 37307918885 all passed.
+
+A fresh private execution probe still failed with
+`caas.internal.errors.ClientError`, so source-byte geometry work remains
+deferred. Readiness reconciliation #456 and strict external Windows startup-FMV
+acceptance tooling #457 are the current cloud-safe follow-ups.
+
 ### 5 October 2026 KST — Recovery 313 automatic startup FMVs canonical
 
 Merged #454 as `7b2c8d4e` after current-base validation. The normal Windows
