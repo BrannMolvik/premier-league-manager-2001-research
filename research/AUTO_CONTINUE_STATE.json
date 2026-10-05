@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 Recovery 315 continuation: verify/merge PR #461 readiness evidence separation and PR #462 transactional external Windows acceptance coordinator; private process execution remains blocked with caas ClientError.",
-  "last_known_main_head": "1a969bb35802fcc7f348e4620898e6580665ac7a",
+  "active_task": "Gate 14 Recovery 315: PR #462 external Windows acceptance coordinator is canonical; finish verifying/merging PR #461 readiness evidence separation, then reconcile canonical state and continue Gate-15 fidelity handoff work while private execution remains blocked.",
+  "last_known_main_head": "774629a983780bf35e4d4736968d4cca20fd0c0e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 316,
   "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 316 resumed from canonical main 1a969bb3 after sandbox analysis failure. Preserve Recovery 315 active task: verify #461/#462 and continue source-backed cloud-safe Gate 14 work.",
+  "note": "Recovery 315 main checkpoint: #462 merged as 774629a9 after reconstruction run 37320506035 and asset-policy run 37320506527 passed. #461 rerun still in progress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
