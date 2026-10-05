@@ -4,6 +4,23 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Recovery 313 automatic startup FMVs canonical
+
+Merged #454 as `7b2c8d4e` after current-base validation. The normal Windows
+source-backed launch now has a provenance-checked automatic startup-media path:
+exact original TGQs are revalidated, converted once to a private H.264/AAC
+cache, decode-verified, hash-rechecked on reuse, and played through the built-in
+Windows MCI backend. The candidate package bundles FFmpeg and rejects packages
+without it. Reconstruction 37305008796, Windows package 37305008767, Gate-13
+regression 37305008731 and asset policy 37305008736 all passed.
+
+This does not close real-Windows FMV visibility/audibility, native skip/fade
+semantics, #436 launch timing, #438 Southport acceptance, or the broader Gate-14
+audio criterion. The next cloud-safe integration gap is player-visible match
+presentation: the completed-human FastView adapters now carry the verified
+planes, while `OriginalGameTkHost` itself still contains no FastView rendering
+surface.
+
 ### 5 October 2026 KST — Recovery 312 FastView/default-FMV continuation
 
 Merged #452 as `f896ecf9`: completed-human FastView presentation now forwards
