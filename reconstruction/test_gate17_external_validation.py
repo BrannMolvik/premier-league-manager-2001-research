@@ -441,14 +441,19 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                 game.resolve(),
             )
             self.assertEqual(
-                full_scope.call_args.kwargs["output_path"],
-                full_scope_path,
+                Path(full_scope.call_args.kwargs["output_path"]).resolve(),
+                full_scope_path.resolve(),
             )
             self.assertEqual(
-                evidence.call_args.kwargs["receipt_paths"]["full_original_scope"],
-                full_scope_path,
+                Path(
+                    evidence.call_args.kwargs["receipt_paths"]["full_original_scope"]
+                ).resolve(),
+                full_scope_path.resolve(),
             )
-            self.assertEqual(result["full_original_scope"], full_scope_path)
+            self.assertEqual(
+                Path(result["full_original_scope"]).resolve(),
+                full_scope_path.resolve(),
+            )
             self.assertEqual(final_audit.call_args.kwargs["release_archive"], archive.resolve())
             self.assertEqual(final_audit.call_args.kwargs["player_seed"], 7)
             self.assertEqual(final_audit.call_args.kwargs["max_days"], 430)
