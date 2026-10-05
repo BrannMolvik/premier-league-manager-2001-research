@@ -190,6 +190,12 @@ class RuntimeStartupMediaTests(unittest.TestCase):
                 )
             )
             self.assertEqual(receipt["profile"]["video_encoder"], "h264_mf")
+            self.assertEqual(receipt["profile"]["output_width"], 640)
+            self.assertEqual(receipt["profile"]["output_height"], 480)
+            self.assertEqual(
+                receipt["profile"]["video_filter"],
+                "scale=640:480:flags=neighbor",
+            )
             self.assertEqual(
                 runtime_startup_media_contract(candidate)["conversion_profile"][
                     "video_encoder"
