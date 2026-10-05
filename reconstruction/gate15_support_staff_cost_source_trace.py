@@ -98,14 +98,18 @@ def resolve_vtable_slot_target(
 def support_staff_cost_trace_report(
     pe: OriginalPE32,
     *,
-    windows=STATIC_TRACE_WINDOWS,
-    slot_roles=KNOWN_SLOT_ROLES,
+    windows=None,
+    slot_roles=None,
     with_disassembly: bool = False,
     target_window_size: int = 0x100,
 ) -> dict:
     """Collect the exact unresolved support-staff cost source boundary."""
     if type(with_disassembly) is not bool:
         raise Gate15SupportStaffCostTraceError("with_disassembly must be boolean")
+    if windows is None:
+        windows = STATIC_TRACE_WINDOWS
+    if slot_roles is None:
+        slot_roles = KNOWN_SLOT_ROLES
     if (
         type(target_window_size) is not int
         or not 0x10 <= target_window_size <= 0x1000
