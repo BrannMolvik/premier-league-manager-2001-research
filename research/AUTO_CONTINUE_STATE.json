@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete after merged #408, with the bounded management header/data-text slice separately owned. Gate17 multi-human adjudication #410 is canonical at main 5ecabcbd1ac0af42eafe1bd6d23e4502811e3d25 after reconstruction run 37266187239 passed 2,434 tests / 23 expected skips and asset-policy run 37266187248 passed. Continue the prepared disjoint Gate-17 objective-RNG caller tracer branch chatgpt/gate17-objective-rng-caller-source-trace: reconcile it onto current main, keep caller chronology/CRT entry state/RNG draw position/all-scope objective readiness fail-closed, validate with full reconstruction + asset policy, merge only if green, then persist the exact next private adjudication step.",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 PR #412 (fresh-objective RNG caller source tracer) is open on exact head e2c86d374523e1f2358cd6bf2ccc668294a7bfa6; asset-policy run 37267738151 passed and reconstruction run 37267738192 is still running. Merge only this exact head if green. Then define the fail-closed private objective-RNG adjudication plan: classify ordinary 0x5DF670 callers, connect exact entry CRT state to the shared startup RNG ledger, recover the RNG-bearing branch draw position, and only then consider runtime integration/all-scope objective readiness.",
   "last_known_main_head": "5ecabcbd1ac0af42eafe1bd6d23e4502811e3d25",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 301,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not touch Gate13 presentation while it is separately owned. Objective-RNG tracer is evidence tooling only; raw CALL/global candidates are not objective-generation semantics.",
+  "note": "Private source is NOT missing: Library /FM2001/Original Source archive materializes at exact size 511121336 bytes. However both container and Python execution still fail with caas ClientError even on trivial access, so no private executable extraction/hash/disassembly is claimed this session. Do not rematerialize repeatedly as a substitute for byte access. Static GitHub work may continue.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
