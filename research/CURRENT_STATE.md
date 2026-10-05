@@ -7,6 +7,57 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 315 continuation — acceptance tooling and later-gate handoff canonical
+
+Canonical main has advanced through three verified Recovery-315 checkpoints:
+
+- PR #462 merged as `774629a983780bf35e4d4736968d4cca20fd0c0e`.
+  It adds one transactional external Windows 11 coordinator for the already
+  canonical startup-media and bounded first-screen audio acceptance audits.
+  The two human-confirmed receipts remain distinct and hash-bound; no files are
+  written unless both independent audits pass. Reconstruction run
+  `37320506035` and asset-policy run `37320506527` passed.
+- PR #461 merged as `53b8ad95389fc1c9226d47a5a07863e8ca875507`.
+  Gate-14 readiness now records acceptance-tool presence separately from
+  actual external Windows evidence for both startup media and bounded
+  first-screen audio. Both real-Windows verification flags remain false.
+  Corrected reconstruction run `37320843836` and asset-policy run
+  `37320843885` passed.
+- PR #463 merged as `7eccca00151672e7933ed33d482c5adddf7e8615`
+  after reconstruction run `37322157361` passed. Gate 13 is now consistently
+  treated as complete across Gate-15/16/17 readiness and the pre-release
+  limitations ledger. Gate 14 is the earliest incomplete validation gate.
+  Gate-13 secondary/pixel-perfect residuals are Gate-15 fidelity backlog items,
+  not an excuse to reopen Gate 13.
+
+The external acceptance tooling above is **not** evidence that either Windows
+transaction ran. No private startup-media receipt and no private bounded-audio
+receipt is canonical. Broad AudioHooks semantics/login-menu integration and a
+recognizable original match workflow remain open.
+
+The authorized 511,121,336-byte private source archive still materializes
+successfully, but Recovery 315 has now failed on both a trivial shell/container
+probe and the notebook Python execution path with
+`caas.internal.errors.ClientError`. No executable-byte or semantic source
+claim may be inferred until a process execution route is healthy.
+
+Gate 15 work-ahead is now focused on an omission-proof fidelity ledger. PR #464
+is building a one-to-one machine audit between the live **Active gaps** table in
+`research/FIDELITY_GAPS.md` and an explicit Gate-15 adjudication ledger. It
+must keep the still-open Gate-14 presentation row as an earlier-gate
+prerequisite, reject fallback-as-original claims, and refuse Gate-15 completion
+until Gate 14 is complete and every Gate-15-owned row has a terminal
+fixed/irrelevant/accepted-documented disposition.
+
+**Exact next task:** finish current-head CI and review for PR #464, merge only if
+the full reconstruction and asset-policy checks pass, then reconcile the
+canonical Gate-15 ledger checkpoint. After that, retry private execution at a
+normal persistence boundary and resume the highest-priority source-backed
+Gate-14 closure item if execution has recovered. If it has not, continue only
+independent cloud-safe critical-path work; do not infer FastView geometry/order,
+broader AudioHooks sender semantics, procedural-secondary ownership, six-user
+runtime semantics, or non-PL objective progression by analogy.
+
 ## Recovery 315 continuation — #460 canonical; private execution still blocked
 
 PR #460 merged as `1882ce3e36b1ded7919230319c6d7c73538a9b85`. It adds the
