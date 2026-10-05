@@ -276,10 +276,10 @@ def _load_cache(
                 path=path,
                 converted_sha256=digest,
                 converted_size_bytes=size,
-                container="mp4",
-                video_codec="h264",
-                pixel_format="yuv420p",
-                audio_codec="aac",
+                container=profile.container_name,
+                video_codec=profile.probe_video_codec,
+                pixel_format=profile.pixel_format,
+                audio_codec=profile.probe_audio_codec,
             )
         )
     return tuple(verified)
