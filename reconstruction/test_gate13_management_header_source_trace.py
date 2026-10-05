@@ -111,9 +111,7 @@ class Gate13ManagementHeaderSourceTraceTests(unittest.TestCase):
             (root / "English.idx").read_bytes(),
         )
         caption = index.resolve(strings, 2497)
-        print(f"GATE13_HEADER_CAPTION_ENTRY_2497={caption!r}")
-        self.assertIsInstance(caption, str)
-        self.assertTrue(caption)
+        self.assertEqual(caption, "MENU")
 
     def test_header_assets_are_pinned_to_only_the_two_handoff_resources(self):
         self.assertEqual(
