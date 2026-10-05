@@ -46,28 +46,27 @@ class FastViewScoreTableStaticRasterTests(unittest.TestCase):
         self.assertEqual(plane.size, (800, 600))
         self.assertEqual(plane.source_layer_count, 3)
         # resource order: current_fix_grid_1=10, grid_2=20
-        self.assertEqual(pixel(plane, 246, 32), (10, 11, 12, 255))
-        self.assertEqual(pixel(plane, 246, 55), (20, 21, 22, 255))
-        self.assertEqual(pixel(plane, 246, 74), (20, 21, 22, 255))
-        self.assertEqual(pixel(plane, 246, 93), (0, 0, 0, 0))
+        self.assertEqual(pixel(plane, 38, 32), (10, 11, 12, 255))
+        self.assertEqual(pixel(plane, 38, 55), (20, 21, 22, 255))
+        self.assertEqual(pixel(plane, 38, 74), (20, 21, 22, 255))
+        self.assertEqual(pixel(plane, 38, 93), (0, 0, 0, 0))
         self.assertFalse(plane.text_rasterized)
         self.assertFalse(plane.complete_component)
 
-    def test_two_column_scores_and_typed_phase_icon_use_exact_positions(self):
+    def test_league_scores_12_row_page_and_typed_phase_icons_use_left_column(self):
         plane = rasterize_fastview_league_scores_static(
             exact_art(),
-            13,
-            phase_events_by_source_index=((0, "EventHalfTime"), (12, "EventFullTime")),
+            12,
+            phase_events_by_source_index=((0, "EventHalfTime"), (11, "EventFullTime")),
         )
-        # two grid-1 strips + 13 grid-2 rows + 2 phase icons
-        self.assertEqual(plane.source_layer_count, 17)
+        # one grid-1 strip + 12 grid-2 rows + 2 phase icons
+        self.assertEqual(plane.source_layer_count, 15)
         self.assertEqual(pixel(plane, 38, 32), (10, 11, 12, 255))
-        self.assertEqual(pixel(plane, 454, 32), (10, 11, 12, 255))
         self.assertEqual(pixel(plane, 38, 55), (20, 21, 22, 255))
-        self.assertEqual(pixel(plane, 454, 55), (20, 21, 22, 255))
+        self.assertEqual(pixel(plane, 38, 264), (20, 21, 22, 255))
         # phase resource order: half=30, extra=40, penalties=50, full=60
         self.assertEqual(pixel(plane, 354, 55), (30, 31, 32, 255))
-        self.assertEqual(pixel(plane, 770, 55), (60, 61, 62, 255))
+        self.assertEqual(pixel(plane, 354, 264), (60, 61, 62, 255))
 
     def test_league_table_draws_heading_and_source_visible_row_count(self):
         plane = rasterize_fastview_league_table_static(exact_art(), 20)
@@ -93,7 +92,7 @@ class FastViewScoreTableStaticRasterTests(unittest.TestCase):
 
     def test_rejects_off_page_duplicate_or_unproved_phase_inputs(self):
         art = exact_art()
-        for bad_count in (0, 25, True, 1.5):
+        for bad_count in (0, 13, 25, True, 1.5):
             with self.subTest(bad_count=bad_count):
                 with self.assertRaises(FastViewScoreTableStaticRasterError):
                     rasterize_fastview_league_scores_static(art, bad_count)

@@ -66,6 +66,50 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertFalse(item.pixels_resolvable)
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
 
+    def test_direct_chrome_clock_pair_is_order_resolved_but_blend_blocked(self):
+        group = FastViewUnresolvedOverlapGroup(
+            components=("direct_chrome", "clock_text"),
+            pixel_count=5,
+            bounding_rect=(439, 44, 470, 60),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 1)
+        self.assertEqual(item.recovered_pairwise_relation_count, 1)
+        self.assertTrue(item.complete_draw_order_recovered)
+        self.assertEqual(
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            ),
+            (("direct_chrome", "clock_text"),),
+        )
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+
+    def test_direct_header_pair_is_order_resolved_but_blend_blocked(self):
+        group = FastViewUnresolvedOverlapGroup(
+            components=("possession_figures_text", "direct_header_text"),
+            pixel_count=7,
+            bounding_rect=(250, 45, 550, 86),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 1)
+        self.assertEqual(item.recovered_pairwise_relation_count, 1)
+        self.assertTrue(item.complete_draw_order_recovered)
+        self.assertEqual(
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            ),
+            (("possession_figures_text", "direct_header_text"),),
+        )
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+
     def test_direct_chrome_team_pair_is_now_order_resolved_but_blend_blocked(self):
         group = FastViewUnresolvedOverlapGroup(
             components=("direct_chrome", "team_table_static"),
@@ -87,7 +131,7 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
         self.assertFalse(item.pixels_resolvable)
 
-    def test_all_six_current_raster_families_have_complete_pairwise_order(self):
+    def test_score_table_aggregate_pair_keeps_draw_order_fail_closed(self):
         components = (
             "direct_chrome",
             "possession_diagram",
@@ -104,10 +148,92 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         item = classify_fastview_overlap_group(group)
 
         self.assertEqual(item.required_pairwise_relation_count, 15)
-        self.assertEqual(item.recovered_pairwise_relation_count, 15)
+        self.assertEqual(item.recovered_pairwise_relation_count, 14)
+        self.assertFalse(item.complete_draw_order_recovered)
+        self.assertEqual(
+            item.blockers,
+            ("cross_component_draw_order", "cross_component_blend_rule"),
+        )
+        self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+
+    def test_phase_split_score_group_has_complete_source_order_but_stays_blend_blocked(self):
+        components = (
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "team_table_static",
+        )
+        group = FastViewUnresolvedOverlapGroup(
+            components=components,
+            pixel_count=6,
+            bounding_rect=(38, 32, 763, 283),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 10)
+        self.assertEqual(item.recovered_pairwise_relation_count, 10)
         self.assertTrue(item.complete_draw_order_recovered)
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
         self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+        self.assertEqual(
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            )[-1],
+            ("league_scores_runtime_phase_icons", "team_table_static"),
+        )
+
+    def test_runtime_icon_text_group_keeps_only_their_aggregate_order_unresolved(self):
+        components = (
+            "league_scores_early_rows_static",
+            "league_table_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
+            "team_table_static",
+        )
+        group = FastViewUnresolvedOverlapGroup(
+            components=components,
+            pixel_count=3,
+            bounding_rect=(349, 55, 377, 128),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 15)
+        self.assertEqual(item.recovered_pairwise_relation_count, 14)
+        self.assertFalse(item.complete_draw_order_recovered)
+        self.assertEqual(
+            item.blockers,
+            ("cross_component_draw_order", "cross_component_blend_rule"),
+        )
+        recovered = {
+            (relation.earlier_component, relation.later_component)
+            for relation in item.recovered_pairwise_order
+        }
+        self.assertNotIn(
+            (
+                "league_scores_runtime_phase_icons",
+                "league_scores_runtime_phase_text",
+            ),
+            recovered,
+        )
+        self.assertIn(
+            (
+                "league_scores_late_grid_static",
+                "league_scores_runtime_phase_text",
+            ),
+            recovered,
+        )
+        self.assertIn(
+            (
+                "league_scores_runtime_phase_text",
+                "team_table_static",
+            ),
+            recovered,
+        )
         self.assertFalse(item.pixels_resolvable)
 
     def test_unmodeled_component_retains_draw_order_blocker(self):

@@ -15,24 +15,40 @@ The readiness audit separates two independent questions:
 
 Recovery 275 materially advances only the first question.
 
-## Recovery 275 draw-order advance
+## Current draw-order boundary
 
-`reconstruction/gate14_fastview_draw_order.py` now source-closes relative
-order across every currently rasterized FastView family:
+`reconstruction/gate14_fastview_draw_order.py` retains the source-closed
+outer-wrapper relations:
 
-`direct_chrome -> possession_diagram -> possession_figures_text -> league_table_static -> league_scores_static -> team_table`
+`direct_chrome -> possession_diagram -> possession_figures_text -> FastViewScores wrapper -> team_table`
 
-The TeamTable position may be represented as either `team_table_static` or
-`team_table_energy`.
+Within the FastViewScores wrapper, the historical aggregate
+`league_scores_static` and `league_table_static` planes remain deliberately
+**unordered relative to each other** because the aggregate score raster spans
+more than one native position.
 
-The critical new source chain is the original SubPanelControl render bridge:
-the score and team wrappers are appended to the outer FastViewPanel draw array,
-and each wrapper's render slot synchronously invokes generic forward traversal
-on its stored target panel. The score wrapper is registered before the team
-wrapper. Inside FastViewLeagueScores, LeagueTable controls are registered before
-the current-fixture score controls.
+The new phased raster path removes that ambiguity for currently source-backed
+score pixels. It carries these distinct component identities through the
+resolved-only compositor:
 
-This is not inferred from geometry, allocation order, or names.
+- `league_scores_early_rows_static`;
+- `league_table_static`;
+- `league_scores_late_grid_static`;
+- `league_scores_runtime_phase_icons`.
+
+Their source-closed order is exactly:
+
+`early rows -> league table -> late grid -> runtime phase-icon tail`.
+
+The score wrapper as a whole still renders before the TeamTable wrapper.
+
+The TeamTable position may still be represented as either
+`team_table_static` or `team_table_energy`. The score wrapper itself still
+renders before the team wrapper through the source-closed SubPanelControl
+bridge.
+
+This correction is based on constructor/vtable/append order, not geometry or
+allocation order.
 
 ## Readiness audit
 
@@ -48,10 +64,20 @@ For every unresolved contributor group it:
 - keeps cross-component blend recovery false;
 - keeps every unresolved pixel non-resolvable.
 
-As a result, any current overlap group containing only the modeled raster
-families at distinct native positions is now **draw-order resolved but blend
-unresolved**. The audit still keeps a draw-order blocker for an unmodeled layer
-or another pair absent from the source contract.
+As a result, legacy groups that still use the aggregate
+`league_scores_static <-> league_table_static` representation retain a
+**cross-component draw-order blocker** in addition to the blend blocker. In
+that legacy six-family regression, 14 of 15 pairwise relations remain
+source-closed; the missing pair is intentionally the aggregate score/table
+relation.
+
+By contrast, overlap groups built from the four phase-split score/table
+identities above have complete source-closed pairwise order, including the
+outer relation to TeamTable. Those groups are therefore blocked only by the
+remaining cross-component blend/output-format boundary, not by draw order.
+
+The audit also keeps a draw-order blocker for an unmodeled layer or any other
+pair absent from the source contract.
 
 Static and energy TeamTable rasters are alternatives for the same native
 position, not two simultaneously composited native siblings.
@@ -88,7 +114,9 @@ This checkpoint still keeps all of these false:
 - global z-order for omitted/unbound layers;
 - Gate-14 completion.
 
-The next source task is therefore narrower: recover the native destination-read
-and alpha/blend behavior used by the original rendering path, beginning with the
-already bounded EA font renderer. Only then may any ordered overlap pixel be
-resolved.
+The native font destination-read/blend primitive is separately source-closed,
+and the score/table phase split is now represented directly in component raster
+and overlap topology. Runtime pixel-format evidence and exact modern expansion
+remain separate prerequisites for emitting blended pixels. The phase split does
+not by itself recover omitted score text/title controls or global FastView
+z-order.

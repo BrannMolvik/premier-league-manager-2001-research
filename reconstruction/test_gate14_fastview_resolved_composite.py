@@ -118,9 +118,9 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                 "direct_chrome",
                 "possession_diagram",
                 "possession_figures_text",
-                "team_table_static",
                 "league_scores_static",
                 "league_table_static",
+                "team_table_static",
             ),
         )
         self.assertEqual(
@@ -131,15 +131,203 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
                     rasters.chrome,
                     rasters.possession_diagram,
                     rasters.possession_figures,
-                    rasters.team_table,
                     rasters.league_scores,
                     rasters.league_table,
+                    rasters.team_table,
                 )
             ),
         )
         self.assertFalse(composite.cross_component_z_order_recovered)
         self.assertFalse(composite.flattened_frame_available)
         self.assertFalse(composite.complete_fastview_frame)
+
+    def test_optional_clock_follows_chrome_and_preserves_overlap_masking(self):
+        rasters = FastViewComponentRasterSet(
+            chrome=plane(
+                "direct_chrome",
+                {
+                    12: (1, 1, 1, 255),
+                    13: (2, 2, 2, 255),
+                },
+            ),
+            possession_diagram=plane(
+                "possession_diagram",
+                {14: (3, 3, 3, 255)},
+            ),
+            possession_figures=plane(
+                "possession_figures_text",
+                {15: (4, 4, 4, 255)},
+            ),
+            clock=plane(
+                "clock_text",
+                {
+                    12: (255, 255, 255, 128),
+                    16: (255, 255, 255, 255),
+                },
+            ),
+        )
+        composite = compose_fastview_resolved_only_pixels(rasters)
+
+        self.assertEqual(
+            composite.contributing_components,
+            (
+                "direct_chrome",
+                "clock_text",
+                "possession_diagram",
+                "possession_figures_text",
+            ),
+        )
+        self.assertEqual(composite.unresolved_overlap_mask[12], 1)
+        self.assertEqual(pixel(composite, 12), (0, 0, 0, 0))
+        self.assertEqual(
+            composite.unresolved_overlap_groups,
+            (
+                FastViewUnresolvedOverlapGroup(
+                    components=("direct_chrome", "clock_text"),
+                    pixel_count=1,
+                    bounding_rect=(12, 0, 13, 1),
+                ),
+            ),
+        )
+        self.assertEqual(pixel(composite, 13), (2, 2, 2, 255))
+        self.assertEqual(pixel(composite, 16), (255, 255, 255, 255))
+        self.assertFalse(composite.cross_component_z_order_recovered)
+        self.assertFalse(composite.flattened_frame_available)
+
+    def test_direct_header_follows_possession_figures_and_precedes_score_planes(self):
+        rasters = FastViewComponentRasterSet(
+            chrome=plane("direct_chrome", {20: (1, 1, 1, 255)}),
+            possession_diagram=plane(
+                "possession_diagram",
+                {21: (2, 2, 2, 255)},
+            ),
+            possession_figures=plane(
+                "possession_figures_text",
+                {
+                    22: (3, 3, 3, 255),
+                    30: (3, 3, 3, 255),
+                },
+            ),
+            direct_header=plane(
+                "direct_header_text",
+                {
+                    23: (255, 255, 255, 255),
+                    30: (255, 255, 255, 128),
+                },
+                source_layers=2,
+            ),
+            league_scores=plane(
+                "league_scores_static",
+                {
+                    24: (4, 4, 4, 255),
+                    31: (4, 4, 4, 255),
+                },
+            ),
+            league_table=plane(
+                "league_table_static",
+                {25: (5, 5, 5, 255)},
+            ),
+        )
+        composite = compose_fastview_resolved_only_pixels(rasters)
+
+        self.assertEqual(
+            composite.contributing_components,
+            (
+                "direct_chrome",
+                "possession_diagram",
+                "possession_figures_text",
+                "direct_header_text",
+                "league_scores_static",
+                "league_table_static",
+            ),
+        )
+        self.assertEqual(pixel(composite, 23), (255, 255, 255, 255))
+        self.assertEqual(composite.unresolved_overlap_mask[30], 1)
+        self.assertEqual(pixel(composite, 30), (0, 0, 0, 0))
+        self.assertEqual(
+            composite.unresolved_overlap_groups,
+            (
+                FastViewUnresolvedOverlapGroup(
+                    components=("possession_figures_text", "direct_header_text"),
+                    pixel_count=1,
+                    bounding_rect=(30, 0, 31, 1),
+                ),
+            ),
+        )
+        self.assertFalse(composite.cross_component_z_order_recovered)
+        self.assertFalse(composite.flattened_frame_available)
+
+    def test_phase_split_score_planes_keep_source_order_in_overlap_topology(self):
+        rasters = FastViewComponentRasterSet(
+            chrome=plane("direct_chrome", {30: (1, 1, 1, 255)}),
+            possession_diagram=plane(
+                "possession_diagram",
+                {30: (2, 2, 2, 255)},
+            ),
+            possession_figures=plane(
+                "possession_figures_text",
+                {31: (3, 3, 3, 255)},
+            ),
+            league_scores_early_rows=plane(
+                "league_scores_early_rows_static",
+                {40: (4, 4, 4, 255)},
+            ),
+            league_table=plane(
+                "league_table_static",
+                {40: (5, 5, 5, 255)},
+            ),
+            league_scores_late_grid=plane(
+                "league_scores_late_grid_static",
+                {40: (6, 6, 6, 255)},
+            ),
+            league_scores_runtime_icons=plane(
+                "league_scores_runtime_phase_icons",
+                {40: (7, 7, 7, 255)},
+            ),
+            league_scores_runtime_text=plane(
+                "league_scores_runtime_phase_text",
+                {40: (70, 70, 70, 255)},
+            ),
+            team_table=plane(
+                "team_table_static",
+                {40: (8, 8, 8, 255)},
+            ),
+        )
+        composite = compose_fastview_resolved_only_pixels(rasters)
+
+        self.assertEqual(
+            composite.contributing_components,
+            (
+                "direct_chrome",
+                "possession_diagram",
+                "possession_figures_text",
+                "league_scores_early_rows_static",
+                "league_table_static",
+                "league_scores_late_grid_static",
+                "league_scores_runtime_phase_icons",
+                "league_scores_runtime_phase_text",
+                "team_table_static",
+            ),
+        )
+        self.assertEqual(
+            composite.unresolved_overlap_groups[-1],
+            FastViewUnresolvedOverlapGroup(
+                components=(
+                    "league_scores_early_rows_static",
+                    "league_table_static",
+                    "league_scores_late_grid_static",
+                    "league_scores_runtime_phase_icons",
+                    "league_scores_runtime_phase_text",
+                    "team_table_static",
+                ),
+                pixel_count=1,
+                bounding_rect=(40, 0, 41, 1),
+            ),
+        )
+        self.assertEqual(composite.unresolved_overlap_mask[40], 1)
+        self.assertEqual(pixel(composite, 40), (0, 0, 0, 0))
+        self.assertFalse(composite.cross_component_z_order_recovered)
+        self.assertFalse(composite.flattened_frame_available)
 
     def test_required_three_plane_set_is_supported_without_optional_art(self):
         rasters = FastViewComponentRasterSet(

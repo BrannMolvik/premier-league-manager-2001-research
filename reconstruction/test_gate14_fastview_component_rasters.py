@@ -5,6 +5,7 @@ import unittest
 from ea444_decoder import EA444DecodedImage
 from gate14_fastview_component_rasters import (
     FastViewComponentRasterError,
+    FastViewComponentRasterPlane,
     build_fastview_component_rasters,
     rasterize_fastview_chrome_plane,
     rasterize_fastview_possession_figures_plane,
@@ -12,6 +13,14 @@ from gate14_fastview_component_rasters import (
     rasterize_fastview_team_table_plane,
 )
 from gate14_possession_figures import possession_figures_text_layout
+from gate14_fastview_clock import SOURCE_CLOCK_TEXT_RECT
+from gate14_fastview_clock_raster import FastViewClockRaster
+from gate14_fastview_direct_header_raster import (
+    DIRECT_HEADER_TEXT_COMPONENT,
+    FastViewDirectHeaderPlacement,
+    FastViewDirectHeaderRaster,
+)
+from gate14_fastview_direct_header_text import FIRST_TEXT_RECT, SECOND_TEXT_RECT
 from original_fastview_chrome_art import build_fastview_chrome_art
 from original_fastview_possession_art import build_fastview_possession_art
 from original_fastview_possession_figures_art import (
@@ -26,6 +35,17 @@ from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
+)
+from gate14_fastview_score_draw_phases import (
+    PHASE_EARLY_SCORE_ROWS,
+    PHASE_LATE_GRID,
+    PHASE_RUNTIME_ICONS,
+    FastViewLeagueScoresDrawPhases,
+    FastViewScoreDrawPhasePlane,
+)
+from gate14_fastview_score_phase_text_raster import (
+    PHASE_RUNTIME_TEXT_COMPONENT,
+    FastViewScorePhaseTextRaster,
 )
 from hashlib import sha256
 
@@ -97,6 +117,84 @@ def score_table_rasters():
             rgba_sha256=sha256(rgba_b).hexdigest(),
         ),
     )
+
+def score_draw_phases():
+    def phase(component, value, layers):
+        rgba = bytes((value, value + 1, value + 2, 255)) * (800 * 600)
+        return FastViewScoreDrawPhasePlane(
+            component=component,
+            size=(800, 600),
+            rgba=rgba,
+            source_layer_count=layers,
+            rgba_sha256=sha256(rgba).hexdigest(),
+            native_phase=component,
+            runtime_tail=(component == PHASE_RUNTIME_ICONS),
+        )
+    return FastViewLeagueScoresDrawPhases(
+        early_score_rows=phase(PHASE_EARLY_SCORE_ROWS, 31, 2),
+        late_grid=phase(PHASE_LATE_GRID, 41, 1),
+        runtime_phase_icons=phase(PHASE_RUNTIME_ICONS, 51, 1),
+    )
+
+
+def score_phase_text_raster():
+    rgba = bytes(800 * 600 * 4)
+    return FastViewScorePhaseTextRaster(
+        component=PHASE_RUNTIME_TEXT_COMPONENT,
+        size=(800, 600),
+        rgba=rgba,
+        source_layer_count=0,
+        placements=(),
+        rgba_sha256=sha256(rgba).hexdigest(),
+    )
+
+
+def clock_raster():
+    rgba = bytearray(800 * 600 * 4)
+    offset = (SOURCE_CLOCK_TEXT_RECT[1] * 800 + SOURCE_CLOCK_TEXT_RECT[0]) * 4
+    rgba[offset:offset + 4] = b"\xff\xff\xff\xff"
+    payload = bytes(rgba)
+    return FastViewClockRaster(
+        component="clock_text",
+        size=(800, 600),
+        rgba=payload,
+        source_layer_count=1,
+        text="1 mins",
+        line_origin=SOURCE_CLOCK_TEXT_RECT[:2],
+        clip_rect=SOURCE_CLOCK_TEXT_RECT,
+        native_color_16=0xFFFF,
+        rgba_sha256=sha256(payload).hexdigest(),
+    )
+
+
+def direct_header_raster():
+    rgba = bytearray(800 * 600 * 4)
+    for x, y in ((300, 50), (310, 72)):
+        offset = (y * 800 + x) * 4
+        rgba[offset:offset + 4] = b"\xff\xff\xff\xff"
+    payload = bytes(rgba)
+    return FastViewDirectHeaderRaster(
+        component=DIRECT_HEADER_TEXT_COMPONENT,
+        size=(800, 600),
+        rgba=payload,
+        source_layer_count=2,
+        placements=(
+            FastViewDirectHeaderPlacement(
+                text="FIRST",
+                control_rect=FIRST_TEXT_RECT,
+                line_origin=(300, 50),
+                glyph_size=(20, 10),
+            ),
+            FastViewDirectHeaderPlacement(
+                text="SECOND",
+                control_rect=SECOND_TEXT_RECT,
+                line_origin=(300, 68),
+                glyph_size=(20, 10),
+            ),
+        ),
+        rgba_sha256=sha256(payload).hexdigest(),
+    )
+
 
 def pixel(plane, x, y):
     offset = (y * 800 + x) * 4
@@ -204,6 +302,131 @@ class FastViewComponentRasterTests(unittest.TestCase):
         self.assertFalse(rasters.cross_component_z_order_recovered)
         self.assertFalse(rasters.flattened_frame_available)
 
+    def test_phase_split_replaces_aggregate_score_plane_but_keeps_table(self):
+        source = score_table_rasters()
+        phases = score_draw_phases()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+            score_draw_phases=phases,
+        )
+        self.assertIsNone(rasters.league_scores)
+        self.assertEqual(
+            rasters.league_scores_early_rows.component,
+            PHASE_EARLY_SCORE_ROWS,
+        )
+        self.assertEqual(rasters.league_table.component, "league_table_static")
+        self.assertEqual(
+            rasters.league_scores_late_grid.component,
+            PHASE_LATE_GRID,
+        )
+        self.assertEqual(
+            rasters.league_scores_runtime_icons.component,
+            PHASE_RUNTIME_ICONS,
+        )
+        self.assertEqual(
+            rasters.league_scores_runtime_icons.source_layer_count,
+            1,
+        )
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+    def test_phase_text_lifts_only_with_phased_score_evidence(self):
+        source = score_table_rasters()
+        phases = score_draw_phases()
+        text = score_phase_text_raster()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+            score_draw_phases=phases,
+            score_phase_text=text,
+        )
+        self.assertIsNotNone(rasters.league_scores_runtime_text)
+        self.assertEqual(
+            rasters.league_scores_runtime_text.component,
+            PHASE_RUNTIME_TEXT_COMPONENT,
+        )
+        self.assertEqual(rasters.league_scores_runtime_text.source_layer_count, 0)
+        self.assertEqual(
+            rasters.league_scores_runtime_text.rgba_sha256,
+            text.rgba_sha256,
+        )
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "requires phased league-score evidence",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_phase_text=text,
+            )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "score_phase_text must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_table=source,
+                score_draw_phases=phases,
+                score_phase_text=object(),
+            )
+
+    def test_phase_split_requires_verified_table_bundle_and_exact_phase_type(self):
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "require the verified LeagueTable",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_draw_phases=score_draw_phases(),
+            )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "score_draw_phases must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_table=score_table_rasters(),
+                score_draw_phases=object(),
+            )
+
+        source = score_table_rasters()
+        phases = score_draw_phases()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+            score_draw_phases=phases,
+        )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "mutually exclusive",
+        ):
+            replace(
+                rasters,
+                league_scores=FastViewComponentRasterPlane(
+                    component="league_scores_static",
+                    size=source.league_scores.size,
+                    rgba=source.league_scores.rgba,
+                    source_layer_count=source.league_scores.source_layer_count,
+                    rgba_sha256=source.league_scores.rgba_sha256,
+                ),
+            )
+
     def test_score_table_bundle_fails_closed_on_wrong_type_or_partial_pair(self):
         with self.assertRaisesRegex(
             FastViewComponentRasterError,
@@ -228,6 +451,64 @@ class FastViewComponentRasterTests(unittest.TestCase):
             "supplied as one verified pair",
         ):
             replace(rasters, league_table=None)
+
+    def test_optional_clock_raster_lifts_without_flattening(self):
+        source_clock = clock_raster()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            clock=source_clock,
+        )
+        self.assertIsNotNone(rasters.clock)
+        self.assertEqual(rasters.clock.component, "clock_text")
+        self.assertEqual(rasters.clock.rgba_sha256, source_clock.rgba_sha256)
+        self.assertEqual(rasters.clock.source_layer_count, 1)
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "clock must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                clock=object(),
+            )
+
+    def test_optional_direct_header_raster_lifts_without_flattening(self):
+        source_header = direct_header_raster()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            direct_header=source_header,
+        )
+        self.assertIsNotNone(rasters.direct_header)
+        self.assertEqual(
+            rasters.direct_header.component,
+            DIRECT_HEADER_TEXT_COMPONENT,
+        )
+        self.assertEqual(
+            rasters.direct_header.rgba_sha256,
+            source_header.rgba_sha256,
+        )
+        self.assertEqual(rasters.direct_header.source_layer_count, 2)
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "direct_header must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                direct_header=object(),
+            )
 
     def test_component_set_remains_unflattened_and_has_no_cross_component_order(self):
         rasters = build_fastview_component_rasters(

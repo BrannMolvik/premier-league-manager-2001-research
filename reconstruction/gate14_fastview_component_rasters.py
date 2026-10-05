@@ -18,11 +18,35 @@ from dataclasses import dataclass
 from hashlib import sha256
 
 from gate14_fastview_partial_surface import FASTVIEW_SURFACE_SIZE
+from gate14_fastview_clock_raster import (
+    CLOCK_TEXT_COMPONENT,
+    FastViewClockRaster,
+)
+from gate14_fastview_direct_header_raster import (
+    DIRECT_HEADER_TEXT_COMPONENT,
+    FastViewDirectHeaderRaster,
+)
+from gate14_fastview_surfaced_resource_raster import (
+    BACKGROUND_COMPONENT,
+    BADGES_COMPONENT,
+    FastViewSurfacedRasterSet,
+)
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
+)
+from gate14_fastview_score_draw_phases import (
+    PHASE_EARLY_SCORE_ROWS,
+    PHASE_LATE_GRID,
+    PHASE_RUNTIME_ICONS,
+    FastViewLeagueScoresDrawPhases,
+    FastViewScoreDrawPhasePlane,
+)
+from gate14_fastview_score_phase_text_raster import (
+    PHASE_RUNTIME_TEXT_COMPONENT,
+    FastViewScorePhaseTextRaster,
 )
 from original_fastview_chrome_art import OriginalFastViewChromeArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
@@ -46,12 +70,20 @@ class FastViewComponentRasterPlane:
 
     def __post_init__(self) -> None:
         if self.component not in {
+            "match_background_surface",
+            "club_badge_surfaces",
             "direct_chrome",
+            "clock_text",
             "possession_diagram",
             "possession_figures_text",
+            "direct_header_text",
             "team_table_static",
             "team_table_energy",
             "league_scores_static",
+            "league_scores_early_rows_static",
+            "league_scores_late_grid_static",
+            "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
             "league_table_static",
         }:
             raise FastViewComponentRasterError("unknown FastView raster component")
@@ -66,7 +98,13 @@ class FastViewComponentRasterPlane:
             raise FastViewComponentRasterError(
                 "FastView raster plane source_layer_count must be non-negative"
             )
-        if self.component not in {"team_table_static", "team_table_energy"} and self.source_layer_count == 0:
+        if self.component not in {
+            "team_table_static",
+            "team_table_energy",
+            "league_scores_runtime_phase_icons",
+            "league_scores_runtime_phase_text",
+            "clock_text",
+        } and self.source_layer_count == 0:
             raise FastViewComponentRasterError(
                 "non-TeamTable FastView raster planes require source layers"
             )
@@ -93,9 +131,17 @@ class FastViewComponentRasterSet:
     chrome: FastViewComponentRasterPlane
     possession_diagram: FastViewComponentRasterPlane
     possession_figures: FastViewComponentRasterPlane
+    match_background: FastViewComponentRasterPlane | None = None
+    club_badges: FastViewComponentRasterPlane | None = None
     team_table: FastViewComponentRasterPlane | None = None
     league_scores: FastViewComponentRasterPlane | None = None
+    league_scores_early_rows: FastViewComponentRasterPlane | None = None
     league_table: FastViewComponentRasterPlane | None = None
+    league_scores_late_grid: FastViewComponentRasterPlane | None = None
+    league_scores_runtime_icons: FastViewComponentRasterPlane | None = None
+    league_scores_runtime_text: FastViewComponentRasterPlane | None = None
+    clock: FastViewComponentRasterPlane | None = None
+    direct_header: FastViewComponentRasterPlane | None = None
     cross_component_z_order_recovered: bool = False
     flattened_frame_available: bool = False
 
@@ -114,6 +160,38 @@ class FastViewComponentRasterSet:
                 raise FastViewComponentRasterError(
                     "FastView raster set component identity mismatch"
                 )
+        for plane, component, label in (
+            (self.match_background, BACKGROUND_COMPONENT, "Match background"),
+            (self.club_badges, BADGES_COMPONENT, "Club badges"),
+        ):
+            if plane is None:
+                continue
+            if type(plane) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    f"{label} raster must be an exact component plane"
+                )
+            if plane.component != component:
+                raise FastViewComponentRasterError(
+                    f"{label} raster component identity mismatch"
+                )
+        if self.clock is not None:
+            if type(self.clock) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    "Clock raster must be an exact component plane"
+                )
+            if self.clock.component != CLOCK_TEXT_COMPONENT:
+                raise FastViewComponentRasterError(
+                    "Clock raster component identity mismatch"
+                )
+        if self.direct_header is not None:
+            if type(self.direct_header) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    "Direct header raster must be an exact component plane"
+                )
+            if self.direct_header.component != DIRECT_HEADER_TEXT_COMPONENT:
+                raise FastViewComponentRasterError(
+                    "Direct header raster component identity mismatch"
+                )
         if self.team_table is not None:
             if type(self.team_table) is not FastViewComponentRasterPlane:
                 raise FastViewComponentRasterError(
@@ -128,7 +206,11 @@ class FastViewComponentRasterSet:
                 )
         optional = (
             (self.league_scores, "league_scores_static"),
+            (self.league_scores_early_rows, PHASE_EARLY_SCORE_ROWS),
             (self.league_table, "league_table_static"),
+            (self.league_scores_late_grid, PHASE_LATE_GRID),
+            (self.league_scores_runtime_icons, PHASE_RUNTIME_ICONS),
+            (self.league_scores_runtime_text, PHASE_RUNTIME_TEXT_COMPONENT),
         )
         for plane, component in optional:
             if plane is None:
@@ -141,9 +223,35 @@ class FastViewComponentRasterSet:
                 raise FastViewComponentRasterError(
                     "score/table raster component identity mismatch"
                 )
-        if (self.league_scores is None) != (self.league_table is None):
+
+        aggregate_mode = self.league_scores is not None
+        phased_values = (
+            self.league_scores_early_rows,
+            self.league_scores_late_grid,
+            self.league_scores_runtime_icons,
+        )
+        phased_mode = any(value is not None for value in phased_values)
+        if aggregate_mode and phased_mode:
             raise FastViewComponentRasterError(
-                "league score/table planes must be supplied as one verified pair"
+                "aggregate and phased league-score rasters are mutually exclusive"
+            )
+        if aggregate_mode:
+            if self.league_table is None:
+                raise FastViewComponentRasterError(
+                    "aggregate league score/table planes must be supplied as one verified pair"
+                )
+        elif phased_mode:
+            if self.league_table is None or any(value is None for value in phased_values):
+                raise FastViewComponentRasterError(
+                    "phased league-score rasters require early/table/late/runtime planes"
+                )
+        elif self.league_table is not None:
+            raise FastViewComponentRasterError(
+                "league table raster requires aggregate or phased score evidence"
+            )
+        if self.league_scores_runtime_text is not None and not phased_mode:
+            raise FastViewComponentRasterError(
+                "runtime phase text requires phased league-score evidence"
             )
         if self.cross_component_z_order_recovered or self.flattened_frame_available:
             raise FastViewComponentRasterError(
@@ -353,6 +461,88 @@ def rasterize_fastview_team_table_plane(
     )
 
 
+def _lift_surfaced_raster_plane(
+    plane,
+    *,
+    expected_component: str,
+) -> FastViewComponentRasterPlane:
+    if plane.component != expected_component:
+        raise FastViewComponentRasterError(
+            "surfaced raster plane component identity mismatch"
+        )
+    return FastViewComponentRasterPlane(
+        component=plane.component,
+        size=plane.size,
+        rgba=plane.rgba,
+        source_layer_count=plane.source_layer_count,
+        rgba_sha256=plane.rgba_sha256,
+    )
+
+
+def _lift_direct_header_raster(
+    raster: FastViewDirectHeaderRaster,
+) -> FastViewComponentRasterPlane:
+    if type(raster) is not FastViewDirectHeaderRaster:
+        raise FastViewComponentRasterError(
+            "direct_header must be exact FastViewDirectHeaderRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component=raster.component,
+        size=raster.size,
+        rgba=raster.rgba,
+        source_layer_count=raster.source_layer_count,
+        rgba_sha256=raster.rgba_sha256,
+    )
+
+
+def _lift_clock_raster(
+    raster: FastViewClockRaster,
+) -> FastViewComponentRasterPlane:
+    if type(raster) is not FastViewClockRaster:
+        raise FastViewComponentRasterError(
+            "clock must be exact FastViewClockRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component=raster.component,
+        size=raster.size,
+        rgba=raster.rgba,
+        source_layer_count=raster.source_layer_count,
+        rgba_sha256=raster.rgba_sha256,
+    )
+
+
+def _lift_score_draw_phase_plane(
+    plane: FastViewScoreDrawPhasePlane,
+) -> FastViewComponentRasterPlane:
+    if type(plane) is not FastViewScoreDrawPhasePlane:
+        raise FastViewComponentRasterError(
+            "score draw phase must be exact FastViewScoreDrawPhasePlane"
+        )
+    return FastViewComponentRasterPlane(
+        component=plane.component,
+        size=plane.size,
+        rgba=plane.rgba,
+        source_layer_count=plane.source_layer_count,
+        rgba_sha256=plane.rgba_sha256,
+    )
+
+
+def _lift_score_phase_text_raster(
+    raster: FastViewScorePhaseTextRaster,
+) -> FastViewComponentRasterPlane:
+    if type(raster) is not FastViewScorePhaseTextRaster:
+        raise FastViewComponentRasterError(
+            "runtime phase text must be exact FastViewScorePhaseTextRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component=raster.component,
+        size=raster.size,
+        rgba=raster.rgba,
+        source_layer_count=raster.source_layer_count,
+        rgba_sha256=raster.rgba_sha256,
+    )
+
+
 def _lift_score_table_plane(
     plane: FastViewScoreTableStaticPlane,
 ) -> FastViewComponentRasterPlane:
@@ -375,16 +565,77 @@ def build_fastview_component_rasters(
     figures: OriginalFastViewPossessionFiguresArt,
     team_table: FastViewTeamStaticRaster | FastViewTeamEnergyRaster | None = None,
     score_table: FastViewScoreTableStaticRasterSet | None = None,
+    score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
+    score_phase_text: FastViewScorePhaseTextRaster | None = None,
+    clock: FastViewClockRaster | None = None,
+    direct_header: FastViewDirectHeaderRaster | None = None,
+    surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
+    if surfaced is not None and type(surfaced) is not FastViewSurfacedRasterSet:
+        raise FastViewComponentRasterError(
+            "surfaced must be exact FastViewSurfacedRasterSet"
+        )
+    if clock is not None and type(clock) is not FastViewClockRaster:
+        raise FastViewComponentRasterError(
+            "clock must be exact FastViewClockRaster"
+        )
+    if direct_header is not None and type(direct_header) is not FastViewDirectHeaderRaster:
+        raise FastViewComponentRasterError(
+            "direct_header must be exact FastViewDirectHeaderRaster"
+        )
     if score_table is not None and type(score_table) is not FastViewScoreTableStaticRasterSet:
         raise FastViewComponentRasterError(
             "score_table must be exact FastViewScoreTableStaticRasterSet"
         )
+    if (
+        score_draw_phases is not None
+        and type(score_draw_phases) is not FastViewLeagueScoresDrawPhases
+    ):
+        raise FastViewComponentRasterError(
+            "score_draw_phases must be exact FastViewLeagueScoresDrawPhases"
+        )
+    if score_draw_phases is not None and score_table is None:
+        raise FastViewComponentRasterError(
+            "score draw phases require the verified LeagueTable source bundle"
+        )
+    if (
+        score_phase_text is not None
+        and type(score_phase_text) is not FastViewScorePhaseTextRaster
+    ):
+        raise FastViewComponentRasterError(
+            "score_phase_text must be exact FastViewScorePhaseTextRaster"
+        )
+    if score_phase_text is not None and score_draw_phases is None:
+        raise FastViewComponentRasterError(
+            "score phase text requires phased league-score evidence"
+        )
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
+        match_background=(
+            None
+            if surfaced is None
+            else _lift_surfaced_raster_plane(
+                surfaced.background,
+                expected_component=BACKGROUND_COMPONENT,
+            )
+        ),
+        club_badges=(
+            None
+            if surfaced is None
+            else _lift_surfaced_raster_plane(
+                surfaced.badges,
+                expected_component=BADGES_COMPONENT,
+            )
+        ),
+        clock=(None if clock is None else _lift_clock_raster(clock)),
         possession_diagram=rasterize_fastview_possession_plane(possession),
         possession_figures=rasterize_fastview_possession_figures_plane(figures),
+        direct_header=(
+            None
+            if direct_header is None
+            else _lift_direct_header_raster(direct_header)
+        ),
         team_table=(
             None
             if team_table is None
@@ -392,12 +643,32 @@ def build_fastview_component_rasters(
         ),
         league_scores=(
             None
-            if score_table is None
+            if score_table is None or score_draw_phases is not None
             else _lift_score_table_plane(score_table.league_scores)
+        ),
+        league_scores_early_rows=(
+            None
+            if score_draw_phases is None
+            else _lift_score_draw_phase_plane(score_draw_phases.early_score_rows)
         ),
         league_table=(
             None
             if score_table is None
             else _lift_score_table_plane(score_table.league_table)
+        ),
+        league_scores_late_grid=(
+            None
+            if score_draw_phases is None
+            else _lift_score_draw_phase_plane(score_draw_phases.late_grid)
+        ),
+        league_scores_runtime_icons=(
+            None
+            if score_draw_phases is None
+            else _lift_score_draw_phase_plane(score_draw_phases.runtime_phase_icons)
+        ),
+        league_scores_runtime_text=(
+            None
+            if score_phase_text is None
+            else _lift_score_phase_text_raster(score_phase_text)
         ),
     )

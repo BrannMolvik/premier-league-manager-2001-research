@@ -21,7 +21,20 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.completed_human_resolved_fastview_path)
         self.assertTrue(state.playerrow_energy_pixels_recovered)
         self.assertTrue(state.playerrow_text_pixels_recovered)
+        self.assertTrue(state.score_subpanel_parameterized_construction_recovered)
+        self.assertTrue(state.team_subpanel_parameterized_construction_recovered)
+        self.assertFalse(state.score_subpanel_complete_pixels_recovered)
+        self.assertFalse(state.team_subpanel_complete_pixels_recovered)
         self.assertTrue(state.possession_pairwise_draw_order_recovered)
+        self.assertTrue(state.goalflash_source_contract_recovered)
+        self.assertFalse(state.goalflash_absolute_position_recovered)
+        self.assertFalse(state.goalflash_pixels_rasterized)
+        self.assertTrue(state.scorecomposite_main_source_contract_recovered)
+        self.assertFalse(state.scorecomposite_main_geometry_recovered)
+        self.assertFalse(state.scorecomposite_main_pixels_rasterized)
+        self.assertTrue(state.embedded_outer_controls_source_contract_recovered)
+        self.assertFalse(state.embedded_outer_controls_geometry_recovered)
+        self.assertFalse(state.embedded_outer_controls_pixels_rasterized)
         self.assertTrue(state.font_blend_rule_recovered)
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
@@ -38,6 +51,14 @@ class Gate14ReadinessTests(unittest.TestCase):
                 "audio_event_binding",
                 "audible_windows_output",
                 "login_menu_audio_integration",
+                "score_subpanel_complete_pixels",
+                "team_subpanel_complete_pixels",
+                "goalflash_absolute_position",
+                "goalflash_rasterization",
+                "scorecomposite_main_geometry",
+                "scorecomposite_main_rasterization",
+                "embedded_outer_controls_geometry",
+                "embedded_outer_controls_rasterization",
                 "global_fastview_z_order",
                 "complete_fastview_frame",
                 "chant_event_semantics",
@@ -99,6 +120,147 @@ class Gate14ReadinessTests(unittest.TestCase):
         ):
             replace(state, complete_fastview_frame_recovered=True)
 
+    def test_complete_frame_requires_goalflash_position_and_pixels(self):
+        state = canonical_gate14_readiness()
+        otherwise_ready = replace(
+            state,
+            score_subpanel_complete_pixels_recovered=True,
+            team_subpanel_complete_pixels_recovered=True,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
+            global_fastview_z_order_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                otherwise_ready,
+                complete_fastview_frame_recovered=True,
+            )
+
+        position_only = replace(
+            otherwise_ready,
+            goalflash_absolute_position_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                position_only,
+                complete_fastview_frame_recovered=True,
+            )
+
+    def test_complete_frame_requires_scorecomposite_main_geometry_and_pixels(self):
+        state = canonical_gate14_readiness()
+        otherwise_ready = replace(
+            state,
+            score_subpanel_complete_pixels_recovered=True,
+            team_subpanel_complete_pixels_recovered=True,
+            goalflash_absolute_position_recovered=True,
+            goalflash_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
+            global_fastview_z_order_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                otherwise_ready,
+                complete_fastview_frame_recovered=True,
+            )
+
+        geometry_only = replace(
+            otherwise_ready,
+            scorecomposite_main_geometry_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                geometry_only,
+                complete_fastview_frame_recovered=True,
+            )
+
+    def test_complete_frame_requires_embedded_outer_control_geometry_and_pixels(self):
+        state = canonical_gate14_readiness()
+        otherwise_ready = replace(
+            state,
+            score_subpanel_complete_pixels_recovered=True,
+            team_subpanel_complete_pixels_recovered=True,
+            goalflash_absolute_position_recovered=True,
+            goalflash_pixels_rasterized=True,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
+            global_fastview_z_order_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                otherwise_ready,
+                complete_fastview_frame_recovered=True,
+            )
+
+        geometry_only = replace(
+            otherwise_ready,
+            embedded_outer_controls_geometry_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                geometry_only,
+                complete_fastview_frame_recovered=True,
+            )
+
+    def test_complete_frame_requires_both_nested_subpanels_pixel_complete(self):
+        state = canonical_gate14_readiness()
+        otherwise_ready = replace(
+            state,
+            goalflash_absolute_position_recovered=True,
+            goalflash_pixels_rasterized=True,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
+            global_fastview_z_order_recovered=True,
+        )
+
+        for field in (
+            "score_subpanel_complete_pixels_recovered",
+            "team_subpanel_complete_pixels_recovered",
+        ):
+            with self.subTest(field=field):
+                one_nested_family_only = replace(
+                    otherwise_ready,
+                    **{field: True},
+                )
+                with self.assertRaisesRegex(
+                    Gate14ReadinessError,
+                    "complete FastView frame cannot bypass",
+                ):
+                    replace(
+                        one_nested_family_only,
+                        complete_fastview_frame_recovered=True,
+                    )
+
+        complete_nested = replace(
+            otherwise_ready,
+            score_subpanel_complete_pixels_recovered=True,
+            team_subpanel_complete_pixels_recovered=True,
+            complete_fastview_frame_recovered=True,
+        )
+        self.assertTrue(complete_nested.complete_fastview_frame_recovered)
+
     def test_recognizable_workflow_cannot_be_asserted_without_completed_path(self):
         state = canonical_gate14_readiness()
         with self.assertRaisesRegex(
@@ -111,6 +273,14 @@ class Gate14ReadinessTests(unittest.TestCase):
         state = canonical_gate14_readiness()
         completed = replace(
             state,
+            score_subpanel_complete_pixels_recovered=True,
+            team_subpanel_complete_pixels_recovered=True,
+            goalflash_absolute_position_recovered=True,
+            goalflash_pixels_rasterized=True,
+            scorecomposite_main_geometry_recovered=True,
+            scorecomposite_main_pixels_rasterized=True,
+            embedded_outer_controls_geometry_recovered=True,
+            embedded_outer_controls_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
             font_blend_rule_recovered=True,
             complete_fastview_frame_recovered=True,

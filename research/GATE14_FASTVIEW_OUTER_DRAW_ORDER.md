@@ -124,25 +124,36 @@ This checkpoint deliberately does **not** set
 `global_fastview_z_order_recovered=true`.
 
 The score and team wrappers synchronously render their own child arrays at
-outer ranks 32 and 33 (zero-based), but their **complete** nested child
-inventories have not yet been exhaustively reconciled. Earlier work proves the
-relative order of the currently rasterized score/table/team families, not every
-visible nested control.
+outer ranks 32 and 33 (zero-based). PR #366 subsequently source-closed
+**parameterized construction algorithms** inside both wrappers: LeagueTable
+heading/row counts, TeamTable base/PlayerRow counts and side order, and the
+ScoreCompositeNormal five-control base plus runtime 0-or-2 phase tail.
+
+That is stronger than this document's original boundary, but it is not the same
+as an exhaustively reconciled visible inventory. Current renderer contracts
+still prove that nested pixels are partial:
+
+- score/table static planes carry `text_rasterized=false` and
+  `complete_component=false`;
+- the retained PlayerRow compositor carries `complete_team_table=false`;
+- TeamTable has six table-level controls in addition to each PlayerRow subtree.
 
 Therefore:
 
 - outer FastViewPanel order: recovered;
+- score/team parameterized nested construction: recovered;
 - modeled raster-family relative order: recovered;
-- exhaustive FastViewScores nested inventory: still false;
-- exhaustive FastViewTeam nested inventory: still false;
+- exhaustive FastViewScores visible inventory/pixels: still false;
+- exhaustive FastViewTeam visible inventory/pixels: still false;
 - global FastView z-order: still false;
 - complete FastView frame: still false.
 
 ## Next source task
 
-Enumerate every child registration inside FastViewScores and FastViewTeam,
-including controls that are not yet rasterized. Because SubPanelControl already
-proves synchronous nested traversal at each outer wrapper position, exhaustive
-nested inventories are the remaining structural requirement for a global
-FastView z-order claim. Pixel completeness, localization, runtime pixel-format
-receipts, and 3D choreography remain separate blockers.
+Continue from the known omitted nested families rather than rerunning the
+already-closed count formulas. Source-bind/rasterize the remaining visible
+FastViewScores/LeagueTable text and other omitted score-subpanel controls, plus
+the TeamTable-level controls outside the already complete retained PlayerRows.
+Only after those inventories are reconciled should the global FastView z-order
+claim be reconsidered. Runtime phase chronology, pixel-format/blend output and
+3D choreography remain separate blockers.

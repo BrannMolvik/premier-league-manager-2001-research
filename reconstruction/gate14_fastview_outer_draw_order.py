@@ -6,9 +6,11 @@ the outer FastViewPanel registrations reached during the source-qualified setup
 path.
 
 This is an outer-array contract only. FastViewScores and FastViewTeam each
-delegate to their own nested child arrays at their wrapper positions. Their
-complete internal child inventories remain separate work, so this module does
-not promote global_fastview_z_order_recovered or complete-frame fidelity.
+delegate to their own nested child arrays at their wrapper positions. Later
+source work recovered parameterized construction/count algorithms inside both
+subpanels, but did not exhaustively reconcile every visible nested child into
+one complete inventory. This module preserves that distinction and does not
+promote global_fastview_z_order_recovered or complete-frame fidelity.
 """
 from __future__ import annotations
 
@@ -301,6 +303,8 @@ FASTVIEW_OUTER_DRAW_COUNT = 36
 class FastViewOuterDrawBoundary:
     outer_draw_array_exhaustively_recovered: bool = True
     outer_forward_order_recovered: bool = True
+    score_subpanel_parameterized_construction_recovered: bool = True
+    team_subpanel_parameterized_construction_recovered: bool = True
     score_subpanel_internal_inventory_complete: bool = False
     team_subpanel_internal_inventory_complete: bool = False
     global_fastview_z_order_recovered: bool = False
@@ -310,9 +314,11 @@ class FastViewOuterDrawBoundary:
         if not (
             self.outer_draw_array_exhaustively_recovered
             and self.outer_forward_order_recovered
+            and self.score_subpanel_parameterized_construction_recovered
+            and self.team_subpanel_parameterized_construction_recovered
         ):
             raise FastViewOuterDrawOrderError(
-                "outer draw boundary cannot weaken recovered parent-array evidence"
+                "outer draw boundary cannot weaken recovered outer/nested construction evidence"
             )
         if (
             self.score_subpanel_internal_inventory_complete
