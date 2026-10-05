@@ -11439,3 +11439,11 @@ work may continue under the deferred-blocker policy.
 - Windows CI now exercises `-fps_mode passthrough` and independently probes H.264/yuv420p 320x480@25, AAC 22,050-Hz stereo and MP4 before decode verification.
 - Exact original-TGQ conversion and production migration remain false because private archive execution is still unavailable.
 
+## 6 October 2026 — Recovery 321 minimal FFmpeg source-contract audit
+
+- Recovery resumed from canonical main `a57ba974c051ef2db29dfe17ec867acb6aaf40bb`; Gate 14 remains the earliest incomplete validation gate and its WPF startup-video visible/audible acceptance remains a deferred real-Windows user-action blocker.
+- PR #475 and stacked PR #479 were audited before promotion. Both are non-mergeable against current `main` because their branches are stale relative to later canonical work.
+- #475's own reconstruction, Windows-package and asset-policy checks were green, but #479 exact-source build run `37352166679` provided stronger evidence and failed in pinned FFmpeg `libavcodec/mfenc.c` with missing D3D11 types.
+- Pinned-source inspection confirmed the cause: `mfenc.c` includes `hwcontext_d3d11va.h` only when `CONFIG_D3D11VA` is enabled, while the Media Foundation encoder uses D3D11 types. The minimal contract disables autodetection, restores Media Foundation, but does not explicitly restore D3D11VA.
+- Review directives were posted to #475 and #479. Do not merge either as-is. Correct #475's source contract first, preserving all fail-closed proof flags and production packaging; then rebuild #479 from the corrected canonical contract.
+
