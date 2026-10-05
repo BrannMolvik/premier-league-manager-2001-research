@@ -356,9 +356,10 @@ class OriginalGameTkHost:
             ),
         )
         # Choose the largest small rational that never exceeds the physical
-        # display. Limiting the denominator bounds Tk's transient zoom size.
+        # display. Direct final-size scaling means we can represent common
+        # ratios such as 9/5 exactly without creating a large Tk intermediate.
         candidates = []
-        for denominator in range(1, 5):
+        for denominator in range(1, 17):
             numerator = max(1, int(fit_scale * denominator))
             if numerator / denominator <= fit_scale:
                 candidates.append((numerator / denominator, numerator, denominator))
@@ -577,9 +578,8 @@ class OriginalGameTkHost:
             animation = self._photo_from_rgba(
                 (
                     view.screen,
-                    "team-row-animation",
+                    "team-row-animation-source",
                     row.row_kind,
-                    row.source_id,
                     row.animation_source_index,
                 ),
                 row.animation_frame.width,
@@ -589,9 +589,8 @@ class OriginalGameTkHost:
             bar = self._photo_from_rgba(
                 (
                     view.screen,
-                    "team-row-bar",
+                    "team-row-bar-source",
                     row.row_kind,
-                    row.source_id,
                     row.bar_source_index,
                 ),
                 row.bar_frame.width,
@@ -606,8 +605,6 @@ class OriginalGameTkHost:
                 (
                     view.screen,
                     "team-row-text",
-                    row.row_kind,
-                    row.source_id,
                     row.text,
                     row.native_color_16,
                 ),
@@ -615,24 +612,93 @@ class OriginalGameTkHost:
                 row.glyph_mask.height,
                 glyph_rgba,
             )
-            self._create_native_image(
-                row.animation_rect.x,
-                row.animation_rect.y,
-                image=animation,
-                anchor=self.tk.NW,
+            row_key = (row.row_kind, int(row.source_id))
+            self._first_screen_items[("team-row-animation", *row_key)] = (
+                self._create_native_image(
+                    row.animation_rect.x,
+                    row.animation_rect.y,
+                    image=animation,
+                    anchor=self.tk.NW,
+                )
             )
-            self._create_native_image(
-                row.bar_rect.x,
-                row.bar_rect.y,
-                image=bar,
-                anchor=self.tk.NW,
+            self._first_screen_items[("team-row-bar", *row_key)] = (
+                self._create_native_image(
+                    row.bar_rect.x,
+                    row.bar_rect.y,
+                    image=bar,
+                    anchor=self.tk.NW,
+                )
             )
-            self._create_native_image(
-                row.line_origin_x,
-                row.line_origin_y,
-                image=glyphs,
-                anchor=self.tk.NW,
+            self._first_screen_items[("team-row-text", *row_key)] = (
+                self._create_native_image(
+                    row.line_origin_x,
+                    row.line_origin_y,
+                    image=glyphs,
+                    anchor=self.tk.NW,
+                )
             )
+
+    def _update_teamselect_club_row(self, source_id: int) -> bool:
+        """Update one toggled club row without rebuilding the TeamSelect canvas."""
+        if self.presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
+            return False
+        view = self.presenter.snapshot()
+        row = next(
+            (item for item in view.club_rows if int(item.source_id) == int(source_id)),
+            None,
+        )
+        if row is None:
+            return False
+        row_key = (row.row_kind, int(row.source_id))
+        animation_item = self._first_screen_items.get(
+            ("team-row-animation", *row_key)
+        )
+        bar_item = self._first_screen_items.get(("team-row-bar", *row_key))
+        text_item = self._first_screen_items.get(("team-row-text", *row_key))
+        if animation_item is None or bar_item is None or text_item is None:
+            return False
+
+        animation = self._photo_from_rgba(
+            (
+                view.screen,
+                "team-row-animation-source",
+                row.row_kind,
+                row.animation_source_index,
+            ),
+            row.animation_frame.width,
+            row.animation_frame.height,
+            row.animation_frame.rgba,
+        )
+        bar = self._photo_from_rgba(
+            (
+                view.screen,
+                "team-row-bar-source",
+                row.row_kind,
+                row.bar_source_index,
+            ),
+            row.bar_frame.width,
+            row.bar_frame.height,
+            row.bar_frame.rgba,
+        )
+        glyph_rgba = endpoint_text_rgba(
+            row.glyph_mask.alpha,
+            row.native_color_16,
+        )
+        glyphs = self._photo_from_rgba(
+            (
+                view.screen,
+                "team-row-text",
+                row.text,
+                row.native_color_16,
+            ),
+            row.glyph_mask.width,
+            row.glyph_mask.height,
+            glyph_rgba,
+        )
+        self.canvas.itemconfigure(animation_item, image=animation)
+        self.canvas.itemconfigure(bar_item, image=bar)
+        self.canvas.itemconfigure(text_item, image=glyphs)
+        return True
 
     def _schedule_first_screen_update(self, view):
         if self._first_screen_idle is None and self.first_screen_animation.pending(view):
@@ -1485,6 +1551,11 @@ class OriginalGameTkHost:
                 self.last_status = (
                     f"{result.row_kind}:{result.source_id}:{result.text}"
                 )
+                if (
+                    result.row_kind == "club"
+                    and self._update_teamselect_club_row(result.source_id)
+                ):
+                    return
             elif result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE:
                 self.last_status = "Entered recovered PMenu management host"
             elif result.transition.command is FrontEndCommand.QUIT_TO_WINDOWS:
