@@ -210,12 +210,17 @@ The producer requires a fresh external per-scope result file that:
 - proves human career flow, competition progression, required original
   management/gameplay subsystems, and save/reload continuation for every scope;
 - proves `multi_human_management=true` and exactly six simultaneous human
-  users.
+  users;
+- identifies the same release version, repository commit and release archive
+  SHA-256/size that the receipt will bind;
+- carries Windows 11 client build/product-type evidence matching the workstation
+  that mints the receipt.
 
 Only on a real Windows 11 client, with a green canonical full-scope preflight,
 does the producer emit `full_original_scope.json`. The output is bound to the
 exact release version, repository commit, archive hash/size, canonical catalog,
-and SHA-256 of the external scope-result file. Missing/failed scope and
+and SHA-256 of the external scope-result file. This prevents an older successful
+scope sweep from being relabeled as evidence for a newer release candidate. Missing/failed scope and
 save/reload lists are emitted empty only after the complete input has passed.
 
 This producer creates no capability and is not evidence by itself. Gate 17
