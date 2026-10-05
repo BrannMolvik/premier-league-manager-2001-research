@@ -213,7 +213,9 @@ def sporting_objective_progression_trace_report(
             "sporting_objective_switch_case_count": (
                 SPORTING_OBJECTIVE_SWITCH_CASE_COUNT
             ),
-            "sporting_objective_pass_sequence": SPORTING_OBJECTIVE_PASS_SEQUENCE,
+            "sporting_objective_pass_sequence": list(
+                SPORTING_OBJECTIVE_PASS_SEQUENCE
+            ),
             "same_premier_league_slice_recovered": True,
             "annual_evaluation_year_gate_recovered": True,
         },
