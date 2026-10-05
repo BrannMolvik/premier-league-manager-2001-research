@@ -7,6 +7,64 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 329 continuation — PStartMenu cold-start derivative canonical; Gate 13 still open
+
+Canonical `main` is now `32f02fc86f0eb404c0f410cbceb131f56f0ddaf0`.
+
+PR #486 is merged and closes the repository-side PStartMenu cold-conversion
+repair for issue #482:
+
+- the exact canonical EA444 decoder inputs were re-extracted from the authorized
+  root `footballmanager.exe` and provenance-tracked as the 0x420-byte TQIA
+  block SHA-256
+  `c62a13efbb812fb2157c067aaa3eae8afbbb52283dc5dc3eaf6cb86c5a11e8da`
+  and 0x100-byte quantization block SHA-256
+  `6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb`;
+- Gate-13 CI regenerated the PStartMenu derivative twice from tracked original
+  sources and compared the results byte-for-byte before staging them;
+- the canonical derivative manifest SHA-256 is
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`;
+- the tracked XZ payload is 718,884 bytes, SHA-256
+  `2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697`;
+  its decoded 2,315,939-byte render payload is SHA-256
+  `a73badbb141334441ed0893114238d9fedc75de0580588bddb2f894e986c3f55`;
+- normal repository/packaged startup now loads only that independently pinned
+  derivative for PStartMenu and fails closed on manifest/payload/provenance
+  drift. Explicit custom source-root research calls retain the original cold
+  source-decoder path. There is no silent fallback from normal runtime to the
+  previously measured 26.301-second conversion;
+- exact local XZ decompression was roughly 29 ms median in the recovery
+  environment. This demonstrates removal of the expensive conversion class but
+  is **not** a substitute for Daniel's Windows 11 timing acceptance;
+- final PR-head checks all passed: Gate-13 `37386883275`, Windows package
+  `37386882889`, repository asset policy `37386883101`, and full
+  reconstruction `37386883155`.
+
+Gate 13 remains open. The next independent #482 blockers are:
+
+1. recover enough of the ordinary Squad player-row color/display-name helpers
+   (`0x4EA3F0`, `0x5D6C50`) to render the already source-closed row
+   geometry/data/fonts without inventing styling;
+2. repair startup FMV presentation from the separate maximized WPF player to
+   the source-proven game-owned 640x480 presentation rectangle centered at
+   (80,60) in 800x600 mode. The TGQ `pIQT` header is directly confirmed as
+   320x480, so the precise legacy horizontal expansion path still needs a
+   source-backed explanation before implementation;
+3. after those repairs, perform Daniel's meaningful normal Windows 11
+   acceptance run, including the new `startup.presenter_build` and
+   `teamselect.catalog_build` timings.
+
+Private/static-source execution is healthy again in this recovery. Do not
+reopen the old decoder-input blocker.
+
+**Exact next task:** continue the private-source FMV decode/display trace far
+enough to explain the 320x480 `pIQT` frame's relationship to the real 640x480
+movie surface, focusing on actual display bit depth/pixel packing and the
+state-4 writer path. Do not guess interpolation. If that remains unresolved,
+continue the independent Squad helper trace rather than blocking all useful
+work.
+
+
 ## Recovery 326 continuation — route/New-Game latency slices canonical; Gate 13 still open
 
 Canonical `main` is now `3c325a5d1d81b44d1f43da6dc53d4d1e33f988f1`.
