@@ -1,6 +1,6 @@
 # Gate 14 Audio and Match Presentation
 
-_Last reconciled: 3 October 2026 KST, Recovery 200_
+_Last reconciled: 5 October 2026 KST, Recovery 308_
 
 ## Scope
 
@@ -8,9 +8,9 @@ Gate 14 restores FM2001's player-visible audio and match presentation on top of
 the reconstructed gameplay state. Presentation code must consume existing
 simulation output rather than recreate match decisions.
 
-Gate 13 remains the earliest incomplete validation gate because a fresh
-real-Windows schema-8 receipt is still pending. This file records independent
-Gate-14 work-ahead only.
+Gate 13 is closed. Gate 14 is now the earliest incomplete validation gate.
+This file records the active source-backed audio and match-presentation
+boundary; unresolved private/Windows evidence remains fail-closed.
 
 ## Already source-backed
 
@@ -348,8 +348,13 @@ bank/sample resource before integration.
   duplicating simulation logic: **work-ahead in progress**, with a source-backed
   semantic feed boundary now present.
 - Original login/menu music and applicable sound resources integrated or
-  converted: **open**. Startup FMV audio conversion/playback feasibility is
-  proven, but separate menu/login music and sound-bank ownership are not.
+  converted: **open**. The six verified first-screen action buttons now have a
+  source-closed numeric press route through canonical `menus.bnk`, and the
+  production-host integration seam is implemented when the user's installed
+  canonical bank and Windows backend are available. Human Windows audibility,
+  hover/other menu routes, semantic event/sample naming, and the final readiness
+  promotion remain open. Startup FMV audio conversion/playback feasibility is
+  separately proven.
 - A match recognizably presented in the original style/workflow: **open**.
   Semantic FastView routes and original 3D resource families are mapped, but
   original choreography is not yet decoded/integrated.
@@ -403,3 +408,55 @@ Do not spend a recovery re-proving existing PlayerRow, PossessionDiagram,
 PossessionFigures, TeamTable, score/table component, or resolved-only compositor
 work unless a current regression points to it. Gate 13 remains the earliest
 incomplete validation gate.
+
+
+## Recovery 308: live first-screen press-audio seam
+
+Gate 13 closure removes the earlier ownership reason for keeping the verified
+first-screen audio wrapper outside the production host.
+
+The source route was already closed before this checkpoint:
+
+- the six PStartMenu/TeamSelect action buttons retain a non-null caption source
+  at Button `+0x34`;
+- accepted enabled presses in native group 0/1 select numeric AudioHooks event
+  **10** before the press mutates button state;
+- the exact call tuple is `(event=10, state=0, arg3=0x40)`;
+- `AudioHooks::0x5DBFC0` routes `(10,0)` to canonical
+  `menus.bnk` sample slot **2**;
+- canonical `menus.bnk` is 159,324 bytes with SHA-256
+  `e3bd385d89ab94f0a97834a0749898c99d10a29ee404c29ebdc708c0daa1fc1d`.
+
+The current production seam reads that bank only from the user-supplied
+installation at `DATA/AUDIO/SFXS/menus.bnk`. It does not bundle or copy the
+original bank into the release candidate. Before binding, size and SHA-256 must
+match the canonical profile exactly.
+
+When the source identity is valid, the host creates the existing synchronous
+Windows memory-WAV backend and installs the verified press wrapper over the
+live `<Button-1>` binding. The wrapper now uses the host's canonical
+viewport-to-native pointer normalization first, so fullscreen/rational scaling
+and audio resolve the same 800x600 source control.
+
+Presentation failure is deliberately non-blocking:
+
+- missing bank -> no binding;
+- wrong bank identity -> no binding;
+- unavailable Windows audio backend -> no binding;
+- expected PCM/backend failure on a press is recorded, then the original host
+  click still executes.
+
+The host exposes `first_screen_audio_binding` and
+`first_screen_audio_error` for diagnosis.
+
+This checkpoint does **not** promote:
+
+- human-audible Windows verification;
+- semantic event/sample names;
+- hover audio or general menu-event equivalence;
+- `audio_event_binding_recovered` as a whole-game semantic claim;
+- `login_menu_audio_integrated` in the Gate-14 readiness ledger;
+- Gate 14 completion.
+
+Those promotions still require their explicit Windows/source evidence rather
+than inference from a successfully installed numeric press seam.

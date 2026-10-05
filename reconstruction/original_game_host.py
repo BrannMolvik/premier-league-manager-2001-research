@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from base64 import b64encode
 from functools import lru_cache
+from hashlib import sha256
 from math import gcd
 from pathlib import Path
 import struct
@@ -45,6 +46,15 @@ from original_pmenu_chrome import validate_original_pmenu_font
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
+from gate14_audio_bank_format import CANONICAL_FM2001_BANK_PROFILES
+from gate14_first_screen_audio_binding import (
+    Gate14FirstScreenAudioBindingError,
+    install_first_screen_press_audio,
+)
+from gate14_windows_menu_pcm_backend import (
+    Gate14WindowsMenuPcmBackendError,
+    WindowsMemoryWaveMenuPcmBackend,
+)
 from original_first_screen_presenter import (
     OriginalFirstScreenPresenter,
     OriginalHierarchyInteraction,
@@ -103,6 +113,7 @@ from runtime_layout import application_root, bundled_source_root
 REPO_ROOT = application_root()
 DEFAULT_SOURCE_ROOT = bundled_source_root()
 SCREEN_SIZE = (800, 600)
+FIRST_SCREEN_MENUS_BANK_RELATIVE_PATH = Path("DATA/AUDIO/SFXS/menus.bnk")
 
 
 @lru_cache(maxsize=1024)
@@ -331,6 +342,8 @@ class OriginalGameTkHost:
         self._first_screen_pointer = None
         self._first_screen_idle = None
         self.last_status = "Source-backed FM2001 host ready"
+        self.first_screen_audio_binding = None
+        self.first_screen_audio_error = None
 
         self.root.title("Premier League Manager 2001")
         self.root.resizable(False, False)
@@ -1601,6 +1614,70 @@ def play_configured_startup_media(
     )
 
 
+def install_available_first_screen_press_audio(
+    host,
+    game_dir: str | Path,
+    *,
+    backend=None,
+):
+    """Install the source-closed first-screen press audio when safely available.
+
+    Original BNK data is read only from the user-supplied FM2001 installation.
+    Missing/noncanonical audio or an unavailable Windows backend is retained as
+    a diagnostic presentation limitation and never blocks management play.
+    Successful installation proves only the live press seam; human audibility,
+    semantic event/sample names, hover audio and Gate-14 completion remain
+    separate evidence.
+    """
+    bank_path = Path(game_dir) / FIRST_SCREEN_MENUS_BANK_RELATIVE_PATH
+    host.first_screen_audio_binding = None
+    host.first_screen_audio_error = None
+
+    if not bank_path.is_file():
+        host.first_screen_audio_error = (
+            "canonical menus.bnk is unavailable in the original game installation"
+        )
+        return None
+
+    try:
+        menus_bnk = bank_path.read_bytes()
+    except OSError as exc:
+        host.first_screen_audio_error = (
+            f"could not read original menus.bnk: {type(exc).__name__}: {exc}"
+        )
+        return None
+
+    profile = CANONICAL_FM2001_BANK_PROFILES["menus.bnk"]
+    if (
+        len(menus_bnk) != profile["size_bytes"]
+        or sha256(menus_bnk).hexdigest() != profile["sha256"]
+    ):
+        host.first_screen_audio_error = (
+            "installed menus.bnk does not match canonical FM2001 source identity"
+        )
+        return None
+
+    if backend is None:
+        try:
+            backend = WindowsMemoryWaveMenuPcmBackend()
+        except Gate14WindowsMenuPcmBackendError as exc:
+            host.first_screen_audio_error = (
+                f"Windows menu-audio backend unavailable: {type(exc).__name__}: {exc}"
+            )
+            return None
+
+    try:
+        binding = install_first_screen_press_audio(host, menus_bnk, backend)
+    except Gate14FirstScreenAudioBindingError as exc:
+        host.first_screen_audio_error = (
+            f"first-screen menu-audio binding unavailable: {type(exc).__name__}: {exc}"
+        )
+        return None
+
+    host.first_screen_audio_binding = binding
+    return binding
+
+
 def run_original_game_ui(
     game_dir: str | Path,
     *,
@@ -1693,7 +1770,7 @@ def run_original_game_ui(
     import tkinter as tk
 
     root = tk.Tk()
-    OriginalGameTkHost(
+    host = OriginalGameTkHost(
         presenter,
         root,
         tk,
@@ -1707,5 +1784,9 @@ def run_original_game_ui(
             ),
         ),
         management_resource_loader=load_management_resources,
+    )
+    install_available_first_screen_press_audio(
+        host,
+        game_dir,
     )
     root.mainloop()

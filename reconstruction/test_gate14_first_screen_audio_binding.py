@@ -84,6 +84,43 @@ class Gate14FirstScreenAudioBindingTests(unittest.TestCase):
             native_group=0,
         )
 
+    def test_scaled_live_pointer_uses_host_native_normalizer_before_audio_lookup(self):
+        order = []
+        host = FakeHost(FrontEndScreen.START_MENU, order)
+        native = center(PSTARTMENU_ACTIONS[0].rect)
+        scaled_event = SimpleNamespace(x=native.x * 2, y=native.y * 2)
+        normalized = SimpleNamespace(x=native.x, y=native.y)
+        host._normalize_pointer_event = Mock(return_value=normalized)
+        summary = MenuPcmPlaybackSummary(
+            event_id=10,
+            state_value=0,
+            sample_slot=2,
+            backend_invoked=True,
+            adapter_delivery_completed=True,
+        )
+
+        with patch(
+            "gate14_first_screen_audio_binding.play_verified_first_screen_action_press",
+            return_value=summary,
+        ) as play:
+            binding = install_first_screen_press_audio(host, b"bank", object())
+            result = binding.on_click(scaled_event)
+
+        self.assertEqual(result, "host-result")
+        host._normalize_pointer_event.assert_called_once_with(scaled_event)
+        play.assert_called_once()
+        self.assertEqual(binding.audio_success_count, 1)
+
+    def test_non_callable_host_pointer_normalizer_fails_closed(self):
+        host = FakeHost(FrontEndScreen.START_MENU, [])
+        host._normalize_pointer_event = 7
+        binding = install_first_screen_press_audio(host, b"bank", object())
+        with self.assertRaisesRegex(
+            Gate14FirstScreenAudioBindingError,
+            "_normalize_pointer_event must be callable",
+        ):
+            binding.on_click(center(PSTARTMENU_ACTIONS[0].rect))
+
     def test_non_action_first_screen_pixel_delegates_without_audio(self):
         order = []
         host = FakeHost(FrontEndScreen.START_MENU, order)

@@ -96,6 +96,19 @@ class Gate14FirstScreenAudioHostBinding:
         screen = self._screen()
         if screen not in FIRST_SCREEN_AUDIO_SCREENS:
             return None
+
+        # The live Windows host may present the native 800x600 surface at a
+        # rational fullscreen scale. Reuse its canonical pointer transform
+        # before source-rectangle lookup so audio and gameplay resolve the same
+        # native control. Minimal test/fake hosts may omit this adapter.
+        normalizer = getattr(self.host, "_normalize_pointer_event", None)
+        if normalizer is not None:
+            if not callable(normalizer):
+                raise Gate14FirstScreenAudioBindingError(
+                    "host _normalize_pointer_event must be callable"
+                )
+            event = normalizer(event)
+
         try:
             x = int(event.x)
             y = int(event.y)
