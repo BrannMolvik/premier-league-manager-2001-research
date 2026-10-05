@@ -32,6 +32,7 @@ from original_fastview_possession_resources import (
 )
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
+from gate14_fastview_playerrows_raster import FastViewPlayerRowsRaster
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
@@ -278,6 +279,31 @@ class FastViewComponentRasterTests(unittest.TestCase):
         self.assertEqual(plane.source_layer_count, 0)
         self.assertEqual(plane.rgba, rgba)
         self.assertFalse(plane.complete_fastview_frame)
+
+    def test_team_table_plane_accepts_complete_retained_playerrows_without_broader_promotion(self):
+        rgba = bytes(800 * 600 * 4)
+        rows = FastViewPlayerRowsRaster(
+            size=(800, 600),
+            rgba=rgba,
+            row_identities=((0, 0),),
+            energy_rgba_sha256="1" * 64,
+            text_rgba_sha256="2" * 64,
+            rgba_sha256=sha256(rgba).hexdigest(),
+        )
+        plane = rasterize_fastview_team_table_plane(rows)
+        self.assertEqual(plane.component, "team_table_player_rows")
+        self.assertEqual(plane.source_layer_count, 9)
+        self.assertEqual(plane.rgba, rgba)
+        self.assertFalse(rows.complete_team_table)
+        self.assertFalse(plane.complete_fastview_frame)
+
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "retained-row complete only",
+        ):
+            rasterize_fastview_team_table_plane(
+                replace(rows, complete_retained_player_rows=False)
+            )
 
     def test_score_and_table_static_planes_lift_as_verified_pair(self):
         source = score_table_rasters()
