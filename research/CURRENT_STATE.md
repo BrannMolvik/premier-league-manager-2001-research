@@ -7,6 +7,44 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 318 continuation — release disclosure guard canonical; private source still blocked
+
+PR #467 merged as `93991be9f3a147f7d8764b46792b9685091b1ddd` from head
+`61a1690f05ff4b79b6193425354d90c1d43c9be8`. Reconstruction run
+`37331984582` passed **2,593 tests / 23 expected skips** and repository
+asset-policy run `37331984552` passed on that same head.
+
+The final Gate-17 release audit now reuses the canonical Gate-15 fidelity audit,
+requires Gate 15 to be explicitly declared complete/release-ready, and requires
+every final `accepted_documented` Gate-15 gap title to appear verbatim in
+`research/RELEASE_LIMITATIONS.md`. The final audit receipt records the
+Gate-15 ledger SHA-256 and accepted-disclosure list. Fixed or
+`proven_irrelevant` rows are not treated as release limitations. This is an
+omission guard only; Gates 14-17 remain incomplete.
+
+Recovery 318 also retried the exact authorized source archive. The
+511,121,336-byte Library archive materialized successfully, but the first real
+Python `zipfile.ZipFile(...)` access failed with
+`caas.internal.errors.ClientError`. Real private source access therefore
+remains unavailable; the TeamTable six-base-control trace around `0x524EC0`
+remains deferred and no new source semantics were promoted.
+
+The top-level `project_status.json.source_execution_blocker` has been
+reconciled to this current Recovery-318 failure. Historical Recovery-194 fields
+remain historical evidence only and must not be interpreted as current
+availability.
+
+**Exact next task:** while private Gate-14 source access remains blocked, audit
+the bundled Windows FFmpeg release dependency. The package workflow copies the
+`imageio-ffmpeg 0.6.x` Windows executable into `runtime_tools/ffmpeg.exe`;
+the existing backlog records the observed binary as an FFmpeg 7.1 Gyan
+essentials GPL-enabled build. Add a fail-closed third-party provenance/license
+boundary for Gate 17 so a final release cannot silently ship that binary without
+the required source/license/provenance material. Do not make a legal-compliance
+claim from repository inference alone; preserve exact upstream/version/build
+evidence and fail closed where source-distribution obligations are not yet
+satisfied.
+
 ## Recovery 317 continuation — Gate-15 ledger canonical; Gate 14 still active
 
 ### Recovery 317 support-staff fidelity tracer merged
