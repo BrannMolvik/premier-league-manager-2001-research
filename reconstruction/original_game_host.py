@@ -18,7 +18,12 @@ from functools import lru_cache
 from hashlib import sha256
 from math import gcd
 from pathlib import Path
+from queue import Empty, Queue
+from threading import Thread
+from time import perf_counter
 import struct
+import sys
+import traceback
 import zlib
 from types import SimpleNamespace
 from original_management_background import OriginalManagementBackground
@@ -296,6 +301,7 @@ class OriginalGameTkHost:
         management_header_resources=None,
         management_text_resources=None,
         management_resource_loader=None,
+        management_thread_factory=Thread,
     ):
         self.presenter = presenter
         self.root = root
@@ -322,7 +328,14 @@ class OriginalGameTkHost:
         self.management_header_resources = management_header_resources
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
+        if not callable(management_thread_factory):
+            raise OriginalGameHostError("management_thread_factory must be callable")
+        self.management_thread_factory = management_thread_factory
         self._management_resources_loaded = management_resource_loader is None
+        self._management_load_queue = None
+        self._management_load_thread = None
+        self._management_load_poll = None
+        self.management_transition_timings = {}
         self.management_header_state = OriginalManagementHeaderState()
         self._management_header_idle = None
         self.last_pmenu_activation = None
@@ -812,14 +825,7 @@ class OriginalGameTkHost:
         if self.first_screen_animation.advance(view):
             self._update_first_screen_animation_layers(view)
 
-    def _ensure_management_resources(self) -> None:
-        if self._management_resources_loaded:
-            return
-        loader = self.management_resource_loader
-        if loader is None:
-            self._management_resources_loaded = True
-            return
-        loaded = loader()
+    def _apply_management_resources(self, loaded) -> None:
         if not isinstance(loaded, dict):
             raise OriginalGameHostError(
                 "Management resource loader must return a resource mapping"
@@ -845,7 +851,136 @@ class OriginalGameTkHost:
             )
         for name in required:
             setattr(self, name, loaded[name])
+        phase_timings = loaded.get("_load_timings", {})
+        if isinstance(phase_timings, dict):
+            for name, seconds in phase_timings.items():
+                if isinstance(name, str) and type(seconds) in (int, float):
+                    self.management_transition_timings[
+                        f"resource_{name}_seconds"
+                    ] = float(seconds)
         self._management_resources_loaded = True
+
+    def _ensure_management_resources(self) -> None:
+        if self._management_resources_loaded:
+            return
+        loader = self.management_resource_loader
+        if loader is None:
+            self._management_resources_loaded = True
+            return
+        self._apply_management_resources(loader())
+
+    def _schedule_management_resource_poll(self) -> None:
+        if self._management_load_poll is None:
+            self._management_load_poll = self.root.after(
+                25,
+                self._poll_management_resource_load,
+            )
+
+    def _begin_management_resource_load(self) -> None:
+        """Prepare the verified management resource bundle without blocking Tk."""
+        if self._management_resources_loaded:
+            self.redraw()
+            return
+        if self._management_load_thread is not None:
+            return
+        loader = self.management_resource_loader
+        if loader is None:
+            self._management_resources_loaded = True
+            self.redraw()
+            return
+
+        self.last_status = "Preparing source-backed management resources..."
+        self.root.configure(cursor="watch")
+        result_queue = Queue()
+        self._management_load_queue = result_queue
+
+        def worker():
+            started = perf_counter()
+            try:
+                loaded = loader()
+            except Exception as exc:
+                result_queue.put(
+                    (
+                        "error",
+                        exc,
+                        traceback.format_exc(),
+                        perf_counter() - started,
+                    )
+                )
+            else:
+                result_queue.put(
+                    ("ok", loaded, None, perf_counter() - started)
+                )
+
+        thread = self.management_thread_factory(target=worker, daemon=True)
+        self._management_load_thread = thread
+        thread.start()
+        self._schedule_management_resource_poll()
+
+    def _poll_management_resource_load(self) -> None:
+        self._management_load_poll = None
+        result_queue = self._management_load_queue
+        if result_queue is None:
+            return
+        try:
+            status, payload, traceback_text, load_seconds = result_queue.get_nowait()
+        except Empty:
+            self._schedule_management_resource_poll()
+            return
+
+        self._management_load_thread = None
+        self._management_load_queue = None
+        self.management_transition_timings[
+            "management_resource_load_seconds"
+        ] = float(load_seconds)
+
+        if status == "error":
+            self.root.configure(cursor="")
+            self.last_status = f"{type(payload).__name__}: {payload}"
+            if traceback_text:
+                print(traceback_text, file=sys.stderr, flush=True)
+            self.error_reporter(self.last_status)
+            return
+
+        try:
+            apply_started = perf_counter()
+            self._apply_management_resources(payload)
+            self.management_transition_timings[
+                "management_resource_apply_seconds"
+            ] = perf_counter() - apply_started
+
+            presenter_started = perf_counter()
+            if self.management_presenter is None:
+                self.management_presenter = self.management_presenter_factory(
+                    self.presenter.session
+                )
+            self.management_transition_timings[
+                "management_presenter_seconds"
+            ] = perf_counter() - presenter_started
+
+            draw_started = perf_counter()
+            self._draw_management_host()
+            self.management_transition_timings[
+                "management_first_draw_seconds"
+            ] = perf_counter() - draw_started
+        except Exception as exc:
+            self.last_status = f"{type(exc).__name__}: {exc}"
+            traceback.print_exc(file=sys.stderr)
+            self.error_reporter(self.last_status)
+            self.root.configure(cursor="")
+            return
+
+        self.root.configure(cursor="")
+        timing_text = ", ".join(
+            f"{name}={seconds:.3f}s"
+            for name, seconds in sorted(self.management_transition_timings.items())
+            if name.endswith("_seconds")
+        )
+        print(
+            "FM2001 Start->Management timings: " + timing_text,
+            file=sys.stderr,
+            flush=True,
+        )
 
     def _schedule_management_header_update(self) -> None:
         if (
@@ -1559,7 +1694,9 @@ class OriginalGameTkHost:
                     self.last_status = f"{type(exc).__name__}: {exc}"
             return
         try:
+            pointer_started = perf_counter()
             result = self.presenter.pointer(int(event.x), int(event.y))
+            pointer_seconds = perf_counter() - pointer_started
             if result is None:
                 self.last_status = "No recovered action at this pixel"
             elif isinstance(result, OriginalHierarchyInteraction):
@@ -1572,7 +1709,16 @@ class OriginalGameTkHost:
                 ):
                     return
             elif result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE:
+                self.management_transition_timings = {
+                    "teamselect_start_dispatch_seconds": pointer_seconds,
+                }
                 self.last_status = "Entered recovered PMenu management host"
+                if (
+                    self.management_resource_loader is not None
+                    and not self._management_resources_loaded
+                ):
+                    self._begin_management_resource_load()
+                    return
             elif result.transition.command is FrontEndCommand.QUIT_TO_WINDOWS:
                 self.last_status = "QUIT_TO_WINDOWS"
                 if self._first_screen_idle is not None:
@@ -1706,58 +1852,107 @@ def run_original_game_ui(
         # Startup must expose the first screen promptly. Decode the much larger
         # management/report surface only after TeamSelect Start actually enters
         # MANAGEMENT, then retain the verified objects for the session.
-        pmenu_resources = load_verified_management_pmenu_resources(
-            resolved_source_root,
-            original_executable,
+        phase_timings = {}
+
+        def timed(name, callback):
+            started = perf_counter()
+            try:
+                return callback()
+            finally:
+                phase_timings[name] = perf_counter() - started
+
+        pmenu_resources = timed(
+            "pmenu_resources",
+            lambda: load_verified_management_pmenu_resources(
+                resolved_source_root,
+                original_executable,
+            ),
         )
-        fixture_resources = validate_original_league_fixtures_resources(
-            resolved_source_root
+        fixture_resources = timed(
+            "fixtures_resource_validation",
+            lambda: validate_original_league_fixtures_resources(
+                resolved_source_root
+            ),
         )
-        league_table_resources = validate_original_league_tables_resources(
-            resolved_source_root
+        league_table_resources = timed(
+            "league_table_resource_validation",
+            lambda: validate_original_league_tables_resources(
+                resolved_source_root
+            ),
         )
         return {
             "management_pmenu_resources": pmenu_resources,
-            "league_fixtures_grid_art": load_verified_league_fixtures_grid_art(
-                resolved_source_root,
-                original_executable,
+            "league_fixtures_grid_art": timed(
+                "league_fixtures_grid_art",
+                lambda: load_verified_league_fixtures_grid_art(
+                    resolved_source_root,
+                    original_executable,
+                ),
             ),
-            "fixtures_pager_art": load_verified_fixtures_pager_art(
-                resolved_source_root,
-                original_executable,
+            "fixtures_pager_art": timed(
+                "fixtures_pager_art",
+                lambda: load_verified_fixtures_pager_art(
+                    resolved_source_root,
+                    original_executable,
+                ),
             ),
-            "squad_top_resources": load_verified_squad_top_resources(
-                resolved_source_root,
-                original_executable,
+            "squad_top_resources": timed(
+                "squad_top_resources",
+                lambda: load_verified_squad_top_resources(
+                    resolved_source_root,
+                    original_executable,
+                ),
             ),
-            "league_tables_header_art": load_verified_league_tables_header_art(
-                resolved_source_root,
-                original_executable,
+            "league_tables_header_art": timed(
+                "league_tables_header_art",
+                lambda: load_verified_league_tables_header_art(
+                    resolved_source_root,
+                    original_executable,
+                ),
             ),
-            "pmatchinfo_snapshot": load_staged_pmatchinfo_snapshot(
-                runtime_repo_root,
-                original_executable,
-                require_complete_dialog=True,
+            "pmatchinfo_snapshot": timed(
+                "pmatchinfo_snapshot",
+                lambda: load_staged_pmatchinfo_snapshot(
+                    runtime_repo_root,
+                    original_executable,
+                    require_complete_dialog=True,
+                ),
             ),
-            "pmatchinfo_font": validate_original_pmenu_font(resolved_source_root),
-            "pmatchinfo_nested_font": load_pmatchinfo_nested_font(
-                resolved_source_root
+            "pmatchinfo_font": timed(
+                "pmatchinfo_font",
+                lambda: validate_original_pmenu_font(resolved_source_root),
             ),
-            "pmatchinfo_script_art": load_script_row_art(
-                runtime_repo_root,
-                original_executable,
-                game_dir=game_dir,
+            "pmatchinfo_nested_font": timed(
+                "pmatchinfo_nested_font",
+                lambda: load_pmatchinfo_nested_font(resolved_source_root),
             ),
-            "management_background": OriginalManagementBackground(
-                resolved_source_root,
-                original_executable,
+            "pmatchinfo_script_art": timed(
+                "pmatchinfo_script_art",
+                lambda: load_script_row_art(
+                    runtime_repo_root,
+                    original_executable,
+                    game_dir=game_dir,
+                ),
             ),
-            "management_header_resources": load_verified_management_header_resources(
-                resolved_source_root,
-                original_executable,
+            "management_background": timed(
+                "management_background",
+                lambda: OriginalManagementBackground(
+                    resolved_source_root,
+                    original_executable,
+                ),
             ),
-            "management_text_resources": load_verified_management_text_resources(
-                resolved_source_root,
+            "management_header_resources": timed(
+                "management_header_resources",
+                lambda: load_verified_management_header_resources(
+                    resolved_source_root,
+                    original_executable,
+                ),
+            ),
+            "management_text_resources": timed(
+                "management_text_resources",
+                lambda: load_verified_management_text_resources(
+                    resolved_source_root,
+                ),
             ),
             "_fixture_resource_names": tuple(
                 resource.name for resource in fixture_resources
@@ -1765,6 +1960,7 @@ def run_original_game_ui(
             "_league_table_resource_names": tuple(
                 resource.name for resource in league_table_resources
             ),
+            "_load_timings": phase_timings,
         }
 
     import tkinter as tk
