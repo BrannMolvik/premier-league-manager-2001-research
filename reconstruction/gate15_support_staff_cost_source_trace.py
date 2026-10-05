@@ -47,7 +47,7 @@ CSUPPORTSTAFF_TRAINING_RATING_VIRTUAL_OFFSET = 0x40
 
 KNOWN_SLOT_ROLES = (
     ("staff_type", CSUPPORTSTAFF_TYPE_VIRTUAL_OFFSET, True),
-    ("monthly_cost_value", CSUPPORTSTAFF_COST_VALUE_VIRTUAL_OFFSET, False),
+    ("monthly_cost_value", CSUPPORTSTAFF_COST_VALUE_VIRTUAL_OFFSET, True),
     ("effective_training_rating", CSUPPORTSTAFF_TRAINING_RATING_VIRTUAL_OFFSET, True),
 )
 
@@ -193,11 +193,16 @@ def support_staff_cost_trace_report(
         )
         slots.append(resolved)
 
-    cost_slot = next(
+    cost_slots = tuple(
         row
         for row in slots
         if row["slot_offset"] == CSUPPORTSTAFF_COST_VALUE_VIRTUAL_OFFSET
     )
+    if len(cost_slots) != 1:
+        raise Gate15SupportStaffCostTraceError(
+            "slot roles must contain exactly one +0x24 monthly-cost value entry"
+        )
+    cost_slot = cost_slots[0]
     return {
         "source_sha256": pe.sha256,
         "c_support_staff_vtable_va": CSUPPORTSTAFF_VTABLE_VA,
