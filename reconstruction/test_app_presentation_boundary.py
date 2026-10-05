@@ -105,7 +105,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         )
 
 
-    def test_normal_windows_launch_selects_verified_bundled_media_and_builtin_backend(self):
+    def test_normal_windows_launch_prepares_verified_cache_and_builtin_backend(self):
         args = SimpleNamespace(
             prototype_ui=False,
             startup_media_receipt=None,
@@ -135,7 +135,10 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIsNone(receipt)
         self.assertIs(selected_backend, backend)
         self.assertIs(selected_derivatives, derivatives)
-        prepare.assert_called_once_with(Path("/game"), Path("/package"))
+        prepare.assert_called_once_with(
+            Path("/game"),
+            Path("/package").resolve(),
+        )
         make_backend.assert_called_once_with(platform_system="Windows")
 
     def test_non_windows_default_does_not_invent_startup_backend(self):
