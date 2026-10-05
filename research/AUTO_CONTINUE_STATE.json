@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #473 is merged and canonical. Retry the authorized private archive once; if execution is healthy, run exact easp.tgq + premintro.tgq through pinned LGPL h264_mf and matching FFprobe. If ClientError persists, continue minimal upstream FFmpeg helper/source-provenance work without changing production.",
+  "active_task": "Hands-on blocker #438: make England -> Conference -> Southport (club 349) -> Start Game reach the source-backed management screen. Use the recovered native management background fallback order without inventing pixels; add regressions, verify in CI, then continue latency #436 and startup playback #437.",
   "last_known_main_head": "7bcc5bfab79fca1d06c583ce4abddd84e38497f8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 319,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 319: #470 and #473 are canonical. Candidate binds h264_mf FFmpeg c15ef2e... plus FFprobe 46a86c... with fps_mode passthrough and exact synthetic H264/yuv420p/AAC/MP4 checks. Exact TGQ conversion still false; production remains libx264.",
+  "recovery_generation": 320,
+  "last_recovery_reason": "new-chat-handoff",
+  "note": "Recovery 320: Daniel's latest Windows trace proves Southport club selection is fast, management resources load asynchronously, and first draw fails at ManagementBackgroundError because Gate-13 renderer hard-rejects non-Premiership club families even though the source-closed 0x5D3560 fallback chain and generic backgrounds are staged.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
