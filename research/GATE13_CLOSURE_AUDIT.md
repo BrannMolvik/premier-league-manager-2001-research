@@ -17,12 +17,14 @@ or an assertion that its heap history replays the original process. See
 | --- | --- |
 | Simulation remains separated from presentation | PASS: existing separation audit and current regression remain intact. |
 | Accessible original resources and recoverable layouts/navigation are inventoried and reused | PARTIAL: ordinary four-frame Fixtures arrows and native PMenu popup lifecycle are integrated; the corrected automatic-away route needs no paging seam. The recovered management header's dynamic back_4/back_4_anim art/text remains unrendered. |
-| Main-menu/login structure, navigation and timing closely follow the original | FAIL: the live host still renders fixed frame0 rather than advancing the recovered 11-step Button hover model. The original update owner/cadence is not qualified; a guessed Tk timer cannot close this criterion. |
+| Main-menu/login structure, navigation and timing closely follow the original | Source/update implementation qualified at857a1806: ordinary serialized UI-pass owner dispatches6527F0, with no fixed-ms hover timer. Live Tk idle adapter advances all eleven frames and retreats on leave; real Windows/Tk8.6.12 qualification passes. Final integrated timing/normal-play audit remains pending; no exact hardware-independent duration claimed. |
 | Normal play is recognizably FM2001 | PARTIAL: genuine calculated human-away report/save/fresh reload/visible arrows/right-click/correct PMatchInfo passes. Final required header/ordinary data/text recognizability has not passed; schema8 is not a comprehensive normal-play pixel judgment. |
 
-The exact next source-backed action is the existing Button update owner/cadence
-and live first-screen integration, followed by the genuinely required management
-header/ordinary data-text recognizability review. The Fixtures arrow and popup
+The exact next source-backed action is ONLY the required management header/
+ordinary data-text implementation, continuing the bounded producer handoff in
+`GATE13_FIXED_CLOSURE_SLICE.md`, then final criterion-level validation. The Button
+owner/live integration is checkpointed, not a remaining fixed-frame blocker.
+The Fixtures arrow and popup
 dependency are closed; see `GATE13_FIXTURES_PAGING_TRACE.md`. Do not reopen
 capacity/report packing/codecs/ownership or expand into Gate14/optional contexts.
 

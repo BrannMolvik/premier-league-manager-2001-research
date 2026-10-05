@@ -2,7 +2,7 @@
 
 Unlike the Gate-13 diagnostic viewer, this host has no manual source-frame
 controls or developer sidebar. It renders the source-backed first screens at
-native 800x600 coordinates using the recovered initial Button@ease frame and
+native 800x600 coordinates using recovered live Button@ease update states and
 routes proven clicks through FrontEndSession. Successful TeamSelect Start enters
 the fixed PMenu management host.
 

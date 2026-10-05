@@ -16,8 +16,10 @@ Button owner/cadence is now source-qualified: `531B40 -> 5329D0 -> 6541E0 ->
 6538F0 -> child vtable+68 (6527F0)`. This is a serialized available UI pass,
 not a fixed millisecond timer. The Tk host advances the recovered eleven-step
 state once per idle pass, stops stable redraws and retreats on pointer leave.
-Focused tests: **38 tests /1 expected licensed-source skip PASS**. Live Windows
-animation validation and final regression remain pending. Evidence and exact
+Focused tests: **38 tests /1 expected licensed-source skip PASS**. Real
+Windows/Tk8.6.12 hover qualification passes all eleven source frames and retreat;
+fresh real Windows schema8 also PASS (receipt131866c4...e8cc9, exact hash below).
+Final full regression/package and closure validation remain pending. Evidence and exact
 private receipt hashes: `GATE13_FIXED_CLOSURE_SLICE.md`.
 
 The only other accepted implementation blocker is required management
@@ -26,6 +28,12 @@ Then audit the four ROADMAP criteria. Non-blocking pixels/secondary states/
 obscure refinements belong to Gate15; do not reopen paging, capacity, report,
 save/reload or PMatchInfo. Gate13 remains open pending this fixed slice and
 final validation. No original execution, ownership or agent-runtime change.
+
+Daniel requested wrap-up at the usage limit. No further source work is running.
+Header source/asset handoff is in the fixed-slice evidence file: verified private
+back_4/back_4_anim extraction, compound child origins/geometry and24pixel Zurich
+caption producer. These are not yet integrated. Resume ONLY that accepted
+management item, then final four-criterion audit; no new fidelity blockers.
 
 ### Current result: selected read reached with uninterrupted watch coverage
 
@@ -85,7 +93,8 @@ Final reconciliation also preserves the newer disjoint worker PR #364 at
 `a99f1e029036c8cb37d66f36641c6093214d883a`; its changed-module regression
 passes7 tests. This introduces no new Gate13 source/runtime discrepancy.
 
-**Gate13 remains OPEN after the criterion review.** The next actual blocker is
+**Historical PR365 criterion review (superseded by the fixed-slice checkpoint
+above):** Gate13 remained OPEN. The next actual blocker was
 live first-screen Button hover/update timing: the host still draws fixed
 `build_original_debug_frame(view,0)`, not the recovered 11-step live state.
 Qualify its original update owner/cadence and integrate it without inventing a
