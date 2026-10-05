@@ -159,8 +159,10 @@ class FastViewDrawOrderTests(unittest.TestCase):
 
     def test_current_raster_families_have_source_closed_partial_relative_order(self):
         expected_levels = (
+            ("match_background_surface",),
             ("direct_chrome",),
             ("clock_text",),
+            ("club_badge_surfaces",),
             ("possession_diagram",),
             ("possession_figures_text",),
             ("direct_header_text",),
@@ -171,6 +173,44 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("team_table_static", "team_table_energy"),
         )
         self.assertEqual(SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS, expected_levels)
+
+        background_before_chrome = source_closed_pairwise_order(
+            "match_background_surface",
+            "direct_chrome",
+        )
+        self.assertEqual(
+            background_before_chrome.earlier_component,
+            "match_background_surface",
+        )
+        self.assertEqual(
+            background_before_chrome.later_component,
+            "direct_chrome",
+        )
+        self.assertTrue(background_before_chrome.same_parent_draw_array)
+
+        badges_after_clock = source_closed_pairwise_order(
+            "clock_text",
+            "club_badge_surfaces",
+        )
+        self.assertEqual(badges_after_clock.earlier_component, "clock_text")
+        self.assertEqual(
+            badges_after_clock.later_component,
+            "club_badge_surfaces",
+        )
+        self.assertTrue(badges_after_clock.same_parent_draw_array)
+
+        badges_before_possession = source_closed_pairwise_order(
+            "club_badge_surfaces",
+            "possession_diagram",
+        )
+        self.assertEqual(
+            badges_before_possession.earlier_component,
+            "club_badge_surfaces",
+        )
+        self.assertEqual(
+            badges_before_possession.later_component,
+            "possession_diagram",
+        )
 
         clock_after_chrome = source_closed_pairwise_order(
             "direct_chrome",
