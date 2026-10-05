@@ -18,6 +18,7 @@ synthesize a recovered manager-home renderer.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Callable
 
 from front_end_session import FrontEndSession, FrontEndSessionOutcome
 from front_end_state import FrontEndScreen
@@ -84,17 +85,26 @@ class OriginalHierarchyInteraction:
 class OriginalFirstScreenPresenter:
     session: FrontEndSession
     start_menu: OriginalPStartMenuResources
-    team_select: OriginalTeamSelectResources
+    team_select: OriginalTeamSelectResources | None = None
+    team_select_loader: Callable[[], OriginalTeamSelectResources] | None = None
     hierarchy: TeamSelectHierarchyModel | None = None
     _teamselect_cache_key: tuple | None = field(default=None, init=False, repr=False)
     _teamselect_cache_rows: tuple = field(
         default_factory=lambda: ((), ()), init=False, repr=False
     )
 
+    def _ensure_team_select_resources(self) -> OriginalTeamSelectResources:
+        if self.team_select is None:
+            if self.team_select_loader is None:
+                raise RuntimeError("TeamSelect resources are not configured")
+            self.team_select = self.team_select_loader()
+        return self.team_select
+
     def _ensure_hierarchy(self) -> TeamSelectHierarchyModel | None:
         if self.hierarchy is not None:
             return self.hierarchy
-        if self.team_select.native_hierarchy is None or self.session.gameplay is None:
+        team_select = self._ensure_team_select_resources()
+        if team_select.native_hierarchy is None or self.session.gameplay is None:
             return None
         state = getattr(self.session.gameplay, "state", None)
         if state is None:
@@ -121,8 +131,9 @@ class OriginalFirstScreenPresenter:
                 screen, self.start_menu.background_rgba, controls
             )
         if screen is FrontEndScreen.TEAM_SELECT:
-            atlas = self.team_select.action_atlas
-            captions = {item.event: item for item in self.team_select.captions}
+            team_select = self._ensure_team_select_resources()
+            atlas = team_select.action_atlas
+            captions = {item.event: item for item in team_select.captions}
             controls = (
                 OriginalActionPresentation(
                     TEAMSELECT_BACK_EVENT, TEAMSELECT_BACK_RECT, atlas,
@@ -138,8 +149,8 @@ class OriginalFirstScreenPresenter:
             model = self._ensure_hierarchy()
             if (
                 model is not None
-                and self.team_select.hierarchy_art is not None
-                and self.team_select.native_hierarchy is not None
+                and team_select.hierarchy_art is not None
+                and team_select.native_hierarchy is not None
             ):
                 cache_key = (
                     int(model.selected_country_id),
@@ -150,17 +161,17 @@ class OriginalFirstScreenPresenter:
                 if cache_key != self._teamselect_cache_key:
                     self._teamselect_cache_rows = build_teamselect_presentations(
                         model,
-                        self.team_select.hierarchy_art,
-                        self.team_select.native_hierarchy,
+                        team_select.hierarchy_art,
+                        team_select.native_hierarchy,
                     )
                     self._teamselect_cache_key = cache_key
                 hierarchy_rows, club_rows = self._teamselect_cache_rows
             return OriginalFirstScreenSnapshot(
                 screen,
-                self.team_select.background_rgba,
+                team_select.background_rgba,
                 controls,
-                self.team_select.hierarchy_row_origins,
-                self.team_select.hierarchy_art,
+                team_select.hierarchy_row_origins,
+                team_select.hierarchy_art,
                 hierarchy_rows,
                 club_rows,
             )

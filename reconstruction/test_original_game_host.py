@@ -1278,6 +1278,8 @@ class OriginalGameHostTests(unittest.TestCase):
                     game_dir,
                     source_root=source_root,
                 )
+                self.assertNotIn("team", calls)
+                built._ensure_team_select_resources()
 
         self.assertIs(built.session, fake_session)
         self.assertEqual(
