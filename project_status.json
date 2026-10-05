@@ -1918,7 +1918,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Add a presentation-only Windows/Tk FastView surface that renders the existing completed-human resolved presentation bundle byte-for-byte without inventing a management navigation trigger or unresolved z/blend/3D/audio semantics.",
+  "gate14_exact_next_task": "Verify and merge Gate-14 readiness reconciliation #456 and strict external Windows 11 startup-FMV acceptance tooling #457; do not promote external acceptance until a real private receipt exists.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2831,5 +2831,12 @@
   "gate14_startup_media_real_windows_visibility_audibility_verified": false,
   "gate14_first_screen_press_audio_live": true,
   "gate14_bound_application_audio_audibility_verified": false,
-  "gate14_complete": false
+  "gate14_complete": false,
+  "gate14_operator_visible_resolved_fastview_surface": true,
+  "gate14_operator_visible_resolved_fastview_surface_merge": "6ad4416be3fc91dcac7ff3e007fcaa7cb04c8ad9",
+  "gate14_operator_surface_reconstruction_run": 37307918883,
+  "gate14_operator_surface_windows_package_run": 37307919062,
+  "gate14_operator_surface_gate13_run": 37307919034,
+  "gate14_operator_surface_asset_policy_run": 37307918885,
+  "gate14_source_fastview_navigation_trigger_recovered": false
 }
