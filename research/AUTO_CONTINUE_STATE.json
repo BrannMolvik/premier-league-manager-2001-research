@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. GoalFlash source contract merged on main at 2d51dffa with fresh CI: 2,372 tests passed / 23 expected skips plus asset-policy success. Private shell and Python execution still fail caas.internal.errors.ClientError, so new canonical-executable adjudication of GoalFlash scorer/tick fields, EventScore counter semantics, and absolute mover positions is deferred. Continue disjoint cloud-safe Gate-14 work by making the source-backed but unrasterized GoalFlash family explicit in fail-closed FastView frame/readiness accounting without inventing pixels or absolute positions; verify/merge, then continue the highest-priority independent Gate-14 task.",
-  "last_known_main_head": "2d51dffab5a3f304dbb00bdec0f2095f7e102175",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. GoalFlash omission-readiness guard merged on main at dbf9a136 after reconstruction run 37255589665 passed 2,373 tests / 23 expected skips and asset-policy run 37255589792 passed. Private shell/Python execution still fails caas.internal.errors.ClientError, so new executable-byte GoalFlash semantics remain deferred. Continue disjoint Gate-14 cloud-safe work on the next canonical omitted visible outer family, ScoreCompositeMain: encode its exact one-instance three-branch constructor topology, five outer registrations and source-order position while keeping branch selector semantics, control geometry/content, absolute placement and pixels fail-closed; integrate omission into Gate-14 readiness and verify without touching Gate 13.",
+  "last_known_main_head": "dbf9a136f15c5d1d005f5ec95341cae4eb506d91",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 297,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #395 merged GoalFlash source contract as 2d51dffa after reconstruction run 37254783650 (2,372 tests / 23 expected skips) and asset-policy run 37254783682 passed. Process sandbox remains unavailable for new private executable-byte work. Continuing disjoint Gate-14 omission/readiness accounting; Gate 13 remains locked to Codex.",
+  "note": "PR #396 merged as dbf9a136. GoalFlash is now an explicit complete-frame blocker until absolute placement and rasterization are recovered. Continue ScoreCompositeMain source/omission contract from already canonical outer-order evidence; process sandbox still blocks new executable adjudication.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
