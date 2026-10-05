@@ -38,6 +38,7 @@ The current audit records these solved sub-capabilities:
 - completed human outcome -> resolved-only FastView -> Tk draw path;
 - dynamic PlayerRow energy pixels;
 - English PlayerRow text pixels;
+- source-closed parameterized FastViewScores and FastViewTeam nested construction/count algorithms;
 - source-closed relative draw order across the currently rasterized FastView component families;
 - the source-closed two-row GoalFlash receiver/control/formatting contract, while its absolute placement and pixels remain explicitly absent;
 - the source-closed one-instance ScoreCompositeMain outer ownership/control-order contract, while its branch geometry/content and pixels remain explicitly absent;
@@ -55,6 +56,8 @@ The audit exposes the unresolved capabilities directly:
 
 - exact audio event/sample binding;
 - audible Windows output and login/menu audio integration;
+- complete FastViewScores/LeagueTable nested pixels;
+- complete FastViewTeam nested pixels beyond the already-complete retained PlayerRows;
 - GoalFlash absolute timing/position;
 - GoalFlash pixel rasterization and resolved-composite integration;
 - ScoreCompositeMain exact geometry and pixel rasterization;
@@ -81,8 +84,9 @@ The data model rejects invalid promotion paths. In particular:
 - login/menu audio cannot be declared integrated before bank ownership,
   playback entrypoints and sample decode are ready;
 - a complete FastView frame cannot be asserted before the resolved human path,
-  energy/text pixels, the source-closed GoalFlash contract, absolute GoalFlash
-  placement, GoalFlash rasterization, the source-closed ScoreCompositeMain
+  energy/text pixels, complete score/team subpanel pixels, the source-closed
+  GoalFlash contract, absolute GoalFlash placement, GoalFlash rasterization,
+  the source-closed ScoreCompositeMain
   contract, exact ScoreCompositeMain geometry/pixels, the source-closed four-
   control embedded outer contract, exact embedded-control geometry/pixels,
   global z-order and the already source-closed font blend prerequisite are all
@@ -156,3 +160,28 @@ This is intentionally separate from `direct_chrome`, which contains only the
 source-bound top-bar and ticker PictureControls. Complete-frame promotion must
 remain false until these four omitted outer controls have their own exact
 source-qualified geometry and pixels.
+
+
+## Nested subpanel completeness guard
+
+PR #366 source-closed the parameterized construction algorithms inside the two
+nested wrappers. That evidence remains canonical and is now represented
+separately from pixel completeness:
+
+- `score_subpanel_parameterized_construction_recovered = true`;
+- `team_subpanel_parameterized_construction_recovered = true`;
+- `score_subpanel_complete_pixels_recovered = false`;
+- `team_subpanel_complete_pixels_recovered = false`.
+
+The distinction is required by the renderer contracts already on `main`.
+`FastViewScoreTableStaticPlane` explicitly carries
+`text_rasterized=false` and `complete_component=false`. The retained
+PlayerRow compositor explicitly carries `complete_team_table=false`, because
+it covers PlayerRow controls rather than all TeamTable-level children. The
+nested-order contract separately proves six TeamTable-level controls before the
+PlayerRow subtrees.
+
+Accordingly, `complete_fastview_frame_recovered` now requires both nested
+subpanels to be pixel-complete. This does not reopen the source-closed row-count
+or phase-tail algorithms. It prevents their structural recovery from being
+mistaken for complete visible output.

@@ -22,6 +22,10 @@ class Gate14ReadinessEvidence:
     completed_human_resolved_fastview_path: bool
     playerrow_energy_pixels_recovered: bool
     playerrow_text_pixels_recovered: bool
+    score_subpanel_parameterized_construction_recovered: bool
+    team_subpanel_parameterized_construction_recovered: bool
+    score_subpanel_complete_pixels_recovered: bool
+    team_subpanel_complete_pixels_recovered: bool
     possession_pairwise_draw_order_recovered: bool
     goalflash_source_contract_recovered: bool
     goalflash_absolute_position_recovered: bool
@@ -70,6 +74,10 @@ class Gate14ReadinessEvidence:
             self.completed_human_resolved_fastview_path
             and self.playerrow_energy_pixels_recovered
             and self.playerrow_text_pixels_recovered
+            and self.score_subpanel_parameterized_construction_recovered
+            and self.team_subpanel_parameterized_construction_recovered
+            and self.score_subpanel_complete_pixels_recovered
+            and self.team_subpanel_complete_pixels_recovered
             and self.goalflash_source_contract_recovered
             and self.goalflash_absolute_position_recovered
             and self.goalflash_pixels_rasterized
@@ -136,6 +144,10 @@ class Gate14ReadinessEvidence:
             blockers.append("audible_windows_output")
         if not self.login_menu_audio_integrated:
             blockers.append("login_menu_audio_integration")
+        if not self.score_subpanel_complete_pixels_recovered:
+            blockers.append("score_subpanel_complete_pixels")
+        if not self.team_subpanel_complete_pixels_recovered:
+            blockers.append("team_subpanel_complete_pixels")
         if not self.goalflash_source_contract_recovered:
             blockers.append("goalflash_source_contract")
         if not self.goalflash_absolute_position_recovered:
@@ -178,6 +190,10 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         completed_human_resolved_fastview_path=True,
         playerrow_energy_pixels_recovered=True,
         playerrow_text_pixels_recovered=True,
+        score_subpanel_parameterized_construction_recovered=True,
+        team_subpanel_parameterized_construction_recovered=True,
+        score_subpanel_complete_pixels_recovered=False,
+        team_subpanel_complete_pixels_recovered=False,
         possession_pairwise_draw_order_recovered=True,
         goalflash_source_contract_recovered=True,
         goalflash_absolute_position_recovered=False,
