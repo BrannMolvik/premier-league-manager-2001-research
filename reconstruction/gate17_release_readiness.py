@@ -36,6 +36,10 @@ from gate15_fidelity_ledger import (
     audit_repository_gate15,
     load_fidelity_ledger,
 )
+from gate17_third_party_ffmpeg import (
+    ThirdPartyFFmpegError,
+    validate_release_archive_ffmpeg,
+)
 
 
 class ReleaseReadinessError(RuntimeError):
@@ -584,6 +588,22 @@ def validate_release_archive(
     }
 
 
+def validate_third_party_ffmpeg_release(
+    repo_root: Path,
+    release_archive: Path,
+) -> dict:
+    """Require complete, hash-bound FFmpeg provenance/license/source materials."""
+    try:
+        return validate_release_archive_ffmpeg(
+            repo_root=repo_root,
+            release_archive=release_archive,
+        )
+    except ThirdPartyFFmpegError as exc:
+        raise ReleaseReadinessError(
+            f"bundled FFmpeg release boundary failed: {exc}"
+        ) from exc
+
+
 def validate_limitations_document(
     repo_root: Path,
     limitations_path: str,
@@ -910,6 +930,10 @@ def run_final_release_audit(
         Path(canonical_game_dir).resolve(),
     )
     archive = validate_release_archive(release_archive, evidence.archive, root)
+    third_party_ffmpeg = validate_third_party_ffmpeg_release(
+        root,
+        release_archive,
+    )
     limitations = validate_limitations_document(root, evidence.limitations_path)
     gate15_fidelity_disclosures = validate_gate15_release_disclosures(
         root,
@@ -952,6 +976,7 @@ def run_final_release_audit(
         "external_receipts": receipts,
         "full_original_scope_binding": full_scope_binding,
         "release_archive": archive,
+        "third_party_ffmpeg": third_party_ffmpeg,
         "limitations": limitations,
         "gate15_fidelity_disclosures": gate15_fidelity_disclosures,
         "asset_policy": asset_policy,
