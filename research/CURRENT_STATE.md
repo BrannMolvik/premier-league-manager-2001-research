@@ -7,6 +7,42 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 313 continuation — resolved FastView surface merged
+
+PR #455 merged as `6ad4416be3fc91dcac7ff3e007fcaa7cb04c8ad9`.
+The source-backed host can now open an operator-visible native 800x600 child
+window for an already-built `HumanFastViewResolvedPresentation`. The child
+draws the bundle's canonical resolved-preview PNG unchanged; unresolved overlap
+pixels remain transparent. The host method creates no match state and is not
+called from ordinary clicks, PMenu actions, gameplay, or front-end navigation,
+so no unrecovered source trigger has been invented.
+
+Fresh validation after correcting a prose-sensitive test guard passed:
+reconstruction run 37307918883, Windows package run 37307919062, Gate-13
+presentation regression run 37307919034, and asset-policy run 37307918885.
+
+The private executable/container path remains unavailable in this worker:
+a fresh trivial shell probe still returns `caas.internal.errors.ClientError`.
+Therefore complete TeamTable/score pixels, GoalFlash absolute placement,
+ScoreCompositeMain/embedded-control geometry and other byte-level source
+questions remain deferred rather than guessed.
+
+Two cloud-safe Gate-14 follow-ups are active:
+
+- #456 reconciles machine-readable readiness with the now-canonical bounded
+  first-screen audio, automatic startup-media path and operator-visible FastView
+  surface while keeping broad audio and recognizable-workflow criteria false.
+- #457 adds a strict external Windows 11 client startup-FMV acceptance receipt
+  that rejects hosted/server CI and requires explicit human confirmation of
+  visible video plus audible audio for both source-proven startup clips.
+
+**Exact next Gate-14 task:** verify and merge #456/#457 on the current main
+without promoting any external acceptance flag until a real receipt exists.
+After those land, continue the highest-priority cloud-safe Gate-14 work; if no
+independent presentation work remains, preserve the exact private-source and
+real-Windows blockers and advance only independent later-gate work under the
+deferred-blocker policy.
+
 ## Recovery 313 — automatic startup FMVs merged; live FastView surface is next
 
 PR #454 merged as `7b2c8d4eb32bd82e01570d3ed09b30a1b057f5ba`.
