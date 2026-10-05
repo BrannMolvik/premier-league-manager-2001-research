@@ -131,6 +131,9 @@ on:
       - "reconstruction/test_gate13_first_screen_manifest_readiness.py"
       - "reconstruction/gate13_pstartmenu_derivative.py"
       - "reconstruction/test_gate13_pstartmenu_derivative.py"
+      - "original_assets/source/decoder/ea444_tqia_dat.bin"
+      - "original_assets/source/decoder/ea444_quant_source.bin"
+      - "original_assets/MANIFEST.md"
       - "reconstruction/test_gate13_first_screen_selection.py"
       - "research/GATE13_FIRST_SCREEN_EXACT_PATHS.txt"
       - "reconstruction/test_original_teamselect_resources.py"
@@ -263,6 +266,28 @@ jobs:
             test_gate13_management_catalog_audit \
             test_gate13_source_inventory \
             test_iso9660_reader
+
+      - name: Generate canonical PStartMenu derivative twice
+        working-directory: reconstruction
+        run: |
+          python gate13_pstartmenu_derivative.py \
+            --repo-root .. \
+            --output-dir "$RUNNER_TEMP/pstartmenu-a"
+          python gate13_pstartmenu_derivative.py \
+            --repo-root .. \
+            --output-dir "$RUNNER_TEMP/pstartmenu-b"
+          cmp "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-b/manifest.json"
+          cmp "$RUNNER_TEMP/pstartmenu-a/payload.bin" "$RUNNER_TEMP/pstartmenu-b/payload.bin"
+          sha256sum "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-a/payload.bin"
+
+      - name: Upload verified PStartMenu derivative
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate13-pstartmenu-derivative
+          path: |
+            ${{ runner.temp }}/pstartmenu-a/manifest.json
+            ${{ runner.temp }}/pstartmenu-a/payload.bin
+          if-no-files-found: error
 
   native-mute-build:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.native_mute_build_only }}
