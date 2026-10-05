@@ -4,6 +4,7 @@ from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from ea444_decoder import EA444DecodedImage
 from gate14_fastview_human_resolved_presentation import (
@@ -246,6 +247,50 @@ class HumanFastViewResolvedPresentationTests(unittest.TestCase):
         self.assertFalse(presentation.complete_fastview_frame)
         self.assertFalse(presentation.audio_ready)
         self.assertFalse(presentation.choreography_3d_ready)
+
+    def test_resolved_adapter_forwards_advanced_artifacts_to_frame_builder(self):
+        base = build_human_fastview_resolved_presentation(
+            completed_outcome(),
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+        )
+        advanced = {
+            "score_table": object(),
+            "score_draw_phases": object(),
+            "score_phase_text": object(),
+            "clock": object(),
+            "direct_header": object(),
+            "surfaced": object(),
+        }
+
+        with patch(
+            "gate14_fastview_human_resolved_presentation.build_human_fastview_frame_plan",
+            return_value=base.frame,
+        ) as build:
+            presentation = build_human_fastview_resolved_presentation(
+                completed_outcome(),
+                exact_chrome(),
+                exact_possession(),
+                exact_figures(),
+                exact_team_art(),
+                score_table_static=advanced["score_table"],
+                score_draw_phases=advanced["score_draw_phases"],
+                score_phase_text=advanced["score_phase_text"],
+                clock=advanced["clock"],
+                direct_header=advanced["direct_header"],
+                surfaced=advanced["surfaced"],
+            )
+
+        self.assertIs(presentation.frame, base.frame)
+        _args, kwargs = build.call_args
+        self.assertIs(kwargs["score_table_static"], advanced["score_table"])
+        self.assertIs(kwargs["score_draw_phases"], advanced["score_draw_phases"])
+        self.assertIs(kwargs["score_phase_text"], advanced["score_phase_text"])
+        self.assertIs(kwargs["clock"], advanced["clock"])
+        self.assertIs(kwargs["direct_header"], advanced["direct_header"])
+        self.assertIs(kwargs["surfaced"], advanced["surfaced"])
 
     def test_draws_exact_canonical_preview_without_hidden_recomposition(self):
         presentation = build_human_fastview_resolved_presentation(
