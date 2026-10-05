@@ -51,18 +51,23 @@ def build_human_fastview_frame_plan(
     """
     presentation = build_human_match_presentation(outcome)
     shell = build_fastview_semantic_shell(presentation)
+    frame_kwargs = {"score_table_static": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            frame_kwargs[name] = value
     return build_fastview_frame_plan(
         shell,
         chrome,
         possession,
         figures,
         team_art,
-        score_table_static=score_table_static,
-        score_draw_phases=score_draw_phases,
-        score_phase_text=score_phase_text,
-        clock=clock,
-        direct_header=direct_header,
-        surfaced=surfaced,
+        **frame_kwargs,
     )
 
 def build_human_fastview_frame_plan_from_retained_histories(
@@ -103,17 +108,22 @@ def build_human_fastview_frame_plan_from_retained_histories(
     )
     presentation = replace(presentation, player_rows=rows)
     shell = build_fastview_semantic_shell(presentation)
+    frame_kwargs = {"score_table_static": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            frame_kwargs[name] = value
     return build_fastview_frame_plan(
         shell,
         chrome,
         possession,
         figures,
         team_art,
-        score_table_static=score_table_static,
-        score_draw_phases=score_draw_phases,
-        score_phase_text=score_phase_text,
-        clock=clock,
-        direct_header=direct_header,
-        surfaced=surfaced,
+        **frame_kwargs,
     )
 
