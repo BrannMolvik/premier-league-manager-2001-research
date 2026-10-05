@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 private source remains blocked by Recovery-318 caas ClientError. PR #467 is merged/verified and main reconciled. Current cloud-safe task: Gate-17 bundled FFmpeg provenance/license fail-closed packaging audit; pin/identify the shipped binary and require corresponding third-party material without claiming legal sufficiency by inference.",
-  "last_known_main_head": "3115c28345c2c2144ff6096aaf6d41cd7423a2fd",
+  "active_task": "PR #468 is merged and verified. Private execution still fails with caas.internal.errors.ClientError. Audit whether the Windows release can avoid redistributing the current static GPL-enabled FFmpeg binary without weakening source-backed startup-media behavior; otherwise preserve the fail-closed third-party material boundary.",
+  "last_known_main_head": "0f441d12813bff06685b28063815cbadf4ff0516",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 318,
   "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 318 canonical through PR #467 and main 3115c283. Top-level source_execution_blocker is current. Next: bundled imageio-ffmpeg/Gyan FFmpeg release provenance/license guard.",
+  "note": "Recovery 318 checkpoint: #468 merged as fabbe197; main reconciled through 0f441d12. FFmpeg binary identity/provenance is attested, but release/license/source completion flags remain false. Private process execution remains blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
