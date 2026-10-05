@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "source_path": "research/FIDELITY_GAPS.md",
+  "gate15_declared_complete": false,
+  "items": [
+    {
+      "gap": "Secondary startup exact tie permutation and bucket shape",
+      "planned_gate": "15",
+      "owner_gate": 15,
+      "status": "pending_source_or_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Exact fully indistinguishable PL league-table native qsort ties",
+      "planned_gate": "15",
+      "owner_gate": 15,
+      "status": "pending_final_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Original FM2001 save compatibility",
+      "planned_gate": "15 or later fidelity work",
+      "owner_gate": 15,
+      "status": "pending_final_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Player negotiation residual branches",
+      "planned_gate": "15 or earlier if a broader negotiation case blocks play",
+      "owner_gate": 15,
+      "status": "pending_source_or_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Due-transfer same-day ordering",
+      "planned_gate": "15 or earlier if same-day transfer availability matters",
+      "owner_gate": 15,
+      "status": "pending_source_or_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Match-day / recurring commercial income",
+      "planned_gate": "15",
+      "owner_gate": 15,
+      "status": "pending_source_or_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Finance/board residuals",
+      "planned_gate": "15 or owning later system",
+      "owner_gate": 15,
+      "status": "pending_source_or_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Original front-end / management presentation secondary fidelity",
+      "planned_gate": "15",
+      "owner_gate": 15,
+      "status": "pending_final_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "UI fidelity",
+      "planned_gate": "15",
+      "owner_gate": 15,
+      "status": "pending_final_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "Non-blocking UI exact-fidelity refinements",
+      "planned_gate": "15",
+      "owner_gate": 15,
+      "status": "pending_final_acceptance",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": true
+    },
+    {
+      "gap": "FastView/3D and original audio/match presentation",
+      "planned_gate": "14",
+      "owner_gate": 14,
+      "status": "prerequisite_gate_14",
+      "fallback_described_as_original": false,
+      "release_limitation_required_if_accepted": false
+    }
+  ]
+}

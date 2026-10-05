@@ -37,6 +37,9 @@ on:
       - "reconstruction/match_simulation.py"
       - "reconstruction/test_match_simulation.py"
       - "research/FIDELITY_GAPS.md"
+      - "reconstruction/gate15_fidelity_ledger.py"
+      - "reconstruction/test_gate15_fidelity_ledger.py"
+      - "research/GATE15_FIDELITY_ACCEPTANCE_LEDGER.json"
       # Gate13 batches may touch only presentation seams yet still import
       # large portions of the reconstructed runtime. Give those code changes
       # one full integration suite on PR, while ordinary research/docs and
