@@ -51,7 +51,9 @@ class FastViewScoreTableFrameBridgeTests(unittest.TestCase):
             raster_composition_available=False,
             complete_fastview_frame_available=False,
         )
-        team_static = object()
+        team_energy = object()
+        team_text = object()
+        player_rows = object()
         components = base_component_set()
 
         with (
@@ -61,8 +63,16 @@ class FastViewScoreTableFrameBridgeTests(unittest.TestCase):
             ) as build_surface,
             patch(
                 "gate14_fastview_frame_plan.rasterize_fastview_team_energy_rows",
-                return_value=team_static,
+                return_value=team_energy,
             ) as raster_team,
+            patch(
+                "gate14_fastview_frame_plan.rasterize_fastview_playerrow_text",
+                return_value=team_text,
+            ) as raster_text,
+            patch(
+                "gate14_fastview_frame_plan.compose_fastview_player_rows_raster",
+                return_value=player_rows,
+            ) as compose_rows,
             patch(
                 "gate14_fastview_frame_plan.build_fastview_component_rasters",
                 return_value=components,
@@ -85,11 +95,14 @@ class FastViewScoreTableFrameBridgeTests(unittest.TestCase):
             render_plans=(),
         )
         raster_team.assert_called_once_with(team_art, ())
+        raster_text.assert_called_once()
+        self.assertEqual(raster_text.call_args.args[1], ())
+        compose_rows.assert_called_once_with(team_energy, team_text, ())
         build_components.assert_called_once_with(
             chrome,
             possession,
             figures,
-            team_static,
+            player_rows,
             score_table=score_table,
         )
 

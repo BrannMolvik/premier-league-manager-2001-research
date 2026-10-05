@@ -131,6 +131,27 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
         self.assertFalse(item.pixels_resolvable)
 
+    def test_complete_playerrows_alias_keeps_teamtable_order_and_blend_blocker(self):
+        group = FastViewUnresolvedOverlapGroup(
+            components=("direct_chrome", "team_table_player_rows"),
+            pixel_count=9,
+            bounding_rect=(37, 27, 296, 43),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 1)
+        self.assertEqual(item.recovered_pairwise_relation_count, 1)
+        self.assertTrue(item.complete_draw_order_recovered)
+        self.assertEqual(
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            ),
+            (("direct_chrome", "team_table_player_rows"),),
+        )
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertFalse(item.pixels_resolvable)
+
     def test_score_table_aggregate_pair_keeps_draw_order_fail_closed(self):
         components = (
             "direct_chrome",

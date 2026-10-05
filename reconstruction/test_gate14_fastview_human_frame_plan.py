@@ -201,8 +201,9 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
         self.assertIsNotNone(frame.component_rasters.team_table)
         self.assertEqual(
             frame.component_rasters.team_table.component,
-            "team_table_energy",
+            "team_table_player_rows",
         )
+        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 9)
         self.assertFalse(frame.complete_raster_frame)
         self.assertFalse(frame.audio_ready)
         self.assertFalse(frame.choreography_3d_ready)
