@@ -7,6 +7,28 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Hands-on gameplay-test blockers (5 October 2026 KST)
+
+Player-facing testing on Windows 11 is **paused** at `main`
+`55229fb3469c0129c02517e0acc1cc7795a4ec39` until three reproducible blockers
+are resolved:
+
+- issue #436 — source launch takes approximately 1–2 minutes before the main
+  menu becomes usable;
+- issue #437 — normal launch plays no startup intro and no audio was heard in
+  the tested front-end path;
+- issue #438 — England -> Conference -> Southport -> Start Game freezes the
+  application into a white screen before management is reached.
+
+The main menu is reasonably responsive and TeamSelect itself is now usable
+after the incremental-rendering fixes. Thin 4:3 fullscreen bars are currently
+acceptable and are not a blocker.
+
+Workers should reproduce/instrument these three issues locally before asking for
+another manual test. In particular, time the Start->Management boundary and
+surface any exception/traceback instead of leaving the Tk event loop blocked.
+Do not treat CI green status alone as proof that the hands-on path is ready.
+
 ## Gate 13 CLOSED — advance to Gate 14 (5 October 2026 KST)
 
 Gate 13 now passes all four ROADMAP criteria. The final fixed slice integrates
