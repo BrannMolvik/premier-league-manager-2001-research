@@ -16,6 +16,8 @@ from __future__ import annotations
 from base64 import b64encode
 from functools import lru_cache
 from pathlib import Path
+import struct
+import zlib
 from types import SimpleNamespace
 from original_management_background import OriginalManagementBackground
 from original_management_header import (
@@ -107,7 +109,7 @@ def _cached_runtime_png(width: int, height: int, rgba: bytes) -> bytes:
     return encode_rgba_png(width, height, rgba)
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=32)
 def _scaled_rgba(
     width: int,
     height: int,
@@ -156,6 +158,59 @@ def _scaled_rgba(
         dst_start = out_y * out_width * 4
         output[dst_start:dst_start + len(scaled_row)] = scaled_row
     return out_width, out_height, bytes(output)
+
+
+@lru_cache(maxsize=256)
+def _decode_generated_rgba_png(png: bytes) -> tuple[int, int, bytes]:
+    """Decode PNGs produced by this reconstruction's filter-0 RGBA encoder."""
+    signature = b"\x89PNG\r\n\x1a\n"
+    if not png.startswith(signature):
+        raise OriginalGameHostError("Unsupported non-PNG management layer")
+    cursor = len(signature)
+    width = height = None
+    compressed = bytearray()
+    while cursor + 12 <= len(png):
+        size = struct.unpack(">I", png[cursor:cursor + 4])[0]
+        kind = png[cursor + 4:cursor + 8]
+        data_start = cursor + 8
+        data_end = data_start + size
+        if data_end + 4 > len(png):
+            raise OriginalGameHostError("Truncated generated PNG")
+        data = png[data_start:data_end]
+        if kind == b"IHDR":
+            if len(data) != 13:
+                raise OriginalGameHostError("Invalid generated PNG IHDR")
+            width, height, bit_depth, color_type, compression, filter_method, interlace = struct.unpack(
+                ">IIBBBBB", data
+            )
+            if (
+                bit_depth != 8
+                or color_type != 6
+                or compression != 0
+                or filter_method != 0
+                or interlace != 0
+            ):
+                raise OriginalGameHostError("Unsupported generated PNG format")
+        elif kind == b"IDAT":
+            compressed.extend(data)
+        elif kind == b"IEND":
+            break
+        cursor = data_end + 4
+    if width is None or height is None:
+        raise OriginalGameHostError("Generated PNG is missing IHDR")
+    scanlines = zlib.decompress(bytes(compressed))
+    row_bytes = width * 4
+    expected = height * (row_bytes + 1)
+    if len(scanlines) != expected:
+        raise OriginalGameHostError("Generated PNG scanline size mismatch")
+    rgba = bytearray(width * height * 4)
+    for row in range(height):
+        src = row * (row_bytes + 1)
+        if scanlines[src] != 0:
+            raise OriginalGameHostError("Generated PNG used an unexpected filter")
+        dst = row * row_bytes
+        rgba[dst:dst + row_bytes] = scanlines[src + 1:src + 1 + row_bytes]
+    return width, height, bytes(rgba)
 
 
 @lru_cache(maxsize=512)
@@ -268,6 +323,7 @@ class OriginalGameTkHost:
         self.active_pmatchinfo_art = None
         self._photos = []
         self._first_screen_photo_cache = {}
+        self._generic_photo_cache = {}
         self.first_screen_animation = OriginalFirstScreenAnimation()
         self.first_screen_frame = None
         self._first_screen_pointer = None
@@ -421,13 +477,30 @@ class OriginalGameTkHost:
                              parent=self.root)
 
     def _photo(self, png: bytes):
-        # Management callers still provide encoded PNGs. Keep them native here;
-        # this path is outside the TeamSelect regression being fixed and will be
-        # migrated separately if hands-on management scaling needs it.
-        photo = self.tk.PhotoImage(
-            data=b64encode(png).decode("ascii"),
-            format="png",
-        )
+        # All host-generated management/report PNGs use the reconstruction's
+        # deterministic RGBA/filter-0 encoder. Decode once, scale directly to
+        # the final rational display size, and retain the Tk image by source
+        # bytes so redraws do not repeat conversion or allocation.
+        photo = self._generic_photo_cache.get(png)
+        if photo is None:
+            width, height, rgba = _decode_generated_rgba_png(png)
+            scaled_width, scaled_height, scaled_rgba = _scaled_rgba(
+                width,
+                height,
+                rgba,
+                self.display_scale_num,
+                self.display_scale_den,
+            )
+            scaled_png = encode_rgba_png(
+                scaled_width,
+                scaled_height,
+                scaled_rgba,
+            )
+            photo = self.tk.PhotoImage(
+                data=b64encode(scaled_png).decode("ascii"),
+                format="png",
+            )
+            self._generic_photo_cache[png] = photo
         self._photos.append(photo)
         return photo
 
