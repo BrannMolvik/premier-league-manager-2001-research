@@ -69,21 +69,31 @@ class WindowsStartupMediaBackendTests(unittest.TestCase):
             ],
         )
 
-    def test_open_or_play_error_fails_and_opened_device_is_closed(self):
+    def test_open_or_play_error_surfaces_status_and_opened_device_is_closed(self):
         open_error = RecordingSender((7,))
         backend = WindowsMciStartupMediaBackend(
             platform_system="Windows",
             sender=open_error,
+            error_describer=lambda status: "open failed detail",
         )
-        self.assertFalse(backend.play(derivative(Path(r"C:\private\a.mp4"))))
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            r"7: open failed detail",
+        ):
+            backend.play(derivative(Path(r"C:\private\a.mp4")))
         self.assertEqual(len(open_error.calls), 1)
 
         play_error = RecordingSender((0, 9, 0))
         backend = WindowsMciStartupMediaBackend(
             platform_system="Windows",
             sender=play_error,
+            error_describer=lambda status: "play failed detail",
         )
-        self.assertFalse(backend.play(derivative(Path(r"C:\private\a.mp4"))))
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            r"9: play failed detail",
+        ):
+            backend.play(derivative(Path(r"C:\private\a.mp4")))
         self.assertEqual(
             play_error.calls[-1],
             "close fm2001_startup_0",
@@ -99,6 +109,15 @@ class WindowsStartupMediaBackendTests(unittest.TestCase):
             WindowsMciStartupMediaBackend(
                 platform_system="Windows",
                 sender=object(),
+            )
+        with self.assertRaisesRegex(
+            WindowsStartupMediaBackendError,
+            "error describer must be callable",
+        ):
+            WindowsMciStartupMediaBackend(
+                platform_system="Windows",
+                sender=lambda command: 0,
+                error_describer=object(),
             )
 
     def test_wrong_item_or_codec_is_rejected_before_mci(self):
