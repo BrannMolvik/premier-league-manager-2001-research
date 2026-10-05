@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 310,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 309 active. #436 source startup fix merged but remains open pending Windows timing. #449 diagnostics retargeted to main. #447/#448 are Gate14 first-screen audio preparation/integration stacks.",
+  "recovery_generation": 311,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery generation 311 active. Resumed from main e4474919a255d203337f3fde514b225c27a94497. Continue PR #449 Southport Start->Management diagnostics first; then Gate14 startup/menu audio work (#447/#448) if the diagnostic subtask verifies.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
