@@ -2,6 +2,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import platform
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from fm2001_data import FM2001Database, PLAYER_SKILLS
@@ -9,7 +10,9 @@ from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from original_game_host import run_original_game_ui
+from bundled_startup_media import load_bundled_startup_media_derivatives
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
+from startup_media_windows_backend import WindowsMciStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 from runtime_layout import application_root, bundled_source_root
@@ -681,14 +684,51 @@ def package_smoke_report() -> dict:
             "Packaged runtime is missing required provenance-tracked assets: "
             + ", ".join(missing)
         )
+    startup_derivatives = load_bundled_startup_media_derivatives(app_root)
     return {
         "passed": True,
         "application_root": str(app_root),
         "source_root": str(root),
         "provenance_manifest": str(provenance),
         "required_asset_count": len(PACKAGE_SMOKE_REQUIRED),
+        "bundled_startup_media_count": len(startup_derivatives),
         "external_game_data_required": True,
     }
+
+
+def configure_startup_media(args, *, app_root: Path | None = None, platform_system: str | None = None):
+    """Resolve explicit developer override or the default verified Windows path."""
+    startup_requested = (
+        args.startup_media_receipt is not None
+        or args.startup_media_player is not None
+        or bool(args.startup_media_player_arg)
+    )
+    if args.prototype_ui:
+        if startup_requested:
+            raise ValueError(
+                "Startup media is available only on the source-backed FM2001 host."
+            )
+        return None, None, None
+
+    if startup_requested:
+        if args.startup_media_receipt is None or args.startup_media_player is None:
+            raise ValueError(
+                "Startup media requires both --startup-media-receipt and --startup-media-player."
+            )
+        backend = SynchronousCommandStartupMediaBackend(
+            args.startup_media_player,
+            tuple(args.startup_media_player_arg),
+        )
+        return args.startup_media_receipt, backend, None
+
+    system = platform.system() if platform_system is None else platform_system
+    if system != "Windows":
+        return None, None, None
+
+    root = application_root() if app_root is None else Path(app_root).resolve()
+    derivatives = load_bundled_startup_media_derivatives(root)
+    backend = WindowsMciStartupMediaBackend(platform_system=system)
+    return None, backend, derivatives
 
 
 def choose_dir() -> Path | None:
@@ -744,25 +784,11 @@ def main():
         if game_dir is None:
             return
     try:
-        startup_requested = (
-            args.startup_media_receipt is not None
-            or args.startup_media_player is not None
-            or bool(args.startup_media_player_arg)
-        )
-        if args.prototype_ui and startup_requested:
-            raise ValueError(
-                'Startup media is available only on the source-backed FM2001 host.'
-            )
-        startup_backend = None
-        if startup_requested:
-            if args.startup_media_receipt is None or args.startup_media_player is None:
-                raise ValueError(
-                    'Startup media requires both --startup-media-receipt and --startup-media-player.'
-                )
-            startup_backend = SynchronousCommandStartupMediaBackend(
-                args.startup_media_player,
-                tuple(args.startup_media_player_arg),
-            )
+        (
+            startup_receipt,
+            startup_backend,
+            startup_derivatives,
+        ) = configure_startup_media(args)
 
         if args.prototype_ui:
             App(game_dir).mainloop()
@@ -770,8 +796,9 @@ def main():
             run_original_game_ui(
                 game_dir,
                 source_root=args.source_root,
-                startup_media_receipt=args.startup_media_receipt,
+                startup_media_receipt=startup_receipt,
                 startup_media_backend=startup_backend,
+                startup_media_derivatives=startup_derivatives,
             )
     except Exception as exc:
         root = tk.Tk()
