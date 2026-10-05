@@ -30,6 +30,8 @@ archive merely because both share a repository commit.
 
 The audit also verifies a clean Git working tree, repository asset policy, canonical FM2001 source-data verification, the full unittest suite, an archived release file with exact size and SHA-256, and the final release-limitations document.
 
+Recovery 317 additionally binds Gate 15's terminal fidelity ledger to that final disclosure. The release audit reruns the canonical Gate-15 fidelity audit, requires the ledger to be explicitly declared complete, and requires every row finalized as `accepted_documented` to appear by its exact gap name in `research/RELEASE_LIMITATIONS.md`. Rows finalized as `fixed` or `proven_irrelevant` are not release limitations. This is an omission guard, not a substitute for a meaningful human-facing explanation of each accepted limitation.
+
 Recovery 188 additionally makes the roadmap prerequisite chain machine-checkable:
 the final Gate-17 audit refuses to pass unless **every completion criterion in
 Gates 1 through 16 is checked in `ROADMAP.md`**. Gate 17 itself is
