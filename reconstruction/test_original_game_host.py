@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
