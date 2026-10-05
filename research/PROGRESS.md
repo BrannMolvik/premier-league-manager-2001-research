@@ -11430,3 +11430,12 @@ work may continue under the deferred-blocker policy.
 - The authorized source archive materialized again, but both container and notebook Python execution failed with `caas.internal.errors.ClientError`; exact original-TGQ conversion remains unexecuted.
 - PR #471 is open as the dependent FFprobe/output-geometry hardening step. Its Windows proof is green; full reconstruction must pass before merge.
 
+## 6 October 2026 — Recovery 319 matching FFprobe/output checkpoint
+
+- Stacked PR #471 was verified but auto-closed during a clean rebase after #470; its exact three-file delta was replayed onto current main as PR #473.
+- PR #473 merged as `18a2266507eec2a1b5663e047e89671e20a713a5` from head `6dd7cdfd31a5ee84a4f4eef40b39a82c46239c5b`.
+- Reconstruction runs `37345064573` and `37345270284` each passed **2,609 tests / 23 expected skips**; Windows package run `37345270265` and asset-policy run `37345270184` passed.
+- The pinned LGPL candidate now binds FFmpeg and FFprobe to the same archive/revision. FFprobe SHA-256 is `46a86ca9eb512c2989354ebe68eb1562fcb73b16d8041d54d54b5f4b244f958c`.
+- Windows CI now exercises `-fps_mode passthrough` and independently probes H.264/yuv420p 320x480@25, AAC 22,050-Hz stereo and MP4 before decode verification.
+- Exact original-TGQ conversion and production migration remain false because private archive execution is still unavailable.
+
