@@ -14,7 +14,7 @@
   "last_verified_test_count": 2586,
   "asset_policy_validated_head": "c5103024e163e5473e8a8a431e993bebeefb82cd",
   "asset_policy_status": "passed",
-  "active_task": "Gate 14 remains the earliest incomplete validation gate. PR #464 is merged and verified. Retry private process execution now; if it has recovered, resume the highest-priority source-backed Gate-14 closure item. If it remains blocked, preserve the exact blocker and continue only independent cloud-safe critical-path work.",
+  "active_task": "Gate 14 remains earliest incomplete. Recovery 317 proved only trivial process startup; real access to the materialized authorized source archive fails with caas.internal.errors.ClientError in both shell unzip and notebook zipfile paths. Keep the TeamTable six-base-control trace at 0x524EC0 deferred and continue only independent cloud-safe critical-path work.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -2856,7 +2856,7 @@
   "recovery315_private_source_library_materialized": true,
   "recovery315_private_source_library_size_bytes": 511121336,
   "recovery315_private_source_execution_available": false,
-  "recovery315_private_source_execution_blocker": "caas.internal.errors.ClientError on trivial shell/Python execution immediately after successful Library materialization",
+  "recovery315_private_source_execution_blocker": "Superseded by Recovery 317 probe: trivial process startup works, but real materialized archive access fails with caas.internal.errors.ClientError in both shell and notebook paths.",
   "recovery315_private_source_archive_sha_reverified": false,
   "recovery315_gate14_windows_acceptance_coordinator_merge": "774629a983780bf35e4d4736968d4cca20fd0c0e",
   "recovery315_gate14_windows_acceptance_coordinator_reconstruction_run": 37320506035,
@@ -2877,5 +2877,14 @@
   "recovery317_gate15_fidelity_ledger_test_count": 2586,
   "recovery317_gate15_fidelity_ledger_expected_skips": 23,
   "gate15_fidelity_ledger_merge": "79d4457f38112f57fe5cfbc57f0e6a02baac64cd",
-  "gate15_fidelity_ledger_active_gap_count": 11
+  "gate15_fidelity_ledger_active_gap_count": 11,
+  "recovery317_private_source_library_materialized": true,
+  "recovery317_private_source_library_size_bytes": 511121336,
+  "recovery317_trivial_shell_process_available": true,
+  "recovery317_trivial_python_process_available": true,
+  "recovery317_private_archive_shell_access_available": false,
+  "recovery317_private_archive_notebook_access_available": false,
+  "recovery317_private_archive_access_blocker": "caas.internal.errors.ClientError on both unzip -l and Python zipfile open of the materialized 511,121,336-byte authorized archive",
+  "recovery317_teamtable_base_trace_executed": false,
+  "recovery317_teamtable_base_trace_va": "0x524EC0"
 }
