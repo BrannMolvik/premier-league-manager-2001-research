@@ -258,6 +258,32 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             ):
                 validate_roadmap_prerequisites(repo)
 
+    def test_release_evidence_numeric_metadata_requires_exact_integers(self):
+        with tempfile.TemporaryDirectory() as temp:
+            _repo, _private, _archive, raw = self.fixture(temp)
+
+            cases = (
+                ("schema_version", True, "schema_version"),
+                ("schema_version", "2", "schema_version"),
+            )
+            for field, value, message in cases:
+                with self.subTest(field=field, value=value):
+                    mutated = dict(raw)
+                    mutated[field] = value
+                    with self.assertRaisesRegex(ReleaseReadinessError, message):
+                        parse_release_evidence(mutated)
+
+            for value in (True, "13", 0, -1):
+                with self.subTest(size_bytes=value):
+                    mutated = dict(raw)
+                    mutated["archive"] = dict(raw["archive"])
+                    mutated["archive"]["size_bytes"] = value
+                    with self.assertRaisesRegex(
+                        ReleaseReadinessError,
+                        "size_bytes",
+                    ):
+                        parse_release_evidence(mutated)
+
     def test_complete_external_evidence_and_archive_validate(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, archive, raw = self.fixture(temp)
@@ -335,7 +361,11 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             cases = (
                 ("windows_11", False, "does not prove Windows 11"),
                 ("windows_build", 21999, "older than Windows 11"),
+                ("windows_build", True, "invalid Windows build"),
+                ("windows_build", "26200", "invalid Windows build"),
                 ("windows_product_type", 3, "client workstation"),
+                ("windows_product_type", True, "invalid Windows product type"),
+                ("windows_product_type", "1", "invalid Windows product type"),
             )
             for field, value, message in cases:
                 with self.subTest(field=field):
@@ -654,7 +684,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             raw["schema_version"] = 1
             with self.assertRaisesRegex(
                 ReleaseReadinessError,
-                "schema_version must be 2",
+                "schema_version must be exact integer 2",
             ):
                 parse_release_evidence(raw)
 

@@ -122,8 +122,11 @@ def _require_commit(value: object) -> str:
 
 def parse_release_evidence(payload: Mapping[str, object]) -> ReleaseEvidence:
     """Parse the final evidence contract without accepting partial criteria."""
-    if int(payload.get("schema_version", 0)) != 2:
-        raise ReleaseReadinessError("release evidence schema_version must be 2")
+    schema_version = payload.get("schema_version")
+    if type(schema_version) is not int or schema_version != 2:
+        raise ReleaseReadinessError(
+            "release evidence schema_version must be exact integer 2"
+        )
 
     release_version = str(payload.get("release_version", "")).strip()
     if not release_version:
@@ -165,9 +168,11 @@ def parse_release_evidence(payload: Mapping[str, object]) -> ReleaseEvidence:
     raw_archive = payload.get("archive")
     if not isinstance(raw_archive, Mapping):
         raise ReleaseReadinessError("archive must be an object")
-    size_bytes = int(raw_archive.get("size_bytes", 0))
-    if size_bytes <= 0:
-        raise ReleaseReadinessError("archive size_bytes must be positive")
+    size_bytes = raw_archive.get("size_bytes")
+    if type(size_bytes) is not int or size_bytes <= 0:
+        raise ReleaseReadinessError(
+            "archive size_bytes must be a positive exact integer"
+        )
     archive = ReleaseArchiveSpec(
         sha256=_require_hex_digest(
             raw_archive.get("sha256", ""),
@@ -455,22 +460,20 @@ def validate_external_receipts(
             raise ReleaseReadinessError(
                 f"{name} receipt does not prove Windows 11 execution"
             )
-        try:
-            windows_build = int(payload.get("windows_build", 0))
-        except (TypeError, ValueError) as exc:
+        windows_build = payload.get("windows_build")
+        if type(windows_build) is not int:
             raise ReleaseReadinessError(
                 f"{name} receipt has an invalid Windows build"
-            ) from exc
+            )
         if windows_build < 22000:
             raise ReleaseReadinessError(
                 f"{name} receipt Windows build {windows_build} is older than Windows 11"
             )
-        try:
-            product_type = int(payload.get("windows_product_type", -1))
-        except (TypeError, ValueError) as exc:
+        product_type = payload.get("windows_product_type")
+        if type(product_type) is not int:
             raise ReleaseReadinessError(
                 f"{name} receipt has an invalid Windows product type"
-            ) from exc
+            )
         if product_type != 1:
             raise ReleaseReadinessError(
                 f"{name} receipt does not prove a Windows client workstation"
