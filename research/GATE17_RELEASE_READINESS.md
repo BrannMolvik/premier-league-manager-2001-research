@@ -193,3 +193,31 @@ python reconstruction/gate17_external_validation.py `
 Hosted Windows CI runs only this coordinator's synthetic unit tests. The
 coordinator itself still refuses GitHub Actions and does not convert hosted
 packaging into external Windows 11 release evidence.
+
+
+## Current full-original-scope receipt producer
+
+`reconstruction/gate17_full_scope_receipt.py` is the canonical producer for
+the fifth external receipt once the runtime is actually ready. It is
+intentionally unusable while the repository-side full-scope implementation
+preflight reports blockers.
+
+The producer requires a fresh external per-scope result file that:
+
+- targets the exact hash-derived TeamSelect catalog from the canonical game
+  files;
+- lists every scope exactly once in canonical order;
+- proves human career flow, competition progression, required original
+  management/gameplay subsystems, and save/reload continuation for every scope;
+- proves `multi_human_management=true` and exactly six simultaneous human
+  users.
+
+Only on a real Windows 11 client, with a green canonical full-scope preflight,
+does the producer emit `full_original_scope.json`. The output is bound to the
+exact release version, repository commit, archive hash/size, canonical catalog,
+and SHA-256 of the external scope-result file. Missing/failed scope and
+save/reload lists are emitted empty only after the complete input has passed.
+
+This producer creates no capability and is not evidence by itself. Gate 17
+remains blocked until a real external receipt is produced from the final
+Windows release candidate and the final release audit passes.
