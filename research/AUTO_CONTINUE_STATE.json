@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective source tracer #414 is canonical at main 92e5b50042dc19f0850bde5999b575b29d572e41. Conflicted adjudication PR #415 is closed/superseded. Clean replacement PR #416 is active on exact head cfa9b08759e137427a54edc8a53a576fff1a5742; reconstruction run 37271360353 and asset-policy run 37271360363 are running. Merge only this exact head if both pass. Then continue a genuinely independent source-backed blocker; do not duplicate secondary-owner/ranking work already tied to private source.",
-  "last_known_main_head": "92e5b50042dc19f0850bde5999b575b29d572e41",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective adjudication #416 is canonical at main 79e05cdd13914748fc3934b4bf981fcd543812bd after reconstruction run 37271360353 passed 2,460 tests / 23 expected skips and asset-policy run 37271360363 passed. Continue independent Gate-17 release tooling: add a current-contract full_original_scope receipt producer that refuses to write unless the canonical full-scope implementation preflight is green, the external per-scope results exactly match the current TeamSelect catalog, every scope proves human career/competition progression/required subsystems/save-reload, and the external result proves six-user multi-human support. Bind output to exact archive/version/commit/catalog and keep Gate17 completion false until the actual Windows receipt exists.",
+  "last_known_main_head": "79e05cdd13914748fc3934b4bf981fcd543812bd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 302,
+  "recovery_generation": 303,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #416 is directly based on current main and contains only the sporting-objective adjudication module/tests/research plus CI path registration. JSON trace pass sequence remains exact [1,0]. Private archive exists; static executable analysis may be retried once if container access becomes available, but do not launch the original game or claim source results without a successful trace.",
+  "note": "Do not revive the obsolete static GATE17_ORIGINAL_SCOPE_CATALOG.json prototype from old branch. Current source of truth is gate17_full_scope_catalog.py plus canonical game files. Private source-dependent secondary/objective/sporting adjudications remain deferred; this receipt producer is independent fail-closed release tooling.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
