@@ -122,6 +122,7 @@ class Gate14ReadinessTests(unittest.TestCase):
             replace(
                 state,
                 audio_sample_decode_ready=False,
+                first_screen_press_audio_bound=False,
                 login_menu_audio_integrated=True,
             )
 
