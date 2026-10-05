@@ -156,6 +156,7 @@ class OriginalGameTkHost:
         management_background=None,
         management_header_resources=None,
         management_text_resources=None,
+        management_resource_loader=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -181,6 +182,8 @@ class OriginalGameTkHost:
         self.management_background = management_background
         self.management_header_resources = management_header_resources
         self.management_text_resources = management_text_resources
+        self.management_resource_loader = management_resource_loader
+        self._management_resources_loaded = management_resource_loader is None
         self.management_header_state = OriginalManagementHeaderState()
         self._management_header_idle = None
         self.last_pmenu_activation = None
@@ -370,6 +373,41 @@ class OriginalGameTkHost:
         self.first_screen_animation.observe(view, self._first_screen_pointer)
         if self.first_screen_animation.advance(view):
             self.redraw()
+
+    def _ensure_management_resources(self) -> None:
+        if self._management_resources_loaded:
+            return
+        loader = self.management_resource_loader
+        if loader is None:
+            self._management_resources_loaded = True
+            return
+        loaded = loader()
+        if not isinstance(loaded, dict):
+            raise OriginalGameHostError(
+                "Management resource loader must return a resource mapping"
+            )
+        required = (
+            "management_pmenu_resources",
+            "league_fixtures_grid_art",
+            "fixtures_pager_art",
+            "squad_top_resources",
+            "league_tables_header_art",
+            "pmatchinfo_snapshot",
+            "pmatchinfo_font",
+            "pmatchinfo_nested_font",
+            "pmatchinfo_script_art",
+            "management_background",
+            "management_header_resources",
+            "management_text_resources",
+        )
+        missing = [name for name in required if name not in loaded]
+        if missing:
+            raise OriginalGameHostError(
+                "Management resource loader omitted: " + ", ".join(missing)
+            )
+        for name in required:
+            setattr(self, name, loaded[name])
+        self._management_resources_loaded = True
 
     def _schedule_management_header_update(self) -> None:
         if (
@@ -680,6 +718,7 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_management_host(self) -> None:
+        self._ensure_management_resources()
         if self._first_screen_idle is not None:
             self.root.after_cancel(self._first_screen_idle)
             self._first_screen_idle = None
@@ -1140,41 +1179,73 @@ def run_original_game_ui(
         source_root=resolved_source_root,
     )
     original_executable = Path(game_dir) / "FOOTBAL.EXE"
-    pmenu_resources = load_verified_management_pmenu_resources(
-        resolved_source_root,
-        original_executable,
-    )
-    fixture_resources = validate_original_league_fixtures_resources(
-        resolved_source_root
-    )
-    fixture_grid_art = load_verified_league_fixtures_grid_art(
-        resolved_source_root,
-        original_executable,
-    )
-    squad_top_resources = load_verified_squad_top_resources(
-        resolved_source_root,
-        original_executable,
-    )
-    league_table_resources = validate_original_league_tables_resources(
-        resolved_source_root
-    )
-    league_tables_header_art = load_verified_league_tables_header_art(
-        resolved_source_root,
-        original_executable,
-    )
-    management_header_resources = load_verified_management_header_resources(
-        resolved_source_root,
-        original_executable,
-    )
-    management_text_resources = load_verified_management_text_resources(
-        resolved_source_root,
-    )
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
-    pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
-        runtime_repo_root,
-        original_executable,
-        require_complete_dialog=True,
-    )
+
+    def load_management_resources():
+        # Startup must expose the first screen promptly. Decode the much larger
+        # management/report surface only after TeamSelect Start actually enters
+        # MANAGEMENT, then retain the verified objects for the session.
+        pmenu_resources = load_verified_management_pmenu_resources(
+            resolved_source_root,
+            original_executable,
+        )
+        fixture_resources = validate_original_league_fixtures_resources(
+            resolved_source_root
+        )
+        league_table_resources = validate_original_league_tables_resources(
+            resolved_source_root
+        )
+        return {
+            "management_pmenu_resources": pmenu_resources,
+            "league_fixtures_grid_art": load_verified_league_fixtures_grid_art(
+                resolved_source_root,
+                original_executable,
+            ),
+            "fixtures_pager_art": load_verified_fixtures_pager_art(
+                resolved_source_root,
+                original_executable,
+            ),
+            "squad_top_resources": load_verified_squad_top_resources(
+                resolved_source_root,
+                original_executable,
+            ),
+            "league_tables_header_art": load_verified_league_tables_header_art(
+                resolved_source_root,
+                original_executable,
+            ),
+            "pmatchinfo_snapshot": load_staged_pmatchinfo_snapshot(
+                runtime_repo_root,
+                original_executable,
+                require_complete_dialog=True,
+            ),
+            "pmatchinfo_font": validate_original_pmenu_font(resolved_source_root),
+            "pmatchinfo_nested_font": load_pmatchinfo_nested_font(
+                resolved_source_root
+            ),
+            "pmatchinfo_script_art": load_script_row_art(
+                runtime_repo_root,
+                original_executable,
+                game_dir=game_dir,
+            ),
+            "management_background": OriginalManagementBackground(
+                resolved_source_root,
+                original_executable,
+            ),
+            "management_header_resources": load_verified_management_header_resources(
+                resolved_source_root,
+                original_executable,
+            ),
+            "management_text_resources": load_verified_management_text_resources(
+                resolved_source_root,
+            ),
+            "_fixture_resource_names": tuple(
+                resource.name for resource in fixture_resources
+            ),
+            "_league_table_resource_names": tuple(
+                resource.name for resource in league_table_resources
+            ),
+        }
+
     import tkinter as tk
 
     root = tk.Tk()
@@ -1185,25 +1256,12 @@ def run_original_game_ui(
         management_presenter_factory=lambda session: OriginalManagementPresenter(
             session,
             staged_league_fixture_resource_names=tuple(
-                resource.name for resource in fixture_resources
+                resource.name for resource in LEAGUE_FIXTURES_RESOURCES
             ),
             staged_league_table_resource_names=tuple(
-                resource.name for resource in league_table_resources
+                resource.name for resource in LEAGUE_TABLES_RESOURCES
             ),
         ),
-        management_pmenu_resources=pmenu_resources,
-        league_fixtures_grid_art=fixture_grid_art,
-        fixtures_pager_art=load_verified_fixtures_pager_art(resolved_source_root, original_executable),
-        squad_top_resources=squad_top_resources,
-        league_tables_header_art=league_tables_header_art,
-        pmatchinfo_snapshot=pmatchinfo_snapshot,
-        pmatchinfo_font=validate_original_pmenu_font(resolved_source_root),
-        pmatchinfo_nested_font=load_pmatchinfo_nested_font(resolved_source_root),
-        pmatchinfo_script_art=load_script_row_art(
-            runtime_repo_root, original_executable, game_dir=game_dir),
-        management_background=OriginalManagementBackground(
-            resolved_source_root, original_executable),
-        management_header_resources=management_header_resources,
-        management_text_resources=management_text_resources,
+        management_resource_loader=load_management_resources,
     )
     root.mainloop()
