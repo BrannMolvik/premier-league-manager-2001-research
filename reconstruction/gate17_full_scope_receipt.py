@@ -106,6 +106,14 @@ def validate_full_scope_results(
         raise FullScopeReceiptError(
             f"full-scope results schema_version must be {RESULT_SCHEMA_VERSION}"
         )
+    if payload.get("audit_kind") != "gate17_full_scope_results":
+        raise FullScopeReceiptError(
+            "full-scope results audit_kind must be gate17_full_scope_results"
+        )
+    if payload.get("passed") is not True:
+        raise FullScopeReceiptError(
+            "full-scope results must carry passed=true"
+        )
     if type(identity) is not ReleaseArtifactIdentity:
         raise FullScopeReceiptError(
             "full-scope results require exact ReleaseArtifactIdentity"
@@ -142,6 +150,16 @@ def validate_full_scope_results(
         raise FullScopeReceiptError(
             "full-scope results were produced for a different TeamSelect catalog"
         )
+    for field in (
+        "scope_country_count",
+        "scope_entry_count",
+        "scope_selectable_club_row_count",
+    ):
+        value = payload.get(field)
+        if type(value) is not int or value != binding[field]:
+            raise FullScopeReceiptError(
+                f"full-scope results {field} does not match canonical TeamSelect catalog"
+            )
 
     raw_results = payload.get("results")
     if not isinstance(raw_results, list):
