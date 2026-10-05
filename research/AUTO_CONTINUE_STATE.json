@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete. Continue the already-recorded cloud-safe Gate-15 fidelity-sweep reconciliation from current main 4a80c2e832b3810b6e3a84c23ddb84b6b2596b2d: refresh research/GATE15_READINESS_AUDIT.md and the FastView/3D row in research/FIDELITY_GAPS.md against canonical Gate-14 evidence through PR #402 and the merged Gate-13 paging checkpoint. Remove only stale resolved blockers; preserve all unresolved presentation/audio/private-source boundaries. Do not mark Gate 15 complete and do not modify Gate 13 implementation.",
-  "last_known_main_head": "4a80c2e832b3810b6e3a84c23ddb84b6b2596b2d",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned. Gate-15 fidelity ledger PR #404 is canonical on main at 186ed2970c9803284280005b97a26e47d37e1eaf after reconstruction run 37262011678 passed 2,403 tests / 23 expected skips. Continue the next bounded cloud-safe reconciliation: refresh research/RELEASE_LIMITATIONS.md against current Gate-13/14/15 evidence while retaining the pre-release marker, all actual Gate-17 full-scope/external-Windows blockers, and Gate16 prevalidated status. Do not mark any gate complete and do not modify Gate13 implementation.",
+  "last_known_main_head": "186ed2970c9803284280005b97a26e47d37e1eaf",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 299,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery resumed after main advanced through Gate14 PR #402 and Gate13 PR #365. Exact next task remains research-only Gate15 fidelity ledger reconciliation; Gate16 is already prevalidated and should not be redundantly reworked.",
+  "note": "Gate15 ledger refresh merged. Next task is research-only pre-release limitations reconciliation; current file is stale on Gate13 schema8/Fixtures paging and Gate14 FastView/audio progress. Gate16 should not be redundantly rerun.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
