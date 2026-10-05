@@ -13,6 +13,7 @@ from gate17_full_scope_receipt import (
     run_full_scope_receipt,
     validate_full_scope_results,
 )
+from gate17_windows_gameplay_receipts import ReleaseArtifactIdentity
 
 
 COMMIT = "a" * 40
@@ -22,6 +23,15 @@ VERSION = "rc-full-scope"
 def digest(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
 
+
+
+def release_identity():
+    return ReleaseArtifactIdentity(
+        release_version=VERSION,
+        repository_commit=COMMIT,
+        release_archive_sha256="b" * 64,
+        release_archive_size=123,
+    )
 
 def binding():
     return {
@@ -36,6 +46,13 @@ def binding():
 def scope_results():
     return {
         "schema_version": 2,
+        "release_version": VERSION,
+        "repository_commit": COMMIT,
+        "release_archive_sha256": "b" * 64,
+        "release_archive_size": 123,
+        "windows_11": True,
+        "windows_build": 26200,
+        "windows_product_type": 1,
         "scope_catalog_sha256": "c" * 64,
         "multi_human_management": True,
         "simultaneous_human_users_verified": 6,
@@ -106,6 +123,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                     results_path=results,
                     repo_root=repo,
                     canonical_game_dir=game,
+                    identity=release_identity(),
                 )
             self.assertEqual(checked["scope_catalog_sha256"], "c" * 64)
             self.assertEqual(checked["verified_scope_ids"], ("1:10", "2:20"))
@@ -159,6 +177,33 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                         canonical_game_dir=game,
                     )
 
+    def test_results_reject_release_identity_and_windows_provenance_drift(self):
+        drift_cases = (
+            ("release_version", "older"),
+            ("repository_commit", "0" * 40),
+            ("release_archive_sha256", "0" * 64),
+            ("release_archive_size", 999),
+            ("windows_11", False),
+            ("windows_build", 21999),
+            ("windows_product_type", 3),
+        )
+        for key, value in drift_cases:
+            with self.subTest(key=key):
+                with tempfile.TemporaryDirectory() as temp:
+                    repo, game, results, _archive, _output = self._fixture(temp)
+                    payload = scope_results()
+                    payload[key] = value
+                    results.write_text(json.dumps(payload), encoding="utf-8")
+                    p1, p2 = self._catalog_patches()
+                    with p1, p2:
+                        with self.assertRaises(FullScopeReceiptError):
+                            validate_full_scope_results(
+                                results_path=results,
+                                repo_root=repo,
+                                canonical_game_dir=game,
+                                identity=release_identity(),
+                            )
+
     def test_incomplete_implementation_preflight_blocks_before_receipt(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, game, results, archive, output = self._fixture(temp)
@@ -169,12 +214,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                 ),
                 patch(
                     "gate17_full_scope_receipt.resolve_release_artifact_identity",
-                    return_value=SimpleNamespace(
-                        release_version=VERSION,
-                        repository_commit=COMMIT,
-                        release_archive_sha256="b" * 64,
-                        release_archive_size=123,
-                    ),
+                    return_value=release_identity(),
                 ),
                 patch(
                     "gate17_full_scope_receipt.run_canonical_full_scope_preflight",
@@ -187,6 +227,49 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                 with self.assertRaisesRegex(
                     FullScopeReceiptError,
                     "implementation preflight is not ready",
+                ):
+                    run_full_scope_receipt(
+                        repo_root=repo,
+                        canonical_game_dir=game,
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        scope_results=results,
+                        output_path=output,
+                    )
+            self.assertFalse(output.exists())
+
+    def test_receipt_rejects_scope_results_from_different_windows_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, game, results, archive, output = self._fixture(temp)
+            p1, p2 = self._catalog_patches()
+            with (
+                patch(
+                    "gate17_full_scope_receipt.require_external_windows_11_workstation",
+                    return_value={
+                        "platform": "Windows-11",
+                        "windows_11": True,
+                        "windows_build": 26201,
+                        "windows_product_type": 1,
+                    },
+                ),
+                patch(
+                    "gate17_full_scope_receipt.resolve_release_artifact_identity",
+                    return_value=release_identity(),
+                ),
+                patch(
+                    "gate17_full_scope_receipt.run_canonical_full_scope_preflight",
+                    return_value=SimpleNamespace(
+                        ready_for_full_runtime_validation=True,
+                        blocker_codes=(),
+                    ),
+                ),
+                p1,
+                p2,
+            ):
+                with self.assertRaisesRegex(
+                    FullScopeReceiptError,
+                    "Windows build differs",
                 ):
                     run_full_scope_receipt(
                         repo_root=repo,
@@ -215,12 +298,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                 ),
                 patch(
                     "gate17_full_scope_receipt.resolve_release_artifact_identity",
-                    return_value=SimpleNamespace(
-                        release_version=VERSION,
-                        repository_commit=COMMIT,
-                        release_archive_sha256="b" * 64,
-                        release_archive_size=123,
-                    ),
+                    return_value=release_identity(),
                 ),
                 patch(
                     "gate17_full_scope_receipt.run_canonical_full_scope_preflight",
@@ -282,6 +360,7 @@ class Gate17FullScopeReceiptTests(unittest.TestCase):
                     results_path=inside,
                     repo_root=repo,
                     canonical_game_dir=game,
+                    identity=release_identity(),
                 )
 
 
