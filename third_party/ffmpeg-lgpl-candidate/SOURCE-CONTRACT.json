@@ -35,11 +35,12 @@
       "--enable-w32threads",
       "--enable-ffmpeg",
       "--enable-ffprobe",
-      "--enable-protocol=file",
+      "--enable-protocol=file,pipe",
       "--enable-demuxer=ea",
       "--enable-decoder=eatgq,adpcm_ea,adpcm_ea_r1,adpcm_ea_r2,adpcm_ea_r3,adpcm_ima_ea_eacs,adpcm_ima_ea_sead,adpcm_psx,pcm_mulaw,pcm_s16le,pcm_s16le_planar,pcm_s8,mp3,h264,aac",
       "--enable-encoder=h264_mf,aac",
-      "--enable-muxer=mp4"
+      "--enable-muxer=mp4",
+      "--enable-muxer=null"
     ],
     "ea_demuxer_codec_superset": [
       "eatgq",
@@ -69,7 +70,18 @@
     "required_derivative_validation_decoders": [
       "h264",
       "aac"
-    ]
+    ],
+    "required_runtime_validation_plumbing": {
+      "protocols": [
+        "file",
+        "pipe"
+      ],
+      "muxers": [
+        "mp4",
+        "null"
+      ],
+      "reason": "Runtime startup cache uses -progress pipe:1 and -f null decode verification."
+    }
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
 }
