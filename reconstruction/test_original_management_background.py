@@ -47,19 +47,31 @@ class ManagementBackgroundTests(unittest.TestCase):
             expected = (385, 95) if '/Background_buttons/' in path else (800, 600)
             self.assertEqual(struct.unpack_from('<HH', raw), expected, path)
 
-    def test_live_domain_does_not_fall_back_for_unstaged_original(self):
+    def test_live_domain_uses_recovered_generic_fallback_for_unstaged_club(self):
         renderer = object.__new__(OriginalManagementBackground)
         renderer.paths = {p.casefold(): p for p in ASSET_HASHES}
         renderer._image = lambda path, rect: (path, rect)
-        club = SimpleNamespace(graphics_directory='England', graphics_basename='Arsenal',
-                               current_date=date(2000, 8, 1), fan_base_index=22, competition_id=0)
+        club = SimpleNamespace(
+            graphics_directory='England',
+            graphics_basename='Arsenal',
+            current_date=date(2000, 8, 1),
+            fan_base_index=22,
+            competition_id=0,
+        )
         images = renderer.images(club)
         self.assertTrue(images[0][0].endswith('/arsenal_background0.444'))
         self.assertEqual(images[0][1], (0, 0, 800, 600))
         self.assertEqual(images[1][1], (171, 0, 385, 95))
+
+        # The native candidate chain explicitly falls through to a source-owned
+        # generic seasonal family when no club-specific family is staged.
         club.graphics_basename = 'Unstaged club'
-        with self.assertRaises(ManagementBackgroundError):
-            renderer.images(club)
+        club.competition_id = 999
+        images = renderer.images(club)
+        self.assertTrue(images[0][0].endswith('/generic0_background0.444'))
+        self.assertTrue(images[1][0].endswith('/back_2_generic.444'))
+        self.assertEqual(images[0][1], (0, 0, 800, 600))
+        self.assertEqual(images[1][1], (171, 0, 385, 95))
 
 
 if __name__ == '__main__':
