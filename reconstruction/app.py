@@ -16,7 +16,7 @@ from startup_media_runtime_cache import (
     prepare_runtime_startup_media,
     resolve_startup_ffmpeg,
 )
-from startup_media_windows_backend import WindowsMciStartupMediaBackend
+from startup_media_windows_backend import WindowsWpfStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 from runtime_layout import application_root, bundled_source_root
@@ -752,7 +752,7 @@ def configure_startup_media(
         Path(game_dir),
         root,
     )
-    backend = WindowsMciStartupMediaBackend(platform_system=system)
+    backend = WindowsWpfStartupMediaBackend(platform_system=system)
     return None, backend, derivatives
 
 
