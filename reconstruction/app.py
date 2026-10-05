@@ -10,8 +10,12 @@ from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from original_game_host import run_original_game_ui
-from bundled_startup_media import load_bundled_startup_media_derivatives
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
+from startup_media_runtime_cache import (
+    PACKAGED_FFMPEG_RELATIVE_PATH,
+    prepare_runtime_startup_media,
+    resolve_startup_ffmpeg,
+)
 from startup_media_windows_backend import WindowsMciStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
@@ -684,19 +688,29 @@ def package_smoke_report() -> dict:
             "Packaged runtime is missing required provenance-tracked assets: "
             + ", ".join(missing)
         )
-    startup_derivatives = load_bundled_startup_media_derivatives(app_root)
+    startup_ffmpeg = resolve_startup_ffmpeg(
+        app_root,
+        system_which=lambda _name: None,
+    )
     return {
         "passed": True,
         "application_root": str(app_root),
         "source_root": str(root),
         "provenance_manifest": str(provenance),
         "required_asset_count": len(PACKAGE_SMOKE_REQUIRED),
-        "bundled_startup_media_count": len(startup_derivatives),
+        "startup_ffmpeg": str(startup_ffmpeg),
+        "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "external_game_data_required": True,
     }
 
 
-def configure_startup_media(args, *, app_root: Path | None = None, platform_system: str | None = None):
+def configure_startup_media(
+    args,
+    game_dir: str | Path,
+    *,
+    app_root: Path | None = None,
+    platform_system: str | None = None,
+):
     """Resolve explicit developer override or the default verified Windows path."""
     startup_requested = (
         args.startup_media_receipt is not None
@@ -726,7 +740,10 @@ def configure_startup_media(args, *, app_root: Path | None = None, platform_syst
         return None, None, None
 
     root = application_root() if app_root is None else Path(app_root).resolve()
-    derivatives = load_bundled_startup_media_derivatives(root)
+    derivatives = prepare_runtime_startup_media(
+        Path(game_dir),
+        root,
+    )
     backend = WindowsMciStartupMediaBackend(platform_system=system)
     return None, backend, derivatives
 
@@ -788,7 +805,7 @@ def main():
             startup_receipt,
             startup_backend,
             startup_derivatives,
-        ) = configure_startup_media(args)
+        ) = configure_startup_media(args, game_dir)
 
         if args.prototype_ui:
             App(game_dir).mainloop()
