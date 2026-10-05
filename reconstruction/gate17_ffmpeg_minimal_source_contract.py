@@ -15,6 +15,7 @@ CONTRACT_PATH = Path("third_party/ffmpeg-lgpl-candidate/SOURCE-CONTRACT.json")
 PINNED_BTB_BUILD_COMMIT = "9acad4a9ef1583096af7836cc1e9c8cbcb4d3950"
 PINNED_FFMPEG_COMMIT = "46d8f462eeb87ee1f704d8c44a0ee24fca471ad1"
 PINNED_ARCHIVE_SHA256 = "3fc85bae9f9643a03d15c2d2de12fb017dcd9fdabe819bfb1a94f54fea108714"
+REQUIRED_DERIVATIVE_DECODERS = {"h264", "aac"}
 REQUIRED_EA_CODEC_SUPERSET = {
     "eatgq",
     "adpcm_ea",
@@ -137,6 +138,14 @@ def audit_source_contract(repo_root: str | Path) -> dict:
     if not REQUIRED_EA_CODEC_SUPERSET.issubset(enabled_decoders):
         raise MinimalFfmpegSourceContractError(
             "minimal helper decoder list omits a source-derived EA possibility"
+        )
+    if not REQUIRED_DERIVATIVE_DECODERS.issubset(enabled_decoders):
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must retain H.264/AAC derivative validation decoders"
+        )
+    if minimal.get("required_derivative_validation_decoders") != ["h264", "aac"]:
+        raise MinimalFfmpegSourceContractError(
+            "derivative validation decoder contract drifted"
         )
 
     proof_flags = (
