@@ -11447,3 +11447,14 @@ work may continue under the deferred-blocker policy.
 - Pinned-source inspection confirmed the cause: `mfenc.c` includes `hwcontext_d3d11va.h` only when `CONFIG_D3D11VA` is enabled, while the Media Foundation encoder uses D3D11 types. The minimal contract disables autodetection, restores Media Foundation, but does not explicitly restore D3D11VA.
 - Review directives were posted to #475 and #479. Do not merge either as-is. Correct #475's source contract first, preserving all fail-closed proof flags and production packaging; then rebuild #479 from the corrected canonical contract.
 
+## 6 October 2026 — Recovery 322 external playability regression audit
+
+- Issue #482 is now the priority regression after Daniel's real Windows 11 run showed a separate/wrong-aspect WPF startup presentation, multi-second front-end interaction latency and a materially incomplete Southport fresh Squad landing.
+- Static reconciliation confirmed commit `72aedde11690ecaa2d9290482b477eb1440f44a7` first-screen redraw caching is still canonical; the large `startup.presenter_build` cost is cold source conversion rather than a lost redraw-cache fix.
+- `FrontEndSession.dispatch()` still builds the full `HumanGameplayController` synchronously on Start New Game, including full playable-scope/database/schedule/GameState construction.
+- The first management path still loads Fixtures, League Tables and PMatchInfo families before Squad can draw; this broad bundle had previously measured 16.724 seconds externally.
+- The management presenter already exposes up to 20 source-backed Squad rows with recovered row cadence/columns and source font identities, but the live host draws only the three Squad top buttons. This converts the sparse screenshot from a fidelity suspicion into a confirmed implementation omission.
+- The WPF startup backend's separate maximized/topmost window and `Stretch=Uniform` are implementation choices while the original 320x480 display/interlace treatment remains explicitly unresolved; visible/audible playback does not close that fidelity boundary.
+- Detailed implementation/acceptance directions were persisted on issue #482 (comment 6001127354). Gate 13 was reopened in ROADMAP; #475/#479 remain suspended until the regression is CI-verified and externally accepted.
+- Exact next implementation slice: route-scope the management resource loader and render the source-closed ordinary Squad row subset, with tests proving fresh Squad does not initialize Fixtures/Tables/PMatchInfo.
+
