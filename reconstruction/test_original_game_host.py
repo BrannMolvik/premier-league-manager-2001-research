@@ -226,6 +226,20 @@ class FakeWidget:
 
 
 class FakeRoot(FakeWidget):
+    def after_idle(self, callback):
+        queue = self.values.setdefault('idle', {})
+        key = max(queue, default=0) + 1
+        queue[key] = callback
+        return key
+
+    def after_cancel(self, key):
+        self.values.setdefault('idle', {}).pop(key, None)
+
+    def run_idle(self):
+        queue = self.values.setdefault('idle', {})
+        key = next(iter(queue))
+        queue.pop(key)()
+
     def title(self, value):
         self.values["title"] = value
 
@@ -257,6 +271,25 @@ class FakeTk:
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_source_idle_hover_advances_and_retreats_one_frame_per_pass(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        event = host.first_screen_frame.original_source_frame_overlays[0].event
+        rect = host.first_screen_frame.original_source_frame_overlays[0].rect
+        host.on_fixtures_pager_motion(SimpleNamespace(x=rect.x, y=rect.y))
+        for index in range(1, 11):
+            self.assertEqual(len(root.values['idle']), 1)
+            root.run_idle()
+            frames = {o.event: o.source_frame_index for o in host.first_screen_frame.original_source_frame_overlays}
+            self.assertEqual(frames[event], index)
+            self.assertTrue(all(v == 0 for k, v in frames.items() if k != event))
+        self.assertFalse(root.values['idle'])
+        host.on_fixtures_pager_leave(None)
+        for index in range(9, -1, -1):
+            root.run_idle()
+            self.assertEqual(host.first_screen_frame.original_source_frame_overlays[0].source_frame_index, index)
+        self.assertFalse(root.values['idle'])
+
     def test_rejected_start_is_visible_and_retains_retryable_selection(self):
         live = presenter()
         messages = []

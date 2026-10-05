@@ -4,6 +4,21 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Fixed-slice Button checkpoint / requested wrap-up
+
+On `codex/gate13-fixed-closure`, preserved canonical186ed297 and disjoint worker
+Gate14/15 work. Checkpoint857a1806 source-qualifies ordinary UI-loop/semaphore/
+panel-child update ownership, integrates eleven-step Button animation without
+a guessed timer, and passes38 focused tests/1 expected skip. Real Windows/Tk
+8.6.12 verifies source frames0..10 and leave9..0 with stable redraw termination;
+receipt/evidence hashes are in GATE13_FIXED_CLOSURE_SLICE.md. No original was
+launched or patched. Header resources were privately extracted/verified and
+compound/caption producers bounded, but are NOT integrated; ordinary data-text
+remains part of that single accepted management item. Daniel requested wrap-up
+at the usage limit. Gate13 stays open; final full regression/package/closure
+audit is pending, and minor fidelity work is explicitly deferred to Gate15.
+No ownership/agent-runtime changes or completed report/paging retracing.
+
 ### 5 October 2026 KST — Current-main paging closure validation
 
 Preserved canonical main through Gate14 #400 (`07eb4f7b`) on PR #365;

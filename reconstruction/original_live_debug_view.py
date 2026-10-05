@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha256
+from collections.abc import Mapping
 
 from front_end_state import FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
@@ -75,10 +76,11 @@ def endpoint_text_rgba(alpha: bytes, native_color_16: int) -> bytes:
 
 
 def build_original_debug_frame(
-    snapshot: OriginalFirstScreenSnapshot, source_frame_index: int
+    snapshot: OriginalFirstScreenSnapshot, source_frame_index: int | Mapping[int, int]
 ) -> OriginalLiveDebugFrame:
     """Use original pixel coordinates/source frames with no substituted skin."""
-    if type(source_frame_index) is not int or source_frame_index < 0:
+    frame_indices = source_frame_index if isinstance(source_frame_index, Mapping) else None
+    if frame_indices is None and (type(source_frame_index) is not int or source_frame_index < 0):
         raise OriginalLiveDebugError(
             "Source frame index must be a nonnegative integer, not a native state"
         )
@@ -87,17 +89,20 @@ def build_original_debug_frame(
     overlays = []
     captions = []
     for control in snapshot.controls:
+        index = source_frame_index if frame_indices is None else frame_indices.get(control.event)
+        if type(index) is not int or index < 0:
+            raise OriginalLiveDebugError("Missing or invalid live control frame")
         if (
             control.rect.x < 0 or control.rect.y < 0
             or control.rect.right > SCREEN_SIZE[0]
             or control.rect.bottom > SCREEN_SIZE[1]
         ):
             raise OriginalLiveDebugError("Recovered original control exceeds original screen")
-        if source_frame_index >= len(control.atlas.frames):
+        if index >= len(control.atlas.frames):
             raise OriginalLiveDebugError(
-                f"Requested source frame {source_frame_index} exceeds original atlas"
+                f"Requested source frame {index} exceeds original atlas"
             )
-        source = control.exact_source_frame(source_frame_index)
+        source = control.exact_source_frame(index)
         if (source.width, source.height) != (
             control.rect.width, control.rect.height
         ):
@@ -107,7 +112,7 @@ def build_original_debug_frame(
         overlays.append(
             OriginalDebugOverlay(
                 event=control.event,
-                source_frame_index=source_frame_index,
+                source_frame_index=index,
                 rect=control.rect,
                 source_frame_png=encode_rgba_png(
                     source.width, source.height, source.rgba
@@ -122,7 +127,7 @@ def build_original_debug_frame(
         )
         if control.caption is not None:
             group, _subframe = button_group_subframe_for_source_index(
-                source_frame_index
+                index
             )
             caption = control.caption
             mask = caption.glyph_mask
