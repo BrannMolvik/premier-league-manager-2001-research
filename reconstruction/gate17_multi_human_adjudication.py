@@ -18,6 +18,11 @@ TRACE_CLASSIFICATION_DIRECT_CALL = (
     "decoded_direct_call_candidate_not_lifecycle_semantic_proof"
 )
 SOURCE_PROVEN_USER_CAP = 6
+SOURCE_TEAMSELECT_START_EVENT_VA = 0x4DA480
+SOURCE_TEAMSELECT_START_CONTINUATION_VA = 0x4C41C0
+SOURCE_TEAMSELECT_SATURATION_VA = 0x4DA4D0
+SOURCE_GLOBAL_USER_COUNT_VA = 0x8755E4
+SOURCE_USER_SELECTED_CLUB_POINTER_OFFSET = 0x5B4
 
 STAGE_START_ITERATION = "ordered_start_iteration"
 STAGE_SHARED_RUNTIME = "shared_runtime_handoff"
@@ -158,10 +163,19 @@ def _validate_trace_contract(report: dict) -> tuple[dict[str, dict], dict[str, d
         raise Gate17MultiHumanAdjudicationError(
             "multi-human Start trace requires source_contract"
         )
-    if contract.get("source_proven_hard_user_cap") != SOURCE_PROVEN_USER_CAP:
-        raise Gate17MultiHumanAdjudicationError(
-            "trace source-proven hard user cap drifted from six"
-        )
+    exact_source_contract = {
+        "teamselect_start_event_va": SOURCE_TEAMSELECT_START_EVENT_VA,
+        "teamselect_start_continuation_va": SOURCE_TEAMSELECT_START_CONTINUATION_VA,
+        "teamselect_saturation_va": SOURCE_TEAMSELECT_SATURATION_VA,
+        "global_user_count_va": SOURCE_GLOBAL_USER_COUNT_VA,
+        "user_selected_club_pointer_offset": SOURCE_USER_SELECTED_CLUB_POINTER_OFFSET,
+        "source_proven_hard_user_cap": SOURCE_PROVEN_USER_CAP,
+    }
+    for key, expected in exact_source_contract.items():
+        if contract.get(key) != expected:
+            raise Gate17MultiHumanAdjudicationError(
+                f"trace source contract drifted for {key}"
+            )
     if contract.get("selection_appends_users_recovered") is not True:
         raise Gate17MultiHumanAdjudicationError(
             "trace must retain source-proven user append behavior"
