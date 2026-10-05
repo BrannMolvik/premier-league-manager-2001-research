@@ -39,10 +39,22 @@ boundaries rather than one generic performance complaint:
   fail-closed, but they do not justify omitting the already-recovered row
   geometry/data/font subset.
 - The current startup-video backend deliberately creates a separate maximized
-  topmost WPF/PowerShell window with `MediaElement.Stretch=Uniform`. Repository
-  research still marks the original 320x480 stream's display/interlace/scaling
-  treatment unresolved. Visible/audible playback alone therefore does not
-  qualify the current wrong-aspect/separate-window presentation as accepted.
+  topmost WPF/PowerShell window with `MediaElement.Stretch=Uniform`. Recovery
+  322 private-source analysis now proves this geometry is wrong: native
+  `0x461900` creates a 640x480 movie surface and `0x461CD0` blits its full
+  640x480 rectangle 1:1 into the game-owned display, centered at `(80,60)` in
+  800x600 mode or `(0,0)` in 640x480 mode. The exact encoded 320x480 ->
+  640x480 pixel interpolation/interlace treatment is still unresolved.
+
+A fresh authorized-source recovery also materially cleared the prior private
+execution blocker. The 511,121,336-byte Library ZIP materialized again; the
+container shell path still raises `caas.internal.errors.ClientError`, but the
+notebook execution path successfully opened the ZIP, extracted the
+631,627,248-byte MODE1/2352 track, enumerated the Joliet level-3 filesystem,
+and re-extracted the root `footballmanager.exe`. Its SHA-256 reverified as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+This is sufficient for private static executable analysis even while the shell
+path remains unavailable.
 
 A detailed worker directive with these boundaries is persisted on issue #482
 (comment 6001127354). Gate-17 FFmpeg work-ahead #475/#479 remains suspended
