@@ -96,9 +96,11 @@ class Gate14FirstScreenAudioHostBinding:
         screen = self._screen()
         if screen not in FIRST_SCREEN_AUDIO_SCREENS:
             return None
+        normalizer = getattr(self.host, "_normalize_pointer_event", None)
+        native_event = normalizer(event) if callable(normalizer) else event
         try:
-            x = int(event.x)
-            y = int(event.y)
+            x = int(native_event.x)
+            y = int(native_event.y)
         except (AttributeError, TypeError, ValueError) as exc:
             raise Gate14FirstScreenAudioBindingError(
                 "Tk click event must expose integer-compatible x/y"
