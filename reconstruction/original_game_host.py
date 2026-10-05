@@ -1727,7 +1727,9 @@ class OriginalGameTkHost:
             with timed_stage("management.first_draw"):
                 self.redraw()
         else:
-            self.redraw()
+            redraw_screen = self.presenter.session.navigation.screen
+            with timed_stage(f"frontend.redraw screen={redraw_screen.value}"):
+                self.redraw()
 
 
 def play_configured_startup_media(
