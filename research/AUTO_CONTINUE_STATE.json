@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PRIORITY REGRESSION #482: implementation worker must restore real Windows playability before continuing independent release work. Audit and repair the current path from startup FMVs through PStartMenu, TeamSelect and Southport -> first Squad/management landing. Fix the separate WPF/PowerShell feel and source-unqualified 320x480 Uniform display treatment, eliminate multi-second startup/click/redraw work by caching/preconverting immutable presentation assets and lazy-loading only screen-required resources, and restore a complete usable recognizably-FM2001 first management/Squad screen. Preserve source/provenance/fail-closed semantics. Reconcile Gate-13 closure/status because external recognizability acceptance has failed. Do not call #482 fixed until CI passes and Daniel externally confirms the issue acceptance criteria. AFTER #482 external acceptance, hand continuous work back to the suspended normal task: corrected #475 D3D11VA minimal-FFmpeg contract, then #479, then earliest incomplete gate onward through Gate 17.",
+  "active_task": "Priority regression #482: audit current Windows path from startup FMVs through PStartMenu, TeamSelect, Southport -> first Squad landing; identify exact current latency/redraw and incomplete-presentation causes, then direct an implementation worker to repair them. Suspend #475/#479 until #482 is CI-verified and externally accepted. Do not close Gate 13/14 on hosted CI alone.",
   "last_known_main_head": "6030cbae46d8a15386d6b6114a11bcd35e8984dc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 321,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Daniel's fresh external screenshots invalidate the prior practical acceptance framing: WPF playback now works but is separate-window/wrong-aspect; menu/button latency remains severe; Southport reaches an incomplete Squad shell. Umbrella issue #482 records the audit and worker acceptance criteria and links #436/#437/#438. This is a temporary regression priority. Once #482 is CI-verified and Daniel-machine accepted, restore the suspended normal mission beginning with #475/#479 D3D11VA/minimal-FFmpeg work and continue through Gate 17 without waiting for a new user instruction.",
+  "recovery_generation": 322,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 322: issue #482 is the live regression priority based on Daniel's external Windows screenshots. No #482 worker branch exists yet. Overseer is auditing current hot paths and historical caching/lazy-load checkpoints to produce exact worker directives; normal #475/#479 work remains suspended until external playability is restored.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
