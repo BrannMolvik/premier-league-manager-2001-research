@@ -22,6 +22,9 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.playerrow_energy_pixels_recovered)
         self.assertTrue(state.playerrow_text_pixels_recovered)
         self.assertTrue(state.possession_pairwise_draw_order_recovered)
+        self.assertTrue(state.goalflash_source_contract_recovered)
+        self.assertFalse(state.goalflash_absolute_position_recovered)
+        self.assertFalse(state.goalflash_pixels_rasterized)
         self.assertTrue(state.font_blend_rule_recovered)
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
@@ -38,6 +41,8 @@ class Gate14ReadinessTests(unittest.TestCase):
                 "audio_event_binding",
                 "audible_windows_output",
                 "login_menu_audio_integration",
+                "goalflash_absolute_position",
+                "goalflash_rasterization",
                 "global_fastview_z_order",
                 "complete_fastview_frame",
                 "chant_event_semantics",
@@ -99,6 +104,34 @@ class Gate14ReadinessTests(unittest.TestCase):
         ):
             replace(state, complete_fastview_frame_recovered=True)
 
+    def test_complete_frame_requires_goalflash_position_and_pixels(self):
+        state = canonical_gate14_readiness()
+        otherwise_ready = replace(
+            state,
+            global_fastview_z_order_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                otherwise_ready,
+                complete_fastview_frame_recovered=True,
+            )
+
+        position_only = replace(
+            otherwise_ready,
+            goalflash_absolute_position_recovered=True,
+        )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "complete FastView frame cannot bypass",
+        ):
+            replace(
+                position_only,
+                complete_fastview_frame_recovered=True,
+            )
+
     def test_recognizable_workflow_cannot_be_asserted_without_completed_path(self):
         state = canonical_gate14_readiness()
         with self.assertRaisesRegex(
@@ -111,6 +144,8 @@ class Gate14ReadinessTests(unittest.TestCase):
         state = canonical_gate14_readiness()
         completed = replace(
             state,
+            goalflash_absolute_position_recovered=True,
+            goalflash_pixels_rasterized=True,
             global_fastview_z_order_recovered=True,
             font_blend_rule_recovered=True,
             complete_fastview_frame_recovered=True,
