@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate14 is earliest incomplete; Gate13 is closed. Canonical main 3cdaaac3 includes current-host PlayerRows #439 and TeamTable neutral tracer #440. Clean live first-screen audio PR #442 head f35d01f8681ccb7b75b4aee6a2beab94ec38dacb has exactly five intended files on main and fresh full/source/package CI running; merge only if exact head is green. Clean hands-on blocker #438 fix PR #443 head 17bb47842f3ad53496c5eee968e74115ddc0300a is exactly two files stacked on #442; it keeps TeamSelect Start/session mutation on Tk, moves only management resource decode/load to a daemon worker, polls via Tk, surfaces full traceback/errors, and emits Start/load/per-resource/presenter/first-draw timings. Merge only after #442 and exact green CI, then require the Southport Windows reproduction before calling #438 closed.",
+  "active_task": "Resolve hands-on gameplay blockers #436/#438 before another manual test. PR #445 defers TeamSelect decode from first-screen startup and is in CI at head 93954943bd3ce0849a8b942a1a2b0ce9737716f2; transition diagnostics are staged separately for Start->Management timing/traceback.",
   "last_known_main_head": "3cdaaac3dacb4ce8b1a1e685c5dcd107cb2b43e8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 310,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Hands-on #437 diagnosis: normal python reconstruction/app.py intentionally supplies no startup-media receipt/backend, so intro playback is skipped by contract; no startup-media receipt/MP4 derivative exists under Library /FM2001. Menu press audio is separate and #442 integrates only the source-closed canonical menus.bnk press route. #436 startup 1-2 minute latency remains open and needs normal-launch phase timing after #443. Private process execution in this worker still fails with caas ClientError; do not claim local Windows reproduction.",
+  "note": "Recovery generation 309 remains active. GitHub main is canonical; Gate 13 is closed, Gate 14 is earliest incomplete. Hands-on testing remains paused pending instrumented startup/Start Game fixes.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
