@@ -9,6 +9,28 @@ topic-specific research files.
 
 ## Recovery 317 continuation — Gate-15 ledger canonical; Gate 14 still active
 
+### Recovery 317 support-staff fidelity tracer merged
+
+PR #466 merged as `5a324004d92ac80e0d74ecbaa4010f6c638f3bc2` from verified head
+`7b4027602d311be76583ee882ef47ba38a4a18db`. Reconstruction run
+`37329789390` passed **2,591 tests / 23 expected skips** and repository
+asset-policy run `37329789327` passed on that same head. Stale Recovery-316
+PR #465 was closed as superseded.
+
+The merged support-staff tracer resolves only checksum-gated private
+`CSupportStaff` vtable targets and bounded source windows for the already-known
+day-1 category-102 path. It deliberately keeps the `+0x24` returned-value
+semantics, backing field, initialization, mutation/persistence and runtime amount
+materialization unresolved. The Finance/board fidelity row remains active and
+Gate 15 remains incomplete.
+
+The current Gate-17 release audit also has one independent cloud-safe hardening
+opportunity: it validates that `RELEASE_LIMITATIONS.md` is substantive and no
+longer marked pre-release, but does not yet machine-check that every final
+Gate-15 `accepted_documented` item appears in that release disclosure. This is
+the next independent critical-path task while private archive access is blocked.
+
+
 PR #464 merged as `79d4457f38112f57fe5cfbc57f0e6a02baac64cd`.
 Its head `c5103024e163e5473e8a8a431e993bebeefb82cd` passed the full
 reconstruction suite in run `37324348013` with **2,586 tests / 23 expected
@@ -36,14 +58,7 @@ open of the same materialized archive failed with the same error. The canonical
 private next step remains the already-prepared TeamTable six-base-control trace
 around `0x524EC0`; it has **not** been run or adjudicated in Recovery 317.
 
-**Exact next task:** treat private executable/archive access as unavailable
-despite the trivial process probe. Continue the highest-priority independent
-cloud-safe critical-path work while preserving Gate 14 as the earliest
-incomplete validation gate. Revisit the TeamTable base-control private trace
-when real archive access, not merely process startup, succeeds. Do not infer
- unresolved FastView geometry/order, broader AudioHooks semantics,
-procedural-secondary ownership, six-user runtime semantics, or non-PL objective
-progression by analogy.
+**Exact next task:** while private executable/archive access remains unavailable, harden the Gate-17 final release audit so every Gate-15 `accepted_documented` fidelity item is machine-linked to the final `RELEASE_LIMITATIONS.md`. Keep Gate 14 as the earliest incomplete validation gate. Revisit the TeamTable base-control private trace when real archive access, not merely process startup, succeeds. Do not infer unresolved FastView geometry/order, broader AudioHooks semantics, procedural-secondary ownership, six-user runtime semantics, or non-PL objective progression by analogy.
 
 ## Recovery 315 continuation — acceptance tooling and later-gate handoff canonical
 
