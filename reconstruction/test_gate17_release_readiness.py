@@ -386,6 +386,53 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                         save_reload=True,
                     )
 
+    def test_external_receipts_must_share_one_windows_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "season_progression"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["windows_build"] = 26201
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "differs from the release receipt set build",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
+
+    def test_external_receipts_must_match_final_audit_windows_build(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            evidence = parse_release_evidence(raw)
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "differs from final audit workstation build",
+            ):
+                validate_external_receipts(
+                    evidence,
+                    repo,
+                    expected_windows={
+                        "windows_11": True,
+                        "windows_build": 26201,
+                        "windows_product_type": 1,
+                    },
+                )
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "final audit Windows identity is incomplete",
+            ):
+                validate_external_receipts(
+                    evidence,
+                    repo,
+                    expected_windows={"windows_11": True},
+                )
+
     def test_external_receipts_must_be_five_distinct_files(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, _archive, raw = self.fixture(temp)
@@ -713,7 +760,11 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             with (
                 patch(
                     "gate17_release_readiness.require_external_windows_11_workstation",
-                    return_value={"windows_11": True},
+                    return_value={
+                        "windows_11": True,
+                        "windows_build": 26200,
+                        "windows_product_type": 1,
+                    },
                 ),
                 patch(
                     "gate17_release_readiness.validate_clean_repository",
@@ -773,7 +824,11 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             with (
                 patch(
                     "gate17_release_readiness.require_external_windows_11_workstation",
-                    return_value={"windows_11": True},
+                    return_value={
+                        "windows_11": True,
+                        "windows_build": 26200,
+                        "windows_product_type": 1,
+                    },
                 ),
                 patch(
                     "gate17_release_readiness.validate_clean_repository",
@@ -790,7 +845,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 patch(
                     "gate17_release_readiness.validate_external_receipts",
                     return_value={"full_original_scope": {"sha256": "a" * 64}},
-                ),
+                ) as receipts,
                 patch(
                     "gate17_release_readiness.validate_full_original_scope_binding",
                     return_value={"scope_entry_count": 1},
@@ -826,6 +881,15 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 game.resolve(),
                 player_seed=11,
                 max_days=440,
+            )
+            receipts.assert_called_once_with(
+                parse_release_evidence(raw),
+                repo.resolve(),
+                expected_windows={
+                    "windows_11": True,
+                    "windows_build": 26200,
+                    "windows_product_type": 1,
+                },
             )
             self.assertEqual(command.call_count, 3)
 
