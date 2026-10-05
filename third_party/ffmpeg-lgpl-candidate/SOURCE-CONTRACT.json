@@ -37,7 +37,7 @@
       "--enable-ffprobe",
       "--enable-protocol=file",
       "--enable-demuxer=ea",
-      "--enable-decoder=eatgq,adpcm_ea,adpcm_ea_r1,adpcm_ea_r2,adpcm_ea_r3,adpcm_ima_ea_eacs,adpcm_ima_ea_sead,adpcm_psx,pcm_mulaw,pcm_s16le,pcm_s16le_planar,pcm_s8,mp3",
+      "--enable-decoder=eatgq,adpcm_ea,adpcm_ea_r1,adpcm_ea_r2,adpcm_ea_r3,adpcm_ima_ea_eacs,adpcm_ima_ea_sead,adpcm_psx,pcm_mulaw,pcm_s16le,pcm_s16le_planar,pcm_s8,mp3,h264,aac",
       "--enable-encoder=h264_mf,aac",
       "--enable-muxer=mp4"
     ],
@@ -65,7 +65,11 @@
     "exact_original_tgq_verified": false,
     "external_windows11_playback_verified": false,
     "source_material_complete": false,
-    "production_migration_ready": false
+    "production_migration_ready": false,
+    "required_derivative_validation_decoders": [
+      "h264",
+      "aac"
+    ]
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
 }
