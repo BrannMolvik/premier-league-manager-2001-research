@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #402 merged on main at 76774a5a87d8813ac7a2c9d58b6a4bca5cc863d5 after reconstruction run 37260456096 passed 2,394 tests / 23 expected skips and asset-policy run 37260456145 passed. Continue cloud-safe Gate-15 fidelity-sweep reconciliation: refresh GATE15_READINESS_AUDIT.md and the FastView/3D row in FIDELITY_GAPS.md against current canonical Gate-14 evidence, removing only stale resolved blockers and preserving every remaining fail-closed presentation/audio/private-source boundary. Do not mark Gate 15 complete and do not touch Gate 13.",
-  "last_known_main_head": "76774a5a87d8813ac7a2c9d58b6a4bca5cc863d5",
+  "active_task": "Gate 13 remains earliest incomplete. Continue the already-recorded cloud-safe Gate-15 fidelity-sweep reconciliation from current main 4a80c2e832b3810b6e3a84c23ddb84b6b2596b2d: refresh research/GATE15_READINESS_AUDIT.md and the FastView/3D row in research/FIDELITY_GAPS.md against canonical Gate-14 evidence through PR #402 and the merged Gate-13 paging checkpoint. Remove only stale resolved blockers; preserve all unresolved presentation/audio/private-source boundaries. Do not mark Gate 15 complete and do not modify Gate 13 implementation.",
+  "last_known_main_head": "4a80c2e832b3810b6e3a84c23ddb84b6b2596b2d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 298,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Canonical Gate-14 now includes nested pixel-completeness guards, a static score/table TextControl inventory, and a bounded private source tracer for their unresolved argument/style/value producers. Gate 16 is already prevalidated by its existing audit; no redundant stress work is needed. Next is a research-only Gate-15 ledger refresh.",
+  "recovery_generation": 299,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery resumed after main advanced through Gate14 PR #402 and Gate13 PR #365. Exact next task remains research-only Gate15 fidelity ledger reconciliation; Gate16 is already prevalidated and should not be redundantly reworked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
