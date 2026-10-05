@@ -20,6 +20,7 @@ from gate13_pstartmenu_derivative import (
     DECODER_TQIA_RELATIVE,
     MANIFEST_NAME,
     PAYLOAD_NAME,
+    PSTARTMENU_SOURCE_ORIGINALS,
     TQIA_SOURCE_SHA256,
     PStartMenuDecoderProvenance,
     PStartMenuDerivativeError,
@@ -285,6 +286,35 @@ class PStartMenuDerivativeTests(unittest.TestCase):
             ):
                 self._load(directory)
 
+
+
+    def test_tracked_canonical_derivative_loads_with_pinned_receipt(self):
+        root = Path(__file__).resolve().parent.parent
+        bundle = (
+            root / "original_assets" / "converted" / "pstartmenu-v1"
+        )
+        loaded = load_verified_pstartmenu_derivative_bundle(
+            bundle,
+            expected_decoder=DECODER,
+            expected_manifest_sha256=(
+                "cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e"
+            ),
+            expected_sources=PSTARTMENU_SOURCE_ORIGINALS,
+        )
+        self.assertEqual(
+            sha256(loaded.background_rgba).hexdigest(),
+            "e5b9190b830440a340f162a81eab59270182b74a15bae0a3f24660a7c5d21046",
+        )
+        self.assertEqual(len(loaded.button_atlas.frames), 23)
+        self.assertEqual(
+            tuple(item.original_text for item in loaded.captions),
+            (
+                "Continue",
+                "Start New Game",
+                "Load Game",
+                "Quit to Windows",
+            ),
+        )
 
     def test_repository_decoder_blocks_are_exact_source_provenance(self):
         root = Path(__file__).resolve().parent.parent
