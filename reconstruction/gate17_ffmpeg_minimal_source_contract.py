@@ -116,9 +116,13 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must enable h264_mf and native AAC"
         )
-    if "--enable-muxer=mov" not in args or "--enable-protocol=file" not in args:
+    if "--enable-muxer=mp4" not in args or "--enable-protocol=file" not in args:
         raise MinimalFfmpegSourceContractError(
-            "minimal helper must retain file I/O and the MP4-capable mov muxer"
+            "minimal helper must retain file I/O and the actual mp4 muxer"
+        )
+    if "--enable-muxer=mov" in args and "--enable-muxer=mp4" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "mov-only output is insufficient for extension-selected .mp4 derivatives"
         )
 
     codecs = minimal.get("ea_demuxer_codec_superset")
