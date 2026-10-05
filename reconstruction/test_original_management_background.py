@@ -8,7 +8,7 @@ import unittest
 from original_management_background import (
     ASSET_HASHES, MONTH_VARIANTS, ManagementBackgroundError,
     OriginalManagementBackground, background_candidates, header_variant,
-    native_art_component,
+    native_art_component, staged_background_candidate,
 )
 
 
@@ -47,7 +47,7 @@ class ManagementBackgroundTests(unittest.TestCase):
             expected = (385, 95) if '/Background_buttons/' in path else (800, 600)
             self.assertEqual(struct.unpack_from('<HH', raw), expected, path)
 
-    def test_live_domain_does_not_fall_back_for_unstaged_original(self):
+    def test_live_domain_prefers_exact_club_background_when_staged(self):
         renderer = object.__new__(OriginalManagementBackground)
         renderer.paths = {p.casefold(): p for p in ASSET_HASHES}
         renderer._image = lambda path, rect: (path, rect)
@@ -55,11 +55,40 @@ class ManagementBackgroundTests(unittest.TestCase):
                                current_date=date(2000, 8, 1), fan_base_index=22, competition_id=0)
         images = renderer.images(club)
         self.assertTrue(images[0][0].endswith('/arsenal_background0.444'))
+        self.assertTrue(images[1][0].endswith('/back_2_Premiership.444'))
         self.assertEqual(images[0][1], (0, 0, 800, 600))
         self.assertEqual(images[1][1], (171, 0, 385, 95))
-        club.graphics_basename = 'Unstaged club'
-        with self.assertRaises(ManagementBackgroundError):
-            renderer.images(club)
+
+    def test_unstaged_southport_family_uses_source_proven_generic_fallback(self):
+        renderer = object.__new__(OriginalManagementBackground)
+        renderer.paths = {p.casefold(): p for p in ASSET_HASHES}
+        renderer._image = lambda path, rect: (path, rect)
+        club = SimpleNamespace(graphics_directory='England', graphics_basename='Southport',
+                               current_date=date(2000, 8, 1), fan_base_index=8, competition_id=4)
+
+        images = renderer.images(club)
+
+        self.assertTrue(images[0][0].endswith('/generic2_background0.444'))
+        self.assertTrue(images[1][0].endswith('/back_2_generic.444'))
+        self.assertEqual(images[0][1], (0, 0, 800, 600))
+        self.assertEqual(images[1][1], (171, 0, 385, 95))
+
+    def test_staged_candidate_preserves_full_native_attempt_order(self):
+        candidates = background_candidates('England', 'Southport', 8, 8)
+        staged = {candidates[3].casefold(): candidates[3]}
+        self.assertEqual(staged_background_candidate(candidates, staged), candidates[3])
+        staged[candidates[2].casefold()] = candidates[2]
+        self.assertEqual(staged_background_candidate(candidates, staged), candidates[2])
+        staged[candidates[1].casefold()] = candidates[1]
+        self.assertEqual(staged_background_candidate(candidates, staged), candidates[1])
+        staged[candidates[0].casefold()] = candidates[0]
+        self.assertEqual(staged_background_candidate(candidates, staged), candidates[0])
+
+        with self.assertRaisesRegex(
+            ManagementBackgroundError,
+            'No source-backed management background candidate is staged',
+        ):
+            staged_background_candidate(candidates, {})
 
 
 if __name__ == '__main__':
