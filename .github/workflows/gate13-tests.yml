@@ -239,6 +239,7 @@ jobs:
             test_gate13_button_vtable_xref_candidates \
             test_gate13_button_rtti_candidates \
             test_gate13_squad_source_trace \
+            test_gate13_management_header_source_trace \
             test_gate13_remaining_field_source_trace \
             test_gate13_native_capacity_watch \
             test_gate13_native_probe_safety \
