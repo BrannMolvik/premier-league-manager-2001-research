@@ -10,6 +10,7 @@ from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
 from original_button_frames import (
     OriginalButtonAtlasError,
+    OriginalButtonFrame,
     PSTARTMENU_BUTTON_ATLAS,
     TEAMSELECT_BUTTON_ATLAS,
     split_original_button_atlas,
@@ -32,7 +33,13 @@ from original_front_end_layout import (
 from original_pstartmenu_labels import prepare_original_pstartmenu_captions
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_teamselect_resources import assemble_original_teamselect_inputs
-from original_teamselect_native import TeamSelectHierarchyModel
+from original_teamselect_native import (
+    CLUB_ANIM_FRAME_SIZE,
+    CLUB_BAR_FRAME_SIZE,
+    OriginalClubHierarchyStrip,
+    OriginalTeamSelectNativeInputs,
+    TeamSelectHierarchyModel,
+)
 from test_ea_font import build_fixture
 from test_ea_language_strings import make_str
 
@@ -88,9 +95,51 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
                   (21, 22, 23, 255)),
             HIERARCHY_BARS_SPEC,
         )
+        fixture_font = EAFont.from_bytes(build_fixture())
+        club_anim_width, club_anim_height = CLUB_ANIM_FRAME_SIZE
+        club_bar_width, club_bar_height = CLUB_BAR_FRAME_SIZE
+        club_animation = OriginalClubHierarchyStrip(
+            "fixture/choice_team_but_anim.444",
+            club_anim_height * 23 + 1,
+            club_anim_width,
+            club_anim_height,
+            tuple(
+                OriginalButtonFrame(
+                    club_anim_width,
+                    club_anim_height,
+                    bytes((24, 25, 26, 255))
+                    * (club_anim_width * club_anim_height),
+                )
+                for _ in range(23)
+            ),
+            1,
+        )
+        club_bars = OriginalClubHierarchyStrip(
+            "fixture/choice_team_but_bars.444",
+            club_bar_height * 4,
+            club_bar_width,
+            club_bar_height,
+            tuple(
+                OriginalButtonFrame(
+                    club_bar_width,
+                    club_bar_height,
+                    bytes((27, 28, 29, 255))
+                    * (club_bar_width * club_bar_height),
+                )
+                for _ in range(4)
+            ),
+        )
         cls.team = assemble_original_teamselect_inputs(
-            global_bg, team_bg, team_atlas,
+            global_bg,
+            team_bg,
+            team_atlas,
             OriginalTeamSelectHierarchyArt(anim, bars),
+            OriginalTeamSelectNativeInputs(
+                club_animation,
+                club_bars,
+                fixture_font,
+                fixture_font,
+            ),
         )
 
     def presenter(self):
