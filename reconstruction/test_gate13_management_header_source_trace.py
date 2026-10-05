@@ -52,7 +52,7 @@ class Gate13ManagementHeaderSourceTraceTests(unittest.TestCase):
         self.assertEqual(report["known_geometry"]["caption_style"], 10)
         self.assertEqual(len(report["windows"]), 17)
         self.assertEqual(len(report["data_objects"]), 4)
-        self.assertEqual(len(report["pointer_candidates"]), 4)
+        self.assertEqual(len(report["pointer_candidates"]), 7)
         labels = {item["label"] for item in report["windows"]}
         self.assertTrue({
             "PLeagueTableRow visible text setup",
