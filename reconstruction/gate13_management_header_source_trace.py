@@ -53,7 +53,7 @@ HEADER_WINDOWS = (
     # the already-source-mapped 0x9820A8 family.  This is still only bounded
     # source evidence; the caption index is promoted only after manual
     # instruction-by-instruction adjudication.
-    ("English caption loader xref", 0x64AA80, 0x500),
+    ("English loader anchor through caption xref", 0x64A800, 0x800),
     # Ordinary management text controls required by the fixed Gate-13 closure
     # slice.  These entry points are already proven by the Squad/League Tables
     # presentation research; the trace only exposes their raw font/style
