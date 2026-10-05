@@ -1408,6 +1408,41 @@ class OriginalGameHostTests(unittest.TestCase):
                         backend=bad_backend,
                     )
 
+    def test_startup_media_runtime_accepts_already_verified_bundled_derivatives(self):
+        backend = object()
+        derivatives = (object(), object())
+        with patch(
+            "original_game_host.play_verified_startup_sequence",
+            return_value="bundled-summary",
+        ) as play:
+            result = play_configured_startup_media(
+                receipt_path=None,
+                backend=backend,
+                derivatives=derivatives,
+            )
+
+        self.assertEqual(result, "bundled-summary")
+        play.assert_called_once_with(derivatives, backend)
+
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "cannot combine bundled derivatives",
+        ):
+            play_configured_startup_media(
+                receipt_path=Path("/private/receipt.json"),
+                backend=backend,
+                derivatives=derivatives,
+            )
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "requires a playback backend",
+        ):
+            play_configured_startup_media(
+                receipt_path=None,
+                backend=None,
+                derivatives=derivatives,
+            )
+
     def test_default_source_root_is_repository_original_asset_store(self):
         self.assertEqual(
             DEFAULT_SOURCE_ROOT.name,
