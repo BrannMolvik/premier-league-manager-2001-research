@@ -15,6 +15,9 @@ class AppPackageSmokeTests(unittest.TestCase):
             path.write_bytes(b"asset")
         manifest = root / "original_assets" / "MANIFEST.md"
         manifest.write_text("provenance", encoding="utf-8")
+        ffmpeg = root / app.PACKAGED_FFMPEG_RELATIVE_PATH
+        ffmpeg.parent.mkdir(parents=True, exist_ok=True)
+        ffmpeg.write_bytes(b"packaged-ffmpeg")
         return source, manifest
 
     def test_package_smoke_requires_assets_and_provenance(self):

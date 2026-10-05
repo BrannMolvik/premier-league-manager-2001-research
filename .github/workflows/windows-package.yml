@@ -7,6 +7,10 @@ on:
       - "reconstruction/app.py"
       - "reconstruction/runtime_layout.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/startup_media_runtime_cache.py"
+      - "reconstruction/startup_media_windows_backend.py"
+      - "reconstruction/test_startup_media_runtime_cache.py"
+      - "reconstruction/test_startup_media_windows_backend.py"
       - "reconstruction/gate17_package_candidate.py"
       - "reconstruction/gate17_clean_windows_install.py"
       - "reconstruction/gate17_external_validation.py"
@@ -38,16 +42,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install package builder
-        run: python -m pip install "pyinstaller>=6,<7"
+      - name: Install package builder and bundled FFmpeg provider
+        run: python -m pip install "pyinstaller>=6,<7" "imageio-ffmpeg>=0.6,<0.7"
+
+      - name: Stage runtime FFmpeg executable
+        working-directory: reconstruction
+        shell: pwsh
+        run: |
+          python -c "from pathlib import Path; import shutil, imageio_ffmpeg; d=Path('_runtime_tools'); d.mkdir(exist_ok=True); shutil.copy2(imageio_ffmpeg.get_ffmpeg_exe(), d/'ffmpeg.exe')"
+          .\_runtime_tools\ffmpeg.exe -version
 
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_gate17_package_candidate test_gate17_clean_windows_install test_gate17_external_validation
+        run: python -m unittest -v test_runtime_layout test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_clean_windows_install test_gate17_external_validation
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction
-        run: pyinstaller --noconfirm --clean --onedir --name FM2001-Windows11 --add-data "../original_assets;original_assets" --add-data "original_management_background_assets.json;." app.py
+        run: pyinstaller --noconfirm --clean --onedir --name FM2001-Windows11 --add-data "../original_assets;original_assets" --add-data "original_management_background_assets.json;." --add-binary "_runtime_tools/ffmpeg.exe;runtime_tools" app.py
 
       - name: Smoke frozen executable without user game data
         working-directory: reconstruction
