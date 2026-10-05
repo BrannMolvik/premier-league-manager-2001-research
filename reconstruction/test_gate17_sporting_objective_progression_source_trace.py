@@ -73,6 +73,10 @@ class Gate17SportingObjectiveProgressionSourceTraceTests(unittest.TestCase):
             0x5E07E4,
         )
         self.assertEqual(
+            contract["between_progression_passes_transition_va"],
+            0x4F9010,
+        )
+        self.assertEqual(
             contract["annual_objective_evaluation_caller_va"],
             0x426220,
         )
@@ -81,8 +85,11 @@ class Gate17SportingObjectiveProgressionSourceTraceTests(unittest.TestCase):
             contract["dbruser_sacking_reason_setter_va"],
             0x42C6C0,
         )
+        self.assertEqual(contract["objective_selected_id_offset"], 0x64)
         self.assertEqual(contract["objective_progression_gate_offset"], 0x68)
         self.assertEqual(contract["objective_progression_state_offset"], 0x9C)
+        self.assertEqual(contract["sporting_objective_switch_case_count"], 17)
+        self.assertEqual(contract["sporting_objective_pass_sequence"], [1, 0] if isinstance(contract["sporting_objective_pass_sequence"], list) else (1, 0))
         self.assertTrue(contract["same_premier_league_slice_recovered"])
         self.assertTrue(contract["annual_evaluation_year_gate_recovered"])
 
