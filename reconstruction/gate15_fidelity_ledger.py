@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 from pathlib import Path
+import re
 
 
 class Gate15FidelityLedgerError(ValueError):
@@ -274,11 +275,52 @@ def audit_gate15_fidelity(
     )
 
 
+def roadmap_gate_complete(markdown: str, gate: int) -> bool:
+    """Return true only when one roadmap gate exists and every criterion is checked."""
+    if not isinstance(markdown, str):
+        raise Gate15FidelityLedgerError("roadmap markdown must be text")
+    if type(gate) is not int or gate < 1:
+        raise Gate15FidelityLedgerError("roadmap gate must be positive integer")
+
+    heading = re.compile(r"^## Gate (\\d+)\\b")
+    checkbox = re.compile(r"^- \\[([ xX])\\]")
+    seen = False
+    checked = 0
+    unchecked = 0
+    current_gate: int | None = None
+
+    for line in markdown.splitlines():
+        match = heading.match(line)
+        if match is not None:
+            current_gate = int(match.group(1))
+            if current_gate == gate:
+                seen = True
+            continue
+        if current_gate != gate:
+            continue
+        item = checkbox.match(line)
+        if item is None:
+            continue
+        if item.group(1).lower() == "x":
+            checked += 1
+        else:
+            unchecked += 1
+
+    if not seen:
+        raise Gate15FidelityLedgerError(
+            f"ROADMAP.md is missing Gate {gate}"
+        )
+    if checked + unchecked == 0:
+        raise Gate15FidelityLedgerError(
+            f"ROADMAP.md Gate {gate} has no completion criteria"
+        )
+    return unchecked == 0
+
+
 def audit_repository_gate15(
     repository_root: str | Path,
-    *,
-    gate14_complete: bool,
 ) -> Gate15FidelityAudit:
+    """Audit repository state while deriving Gate-14 completion from ROADMAP.md."""
     root = Path(repository_root)
     markdown = (root / "research" / "FIDELITY_GAPS.md").read_text(
         encoding="utf-8"
@@ -288,8 +330,9 @@ def audit_repository_gate15(
             encoding="utf-8"
         )
     )
+    roadmap = (root / "ROADMAP.md").read_text(encoding="utf-8")
     return audit_gate15_fidelity(
         markdown,
         payload,
-        gate14_complete=gate14_complete,
+        gate14_complete=roadmap_gate_complete(roadmap, 14),
     )
