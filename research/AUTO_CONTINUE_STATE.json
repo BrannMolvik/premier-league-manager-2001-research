@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #399 merged on main at dc87c68e8ffce0cf22a0f962184b342787c9343a after reconstruction run 37259508357 passed 2,386 tests / 23 expected skips and asset-policy run 37259508363 passed. Continue validating independent PR #400 (nested score/table static text-control inventory); merge only after its current-head full suite is green, then continue the next source-backed omitted nested family without guessing semantics/resources.",
-  "last_known_main_head": "dc87c68e8ffce0cf22a0f962184b342787c9343a",
+  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #400 merged on main at 07eb4f7bc21bac3f0c2f6f1952c579fb9131dde1 after reconstruction run 37259835230 passed 2,389 tests / 23 expected skips and asset-policy run 37259835233 passed. PR #401 was closed unmerged as stale-base and cleanly replayed as PR #402 from current main. Validate #402 full combined CI; if green, merge it, then use the tracer only on a healthy private canonical-executable path or continue another independent cloud-safe omission without inventing text semantics/style/resources.",
+  "last_known_main_head": "07eb4f7bc21bac3f0c2f6f1952c579fb9131dde1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 298,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Nested score/team parameterized construction remains recovered, but complete nested pixels are now explicit complete-frame prerequisites. PR #400 independently inventories source-proven static score/table TextControls and is still awaiting current-head full CI.",
+  "note": "Canonical main now explicitly inventories four static ScoreCompositeNormal TextControls per visible score row plus 7 heading/9 per-row LeagueTable TextControls, while keeping semantics/style/font/color/pixels false. #402 prepares exact bounded private source tracing for their constructor arguments.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
