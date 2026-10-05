@@ -277,8 +277,8 @@ jobs:
             --repo-root .. \
             --output-dir "$RUNNER_TEMP/pstartmenu-b"
           cmp "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-b/manifest.json"
-          cmp "$RUNNER_TEMP/pstartmenu-a/payload.bin" "$RUNNER_TEMP/pstartmenu-b/payload.bin"
-          sha256sum "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-a/payload.bin"
+          cmp "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz" "$RUNNER_TEMP/pstartmenu-b/payload.bin.xz"
+          sha256sum "$RUNNER_TEMP/pstartmenu-a/manifest.json" "$RUNNER_TEMP/pstartmenu-a/payload.bin.xz"
 
       - name: Upload verified PStartMenu derivative
         uses: actions/upload-artifact@v4
@@ -286,7 +286,7 @@ jobs:
           name: gate13-pstartmenu-derivative
           path: |
             ${{ runner.temp }}/pstartmenu-a/manifest.json
-            ${{ runner.temp }}/pstartmenu-a/payload.bin
+            ${{ runner.temp }}/pstartmenu-a/payload.bin.xz
           if-no-files-found: error
 
   native-mute-build:
