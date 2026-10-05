@@ -170,7 +170,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
             ("league_table_static",),
             ("league_scores_late_grid_static",),
             ("league_scores_runtime_phase_icons", "league_scores_runtime_phase_text"),
-            ("team_table_static", "team_table_energy"),
+            ("team_table_static", "team_table_energy", "team_table_player_rows"),
         )
         self.assertEqual(SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS, expected_levels)
 
@@ -323,6 +323,10 @@ class FastViewDrawOrderTests(unittest.TestCase):
             later_component("league_table_static", "team_table_energy"),
             "team_table_energy",
         )
+        self.assertEqual(
+            later_component("league_table_static", "team_table_player_rows"),
+            "team_table_player_rows",
+        )
 
     def test_direct_chrome_is_source_earlier_than_nested_score_and_team_subtrees(self):
         self.assertLess(TOP_BAR_PICTURE_CALL_VA, POSSESSION_DIAGRAM_OWNER_CALL_VA)
@@ -332,6 +336,7 @@ class FastViewDrawOrderTests(unittest.TestCase):
             "league_scores_static",
             "team_table_static",
             "team_table_energy",
+            "team_table_player_rows",
         ):
             relation = source_closed_pairwise_order("direct_chrome", later)
             self.assertTrue(relation.nested_subpanel_bridge_recovered)
@@ -340,6 +345,8 @@ class FastViewDrawOrderTests(unittest.TestCase):
     def test_unmodeled_or_alias_pairs_fail_closed(self):
         for pair in (
             ("team_table_static", "team_table_energy"),
+            ("team_table_static", "team_table_player_rows"),
+            ("team_table_energy", "team_table_player_rows"),
             ("direct_chrome", "unmodeled_fastview_layer"),
             ("league_scores_static", "unmodeled_fastview_layer"),
             ("league_scores_static", "league_scores_early_rows_static"),

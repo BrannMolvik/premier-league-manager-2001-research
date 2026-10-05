@@ -33,6 +33,7 @@ from gate14_fastview_surfaced_resource_raster import (
 )
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
+from gate14_fastview_playerrows_raster import FastViewPlayerRowsRaster
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
@@ -79,6 +80,7 @@ class FastViewComponentRasterPlane:
             "direct_header_text",
             "team_table_static",
             "team_table_energy",
+            "team_table_player_rows",
             "league_scores_static",
             "league_scores_early_rows_static",
             "league_scores_late_grid_static",
@@ -101,6 +103,7 @@ class FastViewComponentRasterPlane:
         if self.component not in {
             "team_table_static",
             "team_table_energy",
+            "team_table_player_rows",
             "league_scores_runtime_phase_icons",
             "league_scores_runtime_phase_text",
             "clock_text",
@@ -200,6 +203,7 @@ class FastViewComponentRasterSet:
             if self.team_table.component not in {
                 "team_table_static",
                 "team_table_energy",
+                "team_table_player_rows",
             }:
                 raise FastViewComponentRasterError(
                     "TeamTable raster component identity mismatch"
@@ -441,22 +445,37 @@ def rasterize_fastview_possession_figures_plane(
 
 
 def rasterize_fastview_team_table_plane(
-    team_table: FastViewTeamStaticRaster | FastViewTeamEnergyRaster,
+    team_table: (
+        FastViewTeamStaticRaster
+        | FastViewTeamEnergyRaster
+        | FastViewPlayerRowsRaster
+    ),
 ) -> FastViewComponentRasterPlane:
-    """Lift a verified TeamTable art raster without changing its fidelity scope."""
+    """Lift one verified TeamTable view without widening its fidelity scope."""
     if type(team_table) is FastViewTeamStaticRaster:
         component = "team_table_static"
+        source_layer_count = team_table.source_layer_count
     elif type(team_table) is FastViewTeamEnergyRaster:
         component = "team_table_energy"
+        source_layer_count = team_table.source_layer_count
+    elif type(team_table) is FastViewPlayerRowsRaster:
+        if team_table.complete_team_table or not team_table.complete_retained_player_rows:
+            raise FastViewComponentRasterError(
+                "PlayerRows TeamTable plane must remain retained-row complete only"
+            )
+        component = "team_table_player_rows"
+        # One retained native PlayerRow owns 1 name-grid PictureControl,
+        # 6 TextControls, 1 static bar and 1 dynamic bar.
+        source_layer_count = 9 * len(team_table.row_identities)
     else:
         raise FastViewComponentRasterError(
-            "team_table must be exact static or energy TeamTable raster"
+            "team_table must be exact static, energy, or retained PlayerRows raster"
         )
     return FastViewComponentRasterPlane(
         component=component,
         size=team_table.size,
         rgba=team_table.rgba,
-        source_layer_count=team_table.source_layer_count,
+        source_layer_count=source_layer_count,
         rgba_sha256=team_table.rgba_sha256,
     )
 
@@ -563,7 +582,12 @@ def build_fastview_component_rasters(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
-    team_table: FastViewTeamStaticRaster | FastViewTeamEnergyRaster | None = None,
+    team_table: (
+        FastViewTeamStaticRaster
+        | FastViewTeamEnergyRaster
+        | FastViewPlayerRowsRaster
+        | None
+    ) = None,
     score_table: FastViewScoreTableStaticRasterSet | None = None,
     score_draw_phases: FastViewLeagueScoresDrawPhases | None = None,
     score_phase_text: FastViewScorePhaseTextRaster | None = None,

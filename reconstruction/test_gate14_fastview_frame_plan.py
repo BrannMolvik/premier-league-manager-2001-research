@@ -140,9 +140,9 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertIsNotNone(frame.component_rasters.team_table)
         self.assertEqual(
             frame.component_rasters.team_table.component,
-            "team_table_energy",
+            "team_table_player_rows",
         )
-        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 3)
+        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 9)
         self.assertEqual(frame.resolved_composite.size, (800, 600))
         self.assertFalse(frame.resolved_composite.cross_component_z_order_recovered)
         self.assertFalse(frame.resolved_composite.flattened_frame_available)
@@ -202,6 +202,42 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertTrue(raster.position_english_localization_recovered)
         self.assertTrue(raster.own_goal_color_recovered)
         self.assertTrue(raster.complete_team_table_text)
+
+    def test_frame_uses_exact_complete_retained_playerrow_raster(self):
+        shell = exact_shell()
+        frame = build_fastview_frame_plan(
+            shell,
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+        )
+        energy = rasterize_fastview_team_energy_rows(
+            exact_team_art(),
+            shell.player_row_render_plans,
+        )
+        text_raster = rasterize_fastview_playerrow_text(
+            Path(__file__).resolve().parent.parent,
+            shell.player_row_render_plans,
+        )
+        expected = compose_fastview_player_rows_raster(
+            energy,
+            text_raster,
+            shell.player_row_render_plans,
+        )
+
+        self.assertEqual(
+            frame.component_rasters.team_table.component,
+            "team_table_player_rows",
+        )
+        self.assertEqual(frame.component_rasters.team_table.rgba, expected.rgba)
+        self.assertEqual(
+            frame.component_rasters.team_table.rgba_sha256,
+            expected.rgba_sha256,
+        )
+        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 9)
+        self.assertFalse(expected.complete_team_table)
+        self.assertFalse(frame.complete_raster_frame)
 
     def test_complete_retained_playerrow_raster_accepts_frame_render_plans(self):
         shell = exact_shell()

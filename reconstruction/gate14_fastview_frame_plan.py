@@ -9,6 +9,7 @@ presentation.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from fastview_semantic_shell import FastViewSemanticShell
 from gate14_fastview_component_rasters import (
@@ -24,6 +25,8 @@ from gate14_fastview_partial_surface import (
     build_fastview_partial_surface_from_render_plans,
 )
 from gate14_fastview_team_energy_raster import rasterize_fastview_team_energy_rows
+from gate14_fastview_team_text_raster import rasterize_fastview_playerrow_text
+from gate14_fastview_playerrows_raster import compose_fastview_player_rows_raster
 from gate14_fastview_score_table_static_raster import FastViewScoreTableStaticRasterSet
 from gate14_fastview_playerrow_snapshot import (
     FastViewPlayerRowRenderPlan,
@@ -35,6 +38,7 @@ from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import (
     OriginalFastViewPossessionFiguresArt,
 )
+from runtime_layout import application_root
 
 
 class FastViewFramePlanError(ValueError):
@@ -117,11 +121,15 @@ def build_fastview_frame_plan(
     figures: OriginalFastViewPossessionFiguresArt,
     team_art: OriginalFastViewTeamArt,
     score_table_static: FastViewScoreTableStaticRasterSet | None = None,
+    *,
+    asset_root: str | Path | None = None,
 ) -> FastViewFramePlan:
     """Compose one renderer input from already retained/source-closed state.
 
     score_table_static is accepted only as an already-built presentation
-    artifact. This layer never derives fixture/table counts or phase state.
+    artifact. asset_root defaults to the runtime application root so the same
+    provenance-tracked PlayerRow font path works in development and frozen
+    packages. This layer never derives fixture/table counts or phase state.
     """
     if type(shell) is not FastViewSemanticShell:
         raise FastViewFramePlanError("shell must be an exact FastViewSemanticShell")
@@ -152,11 +160,21 @@ def build_fastview_frame_plan(
         team_art,
         shell.player_row_render_plans,
     )
+    root = application_root() if asset_root is None else Path(asset_root).resolve()
+    team_text = rasterize_fastview_playerrow_text(
+        root,
+        shell.player_row_render_plans,
+    )
+    player_rows = compose_fastview_player_rows_raster(
+        team_energy,
+        team_text,
+        shell.player_row_render_plans,
+    )
     component_rasters = build_fastview_component_rasters(
         chrome,
         possession,
         figures,
-        team_energy,
+        player_rows,
         score_table=score_table_static,
     )
 
