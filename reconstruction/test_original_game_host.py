@@ -3,11 +3,13 @@ from __future__ import annotations
 from base64 import b64decode
 from dataclasses import dataclass
 from datetime import date
+from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
+import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
@@ -33,12 +35,16 @@ from original_league_tables_resources import (
 from gate13_original_pixel_preview import encode_rgba_png
 from original_game_host import (
     DEFAULT_SOURCE_ROOT,
+    FIRST_SCREEN_MENUS_BANK_RELATIVE_PATH,
     OriginalGameHostError,
     OriginalGameTkHost,
-    build_original_game_presenter,
-    play_configured_startup_media,
     _scaled_rgba,
+    build_original_game_presenter,
+    install_available_first_screen_press_audio,
+    play_configured_startup_media,
+    run_original_game_ui,
 )
+from gate14_windows_menu_pcm_backend import Gate14WindowsMenuPcmBackendError
 from original_management_presenter import OriginalManagementPresenter
 from original_management_text import load_verified_management_text_resources
 from original_league_tables_presenter import build_league_tables_snapshot
@@ -1147,6 +1153,137 @@ class OriginalGameHostTests(unittest.TestCase):
                         receipt_path=bad_receipt,
                         backend=bad_backend,
                     )
+
+    def test_first_screen_audio_runtime_uses_only_canonical_installed_menus_bank(self):
+        payload = b"canonical-menu-bank"
+        profile = {
+            "size_bytes": len(payload),
+            "sha256": sha256(payload).hexdigest(),
+        }
+        host = SimpleNamespace()
+        backend = object()
+
+        with tempfile.TemporaryDirectory() as temp:
+            game_dir = Path(temp)
+            bank = game_dir / FIRST_SCREEN_MENUS_BANK_RELATIVE_PATH
+            bank.parent.mkdir(parents=True)
+            bank.write_bytes(payload)
+            with (
+                patch.dict(
+                    "original_game_host.CANONICAL_FM2001_BANK_PROFILES",
+                    {"menus.bnk": profile},
+                    clear=False,
+                ),
+                patch(
+                    "original_game_host.install_first_screen_press_audio",
+                    return_value="binding",
+                ) as install,
+            ):
+                result = install_available_first_screen_press_audio(
+                    host,
+                    game_dir,
+                    backend=backend,
+                )
+
+        self.assertEqual(result, "binding")
+        self.assertEqual(host.first_screen_audio_binding, "binding")
+        self.assertIsNone(host.first_screen_audio_error)
+        install.assert_called_once_with(host, payload, backend)
+
+    def test_first_screen_audio_runtime_missing_or_wrong_bank_never_blocks_host(self):
+        host = SimpleNamespace()
+        with tempfile.TemporaryDirectory() as temp:
+            game_dir = Path(temp)
+            with patch(
+                "original_game_host.install_first_screen_press_audio",
+            ) as install:
+                result = install_available_first_screen_press_audio(
+                    host,
+                    game_dir,
+                    backend=object(),
+                )
+            self.assertIsNone(result)
+            self.assertIn("unavailable", host.first_screen_audio_error)
+            install.assert_not_called()
+
+            bank = game_dir / FIRST_SCREEN_MENUS_BANK_RELATIVE_PATH
+            bank.parent.mkdir(parents=True)
+            bank.write_bytes(b"wrong")
+            with patch(
+                "original_game_host.install_first_screen_press_audio",
+            ) as install:
+                result = install_available_first_screen_press_audio(
+                    host,
+                    game_dir,
+                    backend=object(),
+                )
+            self.assertIsNone(result)
+            self.assertIn("does not match canonical", host.first_screen_audio_error)
+            install.assert_not_called()
+
+    def test_first_screen_audio_runtime_unavailable_windows_backend_is_fail_open(self):
+        payload = b"canonical-menu-bank"
+        profile = {
+            "size_bytes": len(payload),
+            "sha256": sha256(payload).hexdigest(),
+        }
+        host = SimpleNamespace()
+
+        with tempfile.TemporaryDirectory() as temp:
+            game_dir = Path(temp)
+            bank = game_dir / FIRST_SCREEN_MENUS_BANK_RELATIVE_PATH
+            bank.parent.mkdir(parents=True)
+            bank.write_bytes(payload)
+            with (
+                patch.dict(
+                    "original_game_host.CANONICAL_FM2001_BANK_PROFILES",
+                    {"menus.bnk": profile},
+                    clear=False,
+                ),
+                patch(
+                    "original_game_host.WindowsMemoryWaveMenuPcmBackend",
+                    side_effect=Gate14WindowsMenuPcmBackendError("no winsound"),
+                ),
+                patch(
+                    "original_game_host.install_first_screen_press_audio",
+                ) as install,
+            ):
+                result = install_available_first_screen_press_audio(host, game_dir)
+
+        self.assertIsNone(result)
+        self.assertIn("backend unavailable", host.first_screen_audio_error)
+        install.assert_not_called()
+
+    def test_run_original_game_ui_installs_first_screen_audio_after_host_creation(self):
+        fake_root = SimpleNamespace(mainloop=Mock())
+        fake_tk = SimpleNamespace(Tk=Mock(return_value=fake_root))
+        fake_presenter = object()
+        fake_host = object()
+        game_dir = Path("/original/game")
+        source_root = Path("/bundled/source")
+
+        with (
+            patch.dict(sys.modules, {"tkinter": fake_tk}),
+            patch("original_game_host.play_configured_startup_media") as startup,
+            patch(
+                "original_game_host.build_original_game_presenter",
+                return_value=fake_presenter,
+            ) as build,
+            patch(
+                "original_game_host.OriginalGameTkHost",
+                return_value=fake_host,
+            ) as host_ctor,
+            patch(
+                "original_game_host.install_available_first_screen_press_audio",
+            ) as install,
+        ):
+            run_original_game_ui(game_dir, source_root=source_root)
+
+        startup.assert_called_once()
+        build.assert_called_once_with(game_dir, source_root=source_root)
+        self.assertIs(host_ctor.call_args.args[0], fake_presenter)
+        install.assert_called_once_with(fake_host, game_dir)
+        fake_root.mainloop.assert_called_once_with()
 
     def test_default_source_root_is_repository_original_asset_store(self):
         self.assertEqual(
