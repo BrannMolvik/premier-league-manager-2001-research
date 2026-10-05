@@ -35,12 +35,16 @@ ANNUAL_COMPETITION_TRANSITION_VA = 0x4A8628
 SPORTING_OBJECTIVE_PROGRESS_VA = 0x5E1C00
 SPORTING_OBJECTIVE_BRANCH_VA = 0x5E0310
 SPORTING_OBJECTIVE_CLASSIFICATION_COMPARE_VA = 0x5E07E4
+BETWEEN_PROGRESSION_PASSES_TRANSITION_VA = 0x4F9010
 ANNUAL_OBJECTIVE_EVALUATION_CALLER_VA = 0x426220
 ANNUAL_OBJECTIVE_EVALUATION_VA = 0x5E1D90
 DBRUSER_SACKING_REASON_SETTER_VA = 0x42C6C0
 
+OBJECTIVE_SELECTED_ID_OFFSET = 0x64
 OBJECTIVE_PROGRESSION_GATE_OFFSET = 0x68
 OBJECTIVE_PROGRESSION_STATE_OFFSET = 0x9C
+SPORTING_OBJECTIVE_SWITCH_CASE_COUNT = 17
+SPORTING_OBJECTIVE_PASS_SEQUENCE = (1, 0)
 
 SPORTING_OBJECTIVE_TRACE_WINDOWS = (
     (
@@ -52,6 +56,11 @@ SPORTING_OBJECTIVE_TRACE_WINDOWS = (
         "sporting objective progression",
         SPORTING_OBJECTIVE_PROGRESS_VA,
         0x340,
+    ),
+    (
+        "competition transition between progression passes",
+        BETWEEN_PROGRESSION_PASSES_TRANSITION_VA,
+        0x240,
     ),
     (
         "sporting objective branch family",
@@ -190,13 +199,21 @@ def sporting_objective_progression_trace_report(
             "sporting_objective_classification_compare_va": (
                 SPORTING_OBJECTIVE_CLASSIFICATION_COMPARE_VA
             ),
+            "between_progression_passes_transition_va": (
+                BETWEEN_PROGRESSION_PASSES_TRANSITION_VA
+            ),
             "annual_objective_evaluation_caller_va": (
                 ANNUAL_OBJECTIVE_EVALUATION_CALLER_VA
             ),
             "annual_objective_evaluation_va": ANNUAL_OBJECTIVE_EVALUATION_VA,
             "dbruser_sacking_reason_setter_va": DBRUSER_SACKING_REASON_SETTER_VA,
+            "objective_selected_id_offset": OBJECTIVE_SELECTED_ID_OFFSET,
             "objective_progression_gate_offset": OBJECTIVE_PROGRESSION_GATE_OFFSET,
             "objective_progression_state_offset": OBJECTIVE_PROGRESSION_STATE_OFFSET,
+            "sporting_objective_switch_case_count": (
+                SPORTING_OBJECTIVE_SWITCH_CASE_COUNT
+            ),
+            "sporting_objective_pass_sequence": SPORTING_OBJECTIVE_PASS_SEQUENCE,
             "same_premier_league_slice_recovered": True,
             "annual_evaluation_year_gate_recovered": True,
         },
@@ -212,8 +229,10 @@ def sporting_objective_progression_trace_report(
         "gate17_complete": False,
         "evidence_limit": (
             "Bounded canonical source windows and decoded direct CALL candidates "
-            "only. Repository evidence already closes the same-Premier-League "
-            "sporting slice, the +0x68 progression gate, +0x9C progression state "
+            "only. Repository evidence already closes the 17-way objective-ID "
+            "switch structure, pass-1 then pass-0 annual sequence, the "
+            "same-Premier-League sporting slice, the +0x68 progression gate, "
+            "+0x9C progression state "
             "and the year-gated 0x5E1D90 evaluator. Candidate callers and bounded "
             "windows do not prove annual owner chronology, broader non-PL objective "
             "branches, promotion/relegation classification semantics, non-PL gate "
