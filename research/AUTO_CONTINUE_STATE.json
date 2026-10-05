@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Private archive access remains blocked. Current cloud-safe task is PR #467 head 61a1690f: Gate-17 final release audit must require every final Gate-15 accepted_documented gap title in RELEASE_LIMITATIONS.md. Await current-head reconstruction + asset-policy CI; merge only if green.",
+  "active_task": "PR #467 head 61a1690f is the exact active cloud-safe task. Asset policy is green; wait only for one terminal successful current-head reconstruction run, then merge, reconcile stale source_execution_blocker metadata, and continue the next canonical task.",
   "last_known_main_head": "96fb6d77a71f5cca6dc2b510bdd391fd8be27dc3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 317,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 317 checkpoint: PR #467 implements Gate15 accepted_documented -> final release limitations coverage using the canonical Gate15 audit. No gate status changes. Current head 61a1690f includes final-review instructions in RELEASE_LIMITATIONS.md.",
+  "recovery_generation": 318,
+  "last_recovery_reason": "connection-interrupted",
+  "note": "Recovery 318 resumed without restarting completed work. Main 96fb6d77; PR #467 current head 61a1690f; asset policy green; duplicate current-head reconstruction runs exist due final docs update.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
