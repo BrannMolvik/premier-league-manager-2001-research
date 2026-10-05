@@ -11404,3 +11404,13 @@ work may continue under the deferred-blocker policy.
 - Gate 17 now reruns the canonical Gate-15 fidelity audit and fails if a final `accepted_documented` Gate-15 item is omitted by exact gap name from `RELEASE_LIMITATIONS.md`. The final receipt records the Gate-15 ledger hash/disclosure list. No gate-complete flag changed.
 - Recovery 318 re-materialized the exact 511,121,336-byte authorized source archive, but real Python `zipfile` access immediately failed with `caas.internal.errors.ClientError`. The prepared TeamTable private trace remains unexecuted.
 - Next cloud-safe critical-path task is the Gate-17 bundled-FFmpeg provenance/license guard. The package currently stages the `imageio-ffmpeg` Windows executable as `runtime_tools/ffmpeg.exe`; do not claim release compliance until exact binary provenance, license and corresponding-source/source-offer handling are fail-closed and documented.
+
+## 5 October 2026 — Recovery 318 FFmpeg redistribution boundary checkpoint
+
+- PR #468 merged as `fabbe1971d7c8667dc7a347498b64f7970bc1970` from verified head `03cb83e2d9fda998eb5ec265eb198fde7723f24c`.
+- Reconstruction run `37336912015` passed **2,599 tests with 23 expected skips**; Windows package run `37336911662` passed end-to-end; repository asset-policy run `37336911707` passed.
+- Windows packaging now pins `imageio-ffmpeg==0.6.0`, validates the exact observed FFmpeg 7.1 Gyan essentials identity and emits a SHA-bound executable/provenance attestation.
+- The final Gate-17 audit now rejects the release until declared FFmpeg license/source-distribution materials are complete, hash-bound and present in the same archive. The canonical completion flags remain false and no legal-compliance claim is made.
+- A fresh trivial shell/Python process probe still failed with `caas.internal.errors.ClientError`; the private Gate-14 TeamTable trace remains blocked.
+- Next cloud-safe task is to audit whether a Windows release dependency strategy can avoid redistributing the current static GPL-enabled FFmpeg binary without weakening the startup-media path.
+
