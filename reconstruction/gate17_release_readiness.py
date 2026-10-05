@@ -31,6 +31,11 @@ from gate17_full_scope_catalog import (
 )
 from gate17_multi_human_capability import ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS
 from gate17_full_scope_preflight import run_canonical_full_scope_preflight
+from gate15_fidelity_ledger import (
+    Gate15FidelityLedgerError,
+    audit_repository_gate15,
+    load_fidelity_ledger,
+)
 
 
 class ReleaseReadinessError(RuntimeError):
@@ -605,6 +610,65 @@ def validate_limitations_document(
     }
 
 
+def validate_gate15_release_disclosures(
+    repo_root: Path,
+    limitations_path: str,
+) -> dict:
+    """Require every accepted Gate-15 fidelity item in final release notes.
+
+    The Gate-15 ledger remains the canonical status source. This final-release
+    bridge does not reinterpret fidelity outcomes: it first requires the
+    repository Gate-15 audit to be ready and explicitly declared complete, then
+    checks that each item finalized as accepted_documented is named verbatim in
+    the human-facing release limitations document. Fixed/proven-irrelevant rows
+    are not release limitations and therefore are not required there.
+    """
+    root = Path(repo_root).resolve()
+    path = (root / limitations_path).resolve()
+    if not path.is_relative_to(root):
+        raise ReleaseReadinessError("limitations document escaped repository root")
+    if not path.is_file():
+        raise ReleaseReadinessError(f"limitations document is missing: {path}")
+
+    ledger_path = root / "research" / "GATE15_FIDELITY_ACCEPTANCE_LEDGER.json"
+    try:
+        audit = audit_repository_gate15(root)
+        payload = json.loads(ledger_path.read_text(encoding="utf-8"))
+        declared, items = load_fidelity_ledger(payload)
+    except (OSError, UnicodeError, json.JSONDecodeError, Gate15FidelityLedgerError) as exc:
+        raise ReleaseReadinessError(
+            "unable to validate final Gate-15 fidelity ledger for release"
+        ) from exc
+
+    if not declared or not audit.declared_complete or not audit.gate15_ready:
+        raise ReleaseReadinessError(
+            "Gate-15 fidelity ledger is not declared complete and release-ready"
+        )
+
+    accepted = tuple(
+        item.gap
+        for item in items
+        if item.owner_gate == 15 and item.status == "accepted_documented"
+    )
+    text = path.read_text(encoding="utf-8")
+    missing = tuple(gap for gap in accepted if gap not in text)
+    if missing:
+        raise ReleaseReadinessError(
+            "release limitations omit accepted Gate-15 fidelity items: "
+            + ", ".join(missing)
+        )
+
+    return {
+        "ledger_path": "research/GATE15_FIDELITY_ACCEPTANCE_LEDGER.json",
+        "ledger_sha256": _sha256_file(ledger_path),
+        "gate15_declared_complete": True,
+        "gate15_ready": True,
+        "accepted_documented_count": len(accepted),
+        "accepted_documented_gaps": list(accepted),
+        "all_accepted_documented_disclosed": True,
+    }
+
+
 def validate_roadmap_prerequisites(repo_root: Path) -> dict:
     """Require every Gate 1-16 completion criterion to be checked.
 
@@ -847,6 +911,10 @@ def run_final_release_audit(
     )
     archive = validate_release_archive(release_archive, evidence.archive, root)
     limitations = validate_limitations_document(root, evidence.limitations_path)
+    gate15_fidelity_disclosures = validate_gate15_release_disclosures(
+        root,
+        evidence.limitations_path,
+    )
 
     asset_policy = run_repository_command(
         [sys.executable, "tools/check_repository_assets.py"],
@@ -885,6 +953,7 @@ def run_final_release_audit(
         "full_original_scope_binding": full_scope_binding,
         "release_archive": archive,
         "limitations": limitations,
+        "gate15_fidelity_disclosures": gate15_fidelity_disclosures,
         "asset_policy": asset_policy,
         "canonical_source_verification": canonical,
         "full_automated_suite": full_suite,

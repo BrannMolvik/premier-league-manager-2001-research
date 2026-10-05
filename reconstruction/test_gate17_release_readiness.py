@@ -22,6 +22,7 @@ from gate17_release_readiness import (
     run_final_release_audit,
     validate_external_receipts,
     validate_full_original_scope_binding,
+    validate_gate15_release_disclosures,
     validate_limitations_document,
     validate_release_archive,
     validate_roadmap_prerequisites,
@@ -110,6 +111,87 @@ def write_roadmap(path, *, open_gate=None, omit_gate=None):
         lines.append(f"- [{marker}] criterion {gate}")
         lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_final_gate15_state(
+    repo: Path,
+    *,
+    accepted=("Accepted fidelity limitation",),
+    fixed=("Fixed fidelity item",),
+    declared=True,
+    pending=(),
+):
+    research = repo / "research"
+    research.mkdir(parents=True, exist_ok=True)
+    rows = []
+    items = []
+    for gap in accepted:
+        rows.append((gap, "15"))
+        items.append(
+            {
+                "gap": gap,
+                "planned_gate": "15",
+                "owner_gate": 15,
+                "status": "accepted_documented",
+                "fallback_described_as_original": False,
+                "release_limitation_required_if_accepted": True,
+            }
+        )
+    for gap in fixed:
+        rows.append((gap, "15"))
+        items.append(
+            {
+                "gap": gap,
+                "planned_gate": "15",
+                "owner_gate": 15,
+                "status": "fixed",
+                "fallback_described_as_original": False,
+                "release_limitation_required_if_accepted": True,
+            }
+        )
+    for gap in pending:
+        rows.append((gap, "15"))
+        items.append(
+            {
+                "gap": gap,
+                "planned_gate": "15",
+                "owner_gate": 15,
+                "status": "pending_final_acceptance",
+                "fallback_described_as_original": False,
+                "release_limitation_required_if_accepted": True,
+            }
+        )
+
+    lines = [
+        "# Fidelity gaps",
+        "",
+        "## Active gaps",
+        "",
+        "| Gap | Current behavior | Fidelity boundary | Planned gate |",
+        "| --- | --- | --- | --- |",
+    ]
+    lines.extend(
+        f"| {gap} | synthetic current | synthetic boundary | {planned} |"
+        for gap, planned in rows
+    )
+    (research / "FIDELITY_GAPS.md").write_text(
+        "\n".join(lines) + "\n",
+        encoding="utf-8",
+    )
+    (research / "GATE15_FIDELITY_ACCEPTANCE_LEDGER.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "source_path": "research/FIDELITY_GAPS.md",
+                "gate15_declared_complete": declared,
+                "items": items,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    write_roadmap(repo / "ROADMAP.md")
 
 
 class Gate17ReleaseReadinessTests(unittest.TestCase):
@@ -348,6 +430,86 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 repo, evidence.limitations_path
             )
             self.assertGreater(limits["characters"], 200)
+
+    def test_gate15_accepted_fidelity_items_must_be_disclosed_verbatim(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            repo.mkdir()
+            write_final_gate15_state(repo)
+            limitations = repo / "research" / "RELEASE_LIMITATIONS.md"
+            limitations.write_text(
+                "# Release limitations\n\n"
+                "Accepted fidelity limitation\n\n"
+                + "Detailed user-facing explanation. " * 10,
+                encoding="utf-8",
+            )
+
+            result = validate_gate15_release_disclosures(
+                repo,
+                "research/RELEASE_LIMITATIONS.md",
+            )
+            self.assertTrue(result["gate15_declared_complete"])
+            self.assertTrue(result["gate15_ready"])
+            self.assertEqual(result["accepted_documented_count"], 1)
+            self.assertEqual(
+                result["accepted_documented_gaps"],
+                ["Accepted fidelity limitation"],
+            )
+            self.assertTrue(result["all_accepted_documented_disclosed"])
+
+            limitations.write_text(
+                "# Release limitations\n\n"
+                + "A different limitation is described here. " * 10,
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "omit accepted Gate-15 fidelity items",
+            ):
+                validate_gate15_release_disclosures(
+                    repo,
+                    "research/RELEASE_LIMITATIONS.md",
+                )
+
+    def test_gate15_release_disclosure_guard_rejects_nonfinal_ledger(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            repo.mkdir()
+            write_final_gate15_state(
+                repo,
+                accepted=(),
+                fixed=("Fixed fidelity item",),
+                declared=False,
+            )
+            limitations = repo / "research" / "RELEASE_LIMITATIONS.md"
+            limitations.write_text(
+                "# Release limitations\n\n" + "No accepted limitation. " * 20,
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "not declared complete and release-ready",
+            ):
+                validate_gate15_release_disclosures(
+                    repo,
+                    "research/RELEASE_LIMITATIONS.md",
+                )
+
+            write_final_gate15_state(
+                repo,
+                accepted=(),
+                fixed=("Fixed fidelity item",),
+                pending=("Pending fidelity item",),
+                declared=True,
+            )
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "unable to validate final Gate-15 fidelity ledger",
+            ):
+                validate_gate15_release_disclosures(
+                    repo,
+                    "research/RELEASE_LIMITATIONS.md",
+                )
 
     def test_missing_or_false_windows_evidence_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -927,6 +1089,16 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 patch(
                     "gate17_release_readiness.validate_limitations_document",
                     return_value={"path": "research/RELEASE_LIMITATIONS.md"},
+                ),
+                patch(
+                    "gate17_release_readiness.validate_gate15_release_disclosures",
+                    return_value={
+                        "gate15_declared_complete": True,
+                        "gate15_ready": True,
+                        "accepted_documented_count": 0,
+                        "accepted_documented_gaps": [],
+                        "all_accepted_documented_disclosed": True,
+                    },
                 ),
                 patch(
                     "gate17_release_readiness.run_repository_command",
