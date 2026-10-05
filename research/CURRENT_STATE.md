@@ -7,6 +7,46 @@ This is the **canonical live resume point**. Historical chronology belongs in
 topic-specific research files.
 
 
+## Recovery 319 continuation — h264_mf private-audit path canonical
+
+PR #470 merged as `bb32e74cff669b2fdd489058f118a8476f207ad1`
+from head `97463a335da3f9f2440abe745807aad0ba2dca84`.
+Reconstruction run `37343527426` passed **2,607 tests / 23 expected
+skips**. Windows package run `37343527442` passed the pinned candidate
+probe, package-focused tests, PyInstaller freeze, frozen-executable smoke,
+deterministic candidate archive and artifact upload. Repository asset-policy
+run `37343527679` passed.
+
+The startup-media conversion layer now has a named candidate-only
+`h264_mf` profile while preserving `libx264` as the normal production
+default. The private Gate-14 converter accepts
+`--video-encoder h264_mf`; runtime startup-cache creation, cache reuse and
+receipts are profile-bound as well as FFmpeg-SHA-bound, so a prior
+`libx264` derivative cache cannot be reused as evidence for the candidate
+profile. The exact outside-Git command for the private original-TGQ audit is
+recorded in `research/GATE17_FFMPEG_LGPL_MIGRATION.md`.
+
+A fresh Recovery-319 retry materialized the authorized 511,121,336-byte source
+archive, but both the container execution path and an independent notebook
+Python probe failed with `caas.internal.errors.ClientError` before real
+archive access. Therefore no exact original TGQ was converted in this
+checkpoint and production packaging remains unchanged.
+
+PR #471 is the current cloud-safe follow-up. Its Windows run
+`37344094021` has already passed the same pinned LGPL archive with both
+`ffmpeg.exe` and `ffprobe.exe`, the production converter's
+`-fps_mode passthrough`, exact H.264/yuv420p/AAC/MP4 synthetic probing,
+frozen packaging and smoke testing. Its full reconstruction run
+`37344093250` is still pending completion and PR #471 must not be merged
+until that run is green.
+
+**Exact next task:** finish #471 verification and merge only if the full
+reconstruction suite passes. Then retry private archive execution and, if
+healthy, run both exact original startup TGQs through the pinned LGPL
+`h264_mf` + matching FFprobe path. Until that private receipt exists, keep
+`libx264` as production default and keep the #468 third-party release
+boundary fail-closed.
+
 ## Recovery 318 continuation — LGPL FFmpeg candidate probe canonical
 
 PR #469 merged as `4f0443ffe40ff93ad48fd93b4d196dbb5ab394e4`
