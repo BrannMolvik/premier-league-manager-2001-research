@@ -89,7 +89,7 @@ class Gate17SportingObjectiveProgressionSourceTraceTests(unittest.TestCase):
         self.assertEqual(contract["objective_progression_gate_offset"], 0x68)
         self.assertEqual(contract["objective_progression_state_offset"], 0x9C)
         self.assertEqual(contract["sporting_objective_switch_case_count"], 17)
-        self.assertEqual(contract["sporting_objective_pass_sequence"], (1, 0))
+        self.assertEqual(contract["sporting_objective_pass_sequence"], [1, 0])
         self.assertTrue(contract["same_premier_league_slice_recovered"])
         self.assertTrue(contract["annual_evaluation_year_gate_recovered"])
 
