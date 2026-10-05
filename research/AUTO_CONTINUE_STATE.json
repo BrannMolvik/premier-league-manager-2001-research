@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "Gate 14 remains earliest incomplete. PR #463 readiness reconciliation is canonical; finish validating PR #464 Gate-15 fidelity ledger, then reconcile CURRENT_STATE/project_status/PROGRESS and continue source-established work while private execution and external Windows receipts remain blocked.",
-  "last_known_main_head": "7eccca00151672e7933ed33d482c5adddf7e8615",
+  "active_task": "Gate 14 remains earliest incomplete. Canonical state is reconciled through PR #463; finish current-head PR #464 Gate-15 fidelity ledger CI/merge, then retry private execution and continue the highest-priority source-established Gate-14 closure route.",
+  "last_known_main_head": "cd9f3d4b0de1e7c80708375fc230152e877e79ce",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 316,
   "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 315 checkpoint: #463 merged as 7eccca00 after reconstruction run 37322157361 passed. Gate 14 remains open; no later gate promoted.",
+  "note": "Recovery 315 checkpoint: CURRENT_STATE/project_status/PROGRESS now canonical through #463 on main cd9f3d4b. #464 remains open; external Gate14 receipts absent and private process execution blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
