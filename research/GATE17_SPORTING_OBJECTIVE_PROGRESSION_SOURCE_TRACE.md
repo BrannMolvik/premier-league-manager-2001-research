@@ -10,11 +10,12 @@ Repository-backed implementation research already retains these original anchors
 - sporting-objective progression: `0x5E1C00`;
 - neighboring sporting-objective branch family: `0x5E0310`;
 - competition-classification comparison used by the recovered objective-6 path: `0x5E07E4`;
+- competition transition between the two annual progression passes: `0x4F9010`;
 - annual objective evaluation caller: `0x426220`;
 - year-gated financial/objective evaluation: `0x5E1D90`;
 - DBRUser sacking-reason setter: `0x42C6C0`.
 
-The clean-room objective state also preserves the source-backed progression gate at relative `+0x68` and progression-state byte at `+0x9C`.
+The clean-room objective state also preserves the selected objective ID at relative `+0x64`, progression gate at `+0x68`, and progression-state byte at `+0x9C`. Earlier canonical source work proves that `0x5E0310` is a 17-way switch on the selected objective ID and that season finalization invokes the progression path twice: pass 1, then after `0x4F9010`, pass 0.
 
 The existing Premier League slice is intentionally bounded. It reproduces the recovered same-league branches used by current PL objectives and keeps the broader promotion/relegation classification routes deferred.
 
@@ -37,8 +38,10 @@ classification. They are discovery aids only.
 The report preserves as already recovered:
 
 - the exact source anchors above;
+- selected-objective ID offset `+0x64`;
 - objective progression gate offset `+0x68`;
 - progression state offset `+0x9C`;
+- the 17-way switch structure and exact annual pass sequence `(1, 0)`;
 - the bounded same-Premier-League sporting slice;
 - the year-gated annual evaluator.
 
