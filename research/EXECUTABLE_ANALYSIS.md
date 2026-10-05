@@ -9730,3 +9730,43 @@ Regression coverage locks the shared permanent-arrival increment, the absence
 of autonomous double-counting, day-1-only reset, and the Saturday
 1 September 2001 edge where a count of four blocks the buyer before any RNG
 and resets only afterward.
+
+## Recovery 322: startup FMV uses a centered 640x480 DirectDraw movie surface
+
+Private re-analysis of the canonical executable SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+closed the previously unresolved player-visible movie geometry.
+
+At `0x461900`:
+
+```text
+0x46190D  call 0x615600          ; active display mode
+mode 0 -> eax=640, ecx=480
+mode 1 -> eax=800, ecx=600
+...
+0x461944  [0x876644] = (width  - 640) / 2
+0x461954  [0x876640] = (height - 480) / 2
+...
+0x461A2C  push 480
+0x461A31  push 640
+0x461A36  push display/surface owner
+0x461A37  call 0x6555D0         ; create 640x480 movie surface
+0x461A46  [0x876648] = returned surface
+```
+
+The callback installed at `0x461AB2` is `0x461CD0`. It always builds source
+rectangle `{0,0,640,480}`, constructs a destination rectangle from the
+centered offsets with the same 640x480 extent, retrieves the game display
+surface through `0x6155A0`, and invokes its blit-style virtual method with
+movie surface `[0x876648]`.
+
+Thus ordinary mode 1 (800x600) presents the movie at
+`{80,60,720,540}`; mode 0 (640x480) presents it at
+`{0,0,640,480}`. The original startup movie is integrated into the
+game-owned DirectDraw presentation surface.
+
+The TGQ source itself remains 320x480. The decoder therefore expands the
+encoded frame into the 640x480 movie surface before the final 1:1 display
+blit. The exact horizontal interpolation/duplication and interlace treatment
+inside that decode/output stage are not yet recovered.
+
