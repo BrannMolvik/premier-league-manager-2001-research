@@ -37,6 +37,7 @@ from original_first_screen_presenter import (
     OriginalHierarchyInteraction,
 )
 from original_live_debug_view import build_original_debug_frame, endpoint_text_rgba
+from original_front_end_animation import OriginalFirstScreenAnimation
 from original_league_fixtures_art import (
     OriginalLeagueFixturesGridArt,
     load_verified_league_fixtures_grid_art,
@@ -172,6 +173,10 @@ class OriginalGameTkHost:
         self.pmatchinfo_script_pressed = None
         self.active_pmatchinfo_art = None
         self._photos = []
+        self.first_screen_animation = OriginalFirstScreenAnimation()
+        self.first_screen_frame = None
+        self._first_screen_pointer = None
+        self._first_screen_idle = None
         self.last_status = "Source-backed FM2001 host ready"
 
         self.root.title("Premier League Manager 2001")
@@ -207,7 +212,10 @@ class OriginalGameTkHost:
 
     def _draw_first_screen(self) -> None:
         view = self.presenter.snapshot()
-        frame = build_original_debug_frame(view, 0)
+        self.first_screen_animation.observe(view, self._first_screen_pointer)
+        frame = build_original_debug_frame(view, self.first_screen_animation.frames(view))
+        self.first_screen_frame = frame
+        self._schedule_first_screen_update(view)
         self.canvas.delete("all")
         self._photos = []
 
@@ -276,6 +284,20 @@ class OriginalGameTkHost:
                 image=glyphs,
                 anchor=self.tk.NW,
             )
+
+    def _schedule_first_screen_update(self, view):
+        if self._first_screen_idle is None and self.first_screen_animation.pending(view):
+            self._first_screen_idle = self.root.after_idle(self._advance_first_screen)
+
+    def _advance_first_screen(self):
+        self._first_screen_idle = None
+        if self.presenter.session.navigation.screen not in (
+                FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
+            return
+        view = self.presenter.snapshot()
+        self.first_screen_animation.observe(view, self._first_screen_pointer)
+        if self.first_screen_animation.advance(view):
+            self.redraw()
 
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
@@ -391,6 +413,13 @@ class OriginalGameTkHost:
         return len(controls)
 
     def on_fixtures_pager_motion(self, event):
+        self._first_screen_pointer = (int(event.x), int(event.y))
+        if self.presenter.session.navigation.screen in (
+                FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
+            view = self.presenter.snapshot()
+            self.first_screen_animation.observe(view, self._first_screen_pointer)
+            self._schedule_first_screen_update(view)
+            return
         changed = False
         if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
                 and self.active_pmatchinfo_art is None and self.pmenu_popup_active
@@ -478,6 +507,9 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_management_host(self) -> None:
+        if self._first_screen_idle is not None:
+            self.root.after_cancel(self._first_screen_idle)
+            self._first_screen_idle = None
         if self.management_presenter is None:
             self.management_presenter = self.management_presenter_factory(
                 self.presenter.session

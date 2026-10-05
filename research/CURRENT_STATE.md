@@ -8,6 +8,25 @@ topic-specific research files.
 
 ## Daniel approved the decisive native capacity probe (5 October 2026 KST)
 
+### Fixed closure boundary: live Button implementation checkpoint
+
+Canonical base `186ed2970c9803284280005b97a26e47d37e1eaf` preserves the
+worker's disjoint Gate14/15 work. On `codex/gate13-fixed-closure`, the ordinary
+Button owner/cadence is now source-qualified: `531B40 -> 5329D0 -> 6541E0 ->
+6538F0 -> child vtable+68 (6527F0)`. This is a serialized available UI pass,
+not a fixed millisecond timer. The Tk host advances the recovered eleven-step
+state once per idle pass, stops stable redraws and retreats on pointer leave.
+Focused tests: **38 tests /1 expected licensed-source skip PASS**. Live Windows
+animation validation and final regression remain pending. Evidence and exact
+private receipt hashes: `GATE13_FIXED_CLOSURE_SLICE.md`.
+
+The only other accepted implementation blocker is required management
+`back_4/back_4_anim` dynamic header art/text and ordinary data/text rendering.
+Then audit the four ROADMAP criteria. Non-blocking pixels/secondary states/
+obscure refinements belong to Gate15; do not reopen paging, capacity, report,
+save/reload or PMatchInfo. Gate13 remains open pending this fixed slice and
+final validation. No original execution, ownership or agent-runtime change.
+
 ### Current result: selected read reached with uninterrupted watch coverage
 
 **Subsequent executable milestone:** the canonical human-away fixture now

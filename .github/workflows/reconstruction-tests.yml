@@ -50,6 +50,8 @@ on:
       - "reconstruction/original_management_presenter.py"
       - "reconstruction/test_original_management_presenter.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/original_front_end_animation.py"
+      - "reconstruction/test_original_front_end_animation.py"
       - "reconstruction/original_fixtures_pager.py"
       - "reconstruction/test_original_fixtures_pager.py"
       - "reconstruction/original_pmenu_popup.py"

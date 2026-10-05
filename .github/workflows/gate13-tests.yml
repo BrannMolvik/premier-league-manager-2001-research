@@ -63,6 +63,8 @@ on:
       - "reconstruction/original_management_canvas.py"
       - "reconstruction/test_original_management_canvas.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/original_front_end_animation.py"
+      - "reconstruction/test_original_front_end_animation.py"
       - "reconstruction/original_fixtures_pager.py"
       - "reconstruction/test_original_fixtures_pager.py"
       - "reconstruction/original_pmenu_popup.py"
@@ -190,6 +192,7 @@ jobs:
             test_original_management_presenter \
             test_original_management_canvas \
             test_original_game_host \
+            test_original_front_end_animation \
             test_original_fixtures_pager \
             test_original_pmenu_popup \
             test_original_fixture_match_info_link \
