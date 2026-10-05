@@ -44,12 +44,27 @@ SQUAD_VTABLE_SEEDS = (
 
 # These are bounded inspection windows anchored at already-proven entry points.
 # Sizes are analyst windows, not claims about exact function boundaries.
+# Recovery 323 retained private trace proved these direct call targets inside the
+# ordinary PSquadPlayerRow constructor. They remain evidence anchors only:
+# names/predicate meanings and packed-color semantics still require CFG/data-flow
+# adjudication against the canonical executable.
+PSQUAD_PLAYER_ROW_SETUP_VA = 0x489530
+PSCF_ROW_SETUP_VA = 0x489B40
+SQUAD_PLAYER_COLOR_PREDICATE_VA = 0x4EA3F0
+SQUAD_PLAYER_INDEX_HELPER_VA = 0x4EA3C0
+SQUAD_PLAYER_NAME_CONTROL_SETUP_VA = 0x5D6C50
+
 SQUAD_TRACE_WINDOWS = (
     ("PSquadPitch setup / FormationText row construction", SQUAD_PITCH_SETUP_VA, 0x500),
     ("FormationText squad_bars setup", FORMATION_TEXT_BAR_SETUP_VA, 0xD0),
     ("FormationText squad_form_anim setup", FORMATION_TEXT_FORM_SETUP_VA, 0xE0),
     ("PSquadScreen setup / roster construction", SQUAD_SCREEN_SETUP_VA, 0x500),
     ("PSquadScreen event handler / view switching", SQUAD_SCREEN_EVENT_HANDLER_VA, 0x300),
+    ("PSquadPlayerRow ordinary row setup", PSQUAD_PLAYER_ROW_SETUP_VA, 0x300),
+    ("PSCFRow side-column setup", PSCF_ROW_SETUP_VA, 0x280),
+    ("PSquadPlayerRow branch predicate helper", SQUAD_PLAYER_COLOR_PREDICATE_VA, 0x180),
+    ("PSquadPlayerRow player-index helper", SQUAD_PLAYER_INDEX_HELPER_VA, 0x180),
+    ("PSquadPlayerRow display-name control helper", SQUAD_PLAYER_NAME_CONTROL_SETUP_VA, 0x280),
 )
 
 SQUAD_CODE_SEEDS = tuple((label, va) for label, va, _ in SQUAD_TRACE_WINDOWS)
