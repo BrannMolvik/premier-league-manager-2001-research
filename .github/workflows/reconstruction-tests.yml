@@ -36,8 +36,7 @@ on:
       - "reconstruction/test_match_postmatch.py"
       - "reconstruction/match_simulation.py"
       - "reconstruction/test_match_simulation.py"
-      - "research/FIDELITY_GAPS.md"
-      # Gate13 batches may touch only presentation seams yet still import
+      - "research/FIDELITY_GAPS.md"\n      - "reconstruction/gate15_support_staff_cost_source_trace.py"\n      - "reconstruction/test_gate15_support_staff_cost_source_trace.py"\n      - "research/GATE15_SUPPORT_STAFF_COST_SOURCE_TRACE.md"\n      # Gate13 batches may touch only presentation seams yet still import
       # large portions of the reconstructed runtime. Give those code changes
       # one full integration suite on PR, while ordinary research/docs and
       # main checkpoints remain outside the full-suite trigger.
