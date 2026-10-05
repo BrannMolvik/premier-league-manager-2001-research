@@ -106,6 +106,10 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must explicitly re-enable Windows Media Foundation"
         )
+    if "--enable-w32threads" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must explicitly re-enable native Windows threads"
+        )
     if "--enable-demuxer=ea" not in args:
         raise MinimalFfmpegSourceContractError("minimal helper must enable the EA demuxer")
     if "--enable-encoder=h264_mf,aac" not in args:
