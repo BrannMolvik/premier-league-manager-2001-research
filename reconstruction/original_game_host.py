@@ -1099,3 +1099,15 @@ def run_original_game_ui(
         management_pmenu_resources=pmenu_resources,
         league_fixtures_grid_art=fixture_grid_art,
         fixtures_pager_art=load_verified_fixtures_pager_art(resolved_source_root, original_executable),
+        squad_top_resources=squad_top_resources,
+        league_tables_header_art=league_tables_header_art,
+        pmatchinfo_snapshot=pmatchinfo_snapshot,
+        pmatchinfo_font=validate_original_pmenu_font(resolved_source_root),
+        pmatchinfo_nested_font=load_pmatchinfo_nested_font(resolved_source_root),
+        pmatchinfo_script_art=load_script_row_art(
+            runtime_repo_root, original_executable, game_dir=game_dir),
+        management_background=OriginalManagementBackground(
+            resolved_source_root, original_executable),
+        management_header_resources=management_header_resources,
+    )
+    root.mainloop()
