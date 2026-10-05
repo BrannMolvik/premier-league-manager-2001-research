@@ -158,7 +158,9 @@ autodetection is disabled. It retains only:
 - the FFmpeg `ea` Electronic Arts demuxer;
 - `eatgq` plus the bounded set of EA audio codecs the upstream EA demuxer can
   select;
-- native AAC;
+- native H.264 and AAC decoders because the runtime immediately decode-verifies
+  each generated derivative before accepting its cache receipt;
+- native AAC encoding;
 - Windows Media Foundation `h264_mf`;
 - the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
   muxing machinery;
