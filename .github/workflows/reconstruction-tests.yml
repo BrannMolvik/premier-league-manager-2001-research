@@ -273,6 +273,8 @@ on:
       - "reconstruction/test_gate17_sporting_objective_adjudication.py"
       - "reconstruction/gate17_full_scope_receipt.py"
       - "reconstruction/test_gate17_full_scope_receipt.py"
+      - "reconstruction/gate17_external_validation.py"
+      - "reconstruction/test_gate17_external_validation.py"
       - "research/GATE17_SPORTING_OBJECTIVE_ADJUDICATION.md"
       - "research/GATE17_RELEASE_READINESS.md"
       - "research/RELEASE_LIMITATIONS.md"
