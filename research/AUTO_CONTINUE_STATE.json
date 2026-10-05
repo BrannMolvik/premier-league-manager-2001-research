@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete after merged #408, with the bounded management header/data-text slice still open. Gate17 PR #409 is canonical on main 4a1234b0. Gate17 PR #410 is mergeable on exact head b932a70ee2495a20e73611019e5ae600d5d3e938 after tightening the exact TeamSelect source-anchor guard and correcting its regression assertion; fresh reconstruction run 37266187239 and asset-policy run 37266187248 are pending. Validate and merge only this exact head if green. A separate un-opened objective-RNG caller tracer branch is prepared but must remain fail-closed and be reconciled only after #410.",
-  "last_known_main_head": "4a1234b03a5bc7c1257457da01d6c627d39e2a19",
+  "active_task": "Gate 13 remains earliest incomplete after merged #408, with the bounded management header/data-text slice separately owned. Gate17 multi-human adjudication #410 is canonical at main 5ecabcbd1ac0af42eafe1bd6d23e4502811e3d25 after reconstruction run 37266187239 passed 2,434 tests / 23 expected skips and asset-policy run 37266187248 passed. Continue the prepared disjoint Gate-17 objective-RNG caller tracer branch chatgpt/gate17-objective-rng-caller-source-trace: reconcile it onto current main, keep caller chronology/CRT entry state/RNG draw position/all-scope objective readiness fail-closed, validate with full reconstruction + asset policy, merge only if green, then persist the exact next private adjudication step.",
+  "last_known_main_head": "5ecabcbd1ac0af42eafe1bd6d23e4502811e3d25",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 300,
+  "recovery_generation": 301,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Supersede the earlier c02b2843 validation target. #410 current head is b932a70e. Objective RNG branch is preparation only: no caller chronology, CRT entry state, RNG draw position or all-scope objective readiness is claimed.",
+  "note": "Do not touch Gate13 presentation while it is separately owned. Objective-RNG tracer is evidence tooling only; raw CALL/global candidates are not objective-generation semantics.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
