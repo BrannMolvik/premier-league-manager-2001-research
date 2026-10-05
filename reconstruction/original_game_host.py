@@ -240,28 +240,10 @@ class OriginalGameTkHost:
         self.root.bind("<Alt-Return>", self.toggle_fullscreen)
         self.root.bind("<Escape>", self.leave_fullscreen)
         self._set_fullscreen(True)
-        self.canvas.bind(
-            "<Button-3>",
-            lambda event: self.on_fixture_report_press(
-                self._native_pointer_event(event)
-            ),
-        )
-        self.canvas.bind(
-            "<Button-1>",
-            lambda event: self.on_click(self._native_pointer_event(event)),
-        )
-        self.canvas.bind(
-            "<ButtonRelease-1>",
-            lambda event: self.on_script_arrow_release(
-                self._native_pointer_event(event)
-            ),
-        )
-        self.canvas.bind(
-            "<Motion>",
-            lambda event: self.on_fixtures_pager_motion(
-                self._native_pointer_event(event)
-            ),
-        )
+        self.canvas.bind("<Button-3>", self.on_fixture_report_press)
+        self.canvas.bind("<Button-1>", self.on_click)
+        self.canvas.bind("<ButtonRelease-1>", self.on_script_arrow_release)
+        self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
         self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
 
@@ -278,11 +260,19 @@ class OriginalGameTkHost:
             self._set_fullscreen(False)
         return "break"
 
-    def _native_pointer_event(self, event):
-        return SimpleNamespace(
-            x=int(event.x) // self.display_scale,
-            y=int(event.y) // self.display_scale,
-        )
+    def _normalize_pointer_event(self, event):
+        # Real Tk events identify the canvas widget and arrive in scaled
+        # display coordinates. Direct source/unit adapters intentionally pass
+        # native coordinates without a widget and therefore remain unchanged.
+        if (
+            self.display_scale != 1
+            and getattr(event, "widget", None) is self.canvas
+        ):
+            return SimpleNamespace(
+                x=int(event.x) // self.display_scale,
+                y=int(event.y) // self.display_scale,
+            )
+        return event
 
     def _scale_photo(self, photo):
         if self.display_scale == 1:
@@ -671,6 +661,7 @@ class OriginalGameTkHost:
         return len(controls)
 
     def on_fixtures_pager_motion(self, event):
+        event = self._normalize_pointer_event(event)
         self._first_screen_pointer = (int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
                 FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
@@ -1011,6 +1002,7 @@ class OriginalGameTkHost:
         self.last_status = "Closed source-accepted PMatchInfo popup"
 
     def on_fixture_report_press(self, event) -> None:
+        event = self._normalize_pointer_event(event)
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
 
         Opening requires the native captured-report owner, not completion or a
@@ -1050,6 +1042,7 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_script_arrow_release(self, event) -> None:
+        event = self._normalize_pointer_event(event)
         pager_changed = any(flags & 0x10 for flags in self.fixtures_pager_flags.values())
         self.fixtures_pager_flags = {direction: flags & ~0x10
                                     for direction, flags in self.fixtures_pager_flags.items()}
@@ -1061,6 +1054,7 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_click(self, event) -> None:
+        event = self._normalize_pointer_event(event)
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.active_pmatchinfo_art is not None:
                 if (self.active_pmatchinfo_context is not None
