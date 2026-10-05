@@ -122,3 +122,50 @@ canonical.
 - https://learn.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation
 - https://github.com/BtbN/FFmpeg-Builds
 - https://github.com/BtbN/FFmpeg-Builds/releases/tag/autobuild-2026-10-03-18-14
+
+
+## Recovery 319 source-minimization boundary
+
+The verified BtbN LGPL archive is technically useful, but its own
+`-version` configuration proves that it statically enables many third-party
+libraries. It therefore narrows the current GPL/libx264 problem without
+providing a minimal redistribution surface.
+
+The exact source chain now pinned for that verified broad candidate is:
+
+- BtbN FFmpeg-Builds release tag `autobuild-2026-10-03-18-14`;
+- BtbN build-repository commit
+  `9acad4a9ef1583096af7836cc1e9c8cbcb4d3950`;
+- build arguments `win64 lgpl 9.0`;
+- BtbN's `9.0` add-in selects FFmpeg branch `release/9.0`;
+- the candidate executable identifies FFmpeg source commit
+  `46d8f462eeb87ee1f704d8c44a0ee24fca471ad1`;
+- the LGPL variant's FFmpeg license file is `COPYING.LGPLv3`.
+
+`third_party/ffmpeg-lgpl-candidate/SOURCE-CONTRACT.json` keeps that broad
+candidate explicitly non-minimal and non-production-ready. It also defines a
+separate minimal-helper target pinned to the same FFmpeg source commit.
+
+The minimal target uses `--disable-everything --disable-autodetect`, enables
+no `--enable-lib*` dependency, and retains only:
+
+- file protocol;
+- the FFmpeg `ea` Electronic Arts demuxer;
+- `eatgq` plus the bounded set of EA audio codecs the upstream EA demuxer can
+  select;
+- native AAC;
+- Windows Media Foundation `h264_mf`;
+- the MP4-capable `mov` muxer;
+- the `ffmpeg` and `ffprobe` command-line programs.
+
+FFmpeg's upstream source identifies `eatgq` as the Electronic Arts TGQ video
+decoder and the `ea` input format as the Electronic Arts multimedia demuxer.
+FFmpeg's codec documentation lists `h264_mf` as a Media Foundation H.264
+encoder. These source facts bound the technical target but do not prove that
+the proposed minimal configure line builds successfully.
+
+All minimal-helper proof flags deliberately remain false. Promotion still
+requires an actual build from the pinned FFmpeg commit, synthetic conversion
+proof, exact original-TGQ conversion, external Windows 11 playback acceptance,
+and source/license material completion. The contract is technical provenance,
+not a legal-compliance determination.
