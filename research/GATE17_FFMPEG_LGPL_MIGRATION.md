@@ -147,7 +147,10 @@ candidate explicitly non-minimal and non-production-ready. It also defines a
 separate minimal-helper target pinned to the same FFmpeg source commit.
 
 The minimal target uses `--disable-everything --disable-autodetect`, enables
-no `--enable-lib*` dependency, and retains only:
+no `--enable-lib*` dependency, and then explicitly re-enables Windows
+Media Foundation because FFmpeg's configure script classifies
+`mediafoundation` as an autodetected platform facility and `h264_mf`
+depends on it. It retains only:
 
 - file protocol;
 - the FFmpeg `ea` Electronic Arts demuxer;
