@@ -196,18 +196,23 @@ def build_human_fastview_resolved_presentation(
     surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> HumanFastViewResolvedPresentation:
     """Build one source-bounded partial presentation from a completed outcome."""
+    frame_kwargs = {"score_table_static": score_table_static}
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            frame_kwargs[name] = value
     frame = build_human_fastview_frame_plan(
         outcome,
         chrome,
         possession,
         figures,
         team_art,
-        score_table_static=score_table_static,
-        score_draw_phases=score_draw_phases,
-        score_phase_text=score_phase_text,
-        clock=clock,
-        direct_header=direct_header,
-        surfaced=surfaced,
+        **frame_kwargs,
     )
     return _presentation_from_frame(frame)
 
@@ -230,21 +235,28 @@ def build_human_fastview_resolved_presentation_from_retained_histories(
     surfaced: FastViewSurfacedRasterSet | None = None,
 ) -> HumanFastViewResolvedPresentation:
     """Use the existing retained-history row path, then bind preview/coverage."""
+    frame_kwargs = {
+        "row_identities": row_identities,
+        "global_tick": global_tick,
+        "energy_rng6_rolls": energy_rng6_rolls,
+        "score_table_static": score_table_static,
+    }
+    for name, value in (
+        ("score_draw_phases", score_draw_phases),
+        ("score_phase_text", score_phase_text),
+        ("clock", clock),
+        ("direct_header", direct_header),
+        ("surfaced", surfaced),
+    ):
+        if value is not None:
+            frame_kwargs[name] = value
     frame = build_human_fastview_frame_plan_from_retained_histories(
         outcome,
         chrome,
         possession,
         figures,
         team_art,
-        row_identities=row_identities,
-        global_tick=global_tick,
-        energy_rng6_rolls=energy_rng6_rolls,
-        score_table_static=score_table_static,
-        score_draw_phases=score_draw_phases,
-        score_phase_text=score_phase_text,
-        clock=clock,
-        direct_header=direct_header,
-        surfaced=surfaced,
+        **frame_kwargs,
     )
     return _presentation_from_frame(frame)
 
