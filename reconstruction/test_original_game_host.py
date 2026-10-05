@@ -38,6 +38,8 @@ from original_game_host import (
     play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_text import load_verified_management_text_resources
+from original_league_tables_presenter import build_league_tables_snapshot
 from original_management_header import (
     HEADER_COMPOUND_RECT,
     OriginalManagementHeaderResources,
@@ -732,6 +734,47 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(len(host.canvas.images), 1)
         self.assertEqual(len(host._photos), 1)
         self.assertEqual(host.canvas.images[0][:2], LEAGUE_TABLES_BAR_RECT[:2])
+
+    def test_league_tables_draws_source_qualified_row_text(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_text_resources=load_verified_management_text_resources(source_root),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        snapshot = build_league_tables_snapshot(
+            (
+                SimpleNamespace(
+                    position=1,
+                    club_id=0,
+                    club_name="Arsenal",
+                    played=1,
+                    wins=1,
+                    draws=0,
+                    losses=0,
+                    goals_for=2,
+                    goals_against=0,
+                    points=3,
+                ),
+            )
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueTables",
+                league_tables=snapshot,
+            )
+        )
+
+        count = host._draw_league_tables_row_text(frame)
+
+        self.assertEqual(count, 9)
+        self.assertEqual(len(host.canvas.images), 9)
+        self.assertEqual(len(host._photos), 9)
+        # Club text is left-aligned in the exact 214x12 source control.
+        self.assertEqual(host.canvas.images[1][0], 316)
 
     def test_league_tables_header_fails_closed_without_complete_staging(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
