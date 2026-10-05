@@ -90,6 +90,7 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIn("'--prototype-ui'", source)
         self.assertIn("if args.prototype_ui:", source)
         self.assertIn("App(game_dir).mainloop()", source)
+        self.assertIn("'--skip-startup-media'", source)
         self.assertIn("'--startup-media-receipt'", source)
         self.assertIn("'--startup-media-player'", source)
         self.assertIn("'--startup-media-player-arg'", source)
@@ -140,6 +141,44 @@ class AppPresentationBoundaryTests(unittest.TestCase):
             Path("/package").resolve(),
         )
         make_backend.assert_called_once_with(platform_system="Windows")
+
+    def test_explicit_skip_startup_media_bypasses_default_windows_backend(self):
+        args = SimpleNamespace(
+            prototype_ui=False,
+            skip_startup_media=True,
+            startup_media_receipt=None,
+            startup_media_player=None,
+            startup_media_player_arg=[],
+        )
+        with (
+            patch.object(app_module, "prepare_runtime_startup_media") as prepare,
+            patch.object(app_module, "WindowsMciStartupMediaBackend") as backend,
+        ):
+            self.assertEqual(
+                app_module.configure_startup_media(
+                    args,
+                    Path("/game"),
+                    platform_system="Windows",
+                ),
+                (None, None, None),
+            )
+        prepare.assert_not_called()
+        backend.assert_not_called()
+
+    def test_skip_startup_media_rejects_explicit_player_override(self):
+        args = SimpleNamespace(
+            prototype_ui=False,
+            skip_startup_media=True,
+            startup_media_receipt=Path("/private/receipt.json"),
+            startup_media_player="player.exe",
+            startup_media_player_arg=[],
+        )
+        with self.assertRaisesRegex(ValueError, "cannot be combined"):
+            app_module.configure_startup_media(
+                args,
+                Path("/game"),
+                platform_system="Windows",
+            )
 
     def test_non_windows_default_does_not_invent_startup_backend(self):
         args = SimpleNamespace(
