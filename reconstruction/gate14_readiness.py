@@ -20,6 +20,8 @@ class Gate14ReadinessEvidence:
     presentation_separated_from_core_management: bool
 
     completed_human_resolved_fastview_path: bool
+    operator_visible_resolved_fastview_surface: bool
+    source_fastview_navigation_trigger_recovered: bool
     playerrow_energy_pixels_recovered: bool
     playerrow_text_pixels_recovered: bool
     score_subpanel_parameterized_construction_recovered: bool
@@ -43,6 +45,9 @@ class Gate14ReadinessEvidence:
     audio_bank_ownership_recovered: bool
     audio_playback_entrypoints_recovered: bool
     audio_sample_decode_ready: bool
+    first_screen_press_audio_bound: bool
+    startup_media_default_windows_path_integrated: bool
+    startup_media_real_windows_verified: bool
     audio_event_binding_recovered: bool
     audible_windows_verified: bool
     login_menu_audio_integrated: bool
@@ -58,6 +63,33 @@ class Gate14ReadinessEvidence:
         for name, value in self.__dict__.items():
             if type(value) is not bool:
                 raise Gate14ReadinessError(f"{name} must be boolean")
+
+        if self.operator_visible_resolved_fastview_surface and not (
+            self.completed_human_resolved_fastview_path
+        ):
+            raise Gate14ReadinessError(
+                "operator-visible FastView surface requires completed-human resolved path"
+            )
+        if self.source_fastview_navigation_trigger_recovered and not (
+            self.operator_visible_resolved_fastview_surface
+        ):
+            raise Gate14ReadinessError(
+                "source FastView navigation trigger requires operator-visible surface"
+            )
+        if self.first_screen_press_audio_bound and not (
+            self.audio_bank_ownership_recovered
+            and self.audio_playback_entrypoints_recovered
+            and self.audio_sample_decode_ready
+        ):
+            raise Gate14ReadinessError(
+                "first-screen press audio binding requires source-backed bank/playback/decode"
+            )
+        if self.startup_media_real_windows_verified and not (
+            self.startup_media_default_windows_path_integrated
+        ):
+            raise Gate14ReadinessError(
+                "startup-media Windows acceptance requires the default runtime path"
+            )
 
         if self.login_menu_audio_integrated and not (
             self.audio_bank_ownership_recovered
@@ -188,6 +220,8 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         presentation_separated_from_core_management=True,
 
         completed_human_resolved_fastview_path=True,
+        operator_visible_resolved_fastview_surface=True,
+        source_fastview_navigation_trigger_recovered=False,
         playerrow_energy_pixels_recovered=True,
         playerrow_text_pixels_recovered=True,
         score_subpanel_parameterized_construction_recovered=True,
@@ -211,6 +245,9 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         audio_bank_ownership_recovered=True,
         audio_playback_entrypoints_recovered=True,
         audio_sample_decode_ready=True,
+        first_screen_press_audio_bound=True,
+        startup_media_default_windows_path_integrated=True,
+        startup_media_real_windows_verified=False,
         audio_event_binding_recovered=False,
         audible_windows_verified=False,
         login_menu_audio_integrated=False,
