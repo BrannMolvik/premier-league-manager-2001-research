@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective source tracer #414 is canonical at main 92e5b50042dc19f0850bde5999b575b29d572e41 after reconstruction run 37269114633 passed 2,452 tests / 23 expected skips and asset-policy run 37269114680 passed. Gate17 sporting-objective adjudication PR #415 is active on exact head 2d3e5a3b306f65beed1b315cead7349bf5cdf4df. Validate reconstruction + asset-policy and merge only this exact head if green. Then continue the next disjoint source-backed blocker; private-source stages remain deferred while canonical executable byte execution is unavailable.",
+  "active_task": "Gate 13 remains earliest incomplete and separately owned via draft PR #411. Gate17 sporting-objective source tracer #414 is canonical at main 92e5b50042dc19f0850bde5999b575b29d572e41. Conflicted adjudication PR #415 is closed/superseded. Clean replacement PR #416 is active on exact head cfa9b08759e137427a54edc8a53a576fff1a5742; reconstruction run 37271360353 and asset-policy run 37271360363 are running. Merge only this exact head if both pass. Then continue a genuinely independent source-backed blocker; do not duplicate secondary-owner/ranking work already tied to private source.",
   "last_known_main_head": "92e5b50042dc19f0850bde5999b575b29d572e41",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 302,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #415 validates three private-source stages only: annual per-user owner chronology, non-PL 17-way branch/classification semantics, then +0x68/+0x9C state/evaluation ordering. It consumes tracer sporting_objective_pass_sequence as JSON [1,0]. Do not promote runtime sporting readiness from the plan. Private archive exists but caas container/Python byte execution was previously blocked.",
+  "note": "PR #416 is directly based on current main and contains only the sporting-objective adjudication module/tests/research plus CI path registration. JSON trace pass sequence remains exact [1,0]. Private archive exists; static executable analysis may be retried once if container access becomes available, but do not launch the original game or claim source results without a successful trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
