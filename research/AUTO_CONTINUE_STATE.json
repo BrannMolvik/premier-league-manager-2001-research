@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 14,
-  "active_task": "PR #466 is merged/verified. Private archive access remains blocked. Current cloud-safe critical-path task: harden Gate-17 final release readiness so every final Gate-15 accepted_documented item is machine-linked to RELEASE_LIMITATIONS.md; do not advance any gate-complete flag.",
+  "active_task": "Private archive access remains blocked. Current cloud-safe task is PR #467 head 61a1690f: Gate-17 final release audit must require every final Gate-15 accepted_documented gap title in RELEASE_LIMITATIONS.md. Await current-head reconstruction + asset-policy CI; merge only if green.",
   "last_known_main_head": "96fb6d77a71f5cca6dc2b510bdd391fd8be27dc3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 317,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 317: #464 and #466 are canonical. #466 passed 2591 tests/23 skips and asset policy; stale #465 closed. Gate 14 remains earliest incomplete. Next cloud-safe task is Gate15 accepted-documented -> Gate17 release-limitations coverage.",
+  "note": "Recovery 317 checkpoint: PR #467 implements Gate15 accepted_documented -> final release limitations coverage using the canonical Gate15 audit. No gate status changes. Current head 61a1690f includes final-review instructions in RELEASE_LIMITATIONS.md.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
