@@ -4,6 +4,24 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Gate 17 secondary-owner evidence contract
+
+Merged PR #406 at `47039feb`: added a checksum-gated private source tracer for
+the procedural-secondary ScheduleContainer owner/lifecycle boundary without
+promoting candidate calls or raw global-address hits into semantics. Full
+reconstruction CI passed **2,408 tests / 23 expected skips** and asset policy
+passed.
+
+Merged PR #407 at `33a4ad53`: converted that neutral trace into a deterministic
+four-stage private adjudication contract. Daily owner proof at `0x615C10`
+must precede season continuation at `0x616A70/0x615BE0`; human dispatch and
+save/reload remain separate proofs. Full reconstruction CI passed **2,415 tests /
+23 expected skips** and asset policy passed. Procedural-secondary gameplay,
+full-scope readiness and Gate17 completion remain false. With the actual private
+source adjudication deferred, cloud-safe work advanced to the independent
+source-proven six-user TeamSelect Start/user-list boundary; no Gate13 code or
+release status was changed.
+
 ### 5 October 2026 KST — Fixed-slice Button checkpoint / requested wrap-up
 
 On `codex/gate13-fixed-closure`, preserved canonical186ed297 and disjoint worker
