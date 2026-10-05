@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482. Phase-1 route-scoped management loading merged to main as 4c045b0b after all four fresh checks passed. Phase-2 TeamSelect catalog lifecycle PR #485 is cleanly rebuilt on current main at ee4a6062; reconstruction/Gate13/asset workflows are queued. Continue CI-first on #485. Ordinary Squad row renderer remains evidence-blocked on exact 0x4EA3F0/0x5D6C50 semantics; do not guess colors. While #485 CI runs, audit Phase-3 deterministic first-screen derivative staging as independent cloud-safe work.",
+  "active_task": "Gate 13 issue #482. Phase-2 PR #485 head 60859abe fixes the two real reconstruction failures: separation audit now allows both deferred local human_gameplay factories, and the catalog presenter test fixture now includes required source-complete native TeamSelect strips/fonts. Fresh Gate13 and asset checks are running; reconstruction queued. Merge only when fresh checks are green.",
   "last_known_main_head": "4c045b0b75fc4d6061e06e23d8089c2a08a5c475",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 326,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 326 checkpoint: PR #483 merged after reconstruction 37372720405, package 37372720390, asset 37372720354, Gate13 37372720352 all succeeded. PR #485 old 'failures' were cancelled jobs only. All seven Phase-2 files were unchanged on main since old base, so exact reviewed blobs were transplanted conflict-free onto 4c045b0b as ee4a6062; PR reports clean merge state and fresh checks queued.",
+  "note": "Recovery 326: Phase-2 first rebuilt head ee4a6062 ran 2626 tests and failed exactly two assertions, both test-contract issues. Fixed without production behavior changes at head 60859abe. Continue CI-first. Phase-3 decoder blob extraction and Squad row helper tracing remain process-infrastructure blocked; do not guess.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
