@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Protocol
 
+from runtime_diagnostics import timed_stage
 from front_end_state import (
     FrontEndCommand,
     FrontEndScreen,
@@ -148,7 +149,11 @@ class FrontEndSession:
                 )
             # Backend validates eligibility and roster. A rejected selection
             # leaves TeamSelect active and can be retried with a different club.
-            selected = self.gameplay.select_club(self.selected_club_ids[0])
+            selected_club_id = self.selected_club_ids[0]
+            with timed_stage(
+                f"teamselect.backend_select_club club_id={selected_club_id}"
+            ):
+                selected = self.gameplay.select_club(selected_club_id)
             transition = self.navigation.dispatch(control)
             if transition.command is not FrontEndCommand.TEAMSELECT_START_CONTINUE:
                 raise RuntimeError("Recovered TeamSelect command changed.")
