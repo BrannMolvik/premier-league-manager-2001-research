@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 316,
-  "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 315 checkpoint: CURRENT_STATE/project_status/PROGRESS now canonical through #463 on main cd9f3d4b. #464 remains open; external Gate14 receipts absent and private process execution blocked.",
+  "recovery_generation": 317,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 317 resumed from canonical main cd9f3d4b after same-chat recovery produced no repository progress; PR #464 remains the immediate cloud-safe task before retrying private execution.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
