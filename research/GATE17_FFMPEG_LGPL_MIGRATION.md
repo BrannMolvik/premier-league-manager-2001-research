@@ -150,7 +150,9 @@ The minimal target uses `--disable-everything --disable-autodetect`, enables
 no `--enable-lib*` dependency, and then explicitly re-enables Windows
 Media Foundation because FFmpeg's configure script classifies
 `mediafoundation` as an autodetected platform facility and `h264_mf`
-depends on it. It retains only:
+depends on it. The `ffmpeg` program also depends on FFmpeg's generic thread
+capability, so the native `w32threads` backend is explicitly re-enabled after
+autodetection is disabled. It retains only:
 
 - file protocol;
 - the FFmpeg `ea` Electronic Arts demuxer;
