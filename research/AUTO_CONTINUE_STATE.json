@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #398 merged at 403f63a777b23bc121707902b0d2c49c24ef3bb4 after reconstruction run 37258248001 passed 2,385 tests / 23 expected skips and asset-policy run 37258247949 passed. Continue the exact already-started Gate-14 cloud-safe audit of nested visible FastView omissions before any stronger global-z/complete-frame claim. Reconcile stale nested-inventory flags against merged PR #366 and identify/render-readiness blockers for visible Score/LeagueTable/TeamTable controls that current partial rasters still omit. Do not touch Gate 13.",
-  "last_known_main_head": "403f63a777b23bc121707902b0d2c49c24ef3bb4",
+  "active_task": "Gate 13 remains earliest incomplete and separately Codex-owned. Gate-14 PR #399 merged on main at dc87c68e8ffce0cf22a0f962184b342787c9343a after reconstruction run 37259508357 passed 2,386 tests / 23 expected skips and asset-policy run 37259508363 passed. Continue validating independent PR #400 (nested score/table static text-control inventory); merge only after its current-head full suite is green, then continue the next source-backed omitted nested family without guessing semantics/resources.",
+  "last_known_main_head": "dc87c68e8ffce0cf22a0f962184b342787c9343a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 298,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Embedded outer-control omission guard is canonical. Next work is not to promote global z-order yet: first reconcile nested inventory evidence and make remaining nested visible pixel omissions explicit and fail-closed.",
+  "note": "Nested score/team parameterized construction remains recovered, but complete nested pixels are now explicit complete-frame prerequisites. PR #400 independently inventories source-proven static score/table TextControls and is still awaiting current-head full CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
