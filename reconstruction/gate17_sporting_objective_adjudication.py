@@ -183,7 +183,7 @@ def _validate_trace_contract(report: dict) -> dict[str, dict]:
         "objective_progression_gate_offset": OBJECTIVE_PROGRESSION_GATE_OFFSET,
         "objective_progression_state_offset": OBJECTIVE_PROGRESSION_STATE_OFFSET,
         "sporting_objective_switch_case_count": SPORTING_OBJECTIVE_SWITCH_CASE_COUNT,
-        "sporting_objective_pass_sequence": SPORTING_OBJECTIVE_PASS_SEQUENCE,
+        "sporting_objective_pass_sequence": list(SPORTING_OBJECTIVE_PASS_SEQUENCE),
     }
     for key, expected in exact.items():
         if contract.get(key) != expected:
