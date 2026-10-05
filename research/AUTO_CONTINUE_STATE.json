@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate 14 surfaced-resource selection PR 388 merged to main 54c1c881 after 2,355 tests/23 expected skips and asset-policy success. Continue exact disjoint Gate 14 task: add a read-only Premier League surfaced-resource adapter using source-proven fixed-League Match +0x48 override=-1, then a verified source-root loader that consumes only the selection plan, tries recovered paths in order, enforces native 800x600 background and 135x93 badge geometry, decodes with canonical EA444 tables/quantization, and fails closed on the unresolved terminal background surface. Do not touch Gate 13.",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. PR #389 adds the exact read-only fixed-Premier-League surfaced-resource adapter plus verified source-root EA444 loader and is under CI. Dependent PR #390 adds separate source-correct match_background_surface and club_badge_surfaces raster planes and is also under CI; do not merge #390 before #389. After #389/#390 verify and merge in order, continue disjoint Gate-14 component/draw-order/overlap integration for those two planes. Do not touch Gate 13.",
   "last_known_main_head": "54c1c8816bb7b63428a99b033485e41814e70489",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 296,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR 388 canonical at 54c1c881. Canonical source archive/executable/core hashes verified this recovery. Fixed League builder 0x6173D0 callsite 0x617490 passes literal -1 as Match constructor arg4 -> Match+0x48, so ordinary PL background override is source-proven absent and falls back to home.",
+  "note": "Recovered at main 54c1c881. Avoided reopening #386-#388. #389 and #390 are the active dependency chain; both keep terminal background fallback, cross-component blend, complete frame and Gate14 completion fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
