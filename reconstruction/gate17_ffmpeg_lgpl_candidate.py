@@ -161,6 +161,93 @@ def _run(executable: Path, *args: str) -> str:
     return result.stdout
 
 
+def validate_synthetic_h264_aac_roundtrip(executable: Path, work_root: Path) -> dict:
+    """Prove the candidate can instantiate h264_mf/AAC and decode its own MP4."""
+    output = work_root / "candidate-roundtrip.mp4"
+    _run(
+        executable,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=black:s=320x480:r=25:d=1",
+        "-f",
+        "lavfi",
+        "-i",
+        "anullsrc=r=22050:cl=stereo:d=1",
+        "-map",
+        "0:v:0",
+        "-map",
+        "1:a:0",
+        "-c:v",
+        "h264_mf",
+        "-pix_fmt",
+        "yuv420p",
+        "-c:a",
+        "aac",
+        "-ar",
+        "22050",
+        "-ac",
+        "2",
+        "-movflags",
+        "+faststart",
+        "-shortest",
+        "-y",
+        str(output),
+    )
+    if not output.is_file() or output.stat().st_size <= 0:
+        raise LgplFfmpegCandidateError(
+            "candidate h264_mf/AAC roundtrip did not create an MP4"
+        )
+    _run(
+        executable,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        str(output),
+        "-map",
+        "0:v:0",
+        "-an",
+        "-f",
+        "null",
+        "-",
+    )
+    _run(
+        executable,
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        str(output),
+        "-map",
+        "0:a:0",
+        "-vn",
+        "-f",
+        "null",
+        "-",
+    )
+    return {
+        "synthetic_h264_aac_encode_decode_verified": True,
+        "synthetic_geometry": {
+            "width": 320,
+            "height": 480,
+            "frame_rate": 25,
+            "audio_sample_rate": 22050,
+            "audio_channels": 2,
+        },
+        "synthetic_video_encoder": "h264_mf",
+        "synthetic_audio_encoder": "aac",
+        "synthetic_output_sha256": _sha256_file(output),
+        "synthetic_output_size_bytes": output.stat().st_size,
+    }
+
+
 def audit_candidate_archive(
     archive_path: str | Path,
     *,
@@ -179,6 +266,7 @@ def audit_candidate_archive(
             decoders_text=_run(executable, "-hide_banner", "-decoders"),
             encoders_text=_run(executable, "-hide_banner", "-encoders"),
         )
+        roundtrip = validate_synthetic_h264_aac_roundtrip(executable, temp_root)
         executable_sha256 = _sha256_file(executable)
         executable_size_bytes = executable.stat().st_size
 
@@ -190,6 +278,7 @@ def audit_candidate_archive(
         **identity,
         **version,
         **codecs,
+        **roundtrip,
         "ffmpeg_executable_sha256": executable_sha256,
         "ffmpeg_executable_size_bytes": executable_size_bytes,
         "proposed_startup_video_encoder": "h264_mf",
