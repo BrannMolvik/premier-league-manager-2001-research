@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482. Continue recovery327 PStartMenu derivative promotion from PR #486 head 9b057de5: stage the twice-verified canonical XZ derivative, pin its manifest receipt, wire fail-closed runtime consumption, then verify CI and proceed to the next independent #482 blocker.",
+  "active_task": "Gate 13 issue #482. Resume PR #486 head 9b057de5: stage the twice-verified canonical XZ PStartMenu derivative (manifest cc541cac..., payload 24285104...), pin receipt, wire fail-closed runtime consumption, verify CI, then continue next independent #482 blocker.",
   "last_known_main_head": "1ff263f27f508935fb40c1d753b822a9d1bf4028",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 328,
+  "recovery_generation": 329,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 328: prior session made verified PR #486 progress but was interrupted before staging/runtime promotion. Resume exact branch and artifact hashes; do not regenerate from guesses or reopen completed route/world-build work.",
+  "note": "Recovery 329: canonical main unchanged; PR #486 current head and green CI reverified. Continuing exact staged-derivative promotion; do not redo route/world-build work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
