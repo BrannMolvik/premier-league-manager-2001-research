@@ -23,6 +23,9 @@ class Gate14ReadinessEvidence:
     playerrow_energy_pixels_recovered: bool
     playerrow_text_pixels_recovered: bool
     possession_pairwise_draw_order_recovered: bool
+    goalflash_source_contract_recovered: bool
+    goalflash_absolute_position_recovered: bool
+    goalflash_pixels_rasterized: bool
     global_fastview_z_order_recovered: bool
     font_blend_rule_recovered: bool
     complete_fastview_frame_recovered: bool
@@ -61,6 +64,9 @@ class Gate14ReadinessEvidence:
             self.completed_human_resolved_fastview_path
             and self.playerrow_energy_pixels_recovered
             and self.playerrow_text_pixels_recovered
+            and self.goalflash_source_contract_recovered
+            and self.goalflash_absolute_position_recovered
+            and self.goalflash_pixels_rasterized
             and self.global_fastview_z_order_recovered
             and self.font_blend_rule_recovered
         ):
@@ -118,6 +124,12 @@ class Gate14ReadinessEvidence:
             blockers.append("audible_windows_output")
         if not self.login_menu_audio_integrated:
             blockers.append("login_menu_audio_integration")
+        if not self.goalflash_source_contract_recovered:
+            blockers.append("goalflash_source_contract")
+        if not self.goalflash_absolute_position_recovered:
+            blockers.append("goalflash_absolute_position")
+        if not self.goalflash_pixels_rasterized:
+            blockers.append("goalflash_rasterization")
         if not self.global_fastview_z_order_recovered:
             blockers.append("global_fastview_z_order")
         if not self.font_blend_rule_recovered:
@@ -143,6 +155,9 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
         playerrow_energy_pixels_recovered=True,
         playerrow_text_pixels_recovered=True,
         possession_pairwise_draw_order_recovered=True,
+        goalflash_source_contract_recovered=True,
+        goalflash_absolute_position_recovered=False,
+        goalflash_pixels_rasterized=False,
         global_fastview_z_order_recovered=False,
         font_blend_rule_recovered=True,
         complete_fastview_frame_recovered=False,
