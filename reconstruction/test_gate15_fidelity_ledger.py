@@ -73,8 +73,8 @@ class Gate15FidelityLedgerTests(unittest.TestCase):
     def test_canonical_ledger_covers_every_active_gap_exactly_once(self):
         audit = audit_repository_gate15(REPO_ROOT)
 
-        self.assertEqual(audit.active_gap_count, 11)
-        self.assertEqual(audit.ledger_item_count, 11)
+        self.assertEqual(audit.active_gap_count, 12)
+        self.assertEqual(audit.ledger_item_count, 12)
         self.assertEqual(audit.missing_from_ledger, ())
         self.assertEqual(audit.unexpected_in_ledger, ())
         self.assertEqual(audit.planned_gate_mismatches, ())
@@ -83,9 +83,12 @@ class Gate15FidelityLedgerTests(unittest.TestCase):
         self.assertFalse(audit.gate15_ready)
         self.assertEqual(
             audit.gate14_prerequisite_items,
-            ("FastView/3D and original audio/match presentation",),
+            (
+                "External Windows front-end/management playability regression (#482)",
+                "FastView/3D and original audio/match presentation",
+            ),
         )
-        self.assertIn(("prerequisite_gate_14", 1), audit.status_counts)
+        self.assertIn(("prerequisite_gate_14", 2), audit.status_counts)
 
     def test_repository_audit_derives_gate14_open_from_roadmap(self):
         audit = audit_repository_gate15(REPO_ROOT)
