@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$SourceZip,
 
-    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
+    [string]$RepoRoot,
 
     [string]$OutputDirectory = (Join-Path $env:TEMP "fm2001-gate13-final-header-evidence")
 )
@@ -14,7 +14,11 @@ $ExpectedArchiveSha = "677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a7
 $ExpectedExeSha = "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"
 
 $SourceZip = (Resolve-Path $SourceZip).Path
-$RepoRoot = (Resolve-Path $RepoRoot).Path
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+} else {
+    $RepoRoot = (Resolve-Path $RepoRoot).Path
+}
 
 $archiveHash = (Get-FileHash -Algorithm SHA256 $SourceZip).Hash.ToLowerInvariant()
 if ($archiveHash -ne $ExpectedArchiveSha) {
