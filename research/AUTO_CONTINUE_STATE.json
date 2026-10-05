@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Issue #482 Phase 1 implementation: route-scope management resources so fresh Squad does not initialize Fixtures/League Tables/PMatchInfo; render the already source-closed ordinary Squad row subset without inventing unresolved status/color semantics; add tests proving both boundaries, then focused/full/package CI. After verification continue cold-start/New-Game latency and evidence-led startup-FMV presentation. #475/#479 suspended.",
-  "last_known_main_head": "b669b2537932ed5c61cbe920413956d6086923ea",
+  "active_task": "Issue #482 Phase 1 implementation remains first: route-scope management resources for fresh Squad and render source-closed ordinary Squad rows with deterministic lazy-load/renderer tests. Oversight has additionally recovered native startup-FMV geometry: 640x480 movie surface centered at (80,60) in 800x600; current separate WPF Uniform path is source-incompatible. Continue private trace for exact 320x480->640x480 pixel treatment while implementation worker handles Phase 1. #475/#479 suspended.",
+  "last_known_main_head": "e9635ee0f0ad9351427a311f8c14a79a3180d727",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 322,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 322 formal reconciliation complete: Gate 13 reopened on main b669b253 after real Windows external acceptance failure. ROADMAP, CURRENT_STATE, FIDELITY_GAPS, historical Gate13 note, PROGRESS and project_status are updated. Issue #482 comment 6001127354 contains source-backed A-E diagnosis. Next worker slice is management route lazy-load + ordinary Squad rows with fail-closed tests.",
+  "note": "Recovery 322 checkpoint main e9635ee0. Private Library ZIP and canonical EXE are notebook-accessible; shell still ClientError. STARTUP_PRESENTATION/EXECUTABLE_ANALYSIS/CURRENT_STATE/PROGRESS/project_status persist the 640x480 native FMV surface + game-owned DirectDraw blit evidence. Issue #482 comments 6001127354, 6001201926, 6001226163, 6001242271, 6001412974 define Phases 1-3 and FMV acceptance. Do not guess interpolation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
