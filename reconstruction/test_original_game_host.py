@@ -1047,7 +1047,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(bind_kwargs, {})
             self.assertEqual(host.canvas.values["bindings"]["<ButtonRelease-1>"][0][1].__func__,
                              host.on_script_arrow_release.__func__)
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 9)
 
             host.on_click(SimpleNamespace(x=7, y=478))
             self.assertIs(live.session.navigation.screen, FrontEndScreen.TEAM_SELECT)
