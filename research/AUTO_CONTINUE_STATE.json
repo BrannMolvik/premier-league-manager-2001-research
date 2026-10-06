@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 355: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is ae578fc1461569b282d77f4c7c4eefe2bece2fb1. Recovery 354 corrected DBRPlayer +0x18C / CPlayerTransferHistory +0x18 from the older date interpretation to an actual-appearance count for the current/prior club tenure; selector 0x8755E8 modes 1/2 choose appearance-count cutoffs 0x8755EC/F0. No direct writes/address-taking refs/RVA table refs to those three BSS globals have been found, but a derived/block initializer is not yet ruled out, so negative Cup-Tied remains fail-closed. Active Gate-17 work-ahead is PR #501 exact head 59d99fc7ca35ac8d4a9bd89252df80b156c64efb, pinning action/toolchain provenance while source_material_complete=false. Asset policy 37506276574 passed; Windows package 37506276605, minimal build 37506276513, and full reconstruction 37506276550 are running. Merge only if exact-head checks all pass.",
-  "last_known_main_head": "ae578fc1461569b282d77f4c7c4eefe2bece2fb1",
+  "active_task": "Recovery 356: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is a6711b09aac00d784c07570f6cdbfdc60e24687e after PR #501 toolchain provenance merged fully green (asset 37506276574, Windows package 37506276605, reconstruction 37506276550, minimal build 37506276513; artifact 11431743521 digest sha256:ec6ce0ab49e7e0b5aa9b4c2b6df5f01dd0f6c62f02c75588c91a67e8d82b0db9). Active private source task remains Cup-Tied globals 0x8755E8/EC/F0. Direct refs are read-only, targets are BSS-zero, shipped small config/data files contain no matching rule keys. Only plausible indirect writer found is 0x4A4845/4A485E via table base 0x875510 with index edi=6*outer_category+inner_rank for eight outer categories. Exact next task: prove the inner-rank bound from source/load structures and determine whether indices 54-56 are reachable. Keep negative Cup-Tied fallback fail-closed.",
+  "last_known_main_head": "a6711b09aac00d784c07570f6cdbfdc60e24687e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 355,
+  "recovery_generation": 356,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 355: appearance-history correction canonical; PR #501 toolchain provenance exact head 59d99fc in CI.",
+  "note": "Recovery 356: PR #501 merged fully green; tracing whether 0x4A42E0 indexed table writer can reach Cup-Tied BSS entries 54-56.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
