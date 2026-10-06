@@ -13,6 +13,10 @@ on:
       - "reconstruction/test_match_detail_mode.py"
       - "reconstruction/original_prematch_panel.py"
       - "reconstruction/test_original_prematch_panel.py"
+      - "reconstruction/gate14_prematch_surface.py"
+      - "reconstruction/test_gate14_prematch_surface.py"
+      - "reconstruction/gate14_prematch_rating_widths.py"
+      - "reconstruction/test_gate14_prematch_rating_widths.py"
       - "reconstruction/gate13_*.py"
       - "original_assets/source/reused_art/generic/main_menu_windows_buttons.png"
       - "original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/*scroll_end.444"
@@ -202,6 +206,7 @@ jobs:
             test_match_detail_mode \
             test_original_prematch_panel \
             test_gate14_prematch_surface \
+            test_gate14_prematch_rating_widths \
             test_ea_language_strings \
             test_ea_font \
             test_original_pstartmenu_labels \
