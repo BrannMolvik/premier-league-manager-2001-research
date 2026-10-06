@@ -16,6 +16,8 @@ from ea444_tables import tables_from_original_executable
 from ea_font import EAFont
 from match_detail_mode import MATCH_DETAIL_LABELS, MatchDetailMode
 from original_button_frames import (
+    BUTTON_GROUP_LENGTHS,
+    BUTTON_INITIAL_FLAGS,
     ButtonAtlasSpec,
     OriginalButtonAtlas,
     decode_verified_original_button_atlas,
@@ -293,6 +295,24 @@ PREMATCH_SELECTOR_CHILD_MODES = (
     MatchDetailMode.THREE_D_HIGHLIGHTS,
     MatchDetailMode.THREE_D_MATCH,
 )
+
+# The selector row is an immediate-action Button@ease modal, not a persistent
+# radio selection. 0x4996F4..0x499803 constructs the four standard buttons via
+# 0x5D3810. The panel does not read match-detail global 0x877530 in its setup or
+# refresh path; 0x49ABA0 writes the chosen mode, hides/refreshes all four, signals
+# the modal owner and closes immediately. Visual animation therefore reuses the
+# already-source-closed generic Button@ease 11+11+1 frame state machine.
+PREMATCH_SELECTOR_SETUP_VA = 0x4996F4
+PREMATCH_SELECTOR_CONTROL_BUILDER_VA = 0x5D3810
+PREMATCH_SELECTOR_BUTTON_SETUP_VA = 0x652FD0
+PREMATCH_SELECTOR_EVENT_HANDLER_VA = 0x49AB50
+PREMATCH_SELECTOR_COMMIT_VA = 0x49ABA0
+PREMATCH_SELECTOR_MODE_GLOBAL_VA = 0x877530
+PREMATCH_SELECTOR_MODAL_OWNER_VA = 0x877960
+PREMATCH_SELECTOR_MODAL_SIGNAL_VA = 0x5328B0
+PREMATCH_SELECTOR_CLOSE_VA = 0x6539F0
+PREMATCH_SELECTOR_INITIAL_FLAGS = BUTTON_INITIAL_FLAGS
+PREMATCH_SELECTOR_GROUP_LENGTHS = BUTTON_GROUP_LENGTHS
 
 PREMATCH_TEAM_BADGE_ROOT = r"FM2001_art\generic\team_badge_stills"
 PREMATCH_TEAM_BADGE_VARIANT_KEY = "badge_2"
@@ -762,6 +782,21 @@ def prematch_panel_contract() -> dict:
         "selector_atlas_path": PREMATCH_SELECTOR_ATLAS.source_path,
         "selector_atlas_frames": PREMATCH_SELECTOR_ATLAS.frame_count,
         "selector_font_path": PREMATCH_FONT_PATH,
+        "selector_setup_va": PREMATCH_SELECTOR_SETUP_VA,
+        "selector_control_builder_va": PREMATCH_SELECTOR_CONTROL_BUILDER_VA,
+        "selector_button_setup_va": PREMATCH_SELECTOR_BUTTON_SETUP_VA,
+        "selector_event_handler_va": PREMATCH_SELECTOR_EVENT_HANDLER_VA,
+        "selector_commit_va": PREMATCH_SELECTOR_COMMIT_VA,
+        "selector_mode_global_va": PREMATCH_SELECTOR_MODE_GLOBAL_VA,
+        "selector_modal_owner_va": PREMATCH_SELECTOR_MODAL_OWNER_VA,
+        "selector_modal_signal_va": PREMATCH_SELECTOR_MODAL_SIGNAL_VA,
+        "selector_close_va": PREMATCH_SELECTOR_CLOSE_VA,
+        "selector_initial_flags": PREMATCH_SELECTOR_INITIAL_FLAGS,
+        "selector_group_lengths": PREMATCH_SELECTOR_GROUP_LENGTHS,
+        "selector_visual_uses_generic_button_state": True,
+        "selector_persistent_selected_visual": False,
+        "selector_mode_global_read_by_panel_visuals": False,
+        "selector_commit_closes_modal": True,
         "static_placement_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
