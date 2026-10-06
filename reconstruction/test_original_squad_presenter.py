@@ -29,6 +29,7 @@ class Row:
     international: bool = False
     alternate_on_loan: bool = False
     non_eu: bool = False
+    non_eu_registration_expired: bool | None = False
     cup_tied_positive: bool = False
 
 
@@ -124,11 +125,36 @@ class OriginalSquadPresenterTests(unittest.TestCase):
             13,
         )
 
-        non_eu = self.row()
-        object.__setattr__(non_eu, "non_eu", True)
-        object.__setattr__(non_eu, "cup_tied_positive", True)
+        expired_non_eu = self.row()
+        object.__setattr__(expired_non_eu, "non_eu", True)
+        object.__setattr__(expired_non_eu, "non_eu_registration_expired", True)
+        object.__setattr__(expired_non_eu, "cup_tied_positive", True)
+        self.assertEqual(
+            build_squad_row_viewport(
+                (expired_non_eu,)
+            ).rows[0].native_status_frame_index,
+            12,
+        )
+
+        current_non_eu = self.row()
+        object.__setattr__(current_non_eu, "non_eu", True)
+        object.__setattr__(current_non_eu, "non_eu_registration_expired", False)
+        object.__setattr__(current_non_eu, "cup_tied_positive", True)
+        self.assertEqual(
+            build_squad_row_viewport(
+                (current_non_eu,)
+            ).rows[0].native_status_frame_index,
+            3,
+        )
+
+        unresolved_non_eu = self.row()
+        object.__setattr__(unresolved_non_eu, "non_eu", True)
+        object.__setattr__(unresolved_non_eu, "non_eu_registration_expired", None)
+        object.__setattr__(unresolved_non_eu, "cup_tied_positive", True)
         self.assertIsNone(
-            build_squad_row_viewport((non_eu,)).rows[0].native_status_frame_index
+            build_squad_row_viewport(
+                (unresolved_non_eu,)
+            ).rows[0].native_status_frame_index
         )
 
         cup_tied = self.row()

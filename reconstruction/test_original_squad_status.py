@@ -100,10 +100,10 @@ class OriginalSquadStatusTests(unittest.TestCase):
             )
         )
 
-    def test_source_qualified_status_priority_keeps_unresolved_non_eu_fail_closed(self):
+    def test_source_qualified_status_priority_uses_registration_expiry_before_cup_tied(self):
         self.assertEqual(
             SOURCE_QUALIFIED_STATUS_FRAME_INDICES,
-            (0, 1, 2, 3, 13),
+            (0, 1, 2, 3, 12, 13),
         )
         self.assertEqual(
             source_qualified_squad_status_frame_index(
@@ -112,6 +112,7 @@ class OriginalSquadStatusTests(unittest.TestCase):
                 international=True,
                 alternate_on_loan=True,
                 non_eu=True,
+                non_eu_registration_expired=True,
                 cup_tied_positive=True,
             ),
             0,
@@ -123,9 +124,22 @@ class OriginalSquadStatusTests(unittest.TestCase):
                 international=False,
                 alternate_on_loan=True,
                 non_eu=True,
+                non_eu_registration_expired=True,
                 cup_tied_positive=True,
             ),
             ON_LOAN_ALTERNATE_FRAME_INDEX,
+        )
+        self.assertEqual(
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=False,
+                non_eu=True,
+                non_eu_registration_expired=True,
+                cup_tied_positive=True,
+            ),
+            NON_EU_ALTERNATE_FRAME_INDEX,
         )
         self.assertIsNone(
             source_qualified_squad_status_frame_index(
@@ -134,6 +148,7 @@ class OriginalSquadStatusTests(unittest.TestCase):
                 international=False,
                 alternate_on_loan=False,
                 non_eu=True,
+                non_eu_registration_expired=None,
                 cup_tied_positive=True,
             )
         )
@@ -143,7 +158,20 @@ class OriginalSquadStatusTests(unittest.TestCase):
                 banned=False,
                 international=False,
                 alternate_on_loan=False,
+                non_eu=True,
+                non_eu_registration_expired=False,
+                cup_tied_positive=True,
+            ),
+            3,
+        )
+        self.assertEqual(
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=False,
                 non_eu=False,
+                non_eu_registration_expired=False,
                 cup_tied_positive=True,
             ),
             3,
@@ -155,9 +183,20 @@ class OriginalSquadStatusTests(unittest.TestCase):
                 international=False,
                 alternate_on_loan=False,
                 non_eu=False,
+                non_eu_registration_expired=False,
                 cup_tied_positive=False,
             )
         )
+        with self.assertRaises(OriginalSquadStatusError):
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=False,
+                non_eu=False,
+                non_eu_registration_expired=True,
+                cup_tied_positive=False,
+            )
 
     def test_verified_status_png_decodes_to_fourteen_exact_rgba_frames(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"

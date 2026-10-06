@@ -1,36 +1,99 @@
-# Recovery 341 continuation — Gate 14 startup acceptance follows production WPF host
+# Recovery 347 continuation — frame 12 candidate green; Cup-Tied transfer-history trace blocked only by execution sandbox
 
 _Updated 6 October 2026._
 
-Canonical `main` is `f97238798f05931c9d952786ac256f1974ab3e36`.
-**Gate 13 / issue #482 remains the earliest incomplete validation gate.** This
-branch is independent cloud-safe Gate-14 work-ahead under the deferred-blocker
-policy.
+Canonical `main` remains `3c17eaa1dc5a9491699d92ec99489bb796660753`.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** and
+still requires Daniel's normal Windows 11 playability/visual acceptance.
 
-Branch `recovery341-gate14-wpf-startup-acceptance` repairs acceptance-tool drift discovered after PR #495:
+PR #497 branch `recovery342-gate13-status-lifecycle` now contains the
+source-closed special Non-EU/frame-12 implementation at
+`45c5c0e09c9fec420160e9e60eedf304423fcfd9`. Exact-head validation is green:
 
-- startup-media acceptance schema advances from 1 to 2;
-- the obsolete direct `WindowsMciStartupMediaBackend` replay is removed;
-- acceptance now passes the exact `WindowsWpfStartupMediaBackend` through
-  `run_original_game_ui()`;
-- the production host must bind that backend to its own child HWND and exact
-  reported presentation rectangle before the sequence can pass;
-- reaching the host-ready boundary proves both verified derivatives completed
-  before ordinary main-loop play;
-- human confirmation now requires both visible/audible clips, source order, and
-  an embedded game-owned presentation rather than a separate player window;
-- the aggregate coordinator rejects schema-1 and MCI startup receipts.
+- full reconstruction run `37467142990`: success;
+- Gate-13 presentation run `37467143159`: success;
+- repository asset-policy run `37467143070`: success.
 
-The source display record remains bounded: 320x480 coded video, exact 2x
-horizontal repeat to 640x480, ordinary logical 800x600 host with (80,60) movie
-offset. Native skip/fade timing and broad byte-identical DirectDraw display
-treatment remain unresolved and are not promoted by this acceptance tool.
+That candidate now publishes frame 12 only when DBRPlayer bit 11 is active and
+the synchronized registration/contract cutoff is expired, preserves the exact
+higher-priority alternate On-loan frame 13, allows a lower positive Cup-Tied
+result when an active bit-11 cutoff is still current, and applies the
+source-proven sticky post-transfer bit-11 set transition. Internal save already
+persists both the bit and contract expiry, so no save-schema change is required.
 
-Next: validate the branch through the applicable Gate-14/full reconstruction,
-asset-policy and Windows-package workflows. Merge only if green. This work does
-not close Gate 13 or Gate 14 and does not replace Daniel's external Windows 11
-acceptance.
+Recovery 346 continued the canonical executable trace and identified the
+remaining mode-1 Cup-Tied embedded state more precisely:
 
+- DBRPlayer `+0x198` is an embedded `CPlayerTransferHistory` object;
+- DBRPlayer `+0x1A0` is that object's `+0x08` club-table index/club ID;
+- embedded `+0x18` is a transfer/join-history date, initialized from the
+  normalized current-club join date at DBRPlayer `+0x158`.
+
+The exact unresolved source step is to finish the `0x422E7E` call into
+`CPlayerTransferHistory::0x4EBF60` so every argument/update is identified,
+then trace the producers and semantic meaning of globals
+`0x8755E8/0x8755EC/0x8755F0`. Until that is complete, the negative mode-1
+Cup-Tied fallback remains fail-closed.
+
+Recovery 347 successfully rematerialized the authorized 511,121,336-byte
+Library source archive, but the current execution allocation cannot launch even
+a trivial shell or Python process: container execution returns
+`caas.internal.errors.ClientError`, while Python returns a
+`TooManyRequestsError`. This is an execution-sandbox blocker only, not a
+source-availability blocker. The archive remains available at the canonical
+Library location recorded in `research/ORIGINAL_SOURCE_LOCATOR.md`.
+
+Under the deferred-blocker policy, finish integrating the already-green PR #497
+candidate, then continue independent cloud-safe Gate-13/Gate-14 work while
+preserving the exact native-trace step above for the next functioning execution
+sandbox. Do not infer the unresolved cutoff globals.
+
+---
+
+# Recovery 342 continuation — native Squad status lifecycle narrowed
+
+_Updated 6 October 2026._
+
+Canonical `main` is `3c17eaa1dc5a9491699d92ec99489bb796660753`, including merged PR #496. **Gate 13 /
+issue #482 remains the earliest incomplete validation gate** and still requires
+Daniel's normal Windows 11 playability/visual acceptance.
+
+Recovery 342 restored the authorized original-source path and independently
+re-extracted canonical `footballmanager.exe` from the supplied MODE1/2352
+disc image. The executable again hashes exactly to
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+First-hand disassembly now closes more of the two remaining Squad-status
+boundaries without publishing an unsafe frame:
+
+- `0x421760`, already represented by `derive_non_eu_status()`, is the exact
+  native eligibility predicate used by the loaded-player initialization pass;
+- `0x421CE0 -> 0x417A20` sets DBRPlayer `+0x14` bit 11 and creates the
+  registration record for qualifying players;
+- registration record `+0x14` is copied from DBRPlayer `+0x154`, now
+  source-closed as contract expiry, and `0x4E9BE0` tests
+  `current_date <= cutoff`; frame 12 occurs only after that cutoff;
+- renewal/finalizer paths keep the record cutoff synchronized to live contract
+  expiry, while full reset `0x41AFE0` clears bit 11 and removes the record;
+- ordinary transfer `0x422F70` preserves an already-active bit through the
+  contract finalizer; the only two `0x4EF600` callers are the native
+  `TransferDealConcluded` and `FreeTransferDealConcluded` handlers, where a
+  positive `0x421760` result sets bit 11 and a negative result does not clear
+  it; `0x41B4D0` lazily creates a missing registration record when needed;
+- mode-1 Cup-Tied fallback helper `0x419350` returns embedded
+  `DBRPlayer+0x198+0x18` when `+0x1A0 > -1`; it is not a first-list-element
+  lookup. Its producer semantics and global cutoffs remain unresolved.
+
+Durable evidence is in
+`research/GATE13_SQUAD_STATUS_LIFECYCLE.md`. No proprietary executable,
+archive, disc image or raw disassembly entered Git.
+
+Exact next task: trace the producer semantics of embedded
+`+0x198/+0x18`, gate `+0x1A0`, and globals `0x8755E8/EC/F0`. The
+ordinary-transfer bit-11 transition is now source-closed as sticky until the
+full reset/removal lifecycle. Keep frame 12 and the mode-1 negative Cup-Tied
+fallback fail-closed until the remaining source semantics are reconciled with
+the clean runtime.
 ---
 
 # Recovery 341 continuation — PR #495 merged; Gate 13 external acceptance still open

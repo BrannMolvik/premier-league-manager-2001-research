@@ -152,6 +152,9 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 )
             alternate_on_loan = getattr(row, "alternate_on_loan", None)
             non_eu = getattr(row, "non_eu", None)
+            non_eu_registration_expired = getattr(
+                row, "non_eu_registration_expired", None
+            )
             cup_tied_positive = getattr(row, "cup_tied_positive", None)
             extended_status_states = (
                 alternate_on_loan,
@@ -160,12 +163,20 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
             )
             try:
                 if all(type(value) is bool for value in extended_status_states):
+                    if (
+                        non_eu_registration_expired is not None
+                        and type(non_eu_registration_expired) is not bool
+                    ):
+                        raise OriginalSquadPresentationError(
+                            "Non-EU registration cutoff state must be boolean or unresolved"
+                        )
                     native_status_frame_index = source_qualified_squad_status_frame_index(
                         injured=injured,
                         banned=banned,
                         international=international,
                         alternate_on_loan=alternate_on_loan,
                         non_eu=non_eu,
+                        non_eu_registration_expired=non_eu_registration_expired,
                         cup_tied_positive=cup_tied_positive,
                     )
                 elif all(value is None for value in extended_status_states):

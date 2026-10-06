@@ -11770,3 +11770,78 @@ continues with ordinary Squad row display-name/color helpers.
   explicitly false.
 - Gate 13 remains the earliest incomplete gate; no external Windows receipt has
   been produced by this cloud-safe work.
+
+
+## 6 October 2026 KST — Recovery 342 native Squad status lifecycle trace
+
+- PR #496 was exact-head validated and merged to canonical main as
+  `3c17eaa1dc5a9491699d92ec99489bb796660753`; its Gate-14 production-WPF startup acceptance repair does not
+  close Gate 13.
+- The authorized source archive was rematerialized and canonical
+  `footballmanager.exe` re-extracted from the MODE1/2352 Joliet image. Its
+  SHA-256 again matches
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- First-hand disassembly ties `0x421760` directly to loaded-player bit-11
+  initialization and registry creation. Registration-record cutoff `+0x14`
+  is the player's source-closed contract expiry `+0x154`; frame 12 requires
+  current date after that cutoff.
+- Contract-renewal/finalizer paths synchronize the record cutoff when bit 11 is
+  active, while full reset `0x41AFE0` clears bit 11 and removes the record.
+  The exact ordinary-transfer set/clear transition remains open, so frame 12 is
+  intentionally not enabled yet.
+- Corrected the mode-1 Cup-Tied fallback trace: `0x419350` returns embedded
+  `DBRPlayer+0x198+0x18` when `+0x1A0 > -1`, rather than a list-first
+  element. Producer semantics and cutoff globals remain open.
+- Durable evidence: `research/GATE13_SQUAD_STATUS_LIFECYCLE.md`.
+- Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
+  acceptance. Exact source task continues with `0x4EF600` transfer lifecycle
+  and `+0x198/+0x18` / `+0x1A0` / `0x8755E8/EC/F0` semantics.
+
+
+## 6 October 2026 KST — Recovery 344 ordinary-transfer bit-11 transition closed
+
+- Reverified the authorized source path from the 511,121,336-byte Library disc
+  archive and independently re-extracted canonical `footballmanager.exe`;
+  SHA-256 remains
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- `0x4EF600` has exactly two direct callers: native
+  `TransferDealConcluded` at `0x5EAEFD` and
+  `FreeTransferDealConcluded` at `0x5EAF57`. Both invoke it with mode 0.
+- The complete ordinary mutation `0x422F70` preserves bit 11 and ends in
+  `0x4192B0`; an already-active bit therefore keeps its registration cutoff
+  synchronized to the new contract expiry.
+- A positive post-transfer `0x421760` eligibility result sets bit 11 through
+  `0x41B4A0`; a negative result does not clear it. `0x418360 -> 0x41B4D0`
+  lazily creates a missing registration record before the frame-12 cutoff
+  predicate is evaluated.
+- No ordinary completed-transfer clear was found. The proven clear remains
+  full reset/removal `0x41AFE0`; `0x4185B0` also clears bit 11 only inside
+  its broader wholesale initialization/reset sequence.
+- Exact next source task is now the mode-1 Cup-Tied embedded value and cutoff
+  lifecycle: DBRPlayer `+0x198/+0x18`, gate `+0x1A0`, and globals
+  `0x8755E8/EC/F0`. No new live status frame is enabled by this checkpoint.
+
+
+## 6 October 2026 KST — Recovery 346/347 frame-12 candidate green; transfer-history identity narrowed
+
+- PR #497 candidate `45c5c0e09c9fec420160e9e60eedf304423fcfd9`
+  passed full reconstruction run `37467142990`, Gate-13 presentation run
+  `37467143159`, and repository asset-policy run `37467143070`.
+- The clean runtime now represents the source-closed special Non-EU/frame-12
+  cutoff and sticky ordinary-transfer bit-11 transition without changing the
+  internal-save schema.
+- Continued private-source tracing identifies DBRPlayer `+0x198` as embedded
+  `CPlayerTransferHistory`, `+0x1A0` as its `+0x08` club-table index/club
+  ID, and `+0x18` as a transfer/join-history date initialized from normalized
+  DBRPlayer `+0x158`.
+- Exact remaining native task: finish `0x422E7E ->
+  CPlayerTransferHistory::0x4EBF60` argument/update semantics and the producers
+  of globals `0x8755E8/0x8755EC/0x8755F0`; the negative mode-1 Cup-Tied
+  fallback remains fail-closed.
+- Recovery 347 rematerialized the authorized 511,121,336-byte Library archive,
+  but the current execution allocation fails trivial shell execution with
+  `caas.internal.errors.ClientError` and trivial Python execution with
+  `TooManyRequestsError`. This is recorded as an execution-sandbox blocker,
+  not source unavailability.
+- Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
+  acceptance.

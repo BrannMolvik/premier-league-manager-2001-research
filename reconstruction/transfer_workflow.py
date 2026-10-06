@@ -22,6 +22,7 @@ from enum import Enum
 
 from player_contract import contract_expiry_from_month_span
 from player_valuation import live_player_transfer_value
+from runtime_state import derive_non_eu_status
 from transfer_decision import (
     SellingClubBidInputs,
     SellingClubDecision,
@@ -275,6 +276,65 @@ def complete_player_loan_assignment(
     return player
 
 
+def _apply_post_transfer_non_eu_registration(
+    state,
+    player,
+    destination_club_id: int,
+) -> None:
+    """Apply the source-closed set-only bit-11 transfer conclusion.
+
+    Native TransferDealConcluded / FreeTransferDealConcluded call 0x4EF600
+    after the permanent transfer. A positive exact 0x421760 eligibility result
+    sets DBRPlayer +0x14 bit 11; a negative result deliberately does not clear
+    an already-active bit. Lightweight test states that omit country/source
+    metadata stay unchanged rather than fabricating eligibility.
+    """
+    current_bit = getattr(player, "non_eu", None)
+    if type(current_bit) is not bool:
+        return
+
+    clubs = getattr(state, "clubs", None)
+    countries = getattr(state, "countries", None)
+    if not hasattr(clubs, "get") or not hasattr(countries, "values"):
+        return
+    if not tuple(countries.values()):
+        return
+
+    club = clubs.get(int(destination_club_id))
+    if club is None:
+        return
+    country_id = getattr(club, "country_id", None)
+    eu_status_code = getattr(player, "eu_status_code", None)
+    nationality_id = getattr(player, "nationality_id", None)
+    if (
+        type(country_id) is not int
+        or type(eu_status_code) is not int
+        or type(nationality_id) is not int
+    ):
+        return
+
+    nationality_country = None
+    for candidate in countries.values():
+        candidate_nationality = getattr(candidate, "nationality_id", None)
+        if type(candidate_nationality) is int and candidate_nationality == nationality_id:
+            nationality_country = candidate
+            break
+
+    try:
+        eligible = derive_non_eu_status(
+            country_id,
+            eu_status_code,
+            nationality_country,
+        )
+    except (TypeError, ValueError):
+        # Germany's native branch assumes a resolved nationality country.
+        # Missing bounded-fixture metadata is not evidence for a transition.
+        return
+
+    if eligible:
+        player.non_eu = True
+
+
 def _complete_ordinary_cash_transfer(
     state,
     proposal: TransferProposal,
@@ -373,6 +433,12 @@ def _complete_ordinary_cash_transfer(
         state.calendar.current_date,
         rng,
     )
+
+    # The concluded-transfer handlers then run 0x4EF600(mode 0). Eligibility
+    # can set bit 11, but an ineligible destination never clears an existing
+    # bit. Newly-set bits can lazily materialize their registration record on
+    # first status access, using the contract expiry installed above.
+    _apply_post_transfer_non_eu_registration(state, player, buyer_id)
 
     state.transfers.clear_deals_for(proposal)
     state.transfers.clear_proposal(player_id, buyer_id)
