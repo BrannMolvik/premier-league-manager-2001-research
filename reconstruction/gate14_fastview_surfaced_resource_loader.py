@@ -178,6 +178,30 @@ def _decode_verified(
 
 
 
+def _load_selected_background_with_decoder(
+    selection: FastViewSurfacedResourceSelection,
+    source_root: Path,
+    *,
+    tables,
+    quant,
+) -> VerifiedFastViewSurfacedResource:
+    """Decode the already-selected background with caller-verified decoder state."""
+    background_path, background_raw = _read_first_existing(
+        source_root,
+        selection.background_source_candidates,
+        role="background",
+        unresolved_terminal_background=True,
+    )
+    return _decode_verified(
+        "background",
+        background_path,
+        background_raw,
+        expected_geometry=BACKGROUND_GEOMETRY,
+        tables=tables,
+        quant=quant,
+    )
+
+
 def load_verified_selected_background(
     selection: FastViewSurfacedResourceSelection,
     *,
@@ -215,20 +239,13 @@ def load_verified_selected_background(
             "EA444 decode tables are not from the canonical original executable"
         ) from exc
 
-    background_path, background_raw = _read_first_existing(
+    return _load_selected_background_with_decoder(
+        selection,
         root,
-        selection.background_source_candidates,
-        role="background",
-        unresolved_terminal_background=True,
-    )
-    return _decode_verified(
-        "background",
-        background_path,
-        background_raw,
-        expected_geometry=BACKGROUND_GEOMETRY,
         tables=tables,
         quant=quant,
     )
+
 
 def load_verified_fastview_surfaced_resources(
     selection: FastViewSurfacedResourceSelection,
@@ -263,10 +280,11 @@ def load_verified_fastview_surfaced_resources(
             "EA444 decode tables are not from the canonical original executable"
         ) from exc
 
-    background = load_verified_selected_background(
+    background = _load_selected_background_with_decoder(
         selection,
-        source_root=root,
-        original_executable=exe_path,
+        root,
+        tables=tables,
+        quant=quant,
     )
     home_path, home_raw = _read_first_existing(
         root,
