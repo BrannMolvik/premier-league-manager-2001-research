@@ -12111,3 +12111,29 @@ continues with ordinary Squad row display-name/color helpers.
   Team_Backgrounds selector/loader and stage only the pre-match assets actually
   consumed by the verified panel seam. Gate 13 remains externally open on
   artifact `11418314765`.
+
+
+## 7 October 2026 KST — Recovery 365-367 PPreMatch surface + rating-state integration
+
+- PR #506 exact head `ae9c38fb421672486d75ea0d06fcfb623b2b21ef` staged the
+  ten source-proven live pre-match resources, reused the existing
+  Team_Backgrounds selector/loader, and added the source-backed pre-match
+  surface boundary. Presentation `37532655411`, asset-policy
+  `37532655336`, Windows-package `37532655247`, and full reconstruction
+  `37532655317` all passed; merged as
+  `f84b0ca5e78e847a77150ced16df9431f9bea7c4`.
+- Source-closed the four PPreMatch rating-width functions against the canonical
+  executable and Static.dat Position table: goalkeeper/defence/midfield/attack
+  are discriminators 3/0/1/2 with scales 1.71/0.342/0.342/0.57, eleven-starter
+  current-role-rating sums, and a 171-pixel cap. None/RF/LF group 255 is
+  natively excluded.
+- PR #507 exact head `848ef762a90e23085f624120c17f4d0ebe483062`
+  implemented exact XI-to-width calculation and mirrored left/right geometry
+  through `RuntimePlayer.current_role_rating()` and
+  `Position.lineup_group`. Focused presentation `37533902122` and
+  asset-policy `37533901971` passed; merged as
+  `58bf939ec14557c3eeff94875f19d4d4d6a76812`.
+- Gate 13 remains externally open only on artifact `11418314765`. Next
+  Gate-14 source task is the remaining PPreMatch text/team/player identity
+  controls and cross-layer setup/draw order; management-to-match launch remains
+  fail-closed.
