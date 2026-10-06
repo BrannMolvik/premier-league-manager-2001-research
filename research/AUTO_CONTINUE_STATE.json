@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 349: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main remains 6b9bf4dca8969dc2e604243033a45c1e58517526. Active Gate-17 work-ahead is PR #479 exact head 9a4aeda569307ae623ad65bc19dccc176263d0b2. Prior head 0ff99f89abd378d9314a63b621e7f2105ff314f1 compiled ffmpeg.exe/ffprobe.exe successfully and passed asset policy 37486929258, Windows package 37486929283, and full reconstruction 37486929058. Build proof 37486928684 failed only because the audit parsed FFmpeg's source-generated configuration string with whitespace splitting; pinned configure sh_quote() quotes comma-containing RHS values such as --enable-protocol='file,pipe'. Exact head 9a4aeda569307ae623ad65bc19dccc176263d0b2 now uses shlex shell-aware parsing and a source-shaped regression that still fails if pipe is genuinely omitted. Merge only after exact-head build proof/package/full CI pass, inspect artifact receipt, then merge. The next synthetic roundtrip is staged only on chatgpt/gate17-minimal-ffmpeg-roundtrip-r349 and must be refreshed onto the eventual merge before opening a PR. Private Cup-Tied trace remains execution-sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and 0x8755E8/EC/F0.",
+  "active_task": "Recovery 349: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main remains 6b9bf4dca8969dc2e604243033a45c1e58517526. Active Gate-17 work-ahead is PR #479 exact head f18a3d956c0721efb61c8085c0aebffa77961dbf. Head 9a4aeda569307ae623ad65bc19dccc176263d0b2 passed asset policy 37489212972, Windows package 37489213140, and full reconstruction 37489213168; its exact-source build compiled successfully and the shell-quoted configure audit passed, then build proof 37489212966 failed only because the filter inventory parser assumed a historical three-flag display. Pinned FFmpeg 9 opt_common.c show_filters() source prints exactly two flags via \"%c%c\" (timeline/slice). Head f18a3d956c0721efb61c8085c0aebffa77961dbf adds a dedicated exact two-flag filter parser and source-shaped regression. Merge only after this exact head's build proof/package/full checks pass; inspect build-proof receipt/artifact before merge. Synthetic roundtrip remains staged only on chatgpt/gate17-minimal-ffmpeg-roundtrip-r349 and must be refreshed onto eventual merged main. Private Cup-Tied trace remains execution-sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and 0x8755E8/EC/F0.",
   "last_known_main_head": "6b9bf4dca8969dc2e604243033a45c1e58517526",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 349,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 349: #479 exact head 9a4aeda569307ae623ad65bc19dccc176263d0b2; source-proven sh_quote parsing repair active after compile-success/audit-only false negative.",
+  "note": "Recovery 349: #479 exact head f18a3d956c0721efb61c8085c0aebffa77961dbf; source-proven FFmpeg 9 two-flag filter parser repair active after compile/config/capability path reached filters.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
