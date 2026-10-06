@@ -22,10 +22,17 @@ def contract_payload():
 
 
 def version_output(label: str, args: list[str]) -> str:
+    rendered = []
+    for arg in args:
+        if "=" in arg:
+            left, right = arg.split("=", 1)
+            if "," in right:
+                arg = f"{left}='{right}'"
+        rendered.append(arg)
     return (
         f"{label} version git-2026-09-30-46d8f46\n"
         "built with gcc synthetic\n"
-        "configuration: " + " ".join(args) + "\n"
+        "configuration: " + " ".join(rendered) + "\n"
     )
 
 
@@ -114,7 +121,7 @@ class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
         self.assertFalse(result["production_migration_ready"])
         self.assertFalse(result["legal_compliance_claimed"])
 
-    def test_configuration_accepts_ffmpeg_expanded_component_lists(self):
+    def test_configuration_accepts_ffmpeg_shell_quoted_grouped_component_lists(self):
         args = contract_payload()["minimal_helper_target"]["configure_args"]
         expanded = []
         for arg in args:
