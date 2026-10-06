@@ -1179,7 +1179,7 @@ class OriginalGameTkHost:
         return count
 
     def _draw_squad_rows(self, frame) -> int:
-        """Draw the source-closed first-roster player and PSCFRow text controls."""
+        """Draw source-closed first-roster text plus source-qualified PSCF status."""
         if frame.presentation.panel_class != "PSquadScreen":
             return 0
         transition = frame.presentation.squad_view_transition
@@ -1224,18 +1224,18 @@ class OriginalGameTkHost:
             )
             count += 1
 
-        direct_status_rows = tuple(
+        source_qualified_status_rows = tuple(
             row for row in snapshot.rows
             if getattr(row, "native_status_frame_index", None) is not None
         )
-        if direct_status_rows:
+        if source_qualified_status_rows:
             status_resources = self.squad_status_resources
             if not isinstance(status_resources, OriginalSquadStatusResources):
                 raise OriginalGameHostError(
-                    "Squad direct status renderer requires verified original status resources"
+                    "Squad source-qualified status renderer requires verified original status resources"
                 )
             for overlay in build_first_roster_direct_status_overlays(
-                direct_status_rows,
+                source_qualified_status_rows,
                 status_resources,
             ):
                 self._create_native_image(
