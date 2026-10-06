@@ -170,9 +170,15 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must retain the MOV/MP4 input demuxer for derivative verification"
         )
-    if "--enable-encoder=h264_mf,aac" not in args:
+    encoder_arg = next((arg for arg in args if arg.startswith("--enable-encoder=")), None)
+    if encoder_arg is None:
+        raise MinimalFfmpegSourceContractError("minimal helper has no encoder enable list")
+    enabled_encoders = set(encoder_arg.split("=", 1)[1].split(","))
+    required_encoders = {"h264_mf", "aac", "wrapped_avframe", "pcm_s16le"}
+    if not required_encoders.issubset(enabled_encoders):
         raise MinimalFfmpegSourceContractError(
-            "minimal helper must enable h264_mf and native AAC"
+            "minimal helper must enable h264_mf/AAC plus null-muxer "
+            "wrapped_avframe/pcm_s16le verification encoders"
         )
     if "--enable-filter=aresample" not in args:
         raise MinimalFfmpegSourceContractError(
@@ -246,7 +252,12 @@ def audit_source_contract(repo_root: str | Path) -> dict:
     if plumbing != {
         "protocols": ["file", "pipe"],
         "muxers": ["mp4", "null"],
-        "reason": "Runtime startup cache uses -progress pipe:1 and -f null decode verification.",
+        "null_muxer_default_encoders": ["wrapped_avframe", "pcm_s16le"],
+        "reason": (
+            "Runtime startup cache uses -progress pipe:1 and -f null decode "
+            "verification; pinned FFmpeg nullenc.c defaults to wrapped_avframe "
+            "video and pcm_s16le audio."
+        ),
     }:
         raise MinimalFfmpegSourceContractError(
             "runtime validation plumbing contract drifted"

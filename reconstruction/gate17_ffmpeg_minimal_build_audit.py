@@ -57,7 +57,7 @@ REQUIRED_DECODERS = {
     "h264",
     "aac",
 }
-REQUIRED_ENCODERS = {"h264_mf", "aac"}
+REQUIRED_ENCODERS = {"h264_mf", "aac", "wrapped_avframe", "pcm_s16le"}
 REQUIRED_DEMUXERS = {"ea", "mov"}
 REQUIRED_MUXERS = {"mp4", "null"}
 REQUIRED_PROTOCOLS = {"file", "pipe"}

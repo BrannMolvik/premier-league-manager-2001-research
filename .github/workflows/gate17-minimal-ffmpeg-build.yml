@@ -8,6 +8,9 @@ on:
       - "reconstruction/gate17_ffmpeg_minimal_source_contract.py"
       - "reconstruction/gate17_ffmpeg_minimal_build_audit.py"
       - "reconstruction/test_gate17_ffmpeg_minimal_build_audit.py"
+      - "reconstruction/gate17_ffmpeg_minimal_roundtrip.py"
+      - "reconstruction/test_gate17_ffmpeg_minimal_roundtrip.py"
+      - "research/GATE17_MINIMAL_FFMPEG_ROUNDTRIP.md"
   workflow_dispatch:
 
 concurrency:
@@ -95,6 +98,23 @@ jobs:
             --ffprobe-imports "_minimal-ffmpeg-build/ffprobe-objdump.txt" `
             --output-receipt "_minimal-ffmpeg-build/build-proof.json"
 
+      - name: Prove synthetic canonical startup roundtrip
+        shell: pwsh
+        run: |
+          $url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-10-03-18-14/ffmpeg-n9.0.2-22-g46d8f462ee-win64-lgpl-9.0.zip"
+          $archive = Join-Path "${{ runner.temp }}" "ffmpeg-lgpl-fixture.zip"
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $roundtripArgs = @(
+            "reconstruction/gate17_ffmpeg_minimal_roundtrip.py",
+            "--repo-root", ".",
+            "--ffmpeg", "_minimal-ffmpeg-build/ffmpeg.exe",
+            "--ffprobe", "_minimal-ffmpeg-build/ffprobe.exe",
+            "--build-proof", "_minimal-ffmpeg-build/build-proof.json",
+            "--fixture-archive", $archive,
+            "--output-receipt", "_minimal-ffmpeg-build/roundtrip-proof.json"
+          )
+          python @roundtripArgs
+
       - name: Upload exact minimal build proof
         uses: actions/upload-artifact@v4
         with:
@@ -109,5 +129,6 @@ jobs:
             _minimal-ffmpeg-build/config.mak
             _minimal-ffmpeg-build/config.log
             _minimal-ffmpeg-build/build-proof.json
+            _minimal-ffmpeg-build/roundtrip-proof.json
           if-no-files-found: error
           retention-days: 14
