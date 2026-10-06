@@ -511,6 +511,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 "management_pmenu_resources": object(),
                 "squad_top_resources": object(),
                 "squad_row_text_resources": object(),
+                "squad_status_resources": object(),
                 "management_background": object(),
                 "management_header_resources": object(),
             },
@@ -686,6 +687,7 @@ class OriginalGameHostTests(unittest.TestCase):
             "management_pmenu_resources": object(),
             "squad_top_resources": object(),
                 "squad_row_text_resources": object(),
+                "squad_status_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
         }
@@ -829,6 +831,7 @@ class OriginalGameHostTests(unittest.TestCase):
             "management_pmenu_resources": object(),
             "squad_top_resources": object(),
                 "squad_row_text_resources": object(),
+                "squad_status_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
         }
