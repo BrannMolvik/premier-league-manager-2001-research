@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from gate17_ffmpeg_minimal_build_audit import (
     MinimalFfmpegBuildAuditError,
+    _filter_names,
     _parse_imports,
     _version_contract,
     audit_minimal_build,
@@ -48,7 +49,7 @@ ENCODERS = " V..... h264_mf synthetic\n A..... aac synthetic\n"
 DEMUXERS = " D  ea synthetic\n D  mov,mp4,m4a synthetic\n"
 MUXERS = " E  mp4 synthetic\n E  null synthetic\n"
 PROTOCOLS = "Input:\n  file\n  pipe\nOutput:\n  file\n  pipe\n"
-FILTERS = " ... aresample A->A synthetic\n ... scale V->V synthetic\n"
+FILTERS = " .. aresample A->A synthetic\n T. scale V->V synthetic\n"
 
 
 class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
@@ -144,6 +145,12 @@ class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
                 label="ffmpeg",
                 configure_args=args,
             )
+
+    def test_filter_parser_matches_pinned_two_flag_ffmpeg9_shape(self):
+        self.assertEqual(_filter_names(FILTERS), {"aresample", "scale"})
+        self.assertNotIn("Timeline", _filter_names(
+            "Filters:\n  T.. = Timeline support\n  .S. = Slice threading\n" + FILTERS
+        ))
 
     def test_wrong_source_commit_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
