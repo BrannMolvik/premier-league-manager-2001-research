@@ -317,3 +317,83 @@ This narrows, but does not fully close, the producer question because an opaque
 computed-pointer/block initializer has not yet been formally excluded. Keep
 the negative fallback disabled until the scalar-region initialization is
 source-closed.
+
+
+## Recovery 357 — Cup-Tied cutoff owner and transfer-history field correction
+
+Recovery 356 correctly excluded the `0x875510` 48-entry table, but its
+"distinct scalar-global region" description stopped one level too early.
+First-hand RTTI and constructor tracing now identifies the enclosing object.
+
+### The selector and cutoffs are DBRGame fields
+
+The global object at `0x874C10` uses vtable `0x7BD904`. Its vtable
+Complete Object Locator (`0x7DF470`) points to TypeDescriptor `0x818B08`,
+whose RTTI name is `.?AVDBRGame@@`.
+
+Therefore:
+
+- `0x8755E8 = DBRGame+0x9D8` is the selector;
+- `0x8755EC = DBRGame+0x9DC` is the mode-1 cutoff date;
+- `0x8755F0 = DBRGame+0x9E0` is the mode-2 cutoff date.
+
+The global constructor wrapper `0x412CA0` binds `ecx=0x874C10` to
+constructor `0x412CD0`; that constructor writes `-1` to
+`+0x9DC/+0x9E0`.
+
+`0x413A20`, called with the same global object at `0x4F7F03` and
+`0x4F9935`, resets selector `+0x9D8` to zero. It calls `0x64D500`
+with the current date and relative week/day terms. `0x64D500` computes
+`base + 7*arg2 + arg3`, so the two stored cutoffs are exactly:
+
+- `current_date + (8*7 + 4) = current_date + 60 days`;
+- `current_date + (29*7 + 4) = current_date + 207 days`.
+
+Both values are passed through the date decomposition/formatting path using
+the literal `%D %Mf %Yf`, independently proving they are dates.
+
+`0x4A8098 -> 0x4138E0` runs from the daily update path.
+`0x64CCD0` decomposes the integer date to year/month/day. The caller reads
+the returned month/day fields and changes `+0x9D8` as follows:
+
+- day 30, month 8 -> selector 1;
+- day 30, month 1 -> selector 2.
+
+### Recovery 354 transfer-history mapping is superseded
+
+The earlier appearance-count interpretation of transfer-history `+0x18`
+came from assigning the residual call-stack arguments to `0x4EBF60` in the
+wrong order.
+
+At `0x422E3E..0x422E82`, after `0x5E43B0` and `0x5E48D0` clean their
+own arguments, the six arguments received by `0x4EBF60` are:
+
+1. the pre-transfer/registered club value captured in `edi`;
+2-3. the generated QWORD transfer value;
+4. zero-extended DBRPlayer WORD `+0x18C` (appearance count);
+5. global current date `0x9847FC`;
+6. zero.
+
+`0x4EBF60` stores argument 4 at transfer-history `+0x1C` and argument 5
+at `+0x18`. This agrees with two independent checks:
+`0x4EBE60` initializes `+0x18` to the global current date, and
+`0x4EBFA0` decomposes/formats `+0x18` as a date.
+
+Thus DBRPlayer `+0x18C` remains a source-proven appearance counter, but its
+transfer snapshot is transfer-history `+0x1C`, **not** `+0x18`.
+`0x419350 -> 0x4EBE80` returns transfer-history `+0x18` when
+`+0x08 > -1`, otherwise `-1`.
+
+### Exact Cup-Tied comparison
+
+The four known mode-1 consumers select `+0x9DC` for selector 1 or
+`+0x9E0` for selector 2, then compare the transfer-history date returned by
+`0x419350` with that cutoff. The extra Cup-Tied predicate is true only when
+the transfer-history date is **greater than** the selected cutoff. Selector 0,
+an unsupported selector, or unavailable transfer history does not produce this
+negative-collection Cup-Tied result.
+
+This source-closes the native producer and date semantics. Repository
+integration still must preserve the transfer-history availability/date state;
+do not substitute the appearance counter or infer the last-transfer date from
+unrelated fields.

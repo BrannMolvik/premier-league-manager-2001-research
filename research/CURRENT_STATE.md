@@ -1,3 +1,61 @@
+# Recovery 357 continuation — Cup-Tied DBRGame dates source-closed and Recovery 354 mapping corrected
+
+_Updated 7 October 2026._
+
+Recovery 357 resumed from canonical `main`
+`ce3b45fd6245c8d5939bf2779ad4a03a60850b46` and re-materialized the hash-verified authorized
+`footballmanager.exe` (SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+from the private Library source. The generic shell path failed with an
+infrastructure ClientError, but the private Python/source-analysis route remained
+fully usable, so this was not a source-access blocker.
+
+The previously unresolved Cup-Tied selector/cutoff producer is now source-closed:
+
+- MSVC RTTI identifies the global object at `0x874C10` as `DBRGame`
+  (vtable `0x7BD904`, Complete Object Locator `0x7DF470`,
+  TypeDescriptor `0x818B08`, `.?AVDBRGame@@`);
+- `0x8755E8 = DBRGame+0x9D8`, `0x8755EC = +0x9DC`, and
+  `0x8755F0 = +0x9E0`; these are fields of that object, not standalone
+  scalar globals;
+- constructor `0x412CD0` initializes `+0x9DC/+0x9E0` to `-1`;
+- `0x413A20` sets `+0x9D8=0` and, through `0x64D500`, sets
+  `+0x9DC = current_date + 60 days` and
+  `+0x9E0 = current_date + 207 days`; both are immediately formatted with
+  the date format string `%D %Mf %Yf`;
+- daily path `0x4A8098 -> 0x4138E0` decomposes the global current date
+  through `0x64CCD0`, sets selector mode 1 on **August 30**, and sets mode 2
+  on **January 30**.
+
+Recovery 354's statement that `CPlayerTransferHistory+0x18` is an appearance
+count is **superseded**. Re-auditing the exact setter stack at
+`0x422E3E..0x422E82` proves:
+
+- DBRPlayer WORD `+0x18C` is indeed an appearance counter and is passed as
+  setter argument 4, which `0x4EBF60` stores at transfer-history `+0x1C`;
+- global current date `0x9847FC` is setter argument 5, which
+  `0x4EBF60` stores at transfer-history `+0x18`;
+- `0x4EBE60` also initializes transfer-history `+0x18` directly from the
+  global current date, while `0x4EBFA0` decomposes/formats that same field as
+  a date;
+- `0x419350 -> 0x4EBE80` therefore returns the transfer-history **date**
+  when `+0x08 > -1`, otherwise `-1`.
+
+The four recovered Cup-Tied mode-1 consumers compare that transfer-history date
+against the selected DBRGame cutoff. A collection miss becomes tied only when a
+valid transfer-history date is **greater than** the selected cutoff; selector 0
+or an unsupported selector does not activate this extra branch.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** because
+Daniel's normal Windows 11 acceptance of artifact `11418314765` is still
+outstanding. The exact next source-backed task is repository-side: audit the
+clean transfer workflow for the old-club/transfer-date state needed by
+`CPlayerTransferHistory+0x08/+0x18`, then materialize the DBRGame selector and
+relative cutoff lifecycle plus the negative mode-1 Cup-Tied predicate if those
+inputs can be propagated without inference. Keep any missing seam fail-closed.
+
+---
+
 # Recovery 356 continuation — FFmpeg toolchain provenance merged; Cup-Tied table false lead eliminated
 
 _Updated 7 October 2026._

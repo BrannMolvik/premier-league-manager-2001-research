@@ -12010,3 +12010,27 @@ continues with ordinary Squad row display-name/color helpers.
   refs, the globals are PE-BSS-zero, and no shipped text/config/help rule key
   was found. A computed/block initializer is still not formally excluded, so
   negative mode-1 Cup-Tied stays fail-closed.
+
+
+## 7 October 2026 KST — Recovery 357 Cup-Tied DBRGame/date correction
+
+- Recovered the authorized canonical executable again from the private Library
+  archive and verified SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+  A generic shell ClientError did not block the working private Python analysis
+  route.
+- Identified global `0x874C10` as `DBRGame` through MSVC RTTI and proved
+  that Cup-Tied addresses `0x8755E8/EC/F0` are its
+  `+0x9D8/+0x9DC/+0x9E0` fields.
+- Source-closed their lifecycle: `0x413A20` sets selector 0 and date cutoffs
+  current+60/current+207 days; daily `0x4138E0` selects mode 1 on August 30
+  and mode 2 on January 30.
+- Corrected Recovery 354's transfer-history field mapping. DBRPlayer
+  `+0x18C` remains an appearance counter but is stored at transfer-history
+  `+0x1C`; transfer-history `+0x18` is the global current-date snapshot
+  and is the value returned by `0x419350`.
+- The unresolved negative mode-1 Cup-Tied fallback is now semantically closed:
+  with a valid transfer-history record, selector 1/2 chooses the matching
+  DBRGame cutoff, and a transfer date strictly later than that cutoff is tied.
+  Next repository task is to audit/propagate the required clean transfer-history
+  state and DBRGame lifecycle without inference.

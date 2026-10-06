@@ -258,3 +258,47 @@ Safe partial frame-3 publication is therefore possible only when:
 A collection miss in mode 1 remains unresolved, not false, until
 `CPlayerTransferHistory +0x08` and the global cutoff selector/dates are
 materialized.
+
+
+## Recovery 357: DBRGame cutoff lifecycle and corrected transfer-history date
+
+The previously unresolved mode-1 negative branch is now source-closed from the
+hash-verified executable.
+
+The three absolute addresses are fields of the global `DBRGame` instance at
+`0x874C10`, proven by MSVC RTTI (`.?AVDBRGame@@`):
+
+- selector `0x8755E8 = +0x9D8`;
+- cutoff 1 `0x8755EC = +0x9DC`;
+- cutoff 2 `0x8755F0 = +0x9E0`.
+
+`0x413A20` resets the selector to 0 and derives the two cutoff **dates** as
+`current_date + 60` and `current_date + 207` days. The date helper
+`0x64D500` computes `base + 7*weeks + days`; the results are immediately
+formatted through `%D %Mf %Yf`.
+
+The daily `0x4138E0` path decomposes the current date through
+`0x64CCD0` and moves the selector to mode 1 on August 30 and mode 2 on
+January 30.
+
+This also corrects Recovery 354. `CPlayerTransferHistory+0x18` is the
+transfer-history **date**, not the appearance count. At transfer commit
+`0x422E3E..0x422E82`, DBRPlayer `+0x18C` is passed as setter argument 4
+and lands at history `+0x1C`; global current date is setter argument 5 and
+lands at history `+0x18`. Constructor `0x4EBE60` and formatter
+`0x4EBFA0` independently confirm `+0x18` as a date.
+
+For the mode-1 Cup runtime branch, after a normal Cup-Tied collection miss:
+
+1. `0x419350` requires history `+0x08 > -1` and returns history
+   `+0x18`; otherwise the extra branch is false;
+2. selector 1 chooses `DBRGame+0x9DC`;
+3. selector 2 chooses `DBRGame+0x9E0`;
+4. selector 0/other values do not activate the branch;
+5. the player is Cup-Tied on this fallback exactly when
+   `transfer_history_date > selected_cutoff_date`.
+
+Positive root-competition collection hits remain unchanged and still win
+immediately. The clean-room integration must now propagate the actual
+transfer-history availability/date state and DBRGame cutoff lifecycle rather
+than guessing from `current_club_join_date` or appearance totals.
