@@ -505,6 +505,46 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
 
+    def test_squad_status_projection_keeps_loan_and_non_eu_priority_inputs_exact(self):
+        controller = FakeController()
+        controller._squad[0].loan_club_id = 99
+        controller._squad[1].non_eu = True
+
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+
+        self.assertTrue(second.alternate_on_loan)
+        self.assertFalse(second.non_eu)
+        self.assertFalse(second.cup_tied_positive)
+        self.assertFalse(first.alternate_on_loan)
+        self.assertTrue(first.non_eu)
+        self.assertFalse(first.cup_tied_positive)
+
+    def test_squad_positive_cup_tied_requires_pending_entry_in_todays_primary_order(self):
+        controller = FakeController()
+        entry = ("domestic_cup", ("round", 4, 0))
+        controller.pending_primary_entry = entry
+        controller.state.primary_matchday_order = {
+            controller.state.calendar.current_date: (entry,)
+        }
+        controller._primary_entry_clubs = lambda candidate: (10, 11)
+        controller._primary_entry_competition_id = lambda candidate: 25
+        controller.state.is_player_cup_tied = (
+            lambda competition_id, player_id, current_club_id:
+            competition_id == 25
+            and player_id == 101
+            and current_club_id == 10
+        )
+
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+
+        self.assertFalse(second.cup_tied_positive)
+        self.assertTrue(first.cup_tied_positive)
+
+        controller.state.primary_matchday_order = {}
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertFalse(second.cup_tied_positive)
+        self.assertFalse(first.cup_tied_positive)
+
     def test_squad_role_abbreviation_requires_source_position_table(self):
         controller = FakeController()
         controller.state.positions = {}
