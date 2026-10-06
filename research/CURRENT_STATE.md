@@ -1,3 +1,34 @@
+# Recovery 361 continuation — Match Detail state merged; native PPreMatchPanel launch source-closed
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `531266d1676f7200f8a071250d4ea1d8b1807a14`, which merges PR #503's source-backed Match Detail state seam. Exact PR head `b8e7497d7de245dbe4436181626bc9cbc2fa0ba6` passed focused presentation run `37522687749` and repository asset-policy run `37522687692`.
+
+The modern front-end session now preserves the recovered selectable contract without inventing presentation:
+
+- `0 = 3D Match`, `1 = 3D Highlights`, `2 = FastView`, `3 = Quick Match`;
+- native unresolved sentinel `5` is represented as `None`, not exposed as a selectable mode;
+- selection is application/front-end state, not save-game state;
+- the non-pointer `source_accepted_match_detail_selection(...)` seam is available only during active management gameplay;
+- `source_fastview_selected` is true only for exact mode 2;
+- no PPreMatchPanel geometry/input, match-launch action, unconditional FastView popup, or substitute 3D presentation was invented.
+
+Additional first-hand canonical executable tracing closes the pre-match modal launch boundary:
+
+- settings initializer `0x5155B0` writes native Match Detail sentinel `5` at `0x877530`;
+- high-level match processing `0x513010` checks `0x877530` before calculation; sentinel `5` forces call `0x513122 -> 0x533120` (an additional alternate condition through global `0x875680` remains semantically unnamed);
+- wrapper `0x533120` has the unique direct call `0x53314C -> PPreMatchPanel::0x499C30`, constructs the stack-owned pre-match panel, runs its modal owner path, then reloads `0x877530`;
+- after the modal returns, `0x533199` copies the selected mode into MatchCalculator `+0xD3C` before the main match path proceeds;
+- `PPreMatchPanel::0x49AB50 -> 0x49ABA0` writes the selected 0..3 value, refreshes all four selector controls, signals the owner, and closes the modal;
+- the authorized source disc contains a dedicated original pre-match art family under `FM2001_Art/Generic/pre_match/`, including `prematch_bground.444`, `top_bar.444`, `pitch.444`, active/disabled player-name pieces, and rating bars.
+
+Therefore the next source-backed presentation step is to correlate the exact PPreMatchPanel resources/layout/control geometry and reuse those original pre-match assets. The production `OriginalGameTkHost` currently exposes no source-backed call into `HumanGameplayController.play_user_fixture()` / `play_user_primary_match()`, so do not fabricate a match-launch button merely to reach the already-built FastView child window.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely because Daniel's normal Windows 11 acceptance of artifact `11418314765` is still outstanding. Continue independent Gate-14 work-ahead while that external receipt is pending.
+
+Exact next task: recover the PPreMatchPanel resource bindings and four-choice selector geometry/labels from the canonical executable and authorized disc, then implement only the source-proven pre-match presentation seam. Keep the actual management-to-match launch transition fail-closed until its native trigger is separately recovered.
+
+---
 # Recovery 360 continuation — original FastView activation mode source-closed
 
 _Updated 7 October 2026._
