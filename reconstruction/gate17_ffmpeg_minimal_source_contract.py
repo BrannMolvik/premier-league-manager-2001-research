@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 from typing import Mapping
 
+from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+
 
 class MinimalFfmpegSourceContractError(RuntimeError):
     pass
@@ -156,7 +158,7 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         )
     if minimal.get("required_internal_video_conversion") != {
         "filter": "scale",
-        "expression": "scale=640:480:flags=neighbor",
+        "expression": ORIGINAL_STARTUP_FMV_PRESENTATION.ffmpeg_filter,
         "dependency": "swscale",
         "reason": (
             "Canonical FM2001 startup conversion bakes the source-proven 2x horizontal "
