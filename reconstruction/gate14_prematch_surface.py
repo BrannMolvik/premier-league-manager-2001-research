@@ -32,6 +32,17 @@ from original_prematch_panel import (
     PREMATCH_DISABLED_LEFT,
     PREMATCH_DISABLED_RIGHT,
     PREMATCH_LIVE_BACKGROUND_RECT,
+    PREMATCH_FIXTURE_HEADER_RECT,
+    PREMATCH_DATE_WEATHER_RECT,
+    PREMATCH_TEAM_IDENTITY_RECTS,
+    PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+    PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_RATING_CAPTION_RECTS,
+    PREMATCH_RATING_LABELS,
+    PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+    PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+    PREMATCH_VERSUS_LABEL,
     PREMATCH_RATING_LEFT,
     PREMATCH_RATING_RIGHT,
     PREMATCH_RATING_RIGHT2,
@@ -64,6 +75,87 @@ class PrematchRasterLayer:
             raise PrematchSurfaceError("pre-match raster source path must be non-empty")
         if len(self.rgba) != self.rect.width * self.rect.height * 4:
             raise PrematchSurfaceError("pre-match raster RGBA geometry mismatch")
+
+
+@dataclass(frozen=True)
+class PrematchTextControlSurface:
+    """Source-closed text-control placement with deliberately bounded content."""
+
+    role: str
+    rect: OriginalRect
+    style_wrapper_va: int
+    fixed_text: str | None = None
+    source_buffer_offset: int | None = None
+    dynamic_text_source_closed: bool = False
+
+    def __post_init__(self) -> None:
+        if not self.role:
+            raise PrematchSurfaceError("pre-match text-control role must be non-empty")
+        if type(self.style_wrapper_va) is not int or self.style_wrapper_va <= 0:
+            raise PrematchSurfaceError("pre-match text-control style wrapper must be a VA")
+        if self.fixed_text is not None and self.source_buffer_offset is not None:
+            raise PrematchSurfaceError(
+                "pre-match text control cannot be both fixed and panel-buffer sourced"
+            )
+        if self.fixed_text is None and self.source_buffer_offset is None:
+            if self.role not in ("team_identity_0", "team_identity_1"):
+                raise PrematchSurfaceError(
+                    "unbound dynamic text is allowed only for source-proven team identities"
+                )
+        if self.dynamic_text_source_closed and self.fixed_text is None:
+            raise PrematchSurfaceError(
+                "dynamic pre-match text binding is not source-closed by this surface"
+            )
+
+
+def source_prematch_text_controls() -> tuple[PrematchTextControlSurface, ...]:
+    """Expose only exact native text-control geometry/content boundaries."""
+
+    controls = [
+        PrematchTextControlSurface(
+            role="fixture_header",
+            rect=PREMATCH_FIXTURE_HEADER_RECT,
+            style_wrapper_va=PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+            source_buffer_offset=PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+        ),
+        PrematchTextControlSurface(
+            role="date_weather",
+            rect=PREMATCH_DATE_WEATHER_RECT,
+            style_wrapper_va=PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+            source_buffer_offset=PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+        ),
+        PrematchTextControlSurface(
+            role="team_identity_0",
+            rect=PREMATCH_TEAM_IDENTITY_RECTS[0],
+            style_wrapper_va=PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS[0],
+        ),
+        PrematchTextControlSurface(
+            role="versus",
+            rect=PREMATCH_TEAM_IDENTITY_RECTS[1],
+            style_wrapper_va=PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS[1],
+            fixed_text=PREMATCH_VERSUS_LABEL,
+        ),
+        PrematchTextControlSurface(
+            role="team_identity_1",
+            rect=PREMATCH_TEAM_IDENTITY_RECTS[2],
+            style_wrapper_va=PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS[2],
+        ),
+    ]
+    for side_name, rects in (
+        ("left", PREMATCH_RATING_CAPTION_RECTS[:4]),
+        ("right", PREMATCH_RATING_CAPTION_RECTS[4:]),
+    ):
+        for label, rect in zip(PREMATCH_RATING_LABELS, rects, strict=True):
+            controls.append(
+                PrematchTextControlSurface(
+                    role=f"rating_{side_name}_{label.lower()}",
+                    rect=rect,
+                    style_wrapper_va=PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA,
+                    fixed_text=label,
+                    dynamic_text_source_closed=True,
+                )
+            )
+    return tuple(controls)
 
 
 @dataclass(frozen=True)
@@ -277,6 +369,7 @@ class PrematchSurfaceBoundary:
     selection: FastViewSurfacedResourceSelection
     background: PrematchRasterLayer
     static_layers: tuple[PrematchRasterLayer, ...]
+    text_controls: tuple[PrematchTextControlSurface, ...]
     player_strip_rows: tuple[PrematchPlayerStripSurface, ...]
     selectors: tuple[PrematchSelectorSurface, ...]
     rating_rows: tuple[PrematchRatingSurface, ...]
@@ -306,6 +399,8 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError("pre-match live background must remain 800x600")
         if len(self.static_layers) != len(PREMATCH_STATIC_PLACEMENTS):
             raise PrematchSurfaceError("pre-match static layer set is incomplete")
+        if self.text_controls != source_prematch_text_controls():
+            raise PrematchSurfaceError("pre-match native text-control set is incomplete")
         if len(self.player_strip_rows) != len(PREMATCH_PLAYER_STRIP_ROWS):
             raise PrematchSurfaceError("pre-match player strip row set is incomplete")
         if any(row.variant_state_source_closed for row in self.player_strip_rows):
@@ -473,6 +568,7 @@ def build_verified_prematch_surface_boundary(
         selection=selection,
         background=background,
         static_layers=static_layers,
+        text_controls=source_prematch_text_controls(),
         player_strip_rows=tuple(player_strip_rows),
         selectors=selectors,
         rating_rows=rating_rows,
@@ -488,6 +584,11 @@ def prematch_surface_contract() -> dict:
         "dedicated_static_asset_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
+        "text_control_count": len(source_prematch_text_controls()),
+        "text_control_roles": tuple(control.role for control in source_prematch_text_controls()),
+        "dynamic_fixture_and_date_buffers_bound": False,
+        "team_identity_text_bound": False,
+        "fixed_versus_and_rating_captions_available": True,
         "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
         "player_strip_rows_source_geometry_available": True,
         "reserve_variant_state_source_closed": False,

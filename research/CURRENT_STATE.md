@@ -1,3 +1,26 @@
+# Recovery 369 continuation — PPreMatch text-control surface staged
+
+_Updated 7 October 2026._
+
+Canonical technical merge baseline is `29a799309b41f01384d47f6184d5704b5abda958` (PR #509), with documentation checkpoint `aee486739b5fe333343e0289c61c636d1d0b3515` on `main`.
+
+Current Gate-14 work-ahead branch `chatgpt/gate14-prematch-text-surface-r369` now reconciles the already source-closed top-layer text controls into `gate14_prematch_surface.py`:
+
+- fixture header child 3: exact `(250,45,300,30)`, wrapper `0x87BE30`, source panel buffer `+0x170` retained but dynamic content not yet bound;
+- date/weather child 4: exact `(250,70,300,16)`, wrapper `0x87BE30`, source buffer `+0x270` retained but dynamic content not yet bound;
+- team identity children 7..9: exact left/V/right rectangles and wrappers, with only exact fixed center `V` promoted;
+- rating-caption children 170..177: exact left/right GK/DEF/MID/ATT text, rectangles and `0x87BEA0` wrapper promoted;
+- all dynamic team/header/date content remains fail-closed rather than guessed.
+
+PR #509 remains the last verified implementation checkpoint: exact head `cd6ec2c1f03c3d108bfd957122828b5e520a0ddb` passed focused presentation run `37542137513` and asset-policy run `37542137447` before merge.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely because Daniel's normal Windows 11 acceptance of artifact `11418314765` is outstanding.
+
+Exact next task after this slice: source-close the 22 starting-XI pitch-marker placement/state, player-row text/content/style and reserve active-vs-disabled state selector, exact Match Detail selector visual state, plus dynamic identity text binding. Only then reconcile all 182 child slots into a supplied-state frame. Management-to-match launch, missing 3D presentation, complete-frame fidelity and Gate 14 completion remain false.
+
+The local execution sandbox still returns generic `ClientError` for container/Python commands despite successful canonical Library materialization. Do not infer native behavior from that infrastructure failure.
+
+---
 # Recovery 369 continuation — PPreMatch player-strip surface merged
 
 _Updated 7 October 2026._

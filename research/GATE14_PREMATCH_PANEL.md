@@ -553,3 +553,11 @@ This geometry aligns exactly with the already-proven child ranges: side-0 starte
 The reserve active/disabled selection itself remains unresolved. The clean-room contract therefore exposes both native source variants and keeps `reserve_variant_state_source_closed = False`; it must not infer eligibility, bench status, or selection state from modern assumptions.
 
 Exact next source task: source-close the 22 starting-XI pitch-marker placement/state, row text/content/style and reserve-state selector, and Match Detail selector visual state, then account for every visible child in native paint order for a supplied match state.
+
+## Recovery 369 continuation — source-closed text controls surfaced
+
+Frame reconciliation now represents the exact non-roster text-control placements already proven by Recovery 368 rather than leaving them only in research constants. The clean-room surface contains 13 text-control records corresponding to native child slots 3, 4, 7..9 and 170..177.
+
+The fixed source text that can be promoted without runtime inference is limited to center `V` and the duplicated rating captions `GK/DEF/MID/ATT`. Fixture header and date/weather controls retain their exact panel buffer offsets `+0x170/+0x270`, rectangles and style wrapper but do not claim a supplied-state string yet. Left/right team identity controls retain exact geometry/style only; their dynamic team-name binding remains separate.
+
+This deliberately narrows complete-frame blockers without collapsing formatting evidence into runtime state. The surface contract continues to report dynamic fixture/date buffers unbound, team identity text unbound, reserve strip variant unresolved, complete frame false, and Gate 14 false.

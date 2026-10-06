@@ -12198,3 +12198,5 @@ continues with ordinary Squad row display-name/color helpers.
 
 - PR #509 exact head `cd6ec2c1f03c3d108bfd957122828b5e520a0ddb` then surfaced all 36 source-proven row rectangles and original strip payloads through `gate14_prematch_surface.py` without selecting the unresolved reserve active/disabled state. Focused presentation run `37542137513` and asset-policy run `37542137447` passed; merged as `29a799309b41f01384d47f6184d5704b5abda958`.
 - Recovery 369 private-source locator/materialization succeeded for the canonical 511,121,336-byte Library ZIP, but the current execution sandbox rejects both container and Python execution with generic `ClientError`, including trivial commands. Native pitch-marker/state tracing is therefore deferred, not guessed; cloud-safe source-proven frame reconciliation continues.
+
+- Recovery 369 continued frame reconciliation after PR #509 by surfacing all 13 source-closed non-roster PPreMatch text controls: exact fixture/date buffers and geometry, left/V/right team geometry, and fixed V plus GK/DEF/MID/ATT captions. Dynamic fixture/date/team strings remain deliberately unbound; complete-frame and Gate-14 claims remain false.

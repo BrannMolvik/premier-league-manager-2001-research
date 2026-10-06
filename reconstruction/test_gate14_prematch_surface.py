@@ -18,6 +18,7 @@ from gate14_prematch_surface import (
     bind_prematch_rating_widths,
     build_verified_prematch_surface_boundary,
     prematch_surface_contract,
+    source_prematch_text_controls,
 )
 from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
@@ -136,6 +137,40 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(
             tuple(layer.role for layer in boundary.static_layers),
             tuple(placement.role for placement in PREMATCH_STATIC_PLACEMENTS),
+        )
+        self.assertEqual(boundary.text_controls, source_prematch_text_controls())
+        self.assertEqual(
+            tuple(
+                (
+                    control.role,
+                    (
+                        control.rect.x,
+                        control.rect.y,
+                        control.rect.width,
+                        control.rect.height,
+                    ),
+                    control.style_wrapper_va,
+                    control.fixed_text,
+                    control.source_buffer_offset,
+                    control.dynamic_text_source_closed,
+                )
+                for control in boundary.text_controls
+            ),
+            (
+                ("fixture_header", (250, 45, 300, 30), 0x87BE30, None, 0x170, False),
+                ("date_weather", (250, 70, 300, 16), 0x87BE30, None, 0x270, False),
+                ("team_identity_0", (184, 4, 185, 39), 0x87BE80, None, None, False),
+                ("versus", (374, 5, 52, 37), 0x87BE70, "V", None, False),
+                ("team_identity_1", (429, 4, 185, 39), 0x87BE80, None, None, False),
+                ("rating_left_gk", (37, 498, 25, 14), 0x87BEA0, "GK", None, True),
+                ("rating_left_def", (37, 516, 25, 14), 0x87BEA0, "DEF", None, True),
+                ("rating_left_mid", (37, 534, 25, 14), 0x87BEA0, "MID", None, True),
+                ("rating_left_att", (37, 552, 25, 14), 0x87BEA0, "ATT", None, True),
+                ("rating_right_gk", (737, 498, 25, 14), 0x87BEA0, "GK", None, True),
+                ("rating_right_def", (737, 516, 25, 14), 0x87BEA0, "DEF", None, True),
+                ("rating_right_mid", (737, 534, 25, 14), 0x87BEA0, "MID", None, True),
+                ("rating_right_att", (737, 552, 25, 14), 0x87BEA0, "ATT", None, True),
+            ),
         )
         self.assertEqual(len(boundary.player_strip_rows), 36)
         self.assertEqual(
@@ -408,6 +443,28 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["native_surface"], (800, 600))
         self.assertTrue(contract["team_backgrounds_selector_reused"])
         self.assertTrue(contract["team_backgrounds_loader_reused"])
+        self.assertEqual(contract["text_control_count"], 13)
+        self.assertEqual(
+            contract["text_control_roles"],
+            (
+                "fixture_header",
+                "date_weather",
+                "team_identity_0",
+                "versus",
+                "team_identity_1",
+                "rating_left_gk",
+                "rating_left_def",
+                "rating_left_mid",
+                "rating_left_att",
+                "rating_right_gk",
+                "rating_right_def",
+                "rating_right_mid",
+                "rating_right_att",
+            ),
+        )
+        self.assertFalse(contract["dynamic_fixture_and_date_buffers_bound"])
+        self.assertFalse(contract["team_identity_text_bound"])
+        self.assertTrue(contract["fixed_versus_and_rating_captions_available"])
         self.assertEqual(contract["player_strip_row_count"], 36)
         self.assertTrue(contract["player_strip_rows_source_geometry_available"])
         self.assertFalse(contract["reserve_variant_state_source_closed"])
