@@ -1,3 +1,31 @@
+# Recovery 334 continuation — PSCFRow numeric controls active
+
+_Updated 6 October 2026._
+
+Canonical `main` is `7ecdb33e060ed751288e76ed8cbdf71c9876aba9`.
+PR #490 merged the source-bound assigned-role abbreviation renderer after all
+four candidate validations passed. **Active gate remains Gate 13 / issue #482.**
+
+The exact current branch is `recovery334-squad-scf-numeric`. Fresh canonical
+executable analysis has now source-closed the paired `PSCFRow` numeric
+presentation: `CSquadSCFList` local x=239, Condition/recent-form/role-rating
+controls at x=24/47/70 with 19x14 geometry, raw text flags `0x24`, exact
+`Zurich_XCn_BT_18pixel.fnt`, whole-number `%N` formatting for Condition and
+rating, one-decimal `%.N` formatting for form, and the strict source
+Condition threshold `>75`. Fresh-state colors are white above 75, RGB
+`(0,45,255)` at/below 75, and white for recent form/rating.
+
+The implementation renders only these three resolved fields on the fresh
+combined Squad viewport. The native status icon and club-relative assignment
+remain fail-closed, as do reserve/post-transition semantics not yet recovered.
+
+Next: run focused/full CI plus Windows package/asset-policy validation on this
+branch, merge only if green, then continue the next independent source-backed
+Squad fidelity slice. The mandatory normal Windows 11 #482 acceptance remains
+external evidence and Gate 13 must not close before it passes.
+
+---
+
 # Recovery 332 continuation — Squad names merged; assigned-role abbreviation active
 
 _Updated 6 October 2026._
