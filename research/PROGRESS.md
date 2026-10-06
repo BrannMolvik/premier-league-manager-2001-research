@@ -11770,3 +11770,29 @@ continues with ordinary Squad row display-name/color helpers.
   explicitly false.
 - Gate 13 remains the earliest incomplete gate; no external Windows receipt has
   been produced by this cloud-safe work.
+
+
+## 6 October 2026 KST — Recovery 342 native Squad status lifecycle trace
+
+- PR #496 was exact-head validated and merged to canonical main as
+  `3c17eaa1dc5a9491699d92ec99489bb796660753`; its Gate-14 production-WPF startup acceptance repair does not
+  close Gate 13.
+- The authorized source archive was rematerialized and canonical
+  `footballmanager.exe` re-extracted from the MODE1/2352 Joliet image. Its
+  SHA-256 again matches
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- First-hand disassembly ties `0x421760` directly to loaded-player bit-11
+  initialization and registry creation. Registration-record cutoff `+0x14`
+  is the player's source-closed contract expiry `+0x154`; frame 12 requires
+  current date after that cutoff.
+- Contract-renewal/finalizer paths synchronize the record cutoff when bit 11 is
+  active, while full reset `0x41AFE0` clears bit 11 and removes the record.
+  The exact ordinary-transfer set/clear transition remains open, so frame 12 is
+  intentionally not enabled yet.
+- Corrected the mode-1 Cup-Tied fallback trace: `0x419350` returns embedded
+  `DBRPlayer+0x198+0x18` when `+0x1A0 > -1`, rather than a list-first
+  element. Producer semantics and cutoff globals remain open.
+- Durable evidence: `research/GATE13_SQUAD_STATUS_LIFECYCLE.md`.
+- Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
+  acceptance. Exact source task continues with `0x4EF600` transfer lifecycle
+  and `+0x198/+0x18` / `+0x1A0` / `0x8755E8/EC/F0` semantics.
