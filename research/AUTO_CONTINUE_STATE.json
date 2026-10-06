@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 350: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 6b9bf4dca8969dc2e604243033a45c1e58517526. Active Gate-17 work-ahead is PR #479 exact head f351d4a6b9cecdda7ff955e2b4ed006a4bfcea0d. Prior head f18a3d956c0721efb61c8085c0aebffa77961dbf compiled fully and passed capability/configuration checks, but PE audit proved ffmpeg.exe dynamically imported libwinpthread-1.dll. Current head adds source-contract --extra-ldflags=-static, keeps dynamic MinGW/MSYS runtime imports forbidden, records toolchain-runtime provenance separately, and keeps source_material_complete/production_migration_ready false. Asset policy run 37493526627 passed; exact-head build proof 37493526702, Windows package 37493526852, and reconstruction 37493526625 are queued. Merge only if all exact-head checks pass and inspect the successful build-proof JSON/log/artifact before merge. Synthetic roundtrip code remains staged on chatgpt/gate17-minimal-ffmpeg-roundtrip-r349; after #479 merges, refresh it onto canonical main and append a same-build roundtrip step using the pinned broad LGPL candidate only as an ephemeral 320x480 H264/AAC fixture generator. Private Cup-Tied trace remains execution-sandbox-deferred.",
-  "last_known_main_head": "6b9bf4dca8969dc2e604243033a45c1e58517526",
+  "active_task": "Recovery 350: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is c624387f9fd0464148ed3a8c370c292d01618918, including merged PR #479 minimal FFmpeg exact-source build proof. PR #499 head 3a68ead8f08ece2570d03d43f3ffddac75d5d858 is the active Gate-17 work-ahead: same-build synthetic canonical startup roundtrip. Asset policy 37495148467 passed; exact-source build+roundtrip 37495148580 and full reconstruction 37495148923 are running. Merge only after both pass and inspect roundtrip receipt/log/artifact. A passing roundtrip may prove only build_verified + synthetic_roundtrip_verified; exact original TGQ, external Windows playback, source-material completeness, production migration, and legal compliance remain false. Private Cup-Tied trace remains blocked by local caas ClientError.",
+  "last_known_main_head": "c624387f9fd0464148ed3a8c370c292d01618918",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 350,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 350: #479 f351d4a tests static toolchain runtime linkage after libwinpthread import failure; exact-head jobs queued.",
+  "note": "Recovery 350: #479 merged and documented. #499 same-build synthetic FFmpeg startup roundtrip is active at 3a68ead; asset policy green, Windows proof/full suite running.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
