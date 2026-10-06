@@ -57,6 +57,28 @@ from original_prematch_panel import (
     PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
     PREMATCH_PLAYER_FULL_NAME_FORMAT,
     PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+    PREMATCH_PLAYER_ROW_UPDATE_VA,
+    PREMATCH_PLAYER_NUMBER_TEXT_CONSTRUCTOR_VA,
+    PREMATCH_PLAYER_NAME_TEXT_CONSTRUCTOR_VA,
+    PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA,
+    PREMATCH_PLAYER_NUMBER_FORMAT,
+    PREMATCH_PLAYER_NUMBER_FORMAT_VA,
+    PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET,
+    PREMATCH_PLAYER_NAME_MODE_BY_SIDE,
+    PREMATCH_PLAYER_TEXT_ROWS,
+    prematch_player_row_variant,
+    PREMATCH_SELECTOR_SETUP_VA,
+    PREMATCH_SELECTOR_CONTROL_BUILDER_VA,
+    PREMATCH_SELECTOR_BUTTON_SETUP_VA,
+    PREMATCH_SELECTOR_EVENT_HANDLER_VA,
+    PREMATCH_SELECTOR_COMMIT_VA,
+    PREMATCH_SELECTOR_MODE_GLOBAL_VA,
+    PREMATCH_SELECTOR_MODAL_OWNER_VA,
+    PREMATCH_SELECTOR_MODAL_SIGNAL_VA,
+    PREMATCH_SELECTOR_CLOSE_VA,
+    PREMATCH_SELECTOR_INITIAL_FLAGS,
+    PREMATCH_SELECTOR_GROUP_LENGTHS,
     PREMATCH_PITCH_MARKER_POSITIONER_VA,
     PREMATCH_PITCH_MARKER_COORD_BUILDER_VA,
     PREMATCH_PITCH_MARKER_FORMATION_LOOKUP_VA,
@@ -191,6 +213,117 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertEqual(contract["player_strip_reserve_count_per_side"], 7)
         self.assertTrue(contract["reserve_rows_construct_active_and_disabled_variants"])
         self.assertFalse(contract["reserve_variant_state_source_closed"])
+
+    def test_player_row_text_geometry_content_and_variant_state_are_exact(self):
+        self.assertEqual(PREMATCH_PLAYER_ROW_UPDATE_VA, 0x49A610)
+        self.assertEqual(PREMATCH_PLAYER_NUMBER_TEXT_CONSTRUCTOR_VA, 0x6507A0)
+        self.assertEqual(PREMATCH_PLAYER_NAME_TEXT_CONSTRUCTOR_VA, 0x6503F0)
+        self.assertEqual(PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA, 0x87BEA0)
+        self.assertEqual(PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA, 0x87B6B0)
+        self.assertEqual(PREMATCH_PLAYER_NUMBER_FORMAT, "%N")
+        self.assertEqual(PREMATCH_PLAYER_NUMBER_FORMAT_VA, 0x81ACAC)
+        self.assertEqual(PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET, 0x70)
+        self.assertEqual(PREMATCH_PLAYER_NAME_MODE_BY_SIDE, (0x21, 0x22))
+        self.assertEqual(len(PREMATCH_PLAYER_TEXT_ROWS), 36)
+
+        left = tuple(row for row in PREMATCH_PLAYER_TEXT_ROWS if row.side == "left")
+        right = tuple(row for row in PREMATCH_PLAYER_TEXT_ROWS if row.side == "right")
+        self.assertEqual(len(left), 18)
+        self.assertEqual(len(right), 18)
+        self.assertEqual(
+            tuple((row.number_rect.x, row.name_rect.x) for row in left),
+            ((37, 67),) * 18,
+        )
+        self.assertEqual(
+            tuple((row.number_rect.x, row.name_rect.x) for row in right),
+            ((737, 564),) * 18,
+        )
+        expected_ys = PREMATCH_STARTER_ROW_YS + PREMATCH_RESERVE_ROW_YS
+        self.assertEqual(
+            tuple(row.number_rect.y for row in left),
+            tuple(y + 1 for y in expected_ys),
+        )
+        self.assertEqual(
+            tuple(row.name_rect.y for row in right),
+            tuple(y + 1 for y in expected_ys),
+        )
+
+        self.assertEqual(
+            tuple(
+                (
+                    row.strip_child_index,
+                    row.number_child_index,
+                    row.name_child_index,
+                    row.disabled_child_index,
+                )
+                for row in left[:2]
+            ),
+            ((32, 33, 34, None), (35, 36, 37, None)),
+        )
+        self.assertEqual(
+            (
+                left[11].strip_child_index,
+                left[11].number_child_index,
+                left[11].name_child_index,
+                left[11].disabled_child_index,
+            ),
+            (65, 66, 67, 68),
+        )
+        self.assertEqual(
+            (
+                right[11].strip_child_index,
+                right[11].number_child_index,
+                right[11].name_child_index,
+                right[11].disabled_child_index,
+            ),
+            (126, 127, 128, 129),
+        )
+
+        for count in (11, 12, 18):
+            for slot in range(18):
+                expected = (
+                    "active"
+                    if slot < count
+                    else "disabled"
+                    if slot >= 11
+                    else "hidden"
+                )
+                self.assertEqual(
+                    prematch_player_row_variant(slot, count),
+                    expected,
+                )
+        self.assertEqual(prematch_player_row_variant(0, 0), "hidden")
+        self.assertEqual(prematch_player_row_variant(11, 0), "disabled")
+        with self.assertRaisesRegex(OriginalPrematchPanelError, "slot"):
+            prematch_player_row_variant(18, 18)
+        with self.assertRaisesRegex(OriginalPrematchPanelError, "participant count"):
+            prematch_player_row_variant(0, 19)
+
+        contract = prematch_panel_contract()
+        self.assertTrue(contract["reserve_variant_state_source_closed"])
+        self.assertTrue(contract["player_row_count_driven_visibility_source_closed"])
+        self.assertEqual(contract["player_text_row_count"], 36)
+        self.assertEqual(contract["player_number_format"], "%N")
+        self.assertEqual(contract["player_shirt_number_runtime_offset"], 0x70)
+
+    def test_match_detail_selector_uses_generic_button_visual_state_without_radio_selection(self):
+        self.assertEqual(PREMATCH_SELECTOR_SETUP_VA, 0x4996F4)
+        self.assertEqual(PREMATCH_SELECTOR_CONTROL_BUILDER_VA, 0x5D3810)
+        self.assertEqual(PREMATCH_SELECTOR_BUTTON_SETUP_VA, 0x652FD0)
+        self.assertEqual(PREMATCH_SELECTOR_EVENT_HANDLER_VA, 0x49AB50)
+        self.assertEqual(PREMATCH_SELECTOR_COMMIT_VA, 0x49ABA0)
+        self.assertEqual(PREMATCH_SELECTOR_MODE_GLOBAL_VA, 0x877530)
+        self.assertEqual(PREMATCH_SELECTOR_MODAL_OWNER_VA, 0x877960)
+        self.assertEqual(PREMATCH_SELECTOR_MODAL_SIGNAL_VA, 0x5328B0)
+        self.assertEqual(PREMATCH_SELECTOR_CLOSE_VA, 0x6539F0)
+        self.assertEqual(PREMATCH_SELECTOR_INITIAL_FLAGS, 0x183)
+        self.assertEqual(PREMATCH_SELECTOR_GROUP_LENGTHS, (11, 11, 1))
+
+        contract = prematch_panel_contract()
+        self.assertTrue(contract["selector_visual_uses_generic_button_state"])
+        self.assertFalse(contract["selector_persistent_selected_visual"])
+        self.assertFalse(contract["selector_mode_global_read_by_panel_visuals"])
+        self.assertTrue(contract["selector_commit_closes_modal"])
 
     def test_starting_xi_pitch_marker_contract_is_exact(self):
         self.assertEqual(PREMATCH_PITCH_MARKER_POSITIONER_VA, 0x499820)
