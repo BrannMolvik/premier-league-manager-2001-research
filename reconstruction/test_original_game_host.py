@@ -1262,6 +1262,8 @@ class OriginalGameHostTests(unittest.TestCase):
             squad_row_text_resources=fake_squad_row_text_resources(),
             squad_status_resources=fake_squad_status_resources(),
         )
+        host.canvas.delete("all")
+        host._photos = []
         row = SimpleNamespace(
             y=154,
             assigned_role_abbreviation="FC",
