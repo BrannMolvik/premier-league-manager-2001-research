@@ -1,3 +1,31 @@
+# Recovery 330 continuation — FMV stretch geometry recovered; implement display contract
+
+_Updated 6 October 2026._
+
+The canonical startup-FMV research task is now closed by
+`research/STARTUP_FMV_PIXEL_PIPELINE.md`. The exact original path is:
+320x480 TGQ/YUY2-capable intermediate -> DirectDraw stretch to 640x480 because
+the shared startup wrapper supplies flag `0x40` -> 1:1 game-display blit. In
+800x600 mode the completed movie rectangle is centered at (80,60). The final
+movie surface follows the active DirectDraw pixel format; no fixed final BPP or
+unique stretch-filter algorithm is source-backed.
+
+**Active gate remains Gate 13 / issue #482.** PStartMenu derivative work remains
+canonical. The exact next task is now to apply the recovered 640x480 startup
+movie display contract to the modern Windows path without weakening exact TGQ
+provenance or inventing interpolation semantics. The existing separate WPF
+PowerShell top-level window is still not final because external playtesting says
+it feels like another application. Prefer a game-owned presentation boundary;
+where modern transport forces a deterministic filter, label it as a port choice,
+not recovered original behavior.
+
+After a verified implementation candidate exists, continue the independent
+ordinary Squad helper trace if useful and then obtain bundled Windows 11
+acceptance for startup media, responsiveness, TeamSelect, and the first
+management/Squad landing. Do not close Gate 13 without that external acceptance.
+
+---
+
 # Current State
 
 _Last reconciled: 6 October 2026 KST_
