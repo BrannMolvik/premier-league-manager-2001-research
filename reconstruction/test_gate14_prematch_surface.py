@@ -18,6 +18,7 @@ from gate14_prematch_surface import (
     bind_prematch_rating_widths,
     build_verified_prematch_surface_boundary,
     prematch_surface_contract,
+    prematch_child_family_coverage,
     source_prematch_text_controls,
 )
 from original_prematch_panel import (
@@ -438,6 +439,49 @@ class PrematchSurfaceTests(unittest.TestCase):
             ("goalkeeper", "defence", "midfield", "attack"),
         )
 
+    def test_child_family_coverage_partitions_every_native_slot_fail_closed(self):
+        coverage = prematch_child_family_coverage()
+        self.assertEqual(
+            tuple((family.role, family.start_index, family.end_index) for family in coverage),
+            PREMATCH_CHILD_ORDER_RANGES,
+        )
+        self.assertEqual(
+            tuple(
+                index
+                for family in coverage
+                for index in range(family.start_index, family.end_index + 1)
+            ),
+            tuple(range(182)),
+        )
+        self.assertEqual(sum(family.source_control_count for family in coverage), 182)
+        self.assertEqual(sum(family.represented_controls for family in coverage), 86)
+        self.assertEqual(
+            tuple(family.role for family in coverage if family.supplied_state_complete),
+            ("live_background", "pitch", "top_bar", "rating_captions"),
+        )
+        self.assertTrue(
+            all(
+                family.blocker
+                for family in coverage
+                if not family.supplied_state_complete
+            )
+        )
+        self.assertFalse(
+            next(
+                family
+                for family in coverage
+                if family.role == "starting_xi_pitch_markers"
+            ).supplied_state_complete
+        )
+        self.assertEqual(
+            next(
+                family
+                for family in coverage
+                if family.role == "team_badges"
+            ).represented_controls,
+            0,
+        )
+
     def test_contract_keeps_all_unresolved_claims_fail_closed(self):
         contract = prematch_surface_contract()
         self.assertEqual(contract["native_surface"], (800, 600))
@@ -478,6 +522,14 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["source_child_count"], PREMATCH_CHILD_COUNT)
         self.assertEqual(contract["source_child_count"], 182)
         self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
+        self.assertEqual(contract["represented_child_controls"], 86)
+        self.assertEqual(
+            contract["complete_child_families"],
+            ("live_background", "pitch", "top_bar", "rating_captions"),
+        )
+        self.assertIn("starting_xi_pitch_markers", contract["unresolved_child_families"])
+        self.assertIn("match_detail_selectors", contract["unresolved_child_families"])
+        self.assertEqual(contract["child_family_coverage"], prematch_child_family_coverage())
         self.assertTrue(contract["full_cross_layer_draw_order_recovered"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
