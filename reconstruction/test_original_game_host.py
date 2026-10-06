@@ -1059,10 +1059,10 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
             self.assertFalse(host.pmenu_popup_active)
-            self.assertEqual(len(host.canvas.images), 9)
-            # The source-closed first-roster text now includes the centered
-            # assigned-role control at x=37+28 and the player name at x=37+76.
-            self.assertEqual(host.canvas.images[-2][:2], (65, 234))
+            self.assertEqual(len(host.canvas.images), 8)
+            # The role control begins at x=37+28=65, but raw flags 0x24 center
+            # the "FC" glyph bitmap at x=77. The name remains left-aligned.
+            self.assertEqual(host.canvas.images[-2][:2], (77, 234))
             self.assertEqual(host.canvas.images[-1][:2], (113, 234))
             host.on_click(SimpleNamespace(x=600, y=1))
             self.assertEqual(len(host.canvas.images), 9)
@@ -1222,7 +1222,7 @@ class OriginalGameHostTests(unittest.TestCase):
 
         self.assertEqual(count, 2)
         self.assertEqual(len(host.canvas.images), 2)
-        self.assertEqual(host.canvas.images[0][:2], (65, 234))
+        self.assertEqual(host.canvas.images[0][:2], (77, 234))
         self.assertEqual(host.canvas.images[1][:2], (113, 234))
 
     def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
