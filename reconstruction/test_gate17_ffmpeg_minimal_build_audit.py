@@ -123,35 +123,24 @@ class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
 
     def test_configuration_accepts_ffmpeg_shell_quoted_grouped_component_lists(self):
         args = contract_payload()["minimal_helper_target"]["configure_args"]
-        expanded = []
-        for arg in args:
-            if arg.startswith((
-                "--enable-protocol=",
-                "--enable-decoder=",
-                "--enable-encoder=",
-                "--enable-demuxer=",
-                "--enable-muxer=",
-                "--enable-filter=",
-            )) and "," in arg:
-                option, values = arg.split("=", 1)
-                expanded.extend(f"{option}={value}" for value in values.split(","))
-            else:
-                expanded.append(arg)
 
         result = _version_contract(
-            version_output("ffmpeg", expanded),
+            version_output("ffmpeg", args),
             label="ffmpeg",
             configure_args=args,
         )
         self.assertEqual(result["third_party_enable_flags"], [])
 
-        expanded.remove("--enable-protocol=pipe")
+        missing_pipe = [
+            "--enable-protocol=file" if arg == "--enable-protocol=file,pipe" else arg
+            for arg in args
+        ]
         with self.assertRaisesRegex(
             MinimalFfmpegBuildAuditError,
             "--enable-protocol=pipe",
         ):
             _version_contract(
-                version_output("ffmpeg", expanded),
+                version_output("ffmpeg", missing_pipe),
                 label="ffmpeg",
                 configure_args=args,
             )
