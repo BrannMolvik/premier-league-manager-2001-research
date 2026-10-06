@@ -39,7 +39,7 @@ class Row:
     full_name: str
     positions: tuple[int, int, int] = (12, 4, 7)
     current_position: int = 12
-    match_active: bool = False
+    match_active: bool = True
     match_substitute_available: bool = False
     condition: int = 90
     recent_form_average: float = 7.0
