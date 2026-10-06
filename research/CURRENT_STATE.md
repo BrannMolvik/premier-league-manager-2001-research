@@ -1,3 +1,39 @@
+# Recovery 341 continuation — source-qualified Squad Cup/loan status candidate
+
+_Updated 6 October 2026._
+
+Canonical `main` remains `3eeb5b92605f338499a6dcbc132e1187856508c9`.
+Recovery branch `recovery340-squad-cup-tied-resolver` now carries the next
+Gate-13 candidate. **Active gate remains Gate 13 / issue #482.**
+
+Recovery 340 source analysis closed the safe positive boundary around
+`0x418480`: the current club must have a match on the global current date,
+that match competition resolves through the Cup root predicate, and a positive
+`0x4F8E40 -> 0x4E9710` collection result returns Cup-Tied immediately even
+for restriction mode 1. The branch also retains packed competition +0x24 and
+projects exact Cup runtime +0x34 modes 0/1/2.
+
+The live presenter is now wired, not merely helper-complete:
+
+- native direct frames 0/1/2 retain highest priority;
+- exact alternate On-loan state publishes frame 13;
+- `RuntimePlayer.non_eu == true` still blocks lower publication because the
+  registration-expiry lifecycle is not yet complete;
+- frame 3 publishes only from a positive Cup-Tied lookup for a pending primary
+  entry that is still present in the recovered scheduler order for the current
+  date;
+- every unsupported lower/negative path remains fail-closed.
+
+Focused resolver, presenter and source-bridge tests now cover the priority and
+current-day context boundary. Next: validate this candidate through the normal
+PR reconstruction/presentation/package/asset checks, merge only if green, then
+continue source-closing the mode-1 transfer-history cutoff / Non-EU lifecycle
+or the next independent source-backed Gate-13 fidelity slice. The mandatory
+normal Windows 11 #482 acceptance remains external evidence and Gate 13 must
+not close before it passes.
+
+---
+
 # Recovery 338 continuation — Cup-Tied runtime state candidate
 
 _Updated 6 October 2026._

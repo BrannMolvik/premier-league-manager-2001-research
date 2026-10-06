@@ -21,7 +21,10 @@ from original_squad_row_style import (
     squad_name_rgb_from_available_state,
     squad_role_rgb,
 )
-from original_squad_status import direct_squad_status_frame_index
+from original_squad_status import (
+    direct_squad_status_frame_index,
+    source_qualified_squad_status_frame_index,
+)
 
 
 class OriginalSquadPresentationError(ValueError):
@@ -147,12 +150,36 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 raise OriginalSquadPresentationError(
                     "Squad direct status states must be booleans when present"
                 )
+            alternate_on_loan = getattr(row, "alternate_on_loan", None)
+            non_eu = getattr(row, "non_eu", None)
+            cup_tied_positive = getattr(row, "cup_tied_positive", None)
+            extended_status_states = (
+                alternate_on_loan,
+                non_eu,
+                cup_tied_positive,
+            )
             try:
-                native_status_frame_index = direct_squad_status_frame_index(
-                    injured=injured,
-                    banned=banned,
-                    international=international,
-                )
+                if all(type(value) is bool for value in extended_status_states):
+                    native_status_frame_index = source_qualified_squad_status_frame_index(
+                        injured=injured,
+                        banned=banned,
+                        international=international,
+                        alternate_on_loan=alternate_on_loan,
+                        non_eu=non_eu,
+                        cup_tied_positive=cup_tied_positive,
+                    )
+                elif all(value is None for value in extended_status_states):
+                    # Compatibility for bounded fixtures predating Recovery 340:
+                    # preserve only the already source-closed direct 0/1/2 path.
+                    native_status_frame_index = direct_squad_status_frame_index(
+                        injured=injured,
+                        banned=banned,
+                        international=international,
+                    )
+                else:
+                    raise OriginalSquadPresentationError(
+                        "Extended Squad status states must be complete booleans"
+                    )
             except ValueError as exc:
                 raise OriginalSquadPresentationError(str(exc)) from exc
 

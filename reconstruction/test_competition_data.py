@@ -38,6 +38,7 @@ class CompetitionParserTests(unittest.TestCase):
         data[first + 18] = 38
         data[first + 31] = 1
         data[first + 34] = 3
+        data[first + 0x24] = 0x7B
         struct.pack_into("<I", data, first + 27, 26)
         struct.pack_into("<I", data, first + 45, 1)
 
@@ -51,6 +52,7 @@ class CompetitionParserTests(unittest.TestCase):
         data[second + 18] = 6
         data[second + 31] = 255
         data[second + 34] = 99
+        data[second + 0x24] = 0x74
         struct.pack_into("<I", data, second + 27, 123)
         struct.pack_into("<I", data, second + 45, 2)
 
@@ -65,6 +67,8 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[0].id, 0)
         self.assertEqual(db.competitions[0].name, "name-100")
         self.assertEqual(db.competitions[0].max_non_eu_players, 3)
+        self.assertEqual(db.competitions[0].packed_rule_code_24, 0x7B)
+        self.assertEqual(db.competitions[0].cup_restriction_mode, 1)
         self.assertEqual(db.competitions[0].schedule_container_code, 1)
         self.assertFalse(db.competitions[0].uses_secondary_schedule_container)
         self.assertEqual(db.competitions[0].runtime_kind, "league")
@@ -76,6 +80,8 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[0].valuation_division_category, 1)
         self.assertEqual(db.competitions[1].id, 25)
         self.assertEqual(db.competitions[1].max_non_eu_players, 99)
+        self.assertEqual(db.competitions[1].packed_rule_code_24, 0x74)
+        self.assertEqual(db.competitions[1].cup_restriction_mode, 2)
         self.assertEqual(db.competitions[1].schedule_container_code, 2)
         self.assertTrue(db.competitions[1].uses_secondary_schedule_container)
         self.assertEqual(db.competitions[1].runtime_kind, "cup")
@@ -86,6 +92,19 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[1].runtime_instance_count, 8)
         self.assertEqual(db.competitions[1].scheduled_matchday_count, 6)
         self.assertEqual(db.competitions[1].valuation_division_category, 255)
+
+    def test_competition_cup_restriction_mode_defaults_to_zero_for_other_source_code(self):
+        from fm2001_data import CompetitionDefinition
+
+        competition = CompetitionDefinition(
+            id=9,
+            name="Example Cup",
+            substitute_quota=5,
+            max_non_eu_players=3,
+            packed_rule_code_24=0x22,
+        )
+        self.assertEqual(competition.cup_restriction_mode, 0)
+
 
 
 class LeagueAllocationParserTests(unittest.TestCase):

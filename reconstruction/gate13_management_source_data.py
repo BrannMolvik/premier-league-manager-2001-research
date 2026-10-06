@@ -62,6 +62,12 @@ class SquadRowView:
     transfer_listed: bool
     loan_listed: bool
     wanted: bool
+    # Recovery 340 source-qualified PSCF override inputs. Defaults preserve
+    # compatibility for older bounded fixtures while live bridge rows fill all
+    # three from exact represented state.
+    alternate_on_loan: bool = False
+    non_eu: bool = False
+    cup_tied_positive: bool = False
 
 
 @dataclass(frozen=True)
@@ -1053,6 +1059,80 @@ class ManagementSourceDataBridge:
                 raise ManagementPresentationError(
                     f"Player {player_id} current-role rating must be an integer"
                 )
+
+            registered_club_id = getattr(player, "club_id", None)
+            loan_club_id = getattr(player, "loan_club_id", None)
+            non_eu = getattr(player, "non_eu", False)
+            if type(registered_club_id) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered registered/current club ID"
+                )
+            if loan_club_id is not None and type(loan_club_id) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has invalid recovered loan club ID"
+                )
+            if type(non_eu) is not bool:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has invalid recovered Non-EU state"
+                )
+
+            # 0x418360's alternate On-loan frame 13 precedes every lower
+            # override. Recovery 340 closes it exactly as a live loan-state
+            # mismatch between the represented +0x10/+0x72 club identities.
+            alternate_on_loan = bool(
+                loan_club_id is not None
+                and int(loan_club_id) != int(registered_club_id)
+            )
+
+            # The Cup-Tied frame is published only from a positive collection
+            # hit in the source-qualified current-match context. A pending
+            # primary entry must still be present in today's recovered scheduler
+            # order; missing/unresolved context stays false here, which means
+            # "not positively proven" rather than "native predicate is false".
+            cup_tied_positive = False
+            pending_entry = getattr(self.controller, "pending_primary_entry", None)
+            primary_order = getattr(self.state, "primary_matchday_order", None)
+            if (
+                pending_entry is not None
+                and not alternate_on_loan
+                and not non_eu
+                and hasattr(primary_order, "get")
+            ):
+                entry = tuple(pending_entry)
+                today_entries = tuple(
+                    primary_order.get(self.state.calendar.current_date, ())
+                )
+                if entry in today_entries:
+                    clubs_resolver = getattr(
+                        self.controller, "_primary_entry_clubs", None
+                    )
+                    competition_resolver = getattr(
+                        self.controller, "_primary_entry_competition_id", None
+                    )
+                    cup_lookup = getattr(self.state, "is_player_cup_tied", None)
+                    if (
+                        callable(clubs_resolver)
+                        and callable(competition_resolver)
+                        and callable(cup_lookup)
+                    ):
+                        try:
+                            pair = clubs_resolver(entry)
+                            if pair is not None and int(registered_club_id) in {
+                                int(value) for value in pair
+                            }:
+                                competition_id = int(
+                                    competition_resolver(entry)
+                                )
+                                cup_tied_positive = bool(
+                                    cup_lookup(
+                                        competition_id,
+                                        int(player_id),
+                                        int(registered_club_id),
+                                    )
+                                )
+                        except (KeyError, TypeError, ValueError, RuntimeError):
+                            cup_tied_positive = False
+
             rows.append(SquadRowView(
                 source_roster_index=source_index,
                 player_id=player_id,
@@ -1080,6 +1160,9 @@ class ManagementSourceDataBridge:
                 transfer_listed=bool(getattr(player, "transfer_listed")),
                 loan_listed=bool(getattr(player, "loan_listed")),
                 wanted=bool(getattr(player, "wanted")),
+                alternate_on_loan=alternate_on_loan,
+                non_eu=non_eu,
+                cup_tied_positive=cup_tied_positive,
             ))
         return tuple(rows)
 

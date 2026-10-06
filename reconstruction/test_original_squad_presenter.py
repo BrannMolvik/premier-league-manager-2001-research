@@ -27,6 +27,9 @@ class Row:
     injured: bool = False
     suspended: bool = False
     international: bool = False
+    alternate_on_loan: bool = False
+    non_eu: bool = False
+    cup_tied_positive: bool = False
 
 
 class OriginalSquadPresenterTests(unittest.TestCase):
@@ -109,6 +112,30 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         self.assertEqual(
             build_squad_row_viewport((international,)).rows[0].native_status_frame_index,
             2,
+        )
+
+    def test_source_qualified_status_frames_preserve_native_override_priority(self):
+        loaned = self.row()
+        object.__setattr__(loaned, "alternate_on_loan", True)
+        object.__setattr__(loaned, "non_eu", True)
+        object.__setattr__(loaned, "cup_tied_positive", True)
+        self.assertEqual(
+            build_squad_row_viewport((loaned,)).rows[0].native_status_frame_index,
+            13,
+        )
+
+        non_eu = self.row()
+        object.__setattr__(non_eu, "non_eu", True)
+        object.__setattr__(non_eu, "cup_tied_positive", True)
+        self.assertIsNone(
+            build_squad_row_viewport((non_eu,)).rows[0].native_status_frame_index
+        )
+
+        cup_tied = self.row()
+        object.__setattr__(cup_tied, "cup_tied_positive", True)
+        self.assertEqual(
+            build_squad_row_viewport((cup_tied,)).rows[0].native_status_frame_index,
+            3,
         )
 
     def test_more_than_twenty_visible_rows_fails_closed(self):
