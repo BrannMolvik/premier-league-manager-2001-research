@@ -16,6 +16,7 @@ from original_squad_status import (
     SOURCE_PATH,
     STATUS_DEFINITION_TEXT,
     OriginalSquadStatusError,
+    build_first_roster_direct_status_overlays,
     direct_squad_status_frame_index,
     load_verified_squad_status_resources,
     validate_original_squad_status_atlas,
@@ -111,6 +112,20 @@ class OriginalSquadStatusTests(unittest.TestCase):
             tuple(frame.index for frame in resources.frames),
             tuple(range(14)),
         )
+
+    def test_direct_status_overlay_uses_exact_first_roster_pscf_geometry(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_status_resources(source_root)
+        rows = (
+            type("Row", (), {"y": 154, "native_status_frame_index": 0})(),
+            type("Row", (), {"y": 171, "native_status_frame_index": None})(),
+            type("Row", (), {"y": 188, "native_status_frame_index": 2})(),
+        )
+        overlays = build_first_roster_direct_status_overlays(rows, resources)
+
+        self.assertEqual(tuple(item.frame_index for item in overlays), (0, 2))
+        self.assertEqual(tuple((item.x, item.y) for item in overlays), ((277, 234), (277, 268)))
+        self.assertEqual(tuple((item.width, item.height) for item in overlays), (FRAME_SIZE, FRAME_SIZE))
 
     def test_status_atlas_validator_fails_closed_without_exact_source(self):
         with tempfile.TemporaryDirectory() as temp:
