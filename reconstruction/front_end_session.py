@@ -21,6 +21,11 @@ from front_end_state import (
     StartMenuControl,
     TeamSelectControl,
 )
+from match_detail_mode import (
+    MatchDetailMode,
+    coerce_match_detail_mode,
+    source_selects_fastview,
+)
 
 
 class GameplaySelectionBackend(Protocol):
@@ -68,6 +73,7 @@ class FrontEndSession:
     team_select_catalog: object | None = None
     selected_club_ids: tuple[int, ...] = ()
     started: bool = False
+    match_detail_mode: MatchDetailMode | None = None
 
     @property
     def selected_club_id(self) -> int | None:
@@ -75,6 +81,33 @@ class FrontEndSession:
         if len(self.selected_club_ids) != 1:
             return None
         return self.selected_club_ids[0]
+
+    @property
+    def source_fastview_selected(self) -> bool:
+        """Whether the source-accepted pre-match selection requests FastView."""
+        return source_selects_fastview(self.match_detail_mode)
+
+    def source_accepted_match_detail_selection(
+        self,
+        mode: int | MatchDetailMode,
+    ) -> MatchDetailMode:
+        """Record an already source-accepted PPreMatchPanel selection.
+
+        This is deliberately not a pointer/key/UI binding. The native panel
+        geometry and event acceptance remain separate reconstruction work. The
+        setting is application/front-end state, not save-game state.
+        """
+        if (
+            not self.started
+            or self.gameplay is None
+            or self.navigation.screen is not FrontEndScreen.MANAGEMENT
+        ):
+            raise FrontEndSessionError(
+                "Match Detail selection requires active management gameplay."
+            )
+        selected = coerce_match_detail_mode(mode)
+        self.match_detail_mode = selected
+        return selected
 
     @classmethod
     def for_canonical_game_dir(cls, game_dir: str | Path) -> "FrontEndSession":
