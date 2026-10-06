@@ -57,6 +57,10 @@ from original_pmatchinfo_resources import (
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_resources import squad_view_transition
+from original_squad_row_style import (
+    OriginalSquadRowTextResources,
+    load_verified_squad_row_text_resources,
+)
 from original_squad_top_controls import OriginalSquadTopResources
 
 from original_teamselect_resources import assemble_original_teamselect_inputs
@@ -77,8 +81,13 @@ class StubBackend:
 class Row:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
+    positions: tuple[int, int, int] = (12, 4, 7)
     current_position: int = 12
+    match_active: bool = False
+    match_substitute_available: bool = False
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
@@ -92,7 +101,7 @@ class Bridge:
         return ClubHeaderView(12, "Source Club", "Source", date(2000, 8, 1))
 
     def squad_rows(self):
-        return (Row(0, 1000, "Player 0"),)
+        return (Row(0, 1000, "Player", "0", "Player 0"),)
 
     def league_fixtures_grid_source(self):
         return LeagueFixturesGridSourceView(
@@ -135,6 +144,14 @@ def fake_squad_top_resources():
         ),
         font,
     )
+
+
+def fake_squad_row_text_resources():
+    root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+    resources = load_verified_squad_row_text_resources(root)
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise AssertionError("unexpected Squad row text resource type")
+    return resources
 
 
 class FakeHeaderFont:
@@ -477,6 +494,7 @@ class OriginalGameHostTests(unittest.TestCase):
             "squad": {
                 "management_pmenu_resources": object(),
                 "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
                 "management_background": object(),
                 "management_header_resources": object(),
             },
@@ -651,6 +669,7 @@ class OriginalGameHostTests(unittest.TestCase):
         payload = {
             "management_pmenu_resources": object(),
             "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
         }
@@ -793,6 +812,7 @@ class OriginalGameHostTests(unittest.TestCase):
         squad_payload = {
             "management_pmenu_resources": object(),
             "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
         }
@@ -1013,6 +1033,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
 
             self.assertEqual(root.values["title"], "Premier League Manager 2001")
@@ -1148,6 +1169,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeRoot(),
             FakeTk,
             squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
         )
         host.canvas.delete("all")
         host._photos = []
@@ -1187,6 +1209,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeRoot(),
             FakeTk,
             squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
         )
         host.canvas.delete("all")
         host._photos = []
@@ -1217,6 +1240,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
@@ -1258,6 +1282,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
@@ -1295,6 +1320,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
