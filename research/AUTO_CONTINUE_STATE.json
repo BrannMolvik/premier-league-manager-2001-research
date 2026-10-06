@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 369: PR #509 merged as 29a799309b41f01384d47f6184d5704b5abda958 with exact-head focused presentation run 37542137513 and asset-policy run 37542137447 passing. Main documentation checkpoint is aee486739b5fe333343e0289c61c636d1d0b3515. Continue Gate-14 frame reconciliation: pitch-marker placement/state, player-row text/style and reserve variant selector, Match Detail selector visual state, then 182-slot supplied-state frame accounting. Do not guess source behavior while local byte execution returns ClientError.",
-  "last_known_main_head": "aee486739b5fe333343e0289c61c636d1d0b3515",
+  "active_task": "Recovery 369: PR #510 merged as e58caf331787c4c64a83ce35cc711f462a2a27d2 after exact-head presentation run 37542672825 and asset-policy run 37542672250 passed. Continue Gate-14 PPreMatch frame reconciliation by adding fail-closed 182-child coverage accounting, then pursue remaining source-critical pitch-marker/state, player-row text/style/reserve selector, dynamic identity, badge pixels, and Match Detail selector state when executable byte execution is available.",
+  "last_known_main_head": "e58caf331787c4c64a83ce35cc711f462a2a27d2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 369,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 369: 36 player-strip rows and source art now merged and surfaced. Gate 13 still external artifact 11418314765 blocker; Gate 14 work-ahead continues. Private ZIP materialization succeeds, local container/python execution currently fails.",
+  "note": "Recovery 369 post-PR510: source-closed 13 text controls are merged. Gate 13 remains open only on Daniel Windows artifact 11418314765 acceptance. Local source ZIP materializes but execution sandbox still returns generic ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
