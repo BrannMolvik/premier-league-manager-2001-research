@@ -28,6 +28,14 @@ from original_prematch_panel import (
     PREMATCH_WEATHER_LANGUAGE_GLOBALS,
     PREMATCH_RATING_LABELS,
     PREMATCH_RATING_LANGUAGE_GLOBALS,
+    PREMATCH_CHILD_SETUP_VA,
+    PREMATCH_CHILD_ARRAY_OFFSET,
+    PREMATCH_CHILD_COUNT_OFFSET,
+    PREMATCH_CHILD_ARRAY_BYTES,
+    PREMATCH_CHILD_COUNT,
+    PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA,
+    PREMATCH_CHILD_ORDER_RANGES,
+    PREMATCH_SELECTOR_CHILD_MODES,
     PREMATCH_TEAM_BADGE_ROOT,
     PREMATCH_TEAM_BADGE_VARIANT_KEY,
     PREMATCH_TEAM_BADGE_FALLBACK,
@@ -290,6 +298,35 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertEqual(contract["player_slots_per_side"], 18)
         self.assertEqual(contract["starters_per_side"], 11)
         self.assertTrue(contract["identity_controls_source_closed"])
+        self.assertFalse(contract["management_launch_trigger_recovered"])
+        self.assertFalse(contract["complete_prematch_frame"])
+        self.assertFalse(contract["gate14_complete"])
+
+    def test_child_array_is_complete_forward_native_draw_order(self):
+        self.assertEqual(PREMATCH_CHILD_SETUP_VA, 0x4967F0)
+        self.assertEqual(PREMATCH_CHILD_ARRAY_OFFSET, 0x1C)
+        self.assertEqual(PREMATCH_CHILD_COUNT_OFFSET, 0x38)
+        self.assertEqual(PREMATCH_CHILD_ARRAY_BYTES, 0x2D8)
+        self.assertEqual(PREMATCH_CHILD_COUNT, 182)
+        self.assertEqual(PREMATCH_CHILD_ARRAY_BYTES, PREMATCH_CHILD_COUNT * 4)
+        self.assertEqual(PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA, 0x6533A0)
+
+        self.assertEqual(PREMATCH_CHILD_ORDER_RANGES[0], ("live_background", 0, 0))
+        self.assertEqual(PREMATCH_CHILD_ORDER_RANGES[-1], ("match_detail_selectors", 178, 181))
+        flattened = []
+        for _name, start, end in PREMATCH_CHILD_ORDER_RANGES:
+            flattened.extend(range(start, end + 1))
+        self.assertEqual(flattened, list(range(PREMATCH_CHILD_COUNT)))
+        self.assertEqual(
+            tuple(int(mode) for mode in PREMATCH_SELECTOR_CHILD_MODES),
+            (3, 2, 1, 0),
+        )
+
+        contract = prematch_panel_contract()
+        self.assertEqual(contract["child_count"], 182)
+        self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
+        self.assertEqual(contract["selector_child_modes"], (3, 2, 1, 0))
+        self.assertTrue(contract["child_draw_order_source_closed"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])
