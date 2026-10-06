@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 370: resume from canonical main b142892aeed9eb1161dbf3c3354740be26e33df5. First validate/merge PR #512 Gate-15 ledger/readiness reconciliation if exact-head CI is green. Then continue highest-priority independent cloud-safe work-ahead while Gate 13 awaits Daniel Windows artifact 11418314765 acceptance and Gate-14 source-critical PPreMatch tracing remains blocked by local execution ClientError.",
-  "last_known_main_head": "b142892aeed9eb1161dbf3c3354740be26e33df5",
+  "active_task": "Recovery 370: PR #512 merged as 6a6627b50f66b178eac0804560824c00f7b954e2 after reconstruction run 37543805809 and asset-policy run 37543805636 passed. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance; Gate-14 source-critical PPreMatch tracing remains locally blocked by ClientError. Continue the interrupted later-gate audit: identify the highest-priority Gate-17 full-scope blocker that can advance from already source-closed evidence without new private disassembly, starting with procedural-secondary runtime ownership/persistence before attempting unsafe multi-human implementation.",
+  "last_known_main_head": "6a6627b50f66b178eac0804560824c00f7b954e2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 370,
   "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Recovery 370: transient chat connection interruption. Do not restart merged Gate-14 work. PR #512 validation is the immediate persisted task.",
+  "note": "Recovery 370 post-PR512 merge. Continue cloud-safe Gate-17 blocker audit under deferred-blocker policy; do not mark later gates complete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
