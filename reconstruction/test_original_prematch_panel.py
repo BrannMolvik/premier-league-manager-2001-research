@@ -57,6 +57,28 @@ from original_prematch_panel import (
     PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
     PREMATCH_PLAYER_FULL_NAME_FORMAT,
     PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+    PREMATCH_PITCH_MARKER_POSITIONER_VA,
+    PREMATCH_PITCH_MARKER_COORD_BUILDER_VA,
+    PREMATCH_PITCH_MARKER_FORMATION_LOOKUP_VA,
+    PREMATCH_PITCH_MARKER_COORD_TRANSFORM_VA,
+    PREMATCH_PITCH_MARKER_PLAYER_RESOLVE_VA,
+    PREMATCH_PITCH_MARKER_INT_CONVERSION_VA,
+    PREMATCH_PITCH_MARKER_SIZE,
+    PREMATCH_PITCH_MARKER_BASE,
+    PREMATCH_PITCH_MARKER_CHILD_RANGE,
+    PREMATCH_PITCH_MARKER_GOALKEEPER_CHILDREN,
+    PREMATCH_PITCH_MARKER_OUTFIELD_CHILDREN,
+    PREMATCH_PITCH_MARKER_TEAM_CONTROL_OFFSETS,
+    PREMATCH_PITCH_MARKER_WRAPPER_OFFSETS,
+    PREMATCH_PITCH_MARKER_TEAM_RESOURCE_OFFSETS,
+    PREMATCH_PITCH_MARKER_TEAM_RESOURCE_STORAGE_OFFSETS,
+    PREMATCH_PITCH_MARKER_TEAM_RESOURCE_BUILDER_VA,
+    PREMATCH_PITCH_MARKER_GOALKEEPER_RESOURCE_VA,
+    PREMATCH_PITCH_MARKER_GOALKEEPER_SOURCE_PATH,
+    PREMATCH_PITCH_MARKER_GENERIC_SHIRT_ROOT,
+    PREMATCH_PITCH_MARKER_CUSTOM_SHIRT_ROOT,
+    PREMATCH_PITCH_MARKER_GENERIC_SHIRT_FORMAT,
+    prematch_pitch_marker_origin,
     PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
     PREMATCH_LIVE_BACKGROUND_RECT,
     PREMATCH_LIVE_BACKGROUND_ROOT,
@@ -169,6 +191,87 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertEqual(contract["player_strip_reserve_count_per_side"], 7)
         self.assertTrue(contract["reserve_rows_construct_active_and_disabled_variants"])
         self.assertFalse(contract["reserve_variant_state_source_closed"])
+
+    def test_starting_xi_pitch_marker_contract_is_exact(self):
+        self.assertEqual(PREMATCH_PITCH_MARKER_POSITIONER_VA, 0x499820)
+        self.assertEqual(PREMATCH_PITCH_MARKER_COORD_BUILDER_VA, 0x499A50)
+        self.assertEqual(PREMATCH_PITCH_MARKER_FORMATION_LOOKUP_VA, 0x5F0CC0)
+        self.assertEqual(PREMATCH_PITCH_MARKER_COORD_TRANSFORM_VA, 0x5F0BD0)
+        self.assertEqual(PREMATCH_PITCH_MARKER_PLAYER_RESOLVE_VA, 0x417F50)
+        self.assertEqual(PREMATCH_PITCH_MARKER_INT_CONVERSION_VA, 0x668350)
+        self.assertEqual(PREMATCH_PITCH_MARKER_SIZE, (36, 32))
+        self.assertEqual(PREMATCH_PITCH_MARKER_BASE, (270, 153))
+        self.assertEqual(PREMATCH_PITCH_MARKER_CHILD_RANGE, (10, 31))
+        self.assertEqual(PREMATCH_PITCH_MARKER_GOALKEEPER_CHILDREN, (10, 21))
+        self.assertEqual(
+            PREMATCH_PITCH_MARKER_OUTFIELD_CHILDREN,
+            (tuple(range(11, 21)), tuple(range(22, 32))),
+        )
+        self.assertEqual(PREMATCH_PITCH_MARKER_TEAM_CONTROL_OFFSETS, (0xC60, 0xE70))
+        self.assertEqual(PREMATCH_PITCH_MARKER_WRAPPER_OFFSETS, (0x9A0, 0xB00))
+        self.assertEqual(PREMATCH_PITCH_MARKER_TEAM_RESOURCE_OFFSETS, (0x668, 0x68C))
+        self.assertEqual(
+            PREMATCH_PITCH_MARKER_TEAM_RESOURCE_STORAGE_OFFSETS,
+            (0x648, 0x66C),
+        )
+        self.assertEqual(PREMATCH_PITCH_MARKER_TEAM_RESOURCE_BUILDER_VA, 0x408320)
+        self.assertEqual(PREMATCH_PITCH_MARKER_GOALKEEPER_RESOURCE_VA, 0x9460D0)
+        self.assertEqual(
+            PREMATCH_PITCH_MARKER_GOALKEEPER_SOURCE_PATH,
+            r"fm2001_art\generic\front-end-shirts\custom\goalkeeper.444",
+        )
+        self.assertEqual(
+            PREMATCH_PITCH_MARKER_GENERIC_SHIRT_ROOT,
+            r"fm2001_art\Generic\front-end-shirts\generic",
+        )
+        self.assertEqual(
+            PREMATCH_PITCH_MARKER_CUSTOM_SHIRT_ROOT,
+            r"fm2001_art\Generic\front-end-shirts\custom",
+        )
+        self.assertEqual(PREMATCH_PITCH_MARKER_GENERIC_SHIRT_FORMAT, "Team%.2d.bmp")
+
+        contract = prematch_panel_contract()
+        self.assertTrue(contract["pitch_marker_visibility_source_closed"])
+        self.assertTrue(contract["pitch_marker_formation_coordinates_source_closed"])
+        self.assertTrue(contract["pitch_marker_pixel_transform_source_closed"])
+        self.assertFalse(contract["pitch_marker_team_shirt_pixels_staged"])
+
+    def test_pitch_marker_origin_reproduces_native_truncation_and_mirroring(self):
+        self.assertEqual(prematch_pitch_marker_origin(0, 0.0, 0.0), (252, 316))
+        self.assertEqual(prematch_pitch_marker_origin(1, 0.0, 0.0), (512, 332))
+
+        self.assertEqual(
+            prematch_pitch_marker_origin(0, 0.5, 0.5),
+            (382, 409),
+        )
+        self.assertEqual(
+            prematch_pitch_marker_origin(1, 0.5, 0.5),
+            (382, 239),
+        )
+
+        # Native 0x668350 truncates toward zero, not floor. Negative products
+        # therefore differ from mathematical floor at fractional boundaries.
+        self.assertEqual(
+            prematch_pitch_marker_origin(0, -0.001, -0.001),
+            (252, 316),
+        )
+        self.assertEqual(
+            prematch_pitch_marker_origin(1, -0.001, -0.001),
+            (512, 332),
+        )
+        self.assertEqual(
+            prematch_pitch_marker_origin(0, 0.999, 0.999),
+            (512, 502),
+        )
+        self.assertEqual(
+            prematch_pitch_marker_origin(1, 0.999, 0.999),
+            (252, 146),
+        )
+
+        with self.assertRaisesRegex(OriginalPrematchPanelError, "side"):
+            prematch_pitch_marker_origin(2, 0.0, 0.0)
+        with self.assertRaisesRegex(OriginalPrematchPanelError, "numeric"):
+            prematch_pitch_marker_origin(0, True, 0.0)
 
     def test_static_placements_live_background_and_rating_rows_are_exact(self):
         self.assertEqual(

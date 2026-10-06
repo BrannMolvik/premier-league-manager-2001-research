@@ -571,3 +571,66 @@ At this checkpoint 86 of 182 native controls have a structural/pixel representat
 Notable fail-closed families include zero of 22 starting-XI pitch markers, zero staged pre-match badge controls, partially represented starter/reserve row groups, unbound dynamic header/date/team strings, base-surface rating widths not yet attached to supplied state, and selector atlases whose exact runtime visual state is unresolved.
 
 The audit itself verifies that the child ranges flatten to exactly indices 0..181. Complete-frame promotion must therefore clear every family blocker rather than bypassing missing source evidence with a generic frame flag.
+
+
+## Recovery 370 — starting-XI pitch-marker contract recovered
+
+Private byte execution recovered during Recovery 370. The authorized canonical
+`FOOTBAL.EXE` was re-extracted from the 511,121,336-byte Library archive and
+re-verified at SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+No private executable/disassembly bytes are committed.
+
+First-hand disassembly now source-closes the 22 native child controls at indices
+10..31:
+
+- `0x499820` positions exactly eleven markers per match side;
+- each marker is 36 x 32;
+- side-0 controls begin at panel `+0xC60` and side-1 at `+0xE70`, each
+  with 0x30-byte stride;
+- corresponding source wrappers begin at `+0x9A0/+0xB00`, each with
+  0x20-byte stride;
+- the first marker on each side, children 10 and 21, uses global source object
+  `0x9460D0`, loaded from
+  `fm2001_art\\generic\\front-end-shirts\\custom\\goalkeeper.444`;
+- the remaining ten markers per side use team-specific sources stored at
+  `+0x648/+0x66C` and referenced at `+0x668/+0x68C`, built by native
+  `0x408320`;
+- that builder uses the original front-end-shirt roots `...\\generic` and
+  `...\\custom`, with generic filename grammar `Team%.2d.bmp` plus the
+  source `.bmp/.444` variants.
+
+Marker visibility is also source-closed. `0x499820` walks the eleven source
+player IDs, resolves each through `0x417F50`, hides the control through its
+native visibility slot when resolution fails, and otherwise positions and shows
+the marker.
+
+### Formation-coordinate producer and exact pixel transform
+
+`0x499A50` builds normalized coordinate pairs into panel `+0x6D8` using
+the current assigned-role object, auxiliary role byte, ordinal among players
+sharing that role, formation table global `0x87AE64`, lookup `0x5F0CC0`,
+and coordinate transform `0x5F0BD0`. The transform also consumes two manager
+shape bytes at relative offsets `+0x180/+0x183`, scaled by 0.01. Their
+higher-level semantic labels remain intentionally neutral.
+
+The refresh path calls the marker positioner with base `(270,153)`. Native
+float-to-int helper `0x668350` temporarily selects x87 truncation toward zero.
+For normalized `(x,y)` this yields:
+
+- side 0:
+  - `scaled_y = trunc(y * -187)`
+  - `py = 153 - scaled_y + 163`
+  - `scaled_x = trunc(x * -261)`
+  - `px = 270 - scaled_x - 18`
+- side 1:
+  - `scaled_y = trunc(y * 187)`
+  - `py = 153 - scaled_y + 179`
+  - `scaled_x = trunc(x * 261)`
+  - `px = 782 - scaled_x - 270`
+
+The clean-room contract now exposes this exact transform and keeps team-shirt
+pixel staging false. Therefore the marker family's geometry, visibility rule,
+formation-coordinate producer, resource ownership, and pixel transform are
+source-closed, while complete supplied-state marker rasterization remains
+fail-closed until the dynamic shirt sources are staged/bound.

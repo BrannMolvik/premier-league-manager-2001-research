@@ -1,3 +1,27 @@
+# Recovery 370 continuation — PPreMatch XI marker source contract staged
+
+_Updated 7 October 2026._
+
+Canonical `main` is `6a6627b50f66b178eac0804560824c00f7b954e2` (PR #512 merged).
+
+The private execution sandbox recovered during this session. The authorized canonical `FOOTBAL.EXE` was re-extracted from the Library source and re-verified at SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Branch `chatgpt/gate14-prematch-markers-r370` now source-closes the 22 starting-XI marker controls at native child indices 10..31:
+
+- exact 36x32 marker controls, 11 per side;
+- child 10/21 goalkeeper ownership through source object `0x9460D0` and `front-end-shirts/custom/goalkeeper.444`;
+- twenty outfield markers through team-specific front-end-shirt sources built by native `0x408320`;
+- exact marker visibility rule via player resolver `0x417F50`; unresolved/empty XI slots are hidden;
+- exact normalized formation-coordinate producer `0x499A50`, formation lookup `0x5F0CC0`, coordinate transform `0x5F0BD0`, and manager shape-byte inputs `+0x180/+0x183`; and
+- exact side-specific pixel transforms using native truncation-toward-zero helper `0x668350`.
+
+The code exposes the source contract and exact coordinate transform with regression coverage. Dynamic team-shirt pixels are intentionally not staged yet, so `starting_xi_pitch_markers` is not promoted to supplied-state-complete and the 182-child complete-frame claim remains false.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open.
+
+Immediate next action: validate this marker-source checkpoint in exact-head CI and merge if green. Then continue first-hand PPreMatch tracing while source execution remains available, prioritizing player-row text/style and reserve active/disabled state, followed by Match Detail selector visual state and dynamic badge/team identity binding.
+
+---
 # Recovery 369 continuation — Gate-15 ledger/readiness reconciliation staged
 
 _Updated 7 October 2026._

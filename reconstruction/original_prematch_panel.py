@@ -281,6 +281,104 @@ PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA = 0x417AE0
 PREMATCH_PLAYER_FULL_NAME_FORMAT = "%s %s"
 PREMATCH_PLAYER_FULL_NAME_FORMAT_VA = 0x81858C
 
+# Recovery 370 source-closes the 22 starting-XI pitch-marker controls.
+# Native 0x499820 positions exactly eleven markers per side from normalized
+# formation coordinates produced by 0x499A50. Pixel conversion uses 0x668350,
+# which forces x87 truncation toward zero before the integer placement math.
+PREMATCH_PITCH_MARKER_POSITIONER_VA = 0x499820
+PREMATCH_PITCH_MARKER_COORD_BUILDER_VA = 0x499A50
+PREMATCH_PITCH_MARKER_FORMATION_LOOKUP_VA = 0x5F0CC0
+PREMATCH_PITCH_MARKER_COORD_TRANSFORM_VA = 0x5F0BD0
+PREMATCH_PITCH_MARKER_PLAYER_RESOLVE_VA = 0x417F50
+PREMATCH_PITCH_MARKER_INT_CONVERSION_VA = 0x668350
+PREMATCH_PITCH_MARKER_SIZE = (36, 32)
+PREMATCH_PITCH_MARKER_BASE = (270, 153)
+PREMATCH_PITCH_MARKER_SIDE_SCALES = (
+    (-261.0, -187.0),
+    (261.0, 187.0),
+)
+PREMATCH_PITCH_MARKER_SIDE_OFFSETS = (
+    (-18, 163),
+    (0x30E, 179),
+)
+PREMATCH_PITCH_MARKER_COORD_BUFFER_OFFSET = 0x6D8
+PREMATCH_PITCH_MARKER_COORD_STRIDE = 8
+PREMATCH_PITCH_MARKER_TEAM_CONTROL_OFFSETS = (0xC60, 0xE70)
+PREMATCH_PITCH_MARKER_CONTROL_STRIDE = 0x30
+PREMATCH_PITCH_MARKER_WRAPPER_OFFSETS = (0x9A0, 0xB00)
+PREMATCH_PITCH_MARKER_WRAPPER_STRIDE = 0x20
+PREMATCH_PITCH_MARKER_TEAM_RESOURCE_OFFSETS = (0x668, 0x68C)
+PREMATCH_PITCH_MARKER_TEAM_RESOURCE_STORAGE_OFFSETS = (0x648, 0x66C)
+PREMATCH_PITCH_MARKER_TEAM_RESOURCE_BUILDER_VA = 0x408320
+PREMATCH_PITCH_MARKER_GOALKEEPER_RESOURCE_VA = 0x9460D0
+PREMATCH_PITCH_MARKER_GOALKEEPER_SOURCE_PATH = (
+    r"fm2001_art\generic\front-end-shirts\custom\goalkeeper.444"
+)
+PREMATCH_PITCH_MARKER_GOALKEEPER_SOURCE_VA = 0x835DF0
+PREMATCH_PITCH_MARKER_GENERIC_SHIRT_ROOT = (
+    r"fm2001_art\Generic\front-end-shirts\generic"
+)
+PREMATCH_PITCH_MARKER_CUSTOM_SHIRT_ROOT = (
+    r"fm2001_art\Generic\front-end-shirts\custom"
+)
+PREMATCH_PITCH_MARKER_GENERIC_SHIRT_FORMAT = "Team%.2d.bmp"
+PREMATCH_PITCH_MARKER_SLOTS_PER_SIDE = 11
+PREMATCH_PITCH_MARKER_CHILD_RANGE = (10, 31)
+PREMATCH_PITCH_MARKER_GOALKEEPER_CHILDREN = (10, 21)
+PREMATCH_PITCH_MARKER_OUTFIELD_CHILDREN = (
+    tuple(range(11, 21)),
+    tuple(range(22, 32)),
+)
+PREMATCH_PITCH_MARKER_FORMATION_TABLE_GLOBAL_VA = 0x87AE64
+PREMATCH_PITCH_MARKER_MANAGER_SHAPE_BYTE_OFFSETS = (0x180, 0x183)
+PREMATCH_PITCH_MARKER_MANAGER_SHAPE_SCALE = 0.01
+
+
+def _truncate_toward_zero(value: float) -> int:
+    # Python int(float) has the same truncation-toward-zero contract as the
+    # native x87 conversion wrapper 0x668350 for the bounded marker inputs.
+    return int(float(value))
+
+
+def prematch_pitch_marker_origin(
+    side: int,
+    normalized_x: float,
+    normalized_y: float,
+    *,
+    base_x: int = PREMATCH_PITCH_MARKER_BASE[0],
+    base_y: int = PREMATCH_PITCH_MARKER_BASE[1],
+) -> tuple[int, int]:
+    """Return the exact native top-left origin for one visible XI marker.
+
+    The normalized coordinates are the output of the source formation builder
+    0x499A50. This seam intentionally does not invent those coordinates from a
+    modern formation model; it preserves only the now-proven native transform.
+    """
+    if type(side) is not int or side not in (0, 1):
+        raise OriginalPrematchPanelError("pre-match pitch-marker side must be 0 or 1")
+    if isinstance(normalized_x, bool) or isinstance(normalized_y, bool):
+        raise OriginalPrematchPanelError("pre-match pitch-marker coordinates must be numeric")
+    try:
+        x = float(normalized_x)
+        y = float(normalized_y)
+    except (TypeError, ValueError) as exc:
+        raise OriginalPrematchPanelError(
+            "pre-match pitch-marker coordinates must be numeric"
+        ) from exc
+
+    if side == 0:
+        scaled_y = _truncate_toward_zero(y * -187.0)
+        py = int(base_y) - scaled_y + 0xA3
+        scaled_x = _truncate_toward_zero(x * -261.0)
+        px = int(base_x) - scaled_x - 0x12
+    else:
+        scaled_y = _truncate_toward_zero(y * 187.0)
+        py = int(base_y) - scaled_y + 0xB3
+        scaled_x = _truncate_toward_zero(x * 261.0)
+        px = 0x30E - scaled_x - int(base_x)
+    return px, py
+
+
 PREMATCH_SELECTORS = (
     PrematchSelectorSpec(
         MatchDetailMode.THREE_D_MATCH,
@@ -636,6 +734,27 @@ def prematch_panel_contract() -> dict:
         "player_full_name_format": PREMATCH_PLAYER_FULL_NAME_FORMAT,
         "player_full_name_format_va": PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
         "identity_controls_source_closed": True,
+        "pitch_marker_positioner_va": PREMATCH_PITCH_MARKER_POSITIONER_VA,
+        "pitch_marker_coord_builder_va": PREMATCH_PITCH_MARKER_COORD_BUILDER_VA,
+        "pitch_marker_formation_lookup_va": PREMATCH_PITCH_MARKER_FORMATION_LOOKUP_VA,
+        "pitch_marker_coord_transform_va": PREMATCH_PITCH_MARKER_COORD_TRANSFORM_VA,
+        "pitch_marker_player_resolve_va": PREMATCH_PITCH_MARKER_PLAYER_RESOLVE_VA,
+        "pitch_marker_size": PREMATCH_PITCH_MARKER_SIZE,
+        "pitch_marker_child_range": PREMATCH_PITCH_MARKER_CHILD_RANGE,
+        "pitch_marker_goalkeeper_children": PREMATCH_PITCH_MARKER_GOALKEEPER_CHILDREN,
+        "pitch_marker_outfield_children": PREMATCH_PITCH_MARKER_OUTFIELD_CHILDREN,
+        "pitch_marker_team_resource_offsets": PREMATCH_PITCH_MARKER_TEAM_RESOURCE_OFFSETS,
+        "pitch_marker_team_resource_builder_va": PREMATCH_PITCH_MARKER_TEAM_RESOURCE_BUILDER_VA,
+        "pitch_marker_goalkeeper_resource_va": PREMATCH_PITCH_MARKER_GOALKEEPER_RESOURCE_VA,
+        "pitch_marker_goalkeeper_source_path": PREMATCH_PITCH_MARKER_GOALKEEPER_SOURCE_PATH,
+        "pitch_marker_generic_shirt_root": PREMATCH_PITCH_MARKER_GENERIC_SHIRT_ROOT,
+        "pitch_marker_custom_shirt_root": PREMATCH_PITCH_MARKER_CUSTOM_SHIRT_ROOT,
+        "pitch_marker_generic_shirt_format": PREMATCH_PITCH_MARKER_GENERIC_SHIRT_FORMAT,
+        "pitch_marker_slots_per_side": PREMATCH_PITCH_MARKER_SLOTS_PER_SIDE,
+        "pitch_marker_visibility_source_closed": True,
+        "pitch_marker_formation_coordinates_source_closed": True,
+        "pitch_marker_pixel_transform_source_closed": True,
+        "pitch_marker_team_shirt_pixels_staged": False,
         "shipped_prematch_background_path": PREMATCH_SHIPPED_BACKGROUND.source_path,
         "shipped_prematch_background_is_live_panel_background": False,
         "rating_rows": tuple(

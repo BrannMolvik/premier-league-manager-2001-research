@@ -12210,3 +12210,20 @@ continues with ordinary Squad row display-name/color helpers.
 - Found stale prose: `GATE15_FIDELITY_LEDGER.md` still claimed 11 rows, while Gate-15 and Gate-16 readiness audits still described Gate 13 as closed.
 - Reconciled those audits with Recovery 369 state and added a regression that makes the documented live-gap count match the machine-parsed Active gaps count.
 - Gate 15 and Gate 16 remain work-ahead only. No completion checkbox or release claim is changed.
+
+
+## 7 October 2026 KST — Recovery 370 PPreMatch XI marker trace
+
+- The local execution path recovered, allowing the canonical authorized
+  executable to be re-extracted and SHA-256 verified.
+- Source-closed native PPreMatch child indices 10..31 as 22 36x32 starting-XI
+  pitch markers, 11 per side.
+- Proved goalkeeper children 10/21 use the native goalkeeper source while the
+  remaining twenty use team-specific front-end-shirt sources built by
+  `0x408320`.
+- Recovered exact visibility behavior, formation-coordinate producer
+  `0x499A50`, role/ordinal lookup path, manager shape-byte inputs, and the
+  side-specific x/y transform through truncation helper `0x668350`.
+- Added clean-room contract constants plus regression coverage for native
+  placement/mirroring. Dynamic team-shirt pixels remain deliberately unstaged,
+  so complete-frame and Gate-14 claims remain false.
