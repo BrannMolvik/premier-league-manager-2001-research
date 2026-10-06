@@ -1,10 +1,11 @@
 """Source-backed render boundary for the original FM2001 PPreMatchPanel.
 
 This layer joins the already-recovered Match Detail/pre-match asset model to the
-same Team_Backgrounds selector/loader used by FastView.  It exposes native
-800x600 pixel layers and control resources without inventing the unresolved
-management-to-match launch transition, rating meanings, dynamic rating values,
-or a guessed full-frame z-order.
+same Team_Backgrounds selector/loader used by FastView. It exposes native
+800x600 pixel layers and control resources while preserving the source-closed
+182-child forward paint order. It does not invent the unresolved
+management-to-match launch transition or claim a complete pixel frame merely
+because layer order is known.
 """
 from __future__ import annotations
 
@@ -36,6 +37,8 @@ from original_prematch_panel import (
     PREMATCH_RATING_RIGHT2,
     PREMATCH_RATING_ROWS,
     PREMATCH_SELECTORS,
+    PREMATCH_CHILD_COUNT,
+    PREMATCH_CHILD_ORDER_RANGES,
     PREMATCH_STATIC_PLACEMENTS,
     OriginalPrematchPanelResources,
     load_verified_original_prematch_resources,
@@ -238,7 +241,7 @@ class PrematchSurfaceBoundary:
     source_assets_verified: bool = True
     native_geometry_preserved: bool = True
     rating_dynamic_widths_bound_to_cleanroom_state: bool = False
-    full_cross_layer_draw_order_recovered: bool = False
+    full_cross_layer_draw_order_recovered: bool = True
     management_launch_trigger_recovered: bool = False
     complete_prematch_frame: bool = False
     gate14_complete: bool = False
@@ -269,9 +272,12 @@ class PrematchSurfaceBoundary:
             and self.native_geometry_preserved
         ):
             raise PrematchSurfaceError("pre-match boundary cannot weaken verified source state")
+        if not self.full_cross_layer_draw_order_recovered:
+            raise PrematchSurfaceError(
+                "pre-match boundary must preserve the source-closed child draw order"
+            )
         if (
             self.rating_dynamic_widths_bound_to_cleanroom_state
-            or self.full_cross_layer_draw_order_recovered
             or self.management_launch_trigger_recovered
             or self.complete_prematch_frame
             or self.gate14_complete
@@ -415,7 +421,9 @@ def prematch_surface_contract() -> dict:
         "rating_state_binding_available": True,
         "rating_dynamic_widths_bound_by_resource_loader": False,
         "rating_dynamic_widths_bound_to_cleanroom_state": False,
-        "full_cross_layer_draw_order_recovered": False,
+        "source_child_count": PREMATCH_CHILD_COUNT,
+        "child_order_ranges": PREMATCH_CHILD_ORDER_RANGES,
+        "full_cross_layer_draw_order_recovered": True,
         "management_launch_trigger_recovered": False,
         "complete_prematch_frame": False,
         "gate14_complete": False,
