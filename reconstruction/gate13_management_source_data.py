@@ -40,10 +40,14 @@ class ClubHeaderView:
 class SquadRowView:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
     shirt_number: int
     positions: tuple[int, int, int]
     current_position: int
+    match_active: bool
+    match_substitute_available: bool
     match_unavailable: bool
     condition: int
     form_state: int
@@ -985,11 +989,25 @@ class ManagementSourceDataBridge:
         rows = []
         for source_index, player in enumerate(tuple(squad())):
             player_id = getattr(player, "index", None)
+            first_name = getattr(player, "first_name", None)
+            surname = getattr(player, "surname", None)
             positions = getattr(player, "positions", None)
+            match_active = getattr(player, "match_active", None)
+            match_substitute_available = getattr(
+                player, "match_substitute_available", None
+            )
             history_average = getattr(player, "match_performance_average", None)
             current_role_rating = getattr(player, "current_role_rating", None)
             if type(player_id) is not int:
                 raise ManagementPresentationError("Runtime player ID is unavailable")
+            if not isinstance(first_name, str) or not isinstance(surname, str):
+                raise ManagementPresentationError(
+                    f"Player {player_id} lacks recovered source name fields"
+                )
+            if type(match_active) is not bool or type(match_substitute_available) is not bool:
+                raise ManagementPresentationError(
+                    f"Player {player_id} lacks recovered first-team selection state"
+                )
             if (
                 not isinstance(positions, tuple)
                 or len(positions) != 3
@@ -1020,10 +1038,14 @@ class ManagementSourceDataBridge:
             rows.append(SquadRowView(
                 source_roster_index=source_index,
                 player_id=player_id,
+                first_name=first_name,
+                surname=surname,
                 full_name=self._player_name(player),
                 shirt_number=int(getattr(player, "shirt_number", 0)),
                 positions=positions,
                 current_position=int(getattr(player, "current_position")),
+                match_active=match_active,
+                match_substitute_available=match_substitute_available,
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
