@@ -264,6 +264,8 @@ on:
       - "reconstruction/test_gate17_ffmpeg_minimal_source_contract.py"
       - "reconstruction/gate17_ffmpeg_minimal_build_audit.py"
       - "reconstruction/test_gate17_ffmpeg_minimal_build_audit.py"
+      - "reconstruction/gate17_ffmpeg_minimal_roundtrip.py"
+      - "reconstruction/test_gate17_ffmpeg_minimal_roundtrip.py"
       - ".github/workflows/gate17-minimal-ffmpeg-build.yml"
       - "third_party/ffmpeg-lgpl-candidate/**"
       - "research/GATE17_FFMPEG_LGPL_MIGRATION.md"
