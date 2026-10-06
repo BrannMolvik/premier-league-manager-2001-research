@@ -40,7 +40,7 @@ ENCODERS = " V..... h264_mf synthetic\n A..... aac synthetic\n"
 DEMUXERS = " D  ea synthetic\n D  mov,mp4,m4a synthetic\n"
 MUXERS = " E  mp4 synthetic\n E  null synthetic\n"
 PROTOCOLS = "Input:\n  file\n  pipe\nOutput:\n  file\n  pipe\n"
-FILTERS = " ... aresample A->A synthetic\n"
+FILTERS = " ... aresample A->A synthetic\n ... scale V->V synthetic\n"
 
 
 class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
