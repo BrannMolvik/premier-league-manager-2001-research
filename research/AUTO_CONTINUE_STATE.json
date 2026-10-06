@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482. Startup FMV integration candidate is merged and repository-side FMV geometry/window repair is audited. Continue the ordinary Squad player-row fidelity blocker: recover enough of helpers 0x4EA3F0 and 0x5D6C50 to source-bind display names and row colors/styling for the already closed geometry/data/font path. Windows startup/media, responsiveness, TeamSelect and first-management/Squad acceptance remain deferred external checks.",
+  "active_task": "Validate and finish recovery330-squad-row-style: source-bound ordinary PSquadPlayerRow display-name formatting/colors and first-roster name raster integrated into the Gate-13 host. Run focused/full CI, fix regressions, merge only after green evidence, then continue the next canonical Gate-13 task. Windows 11 acceptance remains deferred external evidence.",
   "last_known_main_head": "1301a333bc8c2d8372410c83f3af710ed2bb14fc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 330,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 330 resumed from main 1301a333 after audited startup FMV integration. Continuing source-backed Squad row display-name/color helper trace; external Windows acceptance remains deferred.",
+  "recovery_generation": 331,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery resumed existing Squad-row branch 4e902aa1 on unchanged main 1301a333; validating before merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
