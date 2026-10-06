@@ -11969,3 +11969,22 @@ continues with ordinary Squad row display-name/color helpers.
   `0x8755EC` for mode 1 or `0x8755F0` for mode 2, but the producer and
   semantic identities remain unresolved. No negative Cup-Tied fallback was
   implemented.
+
+
+## 7 October 2026 KST — Recovery 354 Cup-Tied history value corrected
+
+- Continued first-hand analysis of canonical `footballmanager.exe` corrected
+  the old transfer-history `+0x18` interpretation.
+- DBRPlayer WORD `+0x18C` increments only in the appeared-player path,
+  while `+0x18A` also increments on a non-appearance path. `+0x18C`
+  triggers milestone handling at 10/20/50 and is reset on the later
+  current-club/wholesale reset.
+- Transfer conclusion snapshots `+0x18C` into
+  `CPlayerTransferHistory +0x18`; `0x419350 -> 0x4EBE80` returns that
+  exact historical count when transfer-history `+0x08` is valid.
+- `0x8755EC` and `0x8755F0` are therefore appearance-count cutoffs selected
+  by `0x8755E8` modes 1/2. Their exact configuration producer/rule names
+  remain unresolved.
+- Proved `0x874B88` is only a 16-byte dynamic-array header for 0x2A8-byte
+  records, eliminating an unrelated tactics-enum coincident-offset false lead.
+- No negative Cup-Tied fallback was implemented; it remains fail-closed.

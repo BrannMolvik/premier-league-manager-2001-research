@@ -1,3 +1,57 @@
+# Recovery 354 continuation — transfer-history value corrected to club appearances
+
+_Updated 7 October 2026._
+
+Canonical `main` is `8d670a72da4b159f654df5a6c5ac194f8e271528`.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** only
+because Daniel's normal Windows 11 acceptance is still outstanding.
+
+First-hand canonical executable tracing corrects an earlier interpretation of
+the mode-1 Cup-Tied transfer-history fallback:
+
+- DBRPlayer WORD `+0x18C` is an appearance counter for the player's current
+  club context, not a date;
+- `0x41B7E0`, reached only for a player who actually appeared in the processed
+  match, increments `+0x188`, `+0x18A`, and `+0x18C`;
+- the non-appearance path `0x41BA00` increments `+0x18A` only, separating
+  potential/eligible match count from actual appearance counters;
+- `0x41BCB0` evaluates `+0x18C` at exact milestones 10, 20, and 50;
+- transfer mutation `0x422E7E -> 0x4EBF60` snapshots `+0x18C` into
+  `CPlayerTransferHistory +0x18`;
+- the wholesale/current-club reset later clears DBRPlayer `+0x18C` to zero;
+- `0x419350 -> 0x4EBE80` returns exactly transfer-history `+0x18` when the
+  embedded transfer-history club/index `+0x08` is valid, otherwise `-1`.
+
+Therefore the old Recovery-346 label "transfer/join-history date" is superseded.
+The Cup-Tied branches compare a historical club-appearance count against
+configuration cutoffs:
+
+- selector `0x8755E8 == 1` chooses appearance cutoff `0x8755EC`;
+- selector `0x8755E8 == 2` chooses appearance cutoff `0x8755F0`;
+- selector 0 disables this fallback; other values do not qualify through the
+  recovered branches.
+
+The exact numeric/configuration semantics and runtime producer of
+`0x8755E8/EC/F0` remain unresolved. The nearby global
+`0x874B88` is now proven to be only a 16-byte dynamic-array header whose
+records are 0x2A8 bytes; the earlier possibility that `0x8755E8/EC/F0` were
+`+0xA60/+0xA64/+0xA68` fields of that object is false. Coincident-offset
+tactics enum strings must not be applied to these standalone globals.
+
+No live negative mode-1 Cup-Tied fallback is enabled by this checkpoint.
+Exact next source task: find the configuration/load producer for
+`0x8755E8/0x8755EC/0x8755F0` and prove the rule names/units for the two
+appearance cutoffs. Only then reconcile the clean runtime.
+
+Independent Gate-17 work-ahead remains:
+- private exact-original TGQ proof producer merged in PR #500;
+- exact private Windows `h264_mf` execution remains a platform-locality
+  boundary;
+- separate toolchain provenance branch must be refreshed onto current main
+  before review.
+
+---
+
 # Recovery 353 continuation — exact-original proof producer merged; transfer-history mapping closed
 
 _Updated 7 October 2026._

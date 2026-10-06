@@ -237,3 +237,46 @@ is therefore still unresolved and likely indirect or part of a larger
 contiguous global state load. Keep the negative mode-1 Cup-Tied fallback
 fail-closed until that producer and the precise `0x419350` value meaning are
 source-closed.
+
+
+## Recovery 354 — correction: transfer-history +0x18 is an appearance count
+
+Recovery 353 closed the mechanical setter/getter path but retained an inherited
+description of transfer-history `+0x18` as a date. Further first-hand
+disassembly disproves that interpretation.
+
+The DBRPlayer source field is WORD `+0x18C`. Its lifecycle is:
+
+- `0x41B7E0` runs from the appeared-player post-match path and increments
+  WORDs `+0x188`, `+0x18A`, and `+0x18C`;
+- `0x41BA00`, used when the player does not appear in the relevant match
+  context, increments `+0x18A` but not `+0x188/+0x18C`;
+- `0x41BCB0` tests `+0x18C` at the exact milestones 10, 20, and 50;
+- `0x41B22F` separately requires `+0x18C > 15` in another player-event
+  branch;
+- `0x422E4C -> 0x4EBF60` snapshots zero-extended `+0x18C` into embedded
+  transfer-history `+0x18` before the later reset path;
+- `0x423029` clears DBRPlayer `+0x18C` to zero as part of that wholesale /
+  current-club reset;
+- `0x419350` checks transfer-history `+0x08 > -1`, calls getter
+  `0x4EBE80`, and returns exactly transfer-history `+0x18`; otherwise it
+  returns `-1`.
+
+Together these operations source-close `+0x18C` / transfer-history
+`+0x18` as an actual-appearance count associated with the prior/current club
+tenure, not a calendar date.
+
+This also narrows the previously neutral Cup-Tied globals: `0x8755EC` and
+`0x8755F0` are numeric appearance-count cutoffs selected by
+`0x8755E8` modes 1 and 2 respectively. The rule names, units beyond this
+count comparison, and producer/configuration loader are still unresolved.
+
+A separate structural false lead is closed: global `0x874B88` is initialized
+by `0x40BBB0` as a four-DWORD dynamic-array header
+(vtable/count/data/fallback), with 0x2A8-byte elements. Therefore addresses
+`0x8755E8/EC/F0` are not fields at offsets `+0xA60/+0xA64/+0xA68` of
+that object. Tactics string helpers that use those offsets on other object
+types are unrelated and must not name the Cup-Tied globals.
+
+The negative mode-1 Cup-Tied fallback remains fail-closed until the standalone
+global selector/cutoff loader is source-closed.
