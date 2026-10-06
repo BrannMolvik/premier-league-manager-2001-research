@@ -37,6 +37,7 @@ from original_prematch_panel import (
     PREMATCH_RATING_RIGHT2,
     PREMATCH_RATING_ROWS,
     PREMATCH_SELECTORS,
+    PREMATCH_PLAYER_STRIP_ROWS,
     PREMATCH_CHILD_COUNT,
     PREMATCH_CHILD_ORDER_RANGES,
     PREMATCH_STATIC_PLACEMENTS,
@@ -72,6 +73,48 @@ class PrematchSelectorSurface:
     label: str
     rect: OriginalRect
     atlas: object
+
+
+@dataclass(frozen=True)
+class PrematchPlayerStripSurface:
+    """Source-backed row art without guessing the unresolved reserve variant."""
+
+    side: str
+    roster_group: str
+    row_index: int
+    rect: OriginalRect
+    active_source_path: str
+    active_rgba: bytes
+    disabled_source_path: str | None = None
+    disabled_rgba: bytes | None = None
+    variant_state_source_closed: bool = False
+
+    def __post_init__(self) -> None:
+        if self.side not in ("left", "right"):
+            raise PrematchSurfaceError("pre-match player strip side must be left/right")
+        if self.roster_group not in ("starter", "reserve"):
+            raise PrematchSurfaceError("pre-match player strip group must be starter/reserve")
+        if self.row_index < 0:
+            raise PrematchSurfaceError("pre-match player strip row index must be non-negative")
+        if (self.rect.width, self.rect.height) != (200, 16):
+            raise PrematchSurfaceError("pre-match player strip geometry must remain 200x16")
+        expected = self.rect.width * self.rect.height * 4
+        if len(self.active_rgba) != expected or not self.active_source_path:
+            raise PrematchSurfaceError("pre-match active strip source is invalid")
+        if self.roster_group == "starter":
+            if self.disabled_source_path is not None or self.disabled_rgba is not None:
+                raise PrematchSurfaceError("native starter strip cannot invent a disabled layer")
+        else:
+            if (
+                not self.disabled_source_path
+                or self.disabled_rgba is None
+                or len(self.disabled_rgba) != expected
+            ):
+                raise PrematchSurfaceError("native reserve strip requires both source variants")
+        if self.variant_state_source_closed:
+            raise PrematchSurfaceError(
+                "reserve/player-strip variant state is not yet source-closed"
+            )
 
 
 @dataclass(frozen=True)
@@ -234,6 +277,7 @@ class PrematchSurfaceBoundary:
     selection: FastViewSurfacedResourceSelection
     background: PrematchRasterLayer
     static_layers: tuple[PrematchRasterLayer, ...]
+    player_strip_rows: tuple[PrematchPlayerStripSurface, ...]
     selectors: tuple[PrematchSelectorSurface, ...]
     rating_rows: tuple[PrematchRatingSurface, ...]
     font: object
@@ -262,6 +306,12 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError("pre-match live background must remain 800x600")
         if len(self.static_layers) != len(PREMATCH_STATIC_PLACEMENTS):
             raise PrematchSurfaceError("pre-match static layer set is incomplete")
+        if len(self.player_strip_rows) != len(PREMATCH_PLAYER_STRIP_ROWS):
+            raise PrematchSurfaceError("pre-match player strip row set is incomplete")
+        if any(row.variant_state_source_closed for row in self.player_strip_rows):
+            raise PrematchSurfaceError(
+                "pre-match player strip boundary cannot invent reserve variant state"
+            )
         if len(self.selectors) != len(PREMATCH_SELECTORS):
             raise PrematchSurfaceError("pre-match selector surface set is incomplete")
         if len(self.rating_rows) != len(PREMATCH_RATING_ROWS):
@@ -365,6 +415,31 @@ def build_verified_prematch_surface_boundary(
         )
         for placement in PREMATCH_STATIC_PLACEMENTS
     )
+    player_strip_rows = []
+    for row in PREMATCH_PLAYER_STRIP_ROWS:
+        active = resources.decoded(row.active_spec.source_path)
+        disabled = (
+            resources.decoded(row.disabled_spec.source_path)
+            if row.disabled_spec is not None
+            else None
+        )
+        player_strip_rows.append(
+            PrematchPlayerStripSurface(
+                side=row.side,
+                roster_group=row.roster_group,
+                row_index=row.row_index,
+                rect=row.rect,
+                active_source_path=row.active_spec.source_path,
+                active_rgba=active.rgba,
+                disabled_source_path=(
+                    row.disabled_spec.source_path
+                    if row.disabled_spec is not None
+                    else None
+                ),
+                disabled_rgba=disabled.rgba if disabled is not None else None,
+            )
+        )
+
     selectors = tuple(
         PrematchSelectorSurface(
             mode=int(selector.mode),
@@ -398,6 +473,7 @@ def build_verified_prematch_surface_boundary(
         selection=selection,
         background=background,
         static_layers=static_layers,
+        player_strip_rows=tuple(player_strip_rows),
         selectors=selectors,
         rating_rows=rating_rows,
         font=resources.font,
@@ -412,6 +488,9 @@ def prematch_surface_contract() -> dict:
         "dedicated_static_asset_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
+        "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
+        "player_strip_rows_source_geometry_available": True,
+        "reserve_variant_state_source_closed": False,
         "selector_modes": tuple(int(selector.mode) for selector in PREMATCH_SELECTORS),
         "selector_events": tuple(selector.event_id for selector in PREMATCH_SELECTORS),
         "rating_discriminators": tuple(

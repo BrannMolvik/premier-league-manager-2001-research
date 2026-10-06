@@ -22,6 +22,7 @@ from gate14_prematch_surface import (
 from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
     PREMATCH_RATING_ROWS,
+    PREMATCH_PLAYER_STRIP_ROWS,
     PREMATCH_STATIC_PLACEMENTS,
     PREMATCH_CHILD_COUNT,
     PREMATCH_CHILD_ORDER_RANGES,
@@ -135,6 +136,59 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(
             tuple(layer.role for layer in boundary.static_layers),
             tuple(placement.role for placement in PREMATCH_STATIC_PLACEMENTS),
+        )
+        self.assertEqual(len(boundary.player_strip_rows), 36)
+        self.assertEqual(
+            tuple(
+                (
+                    surface.side,
+                    surface.roster_group,
+                    surface.row_index,
+                    (
+                        surface.rect.x,
+                        surface.rect.y,
+                        surface.rect.width,
+                        surface.rect.height,
+                    ),
+                    surface.active_source_path,
+                    surface.disabled_source_path,
+                    surface.variant_state_source_closed,
+                )
+                for surface in boundary.player_strip_rows
+            ),
+            tuple(
+                (
+                    row.side,
+                    row.roster_group,
+                    row.row_index,
+                    (row.rect.x, row.rect.y, row.rect.width, row.rect.height),
+                    row.active_spec.source_path,
+                    row.disabled_spec.source_path if row.disabled_spec is not None else None,
+                    False,
+                )
+                for row in PREMATCH_PLAYER_STRIP_ROWS
+            ),
+        )
+        self.assertTrue(
+            all(
+                len(surface.active_rgba) == 200 * 16 * 4
+                for surface in boundary.player_strip_rows
+            )
+        )
+        self.assertTrue(
+            all(
+                surface.disabled_rgba is None
+                for surface in boundary.player_strip_rows
+                if surface.roster_group == "starter"
+            )
+        )
+        self.assertTrue(
+            all(
+                surface.disabled_rgba is not None
+                and len(surface.disabled_rgba) == 200 * 16 * 4
+                for surface in boundary.player_strip_rows
+                if surface.roster_group == "reserve"
+            )
         )
         self.assertEqual(
             tuple((surface.mode, surface.event_id, surface.label) for surface in boundary.selectors),
@@ -354,6 +408,9 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["native_surface"], (800, 600))
         self.assertTrue(contract["team_backgrounds_selector_reused"])
         self.assertTrue(contract["team_backgrounds_loader_reused"])
+        self.assertEqual(contract["player_strip_row_count"], 36)
+        self.assertTrue(contract["player_strip_rows_source_geometry_available"])
+        self.assertFalse(contract["reserve_variant_state_source_closed"])
         self.assertEqual(contract["selector_modes"], (0, 1, 2, 3))
         self.assertEqual(contract["selector_events"], (4, 3, 2, 1))
         self.assertEqual(contract["rating_discriminators"], (3, 0, 1, 2))

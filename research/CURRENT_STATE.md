@@ -1,3 +1,24 @@
+# Recovery 369 continuation — full PPreMatch player-strip geometry reconciled
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `065eeb8303afe1c6621dd37ab110e39c9db9f4a1`, which merges PR #508's source-closed identity/text controls and complete 182-child native forward paint order. Exact PR head `d94c02b8b304b84aa39fa92a3bb5ed10635c5764` passed focused presentation run `37538803534` and repository asset-policy run `37538803623`.
+
+Recovery 369 has also reconciled the two persisted `recovery368-prematch-player-rows` commits onto current main on branch `chatgpt/gate14-prematch-rows-r369`:
+
+- all 11 starter player strips per side are source-positioned at y=152..332 in 18-pixel steps;
+- all seven reserve/post-starter strips per side are source-positioned at y=358..466 in 18-pixel steps;
+- left rows are x=36, right rows x=563, each 200x16;
+- starter rows construct only the active side-specific strip;
+- reserve rows construct both active and disabled side-specific strips at the same rectangle;
+- the exact runtime selector that chooses the reserve variant is still unresolved and remains fail-closed.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely because Daniel's normal Windows 11 acceptance of artifact `11418314765` is still outstanding. Continue independent Gate-14 work-ahead.
+
+Exact next Gate-14 source task: recover the 22 starting-XI pitch-marker placement/state, the player-row text/content/style and reserve active-vs-disabled state selector, and the exact Match Detail selector visual state. Then reconcile every one of the 182 native child slots into a supplied-state frame model before claiming a complete pre-match frame. Keep management-to-match launch, missing 3D presentation, and Gate 14 completion fail-closed.
+
+---
+
 # Recovery 368 continuation — PPreMatch identity/text contract staged for review
 
 _Updated 7 October 2026._

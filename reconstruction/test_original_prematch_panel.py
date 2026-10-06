@@ -62,7 +62,10 @@ from original_prematch_panel import (
     PREMATCH_LIVE_BACKGROUND_ROOT,
     PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA,
     PREMATCH_PITCH,
+    PREMATCH_PLAYER_STRIP_ROWS,
     PREMATCH_RATING_ROWS,
+    PREMATCH_RESERVE_ROW_YS,
+    PREMATCH_STARTER_ROW_YS,
     PREMATCH_SELECTORS,
     PREMATCH_SELECTOR_ATLAS,
     PREMATCH_SHIPPED_BACKGROUND,
@@ -122,6 +125,50 @@ class OriginalPrematchPanelTests(unittest.TestCase):
             PREMATCH_SELECTOR_ATLAS.source_sha256,
             "7b0148bfa65adaa7cabf08e000050ba9add3cf852a03e66423051603c4b85930",
         )
+
+    def test_full_player_strip_row_layout_is_source_closed(self):
+        self.assertEqual(
+            PREMATCH_STARTER_ROW_YS,
+            (152, 170, 188, 206, 224, 242, 260, 278, 296, 314, 332),
+        )
+        self.assertEqual(
+            PREMATCH_RESERVE_ROW_YS,
+            (358, 376, 394, 412, 430, 448, 466),
+        )
+        self.assertEqual(len(PREMATCH_PLAYER_STRIP_ROWS), 36)
+
+        for side, x in (("left", 36), ("right", 563)):
+            starters = tuple(
+                row
+                for row in PREMATCH_PLAYER_STRIP_ROWS
+                if row.side == side and row.roster_group == "starter"
+            )
+            reserves = tuple(
+                row
+                for row in PREMATCH_PLAYER_STRIP_ROWS
+                if row.side == side and row.roster_group == "reserve"
+            )
+            self.assertEqual(len(starters), 11)
+            self.assertEqual(len(reserves), 7)
+            self.assertEqual(tuple(row.row_index for row in starters), tuple(range(11)))
+            self.assertEqual(tuple(row.row_index for row in reserves), tuple(range(7)))
+            self.assertEqual(
+                tuple((row.rect.x, row.rect.y, row.rect.width, row.rect.height) for row in starters),
+                tuple((x, y, 200, 16) for y in PREMATCH_STARTER_ROW_YS),
+            )
+            self.assertEqual(
+                tuple((row.rect.x, row.rect.y, row.rect.width, row.rect.height) for row in reserves),
+                tuple((x, y, 200, 16) for y in PREMATCH_RESERVE_ROW_YS),
+            )
+            self.assertTrue(all(row.disabled_spec is None for row in starters))
+            self.assertTrue(all(row.disabled_spec is not None for row in reserves))
+
+        contract = prematch_panel_contract()
+        self.assertEqual(contract["player_strip_row_count"], 36)
+        self.assertEqual(contract["player_strip_starter_count_per_side"], 11)
+        self.assertEqual(contract["player_strip_reserve_count_per_side"], 7)
+        self.assertTrue(contract["reserve_rows_construct_active_and_disabled_variants"])
+        self.assertFalse(contract["reserve_variant_state_source_closed"])
 
     def test_static_placements_live_background_and_rating_rows_are_exact(self):
         self.assertEqual(
