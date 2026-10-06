@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 347: PR #498 exact-byte Windows package repair is at final intended head 33d3419bbca133ba9c6c9c9c2425e6fc0f39774c. Gate-13 run 37476333087, asset policy 37476333115, and Windows package run 37476333086 are green. Frozen --package-smoke restored manifest hash cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e and built production presenter to pstartmenu; artifact 11418314765, release archive SHA256 eb3cd65c729152469ac36def2186eb7be76b2f1ae22d95ca031907b9c8e7ebdb. Await exact-head full reconstruction run 37476333090; merge only if green, then record merged artifact for issue #482 and continue cloud-safe work. Private source trace remains sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and globals 0x8755E8/EC/F0.",
-  "last_known_main_head": "03c5783d1f7627615e4238a143321cadb484c4dc",
+  "active_task": "Recovery 347: Gate 13 packaged CRLF/presenter-build blocker is fixed and merged; issue #482 now awaits Daniel's required normal Windows 11 acceptance using artifact 11418314765. Continue independent cloud-safe work: resume Gate-17 FFmpeg release/migration path from its canonical research and open PRs, without treating later-gate work as closing Gate 13. Private source trace remains execution-sandbox deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and globals 0x8755E8/EC/F0.",
+  "last_known_main_head": "7fe07ab3837735ae7bae3bf46d353f59be89951f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 347,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 347 package repair final code head is 33d3419; Windows frozen presenter smoke passed. Full reconstruction exact-head run remains the only merge gate. Trivial container probe still returns TooManyRequestsError.",
+  "note": "Canonical main 7fe07ab records PR #498 merge and acceptance artifact. Gate 13 external acceptance remains open; cloud-safe Gate-17 FFmpeg work resumes. Local execution still blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
