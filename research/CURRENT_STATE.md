@@ -1,3 +1,23 @@
+# Recovery 359 continuation — PR #502 merged; Gate 13 repository repair source-closed
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `3719f7a9003fb8fc555b97f5fcd75b6f5d776b54`, which merges PR #502's source-backed Cup-Tied mode-1 transfer-date fallback. Exact PR head `faae343ada880252246455985e29d757c6214960` passed Gate-13 presentation run `37517705837`, full reconstruction run `37517705769`, and repository asset-policy run `37517705929`.
+
+The merged runtime now:
+
+- persists the recovered DBRGame selector and +60/+207-day cutoff dates through internal save schema 46;
+- advances the selector on August 30 / January 30 and resets the window at annual primary regeneration;
+- reuses the already-persisted completed-transfer `PlayerMovement` old-club/date state as the clean-room equivalent of `CPlayerTransferHistory+0x08/+0x18`;
+- applies the collection-miss fallback only for source-qualified root Cup restriction mode 1 and only through the current-match Squad status resolver;
+- fails closed for missing/stale transfer history, unsupported restriction modes, unresolved current-match context, and missing transfer-window state.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely because Daniel's normal Windows 11 acceptance of artifact `11418314765` is still outstanding. Do not close Gate 13 from hosted CI alone.
+
+The exact repository-side Gate-13 Cup-Tied task is complete. While external acceptance is pending, continue the highest-priority independent cloud-safe work from later gates without changing the earliest validation gate. The next work-ahead task is to audit the current Gate-14/15/16 evidence and choose the earliest unmet criterion that can be advanced without Windows-only external validation; preserve every remaining platform-local release receipt as a blocker rather than inferring success.
+
+---
+
 # Recovery 357 continuation — Cup-Tied DBRGame dates source-closed and Recovery 354 mapping corrected
 
 _Updated 7 October 2026._
