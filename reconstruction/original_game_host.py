@@ -113,6 +113,7 @@ from original_squad_top_controls import (
 from original_squad_row_style import (
     OriginalSquadRowTextResources,
     build_first_roster_name_overlays,
+    build_first_roster_role_overlays,
     load_verified_squad_row_text_resources,
 )
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
@@ -1169,7 +1170,7 @@ class OriginalGameTkHost:
         return count
 
     def _draw_squad_rows(self, frame) -> int:
-        """Draw the source-closed first-roster populated name controls."""
+        """Draw the source-closed first-roster role/name text controls."""
         if frame.presentation.panel_class != "PSquadScreen":
             return 0
         transition = frame.presentation.squad_view_transition
@@ -1193,7 +1194,10 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Squad landing renderer requires verified original row font resources"
             )
-        overlays = build_first_roster_name_overlays(snapshot.rows, resources)
+        overlays = (
+            *build_first_roster_role_overlays(snapshot.rows, resources),
+            *build_first_roster_name_overlays(snapshot.rows, resources),
+        )
         count = 0
         for overlay in overlays:
             self._create_native_image(
