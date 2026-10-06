@@ -395,6 +395,7 @@ def prematch_surface_contract() -> dict:
         ),
         "rating_width_binding_available": True,
         "rating_dynamic_widths_bound_by_resource_loader": False,
+        "rating_dynamic_widths_bound_to_cleanroom_state": False,
         "full_cross_layer_draw_order_recovered": False,
         "management_launch_trigger_recovered": False,
         "complete_prematch_frame": False,
