@@ -1,3 +1,43 @@
+# Recovery 341 continuation — PR #495 merged; Gate 13 external acceptance still open
+
+_Updated 6 October 2026._
+
+Canonical `main` is now `0a91c088f14f5988ab96430de5dc9239b24457cf`.
+PR #495 merged the source-qualified Squad Cup-Tied / alternate On-loan status
+slice after the complete candidate validation set passed. **Active gate remains
+Gate 13 / issue #482.**
+
+Exact merged-candidate evidence:
+
+- Gate 13 presentation run `37424300671`: success;
+- repository asset-policy run `37424300703`: success;
+- Windows package/smoke run `37424300615`: success;
+- full reconstruction run `37424300721`: success;
+- Windows candidate artifact `11394291084`,
+  `FM2001-Windows11-94a620839624f293c0d4343f7e42c9ddfb31d549`,
+  Actions digest
+  `sha256:8fb7c6359a42a78a30f5c5ea91940789214725bf6d76818353adb2f13f9afb62`.
+
+The live Squad status path now preserves native priority for direct frames
+0/1/2, exact alternate On-loan frame 13, and positively proven current-day
+Cup-Tied frame 3. A true Non-EU state still blocks lower publication because
+its separate registration-expiry lifecycle is unresolved. The mode-1 negative
+Cup-Tied transfer-history cutoff and club-relative assignment also remain
+source-evidence blockers.
+
+Gate 13 is **not complete**. Daniel's normal Windows 11 #482 acceptance remains
+mandatory and must verify startup presentation, responsiveness, the usable
+Southport Squad landing, and ordinary management navigation.
+
+Independent cloud-safe next task: repair the stale Gate-14 startup-media
+external acceptance audit. It still mandates the obsolete MCI transport even
+though normal Windows launch now uses `WindowsWpfStartupMediaBackend` bound as
+a child HWND of the game-owned 800x600 host. The acceptance tool must exercise
+the production WPF child-window path before any future startup-media receipt is
+trusted.
+
+---
+
 # Recovery 341 continuation — source-qualified Squad Cup/loan status candidate
 
 _Updated 6 October 2026._
