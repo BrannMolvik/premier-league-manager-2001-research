@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 353: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is f71b56c57a16b8d0984f8257066727cecdd19bb9. PR #500 exact head c7ac1ad5186f143451d6cdf5df4ce823a38ac7d6 adds a fail-closed private Windows exact-original-TGQ proof producer bound to the exact minimal FFmpeg build + synthetic-roundtrip receipts and exact original source hashes. Asset policy 37502428343 passed; Windows package 37502428326 and full reconstruction 37502428345 are running. No private TGQ bytes enter CI. Merge only if both exact-head checks pass. After merge, continue toolchain/source-material provenance hardening separately while keeping source_material_complete=false, or execute the private proof on a real Windows environment when exact helper + original source coexist.",
-  "last_known_main_head": "f71b56c57a16b8d0984f8257066727cecdd19bb9",
+  "active_task": "Recovery 354: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 8d670a72da4b159f654df5a6c5ac194f8e271528. PR #500 is merged as 52d2cb84aa2f47ea18ee222d4383fb0f6b72a4b1 after asset 37502428343, Windows package 37502428326, and full reconstruction 37502428345 passed. Private trace now source-closes CPlayerTransferHistory::0x4EBF60 mapping: +08<-player+74, +10/+14<-0x5E48D0 qword, +18<-WORD player+18C, +1C<-0x9847FC, +20<-0. Selector 0x8755E8 chooses cutoff 0x8755EC for mode1 or 0x8755F0 for mode2, but producer/semantic identities remain unresolved. Exact next source task: identify 0x419350 fully and trace indirect initialization of global cluster 0x8755D0..0x8755FC. Keep negative mode-1 Cup-Tied fallback fail-closed. Separate toolchain provenance branch 13532aa must be refreshed onto current main before review.",
+  "last_known_main_head": "8d670a72da4b159f654df5a6c5ac194f8e271528",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 353,
+  "recovery_generation": 354,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 353: PR #500 c7ac1ad exact-original TGQ proof producer active; asset green, Windows/full CI running. Private originals reverified locally but Windows h264_mf locality remains external.",
+  "note": "Recovery 354: PR #500 merged; exact-original private proof producer canonical. Native transfer-history setter mapping persisted. Continuing 0x419350/global cutoff producer trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
