@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 356: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is a6711b09aac00d784c07570f6cdbfdc60e24687e after PR #501 toolchain provenance merged fully green (asset 37506276574, Windows package 37506276605, reconstruction 37506276550, minimal build 37506276513; artifact 11431743521 digest sha256:ec6ce0ab49e7e0b5aa9b4c2b6df5f01dd0f6c62f02c75588c91a67e8d82b0db9). Active private source task remains Cup-Tied globals 0x8755E8/EC/F0. Direct refs are read-only, targets are BSS-zero, shipped small config/data files contain no matching rule keys. Only plausible indirect writer found is 0x4A4845/4A485E via table base 0x875510 with index edi=6*outer_category+inner_rank for eight outer categories. Exact next task: prove the inner-rank bound from source/load structures and determine whether indices 54-56 are reachable. Keep negative Cup-Tied fallback fail-closed.",
-  "last_known_main_head": "a6711b09aac00d784c07570f6cdbfdc60e24687e",
+  "active_task": "Recovery 357: Gate 13 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Canonical main is ce3b45fd6245c8d5939bf2779ad4a03a60850b46. The prior 0x875510 indexed-table writer candidate has been eliminated: the ten parallel DWORD tables are exactly 48 entries and end at 0x8755CF, while 0x8755D0 begins a distinct scalar-global region. Direct refs to Cup-Tied globals 0x8755E8/EC/F0 remain read-only, raw-address scans find no address-taking refs, and shipped text/config/help exposes no Cup-Tied rule key. Exact next source task: trace initialization of scalar region 0x8755D0..0x8755FC and either identify a legitimate computed producer for E8/EC/F0 or prove they remain loader-zero in the shipped build. Keep the negative mode-1 Cup-Tied fallback fail-closed and do not infer hypothetical values.",
+  "last_known_main_head": "ce3b45fd6245c8d5939bf2779ad4a03a60850b46",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 356,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 356: PR #501 merged fully green; tracing whether 0x4A42E0 indexed table writer can reach Cup-Tied BSS entries 54-56.",
+  "recovery_generation": 357,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 357: resumed from ce3b45fd; trace scalar-region initialization around 0x8755D0..0x8755FC while Gate 13 external acceptance remains pending.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
