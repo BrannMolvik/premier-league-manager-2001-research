@@ -12185,3 +12185,12 @@ continues with ordinary Squad row display-name/color helpers.
   wrappers. Remaining pre-match frame gaps are now concentrated in pitch-marker
   placement/state, row-content binding, selector visual state, and final
   state-to-raster assembly rather than cross-layer ordering.
+
+
+## 7 October 2026 KST — Recovery 369 PPreMatch row reconciliation
+
+- Merged PR #508 as `065eeb8303afe1c6621dd37ab110e39c9db9f4a1`; exact head `d94c02b8b304b84aa39fa92a3bb5ed10635c5764` passed focused presentation run `37538803534` and asset-policy run `37538803623`.
+- Recovered two persisted but unmerged Recovery 368 commits from branch `recovery368-prematch-player-rows` instead of redoing their source trace.
+- Reconciled complete 36-row pre-match player-strip geometry onto current main: 11 starter rows and seven reserve rows per side, 18-pixel vertical spacing, x=36/563, 200x16 strips.
+- Preserved the source distinction that starter rows construct only active strips while reserve rows construct both active and disabled variants at the same rectangle; the runtime variant selector remains fail-closed.
+- Exact next task is the remaining 22 pitch-marker placement/state plus player-row text/style/state and selector visual-state trace before complete-frame promotion.
