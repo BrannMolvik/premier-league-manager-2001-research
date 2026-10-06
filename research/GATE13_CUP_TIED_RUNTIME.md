@@ -148,3 +148,113 @@ Rendering must still preserve `0x418360` priority. The special alternate
 On-loan and Non-EU branches precede the Cup-Tied branch, so frame 3 may only be
 published where those higher-priority predicates are known false or after those
 predicates themselves are materialized exactly.
+
+
+## Recovery 340: PSCF current-date resolver boundary
+
+Further canonical-executable analysis closes the outer `0x418480` context around
+the collection lookup.
+
+### Current match context
+
+`0x418480` does not query an arbitrary competition. It first resolves the
+player's **current** club through `0x417270` (DBRPlayer +0x10), then calls
+`0x407F20`.
+
+`0x407F20` passes:
+
+- the global current date at `0x9847FC`;
+- the current club;
+- mode `1`;
+
+to `0x615D10`, after selecting the schedule container through `0x4079D0`.
+`0x4079D0 -> 0x403640` uses DBRClub +0x74: values 2 or 3 select the
+secondary container at `0x947AF0`; every other value selects the primary
+container at `0x947AD8`.
+
+If no match for that club exists on the global current date, `0x418480`
+returns false before any Cup-Tied collection lookup.
+
+When a match exists, the match competition is resolved to its root through
+`0x4F3DC0`. The root virtual +0x18 must be true before the Cup restriction
+path is entered.
+
+### Cup runtime +0x34 source mode
+
+Cup construction `0x4F51E0` derives runtime +0x34 directly from packed
+DBRCompetition source byte +0x24:
+
+- source `0x7B` -> runtime mode 1;
+- source `0x74` -> runtime mode 2;
+- every other source value -> runtime mode 0.
+
+The clean parser now retains this source byte neutrally as
+`CompetitionDefinition.packed_rule_code_24` and exposes the exact
+`cup_restriction_mode` projection.
+
+For modes other than 1, `0x418480` returns the ordinary
+`0x4F8E40 -> 0x4E9710` collection predicate directly.
+
+For mode 1, a **true collection predicate also returns true immediately**.
+Only a collection miss continues into the additional date/cutoff branch.
+Therefore a source-qualified positive collection hit is sufficient evidence for
+PSCF Cup-Tied frame 3 even before that negative branch is fully materialized.
+
+### The mode-1 date is CPlayerTransferHistory state
+
+The player field used by `0x419350` is not the already recovered
+DBRPlayer +0x158 current-club join date itself. DBRPlayer +0x198 is an embedded
+0x24-byte MSVC RTTI object whose vtable `0x7C8A5C` identifies the class as
+`CPlayerTransferHistory`.
+
+Within that object:
+
+- +0x08 is initialized to -1 by `0x4EBE60`;
+- +0x18 is initialized to the current date;
+- `0x4EBF60` writes the complete transfer-history payload;
+- `0x4EBF90` updates +0x18;
+- `0x419350` returns no date while +0x08 <= -1, otherwise returns +0x18
+  through `0x4EBE80`.
+
+Startup `0x4172E0` normalizes DBRPlayer +0x158 and copies that date into
+transfer-history +0x18, but transfer-history +0x08 remains a separate
+availability/source field. Consequently the clean runtime must not substitute
+`current_club_join_date` for `0x419350` unless +0x08 is also recovered.
+
+When `0x419350` yields a date, the remaining mode-1 branch selects one of two
+global cutoff dates using `0x8755E8` and compares the transfer-history date
+against `0x8755EC` or `0x8755F0`. Those globals remain to be source-closed.
+
+### Higher override safety for frame 3
+
+`0x418360` priority remains:
+
+1. alternate On-loan frame 13;
+2. special Non-EU frame 12;
+3. Cup-Tied frame 3;
+4. later bit-based/fallback statuses.
+
+The alternate On-loan branch is exactly representable by existing clean state:
+DBRPlayer bit 6 is the loan state, +0x10 is the temporary/current club and
++0x72 is the registered/parent club. In clean terms it is
+`loan_club_id is not None and loan_club_id != club_id`.
+
+The special Non-EU branch is gated first by DBRPlayer bit 11. Startup
+`0x421CE0` sets that bit only after the already reconstructed exact
+`0x421760` Non-EU predicate succeeds. Therefore `RuntimePlayer.non_eu ==
+False` is a source-safe proof that this higher override cannot fire. A true
+`non_eu` value is not yet enough to reproduce the separate registration-record
+expiry lifecycle in every case, so lower-priority status rendering must remain
+unresolved for those players unless that lifecycle is modeled.
+
+Safe partial frame-3 publication is therefore possible only when:
+
+- direct frames 0/1/2 did not return;
+- alternate On-loan frame 13 is false;
+- `non_eu` is false;
+- the current-match competition context is source-qualified; and
+- the root Cup-Tied collection predicate is positively true.
+
+A collection miss in mode 1 remains unresolved, not false, until
+`CPlayerTransferHistory +0x08` and the global cutoff selector/dates are
+materialized.
