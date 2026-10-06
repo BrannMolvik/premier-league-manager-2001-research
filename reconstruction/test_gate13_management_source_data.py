@@ -161,6 +161,13 @@ class FakeState:
                 aggression=7,
             )
         }
+        self.positions = {
+            index: SimpleNamespace(abbreviation=label)
+            for index, label in enumerate(
+                ("GK", "SW", "DR", "DL", "DC", "DM", "MR", "ML", "MC",
+                 "AMR", "AML", "AMC", "FC")
+            )
+        }
         # Deliberately Beta first: represents the backend's already recovered
         # native-comparator order, which the bridge must not second-guess.
         self._table = (
@@ -467,14 +474,15 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             (
                 second.first_name, second.surname, second.full_name,
                 second.shirt_number, second.positions,
-                second.current_position, second.match_active,
+                second.current_position, second.assigned_role_abbreviation,
+                second.match_active,
                 second.match_substitute_available, second.match_unavailable,
                 second.condition, second.form_state,
                 second.recent_form_average, second.current_role_rating,
                 second.morale,
             ),
             (
-                "Second", "Source", "Second Source", 9, (4, 0, 0), 0,
+                "Second", "Source", "Second Source", 9, (4, 0, 0), 0, "GK",
                 False, True, False, 91, 3, 2.5, 40, 88,
             ),
         )
@@ -484,15 +492,33 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             (
                 first.first_name, first.surname, first.full_name,
                 first.condition, first.form_state, first.morale,
+                first.assigned_role_abbreviation,
                 first.match_active, first.match_substitute_available,
             ),
-            ("First", "Source", "First Source", 77, 2, 92, True, False),
+            ("First", "Source", "First Source", 77, 2, 92, "GK", True, False),
         )
         self.assertTrue(first.injured)
         self.assertTrue(first.suspended)
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_squad_role_abbreviation_requires_source_position_table(self):
+        controller = FakeController()
+        controller.state.positions = {}
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "original abbreviation",
+        ):
+            ManagementSourceDataBridge(controller).squad_rows()
+
+        controller = FakeController()
+        controller.state.positions[0] = SimpleNamespace(abbreviation="")
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "original abbreviation",
+        ):
+            ManagementSourceDataBridge(controller).squad_rows()
 
     def test_squad_presentation_contract_preserves_native_roster_selection_state(self):
         contract = ManagementSourceDataBridge.squad_presentation_contract()

@@ -46,6 +46,7 @@ class SquadRowView:
     shirt_number: int
     positions: tuple[int, int, int]
     current_position: int
+    assigned_role_abbreviation: str
     match_active: bool
     match_substitute_available: bool
     match_unavailable: bool
@@ -998,6 +999,7 @@ class ManagementSourceDataBridge:
             )
             history_average = getattr(player, "match_performance_average", None)
             current_role_rating = getattr(player, "current_role_rating", None)
+            current_position = getattr(player, "current_position", None)
             if type(player_id) is not int:
                 raise ManagementPresentationError("Runtime player ID is unavailable")
             if not isinstance(first_name, str) or not isinstance(surname, str):
@@ -1015,6 +1017,21 @@ class ManagementSourceDataBridge:
             ):
                 raise ManagementPresentationError(
                     f"Player {player_id} has no recovered three-position tuple"
+                )
+            if type(current_position) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered assigned-role code"
+                )
+            position_table = getattr(self.state, "positions", None)
+            if not hasattr(position_table, "get"):
+                raise ManagementPresentationError(
+                    "Recovered runtime position table is unavailable"
+                )
+            position = position_table.get(current_position)
+            abbreviation = getattr(position, "abbreviation", None)
+            if not isinstance(abbreviation, str) or not abbreviation:
+                raise ManagementPresentationError(
+                    f"Assigned role {current_position} has no recovered original abbreviation"
                 )
             if not callable(history_average):
                 raise ManagementPresentationError(
@@ -1043,7 +1060,8 @@ class ManagementSourceDataBridge:
                 full_name=self._player_name(player),
                 shirt_number=int(getattr(player, "shirt_number", 0)),
                 positions=positions,
-                current_position=int(getattr(player, "current_position")),
+                current_position=current_position,
+                assigned_role_abbreviation=abbreviation,
                 match_active=match_active,
                 match_substitute_available=match_substitute_available,
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),

@@ -257,6 +257,59 @@ def _rgb_rgba(alpha: bytes, rgb: tuple[int, int, int]) -> bytes:
     return bytes(rgba)
 
 
+def build_first_roster_role_overlays(
+    rows,
+    resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Raster the source-closed assigned-role abbreviation controls."""
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError(
+            "Squad row rendering requires verified source font resources"
+        )
+    panel_x, panel_y, _panel_width, _panel_height = SQUAD_PANEL_RECT
+    roster = SQUAD_FIRST_ROSTER_RECT
+    role_x, role_y, role_width, role_height = SQUAD_ROLE_RECT
+    font = resources.font
+    overlays: list[OriginalSquadRowTextOverlay] = []
+
+    for row in tuple(rows):
+        row_y = getattr(row, "y", None)
+        text = getattr(row, "assigned_role_abbreviation", None)
+        rgb = getattr(row, "assigned_role_rgb", None)
+        if type(row_y) is not int:
+            raise OriginalSquadRowStyleError("Squad row y must be an integer")
+        if not isinstance(text, str) or not text:
+            raise OriginalSquadRowStyleError(
+                "Squad assigned-role abbreviation must be source-resolved"
+            )
+        rect = (
+            panel_x + roster.x + role_x,
+            panel_y + roster.y + row_y + role_y,
+            role_width,
+            role_height,
+        )
+        mask = font.render_text_alpha(text)
+        # Native raw flags 0x24 center both horizontally and vertically.
+        line_x = rect[0] + rect[2] // 2 - font.measure_text(text) // 2
+        line_y = rect[1] + rect[3] // 2 - font.native_line_height() // 2
+        clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+        if clipped is None:
+            continue
+        x, y, width, height, alpha = clipped
+        overlays.append(
+            OriginalSquadRowTextOverlay(
+                text=text,
+                x=x,
+                y=y,
+                width=width,
+                height=height,
+                rgba=_rgb_rgba(alpha, rgb),
+                source_rgb=rgb,
+            )
+        )
+    return tuple(overlays)
+
+
 def build_first_roster_name_overlays(
     rows,
     resources: OriginalSquadRowTextResources,

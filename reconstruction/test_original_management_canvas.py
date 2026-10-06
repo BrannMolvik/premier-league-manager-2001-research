@@ -39,6 +39,7 @@ class Row:
     full_name: str
     positions: tuple[int, int, int] = (12, 4, 7)
     current_position: int = 12
+    assigned_role_abbreviation: str = "FC"
     match_active: bool = True
     match_substitute_available: bool = False
     condition: int = 90

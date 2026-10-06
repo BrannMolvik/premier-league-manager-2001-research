@@ -18,6 +18,7 @@ class Row:
     full_name: str
     positions: tuple[int, int, int]
     current_position: int
+    assigned_role_abbreviation: str
     match_active: bool
     match_substitute_available: bool
     condition: int
@@ -35,6 +36,7 @@ class OriginalSquadPresenterTests(unittest.TestCase):
             f"Player {index}",
             (12, 4, 7),
             12,
+            "FC",
             index == 0,
             index == 1,
             88,
@@ -73,6 +75,7 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.rows[0].display_name, "P. 0")
         self.assertEqual(snapshot.rows[0].display_name_rgb, (255, 255, 255))
         self.assertEqual(snapshot.rows[0].assigned_role, 12)
+        self.assertEqual(snapshot.rows[0].assigned_role_abbreviation, "FC")
         self.assertEqual(snapshot.rows[0].assigned_role_rgb, (255, 255, 255))
         self.assertEqual(snapshot.rows[0].condition, 88)
         self.assertEqual(snapshot.rows[1].display_name_rgb, (232, 191, 94))

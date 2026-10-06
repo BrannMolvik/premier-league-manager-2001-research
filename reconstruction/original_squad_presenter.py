@@ -45,6 +45,7 @@ class OriginalSquadRowSnapshot:
     display_name: str
     display_name_rgb: tuple[int, int, int] | None
     assigned_role: int
+    assigned_role_abbreviation: str
     assigned_role_rgb: tuple[int, int, int]
     condition: int
     recent_form_average: float
@@ -122,6 +123,11 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
             getattr(row, "current_position", None),
             label="current_position",
         )
+        assigned_role_abbreviation = getattr(row, "assigned_role_abbreviation", None)
+        if not isinstance(assigned_role_abbreviation, str) or not assigned_role_abbreviation:
+            raise OriginalSquadPresentationError(
+                "assigned_role_abbreviation must be a non-empty source string"
+            )
         try:
             assigned_role_rgb = squad_role_rgb(assigned_role, positions)
         except ValueError as exc:
@@ -148,6 +154,7 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 display_name=display_name,
                 display_name_rgb=display_name_rgb,
                 assigned_role=assigned_role,
+                assigned_role_abbreviation=assigned_role_abbreviation,
                 assigned_role_rgb=assigned_role_rgb,
                 condition=condition,
                 recent_form_average=float(recent_form_average),

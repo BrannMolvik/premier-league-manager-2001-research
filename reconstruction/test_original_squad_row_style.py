@@ -16,6 +16,7 @@ from original_squad_row_style import (
     SQUAD_ROW_FONT_ATLAS_SIZE,
     SQUAD_ROW_FONT_SOURCE_PATH,
     build_first_roster_name_overlays,
+    build_first_roster_role_overlays,
     format_squad_display_name,
     load_verified_squad_row_text_resources,
     squad_name_rgb,
@@ -119,6 +120,27 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
         self.assertLessEqual(overlay.x + overlay.width, 113 + 144)
         self.assertLessEqual(overlay.y + overlay.height, 234 + 14)
 
+
+    def test_first_roster_role_raster_centers_original_abbreviation(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_row_text_resources(source_root)
+        rows = (
+            SimpleNamespace(
+                y=154,
+                assigned_role_abbreviation="FC",
+                assigned_role_rgb=(0, 0, 125),
+            ),
+        )
+        overlays = build_first_roster_role_overlays(rows, resources)
+        self.assertEqual(len(overlays), 1)
+        overlay = overlays[0]
+        self.assertEqual(overlay.text, "FC")
+        self.assertEqual(overlay.source_rgb, (0, 0, 125))
+        # First-roster role control: x=37+28, y=79+154+1, 38x14.
+        self.assertGreaterEqual(overlay.x, 65)
+        self.assertGreaterEqual(overlay.y, 234)
+        self.assertLessEqual(overlay.x + overlay.width, 65 + 38)
+        self.assertLessEqual(overlay.y + overlay.height, 234 + 14)
 
     def test_unknown_reserve_color_withholds_name_pixels(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
