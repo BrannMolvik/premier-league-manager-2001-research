@@ -49,6 +49,15 @@ from original_prematch_panel import (
     PREMATCH_RATING_ROWS,
     PREMATCH_SELECTORS,
     PREMATCH_PLAYER_STRIP_ROWS,
+    PREMATCH_PLAYER_TEXT_ROWS,
+    PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA,
+    PREMATCH_PLAYER_NUMBER_FORMAT,
+    PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET,
+    PREMATCH_PLAYER_NAME_MODE_BY_SIDE,
+    PREMATCH_SELECTOR_INITIAL_FLAGS,
+    PREMATCH_SELECTOR_GROUP_LENGTHS,
+    prematch_player_row_variant,
     PREMATCH_CHILD_COUNT,
     PREMATCH_CHILD_ORDER_RANGES,
     PREMATCH_STATIC_PLACEMENTS,
@@ -165,6 +174,50 @@ class PrematchSelectorSurface:
     label: str
     rect: OriginalRect
     atlas: object
+    initial_flags: int = PREMATCH_SELECTOR_INITIAL_FLAGS
+    group_lengths: tuple[int, ...] = PREMATCH_SELECTOR_GROUP_LENGTHS
+    native_visual_state_source_closed: bool = True
+    persistent_selected_visual: bool = False
+
+    def __post_init__(self) -> None:
+        if self.initial_flags != PREMATCH_SELECTOR_INITIAL_FLAGS:
+            raise PrematchSurfaceError("pre-match selector initial flags drifted")
+        if self.group_lengths != PREMATCH_SELECTOR_GROUP_LENGTHS:
+            raise PrematchSurfaceError("pre-match selector frame groups drifted")
+        if not self.native_visual_state_source_closed or self.persistent_selected_visual:
+            raise PrematchSurfaceError("pre-match selector cannot invent radio selection state")
+
+
+@dataclass(frozen=True)
+class PrematchPlayerTextSurface:
+    side: str
+    slot_index: int
+    roster_group: str
+    number_rect: OriginalRect
+    name_rect: OriginalRect
+    strip_child_index: int
+    number_child_index: int
+    name_child_index: int
+    disabled_child_index: int | None
+    style_wrapper_va: int = PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA
+    number_aux_wrapper_va: int = PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA
+    number_format: str = PREMATCH_PLAYER_NUMBER_FORMAT
+    shirt_number_runtime_offset: int = PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET
+    name_mode: int = 0
+
+    def __post_init__(self) -> None:
+        if self.side not in ("left", "right"):
+            raise PrematchSurfaceError("pre-match player text side must be left/right")
+        expected_name_mode = PREMATCH_PLAYER_NAME_MODE_BY_SIDE[0 if self.side == "left" else 1]
+        if self.name_mode != expected_name_mode:
+            raise PrematchSurfaceError("pre-match player name mode differs from source")
+        if self.style_wrapper_va != PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA:
+            raise PrematchSurfaceError("pre-match player text style wrapper drifted")
+        if self.number_format != PREMATCH_PLAYER_NUMBER_FORMAT:
+            raise PrematchSurfaceError("pre-match player number format drifted")
+
+    def strip_variant(self, participant_count: int) -> str:
+        return prematch_player_row_variant(self.slot_index, participant_count)
 
 
 @dataclass(frozen=True)
