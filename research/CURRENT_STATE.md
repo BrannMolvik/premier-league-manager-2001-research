@@ -1,3 +1,45 @@
+# Recovery 335 continuation — Squad status atlas/source table pinned
+
+_Updated 6 October 2026._
+
+Canonical `main` is `c51353a75c9360cdc1e45b8ee4fe1c3c5be2f07d`.
+PR #491 merged the source-backed PSCFRow Condition, recent-form and
+current-role-rating controls after all four candidate validations passed.
+**Active gate remains Gate 13 / issue #482.**
+
+The exact current branch is `recovery335-squad-status-icon`. Recovery 335 has
+now imported and provenance-pinned the byte-identical original
+`FM2001_Art/Generic/status.png` (4,015 bytes; SHA-256
+`59cd053c93ea789a010d813f46f650c2e4c16ea46163c63ae01209f69e4f5b1b`).
+Canonical initializer `0x603940` slices the 18x196 RGB image into fourteen
+vertical 18x14 entries stored from `0x87BBF0` in 0x20-byte steps.
+
+The serialized player-status definition table at Static.dat `0x26F2` is also
+source-closed: twelve ordinary definitions in order are Injured, Banned,
+International, Cup Tied, First Team, source-spelled "Subsitute", On loan,
+Out of contract, Transfer listed, Bid in, Wanted, and Non EU. Frames 0..11
+correspond to that ordinary source order; frames 12 and 13 are later native
+alternate Non-EU and On-loan frames.
+
+The implementation currently validates only the exact atlas/frame contract.
+It deliberately does **not** render the status column yet. Native resolver
+`0x418330` / override helper `0x418360` can replace fallback statuses using
+state the clean runtime does not yet represent exactly, most importantly the
+separate Cup-Tied collection and a special Non-EU registration branch.
+Rendering a fallback icon before those priorities are closed could therefore
+show a wrong status and remains fail-closed. Club-relative assignment is still
+unresolved as well.
+
+Next: source-close the remaining `0x418330` priority/override predicates and
+map only exact represented runtime state. If the missing Cup-Tied source state
+must be materialized first, do that as the next backend-safe slice before
+drawing status pixels. Then run focused/full CI, Windows package/smoke and
+asset-policy validation before merge. The mandatory normal Windows 11 #482
+acceptance remains external evidence and Gate 13 must not close before it
+passes.
+
+---
+
 # Recovery 334 continuation — PSCFRow numeric controls active
 
 _Updated 6 October 2026._
