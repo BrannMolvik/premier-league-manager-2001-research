@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "purpose": "Technical provenance contract for the UCRT64 toolchain used to build the Gate-17 minimal FFmpeg helper",
+  "successful_build_reference": {
+    "workflow_run": 37497778277,
+    "runner": "windows-latest",
+    "observed_msys2_installer_release": "0.0.20260927"
+  },
+  "pinned_actions": {
+    "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+    "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+    "msys2/setup-msys2": "ec48f7c5447b3140e2b088413ae3a55687bccb6e",
+    "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+  },
+  "required_package_versions": {
+    "msys2-runtime": "3.6.10-6",
+    "mingw-w64-ucrt-x86_64-gcc": "16.2.0-4",
+    "mingw-w64-ucrt-x86_64-binutils": "2.47-3",
+    "mingw-w64-ucrt-x86_64-nasm": "3.02-1",
+    "mingw-w64-ucrt-x86_64-cc-libs": "16.2.0-4",
+    "mingw-w64-ucrt-x86_64-crt": "14.0.0.r426.g4564ee4b5-1",
+    "mingw-w64-ucrt-x86_64-headers": "14.0.0.r426.g4564ee4b5-1",
+    "mingw-w64-ucrt-x86_64-libatomic": "16.2.0-4",
+    "mingw-w64-ucrt-x86_64-libgcc": "16.2.0-4",
+    "mingw-w64-ucrt-x86_64-libquadmath": "16.2.0-4",
+    "mingw-w64-ucrt-x86_64-libstdc++": "16.2.0-4",
+    "mingw-w64-ucrt-x86_64-libwinpthread": "14.0.0.r426.g4564ee4b5-1",
+    "mingw-w64-ucrt-x86_64-winpthreads": "14.0.0.r426.g4564ee4b5-1",
+    "mingw-w64-ucrt-x86_64-windows-default-manifest": "20260815-1"
+  },
+  "source_material_leads": {
+    "mingw-w64-gcc-16.2.0-4": "https://mirror.msys2.org/mingw/sources/mingw-w64-gcc-16.2.0-4.src.tar.zst",
+    "mingw-w64-binutils-2.47-3": "https://mirror.msys2.org/mingw/sources/mingw-w64-binutils-2.47-3.src.tar.zst",
+    "mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1.src.tar.zst"
+  },
+  "complete_package_lock": false,
+  "source_material_complete": false,
+  "legal_compliance_claimed": false,
+  "boundary": "This receipt pins build-tool identity and an audited critical package subset only. It does not assert that every transitive build package, corresponding source archive, license text, redistribution notice, or legal obligation has been collected."
+}
