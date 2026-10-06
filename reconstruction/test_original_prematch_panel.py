@@ -28,6 +28,14 @@ from original_prematch_panel import (
     PREMATCH_WEATHER_LANGUAGE_GLOBALS,
     PREMATCH_RATING_LABELS,
     PREMATCH_RATING_LANGUAGE_GLOBALS,
+    PREMATCH_FIXTURE_HEADER_RECT,
+    PREMATCH_DATE_WEATHER_RECT,
+    PREMATCH_BADGE_RECTS,
+    PREMATCH_TEAM_IDENTITY_RECTS,
+    PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+    PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_RATING_CAPTION_RECTS,
     PREMATCH_CHILD_SETUP_VA,
     PREMATCH_CHILD_ARRAY_OFFSET,
     PREMATCH_CHILD_COUNT_OFFSET,
@@ -301,6 +309,40 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])
+
+    def test_identity_control_geometry_and_styles_are_exact(self):
+        def rect(r):
+            return (r.x, r.y, r.width, r.height)
+
+        self.assertEqual(rect(PREMATCH_FIXTURE_HEADER_RECT), (250, 45, 300, 30))
+        self.assertEqual(rect(PREMATCH_DATE_WEATHER_RECT), (250, 70, 300, 16))
+        self.assertEqual(
+            tuple(rect(r) for r in PREMATCH_BADGE_RECTS),
+            ((38, 1, 135, 93), (627, 1, 135, 93)),
+        )
+        self.assertEqual(
+            tuple(rect(r) for r in PREMATCH_TEAM_IDENTITY_RECTS),
+            ((184, 4, 185, 39), (374, 5, 52, 37), (429, 4, 185, 39)),
+        )
+        self.assertEqual(PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA, 0x87BE30)
+        self.assertEqual(
+            PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+            (0x87BE80, 0x87BE70, 0x87BE80),
+        )
+        self.assertEqual(PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA, 0x87BEA0)
+        self.assertEqual(
+            tuple(rect(r) for r in PREMATCH_RATING_CAPTION_RECTS),
+            (
+                (37, 498, 25, 14),
+                (37, 516, 25, 14),
+                (37, 534, 25, 14),
+                (37, 552, 25, 14),
+                (737, 498, 25, 14),
+                (737, 516, 25, 14),
+                (737, 534, 25, 14),
+                (737, 552, 25, 14),
+            ),
+        )
 
     def test_child_array_is_complete_forward_native_draw_order(self):
         self.assertEqual(PREMATCH_CHILD_SETUP_VA, 0x4967F0)
