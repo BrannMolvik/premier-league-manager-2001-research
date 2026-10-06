@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 369: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 222a6bd80399c4b0cccb742a38178640c1ac31ab. Continue the exact Gate-14 work-ahead task: recover remaining PPreMatchPanel text/team/player identity controls and cross-layer setup/draw order required for a complete native pre-match frame; keep management-to-match launch, unresolved 3D presentation, and Gate 14 completion fail-closed.",
-  "last_known_main_head": "222a6bd80399c4b0cccb742a38178640c1ac31ab",
+  "active_task": "Recovery 369: PR #508 merged source-closing PPreMatch identity/text controls and the 182-child native paint order. Continue by reconciling the separately persisted recovery368-prematch-player-rows work onto current main, then recover starting-XI pitch-marker placement/state, player-row content/state, selector visual state, and complete-frame assembly without inventing management launch or 3D presentation.",
+  "last_known_main_head": "065eeb8303afe1c6621dd37ab110e39c9db9f4a1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 369,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 369: resumed from fresh-chat fallback after no repository progress; continuing PPreMatch text/team/player identity and setup/draw-order trace from canonical 222a6bd.",
+  "note": "Recovery 369: merged PR #508 at main 065eeb8303afe1c6621dd37ab110e39c9db9f4a1; continuing persisted player-strip branch reconciliation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
