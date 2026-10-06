@@ -181,6 +181,41 @@ PREMATCH_WEATHER_LANGUAGE_GLOBALS = (
 PREMATCH_RATING_LABELS = ("GK", "DEF", "MID", "ATT")
 PREMATCH_RATING_LANGUAGE_GLOBALS = (0x983BE4, 0x983B70, 0x983B6C, 0x983B68)
 
+# PPreMatchPanel::0x4967F0 allocates exactly 0x2D8 bytes for 182 child
+# pointers, stores that array at +0x1C, stores count 0xB6 at +0x38, and fills
+# every index 0..181. Generic traversal 0x6533A0 is already source-closed as
+# forward index order, so these ranges are native paint order rather than
+# constructor-order inference.
+PREMATCH_CHILD_SETUP_VA = 0x4967F0
+PREMATCH_CHILD_ARRAY_OFFSET = 0x1C
+PREMATCH_CHILD_COUNT_OFFSET = 0x38
+PREMATCH_CHILD_ARRAY_BYTES = 0x2D8
+PREMATCH_CHILD_COUNT = 0xB6
+PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA = 0x6533A0
+PREMATCH_CHILD_ORDER_RANGES = (
+    ("live_background", 0, 0),
+    ("pitch", 1, 1),
+    ("top_bar", 2, 2),
+    ("fixture_header", 3, 3),
+    ("date_weather_line", 4, 4),
+    ("team_badges", 5, 6),
+    ("team_identity_text", 7, 9),
+    ("starting_xi_pitch_markers", 10, 31),
+    ("side0_starter_rows", 32, 64),
+    ("side0_slots_11_17", 65, 92),
+    ("side1_starter_rows", 93, 125),
+    ("side1_slots_11_17", 126, 153),
+    ("rating_bar_layers", 154, 169),
+    ("rating_captions", 170, 177),
+    ("match_detail_selectors", 178, 181),
+)
+PREMATCH_SELECTOR_CHILD_MODES = (
+    MatchDetailMode.QUICK_MATCH,
+    MatchDetailMode.FASTVIEW,
+    MatchDetailMode.THREE_D_HIGHLIGHTS,
+    MatchDetailMode.THREE_D_MATCH,
+)
+
 PREMATCH_TEAM_BADGE_ROOT = r"FM2001_art\generic\team_badge_stills"
 PREMATCH_TEAM_BADGE_VARIANT_KEY = "badge_2"
 PREMATCH_TEAM_BADGE_FALLBACK = (
@@ -463,6 +498,15 @@ def prematch_panel_contract() -> dict:
         "weather_language_globals": PREMATCH_WEATHER_LANGUAGE_GLOBALS,
         "rating_labels": PREMATCH_RATING_LABELS,
         "rating_language_globals": PREMATCH_RATING_LANGUAGE_GLOBALS,
+        "child_setup_va": PREMATCH_CHILD_SETUP_VA,
+        "child_array_offset": PREMATCH_CHILD_ARRAY_OFFSET,
+        "child_count_offset": PREMATCH_CHILD_COUNT_OFFSET,
+        "child_array_bytes": PREMATCH_CHILD_ARRAY_BYTES,
+        "child_count": PREMATCH_CHILD_COUNT,
+        "generic_forward_traversal_va": PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA,
+        "child_order_ranges": PREMATCH_CHILD_ORDER_RANGES,
+        "selector_child_modes": tuple(int(mode) for mode in PREMATCH_SELECTOR_CHILD_MODES),
+        "child_draw_order_source_closed": True,
         "team_badge_root": PREMATCH_TEAM_BADGE_ROOT,
         "team_badge_variant_key": PREMATCH_TEAM_BADGE_VARIANT_KEY,
         "team_badge_fallback": PREMATCH_TEAM_BADGE_FALLBACK,
