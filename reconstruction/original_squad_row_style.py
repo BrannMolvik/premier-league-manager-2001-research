@@ -13,7 +13,8 @@ from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 
-from ea_font import EAFont
+from ea_font import EAFont, EATextMask
+from original_squad_resources import SQUAD_FIRST_ROSTER_RECT, SQUAD_PANEL_RECT
 
 
 class OriginalSquadRowStyleError(ValueError):
@@ -159,3 +160,124 @@ def squad_name_rgb(
     if reserve_substitute:
         return SQUAD_NAME_RESERVE_SUBSTITUTE_RGB
     return SQUAD_NAME_DEFAULT_RGB
+
+
+@dataclass(frozen=True)
+class OriginalSquadRowTextOverlay:
+    text: str
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+    source_rgb: tuple[int, int, int]
+    font_source_path: str = SQUAD_ROW_FONT_SOURCE_PATH
+
+    def __post_init__(self) -> None:
+        if not self.text:
+            raise OriginalSquadRowStyleError("Squad row overlay text must be non-empty")
+        if self.width <= 0 or self.height <= 0:
+            raise OriginalSquadRowStyleError("Squad row overlay has no pixels")
+        if len(self.rgba) != self.width * self.height * 4:
+            raise OriginalSquadRowStyleError("Squad row overlay RGBA geometry mismatch")
+
+
+def _clip_mask(
+    mask: EATextMask,
+    *,
+    line_x: int,
+    line_y: int,
+    rect: tuple[int, int, int, int],
+) -> tuple[int, int, int, int, bytes] | None:
+    left, top, width, height = rect
+    right = left + width
+    bottom = top + height
+    out_left = max(line_x, left)
+    out_top = max(line_y, top)
+    out_right = min(line_x + mask.width, right)
+    out_bottom = min(line_y + mask.height, bottom)
+    if out_left >= out_right or out_top >= out_bottom:
+        return None
+    out_width = out_right - out_left
+    out_height = out_bottom - out_top
+    src_x = out_left - line_x
+    src_y = out_top - line_y
+    alpha = bytearray(out_width * out_height)
+    for row in range(out_height):
+        src = (src_y + row) * mask.width + src_x
+        dst = row * out_width
+        alpha[dst:dst + out_width] = mask.alpha[src:src + out_width]
+    return out_left, out_top, out_width, out_height, bytes(alpha)
+
+
+def _rgb_rgba(alpha: bytes, rgb: tuple[int, int, int]) -> bytes:
+    if (
+        not isinstance(rgb, tuple)
+        or len(rgb) != 3
+        or any(type(value) is not int or not 0 <= value <= 255 for value in rgb)
+    ):
+        raise OriginalSquadRowStyleError("Squad source RGB must be three bytes")
+    rgba = bytearray(len(alpha) * 4)
+    red, green, blue = rgb
+    for index, value in enumerate(alpha):
+        pos = index * 4
+        rgba[pos:pos + 4] = bytes((red, green, blue, value))
+    return bytes(rgba)
+
+
+def build_first_roster_name_overlays(
+    rows,
+    resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Raster the source-closed populated name controls for the first roster.
+
+    PSquadScreen control 3 exposes the first roster at +0x130. The clean-room
+    presenter currently supplies only that source-order viewport; reserve-list
+    membership remains outside this function.
+    """
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError(
+            "Squad row rendering requires verified source font resources"
+        )
+    panel_x, panel_y, _panel_width, _panel_height = SQUAD_PANEL_RECT
+    roster = SQUAD_FIRST_ROSTER_RECT
+    name_x, name_y, name_width, name_height = SQUAD_NAME_RECT
+    font = resources.font
+    overlays: list[OriginalSquadRowTextOverlay] = []
+
+    for row in tuple(rows):
+        row_y = getattr(row, "y", None)
+        text = getattr(row, "display_name", None)
+        rgb = getattr(row, "display_name_rgb", None)
+        if type(row_y) is not int:
+            raise OriginalSquadRowStyleError("Squad row y must be an integer")
+        if not isinstance(text, str) or not text:
+            raise OriginalSquadRowStyleError(
+                "Squad row display name must be source-resolved"
+            )
+        rect = (
+            panel_x + roster.x + name_x,
+            panel_y + roster.y + row_y + name_y,
+            name_width,
+            name_height,
+        )
+        mask = font.render_text_alpha(text)
+        # Native raw flags 0x21 mean left-aligned + vertically centered.
+        line_x = rect[0]
+        line_y = rect[1] + rect[3] // 2 - font.native_line_height() // 2
+        clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+        if clipped is None:
+            continue
+        x, y, width, height, alpha = clipped
+        overlays.append(
+            OriginalSquadRowTextOverlay(
+                text=text,
+                x=x,
+                y=y,
+                width=width,
+                height=height,
+                rgba=_rgb_rgba(alpha, rgb),
+                source_rgb=rgb,
+            )
+        )
+    return tuple(overlays)
