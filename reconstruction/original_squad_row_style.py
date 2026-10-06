@@ -162,6 +162,38 @@ def squad_name_rgb(
     return SQUAD_NAME_DEFAULT_RGB
 
 
+def squad_name_rgb_from_available_state(
+    *,
+    first_team_active: bool,
+    first_team_substitute: bool,
+    reserve_active: bool | None = None,
+    reserve_substitute: bool | None = None,
+) -> tuple[int, int, int] | None:
+    """Resolve color only when the available source state proves a branch.
+
+    0x5D6C50 checks the first-team predicates before the reserve-team pair.
+    Therefore first-team active/substitute can be resolved without reserve
+    state. If neither first-team branch applies, unknown reserve flags must not
+    be treated as false because that would fabricate the default yellow branch.
+    """
+    if type(first_team_active) is not bool or type(first_team_substitute) is not bool:
+        raise OriginalSquadRowStyleError(
+            "Squad first-team selection color states must be booleans"
+        )
+    if first_team_active:
+        return SQUAD_NAME_FIRST_TEAM_ACTIVE_RGB
+    if first_team_substitute:
+        return SQUAD_NAME_FIRST_TEAM_SUBSTITUTE_RGB
+    if reserve_active is None or reserve_substitute is None:
+        return None
+    return squad_name_rgb(
+        first_team_active=False,
+        first_team_substitute=False,
+        reserve_active=reserve_active,
+        reserve_substitute=reserve_substitute,
+    )
+
+
 @dataclass(frozen=True)
 class OriginalSquadRowTextOverlay:
     text: str
@@ -255,6 +287,10 @@ def build_first_roster_name_overlays(
             raise OriginalSquadRowStyleError(
                 "Squad row display name must be source-resolved"
             )
+        if rgb is None:
+            # The clean-room runtime does not currently model native reserve
+            # selection flags. Do not render a guessed default/reserve color.
+            continue
         rect = (
             panel_x + roster.x + name_x,
             panel_y + roster.y + row_y + name_y,
