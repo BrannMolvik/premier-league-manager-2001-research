@@ -11796,3 +11796,27 @@ continues with ordinary Squad row display-name/color helpers.
 - Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
   acceptance. Exact source task continues with `0x4EF600` transfer lifecycle
   and `+0x198/+0x18` / `+0x1A0` / `0x8755E8/EC/F0` semantics.
+
+
+## 6 October 2026 KST — Recovery 344 ordinary-transfer bit-11 transition closed
+
+- Reverified the authorized source path from the 511,121,336-byte Library disc
+  archive and independently re-extracted canonical `footballmanager.exe`;
+  SHA-256 remains
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- `0x4EF600` has exactly two direct callers: native
+  `TransferDealConcluded` at `0x5EAEFD` and
+  `FreeTransferDealConcluded` at `0x5EAF57`. Both invoke it with mode 0.
+- The complete ordinary mutation `0x422F70` preserves bit 11 and ends in
+  `0x4192B0`; an already-active bit therefore keeps its registration cutoff
+  synchronized to the new contract expiry.
+- A positive post-transfer `0x421760` eligibility result sets bit 11 through
+  `0x41B4A0`; a negative result does not clear it. `0x418360 -> 0x41B4D0`
+  lazily creates a missing registration record before the frame-12 cutoff
+  predicate is evaluated.
+- No ordinary completed-transfer clear was found. The proven clear remains
+  full reset/removal `0x41AFE0`; `0x4185B0` also clears bit 11 only inside
+  its broader wholesale initialization/reset sequence.
+- Exact next source task is now the mode-1 Cup-Tied embedded value and cutoff
+  lifecycle: DBRPlayer `+0x198/+0x18`, gate `+0x1A0`, and globals
+  `0x8755E8/EC/F0`. No new live status frame is enabled by this checkpoint.
