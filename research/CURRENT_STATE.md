@@ -1,3 +1,68 @@
+# Recovery 350 continuation — minimal FFmpeg exact-source build proven; synthetic roundtrip next
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `b150555fe306897a6262c8a5d63b14aa0014add0`,
+which merges PR #479 after the minimal FFmpeg helper was built successfully
+from pinned FFmpeg source commit
+`46d8f462eeb87ee1f704d8c44a0ee24fca471ad1`.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** until
+Daniel completes the required normal Windows 11 acceptance on artifact
+`11418314765`. No newer external acceptance result is recorded.
+
+PR #479 exact-head `f351d4a6b9cecdda7ff955e2b4ed006a4bfcea0d`
+passed:
+
+- repository asset policy run `37493526627`;
+- Windows package run `37493526852`;
+- full reconstruction run `37493526625`;
+- Gate-17 minimal FFmpeg build proof run `37493526702`.
+
+The build proof confirms:
+
+- `ffmpeg.exe` SHA-256
+  `e3539ce6cac1c59bc8a2dc6bcb1de44e842a91fde35654465a6b88bdaf52601b`;
+- `ffprobe.exe` SHA-256
+  `284e142e24745b0232d3b4cea4f3ba6eaa10bdbe7c022e0d98dca9b8040118c4`;
+- required EA/TGQ + H.264/AAC decode surface;
+- `h264_mf` and native AAC encoders;
+- EA/MOV demuxers, MP4/null muxers, file/pipe protocols,
+  `aresample` and canonical `scale` filter;
+- no GPL/nonfree/version3 or `--enable-lib*` flags;
+- no forbidden MinGW/MSYS runtime DLL imports after
+  `--extra-ldflags=-static`;
+- source license hash
+  `246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30`.
+
+Build-proof artifact `11427426305`,
+`gate17-minimal-ffmpeg-build-f351d4a6b9cecdda7ff955e2b4ed006a4bfcea0d`,
+has Actions digest
+`sha256:4212031a6c800b6fee212d9edabc00a1ccf79266c1bf1cb392232367bd901264`
+and expires 20 October 2026.
+
+This does **not** promote production FFmpeg. The receipt correctly keeps
+synthetic roundtrip, exact original TGQ, external Windows playback,
+source-material completeness, production migration readiness, and legal
+compliance claims false.
+
+Exact next cloud-safe task: refresh
+`chatgpt/gate17-minimal-ffmpeg-roundtrip-r349` onto this main and run the
+same-build synthetic canonical startup roundtrip. The pinned broad LGPL
+candidate may be used only as an ephemeral 320x480 H.264/AAC fixture generator;
+the newly built minimal helper itself must execute the recovered
+`scale=640:480:flags=neighbor` + `h264_mf` + AAC + MP4 path and
+decode-verify the output. If green, preserve the receipt and continue to the
+exact private original-TGQ conversion boundary when execution infrastructure
+permits.
+
+The private Gate-13 Cup-Tied trace remains execution-sandbox-deferred at
+`0x422E7E -> CPlayerTransferHistory::0x4EBF60` and globals
+`0x8755E8/0x8755EC/0x8755F0`; trivial local process execution still returns
+`caas.internal.errors.ClientError`.
+
+---
+
 # Recovery 347 continuation — packaged PStartMenu blocker fixed; Gate 13 external acceptance ready
 
 _Updated 6 October 2026._
