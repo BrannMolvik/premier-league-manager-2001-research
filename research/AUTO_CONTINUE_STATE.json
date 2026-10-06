@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Validate and finish recovery330-squad-row-style at head ef0e5195: source-bound ordinary PSquadPlayerRow display-name formatting/colors and first-roster name raster integrated into the Gate-13 host. Open hosted validation, fix regressions, merge only after green evidence, then continue the next canonical Gate-13 task. Windows 11 acceptance remains deferred external evidence.",
-  "last_known_main_head": "1301a333bc8c2d8372410c83f3af710ed2bb14fc",
+  "active_task": "PR #489 is merged at main 1a24b456 after green reconstruction, Gate-13, Windows-package and asset-policy CI. Continue the next source-backed Squad fidelity slice: bind the PSquadPlayerRow assigned-role control to the runtime Position record +0x0C localized abbreviation, project that original abbreviation from state.positions, and raster it at native (28,1,38,14) with the already recovered preferred/out-of-position RGB contract. Keep reserve colors/status icons/club-relative assignment fail-closed. Windows 11 acceptance remains deferred external evidence.",
+  "last_known_main_head": "1a24b456f763a8f8899b2eb940a8316bf35aef2b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 332,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 332 resumed persisted Squad-row branch ef0e5195 on unchanged main 1301a333; opening CI validation before merge.",
+  "note": "PR #489 merged after all four validations. Native Position record initializer proves +0x0C is the second localized string field after +0x08 name; Static.dat parser order is name then abbreviation, so Squad role text can now be source-bound to Position.abbreviation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
