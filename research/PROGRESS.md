@@ -11439,3 +11439,460 @@ work may continue under the deferred-blocker policy.
 - Windows CI now exercises `-fps_mode passthrough` and independently probes H.264/yuv420p 320x480@25, AAC 22,050-Hz stereo and MP4 before decode verification.
 - Exact original-TGQ conversion and production migration remain false because private archive execution is still unavailable.
 
+## 6 October 2026 — Recovery 321 minimal FFmpeg source-contract audit
+
+- Recovery resumed from canonical main `a57ba974c051ef2db29dfe17ec867acb6aaf40bb`; Gate 14 remains the earliest incomplete validation gate and its WPF startup-video visible/audible acceptance remains a deferred real-Windows user-action blocker.
+- PR #475 and stacked PR #479 were audited before promotion. Both are non-mergeable against current `main` because their branches are stale relative to later canonical work.
+- #475's own reconstruction, Windows-package and asset-policy checks were green, but #479 exact-source build run `37352166679` provided stronger evidence and failed in pinned FFmpeg `libavcodec/mfenc.c` with missing D3D11 types.
+- Pinned-source inspection confirmed the cause: `mfenc.c` includes `hwcontext_d3d11va.h` only when `CONFIG_D3D11VA` is enabled, while the Media Foundation encoder uses D3D11 types. The minimal contract disables autodetection, restores Media Foundation, but does not explicitly restore D3D11VA.
+- Review directives were posted to #475 and #479. Do not merge either as-is. Correct #475's source contract first, preserving all fail-closed proof flags and production packaging; then rebuild #479 from the corrected canonical contract.
+
+## 6 October 2026 — Recovery 322 external playability regression audit
+
+- Issue #482 is now the priority regression after Daniel's real Windows 11 run showed a separate/wrong-aspect WPF startup presentation, multi-second front-end interaction latency and a materially incomplete Southport fresh Squad landing.
+- Static reconciliation confirmed commit `72aedde11690ecaa2d9290482b477eb1440f44a7` first-screen redraw caching is still canonical; the large `startup.presenter_build` cost is cold source conversion rather than a lost redraw-cache fix.
+- `FrontEndSession.dispatch()` still builds the full `HumanGameplayController` synchronously on Start New Game, including full playable-scope/database/schedule/GameState construction.
+- The first management path still loads Fixtures, League Tables and PMatchInfo families before Squad can draw; this broad bundle had previously measured 16.724 seconds externally.
+- The management presenter already exposes up to 20 source-backed Squad rows with recovered row cadence/columns and source font identities, but the live host draws only the three Squad top buttons. This converts the sparse screenshot from a fidelity suspicion into a confirmed implementation omission.
+- The WPF startup backend's separate maximized/topmost window and `Stretch=Uniform` are implementation choices while the original 320x480 display/interlace treatment remains explicitly unresolved; visible/audible playback does not close that fidelity boundary.
+- Detailed implementation/acceptance directions were persisted on issue #482 (comment 6001127354). Gate 13 was reopened in ROADMAP; #475/#479 remain suspended until the regression is CI-verified and externally accepted.
+- Exact next implementation slice: route-scope the management resource loader and render the source-closed ordinary Squad row subset, with tests proving fresh Squad does not initialize Fixtures/Tables/PMatchInfo.
+
+## 6 October 2026 — Recovery 322 native startup-FMV geometry trace
+
+- The authorized 511,121,336-byte Library ZIP materialized successfully. The container shell path still fails with `caas.internal.errors.ClientError`, but notebook Python can now read it.
+- The notebook extracted the 631,627,248-byte MODE1/2352 track, enumerated the Joliet level-3 filesystem, extracted root `footballmanager.exe`, and reverified canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Exact disassembly of `0x461900` proves startup playback creates a **640x480** movie surface. Active display mode 0 maps to 640x480 with offset (0,0); mode 1 maps to 800x600 with offset (80,60).
+- Present callback `0x461CD0` blits source rectangle (0,0)-(640,480) to destination (offset)-(offset+640x480) on the game-owned DirectDraw display surface.
+- Therefore the current separate maximized WPF `MediaElement.Stretch=Uniform` path is source-incompatible with the original player-visible geometry, not merely aesthetically different.
+- The exact 320x480 TGQ -> 640x480 decoder interpolation/duplication and interlace treatment remain unresolved and are not guessed.
+- Phase-1 #482 priority remains route-scoped management loading + source-closed Squad rows; this FMV trace defines the later evidence-backed presentation repair contract.
+
+
+## 6 October 2026 — Recovery 323 issue #482 Phase-1 route-loading checkpoint
+
+- Resumed from canonical main `e9635ee0f0ad9351427a311f8c14a79a3180d727` and opened PR #483 from branch `recovery323-issue482-phase1-route-load`.
+- Fresh MANAGEMENT resource ownership is now route-scoped: the initial Squad landing requests only PMenu, Squad top controls, management background and management header. Fixtures/grid/pager/PMatchInfo and League Tables/text resources remain unset until their panel family is requested.
+- Expensive family decode remains off the Tk thread. The host now records the active family, blocks re-entrant management input during every family decode, surfaces worker failures fail-closed, and caches successfully loaded families for the rest of the session.
+- Deterministic tests now assert fresh Squad excludes Fixtures, League Tables and PMatchInfo, and host-level source-accepted Fixtures / League Tables navigation requests each deferred family once and then reuses it.
+- Gate-13 CI run `37367326351` exposed one test-only lifecycle error: the first version of the later-family failure test fabricated MANAGEMENT without completing TeamSelect Start. The branch was corrected to enter MANAGEMENT through the real New Game -> TeamSelect -> Start lifecycle at commit `905dab690cf452c0c34644aec3f9a6bbe2605a49`.
+- Current PR head is `c300c23002d116a0bd74665528a5acaec28d3055`. Replacement Gate-13, reconstruction, asset-policy and Windows-package runs are queued; no active GitHub-hosted runner is currently executing them, so this checkpoint makes no green-CI claim.
+- The source-closed Squad-row renderer remains the unresolved half of Phase 1. Retained private trace proves PSquadPlayerRow role geometry `(28,1,38,14)`, display-name helper geometry `(76,1,144,14)`, the 18px Zurich player font, and an explicit branch-selected native packed color before role text construction. The display-name helper `0x5D6C50` contains its styling internally and its body is not present in the retained trace.
+- Public original Windows screenshots corroborate light ordinary row text, but they are not used to replace the missing executable branch semantics. No white/modern color substitute has been introduced.
+- The authorized original disc archive is available in the connected Library, but container, notebook Python and the separate visible Python runtime all currently fail at process start with `caas.internal.errors.ClientError`. Exact helper/pixel-format tracing is therefore an infrastructure-deferred evidence blocker. Do not infer `0x4EA3F0` / `0x5D6C50` semantics until executable inspection is healthy.
+
+
+## 6 October 2026 — Recovery 325 route-loading revalidation checkpoint
+
+- Independent fail-closed Squad helper tracing PR #484 passed its focused Gate-13 and asset-policy checks and merged to `main` as `b8fab87b63cb5daa0f01489e6c3413adc5c76c5b`.
+- PR #483's ledger-corrected head `8d932e82206d33e142ac9d2b421f42bee6bf4003` had already passed Windows packaging and repository asset policy.
+- Its queued Gate-13 workflow was then cancelled while the base branch advanced; GitHub reported the workflow run as failed even though no test assertion executed. This checkpoint deliberately resynchronizes the PR so hosted checks run again against the current `main` merge base.
+- The route-loading implementation itself is unchanged by this checkpoint: fresh Squad remains limited to PMenu/Squad/background/header resources; Fixtures/PMatchInfo and League Tables remain deferred and cached by route; management input remains blocked during every active family decode.
+- The ordinary Squad row renderer is still evidence-open on exact packed-color/display-name helper semantics and is not claimed complete here.
+
+
+## 6 October 2026 — Recovery 326 Phase-1/Phase-2 #482 latency checkpoint
+
+- PR #483 completed the route-scoped management-loader slice and merged as
+  `4c045b0b75fc4d6061e06e23d8089c2a08a5c475` after reconstruction
+  `37372720405`, Gate-13 `37372720352`, asset-policy `37372720354` and
+  Windows-package `37372720390` all passed.
+- Fresh Squad now initializes only its own management shell/background/header
+  resources. Fixtures/PMatchInfo and League Tables are deferred to their routes,
+  remain asynchronous/fail-closed and are reused after the first successful
+  family load.
+- PR #485 then split canonical TeamSelect from full gameplay-world
+  materialization. New Game verifies/parses the canonical database and exposes
+  the same country/competition/club hierarchy without constructing GameState or
+  the primary schedule; Start builds gameplay from that exact already-parsed
+  database.
+- During verification, CI caught three fixture/audit assumptions rather than
+  production regressions: the presentation-separation audit needed to recognize
+  both lazy gameplay factories, the new catalog-render test needed native
+  TeamSelect strips/fonts, and its hierarchy art needed the complete native
+  23-frame animation / 5-frame league-bar groups. Those tests were corrected
+  without weakening production fail-closed behavior.
+- Final PR #485 head
+  `b8efab946ad8a834fabd3b3286f6a64e4efd0dae` passed Gate-13
+  `37376279197`, asset-policy `37376279127`, and full reconstruction
+  `37376279059`; it merged as
+  `3c325a5d1d81b44d1f43da6dc53d4d1e33f988f1`.
+- The eager `FM2001Database` parse remains on New Game by design for this
+  bounded step. External `teamselect.catalog_build` timing will determine
+  whether a narrower parser is justified.
+- Ordinary Squad rows remain evidence-blocked on exact `0x4EA3F0` /
+  `0x5D6C50` semantics, and the process sandbox still fails at startup with
+  `caas.internal.errors.ClientError`. No guessed text color was introduced.
+- Cold-start derivative analysis confirmed the render-ready PStartMenu bundle is
+  deterministic (800x600 RGBA background, 23 169x25 RGBA button frames and four
+  caption masks/metadata), but package-independent regeneration still requires
+  exact source-proven EA444 decoder inputs or a separately proved clean-room
+  equivalent.
+
+## 6 October 2026 KST — Recovery 329 PStartMenu derivative promoted
+
+- PR #486 merged as `32f02fc86f0eb404c0f410cbceb131f56f0ddaf0`.
+- Recovered and provenance-tracked the exact canonical executable-derived EA444
+  TQIA/quantization inputs, then generated the PStartMenu derivative twice in
+  Gate-13 CI and required byte-identical results.
+- Staged canonical manifest
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`
+  and XZ payload
+  `2428510481442c5334bbdce806bd9c9919ce1a59f1d321c536432d5501199697`.
+- Default runtime now uses the independently pinned derivative and fails closed
+  on drift; custom source-root research retains the original source decode.
+- Final-head validation passed Gate-13 `37386883275`, Windows package
+  `37386882889`, asset policy `37386883101`, and full reconstruction
+  `37386883155`.
+- Gate 13 remains open for ordinary Squad rows, source-faithful startup-FMV
+  presentation, and Daniel's final Windows 11 acceptance/timing run.
+- Fresh FMV tracing confirms real `pIQT` headers store 320x480 while startup
+  creates/blits a 640x480 DirectDraw movie surface. The exact state-4
+  pixel-expansion/pixel-format relationship remains under source trace; no
+  interpolation method is yet claimed.
+
+
+## 2026-10-06 Recovery 330 — startup FMV 320x480 -> 640x480 pipeline recovered
+
+Canonical executable re-analysis closed the remaining startup-movie geometry ambiguity.
+The exact TGQ header remains 320x480. The shared wrapper at 0x461E20 passes flag
+0x40 into the movie player; rectangle builder 0x69D5C0 uses that bit to double
+only the destination width. Normal state-1 presentation therefore asks DirectDraw
+to Blt the full 320x480 decoder/intermediate surface into a 640x480 destination
+rectangle. The game-level callback then blits that completed 640x480 movie surface
+1:1 into the active game display, at (80,60) in the ordinary 800x600 mode.
+
+The decoder output path explicitly attempts FourCC YUY2 at 320x480 and has a
+width*height*2 CPU fallback. The final movie surface itself is created with BPP=-1,
+so it follows the active DirectDraw format; the decoder queries that surface's
+actual pixel masks rather than hard-coding one final display BPP.
+
+Important fidelity boundary: the executable proves the 2x horizontal DirectDraw
+stretch, but does not encode a unique resampling kernel. Do not promote
+nearest-neighbor/bilinear/bicubic as recovered behavior without further evidence.
+
+Persisted detailed evidence: research/STARTUP_FMV_PIXEL_PIPELINE.md at main
+3226956ac65f9e9e1450b9a5bf83c4a96771613c.
+
+Next: apply the recovered 640x480 display contract to the modern startup-media
+path, preserving exact TGQ provenance and avoiding an unsupported interpolation
+claim. The separate top-level WPF feel remains an external Gate-13 issue and the
+final path still requires Daniel's Windows 11 acceptance.
+
+
+### 6 October 2026 KST — Recovery 330 FMV writer audit and game-window integration
+
+Merged PR #487 as `421a3e1c` after independently re-extracting and hashing the
+canonical executable and auditing the worker's stronger pixel-pipeline claim.
+The earlier same-recovery hypothesis that DirectDraw supplied an unspecified
+320->640 stretch was superseded by deeper writer evidence: startup flag 0x40
+routes through `0x69DCC0`, which emits 0x40 bytes for each 16 coded
+horizontal samples versus 0x20 in ordinary `0x69DC20`; color-table helper
+`0x69C1A0` mirrors packed 16-bit channel contributions into +16-bit
+positions, proving two identical adjacent pixels per coded sample. Ordinary
+game BPP is initialized to 16 at `0x615256`.
+
+The compatibility derivative is therefore source-backed at 640x480 with exact
+2x horizontal nearest duplication. The same PR also removes the separate
+maximized WPF top-level player: startup MediaElement playback is bound as a
+child HWND of the realized fullscreen FM2001 Tk host at the source-backed
+movie rectangle. PR-head full reconstruction, Gate-13 presentation,
+asset-policy and Windows-package workflows passed.
+
+Gate 13 remains open pending merged-head verification plus Daniel's
+human-visible/audible Windows 11 acceptance. Independent cloud-safe work
+continues with ordinary Squad row display-name/color helpers.
+
+
+## 6 October 2026 KST — Recovery 332 Squad row text/color continuation
+
+- PR #489 merged as `1a24b456f763a8f8899b2eb940a8316bf35aef2b`.
+- Canonical executable analysis closed ordinary `PSquadPlayerRow` display-name
+  formatting, five native selection-color branches, the exact 18px Zurich font,
+  and preferred-role color selection.
+- The live fresh Squad host now draws source-formatted first-roster player names
+  at the native `(76,1,144,14)` row control. First-team active/substitute
+  colors are rendered when proven; names whose color depends on the still
+  unmodeled reserve `+0x174` flags are withheld instead of guessed.
+- PR #489 final-head validation passed full reconstruction `37399160903`,
+  Gate-13 presentation `37399160894`, Windows package `37399160807`, and
+  repository asset-policy `37399160815`.
+- Follow-up private analysis proves the assigned-role control reads runtime
+  Position record `+0x0C`, which is the second localized string field and
+  corresponds to the original parsed `Position.abbreviation`. The role control
+  is centered in native `(28,1,38,14)` with the same 18px Zurich font.
+- Recovery-332 implementation now projects that abbreviation from
+  `state.positions` and rasterizes it using the exact source RGB branch:
+  preferred role `(255,255,255)`, out-of-position `(0,0,125)`.
+- Native packed-16 display masks, reserve selection colors, status icon meaning,
+  and club-relative assignment remain explicitly unresolved. Gate 13 remains
+  open for the real Windows 11 playability/visual acceptance required by #482.
+
+## 6 October 2026 KST — Recovery 334 PSCFRow numeric continuation
+
+- Re-extracted the canonical authorized root executable and reverified SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Source-closed `PSCFRow::0x489B40` Condition, recent-form and current-role
+  rating presentation: exact side-list offset, 19x14 controls, centered
+  `0x24` text flags, condensed 18px Zurich font, `%N` / `%.N` numeric
+  formatting, strict Condition `>75` threshold, and fresh-state RGB branches.
+- Recovery branch `recovery334-squad-scf-numeric` renders only those three
+  resolved numeric fields alongside the already merged role/name controls.
+  Native status icon and club-relative assignment remain unresolved.
+- Gate 13 / issue #482 still cannot close without Daniel's normal Windows 11
+  playability/visual acceptance.
+
+## 6 October 2026 KST — Recovery 335 Squad status atlas continuation
+
+- PR #491 merged the source-backed PSCFRow Condition, recent-form and
+  current-role-rating controls after focused Gate 13, full reconstruction,
+  Windows package/smoke and asset-policy validation all passed.
+- Recovery 335 imported the exact original
+  `FM2001_Art/Generic/status.png` and pinned its 18x196 geometry, fourteen
+  vertical 18x14 frames, 4,015-byte size and SHA-256
+  `59cd053c93ea789a010d813f46f650c2e4c16ea46163c63ae01209f69e4f5b1b`.
+- The Static.dat player-status table is now source-closed for its twelve
+  ordinary definitions and frame order; native frames 12/13 are alternate
+  Non-EU/On-loan variants.
+- Live status rendering remains deliberately fail-closed because resolver
+  `0x418330` / override helper `0x418360` can supersede ordinary fallback
+  state using Cup-Tied and special Non-EU registration state that the clean
+  runtime does not yet model exactly.
+- PR #492 is the current validation candidate. Gate 13 / issue #482 remains
+  open, including the mandatory normal Windows 11 playability/visual acceptance.
+
+
+
+## 6 October 2026 KST — Recovery 336 direct Squad status continuation
+
+- Recovered the exact `0x401DE0 -> 0x418330 -> 0x418360` PSCFRow status
+  priority chain from the hash-verified original executable.
+- Static.dat status index 2 now source-closes `DBRPlayer+0x14` bit 2 as
+  **International**, superseding the older neutral selection-exclusion label.
+- Frames 0/1/2 (Injured/Banned/International) return before every later
+  override and are therefore safe to render directly.
+- Lower-priority status rendering remains withheld because Cup-Tied and the
+  special Non-EU registration-record predicate are not yet fully represented
+  by the clean runtime.
+- Branch `recovery336-squad-direct-status` decodes the pinned original
+  `status.png`, projects only override-safe status indices, and places them at
+  the exact PSCFRow geometry; first visible status origin is `(277,234)`.
+
+
+## 6 October 2026 KST — Recovery 338 Cup-Tied runtime state
+
+- Recovered the exact persistent Cup-Tied producer/lookup semantics from the
+  hash-verified original executable.
+- `0x41B7E0` receives the optional qualifying root-competition context and
+  inserts DBRPlayer ID + current club through `0x4F8E20 -> 0x4E9690` only for
+  players who actually appeared in the completed match.
+- `0x4E9690` inserts at most one record per player; the first recorded club is
+  never rewritten. `0x4E9710` reports Cup-Tied only when a later query supplies
+  a different current club.
+- Root ownership is exact: `0x4F3DC0` walks parent competitions and virtual
+  +0x18 enables Cup/DummyLeague roots while rejecting ordinary League roots.
+- Added `reconstruction/cup_tied_state.py` plus focused collection and
+  GameState integration tests. The shared post-match path now records appeared
+  players against the exact root context, including League children under Cup
+  roots.
+- Internal save schema advanced from 44 to 45 and now preserves root Cup-Tied
+  collections across reload. Duplicate saved player records fail closed instead
+  of silently rewriting first-club semantics.
+- Detailed source evidence is persisted in
+  `research/GATE13_CUP_TIED_RUNTIME.md`.
+- PR #494 is the validation candidate. Repository asset-policy run
+  `37417026505` passed; full reconstruction run `37417026467` was still in
+  progress at this checkpoint.
+- PSCF frame 3 is not yet exposed. `0x418360` still gives higher priority to
+  alternate On-loan and special Non-EU states, and `0x418480` includes
+  current-calendar competition/date logic around the collection lookup. Those
+  predicates are the exact next source-backed status task after this candidate
+  merges. Gate 13 / issue #482 remains open for mandatory human Windows 11
+  acceptance.
+
+
+## 6 October 2026 KST — Recovery 341 source-qualified Squad status candidate
+
+- Recovered the remaining safe positive `0x418480` boundary from the canonical
+  executable and retained competition packed +0x24 as exact Cup restriction
+  mode input.
+- Completed the live PSCF wiring on `recovery340-squad-cup-tied-resolver`:
+  direct 0/1/2 remain first, exact alternate On-loan can publish frame 13,
+  unresolved Non-EU blocks lower output, and frame 3 requires a positive
+  current-day Cup-Tied collection lookup.
+- The source bridge requires the pending primary entry to still exist in the
+  recovered order for the global current date before it can supply a positive
+  Cup-Tied signal. Missing/ambiguous context remains fail-closed.
+- Added focused tests for resolver priority, presenter integration, and the
+  current-day bridge predicate.
+- Next boundary is candidate CI/merge. After merge, the mode-1 negative
+  transfer-history cutoff and the special Non-EU registration lifecycle remain
+  unresolved; Gate 13 / issue #482 also still requires normal Windows 11 human
+  acceptance.
+
+
+## 6 October 2026 KST — Recovery 341 PR #495 merged
+
+- PR #495 merged as `0a91c088f14f5988ab96430de5dc9239b24457cf`, publishing only source-qualified Squad
+  status outcomes: direct 0/1/2, alternate On-loan frame 13, and positively
+  proven current-day Cup-Tied frame 3. Non-EU and unresolved negative paths
+  remain fail-closed.
+- Final candidate validations all passed: Gate-13 presentation
+  `37424300671`, asset policy `37424300703`, Windows package/smoke
+  `37424300615`, and full reconstruction `37424300721`.
+- Windows package run `37424300615` uploaded artifact `11394291084`,
+  `FM2001-Windows11-94a620839624f293c0d4343f7e42c9ddfb31d549`,
+  digest
+  `sha256:8fb7c6359a42a78a30f5c5ea91940789214725bf6d76818353adb2f13f9afb62`.
+- Gate 13 / #482 remains open for Daniel's real Windows 11 acceptance.
+- Audit of Gate-14 acceptance tooling found a concrete drift: the startup-media
+  audit still requires `WindowsMciStartupMediaBackend`, while canonical normal
+  Windows launch now uses the game-owned child-window
+  `WindowsWpfStartupMediaBackend`. That audit is the next independent
+  cloud-safe repair so future external evidence cannot certify an obsolete
+  playback transport.
+
+
+## 6 October 2026 KST — Recovery 341 Gate-14 startup acceptance drift repair
+
+- Audited the existing external startup-media harness after the issue-#482 WPF
+  child-window repair and found it still certifying the obsolete MCI transport.
+- Work-ahead branch `recovery341-gate14-wpf-startup-acceptance` replaces that stale direct replay with the
+  canonical production boundary: exact `WindowsWpfStartupMediaBackend` passed
+  through `run_original_game_ui()`, bound by `OriginalGameTkHost` to the
+  same child HWND and geometry used by normal startup.
+- Startup acceptance receipt schema advances to 2. The external coordinator now
+  rejects schema-1/MCI evidence and requires production-host, child-HWND,
+  source-geometry and game-owned human-confirmation fields.
+- The confirmation token is `YES-GAME-WINDOW`; it covers both clips visible,
+  both audible, source order, embedded ownership and no obvious aspect
+  distortion. Native skip/fade timing and broad exact DirectDraw treatment stay
+  explicitly false.
+- Gate 13 remains the earliest incomplete gate; no external Windows receipt has
+  been produced by this cloud-safe work.
+
+
+## 6 October 2026 KST — Recovery 342 native Squad status lifecycle trace
+
+- PR #496 was exact-head validated and merged to canonical main as
+  `3c17eaa1dc5a9491699d92ec99489bb796660753`; its Gate-14 production-WPF startup acceptance repair does not
+  close Gate 13.
+- The authorized source archive was rematerialized and canonical
+  `footballmanager.exe` re-extracted from the MODE1/2352 Joliet image. Its
+  SHA-256 again matches
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- First-hand disassembly ties `0x421760` directly to loaded-player bit-11
+  initialization and registry creation. Registration-record cutoff `+0x14`
+  is the player's source-closed contract expiry `+0x154`; frame 12 requires
+  current date after that cutoff.
+- Contract-renewal/finalizer paths synchronize the record cutoff when bit 11 is
+  active, while full reset `0x41AFE0` clears bit 11 and removes the record.
+  The exact ordinary-transfer set/clear transition remains open, so frame 12 is
+  intentionally not enabled yet.
+- Corrected the mode-1 Cup-Tied fallback trace: `0x419350` returns embedded
+  `DBRPlayer+0x198+0x18` when `+0x1A0 > -1`, rather than a list-first
+  element. Producer semantics and cutoff globals remain open.
+- Durable evidence: `research/GATE13_SQUAD_STATUS_LIFECYCLE.md`.
+- Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
+  acceptance. Exact source task continues with `0x4EF600` transfer lifecycle
+  and `+0x198/+0x18` / `+0x1A0` / `0x8755E8/EC/F0` semantics.
+
+
+## 6 October 2026 KST — Recovery 344 ordinary-transfer bit-11 transition closed
+
+- Reverified the authorized source path from the 511,121,336-byte Library disc
+  archive and independently re-extracted canonical `footballmanager.exe`;
+  SHA-256 remains
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- `0x4EF600` has exactly two direct callers: native
+  `TransferDealConcluded` at `0x5EAEFD` and
+  `FreeTransferDealConcluded` at `0x5EAF57`. Both invoke it with mode 0.
+- The complete ordinary mutation `0x422F70` preserves bit 11 and ends in
+  `0x4192B0`; an already-active bit therefore keeps its registration cutoff
+  synchronized to the new contract expiry.
+- A positive post-transfer `0x421760` eligibility result sets bit 11 through
+  `0x41B4A0`; a negative result does not clear it. `0x418360 -> 0x41B4D0`
+  lazily creates a missing registration record before the frame-12 cutoff
+  predicate is evaluated.
+- No ordinary completed-transfer clear was found. The proven clear remains
+  full reset/removal `0x41AFE0`; `0x4185B0` also clears bit 11 only inside
+  its broader wholesale initialization/reset sequence.
+- Exact next source task is now the mode-1 Cup-Tied embedded value and cutoff
+  lifecycle: DBRPlayer `+0x198/+0x18`, gate `+0x1A0`, and globals
+  `0x8755E8/EC/F0`. No new live status frame is enabled by this checkpoint.
+
+
+## 6 October 2026 KST — Recovery 346/347 frame-12 candidate green; transfer-history identity narrowed
+
+- PR #497 candidate `45c5c0e09c9fec420160e9e60eedf304423fcfd9`
+  passed full reconstruction run `37467142990`, Gate-13 presentation run
+  `37467143159`, and repository asset-policy run `37467143070`.
+- The clean runtime now represents the source-closed special Non-EU/frame-12
+  cutoff and sticky ordinary-transfer bit-11 transition without changing the
+  internal-save schema.
+- Continued private-source tracing identifies DBRPlayer `+0x198` as embedded
+  `CPlayerTransferHistory`, `+0x1A0` as its `+0x08` club-table index/club
+  ID, and `+0x18` as a transfer/join-history date initialized from normalized
+  DBRPlayer `+0x158`.
+- Exact remaining native task: finish `0x422E7E ->
+  CPlayerTransferHistory::0x4EBF60` argument/update semantics and the producers
+  of globals `0x8755E8/0x8755EC/0x8755F0`; the negative mode-1 Cup-Tied
+  fallback remains fail-closed.
+- Recovery 347 rematerialized the authorized 511,121,336-byte Library archive,
+  but the current execution allocation fails trivial shell execution with
+  `caas.internal.errors.ClientError` and trivial Python execution with
+  `TooManyRequestsError`. This is recorded as an execution-sandbox blocker,
+  not source unavailability.
+- Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
+  acceptance.
+
+
+## 6 October 2026 KST — Recovery 347 PR #497 merged; Windows exact-byte package blocker under repair
+
+- PR #497 merged to canonical main as
+  `a881d628449e4ea05e9b31952aee3cdc3abb93b2` after exact-head reconstruction
+  `37473657785`, Gate-13 presentation `37473657873`, and asset-policy
+  `37473657782` all passed.
+- Daniel's latest packaged Windows test exposed a separate issue-#482 blocker:
+  `pstartmenu-v1/manifest.json` arrived with a CRLF final newline, changing the
+  byte identity from pinned `cc541cac...` to `cfd3d381...`; the runtime
+  correctly failed closed during `startup.presenter_build`.
+- PR #498 / branch `recovery347-package-manifest-eol` adds exact LF checkout
+  policy for that manifest, binary treatment for the payload, full frozen
+  PStartMenu derivative verification in `--package-smoke`, a CRLF regression,
+  and Windows-workflow coverage of the package-smoke test.
+- PR #498 has been refreshed onto merged main at
+  `f49657133e288527db8c1b54f3b5bd8115b81665`. Exact next task is its full
+  Gate-13/reconstruction/asset/Windows-package validation, with special
+  attention to the frozen executable smoke step before another Daniel retest.
+- Private Cup-Tied source tracing remains sandbox-deferred at
+  `0x422E7E -> CPlayerTransferHistory::0x4EBF60` and
+  `0x8755E8/EC/F0`; no unresolved semantics are inferred.
+
+
+## 6 October 2026 KST — Recovery 347 Windows exact-byte package repair merged
+
+- PR #498 merged as
+  `e24485b5987feca5c5c279596ee6bd6709d620c8`.
+- Its final validated head
+  `33d3419bbca133ba9c6c9c9c2425e6fc0f39774c` and merged main have the
+  identical Git tree `6407b5a46da1557253862d4729f2e7674369cc3f`.
+- Exact-head Gate-13 presentation `37476333087`, full reconstruction
+  `37476333090`, asset policy `37476333115`, and Windows package
+  `37476333086` all passed.
+- Frozen `FM2001-Windows11.exe --package-smoke` restored the pinned PStartMenu
+  manifest SHA-256
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`
+  and built the real production first-screen presenter to `pstartmenu`.
+- Windows candidate artifact `11418314765` is
+  `FM2001-Windows11-33d3419bbca133ba9c6c9c9c2425e6fc0f39774c`,
+  Actions digest
+  `sha256:bfb13b13236302064c73d6f3959613ceb7d2e53b6520270302fa0a813e89c8f6`.
+  Inner release archive SHA-256 is
+  `eb3cd65c729152469ac36def2186eb7be76b2f1ae22d95ca031907b9c8e7ebdb`.
+- Issue #482 now carries this acceptance provenance. Hosted validation closes
+  the CRLF/presenter-build blocker, but Gate 13 remains open for Daniel's normal
+  Windows 11 playability/visual acceptance.
+- Independent cloud-safe later-gate work may resume. Private Cup-Tied source
+  tracing remains deferred only because the execution sandbox cannot start
+  processes; no unresolved semantics are inferred.

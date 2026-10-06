@@ -1,5 +1,11 @@
 # Gate 13 final management header and ordinary-text adjudication
 
+> **External acceptance update, 6 October 2026:** issue #482 reopens Gate 13.
+> The source findings in this document remain valid, but the old conclusion that
+> omitted Squad presentation was only a secondary/pixel-perfect refinement is
+> superseded. Daniel's real Windows 11 first-management run is materially
+> incomplete and fails the ROADMAP recognizability criterion.
+
 This note records the final bounded Gate-13 source adjudication used by the
 live management host. Raw executable disassembly and the authorized source
 archive remain outside Git.

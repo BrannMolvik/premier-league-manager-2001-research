@@ -16,6 +16,15 @@ from original_squad_resources import (
     SQUAD_VISIBLE_ROW_COUNT,
     SQUAD_VISIBLE_ROW_Y_ORIGINS,
 )
+from original_squad_row_style import (
+    format_squad_display_name,
+    squad_name_rgb_from_available_state,
+    squad_role_rgb,
+)
+from original_squad_status import (
+    direct_squad_status_frame_index,
+    source_qualified_squad_status_frame_index,
+)
 
 
 class OriginalSquadPresentationError(ValueError):
@@ -38,10 +47,14 @@ class OriginalSquadRowSnapshot:
     player_id: int
     y: int
     display_name: str
+    display_name_rgb: tuple[int, int, int] | None
     assigned_role: int
+    assigned_role_abbreviation: str
+    assigned_role_rgb: tuple[int, int, int]
     condition: int
     recent_form_average: float
     current_role_rating: int
+    native_status_frame_index: int | None
 
 
 @dataclass(frozen=True)
@@ -96,15 +109,91 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
             label="source_roster_index",
         )
         player_id = _require_int(getattr(row, "player_id", None), label="player_id")
-        display_name = getattr(row, "full_name", None)
-        if not isinstance(display_name, str) or not display_name:
-            raise OriginalSquadPresentationError(
-                "full_name must be a non-empty source string"
+        first_name = getattr(row, "first_name", None)
+        surname = getattr(row, "surname", None)
+        positions = getattr(row, "positions", None)
+        match_active = getattr(row, "match_active", None)
+        match_substitute_available = getattr(
+            row, "match_substitute_available", None
+        )
+        try:
+            display_name = format_squad_display_name(first_name, surname)
+            display_name_rgb = squad_name_rgb_from_available_state(
+                first_team_active=match_active,
+                first_team_substitute=match_substitute_available,
             )
+        except ValueError as exc:
+            raise OriginalSquadPresentationError(str(exc)) from exc
         assigned_role = _require_int(
             getattr(row, "current_position", None),
             label="current_position",
         )
+        assigned_role_abbreviation = getattr(row, "assigned_role_abbreviation", None)
+        if not isinstance(assigned_role_abbreviation, str) or not assigned_role_abbreviation:
+            raise OriginalSquadPresentationError(
+                "assigned_role_abbreviation must be a non-empty source string"
+            )
+        try:
+            assigned_role_rgb = squad_role_rgb(assigned_role, positions)
+        except ValueError as exc:
+            raise OriginalSquadPresentationError(str(exc)) from exc
+        injured = getattr(row, "injured", None)
+        banned = getattr(row, "suspended", None)
+        international = getattr(row, "international", None)
+        status_states = (injured, banned, international)
+        if all(value is None for value in status_states):
+            # Older/minimal source fixtures that do not carry the newly
+            # recovered status state remain unresolved rather than fabricated.
+            native_status_frame_index = None
+        else:
+            if any(type(value) is not bool for value in status_states):
+                raise OriginalSquadPresentationError(
+                    "Squad direct status states must be booleans when present"
+                )
+            alternate_on_loan = getattr(row, "alternate_on_loan", None)
+            non_eu = getattr(row, "non_eu", None)
+            non_eu_registration_expired = getattr(
+                row, "non_eu_registration_expired", None
+            )
+            cup_tied_positive = getattr(row, "cup_tied_positive", None)
+            extended_status_states = (
+                alternate_on_loan,
+                non_eu,
+                cup_tied_positive,
+            )
+            try:
+                if all(type(value) is bool for value in extended_status_states):
+                    if (
+                        non_eu_registration_expired is not None
+                        and type(non_eu_registration_expired) is not bool
+                    ):
+                        raise OriginalSquadPresentationError(
+                            "Non-EU registration cutoff state must be boolean or unresolved"
+                        )
+                    native_status_frame_index = source_qualified_squad_status_frame_index(
+                        injured=injured,
+                        banned=banned,
+                        international=international,
+                        alternate_on_loan=alternate_on_loan,
+                        non_eu=non_eu,
+                        non_eu_registration_expired=non_eu_registration_expired,
+                        cup_tied_positive=cup_tied_positive,
+                    )
+                elif all(value is None for value in extended_status_states):
+                    # Compatibility for bounded fixtures predating Recovery 340:
+                    # preserve only the already source-closed direct 0/1/2 path.
+                    native_status_frame_index = direct_squad_status_frame_index(
+                        injured=injured,
+                        banned=banned,
+                        international=international,
+                    )
+                else:
+                    raise OriginalSquadPresentationError(
+                        "Extended Squad status states must be complete booleans"
+                    )
+            except ValueError as exc:
+                raise OriginalSquadPresentationError(str(exc)) from exc
+
         condition = _require_int(getattr(row, "condition", None), label="condition")
         current_role_rating = _require_int(
             getattr(row, "current_role_rating", None),
@@ -125,10 +214,14 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 player_id=player_id,
                 y=SQUAD_VISIBLE_ROW_Y_ORIGINS[visible_index],
                 display_name=display_name,
+                display_name_rgb=display_name_rgb,
                 assigned_role=assigned_role,
+                assigned_role_abbreviation=assigned_role_abbreviation,
+                assigned_role_rgb=assigned_role_rgb,
                 condition=condition,
                 recent_form_average=float(recent_form_average),
                 current_role_rating=current_role_rating,
+                native_status_frame_index=native_status_frame_index,
             )
         )
 

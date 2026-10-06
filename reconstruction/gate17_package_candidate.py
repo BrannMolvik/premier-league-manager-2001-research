@@ -32,6 +32,8 @@ FORBIDDEN_EXTERNAL_GAME_DATA = {
 REQUIRED_BUNDLED_FILES = (
     "original_assets/MANIFEST.md",
     "original_assets/README.md",
+    "original_assets/converted/pstartmenu-v1/manifest.json",
+    "original_assets/converted/pstartmenu-v1/payload.bin.xz",
     "original_assets/source/English.str",
     "original_assets/source/FM2001_Art/Generic/main_menu/main_menu_bground.444",
     "original_assets/source/FM2001_Art/Generic/menu_popup/menu_anim.444",

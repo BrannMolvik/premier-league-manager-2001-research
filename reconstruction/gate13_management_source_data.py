@@ -40,10 +40,15 @@ class ClubHeaderView:
 class SquadRowView:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
     shirt_number: int
     positions: tuple[int, int, int]
     current_position: int
+    assigned_role_abbreviation: str
+    match_active: bool
+    match_substitute_available: bool
     match_unavailable: bool
     condition: int
     form_state: int
@@ -52,10 +57,18 @@ class SquadRowView:
     morale: int
     injured: bool
     suspended: bool
+    international: bool
     out_of_contract: bool
     transfer_listed: bool
     loan_listed: bool
     wanted: bool
+    # Source-qualified PSCF override inputs. The registration cutoff is
+    # optional only for bounded/legacy fixtures; live bridge rows resolve it
+    # whenever bit 11 is active.
+    alternate_on_loan: bool = False
+    non_eu: bool = False
+    non_eu_registration_expired: bool | None = None
+    cup_tied_positive: bool = False
 
 
 @dataclass(frozen=True)
@@ -985,11 +998,26 @@ class ManagementSourceDataBridge:
         rows = []
         for source_index, player in enumerate(tuple(squad())):
             player_id = getattr(player, "index", None)
+            first_name = getattr(player, "first_name", None)
+            surname = getattr(player, "surname", None)
             positions = getattr(player, "positions", None)
+            match_active = getattr(player, "match_active", None)
+            match_substitute_available = getattr(
+                player, "match_substitute_available", None
+            )
             history_average = getattr(player, "match_performance_average", None)
             current_role_rating = getattr(player, "current_role_rating", None)
+            current_position = getattr(player, "current_position", None)
             if type(player_id) is not int:
                 raise ManagementPresentationError("Runtime player ID is unavailable")
+            if not isinstance(first_name, str) or not isinstance(surname, str):
+                raise ManagementPresentationError(
+                    f"Player {player_id} lacks recovered source name fields"
+                )
+            if type(match_active) is not bool or type(match_substitute_available) is not bool:
+                raise ManagementPresentationError(
+                    f"Player {player_id} lacks recovered first-team selection state"
+                )
             if (
                 not isinstance(positions, tuple)
                 or len(positions) != 3
@@ -997,6 +1025,21 @@ class ManagementSourceDataBridge:
             ):
                 raise ManagementPresentationError(
                     f"Player {player_id} has no recovered three-position tuple"
+                )
+            if type(current_position) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered assigned-role code"
+                )
+            position_table = getattr(self.state, "positions", None)
+            if not hasattr(position_table, "get"):
+                raise ManagementPresentationError(
+                    "Recovered runtime position table is unavailable"
+                )
+            position = position_table.get(current_position)
+            abbreviation = getattr(position, "abbreviation", None)
+            if not isinstance(abbreviation, str) or not abbreviation:
+                raise ManagementPresentationError(
+                    f"Assigned role {current_position} has no recovered original abbreviation"
                 )
             if not callable(history_average):
                 raise ManagementPresentationError(
@@ -1017,13 +1060,114 @@ class ManagementSourceDataBridge:
                 raise ManagementPresentationError(
                     f"Player {player_id} current-role rating must be an integer"
                 )
+
+            registered_club_id = getattr(player, "club_id", None)
+            loan_club_id = getattr(player, "loan_club_id", None)
+            non_eu = getattr(player, "non_eu", False)
+            if type(registered_club_id) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered registered/current club ID"
+                )
+            if loan_club_id is not None and type(loan_club_id) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has invalid recovered loan club ID"
+                )
+            if type(non_eu) is not bool:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has invalid recovered Non-EU state"
+                )
+
+            # Recovery 342 source-closes registration record +0x14 as the live
+            # DBRPlayer +0x154 contract expiry. 0x4193E0 keeps that cutoff
+            # synchronized after contract changes, and 0x41B4D0 lazily creates
+            # a missing record for active bit 11. Therefore no separate
+            # clean-room record object is needed for this exact status result.
+            non_eu_registration_expired: bool | None = False
+            if non_eu:
+                contract_expiry = getattr(player, "contract_expiry_date", None)
+                if contract_expiry is None:
+                    non_eu_registration_expired = None
+                elif not isinstance(contract_expiry, date):
+                    raise ManagementPresentationError(
+                        f"Player {player_id} has invalid recovered contract expiry"
+                    )
+                else:
+                    non_eu_registration_expired = bool(
+                        self.state.calendar.current_date > contract_expiry
+                    )
+
+            # 0x418360's alternate On-loan frame 13 precedes every lower
+            # override. Recovery 340 closes it exactly as a live loan-state
+            # mismatch between the represented +0x10/+0x72 club identities.
+            alternate_on_loan = bool(
+                loan_club_id is not None
+                and int(loan_club_id) != int(registered_club_id)
+            )
+
+            # The Cup-Tied frame is published only from a positive collection
+            # hit in the source-qualified current-match context. A pending
+            # primary entry must still be present in today's recovered scheduler
+            # order; missing/unresolved context stays false here, which means
+            # "not positively proven" rather than "native predicate is false".
+            cup_tied_positive = False
+            pending_entry = getattr(self.controller, "pending_primary_entry", None)
+            primary_order = getattr(self.state, "primary_matchday_order", None)
+            non_eu_allows_lower_status = bool(
+                not non_eu or non_eu_registration_expired is False
+            )
+            if (
+                pending_entry is not None
+                and not alternate_on_loan
+                and non_eu_allows_lower_status
+                and hasattr(primary_order, "get")
+            ):
+                entry = tuple(pending_entry)
+                today_entries = tuple(
+                    primary_order.get(self.state.calendar.current_date, ())
+                )
+                if entry in today_entries:
+                    clubs_resolver = getattr(
+                        self.controller, "_primary_entry_clubs", None
+                    )
+                    competition_resolver = getattr(
+                        self.controller, "_primary_entry_competition_id", None
+                    )
+                    cup_lookup = getattr(self.state, "is_player_cup_tied", None)
+                    if (
+                        callable(clubs_resolver)
+                        and callable(competition_resolver)
+                        and callable(cup_lookup)
+                    ):
+                        try:
+                            pair = clubs_resolver(entry)
+                            if pair is not None and int(registered_club_id) in {
+                                int(value) for value in pair
+                            }:
+                                competition_id = int(
+                                    competition_resolver(entry)
+                                )
+                                cup_tied_positive = bool(
+                                    cup_lookup(
+                                        competition_id,
+                                        int(player_id),
+                                        int(registered_club_id),
+                                    )
+                                )
+                        except (KeyError, TypeError, ValueError, RuntimeError):
+                            cup_tied_positive = False
+
             rows.append(SquadRowView(
                 source_roster_index=source_index,
                 player_id=player_id,
+                first_name=first_name,
+                surname=surname,
                 full_name=self._player_name(player),
                 shirt_number=int(getattr(player, "shirt_number", 0)),
                 positions=positions,
-                current_position=int(getattr(player, "current_position")),
+                current_position=current_position,
+                assigned_role_abbreviation=abbreviation,
+                match_active=match_active,
+                match_substitute_available=match_substitute_available,
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
@@ -1032,10 +1176,17 @@ class ManagementSourceDataBridge:
                 morale=int(getattr(player, "morale")),
                 injured=bool(getattr(player, "injured")),
                 suspended=bool(getattr(player, "suspended")),
+                # Static.dat status index 2 plus 0x401DE0 now source-close
+                # DBRPlayer+0x14 bit 2 as the original "International" state.
+                international=bool(getattr(player, "selection_excluded")),
                 out_of_contract=bool(getattr(player, "out_of_contract")),
                 transfer_listed=bool(getattr(player, "transfer_listed")),
                 loan_listed=bool(getattr(player, "loan_listed")),
                 wanted=bool(getattr(player, "wanted")),
+                alternate_on_loan=alternate_on_loan,
+                non_eu=non_eu,
+                non_eu_registration_expired=non_eu_registration_expired,
+                cup_tied_positive=cup_tied_positive,
             ))
         return tuple(rows)
 

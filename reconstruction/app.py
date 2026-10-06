@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+from hashlib import sha256
 import json
 from pathlib import Path
 import platform
@@ -10,13 +11,21 @@ from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from original_game_host import run_original_game_ui
+from original_game_host import (
+    PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+    build_original_game_presenter,
+)
+from gate13_pstartmenu_derivative import (
+    MANIFEST_NAME as PSTARTMENU_DERIVATIVE_MANIFEST_NAME,
+    PStartMenuDerivativeError,
+)
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
 from startup_media_runtime_cache import (
     PACKAGED_FFMPEG_RELATIVE_PATH,
     prepare_runtime_startup_media,
     resolve_startup_ffmpeg,
 )
-from startup_media_windows_backend import WindowsMciStartupMediaBackend
+from startup_media_windows_backend import WindowsWpfStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 from runtime_layout import application_root, bundled_source_root
@@ -669,6 +678,9 @@ PACKAGE_SMOKE_REQUIRED = (
     "FM2001_Art/Generic/match_report/info_popup.444",
     "Fonts/Zurich_XCn_BT_16pixel.fnt",
 )
+PSTARTMENU_DERIVATIVE_RELATIVE = (
+    Path("original_assets") / "converted" / "pstartmenu-v1"
+)
 
 
 def package_smoke_report() -> dict:
@@ -688,6 +700,27 @@ def package_smoke_report() -> dict:
             "Packaged runtime is missing required provenance-tracked assets: "
             + ", ".join(missing)
         )
+
+    derivative_root = app_root / PSTARTMENU_DERIVATIVE_RELATIVE
+    derivative_manifest = (
+        derivative_root / PSTARTMENU_DERIVATIVE_MANIFEST_NAME
+    )
+    try:
+        # Exercise the exact production presenter-build boundary that normal
+        # launch enters under the "startup.presenter_build" timing stage. The
+        # canonical FrontEndSession is lazy, so no user-owned game data is read
+        # until New Game is activated.
+        package_presenter = build_original_game_presenter(
+            app_root / "__package_smoke_no_game_data__",
+            pstartmenu_derivative_root=derivative_root,
+        )
+        package_snapshot = package_presenter.snapshot()
+    except PStartMenuDerivativeError as exc:
+        raise RuntimeError(
+            "Packaged PStartMenu derivative failed exact-byte verification: "
+            f"{exc}"
+        ) from exc
+
     startup_ffmpeg = resolve_startup_ffmpeg(
         app_root,
         system_which=lambda _name: None,
@@ -698,6 +731,12 @@ def package_smoke_report() -> dict:
         "source_root": str(root),
         "provenance_manifest": str(provenance),
         "required_asset_count": len(PACKAGE_SMOKE_REQUIRED),
+        "pstartmenu_derivative_root": str(derivative_root),
+        "pstartmenu_manifest_sha256": sha256(
+            derivative_manifest.read_bytes()
+        ).hexdigest(),
+        "pstartmenu_presenter_build_passed": True,
+        "pstartmenu_presenter_screen": str(package_snapshot.screen.value),
         "startup_ffmpeg": str(startup_ffmpeg),
         "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "external_game_data_required": True,
@@ -752,7 +791,7 @@ def configure_startup_media(
         Path(game_dir),
         root,
     )
-    backend = WindowsMciStartupMediaBackend(platform_system=system)
+    backend = WindowsWpfStartupMediaBackend(platform_system=system)
     return None, backend, derivatives
 
 

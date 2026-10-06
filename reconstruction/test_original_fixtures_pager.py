@@ -59,14 +59,20 @@ class FixturesPagerTests(unittest.TestCase):
 
     def test_real_host_ordinary_press_release_hover_and_modal_guard(self):
         from original_game_host import OriginalGameTkHost
-        from test_original_game_host import presenter, FakeRoot, FakeTk, management_factory, fake_pmenu_render, fake_squad_top_resources
+        from test_original_game_host import (
+            presenter, FakeRoot, FakeTk, management_factory,
+            fake_pmenu_render, fake_squad_top_resources,
+            fake_squad_row_text_resources,
+        )
         live=presenter()
         pixels=bytes((1,2,3,255))*27*18
         art=OriginalFixturesPagerArt((pixels,)*4,(pixels,)*4)
         with patch('original_game_host.build_management_pmenu_render',side_effect=lambda *_:fake_pmenu_render()):
             host=OriginalGameTkHost(live,FakeRoot(),FakeTk,
                 management_presenter_factory=management_factory,
-                management_pmenu_resources=object(),squad_top_resources=fake_squad_top_resources())
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources())
             host.on_click(SimpleNamespace(x=7,y=478)); live.choose_club(12)
             host.on_click(SimpleNamespace(x=426,y=301))
             host.management_presenter.navigate(0x25C)

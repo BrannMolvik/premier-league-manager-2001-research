@@ -28,6 +28,8 @@ jobs:
 
       - name: Check out exact port candidate
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - uses: actions/setup-python@v5
         with:
@@ -96,7 +98,7 @@ jobs:
       - name: Upload exact minimal build proof
         uses: actions/upload-artifact@v4
         with:
-          name: gate17-minimal-ffmpeg-build-${{ github.sha }}
+          name: gate17-minimal-ffmpeg-build-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             _minimal-ffmpeg-build/ffmpeg.exe
             _minimal-ffmpeg-build/ffprobe.exe

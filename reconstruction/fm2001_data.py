@@ -214,6 +214,21 @@ class CompetitionDefinition:
     runtime_instance_count: int = 1
     scheduled_matchday_count: int = 0
     valuation_division_category: int = 5
+    # Packed DBRCompetition source byte +0x24. Cup construction at 0x4F51E0
+    # maps only source values 0x7B/0x74 to runtime +0x34 modes 1/2.
+    # Kept at the end of the dataclass defaults so legacy positional callers
+    # retain their existing argument meaning.
+    packed_rule_code_24: int = 0
+
+    @property
+    def cup_restriction_mode(self) -> int:
+        """Exact Cup-runtime +0x34 projection recovered from 0x4F51E0."""
+        value = int(self.packed_rule_code_24)
+        if value == 0x7B:
+            return 1
+        if value == 0x74:
+            return 2
+        return 0
 
     @property
     def runtime_kind(self) -> str:
@@ -548,6 +563,7 @@ class FM2001Database:
                 name=self.english.get(struct.unpack_from('<H', r, 12)[0]),
                 substitute_quota=r[17],
                 max_non_eu_players=r[34],
+                packed_rule_code_24=r[0x24],
                 schedule_container_code=struct.unpack_from('<I', r, 45)[0],
                 runtime_kind_code=r[14],
                 parent_competition_id=(

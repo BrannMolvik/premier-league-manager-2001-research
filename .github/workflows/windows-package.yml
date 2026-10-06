@@ -4,7 +4,10 @@ on:
   pull_request:
     paths:
       - ".github/workflows/windows-package.yml"
+      - ".gitattributes"
       - "reconstruction/app.py"
+      - "reconstruction/test_app_package_smoke.py"
+      - "reconstruction/gate13_pstartmenu_derivative.py"
       - "reconstruction/runtime_layout.py"
       - "reconstruction/original_game_host.py"
       - "reconstruction/startup_media_runtime_cache.py"
@@ -79,7 +82,7 @@ jobs:
 
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_ffmpeg_lgpl_candidate test_gate17_ffmpeg_minimal_source_contract test_gate17_clean_windows_install test_gate17_external_validation
+        run: python -m unittest -v test_runtime_layout test_app_package_smoke test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_ffmpeg_lgpl_candidate test_gate17_ffmpeg_minimal_source_contract test_gate17_clean_windows_install test_gate17_external_validation
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction

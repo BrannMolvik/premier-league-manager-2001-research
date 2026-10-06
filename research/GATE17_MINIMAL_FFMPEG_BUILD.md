@@ -27,7 +27,7 @@ workflow.
 The contract disables all ordinary FFmpeg components and autodetection, then
 explicitly restores only the runtime path required by FM2001 startup media:
 
-- native Windows Media Foundation and w32threads;
+- native Windows Media Foundation, D3D11VA and w32threads;
 - the `ffmpeg` and `ffprobe` programs;
 - file and pipe protocols;
 - EA input plus MOV/MP4 derivative input;
@@ -37,6 +37,14 @@ explicitly restores only the runtime path required by FM2001 startup media:
 - MP4 and null muxers.
 
 No `--enable-lib*`, GPL, nonfree or version-3 mode is accepted.
+
+The first build-proof run (`37352166679`) failed in the pinned
+`libavcodec/mfenc.c` because `--disable-autodetect` had also disabled
+D3D11VA. The same pinned source guards `hwcontext_d3d11va.h` behind
+`CONFIG_D3D11VA` while the Media Foundation encoder stores D3D11 device and
+texture types. The canonical source contract now explicitly enables
+`--enable-d3d11va`. This is a build dependency of the pinned encoder source,
+not a claim that the FM2001 conversion path supplies D3D11 hardware frames.
 
 ## Binary audit
 
