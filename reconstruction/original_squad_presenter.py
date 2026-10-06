@@ -18,7 +18,7 @@ from original_squad_resources import (
 )
 from original_squad_row_style import (
     format_squad_display_name,
-    squad_name_rgb,
+    squad_name_rgb_from_available_state,
     squad_role_rgb,
 )
 
@@ -43,7 +43,7 @@ class OriginalSquadRowSnapshot:
     player_id: int
     y: int
     display_name: str
-    display_name_rgb: tuple[int, int, int]
+    display_name_rgb: tuple[int, int, int] | None
     assigned_role: int
     assigned_role_rgb: tuple[int, int, int]
     condition: int
@@ -112,14 +112,9 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
         )
         try:
             display_name = format_squad_display_name(first_name, surname)
-            display_name_rgb = squad_name_rgb(
+            display_name_rgb = squad_name_rgb_from_available_state(
                 first_team_active=match_active,
                 first_team_substitute=match_substitute_available,
-                # The clean-room runtime does not yet model the native +0x174
-                # reserve-selection pair. Preserve those source branches in the
-                # style module while keeping this current modeled state false.
-                reserve_active=False,
-                reserve_substitute=False,
             )
         except ValueError as exc:
             raise OriginalSquadPresentationError(str(exc)) from exc
