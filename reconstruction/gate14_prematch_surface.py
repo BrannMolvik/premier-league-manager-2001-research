@@ -232,7 +232,7 @@ class PrematchPlayerStripSurface:
     active_rgba: bytes
     disabled_source_path: str | None = None
     disabled_rgba: bytes | None = None
-    variant_state_source_closed: bool = False
+    variant_state_source_closed: bool = True
 
     def __post_init__(self) -> None:
         if self.side not in ("left", "right"):
@@ -256,9 +256,9 @@ class PrematchPlayerStripSurface:
                 or len(self.disabled_rgba) != expected
             ):
                 raise PrematchSurfaceError("native reserve strip requires both source variants")
-        if self.variant_state_source_closed:
+        if not self.variant_state_source_closed:
             raise PrematchSurfaceError(
-                "reserve/player-strip variant state is not yet source-closed"
+                "pre-match player-strip variant state must retain source-closed count rule"
             )
 
 
@@ -513,6 +513,7 @@ class PrematchSurfaceBoundary:
     background: PrematchRasterLayer
     static_layers: tuple[PrematchRasterLayer, ...]
     text_controls: tuple[PrematchTextControlSurface, ...]
+    player_text_rows: tuple[PrematchPlayerTextSurface, ...]
     player_strip_rows: tuple[PrematchPlayerStripSurface, ...]
     selectors: tuple[PrematchSelectorSurface, ...]
     rating_rows: tuple[PrematchRatingSurface, ...]
@@ -544,14 +545,24 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError("pre-match static layer set is incomplete")
         if self.text_controls != source_prematch_text_controls():
             raise PrematchSurfaceError("pre-match native text-control set is incomplete")
+        if self.player_text_rows != source_prematch_player_text_rows():
+            raise PrematchSurfaceError("pre-match player text row set is incomplete")
         if len(self.player_strip_rows) != len(PREMATCH_PLAYER_STRIP_ROWS):
             raise PrematchSurfaceError("pre-match player strip row set is incomplete")
-        if any(row.variant_state_source_closed for row in self.player_strip_rows):
+        if any(not row.variant_state_source_closed for row in self.player_strip_rows):
             raise PrematchSurfaceError(
-                "pre-match player strip boundary cannot invent reserve variant state"
+                "pre-match player strip boundary lost source-closed reserve state"
             )
         if len(self.selectors) != len(PREMATCH_SELECTORS):
             raise PrematchSurfaceError("pre-match selector surface set is incomplete")
+        if any(
+            not selector.native_visual_state_source_closed
+            or selector.persistent_selected_visual
+            for selector in self.selectors
+        ):
+            raise PrematchSurfaceError(
+                "pre-match selector surface lost generic Button@ease state"
+            )
         if len(self.rating_rows) != len(PREMATCH_RATING_ROWS):
             raise PrematchSurfaceError("pre-match rating row set is incomplete")
         if not (
@@ -573,6 +584,24 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError(
                 "pre-match boundary cannot promote unresolved runtime/fidelity claims"
             )
+
+
+def source_prematch_player_text_rows() -> tuple[PrematchPlayerTextSurface, ...]:
+    return tuple(
+        PrematchPlayerTextSurface(
+            side=row.side,
+            slot_index=row.slot_index,
+            roster_group=row.roster_group,
+            number_rect=row.number_rect,
+            name_rect=row.name_rect,
+            strip_child_index=row.strip_child_index,
+            number_child_index=row.number_child_index,
+            name_child_index=row.name_child_index,
+            disabled_child_index=row.disabled_child_index,
+            name_mode=PREMATCH_PLAYER_NAME_MODE_BY_SIDE[0 if row.side == "left" else 1],
+        )
+        for row in PREMATCH_PLAYER_TEXT_ROWS
+    )
 
 
 def _layer_from_decoded(role, rect, spec, decoded) -> PrematchRasterLayer:
@@ -712,6 +741,7 @@ def build_verified_prematch_surface_boundary(
         background=background,
         static_layers=static_layers,
         text_controls=source_prematch_text_controls(),
+        player_text_rows=source_prematch_player_text_rows(),
         player_strip_rows=tuple(player_strip_rows),
         selectors=selectors,
         rating_rows=rating_rows,
