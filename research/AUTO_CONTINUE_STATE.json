@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 341: PR #495 (head 24a7bb5c1b3d2d2ad5fd89b1b188a5baf5be01e3) is the Gate 13 source-qualified Squad status candidate. Asset policy run 37423823073 and Gate 13 presentation run 37423823054 passed; full reconstruction run 37423823039 is still running. Merge only if green, reconcile main/runtime, then continue the next source-backed Gate 13 slice while Windows 11 #482 acceptance remains mandatory.",
+  "active_task": "Recovery 341: PR #495 candidate head is now 94a620839624f293c0d4343f7e42c9ddfb31d549 after qualifying the live host boundary and adding host-level frame 3/13 rendering checks. Current candidate validation: Gate 13 run 37424300671, asset run 37424300703, Windows package run 37424300615, reconstruction run 37424300721. Merge only after all applicable checks pass.",
   "last_known_main_head": "3eeb5b92605f338499a6dcbc132e1187856508c9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 341,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 341 live heartbeat during PR #495 validation. Focused presentation and asset-policy checks are green; full reconstruction remains in progress.",
+  "note": "Recovery 341 heartbeat on complete PR #495 validation set. The Windows package workflow is now explicitly triggered by the live host boundary change.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
