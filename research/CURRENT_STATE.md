@@ -1,3 +1,43 @@
+# Recovery 367 continuation — native PPreMatch rating widths merged
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `58bf939ec14557c3eeff94875f19d4d4d6a76812`,
+which merges PR #507's source-closed PPreMatch team-rating widths. Exact PR head
+`848ef762a90e23085f624120c17f4d0ebe483062` passed focused presentation
+run `37533902122` and repository asset-policy run `37533901971`.
+
+The four native rating rows are no longer semantically neutral:
+
+- `0x49A3D0`: Position `lineup_group=3`, goalkeeper, scale 1.71;
+- `0x49A460`: group 0, defence, scale 0.342;
+- `0x49A4F0`: group 1, midfield, scale 0.342;
+- `0x49A580`: group 2, attack, scale 0.57.
+
+Each function iterates exactly eleven starters, resolves current assigned role,
+filters on the shipped Position broad-group byte, sums the already-recovered
+`0x41E1B0 -> 0x41C7E0` current-role rating, converts the scaled sum, and caps
+at 171 pixels. Static.dat and runtime Position parsing independently prove the
+group mapping; None/RF/LF carry group 255 and therefore contribute to none of
+the four bars.
+
+The clean-room now composes this directly from
+`RuntimePlayer.current_role_rating()` and `Position.lineup_group`, preserving
+native geometry: left overlays grow rightward from x=65; right overlays retain
+right edge x=735 and grow leftward. Resource loading remains independent of
+state binding.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely
+because Daniel's normal Windows 11 acceptance of artifact `11418314765`
+is still outstanding. Continue independent Gate-14 work-ahead.
+
+Exact next task: recover the remaining PPreMatchPanel text/team/player identity
+controls and cross-layer setup/draw order needed for a complete native pre-match
+frame. Keep the management-to-match transition, missing 3D presentation, and
+Gate 14 completion fail-closed until separately verified.
+
+---
+
 # Recovery 363 continuation — live PPreMatch background/rating correction merged
 
 _Updated 7 October 2026._
