@@ -503,6 +503,23 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
 
+    def test_squad_role_abbreviation_requires_source_position_table(self):
+        controller = FakeController()
+        controller.state.positions = {}
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "original abbreviation",
+        ):
+            ManagementSourceDataBridge(controller).squad_rows()
+
+        controller = FakeController()
+        controller.state.positions[0] = SimpleNamespace(abbreviation="")
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "original abbreviation",
+        ):
+            ManagementSourceDataBridge(controller).squad_rows()
+
     def test_squad_presentation_contract_preserves_native_roster_selection_state(self):
         contract = ManagementSourceDataBridge.squad_presentation_contract()
 
