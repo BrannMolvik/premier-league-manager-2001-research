@@ -1194,7 +1194,7 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[2][:2], (113, 171))
         self.assertEqual(host.canvas.images[4][:2], (189, 171))
 
-    def test_squad_landing_draws_source_role_then_name_controls(self):
+    def test_squad_landing_draws_source_player_and_scf_numeric_controls(self):
         host = OriginalGameTkHost(
             presenter(),
             FakeRoot(),
@@ -1209,6 +1209,9 @@ class OriginalGameHostTests(unittest.TestCase):
             assigned_role_rgb=(255, 255, 255),
             display_name="P. 0",
             display_name_rgb=(255, 255, 255),
+            condition=75,
+            recent_form_average=7.35,
+            current_role_rating=63,
         )
         frame = SimpleNamespace(
             presentation=SimpleNamespace(
@@ -1220,10 +1223,17 @@ class OriginalGameHostTests(unittest.TestCase):
 
         count = host._draw_squad_rows(frame)
 
-        self.assertEqual(count, 2)
-        self.assertEqual(len(host.canvas.images), 2)
+        self.assertEqual(count, 5)
+        self.assertEqual(len(host.canvas.images), 5)
         self.assertEqual(host.canvas.images[0][:2], (77, 234))
         self.assertEqual(host.canvas.images[1][:2], (113, 234))
+        # PSCFRow controls are centered inside native screen x ranges
+        # 300..318, 323..341 and 346..364 respectively.
+        for item, left in zip(host.canvas.images[2:], (300, 323, 346)):
+            self.assertGreaterEqual(item[0], left)
+            self.assertLess(item[0], left + 19)
+            self.assertGreaterEqual(item[1], 234)
+            self.assertLess(item[1], 248)
 
     def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
