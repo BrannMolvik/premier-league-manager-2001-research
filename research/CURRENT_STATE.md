@@ -1,28 +1,44 @@
-# Recovery 330 continuation — FMV stretch geometry recovered; implement display contract
+# Recovery 330 continuation — startup FMV candidate merged; continue Squad fidelity
 
 _Updated 6 October 2026._
 
-The canonical startup-FMV research task is now closed by
-`research/STARTUP_FMV_PIXEL_PIPELINE.md`. The exact original path is:
-320x480 TGQ/YUY2-capable intermediate -> DirectDraw stretch to 640x480 because
-the shared startup wrapper supplies flag `0x40` -> 1:1 game-display blit. In
-800x600 mode the completed movie rectangle is centered at (80,60). The final
-movie surface follows the active DirectDraw pixel format; no fixed final BPP or
-unique stretch-filter algorithm is source-backed.
+Canonical `main` is now
+`421a3e1c34e007c1e9550aea892678fa95dde261` plus the immediately following
+Recovery-330 research reconciliation checkpoint.
 
-**Active gate remains Gate 13 / issue #482.** PStartMenu derivative work remains
-canonical. The exact next task is now to apply the recovered 640x480 startup
-movie display contract to the modern Windows path without weakening exact TGQ
-provenance or inventing interpolation semantics. The existing separate WPF
-PowerShell top-level window is still not final because external playtesting says
-it feels like another application. Prefer a game-owned presentation boundary;
-where modern transport forces a deterministic filter, label it as a port choice,
-not recovered original behavior.
+PR #487 is merged and closes the repository-side startup-FMV geometry/window
+repair candidate for issue #482:
 
-After a verified implementation candidate exists, continue the independent
-ordinary Squad helper trace if useful and then obtain bundled Windows 11
-acceptance for startup media, responsiveness, TeamSelect, and the first
-management/Squad landing. Do not close Gate 13 without that external acceptance.
+- exact coded TGQ geometry remains 320x480;
+- startup wrapper flag `0x40` selects the doubled 16-bpp TQI writer;
+- the ordinary game display initializes BPP `0x8547A8 = 0x10` at
+  `0x615256`;
+- ordinary writer `0x69DC20` emits 0x20 bytes per 16 coded horizontal samples,
+  while startup writer `0x69DCC0` emits 0x40;
+- lookup helper `0x69C1A0` mirrors packed channel bits into the upper 16 bits,
+  so each startup DWORD is two identical packed16 pixels;
+- compatibility media now bakes the recovered exact horizontal 2x duplication
+  as `scale=640:480:flags=neighbor`;
+- the final original presentation remains a 1:1 640x480 blit at (80,60) in the
+  ordinary 800x600 game mode;
+- the Windows WPF MediaElement transport is now hosted as a child HWND of the
+  realized fullscreen FM2001 Tk window instead of creating a separate
+  maximized top-level window.
+
+PR-head reconstruction, Gate-13 presentation, asset-policy and Windows package
+workflows were all green before merge. A fresh merged-head CI run and
+human-visible/audible Windows 11 acceptance are still required before this
+criterion can be called closed.
+
+**Active gate remains Gate 13 / issue #482.** The highest-priority independent
+cloud-safe task is now the ordinary Squad player-row fidelity blocker: recover
+enough of helpers `0x4EA3F0` and `0x5D6C50` to source-bind display names and
+row colors/styling for the already closed geometry/data/font path, without
+inventing visual semantics. Continue that trace while Windows startup/media,
+responsiveness, TeamSelect and first-management/Squad acceptance remain
+deferred external checks.
+
+Do not close Gate 13 until bundled Windows 11 acceptance passes.
 
 ---
 
