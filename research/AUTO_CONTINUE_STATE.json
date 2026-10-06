@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 335: validate PR #492 source-closed PSCFRow status atlas/table contract, then continue tracing 0x418330/0x418360 priority overrides. Exact status.png is pinned; live rendering remains fail-closed until Cup-Tied and special Non-EU registration state are represented exactly. Club-relative assignment remains unresolved. External Windows 11 #482 acceptance remains mandatory.",
-  "last_known_main_head": "c51353a75c9360cdc1e45b8ee4fe1c3c5be2f07d",
+  "active_task": "Recovery 336: PR #492 is merged at 0b9cd9b53cd525c3b4af2a27f8c1ddbf6a101a93. Continue source-closing PSCFRow status resolver 0x418330/0x418360 priority and override predicates, especially separate Cup-Tied collection and special Non-EU registration state. Materialize only exact runtime state needed before rendering any status pixels; club-relative assignment remains unresolved. External Windows 11 #482 acceptance remains mandatory.",
+  "last_known_main_head": "0b9cd9b53cd525c3b4af2a27f8c1ddbf6a101a93",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 335,
+  "recovery_generation": 336,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 335 branch recovery335-squad-status-icon now has exact status.png, validator/tests, provenance, CURRENT_STATE, correlation research and PROGRESS. PR #492 open; latest branch checkpoint 2e16ceb48483cb3ab84a99bdc37a7637223a587a.",
+  "note": "PR #492 merged after green focused Gate13, Windows package/smoke, and asset-policy validation. CURRENT_STATE still describes pre-merge branch and needs reconciliation at next main checkpoint. Active work is resolver priority closure, not atlas import.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
