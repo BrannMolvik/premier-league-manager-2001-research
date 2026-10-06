@@ -19,7 +19,7 @@ from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
 from cup_progression import CupResultRegistry
-from cup_tied_state import CupTiedPlayerCollection
+from cup_tied_state import CupTiedPlayerCollection, CupTiedTransferWindowState
 from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
@@ -78,7 +78,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 45
+SAVE_SCHEMA_VERSION = 46
 
 
 def _snapshot_playable_country_allocation_plan(plan):
@@ -153,6 +153,7 @@ _COMPETITION_SIGNATURE_FIELDS = (
     "country_region_id", "enumerated_club_reference_0",
     "enumerated_club_reference_1", "runtime_instance_count",
     "scheduled_matchday_count", "valuation_division_category",
+    "packed_rule_code_24",
 )
 
 
@@ -1317,6 +1318,15 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "cup_tied_collections": _snapshot_cup_tied_collections(
             state.cup_tied_collections
         ),
+        "cup_tied_transfer_window": (
+            None
+            if state.cup_tied_transfer_window is None
+            else {
+                "selector": int(state.cup_tied_transfer_window.selector),
+                "cutoff_1": state.cup_tied_transfer_window.cutoff_1.isoformat(),
+                "cutoff_2": state.cup_tied_transfer_window.cutoff_2.isoformat(),
+            }
+        ),
         "domestic_cups": state.domestic_cups.snapshot(),
         "european_cups": state.european_cups.snapshot(),
         "qualification_cups": state.qualification_cups.snapshot(),
@@ -1621,6 +1631,19 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         cup_results=_restore_cup_result_registry(snapshot.get("cup_results")),
         cup_tied_collections=_restore_cup_tied_collections(
             snapshot.get("cup_tied_collections")
+        ),
+        cup_tied_transfer_window=(
+            None
+            if snapshot.get("cup_tied_transfer_window") is None
+            else CupTiedTransferWindowState(
+                selector=int(snapshot["cup_tied_transfer_window"]["selector"]),
+                cutoff_1=date.fromisoformat(
+                    snapshot["cup_tied_transfer_window"]["cutoff_1"]
+                ),
+                cutoff_2=date.fromisoformat(
+                    snapshot["cup_tied_transfer_window"]["cutoff_2"]
+                ),
+            )
         ),
         domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
         european_cups=DomesticCupScheduleState.restore(snapshot.get("european_cups")),
@@ -1943,6 +1966,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     state.configure_stadium_source_loader(database)
     validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
                           {} if league is None else league.fixtures)
+    state.calendar.daily_hooks.append(
+        state._run_daily_cup_tied_transfer_window
+    )
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)
     state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
     state.calendar.monthly_hooks.append(state._run_monthly_player_development)

@@ -1104,11 +1104,10 @@ class ManagementSourceDataBridge:
                 and int(loan_club_id) != int(registered_club_id)
             )
 
-            # The Cup-Tied frame is published only from a positive collection
-            # hit in the source-qualified current-match context. A pending
-            # primary entry must still be present in today's recovered scheduler
-            # order; missing/unresolved context stays false here, which means
-            # "not positively proven" rather than "native predicate is false".
+            # The Cup-Tied frame is resolved only in the source-qualified
+            # current-match context. Recovery 357 extends the root collection
+            # hit with the exact root mode-1 transfer-date fallback; every
+            # missing or unresolved input remains fail-closed.
             cup_tied_positive = False
             pending_entry = getattr(self.controller, "pending_primary_entry", None)
             primary_order = getattr(self.state, "primary_matchday_order", None)
@@ -1132,7 +1131,9 @@ class ManagementSourceDataBridge:
                     competition_resolver = getattr(
                         self.controller, "_primary_entry_competition_id", None
                     )
-                    cup_lookup = getattr(self.state, "is_player_cup_tied", None)
+                    cup_lookup = getattr(
+                        self.state, "is_player_cup_tied_for_status", None
+                    )
                     if (
                         callable(clubs_resolver)
                         and callable(competition_resolver)
