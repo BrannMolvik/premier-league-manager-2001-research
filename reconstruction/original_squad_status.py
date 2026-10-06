@@ -2,10 +2,11 @@
 
 The canonical executable binds fm2001_art\\generic\\status.png to the
 status-icon resource global and slices the exact 18x196 RGB PNG into fourteen
-vertical 18x14 frames. This module intentionally stops at that source-backed
-asset/frame contract. Native PSCFRow status-priority resolution is kept
-separate until all override state, especially Cup-Tied and special Non-EU
-registration state, is represented exactly by the clean-room runtime.
+vertical 18x14 frames. This module also exposes the exact PSCFRow direct-return statuses 0..2
+(Injured, Banned, International), because those return before the later native
+override helper can replace them. Lower-priority statuses remain fail-closed
+until all override state, especially Cup-Tied and special Non-EU registration
+state, is represented exactly by the clean-room runtime.
 """
 from __future__ import annotations
 
@@ -73,6 +74,10 @@ STATUS_OVERRIDE_BIT15_FRAME_INDEX = 10
 STATUS_OVERRIDE_BIT12_FRAME_INDEX = 6
 
 
+SQUAD_SCF_LIST_LOCAL_X = 239
+SQUAD_STATUS_RECT = (1, 1, 18, 14)
+
+
 @dataclass(frozen=True)
 class OriginalSquadStatusAtlas:
     path: Path
@@ -110,6 +115,24 @@ class OriginalSquadStatusFrame:
             raise OriginalSquadStatusError("Squad status frame geometry drifted")
         if len(self.rgba) != self.width * self.height * 4:
             raise OriginalSquadStatusError("Incomplete Squad status frame RGBA")
+
+
+@dataclass(frozen=True)
+class OriginalSquadStatusOverlay:
+    frame_index: int
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+
+    def __post_init__(self) -> None:
+        if type(self.frame_index) is not int or self.frame_index not in DIRECT_STATUS_FRAME_INDICES:
+            raise OriginalSquadStatusError("Unsafe or invalid direct Squad status frame")
+        if (self.width, self.height) != FRAME_SIZE:
+            raise OriginalSquadStatusError("Direct Squad status overlay geometry drifted")
+        if len(self.rgba) != self.width * self.height * 4:
+            raise OriginalSquadStatusError("Incomplete direct Squad status overlay RGBA")
 
 
 @dataclass(frozen=True)
@@ -267,6 +290,45 @@ def load_verified_squad_status_resources(
         for index in range(atlas.frame_count)
     )
     return OriginalSquadStatusResources(atlas=atlas, frames=frames)
+
+
+def build_first_roster_direct_status_overlays(
+    rows,
+    resources: OriginalSquadStatusResources,
+) -> tuple[OriginalSquadStatusOverlay, ...]:
+    """Place only direct-return PSCFRow status frames on the first roster."""
+    if not isinstance(resources, OriginalSquadStatusResources):
+        raise OriginalSquadStatusError(
+            "Direct Squad status rendering requires verified original status resources"
+        )
+    from original_squad_resources import SQUAD_FIRST_ROSTER_RECT, SQUAD_PANEL_RECT
+
+    panel_x, panel_y, _panel_width, _panel_height = SQUAD_PANEL_RECT
+    local_x, local_y, width, height = SQUAD_STATUS_RECT
+    overlays: list[OriginalSquadStatusOverlay] = []
+    for row in tuple(rows):
+        row_y = getattr(row, "y", None)
+        frame_index = getattr(row, "native_status_frame_index", None)
+        if type(row_y) is not int:
+            raise OriginalSquadStatusError("Squad row y must be an integer")
+        if frame_index is None:
+            continue
+        if type(frame_index) is not int or frame_index not in DIRECT_STATUS_FRAME_INDICES:
+            raise OriginalSquadStatusError(
+                "Lower-priority Squad status frame remains unresolved"
+            )
+        frame = resources.frame(frame_index)
+        overlays.append(
+            OriginalSquadStatusOverlay(
+                frame_index=frame_index,
+                x=panel_x + SQUAD_FIRST_ROSTER_RECT.x + SQUAD_SCF_LIST_LOCAL_X + local_x,
+                y=panel_y + SQUAD_FIRST_ROSTER_RECT.y + row_y + local_y,
+                width=width,
+                height=height,
+                rgba=frame.rgba,
+            )
+        )
+    return tuple(overlays)
 
 
 def validate_original_squad_status_atlas(
