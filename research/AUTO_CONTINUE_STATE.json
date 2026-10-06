@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 341: Gate 13/#482 remains externally open. Independent Gate-14 work-ahead branch recovery341-gate14-wpf-startup-acceptance replaces stale schema-1/MCI startup acceptance with schema-2 production run_original_game_ui + exact WindowsWpfStartupMediaBackend child-HWND verification, and rejects old MCI receipts. Open/validate PR; merge only if applicable CI is green.",
+  "active_task": "Recovery 341: PR #496 head e6b79674eddc6847f0f8e306ce9403267f7b37b5 is the Gate-14 work-ahead schema-2 production WPF startup acceptance repair. Asset run 37426076722 passed. Full reconstruction run 37426076719 is pending while prior same-branch run 37425747818 drains/cancels under concurrency. Merge only after the exact-head full suite passes. Gate 13/#482 remains earliest incomplete and externally blocked.",
   "last_known_main_head": "f97238798f05931c9d952786ac256f1974ab3e36",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 341,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 341 WPF startup acceptance tooling repair checkpoint. Main latest is f97238798f05931c9d952786ac256f1974ab3e36; Gate 13 remains earliest incomplete.",
+  "note": "Recovery 341 heartbeat during PR #496 exact-head validation. Stale MCI wording was removed from Gate14 readiness; exact-head asset policy is green.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
