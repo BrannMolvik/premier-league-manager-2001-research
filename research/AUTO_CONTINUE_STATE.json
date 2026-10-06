@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 351: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is c624387f9fd0464148ed3a8c370c292d01618918. PR #499 active exact head is 3f381f8c7e22f9cd95f35337017b2a34792b066d. Prior head 67d92aa passed asset/full suite and completed the canonical h264_mf/AAC synthetic conversion, then failed only at null video decode verification because wrapped_avframe was disabled. Pinned FFmpeg nullenc.c proves Windows null defaults: wrapped_avframe video + pcm_s16le audio. Current head adds exactly those internal encoders to source contract/build audit and documents the source boundary. Asset policy 37497778288 passed; Windows package 37497778304, full reconstruction 37497778268, and exact-source build+roundtrip 37497778277 are running. Merge only after all exact-head checks pass and inspect roundtrip receipt/artifact. Keep exact-original-TGQ, external playback, source-material completeness, production migration, and legal compliance false.",
-  "last_known_main_head": "c624387f9fd0464148ed3a8c370c292d01618918",
+  "active_task": "Recovery 352: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is f71b56c57a16b8d0984f8257066727cecdd19bb9. PR #499 is merged as d918d62124dee8d10fdc6368ce67bb54b845939c after exact-head asset 37497778288, Windows package 37497778304, full reconstruction 37497778268, and build+synthetic-roundtrip 37497778277 passed. Synthetic output was H.264/yuv420p 640x480 25fps/25 frames + AAC 22050 stereo, derivative SHA ac94e0d232eb7be28466e48f95e86405056b08ea887f1e0641bcd590ae72b603. Local process execution has recovered. Exact next task: materialize authorized private source, recover exact original easp.tgq and premintro.tgq by pinned hashes, and run the newly proven minimal helper conversion against them without committing TGQ bytes. Keep external playback, source-material completeness, production migration readiness and legal compliance false until separately proven.",
+  "last_known_main_head": "f71b56c57a16b8d0984f8257066727cecdd19bb9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 351,
+  "recovery_generation": 352,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 351: #499 3f381f8 adds source-proven null muxer default verification encoders after real roundtrip reached decode-verification boundary.",
+  "note": "Recovery 352: #499 merged and documented. Execution sandbox recovered; proceeding to exact private original-TGQ conversion proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
