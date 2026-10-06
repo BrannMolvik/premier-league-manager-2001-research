@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 332,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #489 merged after all four validations. Native Position record initializer proves +0x0C is the second localized string field after +0x08 name; Static.dat parser order is name then abbreviation, so Squad role text can now be source-bound to Position.abbreviation.",
+  "recovery_generation": 333,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery resumed from canonical merged PR #489 checkpoint. Continuing exact active Squad assigned-role Position.abbreviation fidelity slice; no prior investigation restarted.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
