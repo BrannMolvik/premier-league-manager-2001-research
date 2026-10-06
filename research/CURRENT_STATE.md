@@ -1,3 +1,69 @@
+# Recovery 351 continuation — synthetic minimal FFmpeg startup roundtrip proven
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `d918d62124dee8d10fdc6368ce67bb54b845939c`,
+which merges PR #499 after the same freshly built minimal FFmpeg helper passed
+the production-shaped synthetic startup conversion path.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** until
+Daniel completes the required normal Windows 11 acceptance on artifact
+`11418314765`. No newer external acceptance result is recorded.
+
+PR #499 exact head `3f381f8c7e22f9cd95f35337017b2a34792b066d`
+passed:
+
+- repository asset policy run `37497778288`;
+- Windows package run `37497778304`;
+- full reconstruction run `37497778268`;
+- Gate-17 exact-source build + synthetic roundtrip run `37497778277`.
+
+The roundtrip receipt proves that the exact minimal helper built in that same
+job accepted an ephemeral 320x480 H.264/AAC fixture, applied the canonical
+`scale=640:480:flags=neighbor` transform, encoded H.264 through `h264_mf`,
+encoded AAC, muxed MP4, and then decode-verified both video and audio through
+the null/progress path.
+
+Verified synthetic output:
+
+- H.264 / `yuv420p`, 640x480, 25 fps, exactly 25 frames;
+- AAC, 22050 Hz, stereo;
+- MP4 container;
+- video decode verification = true;
+- audio decode verification = true;
+- derivative SHA-256
+  `ac94e0d232eb7be28466e48f95e86405056b08ea887f1e0641bcd590ae72b603`.
+
+The same receipt keeps these stronger claims false:
+
+- exact original TGQ conversion;
+- external Windows 11 playback;
+- source-material completeness;
+- production migration readiness;
+- legal compliance claimed.
+
+Build/roundtrip artifact `11428856884`,
+`gate17-minimal-ffmpeg-build-3f381f8c7e22f9cd95f35337017b2a34792b066d`,
+has Actions digest
+`sha256:1fb2aa9086e970f103699293afd40a34e030fdb454eee3c5a9785826b83792bf`
+and expires 20 October 2026.
+
+Local process execution has recovered. Exact next private-source step is now to
+materialize the authorized original archive, recover the two canonical startup
+TGQs by their already-pinned hashes, and run the newly proven minimal helper
+against those exact original inputs. No private TGQ bytes should be committed.
+If that proof passes, preserve only hashes/metadata/receipt evidence and continue
+toward external Windows playback/source-material readiness without promoting
+production packaging prematurely.
+
+The separate Gate-13 mode-1 Cup-Tied source trace also becomes executable again
+at `0x422E7E -> CPlayerTransferHistory::0x4EBF60` and globals
+`0x8755E8/0x8755EC/0x8755F0`; however, Gate-17 original-TGQ verification is
+the current work-ahead task because it directly follows the just-verified
+minimal-helper chain.
+
+---
+
 # Recovery 350 continuation — minimal FFmpeg exact-source build proven; synthetic roundtrip next
 
 _Updated 7 October 2026._

@@ -11923,3 +11923,25 @@ continues with ordinary Squad row display-name/color helpers.
 - Gate 13 remains open for Daniel's normal Windows acceptance; the private
   Cup-Tied trace remains blocked only by the unavailable local execution
   sandbox.
+
+
+## 7 October 2026 KST — Recovery 351 synthetic minimal FFmpeg roundtrip proven
+
+- PR #499 merged as `d918d62124dee8d10fdc6368ce67bb54b845939c`.
+- Exact head `3f381f8c7e22f9cd95f35337017b2a34792b066d` passed asset policy
+  `37497778288`, Windows package `37497778304`, full reconstruction
+  `37497778268`, and exact-source build/roundtrip `37497778277`.
+- The freshly built minimal helper completed the canonical synthetic startup
+  path: 320x480 H.264/AAC input -> recovered
+  `scale=640:480:flags=neighbor` -> `h264_mf` + AAC -> MP4.
+- Output verification proved H.264/yuv420p 640x480 at 25 fps with 25 frames,
+  AAC 22050 Hz stereo, plus successful video/audio null decode verification.
+- Synthetic derivative SHA-256 is
+  `ac94e0d232eb7be28466e48f95e86405056b08ea887f1e0641bcd590ae72b603`.
+- Artifact `11428856884` digest is
+  `sha256:1fb2aa9086e970f103699293afd40a34e030fdb454eee3c5a9785826b83792bf`.
+- Exact-original-TGQ, external playback, source-material completeness,
+  production migration readiness and legal-compliance claims remain false.
+- Local process execution has recovered; next work-ahead is private exact
+  original-TGQ conversion using authorized source bytes without committing them.
+- Gate 13 remains externally blocked on Daniel's normal Windows acceptance.
