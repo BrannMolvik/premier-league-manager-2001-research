@@ -59,6 +59,10 @@ class CupTiedPlayerCollectionTests(unittest.TestCase):
 
         self.assertEqual(cup_tied_root_competition_id(51, competitions), 50)
 
+    def test_incomplete_competition_metadata_fails_closed(self):
+        competitions = {100: object()}
+        self.assertIsNone(cup_tied_root_competition_id(100, competitions))
+
     def test_malformed_parent_cycle_fails_closed(self):
         competitions = {
             1: Competition(1, 1, 2),
