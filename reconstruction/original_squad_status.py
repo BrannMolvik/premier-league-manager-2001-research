@@ -68,6 +68,11 @@ ON_LOAN_ALTERNATE_FRAME_INDEX = 13
 # only status frames provably immune to later 0x418360 overrides are 0..2.
 DIRECT_STATUS_FRAME_INDICES = (0, 1, 2)
 DIRECT_STATUS_TEXT = STATUS_DEFINITION_TEXT[:3]
+# Additional frames that can now be published without completing every
+# 0x418360 negative branch. Frame 13 is the exact higher-priority loan
+# override. Frame 3 is safe only from a positively proven current-match
+# Cup-Tied collection hit while the higher Non-EU override is proven false.
+SOURCE_QUALIFIED_STATUS_FRAME_INDICES = (0, 1, 2, 3, 13)
 STATUS_SCAN_ALWAYS_SKIP_INDEX = 3
 STATUS_SCAN_CONTEXT_SKIP_INDICES = (4, 5)
 STATUS_OVERRIDE_BIT15_FRAME_INDEX = 10
@@ -127,8 +132,13 @@ class OriginalSquadStatusOverlay:
     rgba: bytes
 
     def __post_init__(self) -> None:
-        if type(self.frame_index) is not int or self.frame_index not in DIRECT_STATUS_FRAME_INDICES:
-            raise OriginalSquadStatusError("Unsafe or invalid direct Squad status frame")
+        if (
+            type(self.frame_index) is not int
+            or self.frame_index not in SOURCE_QUALIFIED_STATUS_FRAME_INDICES
+        ):
+            raise OriginalSquadStatusError(
+                "Unsafe or invalid source-qualified Squad status frame"
+            )
         if (self.width, self.height) != FRAME_SIZE:
             raise OriginalSquadStatusError("Direct Squad status overlay geometry drifted")
         if len(self.rgba) != self.width * self.height * 4:
@@ -178,6 +188,57 @@ def direct_squad_status_frame_index(
         return 1
     if international:
         return 2
+    return None
+
+
+def source_qualified_squad_status_frame_index(
+    *,
+    injured: bool,
+    banned: bool,
+    international: bool,
+    alternate_on_loan: bool,
+    non_eu: bool,
+    cup_tied_positive: bool,
+) -> int | None:
+    """Resolve only PSCF statuses whose native priority outcome is proven.
+
+    0x418330 returns frames 0..2 before the override helper. 0x418360 then
+    prioritizes alternate On-loan frame 13, special Non-EU frame 12, and
+    Cup-Tied frame 3. The complete Non-EU registration expiry lifecycle and
+    the mode-1 Cup-Tied negative transfer-history cutoff remain incomplete.
+
+    Consequently:
+    - direct 0/1/2 are always safe;
+    - exact active-loan mismatch is safely frame 13;
+    - a true Non-EU state blocks lower publication because frame 12 may win;
+    - a positive source-qualified Cup-Tied collection hit is safely frame 3;
+    - every other lower result remains unresolved rather than guessed.
+    """
+    states = (
+        injured,
+        banned,
+        international,
+        alternate_on_loan,
+        non_eu,
+        cup_tied_positive,
+    )
+    if any(type(value) is not bool for value in states):
+        raise OriginalSquadStatusError(
+            "Source-qualified Squad status states must be booleans"
+        )
+    direct = direct_squad_status_frame_index(
+        injured=injured,
+        banned=banned,
+        international=international,
+    )
+    if direct is not None:
+        return direct
+    if alternate_on_loan:
+        return ON_LOAN_ALTERNATE_FRAME_INDEX
+    if non_eu:
+        return None
+    if cup_tied_positive:
+        return 3
     return None
 
 
@@ -313,9 +374,12 @@ def build_first_roster_direct_status_overlays(
             raise OriginalSquadStatusError("Squad row y must be an integer")
         if frame_index is None:
             continue
-        if type(frame_index) is not int or frame_index not in DIRECT_STATUS_FRAME_INDICES:
+        if (
+            type(frame_index) is not int
+            or frame_index not in SOURCE_QUALIFIED_STATUS_FRAME_INDICES
+        ):
             raise OriginalSquadStatusError(
-                "Lower-priority Squad status frame remains unresolved"
+                "Squad status frame is not source-qualified for rendering"
             )
         frame = resources.frame(frame_index)
         overlays.append(
