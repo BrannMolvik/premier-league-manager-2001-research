@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 357 checkpoint a00dbefd7fe7ce2206eb75b11af769b0b73a2312 source-closes the Cup-Tied DBRGame selector/date cutoffs and corrects CPlayerTransferHistory +0x18 as transfer date (+0x1C is appearance count). Gate 13 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Exact next repository task: audit the clean transfer commit workflow for prior-club/history availability and transfer-date propagation, then implement/test the DBRGame selector/cutoff lifecycle and mode-1 negative Cup-Tied fallback only where those exact inputs are source-backed; otherwise preserve fail-closed behavior and record the missing seam.",
-  "last_known_main_head": "a00dbefd7fe7ce2206eb75b11af769b0b73a2312",
+  "active_task": "Recovery 357: source primitive CupTiedTransferWindowState is committed and 11 focused tests pass at main 9a32ddf7b65dd8d425afa897643fa6a7e7c3c5e6. Gate 13 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Exact next repository task: integrate/persist the DBRGame Cup-Tied transfer window, reuse persisted latest PlayerMovement as clean transfer-history +0x08/+0x18, and expose the root mode-1 fallback only through the current-match Squad status resolver. Verify through PR CI before merging.",
+  "last_known_main_head": "9a32ddf7b65dd8d425afa897643fa6a7e7c3c5e6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 357,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 357: main checkpoint a00dbefd source-closes Cup-Tied DBRGame date semantics; continuing clean transfer-history integration audit.",
+  "note": "Recovery 357: verified Cup-Tied date-window primitive at 9a32ddf7; proceeding with persisted GameState/Squad mode-1 integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
