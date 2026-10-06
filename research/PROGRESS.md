@@ -11868,3 +11868,31 @@ continues with ordinary Squad row display-name/color helpers.
 - Private Cup-Tied source tracing remains sandbox-deferred at
   `0x422E7E -> CPlayerTransferHistory::0x4EBF60` and
   `0x8755E8/EC/F0`; no unresolved semantics are inferred.
+
+
+## 6 October 2026 KST — Recovery 347 Windows exact-byte package repair merged
+
+- PR #498 merged as
+  `e24485b5987feca5c5c279596ee6bd6709d620c8`.
+- Its final validated head
+  `33d3419bbca133ba9c6c9c9c2425e6fc0f39774c` and merged main have the
+  identical Git tree `6407b5a46da1557253862d4729f2e7674369cc3f`.
+- Exact-head Gate-13 presentation `37476333087`, full reconstruction
+  `37476333090`, asset policy `37476333115`, and Windows package
+  `37476333086` all passed.
+- Frozen `FM2001-Windows11.exe --package-smoke` restored the pinned PStartMenu
+  manifest SHA-256
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`
+  and built the real production first-screen presenter to `pstartmenu`.
+- Windows candidate artifact `11418314765` is
+  `FM2001-Windows11-33d3419bbca133ba9c6c9c9c2425e6fc0f39774c`,
+  Actions digest
+  `sha256:bfb13b13236302064c73d6f3959613ceb7d2e53b6520270302fa0a813e89c8f6`.
+  Inner release archive SHA-256 is
+  `eb3cd65c729152469ac36def2186eb7be76b2f1ae22d95ca031907b9c8e7ebdb`.
+- Issue #482 now carries this acceptance provenance. Hosted validation closes
+  the CRLF/presenter-build blocker, but Gate 13 remains open for Daniel's normal
+  Windows 11 playability/visual acceptance.
+- Independent cloud-safe later-gate work may resume. Private Cup-Tied source
+  tracing remains deferred only because the execution sandbox cannot start
+  processes; no unresolved semantics are inferred.

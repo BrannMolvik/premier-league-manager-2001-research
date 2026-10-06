@@ -1,3 +1,57 @@
+# Recovery 347 continuation — packaged PStartMenu blocker fixed; Gate 13 external acceptance ready
+
+_Updated 6 October 2026._
+
+Canonical `main` is now `e24485b5987feca5c5c279596ee6bd6709d620c8`.
+PR #497 and PR #498 are merged. **Gate 13 / issue #482 remains the earliest
+incomplete validation gate** only until Daniel completes the required normal
+Windows 11 playability/visual acceptance on the repaired candidate.
+
+PR #498 fixed the Windows checkout CRLF corruption of the exact-byte pinned
+PStartMenu derivative without weakening the provenance guard. Its final
+validated head `33d3419bbca133ba9c6c9c9c2425e6fc0f39774c` has the exact same
+Git tree as merged main (`6407b5a46da1557253862d4729f2e7674369cc3f`).
+
+Exact-head validation is green:
+
+- Gate-13 presentation run `37476333087`: success;
+- full reconstruction run `37476333090`: success;
+- repository asset-policy run `37476333115`: success;
+- Windows package run `37476333086`: success.
+
+The frozen Windows executable's `--package-smoke` now exercises the actual
+production PStartMenu presenter-build boundary and reports:
+
+- pinned manifest SHA-256
+  `cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`;
+- `pstartmenu_presenter_build_passed=true`;
+- `pstartmenu_presenter_screen=pstartmenu`.
+
+The acceptance candidate is Actions artifact `11418314765`,
+`FM2001-Windows11-33d3419bbca133ba9c6c9c9c2425e6fc0f39774c`
+(Actions wrapper digest
+`sha256:bfb13b13236302064c73d6f3959613ceb7d2e53b6520270302fa0a813e89c8f6`).
+Its inner deterministic release archive SHA-256 is
+`eb3cd65c729152469ac36def2186eb7be76b2f1ae22d95ca031907b9c8e7ebdb`.
+The artifact expires 20 October 2026. Issue #482 contains the exact provenance
+and remains open for startup -> New Game -> TeamSelect -> Start -> fresh
+Squad/management acceptance.
+
+Do not mark Gate 13 complete from hosted CI alone. The next external criterion
+is Daniel's normal Windows run for responsiveness, recognizability, populated
+fresh Squad presentation, and ordinary management navigation.
+
+Independent cloud-safe work should continue while that external acceptance is
+pending. Gate-17 FFmpeg release work may resume because the #482 packaging
+blocker is fixed. The private mode-1 Cup-Tied trace remains execution-sandbox
+deferred: the authorized 511,121,336-byte source archive rematerializes, but
+local process execution currently returns `TooManyRequestsError`. When the
+sandbox recovers, resume exactly at
+`0x422E7E -> CPlayerTransferHistory::0x4EBF60` and then trace
+`0x8755E8/0x8755EC/0x8755F0`; do not infer those semantics.
+
+---
+
 # Recovery 347 continuation — PR #497 merged; Windows manifest EOL regression repair active
 
 _Updated 6 October 2026._
