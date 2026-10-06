@@ -11988,3 +11988,25 @@ continues with ordinary Squad row display-name/color helpers.
 - Proved `0x874B88` is only a 16-byte dynamic-array header for 0x2A8-byte
   records, eliminating an unrelated tactics-enum coincident-offset false lead.
 - No negative Cup-Tied fallback was implemented; it remains fail-closed.
+
+
+## 7 October 2026 KST — Recovery 356 toolchain provenance + Cup-Tied writer elimination
+
+- Merged PR #501 as `a6711b09aac00d784c07570f6cdbfdc60e24687e` after exact-head
+  asset-policy `37506276574`, Windows-package `37506276605`, full
+  reconstruction `37506276550`, and minimal-build `37506276513` all
+  passed.
+- Inspected build artifact `11431743521` (digest
+  `sha256:ec6ce0ab49e7e0b5aa9b4c2b6df5f01dd0f6c62f02c75588c91a67e8d82b0db9`).
+  Action/toolchain identities and critical MSYS2 package versions are pinned;
+  complete package lock, source-material completeness, and legal-compliance
+  claims intentionally remain false.
+- Continued first-hand canonical executable tracing of Cup-Tied globals.
+  The only plausible indexed writer at `0x4A4845/0x4A485E` belongs to a
+  source-proven 48-slot parallel-table family at `0x875510..0x8755CF`.
+  The Cup-Tied selector/cutoffs `0x8755E8/EC/F0` lie in the following scalar
+  region and would require illegal indices 54/55/56.
+- Direct refs remain read-only, raw address scans expose no address-taking
+  refs, the globals are PE-BSS-zero, and no shipped text/config/help rule key
+  was found. A computed/block initializer is still not formally excluded, so
+  negative mode-1 Cup-Tied stays fail-closed.

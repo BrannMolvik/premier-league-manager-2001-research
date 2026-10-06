@@ -1,3 +1,59 @@
+# Recovery 356 continuation — FFmpeg toolchain provenance merged; Cup-Tied table false lead eliminated
+
+_Updated 7 October 2026._
+
+Canonical `main` is `a6711b09aac00d784c07570f6cdbfdc60e24687e`,
+which merges PR #501's Gate-17 minimal-FFmpeg toolchain-provenance checkpoint.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** only
+because Daniel's normal Windows 11 acceptance on artifact `11418314765`
+is still outstanding.
+
+PR #501 exact head `59d99fc7ca35ac8d4a9bd89252df80b156c64efb`
+passed:
+
+- repository asset policy `37506276574`;
+- Windows release candidate package `37506276605`;
+- full reconstruction `37506276550`;
+- minimal FFmpeg exact-source build proof `37506276513`.
+
+Its build artifact `11431743521`,
+`gate17-minimal-ffmpeg-build-59d99fc7ca35ac8d4a9bd89252df80b156c64efb`,
+has Actions digest
+`sha256:ec6ce0ab49e7e0b5aa9b4c2b6df5f01dd0f6c62f02c75588c91a67e8d82b0db9`.
+The receipt pins the successful action/toolchain identities and critical MSYS2
+package versions, but deliberately keeps `complete_package_lock`,
+`source_material_complete`, and `legal_compliance_claimed` false.
+
+Private canonical-executable analysis has also eliminated the only concrete
+indirect-writer candidate found for the unresolved Cup-Tied globals
+`0x8755E8/0x8755EC/0x8755F0`:
+
+- the writer at `0x4A4845/0x4A485E` targets base `0x875510` using
+  `index = 6 * outer_category + inner_rank`;
+- the surrounding generated families are ten parallel `0xC0`-byte DWORD
+  tables, i.e. exactly 48 slots each, followed by a 48-byte companion table
+  at `0x8754E0`;
+- consequently `0x875510` is a 48-DWORD table ending at `0x8755CF`;
+- `0x8755D0` begins a distinct scalar-global region, so the Cup-Tied
+  selector/cutoffs are entries 54/55/56 only under an out-of-bounds
+  interpretation, not legal table members;
+- consumer code independently computes the same six-per-category index before
+  accessing these 48-slot tables;
+- direct xrefs to `0x8755E8/EC/F0` remain read-only, raw-address scans find
+  no address-taking references to them, and the values reside in
+  zero-initialized PE BSS;
+- a scan of shipped text/config/help material finds no Cup-Tied rule key or
+  cutoff setting outside the status/localization strings and executable.
+
+This does not yet prove that no opaque computed-pointer initializer can ever
+write those three scalars, so the negative mode-1 Cup-Tied fallback remains
+fail-closed. The exact next source task is now narrower: trace initialization
+of the scalar region `0x8755D0..0x8755FC` and either identify a legitimate
+computed producer for `E8/EC/F0` or prove they remain loader-zero in the
+shipped build. Do not infer hypothetical configurable values.
+
+---
+
 # Recovery 354 continuation — transfer-history value corrected to club appearances
 
 _Updated 7 October 2026._

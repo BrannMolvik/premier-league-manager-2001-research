@@ -280,3 +280,40 @@ types are unrelated and must not name the Cup-Tied globals.
 
 The negative mode-1 Cup-Tied fallback remains fail-closed until the standalone
 global selector/cutoff loader is source-closed.
+
+
+## Recovery 356 — 0x875510 indexed-table writer is not the Cup-Tied producer
+
+A complete static-address audit found one plausible-looking indirect store near
+the Cup-Tied globals: `0x4A4845` computes
+`0x875510 + 4 * edi`, and `0x4A485E` conditionally stores a generated
+value there. Following its producer and consumers closes this as a false lead.
+
+The generator computes `edi = 6 * outer_category + inner_rank` for eight
+outer categories. The same function writes parallel values to bases
+`0x874E20`, `0x874EE0`, `0x874FA0`, `0x875060`, `0x875120`,
+`0x8751E0`, `0x8752A0`, `0x875360`, and `0x875420`; every adjacent
+DWORD base is exactly `0xC0` bytes apart, proving 48 slots per family.
+A byte companion at `0x8754E0` occupies exactly 48 bytes before the
+`0x875510` table. Downstream UI/presentation code recomputes
+`inner + 6 * category` before reading the same families.
+
+Thus the legal `0x875510` table span is `0x875510..0x8755CF`. The scalar
+region begins at `0x8755D0`; the unresolved Cup-Tied values at
+`0x8755E8/EC/F0` would require indices 54/55/56 and therefore cannot be
+ordinary members of the 48-slot generated table. Treating this writer as their
+producer would require an out-of-bounds corruption interpretation unsupported
+by the recovered consumers/layout.
+
+Additional static checks continue to show:
+- all direct references to `0x8755E8/EC/F0` are reads in the four known
+  Cup-Tied decision sites;
+- no raw address-taking reference to those exact globals exists in the PE;
+- the three values lie in zero-initialized BSS;
+- shipped text/config/help files expose no corresponding rule key or cutoff
+  setting.
+
+This narrows, but does not fully close, the producer question because an opaque
+computed-pointer/block initializer has not yet been formally excluded. Keep
+the negative fallback disabled until the scalar-region initialization is
+source-closed.
