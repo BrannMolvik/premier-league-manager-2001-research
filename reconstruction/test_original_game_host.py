@@ -1254,7 +1254,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertGreaterEqual(item[1], 234)
             self.assertLess(item[1], 248)
 
-    def test_squad_landing_draws_only_override_safe_native_status_icon(self):
+    def test_squad_landing_draws_source_qualified_native_status_icons(self):
         host = OriginalGameTkHost(
             presenter(),
             FakeRoot(),
@@ -1290,6 +1290,25 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[-1][:2], (277, 234))
         status_photo = host.canvas.images[-1][2]["image"]
         self.assertEqual((status_photo.width, status_photo.height), (18, 14))
+
+        for frame_index in (3, 13):
+            host.canvas.delete("all")
+            host._photos = []
+            qualified = SimpleNamespace(**{
+                **row.__dict__,
+                "native_status_frame_index": frame_index,
+            })
+            qualified_frame = SimpleNamespace(
+                presentation=SimpleNamespace(
+                    panel_class="PSquadScreen",
+                    squad_view_transition=squad_view_transition(3),
+                    squad=SimpleNamespace(rows=(qualified,)),
+                )
+            )
+            self.assertEqual(host._draw_squad_rows(qualified_frame), 6)
+            self.assertEqual(host.canvas.images[-1][:2], (277, 234))
+            status_photo = host.canvas.images[-1][2]["image"]
+            self.assertEqual((status_photo.width, status_photo.height), (18, 14))
 
     def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
