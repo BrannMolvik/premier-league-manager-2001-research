@@ -170,6 +170,10 @@ disabled. It retains only:
   each generated derivative before accepting its cache receipt;
 - native AAC encoding plus FFmpeg's internal `aresample` filter, because the
   AAC encoder accepts FLTP while EA audio decoders may produce integer PCM;
+- FFmpeg's internal `scale` filter / `swscale` dependency because the
+  canonical startup converter always applies
+  `scale=640:480:flags=neighbor` to reproduce the recovered 2x horizontal
+  pixel duplication;
 - Windows Media Foundation `h264_mf`;
 - the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
   muxing machinery, plus the `mov` demuxer so FFprobe and runtime decode
