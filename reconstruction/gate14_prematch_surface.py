@@ -20,7 +20,10 @@ from gate14_fastview_surfaced_resource_loader import (
     VerifiedFastViewSurfacedResource,
     load_verified_selected_background,
 )
-from gate14_prematch_rating_widths import PrematchTeamRatingWidths
+from gate14_prematch_rating_widths import (
+    PrematchTeamRatingWidths,
+    source_prematch_team_rating_widths,
+)
 from original_front_end_layout import OriginalRect
 from original_prematch_panel import (
     PREMATCH_ACTIVE_LEFT,
@@ -289,6 +292,21 @@ def _layer_from_decoded(role, rect, spec, decoded) -> PrematchRasterLayer:
     )
 
 
+def bind_prematch_rating_state(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    left_starters,
+    right_starters,
+    positions: Mapping[int, object],
+) -> BoundPrematchRatingRows:
+    """Bind both source XIs through the native rating calculation and geometry."""
+    return bind_prematch_rating_widths(
+        boundary,
+        left_widths=source_prematch_team_rating_widths(left_starters, positions),
+        right_widths=source_prematch_team_rating_widths(right_starters, positions),
+    )
+
+
 def build_verified_prematch_surface_boundary(
     *,
     match_date: date,
@@ -394,6 +412,7 @@ def prematch_surface_contract() -> dict:
             row.native_record_discriminator for row in PREMATCH_RATING_ROWS
         ),
         "rating_width_binding_available": True,
+        "rating_state_binding_available": True,
         "rating_dynamic_widths_bound_by_resource_loader": False,
         "rating_dynamic_widths_bound_to_cleanroom_state": False,
         "full_cross_layer_draw_order_recovered": False,
