@@ -1,0 +1,113 @@
+name: Gate 17 minimal FFmpeg build proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/gate17-minimal-ffmpeg-build.yml"
+      - "third_party/ffmpeg-lgpl-candidate/SOURCE-CONTRACT.json"
+      - "reconstruction/gate17_ffmpeg_minimal_source_contract.py"
+      - "reconstruction/gate17_ffmpeg_minimal_build_audit.py"
+      - "reconstruction/test_gate17_ffmpeg_minimal_build_audit.py"
+  workflow_dispatch:
+
+concurrency:
+  group: gate17-minimal-ffmpeg-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-proof:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Preserve LF line endings
+        shell: pwsh
+        run: git config --global core.autocrlf input
+
+      - name: Check out exact port candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Audit source contract and materialize configure args
+        shell: pwsh
+        run: |
+          python -c "from reconstruction.gate17_ffmpeg_minimal_source_contract import audit_source_contract; import json; print(json.dumps(audit_source_contract('.'), indent=2, sort_keys=True))"
+          python -c "import json,pathlib; p=json.loads(pathlib.Path('third_party/ffmpeg-lgpl-candidate/SOURCE-CONTRACT.json').read_text(encoding='utf-8')); pathlib.Path('_minimal-ffmpeg-configure.args').write_text('\n'.join(p['minimal_helper_target']['configure_args'])+'\n', encoding='utf-8', newline='\n')"
+
+      - name: Check out pinned FFmpeg source
+        uses: actions/checkout@v4
+        with:
+          repository: FFmpeg/FFmpeg
+          ref: 46d8f462eeb87ee1f704d8c44a0ee24fca471ad1
+          path: _ffmpeg-source
+          fetch-depth: 1
+
+      - name: Set up native UCRT64 build environment
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            make
+            diffutils
+            pkgconf
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-nasm
+
+      - name: Build exact minimal FFmpeg helper
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/_ffmpeg-source"
+          mapfile -t CONFIGURE_ARGS < <(tr -d '\r' < "$GITHUB_WORKSPACE/_minimal-ffmpeg-configure.args")
+          printf 'Pinned configure args:\n'
+          printf '  %s\n' "${CONFIGURE_ARGS[@]}"
+          ./configure "${CONFIGURE_ARGS[@]}"
+          make -j2 ffmpeg.exe ffprobe.exe
+
+          OUT="$GITHUB_WORKSPACE/_minimal-ffmpeg-build"
+          mkdir -p "$OUT"
+          cp ffmpeg.exe ffprobe.exe COPYING.LGPLv2.1 "$OUT/"
+          git rev-parse HEAD | tr -d '\r' > "$OUT/source-commit.txt"
+          objdump -p ffmpeg.exe > "$OUT/ffmpeg-objdump.txt"
+          objdump -p ffprobe.exe > "$OUT/ffprobe-objdump.txt"
+          cp ffbuild/config.mak ffbuild/config.log "$OUT/"
+
+      - name: Audit built helper and write proof receipt
+        shell: pwsh
+        run: |
+          python reconstruction/gate17_ffmpeg_minimal_build_audit.py `
+            --repo-root "." `
+            --ffmpeg "_minimal-ffmpeg-build/ffmpeg.exe" `
+            --ffprobe "_minimal-ffmpeg-build/ffprobe.exe" `
+            --source-commit-file "_minimal-ffmpeg-build/source-commit.txt" `
+            --source-license-file "_minimal-ffmpeg-build/COPYING.LGPLv2.1" `
+            --ffmpeg-imports "_minimal-ffmpeg-build/ffmpeg-objdump.txt" `
+            --ffprobe-imports "_minimal-ffmpeg-build/ffprobe-objdump.txt" `
+            --output-receipt "_minimal-ffmpeg-build/build-proof.json"
+
+      - name: Upload exact minimal build proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate17-minimal-ffmpeg-build-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            _minimal-ffmpeg-build/ffmpeg.exe
+            _minimal-ffmpeg-build/ffprobe.exe
+            _minimal-ffmpeg-build/COPYING.LGPLv2.1
+            _minimal-ffmpeg-build/source-commit.txt
+            _minimal-ffmpeg-build/ffmpeg-objdump.txt
+            _minimal-ffmpeg-build/ffprobe-objdump.txt
+            _minimal-ffmpeg-build/config.mak
+            _minimal-ffmpeg-build/config.log
+            _minimal-ffmpeg-build/build-proof.json
+          if-no-files-found: error
+          retention-days: 14

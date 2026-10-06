@@ -170,6 +170,10 @@ disabled. It retains only:
   each generated derivative before accepting its cache receipt;
 - native AAC encoding plus FFmpeg's internal `aresample` filter, because the
   AAC encoder accepts FLTP while EA audio decoders may produce integer PCM;
+- FFmpeg's internal `scale` filter / `swscale` dependency because the
+  canonical startup converter always applies
+  `scale=640:480:flags=neighbor` to reproduce the recovered 2x horizontal
+  pixel duplication;
 - Windows Media Foundation `h264_mf`;
 - the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
   muxing machinery, plus the `mov` demuxer so FFprobe and runtime decode
@@ -183,6 +187,15 @@ decoder and the `ea` input format as the Electronic Arts multimedia demuxer.
 FFmpeg's codec documentation lists `h264_mf` as a Media Foundation H.264
 encoder. These source facts bound the technical target but do not prove that
 the proposed minimal configure line builds successfully.
+
+The first fully compiled PE audit also exposed
+`libwinpthread-1.dll` as a dynamic dependency of the UCRT64 toolchain build.
+That dependency is outside FFmpeg's `--enable-lib*` surface. The minimal
+contract now requires `--extra-ldflags=-static` and continues to reject
+`libwinpthread-1.dll` in the final PE import table. This narrows deployment
+surface without pretending the embedded MinGW-w64/UCRT runtime has disappeared
+from provenance obligations; `source_material_complete` remains false until
+those materials are explicitly closed.
 
 All minimal-helper proof flags deliberately remain false. Promotion still
 requires an actual build from the pinned FFmpeg commit, synthetic conversion

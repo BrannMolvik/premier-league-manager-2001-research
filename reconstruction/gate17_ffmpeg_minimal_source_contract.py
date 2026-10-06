@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 from typing import Mapping
 
+from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+
 
 class MinimalFfmpegSourceContractError(RuntimeError):
     pass
@@ -136,6 +138,32 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must explicitly re-enable native Windows threads"
         )
+    if "--extra-ldflags=-static" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must statically link the MinGW/UCRT toolchain runtime"
+        )
+    expected_toolchain_linkage = {
+        "strategy": "static",
+        "configure_arg": "--extra-ldflags=-static",
+        "dynamic_runtime_dlls_forbidden": [
+            "libgcc_s*.dll",
+            "libstdc++-6.dll",
+            "libwinpthread-1.dll",
+            "libssp-0.dll",
+            "msys-2.0.dll",
+        ],
+        "provenance_boundary": (
+            "The MinGW-w64/UCRT toolchain runtime is build infrastructure, not an "
+            "FFmpeg --enable-lib* component. Static linkage removes a separate "
+            "runtime-DLL deployment dependency, but source_material_complete stays "
+            "false until required toolchain redistribution/source-license materials "
+            "are accounted for."
+        ),
+    }
+    if minimal.get("toolchain_runtime_linkage") != expected_toolchain_linkage:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper toolchain-runtime linkage contract drifted"
+        )
     if "--enable-demuxer=ea" not in args:
         raise MinimalFfmpegSourceContractError("minimal helper must enable the EA demuxer")
     if "--enable-demuxer=mov" not in args or minimal.get("required_derivative_input_demuxer") != "mov":
@@ -149,6 +177,22 @@ def audit_source_contract(repo_root: str | Path) -> dict:
     if "--enable-filter=aresample" not in args:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must retain internal aresample for AAC sample-format conversion"
+        )
+    if "--enable-filter=scale" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must retain the scale filter for the recovered startup presentation"
+        )
+    if minimal.get("required_internal_video_conversion") != {
+        "filter": "scale",
+        "expression": ORIGINAL_STARTUP_FMV_PRESENTATION.ffmpeg_filter,
+        "dependency": "swscale",
+        "reason": (
+            "Canonical FM2001 startup conversion bakes the source-proven 2x horizontal "
+            "nearest-neighbor treatment into each derivative."
+        ),
+    }:
+        raise MinimalFfmpegSourceContractError(
+            "internal video conversion contract drifted"
         )
     if minimal.get("required_protocols") != ["file", "pipe"]:
         raise MinimalFfmpegSourceContractError(
