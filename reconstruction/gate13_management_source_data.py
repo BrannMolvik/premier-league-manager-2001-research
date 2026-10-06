@@ -1134,6 +1134,13 @@ class ManagementSourceDataBridge:
                     cup_lookup = getattr(
                         self.state, "is_player_cup_tied_for_status", None
                     )
+                    if not callable(cup_lookup):
+                        # Compatibility for bounded presenter fixtures that
+                        # predate Recovery 357. Real GameState always exposes
+                        # the full current-match status predicate above.
+                        cup_lookup = getattr(
+                            self.state, "is_player_cup_tied", None
+                        )
                     if (
                         callable(clubs_resolver)
                         and callable(competition_resolver)
