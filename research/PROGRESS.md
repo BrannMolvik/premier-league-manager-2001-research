@@ -11551,3 +11551,30 @@ work may continue under the deferred-blocker policy.
   pixel-expansion/pixel-format relationship remains under source trace; no
   interpolation method is yet claimed.
 
+
+## 2026-10-06 Recovery 330 — startup FMV 320x480 -> 640x480 pipeline recovered
+
+Canonical executable re-analysis closed the remaining startup-movie geometry ambiguity.
+The exact TGQ header remains 320x480. The shared wrapper at 0x461E20 passes flag
+0x40 into the movie player; rectangle builder 0x69D5C0 uses that bit to double
+only the destination width. Normal state-1 presentation therefore asks DirectDraw
+to Blt the full 320x480 decoder/intermediate surface into a 640x480 destination
+rectangle. The game-level callback then blits that completed 640x480 movie surface
+1:1 into the active game display, at (80,60) in the ordinary 800x600 mode.
+
+The decoder output path explicitly attempts FourCC YUY2 at 320x480 and has a
+width*height*2 CPU fallback. The final movie surface itself is created with BPP=-1,
+so it follows the active DirectDraw format; the decoder queries that surface's
+actual pixel masks rather than hard-coding one final display BPP.
+
+Important fidelity boundary: the executable proves the 2x horizontal DirectDraw
+stretch, but does not encode a unique resampling kernel. Do not promote
+nearest-neighbor/bilinear/bicubic as recovered behavior without further evidence.
+
+Persisted detailed evidence: research/STARTUP_FMV_PIXEL_PIPELINE.md at main
+3226956ac65f9e9e1450b9a5bf83c4a96771613c.
+
+Next: apply the recovered 640x480 display contract to the modern startup-media
+path, preserving exact TGQ provenance and avoiding an unsupported interpolation
+claim. The separate top-level WPF feel remains an external Gate-13 issue and the
+final path still requires Daniel's Windows 11 acceptance.
