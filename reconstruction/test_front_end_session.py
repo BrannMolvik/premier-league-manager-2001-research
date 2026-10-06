@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from front_end_session import FrontEndSession, FrontEndSessionError
+from match_detail_mode import MatchDetailMode
 from front_end_state import (
     FrontEndCommand,
     FrontEndScreen,
@@ -225,6 +226,40 @@ class FrontEndSessionTests(unittest.TestCase):
         with self.assertRaises(FrontEndSessionError):
             session.choose_club(12)
         self.assertEqual(backends[0].selections, [12])
+
+    def test_match_detail_selection_is_unset_and_fail_closed_before_management(self):
+        session, _backends = self.new_session()
+        self.assertIsNone(session.match_detail_mode)
+        self.assertFalse(session.source_fastview_selected)
+
+        with self.assertRaisesRegex(FrontEndSessionError, "active management gameplay"):
+            session.source_accepted_match_detail_selection(MatchDetailMode.FASTVIEW)
+
+        session.dispatch(StartMenuControl.NEW_GAME)
+        session.choose_club(12)
+        with self.assertRaisesRegex(FrontEndSessionError, "active management gameplay"):
+            session.source_accepted_match_detail_selection(MatchDetailMode.FASTVIEW)
+
+    def test_source_accepted_match_detail_selection_retains_exact_mode(self):
+        session, _backends = self.new_session()
+        session.dispatch(StartMenuControl.NEW_GAME)
+        session.choose_club(12)
+        session.dispatch(TeamSelectControl.START_CONTINUE)
+
+        for mode in MatchDetailMode:
+            with self.subTest(mode=mode):
+                selected = session.source_accepted_match_detail_selection(mode)
+                self.assertIs(selected, mode)
+                self.assertIs(session.match_detail_mode, mode)
+                self.assertEqual(
+                    session.source_fastview_selected,
+                    mode is MatchDetailMode.FASTVIEW,
+                )
+
+        for invalid in (-1, 4, 5, True, "bad"):
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(ValueError):
+                    session.source_accepted_match_detail_selection(invalid)
 
     def test_canonical_new_game_builds_catalog_and_defers_heavy_gameplay_until_start(self):
         verified = []
