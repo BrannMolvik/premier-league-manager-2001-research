@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 370: PR #512 merged as 6a6627b50f66b178eac0804560824c00f7b954e2 after reconstruction run 37543805809 and asset-policy run 37543805636 passed. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance; Gate-14 source-critical PPreMatch tracing remains locally blocked by ClientError. Continue the interrupted later-gate audit: identify the highest-priority Gate-17 full-scope blocker that can advance from already source-closed evidence without new private disassembly, starting with procedural-secondary runtime ownership/persistence before attempting unsafe multi-human implementation.",
+  "active_task": "Recovery 371: source execution recovered. Branch chatgpt/gate14-prematch-markers-r370 source-closes the 22 PPreMatch XI marker geometry/resource/visibility/formation-coordinate/pixel-transform contract with regression coverage; dynamic team-shirt pixels remain fail-closed. Validate/merge this checkpoint, then continue first-hand source tracing of player-row text/style and reserve active/disabled selection, then Match Detail selector visual state and dynamic badge/team identity binding.",
   "last_known_main_head": "6a6627b50f66b178eac0804560824c00f7b954e2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 370,
-  "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Recovery 370 post-PR512 merge. Continue cloud-safe Gate-17 blocker audit under deferred-blocker policy; do not mark later gates complete.",
+  "recovery_generation": 371,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 371 heartbeat after stale-repository recovery. Canonical main remains 6a6627b; marker-source checkpoint staged at branch head 1d970ef6. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
