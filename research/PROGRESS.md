@@ -12043,3 +12043,15 @@ continues with ordinary Squad row display-name/color helpers.
 - Semantic review confirmed completed human/AI transfer paths already persist `PlayerMovement(from_club_id,to_club_id,movement_date)`; save schema 46 preserves the DBRGame Cup-Tied window and restores its daily hook; stale or missing history fails closed; the extra predicate remains limited to current-match Squad status.
 - Merged PR #502 as `3719f7a9003fb8fc555b97f5fcd75b6f5d776b54`.
 - Gate 13 remains open only for issue #482 external Windows 11 acceptance; later-gate cloud-safe work may continue without changing the earliest validation gate.
+
+## 7 October 2026 KST — Recovery 360–361 Match Detail / PPreMatchPanel activation
+
+- Source-closed native Match Detail routing from `PPreMatchPanel`: 0=3D Match, 1=3D Highlights, 2=FastView, 3=Quick Match. High-level match processing routes mode 2 through the unique FastView wrapper `0x5331C0 -> FastViewPanel::0x51F490`.
+- Identified native unresolved/default sentinel behavior: settings initializer `0x5155B0` writes value 5 to `0x877530`; high-level match processing calls `0x533120` when sentinel 5 requires pre-match selection.
+- Source-identified `0x533120` as the unique PPreMatchPanel wrapper: `0x53314C -> PPreMatchPanel::0x499C30`; after modal return it reloads `0x877530` and copies the chosen mode into MatchCalculator `+0xD3C` at `0x533199`.
+- Confirmed `0x49AB50 -> 0x49ABA0` maps the four choice events to stored modes, refreshes all four selector controls, signals the modal owner and closes the panel.
+- Audited modern production ownership: `FrontEndSession` owns front-end/gameplay state, but the original-style host has no source-backed ordinary call into the human match-play methods. Unconditional post-match FastView presentation remains prohibited.
+- Added source-backed Match Detail model and FrontEndSession state on PR #503, representing native sentinel 5 as `None` and accepting only exact integer modes 0..3 during active management gameplay.
+- Added strict mode and session regressions and included them in focused presentation CI.
+- PR #503 exact head `b8e7497d7de245dbe4436181626bc9cbc2fa0ba6` passed focused presentation run `37522687749` and asset-policy run `37522687692`; merged as `531266d1676f7200f8a071250d4ea1d8b1807a14`.
+- Authorized disc scan confirms reusable original pre-match assets under `FM2001_Art/Generic/pre_match/`, including `prematch_bground.444`, `top_bar.444`, `pitch.444`, player-name states, and rating bars. Exact executable binding/layout remains the next source task.
