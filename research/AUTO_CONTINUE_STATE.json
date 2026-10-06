@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 366: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. PR #506 merged as f84b0ca5e78e847a77150ced16df9431f9bea7c4 after presentation 37532655411, asset policy 37532655336, Windows package 37532655247, and full reconstruction 37532655317 all passed. Exact Gate-14 task: implement source-closed PPreMatch team rating widths from the active XI using RuntimePlayer.current_role_rating(), Position.lineup_group discriminators 3/0/1/2, native scales 1.71/0.342/0.342/0.57, and 171px cap; preserve RF/LF class-255 exclusion and keep management launch fail-closed.",
-  "last_known_main_head": "f84b0ca5e78e847a77150ced16df9431f9bea7c4",
+  "active_task": "Recovery 367: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. PPreMatch source asset surface and exact goalkeeper/defence/midfield/attack rating widths are merged and green. Exact Gate-14 task: recover remaining PPreMatchPanel text/team/player identity controls and cross-layer setup/draw order required for a complete native pre-match frame; keep management-to-match launch and unresolved 3D presentation fail-closed.",
+  "last_known_main_head": "222a6bd80399c4b0cccb742a38178640c1ac31ab",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 366,
+  "recovery_generation": 367,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 366: PR #506 merged green; binding source-closed PPreMatch goalkeeper/defence/midfield/attack rating widths to clean-room active XI state.",
+  "note": "Recovery 367: pre-match rating state merged; tracing remaining PPreMatch text/team/player controls and setup/draw order.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
