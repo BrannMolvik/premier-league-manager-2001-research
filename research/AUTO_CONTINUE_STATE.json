@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 352: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is f71b56c57a16b8d0984f8257066727cecdd19bb9. PR #499 is merged as d918d62124dee8d10fdc6368ce67bb54b845939c after exact-head asset 37497778288, Windows package 37497778304, full reconstruction 37497778268, and build+synthetic-roundtrip 37497778277 passed. Synthetic output was H.264/yuv420p 640x480 25fps/25 frames + AAC 22050 stereo, derivative SHA ac94e0d232eb7be28466e48f95e86405056b08ea887f1e0641bcd590ae72b603. Local process execution has recovered. Exact next task: materialize authorized private source, recover exact original easp.tgq and premintro.tgq by pinned hashes, and run the newly proven minimal helper conversion against them without committing TGQ bytes. Keep external playback, source-material completeness, production migration readiness and legal compliance false until separately proven.",
+  "active_task": "Recovery 353: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is f71b56c57a16b8d0984f8257066727cecdd19bb9. PR #500 exact head c7ac1ad5186f143451d6cdf5df4ce823a38ac7d6 adds a fail-closed private Windows exact-original-TGQ proof producer bound to the exact minimal FFmpeg build + synthetic-roundtrip receipts and exact original source hashes. Asset policy 37502428343 passed; Windows package 37502428326 and full reconstruction 37502428345 are running. No private TGQ bytes enter CI. Merge only if both exact-head checks pass. After merge, continue toolchain/source-material provenance hardening separately while keeping source_material_complete=false, or execute the private proof on a real Windows environment when exact helper + original source coexist.",
   "last_known_main_head": "f71b56c57a16b8d0984f8257066727cecdd19bb9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 352,
+  "recovery_generation": 353,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 352: #499 merged and documented. Execution sandbox recovered; proceeding to exact private original-TGQ conversion proof.",
+  "note": "Recovery 353: PR #500 c7ac1ad exact-original TGQ proof producer active; asset green, Windows/full CI running. Private originals reverified locally but Windows h264_mf locality remains external.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
