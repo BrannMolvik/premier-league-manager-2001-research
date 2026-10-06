@@ -181,6 +181,26 @@ PREMATCH_WEATHER_LANGUAGE_GLOBALS = (
 PREMATCH_RATING_LABELS = ("GK", "DEF", "MID", "ATT")
 PREMATCH_RATING_LANGUAGE_GLOBALS = (0x983BE4, 0x983B70, 0x983B6C, 0x983B68)
 
+PREMATCH_FIXTURE_HEADER_RECT = OriginalRect(250, 45, 300, 30)
+PREMATCH_DATE_WEATHER_RECT = OriginalRect(250, 70, 300, 16)
+PREMATCH_BADGE_RECTS = (
+    OriginalRect(38, 1, 135, 93),
+    OriginalRect(627, 1, 135, 93),
+)
+PREMATCH_TEAM_IDENTITY_RECTS = (
+    OriginalRect(184, 4, 185, 39),
+    OriginalRect(374, 5, 52, 37),
+    OriginalRect(429, 4, 185, 39),
+)
+PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA = 0x87BE30
+PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS = (0x87BE80, 0x87BE70, 0x87BE80)
+PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA = 0x87BEA0
+PREMATCH_RATING_CAPTION_RECTS = tuple(
+    OriginalRect(x, y, 25, 14)
+    for x in (37, 737)
+    for y in (498, 516, 534, 552)
+)
+
 # PPreMatchPanel::0x4967F0 allocates exactly 0x2D8 bytes for 182 child
 # pointers, stores that array at +0x1C, stores count 0xB6 at +0x38, and fills
 # every index 0..181. Generic traversal 0x6533A0 is already source-closed as
@@ -498,6 +518,30 @@ def prematch_panel_contract() -> dict:
         "weather_language_globals": PREMATCH_WEATHER_LANGUAGE_GLOBALS,
         "rating_labels": PREMATCH_RATING_LABELS,
         "rating_language_globals": PREMATCH_RATING_LANGUAGE_GLOBALS,
+        "fixture_header_rect": (
+            PREMATCH_FIXTURE_HEADER_RECT.x,
+            PREMATCH_FIXTURE_HEADER_RECT.y,
+            PREMATCH_FIXTURE_HEADER_RECT.width,
+            PREMATCH_FIXTURE_HEADER_RECT.height,
+        ),
+        "date_weather_rect": (
+            PREMATCH_DATE_WEATHER_RECT.x,
+            PREMATCH_DATE_WEATHER_RECT.y,
+            PREMATCH_DATE_WEATHER_RECT.width,
+            PREMATCH_DATE_WEATHER_RECT.height,
+        ),
+        "badge_rects": tuple(
+            (r.x, r.y, r.width, r.height) for r in PREMATCH_BADGE_RECTS
+        ),
+        "team_identity_rects": tuple(
+            (r.x, r.y, r.width, r.height) for r in PREMATCH_TEAM_IDENTITY_RECTS
+        ),
+        "rating_caption_rects": tuple(
+            (r.x, r.y, r.width, r.height) for r in PREMATCH_RATING_CAPTION_RECTS
+        ),
+        "header_text_style_wrapper_va": PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+        "team_text_style_wrapper_vas": PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+        "rating_text_style_wrapper_va": PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA,
         "child_setup_va": PREMATCH_CHILD_SETUP_VA,
         "child_array_offset": PREMATCH_CHILD_ARRAY_OFFSET,
         "child_count_offset": PREMATCH_CHILD_COUNT_OFFSET,
