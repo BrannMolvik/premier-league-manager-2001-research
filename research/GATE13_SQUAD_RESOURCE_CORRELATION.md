@@ -297,3 +297,70 @@ masks. It does **not** render unrecovered roster typography/status icons or
 invent a Squad background. The default host can use this bounded fresh landing
 layer underneath PMenu while the rest of the Squad surface remains fail-closed.
 
+
+
+## Recovery 332 — ordinary row text/color closure
+
+Fresh canonical-executable analysis against SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+closes the previously deferred ordinary `PSquadPlayerRow` display-name and
+assigned-role text path.
+
+### Display-name helper and source colors
+
+`PSquadPlayerRow::0x489530` calls `0x5D6C50` for the player-name control.
+That helper resolves the player display string through `0x417AE0`, whose
+style-0 result is first initial + `. ` + surname. A first-name string whose
+first byte is `-` uses surname only.
+
+The same helper checks four selection predicates in exact precedence order and
+selects these source RGB8 values before the native packed-16 conversion:
+
+- first-team active `0x417EE0`: `(255,255,255)`;
+- first-team substitute `0x417F00`: `(232,191,94)`;
+- reserve active `0x417EA0`: `(176,176,176)`;
+- reserve substitute `0x417EC0`: `(185,167,131)`;
+- otherwise: `(217,210,62)`.
+
+The first-team pair is represented by the reconstructed gameplay model. The
+reserve pair lives at native player `+0x174` bits 0/1 and is not currently
+modeled. Therefore the clean-room presenter resolves active/substitute colors
+when those higher-priority predicates prove the branch, and withholds name
+pixels when neither first-team predicate applies and reserve state is unknown.
+It does not fabricate the default yellow branch.
+
+The row text font path is source-bound through runtime font slot `0x94758C`,
+wrapper `0x87BE90`, base object `0x9197E0`, to
+`Fonts/Zurich_BdXCn_BT_18pixel.fnt` (SHA-256
+`4c5d5d33cb1fb2345c93a0e133863cc3e9e25d4297d0a6d15df762fb710eaccd`).
+
+PR #489 merged this first-roster player-name path at main
+`1a24b456f763a8f8899b2eb940a8316bf35aef2b` after reconstruction
+`37399160903`, Gate-13 `37399160894`, Windows package `37399160807`,
+and repository asset-policy `37399160815` all passed.
+
+### Assigned-role label and color
+
+The same row setup obtains the current assigned role from `0x4EA3C0`, indexes
+the runtime Position table at global `0x874B68` with 20-byte records, then
+loads the text pointer at record `+0x0C` before constructing the centered
+`(28,1,38,14)` control with raw text flags `0x24` and the same 18px Zurich
+font.
+
+Runtime record reader `0x401030` fills the 20-byte Position record in source
+order: ID byte at `+0x04`, first localized string pointer at `+0x08`, second
+localized string pointer at `+0x0C`, then bytes `+0x10` and `+0x11`.
+The clean-room Static.dat parser reads the matching seven-byte source record as
+ID, localized name ID, localized abbreviation ID, lineup order, lineup group.
+Therefore the Squad control's `+0x0C` string is source-bound to
+`Position.abbreviation`.
+
+Color predicate `0x4EA3F0` compares the assigned role's low five-bit code with
+the player's three preferred role bytes. A match selects source RGB
+`(255,255,255)`; a mismatch selects `(0,0,125)`. Native packed-16 masks
+remain a separate Windows/display receipt, so the modern renderer preserves the
+recovered RGB8 intent without claiming RGB565 or RGB555.
+
+The current Recovery-332 branch projects that original abbreviation from
+`state.positions` and rasterizes the role control at the exact first-roster
+geometry. Missing position-table identity or abbreviation fails closed.
