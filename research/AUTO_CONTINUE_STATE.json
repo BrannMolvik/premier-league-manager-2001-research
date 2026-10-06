@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 360: Gate 13 remains externally blocked only on Daniel's normal Windows 11 acceptance of artifact 11418314765. Canonical main is c643e777da68d953344108d1b6ca47a055e3171a. Gate-14 source trace proved PPreMatchPanel Match Detail modes 0=3D Match, 1=3D Highlights, 2=FastView, 3=Quick Match and normal match processing enters FastViewPanel only for mode 2. Modern runtime has no Match Detail state. Exact next task: locate the production FrontEndSession/HumanGameplayController match-start ownership and reconstruct the smallest source-backed Match Detail seam; do not invoke FastView unconditionally or invent pre-match UI geometry.",
-  "last_known_main_head": "c643e777da68d953344108d1b6ca47a055e3171a",
+  "active_task": "Recovery 361: Gate 13 external Windows acceptance artifact 11418314765 remains pending. Canonical main is 1f1402c8987edf64213f23d60f1699563eecca3a. PR #503 merged Match Detail state; native PPreMatchPanel modal launch and source FastView trigger are source-closed. Exact next task: correlate every PPreMatchPanel resource binding/layout/four-choice selector geometry against canonical executable and authorized FM2001_Art/Generic/pre_match assets. Keep management-to-match launch unrecovered/fail-closed.",
+  "last_known_main_head": "1f1402c8987edf64213f23d60f1699563eecca3a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 360,
+  "recovery_generation": 361,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 360: source-closed original PPreMatchPanel Match Detail -> FastView activation; auditing modern session ownership before integration.",
+  "note": "Recovery 361: Match Detail state merged green; tracing original PPreMatchPanel resource bindings and layout.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
