@@ -11945,3 +11945,27 @@ continues with ordinary Squad row display-name/color helpers.
 - Local process execution has recovered; next work-ahead is private exact
   original-TGQ conversion using authorized source bytes without committing them.
 - Gate 13 remains externally blocked on Daniel's normal Windows acceptance.
+
+
+## 7 October 2026 KST — Recovery 353 exact-original proof producer merged; Cup-Tied trace advanced
+
+- PR #500 merged as `52d2cb84aa2f47ea18ee222d4383fb0f6b72a4b1`.
+- Exact head `c7ac1ad5186f143451d6cdf5df4ce823a38ac7d6` passed asset policy
+  `37502428343`, Windows package `37502428326`, and full reconstruction
+  `37502428345`.
+- The new private Gate-17 proof producer binds exact original TGQ conversion to
+  the exact proven minimal helper, build receipt, and synthetic-roundtrip
+  receipt without uploading original media to hosted CI.
+- Authorized private `easp.tgq` and `premintro.tgq` were independently
+  re-extracted and matched their pinned hashes, geometry, frame counts, and
+  audio format. Exact `h264_mf` conversion remains a private Windows locality
+  boundary because the current private sandbox is Linux.
+- First-hand executable tracing closed
+  `0x422E7E -> CPlayerTransferHistory::0x4EBF60`: embedded `+0x08` receives
+  DBRPlayer `+0x74`, `+0x10/+0x14` receives the `0x5E48D0` qword,
+  `+0x18` receives WORD `+0x18C`, `+0x1C` receives global
+  `0x9847FC`, and `+0x20` receives zero.
+- Global `0x8755E8` is now source-bounded as a selector choosing cutoff
+  `0x8755EC` for mode 1 or `0x8755F0` for mode 2, but the producer and
+  semantic identities remain unresolved. No negative Cup-Tied fallback was
+  implemented.

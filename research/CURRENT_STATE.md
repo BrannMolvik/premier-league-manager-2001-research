@@ -1,3 +1,76 @@
+# Recovery 353 continuation — exact-original proof producer merged; transfer-history mapping closed
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `52d2cb84aa2f47ea18ee222d4383fb0f6b72a4b1`,
+which merges PR #500's fail-closed private exact-original startup-TGQ proof
+producer. **Gate 13 / issue #482 remains the earliest incomplete validation
+gate** until Daniel completes the required normal Windows 11 acceptance on
+artifact `11418314765`.
+
+PR #500 exact head `c7ac1ad5186f143451d6cdf5df4ce823a38ac7d6`
+passed:
+
+- repository asset policy run `37502428343`;
+- Windows release candidate package run `37502428326`;
+- full reconstruction run `37502428345`.
+
+The producer does not upload original media to CI and does not promote the
+minimal FFmpeg helper. It requires the private Windows run to bind the exact
+minimal `ffmpeg.exe`/`ffprobe.exe`, build receipt, successful synthetic
+roundtrip receipt, and exact canonical `easp.tgq` / `premintro.tgq` hashes.
+Only `exact_original_tgq_verified` may advance; external playback,
+source-material completeness, production migration readiness, and legal
+compliance remain false.
+
+Recovery 352 also revalidated the authorized original startup media privately:
+
+- `FMV/easp.tgq`: 1,383,304 bytes, SHA-256
+  `73dc078ee8fe7e1d7412b4bcba072c3f8ec85546d5e5b94f90be9732498af97c`,
+  320x480 at 25 fps, 97 decoded video frames, ADPCM EA 22050 Hz stereo;
+- `FMV/premintro.tgq`: 28,434,180 bytes, SHA-256
+  `a16e64a1c680ce1c7bcf57f76f05dd8e51a77663b5b4a673e681c9da188a0b0d`,
+  320x480 at 25 fps, 1275 decoded video frames, ADPCM EA 22050 Hz stereo.
+
+The current cloud/private sandbox is Linux, while the exact minimal helper's
+`h264_mf` encoder requires Windows Media Foundation. Private TGQ bytes are
+therefore not sent to hosted Actions. The exact-original proof remains a
+private Windows execution boundary, not missing source evidence.
+
+Independent private executable tracing has also closed the previously open
+`0x422E7E -> CPlayerTransferHistory::0x4EBF60` argument mapping. With
+`ecx = DBRPlayer+0x198`, native `0x4EBF60` stores:
+
+- embedded `+0x08` = signed DBRPlayer `+0x74`;
+- embedded `+0x10/+0x14` = the qword/double produced by `0x5E48D0`;
+- embedded `+0x18` = zero-extended DBRPlayer WORD `+0x18C`;
+- embedded `+0x1C` = global `0x9847FC`;
+- embedded `+0x20` = zero.
+
+This corrects the remaining mutation boundary without yet naming unresolved
+fields beyond already-proven transfer-history semantics. The three Cup-Tied
+globals remain deliberately neutral:
+
+- `0x8755E8` behaves as a selector/mode;
+- mode 1 selects cutoff `0x8755EC`;
+- mode 2 selects cutoff `0x8755F0`;
+- callers compare the value returned by `0x419350` against the selected
+  cutoff;
+- all three globals are zero in the executable image and have no direct write
+  xrefs, so their runtime producer is still unresolved.
+
+Exact next private source task: identify `0x419350` completely and trace the
+indirect initializer/producer for the global cluster around
+`0x8755D0..0x8755FC`. Do not promote the mode-1 negative Cup-Tied fallback
+until those semantics are source-closed.
+
+Independent Gate-17 work-ahead is staged separately on
+`chatgpt/gate17-minimal-ffmpeg-toolchain-r353` and must be refreshed onto
+this main before review. It pins build-action/toolchain provenance but keeps
+`source_material_complete=false` and `legal_compliance_claimed=false`.
+
+---
+
 # Recovery 351 continuation — synthetic minimal FFmpeg startup roundtrip proven
 
 _Updated 7 October 2026._

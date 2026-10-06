@@ -199,3 +199,41 @@ the next private-source action when a functioning sandbox is available.
 
 Gate 13 remains open independently for Daniel's normal Windows 11 acceptance in
 issue #482.
+
+
+## Recovery 353 — transfer-history constructor/update mapping
+
+First-hand disassembly of canonical `footballmanager.exe`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+closes the remaining `0x422E7E -> CPlayerTransferHistory::0x4EBF60`
+argument mapping.
+
+The caller stages six DWORD arguments across the callee-cleanup boundaries of
+`0x5E43B0` and `0x5E48D0`. At the final call, `ecx` points at embedded
+DBRPlayer transfer history `+0x198`, and `0x4EBF60` stores:
+
+- `CPlayerTransferHistory +0x08` <- sign-extended DBRPlayer `+0x74`;
+- `+0x10/+0x14` <- qword/double result from `0x5E48D0`;
+- `+0x18` <- zero-extended DBRPlayer WORD `+0x18C`;
+- `+0x1C` <- global `0x9847FC`;
+- `+0x20` <- zero.
+
+The exact callee is a six-DWORD setter and ends in `ret 0x18`.
+Nearby `0x4EBF90` independently writes only transfer-history `+0x18`, while
+`0x4EBF00` serializes `+0x08`, the qword at `+0x10`, `+0x1C`,
+`+0x20`, and `+0x18`.
+
+The Cup-Tied selector/cutoff globals are narrowed but not yet source-named.
+Direct read sites at `0x40729B`, `0x4180B0`, `0x418426`, and
+`0x418533` consistently implement:
+
+- selector `0x8755E8 == 1` -> cutoff `0x8755EC`;
+- selector `0x8755E8 == 2` -> cutoff `0x8755F0`;
+- comparison against the value returned through `0x419350`.
+
+All three globals are zero in the PE image, have only those direct absolute
+read xrefs, and have no direct absolute store xrefs. Their runtime initialization
+is therefore still unresolved and likely indirect or part of a larger
+contiguous global state load. Keep the negative mode-1 Cup-Tied fallback
+fail-closed until that producer and the precise `0x419350` value meaning are
+source-closed.
