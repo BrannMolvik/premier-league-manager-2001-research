@@ -11627,3 +11627,18 @@ continues with ordinary Squad row display-name/color helpers.
 - Native packed-16 display masks, reserve selection colors, status icon meaning,
   and club-relative assignment remain explicitly unresolved. Gate 13 remains
   open for the real Windows 11 playability/visual acceptance required by #482.
+
+## 6 October 2026 KST — Recovery 334 PSCFRow numeric continuation
+
+- Re-extracted the canonical authorized root executable and reverified SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Source-closed `PSCFRow::0x489B40` Condition, recent-form and current-role
+  rating presentation: exact side-list offset, 19x14 controls, centered
+  `0x24` text flags, condensed 18px Zurich font, `%N` / `%.N` numeric
+  formatting, strict Condition `>75` threshold, and fresh-state RGB branches.
+- Recovery branch `recovery334-squad-scf-numeric` renders only those three
+  resolved numeric fields alongside the already merged role/name controls.
+  Native status icon and club-relative assignment remain unresolved.
+- Gate 13 / issue #482 still cannot close without Daniel's normal Windows 11
+  playability/visual acceptance.
+
