@@ -11729,3 +11729,25 @@ continues with ordinary Squad row display-name/color helpers.
   transfer-history cutoff and the special Non-EU registration lifecycle remain
   unresolved; Gate 13 / issue #482 also still requires normal Windows 11 human
   acceptance.
+
+
+## 6 October 2026 KST — Recovery 341 PR #495 merged
+
+- PR #495 merged as `0a91c088f14f5988ab96430de5dc9239b24457cf`, publishing only source-qualified Squad
+  status outcomes: direct 0/1/2, alternate On-loan frame 13, and positively
+  proven current-day Cup-Tied frame 3. Non-EU and unresolved negative paths
+  remain fail-closed.
+- Final candidate validations all passed: Gate-13 presentation
+  `37424300671`, asset policy `37424300703`, Windows package/smoke
+  `37424300615`, and full reconstruction `37424300721`.
+- Windows package run `37424300615` uploaded artifact `11394291084`,
+  `FM2001-Windows11-94a620839624f293c0d4343f7e42c9ddfb31d549`,
+  digest
+  `sha256:8fb7c6359a42a78a30f5c5ea91940789214725bf6d76818353adb2f13f9afb62`.
+- Gate 13 / #482 remains open for Daniel's real Windows 11 acceptance.
+- Audit of Gate-14 acceptance tooling found a concrete drift: the startup-media
+  audit still requires `WindowsMciStartupMediaBackend`, while canonical normal
+  Windows launch now uses the game-owned child-window
+  `WindowsWpfStartupMediaBackend`. That audit is the next independent
+  cloud-safe repair so future external evidence cannot certify an obsolete
+  playback transport.
