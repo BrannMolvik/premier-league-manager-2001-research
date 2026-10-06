@@ -114,6 +114,7 @@ from original_squad_row_style import (
     OriginalSquadRowTextResources,
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
+    build_first_roster_scf_numeric_overlays,
     load_verified_squad_row_text_resources,
 )
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
@@ -1170,7 +1171,7 @@ class OriginalGameTkHost:
         return count
 
     def _draw_squad_rows(self, frame) -> int:
-        """Draw the source-closed first-roster role/name text controls."""
+        """Draw the source-closed first-roster player and PSCFRow text controls."""
         if frame.presentation.panel_class != "PSquadScreen":
             return 0
         transition = frame.presentation.squad_view_transition
@@ -1197,6 +1198,7 @@ class OriginalGameTkHost:
         overlays = (
             *build_first_roster_role_overlays(snapshot.rows, resources),
             *build_first_roster_name_overlays(snapshot.rows, resources),
+            *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
         )
         count = 0
         for overlay in overlays:
