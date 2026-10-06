@@ -512,3 +512,24 @@ against this full source order and bind the newly recovered text/team/player
 identity content into a complete pre-match frame model. Do not mark the frame
 complete until every one of the 182 native child slots is either represented
 or intentionally proven non-pixel/hidden for the supplied match state.
+
+### Recovery 368 frame reconciliation — exact top-layer control geometry
+
+The same source setup closes exact rectangles and style-wrapper identities for
+the non-roster identity controls:
+
+- fixture header: `(250,45,300,30)`, text wrapper `0x87BE30`;
+- date/weather line: `(250,70,300,16)`, text wrapper `0x87BE30`;
+- left badge: `(38,1,135,93)`;
+- right badge: `(627,1,135,93)`;
+- left team identity: `(184,4,185,39)`, wrapper `0x87BE80`;
+- center `V`: `(374,5,52,37)`, wrapper `0x87BE70`;
+- right team identity: `(429,4,185,39)`, wrapper `0x87BE80`;
+- rating captions use wrapper `0x87BEA0`, 25x14 at x=37/737 and
+  y=498/516/534/552.
+
+These controls occupy the already-proven native child positions 3..9 and
+170..177. Their geometry is no longer a complete-frame blocker. Remaining
+frame work is concentrated in the 22 starting-XI pitch markers, the two
+18-player row banks, exact selector visual state, and state-to-text/raster
+binding rather than global z-order.
