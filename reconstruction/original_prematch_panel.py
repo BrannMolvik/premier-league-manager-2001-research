@@ -55,6 +55,34 @@ class PrematchPlacement:
 
 
 @dataclass(frozen=True)
+class PrematchPlayerStripRowSpec:
+    side: str
+    roster_group: str
+    row_index: int
+    rect: OriginalRect
+    active_spec: PrematchAssetSpec
+    disabled_spec: PrematchAssetSpec | None = None
+
+    def __post_init__(self) -> None:
+        if self.side not in ("left", "right"):
+            raise OriginalPrematchPanelError("pre-match player row side must be left/right")
+        if self.roster_group not in ("starter", "reserve"):
+            raise OriginalPrematchPanelError(
+                "pre-match player row group must be starter/reserve"
+            )
+        if self.row_index < 0:
+            raise OriginalPrematchPanelError("pre-match player row index must be non-negative")
+        if self.roster_group == "starter" and self.disabled_spec is not None:
+            raise OriginalPrematchPanelError(
+                "native starter rows do not construct a disabled strip variant"
+            )
+        if self.roster_group == "reserve" and self.disabled_spec is None:
+            raise OriginalPrematchPanelError(
+                "native reserve rows require the co-located disabled strip variant"
+            )
+
+
+@dataclass(frozen=True)
 class PrematchRatingRowSpec:
     native_width_function_va: int
     native_record_discriminator: int
@@ -193,6 +221,44 @@ PREMATCH_STATIC_PLACEMENTS = (
         "disabled_right", PREMATCH_DISABLED_RIGHT, OriginalRect(563, 358, 200, 16)
     ),
 )
+
+
+# Recovery 368 expands the earlier first-row placement anchors into the full
+# constructor-proven player-strip layout. The 11 starters use only the active
+# side-specific strip. Each of the seven reserve rows constructs both the
+# active and disabled side-specific strip at the same 200x16 rectangle; which
+# variant is live is state-dependent and remains a separate control-state trace.
+PREMATCH_STARTER_ROW_YS = tuple(152 + 18 * index for index in range(11))
+PREMATCH_RESERVE_ROW_YS = tuple(358 + 18 * index for index in range(7))
+PREMATCH_PLAYER_STRIP_ROWS = tuple(
+    PrematchPlayerStripRowSpec(
+        side=side,
+        roster_group="starter",
+        row_index=index,
+        rect=OriginalRect(x, y, 200, 16),
+        active_spec=active_spec,
+    )
+    for side, x, active_spec in (
+        ("left", 36, PREMATCH_ACTIVE_LEFT),
+        ("right", 563, PREMATCH_ACTIVE_RIGHT),
+    )
+    for index, y in enumerate(PREMATCH_STARTER_ROW_YS)
+) + tuple(
+    PrematchPlayerStripRowSpec(
+        side=side,
+        roster_group="reserve",
+        row_index=index,
+        rect=OriginalRect(x, y, 200, 16),
+        active_spec=active_spec,
+        disabled_spec=disabled_spec,
+    )
+    for side, x, active_spec, disabled_spec in (
+        ("left", 36, PREMATCH_ACTIVE_LEFT, PREMATCH_DISABLED_LEFT),
+        ("right", 563, PREMATCH_ACTIVE_RIGHT, PREMATCH_DISABLED_RIGHT),
+    )
+    for index, y in enumerate(PREMATCH_RESERVE_ROW_YS)
+)
+
 
 # Four native rating-width calculators test record discriminator 3, 0, 1, 2
 # respectively and cap their integer result at the 171-pixel bar width. Calls
@@ -387,6 +453,13 @@ def prematch_panel_contract() -> dict:
         "static_placement_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
+        "starter_row_ys": PREMATCH_STARTER_ROW_YS,
+        "reserve_row_ys": PREMATCH_RESERVE_ROW_YS,
+        "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
+        "player_strip_starter_count_per_side": 11,
+        "player_strip_reserve_count_per_side": 7,
+        "reserve_rows_construct_active_and_disabled_variants": True,
+        "reserve_variant_state_source_closed": False,
         "live_background_root": PREMATCH_LIVE_BACKGROUND_ROOT,
         "live_background_rect": (
             PREMATCH_LIVE_BACKGROUND_RECT.x,
