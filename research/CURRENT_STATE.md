@@ -1,3 +1,52 @@
+# Recovery 347 continuation — PR #497 merged; Windows manifest EOL regression repair active
+
+_Updated 6 October 2026._
+
+Canonical `main` is now `a881d628449e4ea05e9b31952aee3cdc3abb93b2`,
+which merges PR #497's source-closed special Non-EU/frame-12 Squad lifecycle.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** and
+still requires Daniel's normal Windows 11 playability/visual acceptance.
+
+PR #497 exact-head validation passed before merge:
+
+- full reconstruction run `37473657785`: success;
+- Gate-13 presentation run `37473657873`: success;
+- repository asset-policy run `37473657782`: success.
+
+Issue #482 now has a newer external packaged-build blocker from Daniel's
+Windows test. The packaged
+`original_assets/converted/pstartmenu-v1/manifest.json` was checked out with a
+CRLF final newline, changing its exact byte hash from pinned
+`cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e`
+to `cfd3d38126769b732c5f0215872f8574b589988c733649e7f81d0799785d5b7d`.
+The runtime correctly failed closed with
+`PStartMenuDerivativeError: Derivative manifest identity differs from the pinned receipt`.
+
+Active cloud-safe repair is PR #498,
+`recovery347-package-manifest-eol`, currently refreshed onto this main at
+`f49657133e288527db8c1b54f3b5bd8115b81665`. It:
+
+- forces LF for the exact-byte PStartMenu manifest via a narrow
+  `.gitattributes` rule and marks the XZ payload binary;
+- makes frozen `--package-smoke` fully verify the staged PStartMenu derivative
+  with the existing pinned hash/provenance contract;
+- adds a CRLF regression proving the fail-closed receipt check fires;
+- adds that smoke test to the Windows package workflow.
+
+Exact next task: require PR #498's refreshed-head Gate-13, reconstruction,
+asset-policy, and especially Windows package/frozen-smoke workflows to pass.
+Merge only if green, then use the resulting Windows artifact for the next
+external #482 run.
+
+The private mode-1 Cup-Tied trace remains separately deferred by the current
+execution sandbox. The authorized 511,121,336-byte Library archive
+rematerializes successfully, but shell/Python process execution is unavailable.
+When a functioning sandbox returns, resume exactly at
+`0x422E7E -> CPlayerTransferHistory::0x4EBF60` and then trace
+`0x8755E8/0x8755EC/0x8755F0`; do not infer those semantics.
+
+---
+
 # Recovery 347 continuation — frame 12 candidate green; Cup-Tied transfer-history trace blocked only by execution sandbox
 
 _Updated 6 October 2026._

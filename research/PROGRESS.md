@@ -11845,3 +11845,26 @@ continues with ordinary Squad row display-name/color helpers.
   not source unavailability.
 - Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
   acceptance.
+
+
+## 6 October 2026 KST — Recovery 347 PR #497 merged; Windows exact-byte package blocker under repair
+
+- PR #497 merged to canonical main as
+  `a881d628449e4ea05e9b31952aee3cdc3abb93b2` after exact-head reconstruction
+  `37473657785`, Gate-13 presentation `37473657873`, and asset-policy
+  `37473657782` all passed.
+- Daniel's latest packaged Windows test exposed a separate issue-#482 blocker:
+  `pstartmenu-v1/manifest.json` arrived with a CRLF final newline, changing the
+  byte identity from pinned `cc541cac...` to `cfd3d381...`; the runtime
+  correctly failed closed during `startup.presenter_build`.
+- PR #498 / branch `recovery347-package-manifest-eol` adds exact LF checkout
+  policy for that manifest, binary treatment for the payload, full frozen
+  PStartMenu derivative verification in `--package-smoke`, a CRLF regression,
+  and Windows-workflow coverage of the package-smoke test.
+- PR #498 has been refreshed onto merged main at
+  `f49657133e288527db8c1b54f3b5bd8115b81665`. Exact next task is its full
+  Gate-13/reconstruction/asset/Windows-package validation, with special
+  attention to the frozen executable smoke step before another Daniel retest.
+- Private Cup-Tied source tracing remains sandbox-deferred at
+  `0x422E7E -> CPlayerTransferHistory::0x4EBF60` and
+  `0x8755E8/EC/F0`; no unresolved semantics are inferred.
