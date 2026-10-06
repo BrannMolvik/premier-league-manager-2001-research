@@ -128,6 +128,27 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_cup_tied_transfer_window_survives_roundtrip(self):
+        original = self.build_controller()
+        self.assertIsNotNone(original.state.cup_tied_transfer_window)
+        original.state.cup_tied_transfer_window.selector = 1
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.cup_tied_transfer_window,
+            original.state.cup_tied_transfer_window,
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_duplicate_saved_cup_tied_player_fails_closed(self):
         from internal_save import _restore_cup_tied_collections
 
