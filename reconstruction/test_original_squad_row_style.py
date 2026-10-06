@@ -19,6 +19,7 @@ from original_squad_row_style import (
     format_squad_display_name,
     load_verified_squad_row_text_resources,
     squad_name_rgb,
+    squad_name_rgb_from_available_state,
     squad_role_is_preferred,
     squad_role_rgb,
 )
@@ -58,6 +59,37 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
                     expected,
                 )
 
+    def test_partial_name_color_never_fabricates_unknown_reserve_state(self):
+        self.assertEqual(
+            squad_name_rgb_from_available_state(
+                first_team_active=True,
+                first_team_substitute=False,
+            ),
+            SQUAD_NAME_FIRST_TEAM_ACTIVE_RGB,
+        )
+        self.assertEqual(
+            squad_name_rgb_from_available_state(
+                first_team_active=False,
+                first_team_substitute=True,
+            ),
+            SQUAD_NAME_FIRST_TEAM_SUBSTITUTE_RGB,
+        )
+        self.assertIsNone(
+            squad_name_rgb_from_available_state(
+                first_team_active=False,
+                first_team_substitute=False,
+            )
+        )
+        self.assertEqual(
+            squad_name_rgb_from_available_state(
+                first_team_active=False,
+                first_team_substitute=False,
+                reserve_active=False,
+                reserve_substitute=False,
+            ),
+            SQUAD_NAME_DEFAULT_RGB,
+        )
+
     def test_exact_imported_18px_squad_font_is_verified(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
         resources = load_verified_squad_row_text_resources(source_root)
@@ -86,6 +118,19 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
         self.assertGreaterEqual(overlay.y, 234)
         self.assertLessEqual(overlay.x + overlay.width, 113 + 144)
         self.assertLessEqual(overlay.y + overlay.height, 234 + 14)
+
+
+    def test_unknown_reserve_color_withholds_name_pixels(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_row_text_resources(source_root)
+        rows = (
+            SimpleNamespace(
+                y=154,
+                display_name="D. Beckham",
+                display_name_rgb=None,
+            ),
+        )
+        self.assertEqual(build_first_roster_name_overlays(rows, resources), ())
 
 
 if __name__ == "__main__":
