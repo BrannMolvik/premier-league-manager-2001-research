@@ -417,3 +417,49 @@ This closure does **not** resolve the x=1 native status icon, its category
 meaning, or the player-row club-relative assignment selector. Those remain
 fail-closed.
 
+## Recovery 335 - PSCFRow status atlas and definition-table closure
+
+Fresh canonical analysis binds PSCFRow status presentation to the original
+resource string `fm2001_art\\generic\\status.png` at executable VA
+`0x835D98`. Resource initialization `0x603940` loads that path into global
+`0x946110` and materializes fourteen source entries beginning at
+`0x87BBF0`, with 0x20-byte entry stride. The source asset is the byte-identical
+18x196 RGB PNG now staged at
+`original_assets/source/FM2001_Art/Generic/status.png`: 4,015 bytes, SHA-256
+`59cd053c93ea789a010d813f46f650c2e4c16ea46163c63ae01209f69e4f5b1b`.
+The initializer advances source Y by 14 for each entry, proving fourteen
+vertical 18x14 frames.
+
+The serialized player-status table begins at Static.dat `0x26F2`. Reader
+`0x401310` builds the runtime table behind global `0x874B40`; the recovered
+twelve source definitions are, in order:
+
+1. Injured
+2. Banned
+3. International
+4. Cup Tied
+5. First Team
+6. Subsitute
+7. On loan
+8. Out of contract
+9. Transfer listed
+10. Bid in
+11. Wanted
+12. Non EU
+
+The misspelling `Subsitute` is present in the original English source and is
+preserved as evidence rather than normalized.
+
+`PSCFRow::0x48B8A0` calls resolver `0x418330`; its integer result is used
+directly to select the corresponding 0x87BBF0 source entry, while -1 removes
+the icon. Frames 0..11 therefore correspond to the ordinary definition-table
+order. Native override helper `0x418360` additionally reaches frame 12 for a
+special Non-EU registration state and frame 13 for an alternate On-loan state.
+
+This does **not** yet justify a clean-room status renderer. The native resolver
+can supersede ordinary fallback status with separate Cup-Tied collection state,
+and the clean runtime currently has no exact materialized equivalent of that
+collection or of the special Non-EU registration branch. Recovery 335 therefore
+pins the exact source image/frame/table contract but deliberately leaves live
+status selection fail-closed until those priority predicates are represented.
+
