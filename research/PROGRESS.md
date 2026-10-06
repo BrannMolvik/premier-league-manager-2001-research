@@ -11677,3 +11677,35 @@ continues with ordinary Squad row display-name/color helpers.
 - Branch `recovery336-squad-direct-status` decodes the pinned original
   `status.png`, projects only override-safe status indices, and places them at
   the exact PSCFRow geometry; first visible status origin is `(277,234)`.
+
+
+## 6 October 2026 KST — Recovery 338 Cup-Tied runtime state
+
+- Recovered the exact persistent Cup-Tied producer/lookup semantics from the
+  hash-verified original executable.
+- `0x41B7E0` receives the optional qualifying root-competition context and
+  inserts DBRPlayer ID + current club through `0x4F8E20 -> 0x4E9690` only for
+  players who actually appeared in the completed match.
+- `0x4E9690` inserts at most one record per player; the first recorded club is
+  never rewritten. `0x4E9710` reports Cup-Tied only when a later query supplies
+  a different current club.
+- Root ownership is exact: `0x4F3DC0` walks parent competitions and virtual
+  +0x18 enables Cup/DummyLeague roots while rejecting ordinary League roots.
+- Added `reconstruction/cup_tied_state.py` plus focused collection and
+  GameState integration tests. The shared post-match path now records appeared
+  players against the exact root context, including League children under Cup
+  roots.
+- Internal save schema advanced from 44 to 45 and now preserves root Cup-Tied
+  collections across reload. Duplicate saved player records fail closed instead
+  of silently rewriting first-club semantics.
+- Detailed source evidence is persisted in
+  `research/GATE13_CUP_TIED_RUNTIME.md`.
+- PR #494 is the validation candidate. Repository asset-policy run
+  `37417026505` passed; full reconstruction run `37417026467` was still in
+  progress at this checkpoint.
+- PSCF frame 3 is not yet exposed. `0x418360` still gives higher priority to
+  alternate On-loan and special Non-EU states, and `0x418480` includes
+  current-calendar competition/date logic around the collection lookup. Those
+  predicates are the exact next source-backed status task after this candidate
+  merges. Gate 13 / issue #482 remains open for mandatory human Windows 11
+  acceptance.

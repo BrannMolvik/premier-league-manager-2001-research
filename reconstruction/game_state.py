@@ -16,6 +16,10 @@ from cup_progression import (
     CupMatchResolutionSnapshot,
     CupResultRegistry,
 )
+from cup_tied_state import (
+    CupTiedPlayerCollection,
+    cup_tied_root_competition_id,
+)
 from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
@@ -77,6 +81,7 @@ from match_preparation import (
 )
 from match_postmatch import (
     PlayerTransferRequest,
+    appeared_player_indices,
     apply_player_transfer_request_response,
     FinalizedSideParticipantStatistics,
     select_native_report_player_id,
@@ -177,6 +182,12 @@ class GameState:
     players: dict[int, RuntimePlayer]
     premier_league: PremierLeagueState | None = None
     cup_results: CupResultRegistry = field(default_factory=CupResultRegistry)
+    # Root competition +0x48 Cup-Tied collections. 0x4E9690 records only the
+    # first club for each appeared player; 0x4E9710 reports tied after a later
+    # club change. This state is separate from DBRPlayer +0x14 status bits.
+    cup_tied_collections: dict[int, CupTiedPlayerCollection] = field(
+        default_factory=dict
+    )
     domestic_cups: DomesticCupScheduleState = field(
         default_factory=DomesticCupScheduleState
     )
@@ -2338,6 +2349,7 @@ class GameState:
         # draws must not disappear from the shared RNG stream.
         self._draw_matchday_gate_rand15_values(rng)
         self._persist_domestic_cup_shared_post_match(
+            competition_id=int(live.competition_id),
             home_club_id=home_club_id,
             away_club_id=away_club_id,
             home_side=home_side,
@@ -2516,6 +2528,7 @@ class GameState:
         # already exercised by the AI procedural bridge.
         self._draw_matchday_gate_rand15_values(rng)
         self._persist_domestic_cup_shared_post_match(
+            competition_id=int(live.competition_id),
             home_club_id=home_club_id,
             away_club_id=away_club_id,
             home_side=home_side,
@@ -3300,9 +3313,87 @@ class GameState:
 
         return True, home_next, away_next
 
+    def _record_cup_tied_appearances(
+        self,
+        *,
+        competition_id: int | None,
+        home_club_id: int,
+        away_club_id: int,
+        home_side: PreparedMatchSide,
+        away_side: PreparedMatchSide,
+        home_participants,
+        away_participants,
+        result: NormalMatchResult,
+    ) -> tuple[int, ...]:
+        """Persist exact 0x404CE0 -> 0x41B7E0 root Cup-Tied appearances.
+
+        0x511170 supplies a root competition context only when its virtual
+        +0x18 predicate is true (Cup/DummyLeague). 0x404CE0 then walks each
+        club roster in roster order and invokes 0x41B7E0 only for players who
+        appeared. 0x4E9690 is idempotent by player ID, so the first club
+        recorded in that root context remains authoritative.
+        """
+        if competition_id is None:
+            return ()
+        root_id = cup_tied_root_competition_id(
+            int(competition_id),
+            self.competitions,
+        )
+        if root_id is None:
+            return ()
+
+        collection = self.cup_tied_collections.setdefault(
+            int(root_id),
+            CupTiedPlayerCollection(),
+        )
+        inserted: list[int] = []
+        for club_id, side, runtime_participants in (
+            (int(home_club_id), home_side, tuple(home_participants)),
+            (int(away_club_id), away_side, tuple(away_participants)),
+        ):
+            appeared_ids: set[int] = set()
+            for local_index in appeared_player_indices(side, result):
+                local_index = int(local_index)
+                if not 0 <= local_index < len(runtime_participants):
+                    raise IndexError("appeared player index outside participant array")
+                appeared_ids.add(int(runtime_participants[local_index].index))
+
+            # Preserve 0x404CE0's club-roster iteration order. A stale roster
+            # entry whose current club no longer matches is skipped by the
+            # original +0x10 == team-ID check.
+            for player in self.ordered_club_roster(club_id):
+                player_id = int(player.index)
+                if player_id not in appeared_ids:
+                    continue
+                if int(player.club_id) != club_id:
+                    continue
+                if collection.record_appearance(player_id, club_id):
+                    inserted.append(player_id)
+
+        return tuple(inserted)
+
+    def is_player_cup_tied(
+        self,
+        competition_id: int,
+        player_id: int,
+        current_club_id: int,
+    ) -> bool:
+        """Resolve the exact root-context 0x4F8E40 -> 0x4E9710 predicate."""
+        root_id = cup_tied_root_competition_id(
+            int(competition_id),
+            self.competitions,
+        )
+        if root_id is None:
+            return False
+        collection = self.cup_tied_collections.get(int(root_id))
+        if collection is None:
+            return False
+        return collection.is_cup_tied(int(player_id), int(current_club_id))
+
     def _persist_domestic_cup_shared_post_match(
         self,
         *,
+        competition_id: int | None = None,
         home_club_id: int,
         away_club_id: int,
         home_side: PreparedMatchSide,
@@ -3328,6 +3419,20 @@ class GameState:
 
         sync_post_match_conditions(home_side, home_participants)
         sync_post_match_conditions(away_side, away_participants)
+
+        # Cup-Tied mutation is independent of the still-fail-closed future-date
+        # branches below. The native producer runs for every appeared player
+        # whenever 0x511170 returns a qualifying root competition context.
+        self._record_cup_tied_appearances(
+            competition_id=(None if competition_id is None else int(competition_id)),
+            home_club_id=home_club_id,
+            away_club_id=away_club_id,
+            home_side=home_side,
+            away_side=away_side,
+            home_participants=home_participants,
+            away_participants=away_participants,
+            result=result,
+        )
 
         exact, home_next, away_next = self._preflight_domestic_cup_post_match_dates(
             home_club_id,
@@ -3768,6 +3873,7 @@ class GameState:
 
 
         self._persist_domestic_cup_shared_post_match(
+            competition_id=int(node.competition_id),
             home_club_id=home_club_id,
             away_club_id=away_club_id,
             home_side=home_side,
@@ -3966,6 +4072,7 @@ class GameState:
 
 
         self._persist_domestic_cup_shared_post_match(
+            competition_id=int(node.competition_id),
             home_club_id=home_club_id,
             away_club_id=away_club_id,
             home_side=home_side,

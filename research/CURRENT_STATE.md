@@ -1,3 +1,43 @@
+# Recovery 338 continuation — Cup-Tied runtime state candidate
+
+_Updated 6 October 2026._
+
+Canonical `main` is `7e1597e51e508188a827e4709813c5f7d6d6e975`.
+PR #493 merged override-safe native Squad status frames 0/1/2.
+**Active gate remains Gate 13 / issue #482.**
+
+The current candidate is PR #494 on branch
+`recovery338-cup-tied-state`. Fresh analysis of the hash-verified canonical
+executable closes the separate Cup-Tied state path:
+
+- `0x41B7E0 -> 0x4F8E20 -> 0x4E9690` records a player's ID and current club
+  only after the player actually appeared in a qualifying match.
+- The record is owned by the root competition selected through `0x4F3DC0`;
+  root virtual +0x18 is true for Cup/DummyLeague and false for ordinary League.
+- `0x4E9690` is idempotent by player ID, so the first qualifying club remains
+  authoritative.
+- `0x4F8E40 -> 0x4E9710` returns true only after that player is now queried
+  with a different club.
+
+The clean runtime now materializes those root-scoped collections at the existing
+`0x404CE0`-equivalent shared post-match seam, including procedural League
+children under Cup roots. Internal save schema 45 persists the collections and
+fails closed on duplicate player records. Focused collection/GameState/save
+round-trip tests are included. PR-head repository asset-policy validation has
+passed; the full reconstruction suite is still the gating candidate check.
+
+Do **not** render PSCF frame 3 solely from the collection yet. The exact
+`0x418360` priority still evaluates alternate On-loan frame 13 and special
+Non-EU frame 12 first, and `0x418480` itself contains current-calendar
+competition-context/date logic around the Cup-Tied lookup. Next, after PR #494
+is green and merged, source-close that remaining `0x418480` context/date
+predicate and expose frame 3 only where the complete resolver is equivalent.
+Club-relative assignment remains unresolved. The mandatory normal Windows 11
+#482 acceptance remains external evidence and Gate 13 must not close before it
+passes.
+
+---
+
 # Recovery 336 continuation — direct Squad statuses active
 
 _Updated 6 October 2026._

@@ -22,6 +22,7 @@ from gate17_country_allocation_scope import (
     PlayableCountryAllocationScope,
 )
 from gate13_management_source_data import ManagementSourceDataBridge
+from cup_tied_state import CupTiedPlayerCollection
 from gate_receipts import GateAttendanceCell, GateReceiptResult
 from human_gameplay import HumanGameplayController
 from internal_save import (
@@ -96,6 +97,49 @@ class InternalSaveTests(unittest.TestCase):
                                      dumps_human_gameplay(controller))
         self.assertEqual(loaded.state.native_uncontrolled_capacity_bytes,
                          controller.state.native_uncontrolled_capacity_bytes)
+
+    def test_cup_tied_collections_survive_roundtrip_without_rewriting_first_club(self):
+        original = self.build_controller()
+        collection = CupTiedPlayerCollection()
+        self.assertTrue(collection.record_appearance(1, 1))
+        self.assertTrue(collection.record_appearance(2, 2))
+        self.assertFalse(collection.record_appearance(1, 2))
+        original.state.cup_tied_collections[1] = collection
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_collection = restored.state.cup_tied_collections[1]
+        self.assertEqual(
+            tuple(
+                (record.player_id, record.club_id)
+                for record in restored_collection.records
+            ),
+            ((1, 1), (2, 2)),
+        )
+        self.assertFalse(restored_collection.is_cup_tied(1, 1))
+        self.assertTrue(restored_collection.is_cup_tied(1, 2))
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_duplicate_saved_cup_tied_player_fails_closed(self):
+        from internal_save import _restore_cup_tied_collections
+
+        with self.assertRaisesRegex(ValueError, "duplicate Cup-Tied player"):
+            _restore_cup_tied_collections(
+                {
+                    "1": [
+                        {"player_id": 7, "club_id": 1},
+                        {"player_id": 7, "club_id": 2},
+                    ]
+                }
+            )
 
     def build_controller(self):
         state = GameState.from_database(
