@@ -42,6 +42,9 @@ class Row:
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
+    injured: bool = False
+    suspended: bool = False
+    international: bool = False
 
 
 @dataclass(frozen=True)
