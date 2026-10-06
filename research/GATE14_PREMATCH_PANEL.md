@@ -356,20 +356,41 @@ claiming complete cross-layer draw order.
 ### Date and weather-line formatting
 
 `PPreMatchPanel::0x49A610` reads current date global `0x9847FC`, decomposes
-it through `0x64CCD0`, and formats the visible date into panel buffer
-`+0x70` using the executable-resident exact format string at `0x81D5B8`:
+it through `0x64CCD0`, and formats the date into panel buffer `+0x70` using
+the executable-resident exact format string at `0x81D5B8`:
 
 `%Df %Mf %Yf`
 
-The same refresh path reads the source match weather/temperature bytes and
-formats the result into panel buffer `+0x270` with exact format string
-`0x81D5B0`:
+The same refresh path reads match bytes `+0xD46` (weather selector) and
+`+0xD44` (signed temperature). It first formats a temporary weather string
+with exact format `0x81D5B0`:
 
 `%s %d°C`
 
-The five localized weather-condition string identities are still deliberately
-unnamed until their language-resource mapping is separately closed. The format,
-source fields, and target buffers are source-closed.
+It then combines the date buffer and that temporary weather/temperature string
+through English language global `0x98204C`, whose source text is `%s %s`, and
+writes the resulting visible line to panel buffer `+0x270`.
+
+The global-language mapping is independently calibrated by the already-proven
+Match Detail labels: English.idx position 2697 (`3D Match`) maps to
+`0x981DD4`, and positions 2698..2700 map successively down by four bytes.
+Thus `global = 0x9847F8 - 4 * idx_position`. Applying that exact mapping to
+the five weather globals used by the switch proves:
+
+- weather 0 -> `Clear` (`0x98252C`);
+- weather 1 -> `Sunny` (`0x982534`);
+- weather 2 -> `Raining` (`0x982524`);
+- weather 3 -> `Sleet` (`0x9821E0`);
+- weather 4 -> `Snowy` (`0x982520`).
+
+The same mapping resolves `0x982050` to `%s MATCH TODAY AT %s`, used for the
+panel `+0x170` fixture header. When match competition/index `+0xD20` is
+negative, the first substitution is source string `Friendly` at `0x9830C8`;
+otherwise the first substitution is the recovered competition-name object
+field. The second substitution remains behaviorally sourced through
+`0x62AC80 -> 0x514270` but is left semantically unnamed until that helper is
+separately identified. Center team label global `0x9830C4` resolves exactly
+to `V`.
 
 ### Team badge identity
 
@@ -416,14 +437,23 @@ independently proven.
 `prematch_panel_contract()` with regression coverage. This does **not** yet
 promote:
 
-- the five weather-condition captions;
-- the competition/header string assembled into panel `+0x170`;
-- the remaining four rating-caption language globals;
+- the semantic identity of the second `%s` in the fixture header;
 - a complete cross-layer setup/draw order;
 - a management-to-match launch action;
 - either missing 3D presentation path;
 - Gate 14 completion.
 
-Exact next source task: finish the remaining language identities and prove the
-PPreMatchPanel child/control registration order against the generic panel draw
-semantics, then assemble only the source-proven complete frame layers.
+The same calibrated language mapping also resolves the four rating-caption
+globals used twice at y=498/516/534/552:
+
+- `0x983BE4` = `GK`;
+- `0x983B70` = `DEF`;
+- `0x983B6C` = `MID`;
+- `0x983B68` = `ATT`.
+
+These captions independently agree with the already source-closed
+goalkeeper/defence/midfield/attack rating functions.
+
+Exact next source task: prove the PPreMatchPanel child/control registration
+order against the generic panel draw semantics, then assemble only the
+source-proven complete frame layers.
