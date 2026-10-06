@@ -13,8 +13,11 @@ low-level PPreMatch identity/text contract that is safe to expose without
 inventing a launch path:
 
 - exact date format `%Df %Mf %Yf` into panel `+0x70`;
-- exact weather/temperature format `%s %d°C` into `+0x270`, while the five
-  localized weather-condition identities remain deliberately unnamed;
+- exact weather/temperature temporary format `%s %d°C`, then exact `%s %s`
+  date+weather composition into panel `+0x270`;
+- English.idx-calibrated weather labels Clear/Sunny/Raining/Sleet/Snowy,
+  rating captions GK/DEF/MID/ATT, fixture-header format
+  `%s MATCH TODAY AT %s`, Friendly fallback, and center `V` label;
 - team-badge source family
   `FM2001_art\\generic\\team_badge_stills`, variant `badge_2`, and
   canonical generic fallback, with panel resource offsets `+0x600/+0x624`
@@ -26,14 +29,14 @@ inventing a launch path:
   `%s %s` at VA `0x81858C`.
 
 The branch adds neutral contract constants, regression assertions, and durable
-source notes only. It does not name unresolved competition/weather/rating
-captions, claim complete draw order, invent management-to-match launch, or
-substitute FastView for either missing 3D mode.
+source notes only. The semantic identity of the fixture header's second `%s`
+remains intentionally unnamed; it also does not yet claim complete draw order,
+invent management-to-match launch, or substitute FastView for either missing
+3D mode.
 
-Exact next task after this checkpoint validates: finish the remaining language
-identities and prove PPreMatchPanel child/control registration order against
-the generic panel draw semantics. Then assemble only the source-proven complete
-pre-match frame layers. Keep management-to-match launch, missing 3D
+Exact next task after this checkpoint validates: prove PPreMatchPanel
+child/control registration order against the generic panel draw semantics, then
+assemble only the source-proven complete pre-match frame layers. Keep management-to-match launch, missing 3D
 presentation, and Gate 14 completion fail-closed.
 
 ---
