@@ -150,6 +150,22 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must retain internal aresample for AAC sample-format conversion"
         )
+    if "--enable-filter=scale" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must retain the scale filter for the recovered startup presentation"
+        )
+    if minimal.get("required_internal_video_conversion") != {
+        "filter": "scale",
+        "expression": "scale=640:480:flags=neighbor",
+        "dependency": "swscale",
+        "reason": (
+            "Canonical FM2001 startup conversion bakes the source-proven 2x horizontal "
+            "nearest-neighbor treatment into each derivative."
+        ),
+    }:
+        raise MinimalFfmpegSourceContractError(
+            "internal video conversion contract drifted"
+        )
     if minimal.get("required_protocols") != ["file", "pipe"]:
         raise MinimalFfmpegSourceContractError(
             "minimal helper protocol metadata must remain file+pipe"
