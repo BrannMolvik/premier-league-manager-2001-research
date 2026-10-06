@@ -1,3 +1,20 @@
+# Recovery 369 continuation — Gate-15 ledger/readiness reconciliation staged
+
+_Updated 7 October 2026._
+
+Canonical implementation baseline is `b142892aeed9eb1161dbf3c3354740be26e33df5`, which merges PR #511's fail-closed 182-child PPreMatch coverage audit.
+
+Gate 14's remaining source-critical frame work is still deferred by the local execution sandbox `ClientError`; no native pitch-marker, roster-state, badge-state or selector-state behavior has been guessed.
+
+Under the deferred-blocker policy, Recovery 369 audited Gate 15. The machine JSON ledger was already current with all 12 live fidelity rows, including both Gate-14-owned prerequisites: external Windows regression #482 and FastView/3D/audio presentation. The prose ledger/readiness audits were stale at 11 rows and still described Gate 13 as closed.
+
+Branch `chatgpt/gate15-ledger-doc-reconcile-r369` reconciles those documents, updates Gate-16 readiness wording for the reopened Gate 13, and adds a regression requiring the ledger documentation's published live-gap count to equal the machine-parsed Active gaps table. Gate 15 and Gate 16 remain explicitly incomplete.
+
+**Gate 13 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open; this later-gate work-ahead does not bypass either gate.
+
+Exact next action: validate and merge this Gate-15 audit reconciliation if exact-head CI is green, then continue the highest-priority independent cloud-safe roadmap work while periodically retrying the private-source execution path. Revisit PPreMatch source-critical blockers immediately when byte execution is available.
+
+---
 # Recovery 369 continuation — fail-closed 182-child frame accounting staged
 
 _Updated 7 October 2026._
