@@ -61,6 +61,7 @@ class FakePlayer:
     loan_club_id: int | None = None
     injured: bool = False
     suspended: bool = False
+    selection_excluded: bool = False
     out_of_contract: bool = False
     transfer_listed: bool = False
     loan_listed: bool = False
@@ -499,6 +500,7 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         )
         self.assertTrue(first.injured)
         self.assertTrue(first.suspended)
+        self.assertFalse(first.international)
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
