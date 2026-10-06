@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 363: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Main remains d83ce244e3bafeef10327ca5d221e5a83a062424. PR #505 head de9cbb28f7e819a47b5a80e61dd2e1211eb01835 corrects PPreMatch live background to the existing Team_Backgrounds contract and source-closes mirrored rating-bar geometry. Asset-policy run 37528707719 passed; focused presentation run 37528707689 is active. Merge only if exact-head focused CI passes, then reuse existing FastView Team_Backgrounds selector for the pre-match render seam.",
-  "last_known_main_head": "d83ce244e3bafeef10327ca5d221e5a83a062424",
+  "active_task": "Recovery 364: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is c754fd46b990d7d6531ea866a041bf43ced829c4 after PR #505 merged and Recovery 363 state/progress persisted. Exact Gate-14 task: reuse existing FastView Team_Backgrounds selector/loading contract for PPreMatchPanel, stage only exact original assets consumed by the verified panel, and build the pre-match render boundary without inventing management-to-match launch.",
+  "last_known_main_head": "c754fd46b990d7d6531ea866a041bf43ced829c4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 362,
+  "recovery_generation": 364,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 363: PR #505 correction under exact-head CI; Team_Backgrounds reuse confirmed.",
+  "note": "Recovery 364: PPreMatch background/rating correction merged; beginning shared Team_Backgrounds integration and exact asset staging.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
