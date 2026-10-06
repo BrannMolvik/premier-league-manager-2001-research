@@ -41,6 +41,7 @@
       "--enable-decoder=eatgq,adpcm_ea,adpcm_ea_r1,adpcm_ea_r2,adpcm_ea_r3,adpcm_ima_ea_eacs,adpcm_ima_ea_sead,adpcm_psx,pcm_mulaw,pcm_s16le,pcm_s16le_planar,pcm_s8,mp3,h264,aac",
       "--enable-encoder=h264_mf,aac",
       "--enable-filter=aresample",
+      "--enable-filter=scale",
       "--enable-muxer=mp4",
       "--enable-muxer=null"
     ],
@@ -97,7 +98,13 @@
       "mediafoundation",
       "d3d11va",
       "w32threads"
-    ]
+    ],
+    "required_internal_video_conversion": {
+      "filter": "scale",
+      "expression": "scale=640:480:flags=neighbor",
+      "dependency": "swscale",
+      "reason": "Canonical FM2001 startup conversion bakes the source-proven 2x horizontal nearest-neighbor treatment into each derivative."
+    }
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
 }
