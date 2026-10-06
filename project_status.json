@@ -14,7 +14,7 @@
   "last_verified_test_count": 2619,
   "asset_policy_validated_head": "2e0366467e966c0a83a60b9ece40afc7e474daf9",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 issue #482 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Gate-14 work-ahead: PR #503 merged source-backed Match Detail state; exact next task is correlate PPreMatchPanel resource bindings/layout/four-choice geometry using authorized original pre-match assets, while keeping management-to-match launch fail-closed until source-recovered.",
+  "active_task": "Gate 13 issue #482 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Gate-14 work-ahead: PPreMatch source assets, Team_Backgrounds surface, and native goalkeeper/defence/midfield/attack rating widths are integrated. Exact next task is recover remaining PPreMatch text/team/player identity controls and cross-layer setup/draw order; management-to-match launch remains fail-closed.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -3071,5 +3071,11 @@
   "gate14_match_detail_source_recovered": true,
   "gate14_prematch_modal_launch_source_recovered": true,
   "gate14_match_detail_modern_state_integrated": true,
-  "gate14_management_match_launch_recovered": false
+  "gate14_management_match_launch_recovered": false,
+  "recovery367_prematch_surface_merge": "f84b0ca5e78e847a77150ced16df9431f9bea7c4",
+  "recovery367_prematch_rating_widths_merge": "58bf939ec14557c3eeff94875f19d4d4d6a76812",
+  "recovery367_prematch_rating_gate13_run": 37533902122,
+  "recovery367_prematch_rating_asset_policy_run": 37533901971,
+  "gate14_prematch_rating_state_integrated": true,
+  "gate14_prematch_complete_frame": false
 }
