@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 337: PR #493 merged at 7e1597e51e508188a827e4709813c5f7d6d6e975 after Gate13, reconstruction 2658/24 skips, Windows package/smoke, and asset policy all green. Source-close and materialize the separate competition Cup-Tied collection used by 0x418480 -> 0x4F8E40/0x4E9710. Identify exact producer 0x41B7E0 call semantics and clean match lifecycle seam before changing state. Then expand PSCF status rendering only if lookup equivalence is exact.",
+  "active_task": "Recovery 338: continue exact Gate 13 Cup-Tied status task from main 7e1597e51e508188a827e4709813c5f7d6d6e975. Source-close and materialize the separate competition Cup-Tied collection used by 0x418480 -> 0x4F8E40/0x4E9710. Identify exact producer 0x41B7E0 call semantics and clean match lifecycle seam before changing state. Then expand PSCF status rendering only if lookup equivalence is exact.",
   "last_known_main_head": "7e1597e51e508188a827e4709813c5f7d6d6e975",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 337,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 336 merged. Full reconstruction run 1515: 2658 tests, 24 skipped, success. External Windows 11 #482 acceptance still mandatory; Gate13 remains open.",
+  "recovery_generation": 338,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 338 restarted from canonical main after no-progress fallback. Gate 13 remains open; external Windows 11 #482 acceptance is still mandatory.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
