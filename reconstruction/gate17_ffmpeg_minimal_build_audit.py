@@ -61,6 +61,42 @@ REQUIRED_DEMUXERS = {"ea", "mov"}
 REQUIRED_MUXERS = {"mp4", "null"}
 REQUIRED_PROTOCOLS = {"file", "pipe"}
 REQUIRED_FILTERS = {"aresample", "scale"}
+GROUPED_COMPONENT_OPTIONS = {
+    "protocol",
+    "decoder",
+    "encoder",
+    "demuxer",
+    "muxer",
+    "filter",
+}
+
+
+def _normalized_configuration_tokens(args: Iterable[str]) -> set[str]:
+    """Normalize FFmpeg's comma-list component syntax.
+
+    FFmpeg's configure parser accepts e.g. --enable-decoder=aac,h264 but its
+    generated configuration string may serialize the same request as separate
+    --enable-decoder=aac --enable-decoder=h264 tokens. Treat those two spellings
+    as equivalent while preserving exact matching for every other option.
+    """
+    normalized: set[str] = set()
+    for arg in args:
+        match = re.fullmatch(r"--enable-([a-z0-9_-]+)=([^\s]+)", arg)
+        if (
+            match is None
+            or match.group(1) not in GROUPED_COMPONENT_OPTIONS
+            or "," not in match.group(2)
+        ):
+            normalized.add(arg)
+            continue
+        option = match.group(1)
+        for value in match.group(2).split(","):
+            if not value:
+                raise MinimalFfmpegBuildAuditError(
+                    f"empty value in grouped configure option: {arg}"
+                )
+            normalized.add(f"--enable-{option}={value}")
+    return normalized
 
 
 def _sha256_file(path: Path) -> str:
@@ -110,17 +146,27 @@ def _version_contract(text: str, *, label: str, configure_args: Iterable[str]) -
     if configuration is None:
         raise MinimalFfmpegBuildAuditError(f"{label} configuration line is missing")
     tokens = set(configuration.split()[1:])
-    missing = tuple(arg for arg in configure_args if arg not in tokens)
+    normalized_actual = _normalized_configuration_tokens(tokens)
+    normalized_expected = _normalized_configuration_tokens(configure_args)
+    missing = tuple(sorted(normalized_expected - normalized_actual))
     if missing:
         raise MinimalFfmpegBuildAuditError(
             f"{label} configuration omits source-contract args: {list(missing)}"
         )
-    elevated = tuple(flag for flag in FORBIDDEN_CONFIGURATION_FLAGS if flag in tokens)
+    elevated = tuple(
+        flag for flag in FORBIDDEN_CONFIGURATION_FLAGS if flag in normalized_actual
+    )
     if elevated:
         raise MinimalFfmpegBuildAuditError(
             f"{label} unexpectedly enables elevated license flags: {list(elevated)}"
         )
-    external = tuple(sorted(token for token in tokens if token.startswith("--enable-lib")))
+    external = tuple(
+        sorted(
+            token
+            for token in normalized_actual
+            if token.startswith("--enable-lib")
+        )
+    )
     if external:
         raise MinimalFfmpegBuildAuditError(
             f"{label} unexpectedly enables third-party libraries: {list(external)}"
