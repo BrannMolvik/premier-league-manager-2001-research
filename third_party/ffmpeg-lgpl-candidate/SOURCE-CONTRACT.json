@@ -33,6 +33,7 @@
       "--enable-mediafoundation",
       "--enable-d3d11va",
       "--enable-w32threads",
+      "--extra-ldflags=-static",
       "--enable-ffmpeg",
       "--enable-ffprobe",
       "--enable-protocol=file,pipe",
@@ -104,6 +105,18 @@
       "expression": "scale=640:480:flags=neighbor",
       "dependency": "swscale",
       "reason": "Canonical FM2001 startup conversion bakes the source-proven 2x horizontal nearest-neighbor treatment into each derivative."
+    },
+    "toolchain_runtime_linkage": {
+      "strategy": "static",
+      "configure_arg": "--extra-ldflags=-static",
+      "dynamic_runtime_dlls_forbidden": [
+        "libgcc_s*.dll",
+        "libstdc++-6.dll",
+        "libwinpthread-1.dll",
+        "libssp-0.dll",
+        "msys-2.0.dll"
+      ],
+      "provenance_boundary": "The MinGW-w64/UCRT toolchain runtime is build infrastructure, not an FFmpeg --enable-lib* component. Static linkage removes a separate runtime-DLL deployment dependency, but source_material_complete stays false until required toolchain redistribution/source-license materials are accounted for."
     }
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."

@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from gate17_ffmpeg_minimal_build_audit import (
     MinimalFfmpegBuildAuditError,
+    _filter_names,
     _parse_imports,
     _version_contract,
     audit_minimal_build,
@@ -22,10 +23,17 @@ def contract_payload():
 
 
 def version_output(label: str, args: list[str]) -> str:
+    rendered = []
+    for arg in args:
+        if "=" in arg:
+            left, right = arg.split("=", 1)
+            if "," in right:
+                arg = f"{left}='{right}'"
+        rendered.append(arg)
     return (
         f"{label} version git-2026-09-30-46d8f46\n"
         "built with gcc synthetic\n"
-        "configuration: " + " ".join(args) + "\n"
+        "configuration: " + " ".join(rendered) + "\n"
     )
 
 
@@ -41,7 +49,7 @@ ENCODERS = " V..... h264_mf synthetic\n A..... aac synthetic\n"
 DEMUXERS = " D  ea synthetic\n D  mov,mp4,m4a synthetic\n"
 MUXERS = " E  mp4 synthetic\n E  null synthetic\n"
 PROTOCOLS = "Input:\n  file\n  pipe\nOutput:\n  file\n  pipe\n"
-FILTERS = " ... aresample A->A synthetic\n ... scale V->V synthetic\n"
+FILTERS = " .. aresample A->A synthetic\n T. scale V->V synthetic\n"
 
 
 class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
@@ -114,40 +122,35 @@ class Gate17MinimalFfmpegBuildAuditTests(unittest.TestCase):
         self.assertFalse(result["production_migration_ready"])
         self.assertFalse(result["legal_compliance_claimed"])
 
-    def test_configuration_accepts_ffmpeg_expanded_component_lists(self):
+    def test_configuration_accepts_ffmpeg_shell_quoted_grouped_component_lists(self):
         args = contract_payload()["minimal_helper_target"]["configure_args"]
-        expanded = []
-        for arg in args:
-            if arg.startswith((
-                "--enable-protocol=",
-                "--enable-decoder=",
-                "--enable-encoder=",
-                "--enable-demuxer=",
-                "--enable-muxer=",
-                "--enable-filter=",
-            )) and "," in arg:
-                option, values = arg.split("=", 1)
-                expanded.extend(f"{option}={value}" for value in values.split(","))
-            else:
-                expanded.append(arg)
 
         result = _version_contract(
-            version_output("ffmpeg", expanded),
+            version_output("ffmpeg", args),
             label="ffmpeg",
             configure_args=args,
         )
         self.assertEqual(result["third_party_enable_flags"], [])
 
-        expanded.remove("--enable-protocol=pipe")
+        missing_pipe = [
+            "--enable-protocol=file" if arg == "--enable-protocol=file,pipe" else arg
+            for arg in args
+        ]
         with self.assertRaisesRegex(
             MinimalFfmpegBuildAuditError,
             "--enable-protocol=pipe",
         ):
             _version_contract(
-                version_output("ffmpeg", expanded),
+                version_output("ffmpeg", missing_pipe),
                 label="ffmpeg",
                 configure_args=args,
             )
+
+    def test_filter_parser_matches_pinned_two_flag_ffmpeg9_shape(self):
+        self.assertEqual(_filter_names(FILTERS), {"aresample", "scale"})
+        self.assertNotIn("Timeline", _filter_names(
+            "Filters:\n  T.. = Timeline support\n  .S. = Slice threading\n" + FILTERS
+        ))
 
     def test_wrong_source_commit_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:

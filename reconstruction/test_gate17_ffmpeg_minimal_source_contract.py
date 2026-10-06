@@ -73,6 +73,20 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             ):
                 audit_source_contract(root)
 
+    def test_minimal_contract_requires_static_toolchain_runtime_linkage(self):
+        payload = self.canonical()
+        payload["minimal_helper_target"]["configure_args"].remove(
+            "--extra-ldflags=-static"
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "statically link the MinGW/UCRT toolchain runtime",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_requires_actual_mp4_muxer(self):
         payload = self.canonical()
         args = payload["minimal_helper_target"]["configure_args"]

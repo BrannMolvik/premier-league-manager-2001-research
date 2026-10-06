@@ -68,9 +68,19 @@ The built `ffmpeg.exe` and `ffprobe.exe` must:
 6. preserve the exact source-license file hash.
 
 The import guard deliberately allows native Windows system DLLs, including
-Media Foundation. If the first build exposes an unexpected toolchain runtime
-DLL, the proof fails closed and the build/link strategy must be corrected or
-that dependency must be explicitly provenance-tracked.
+Media Foundation. Exact-source run `37490682108` proved that the otherwise
+successful UCRT64 build dynamically imported `libwinpthread-1.dll`. That DLL
+is a MinGW-w64 toolchain runtime, not an FFmpeg `--enable-lib*` component.
+The source contract therefore adds `--extra-ldflags=-static` so the next build
+must absorb the toolchain runtime into the executable instead of creating a
+separate deployment dependency. The PE import guard remains unchanged and must
+prove that `libwinpthread-1.dll` is gone.
+
+This static-link correction does **not** mark source-material completeness or
+redistribution readiness. Those remain false until any required MinGW-w64/UCRT
+runtime source/license materials are explicitly accounted for. If static
+linking fails to remove the import, the proof remains failed rather than
+whitelisting the DLL.
 
 ## What a passing build does not prove
 

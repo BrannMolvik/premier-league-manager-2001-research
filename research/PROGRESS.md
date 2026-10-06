@@ -11896,3 +11896,30 @@ continues with ordinary Squad row display-name/color helpers.
 - Independent cloud-safe later-gate work may resume. Private Cup-Tied source
   tracing remains deferred only because the execution sandbox cannot start
   processes; no unresolved semantics are inferred.
+
+
+## 7 October 2026 KST — Recovery 350 minimal FFmpeg exact-source build proven
+
+- PR #479 merged to canonical main as
+  `b150555fe306897a6262c8a5d63b14aa0014add0`.
+- Exact-head `f351d4a6b9cecdda7ff955e2b4ed006a4bfcea0d` passed asset policy
+  `37493526627`, Windows package `37493526852`, full reconstruction
+  `37493526625`, and minimal FFmpeg source build `37493526702`.
+- The source build is pinned to FFmpeg
+  `46d8f462eeb87ee1f704d8c44a0ee24fca471ad1` and preserves only the bounded
+  startup-media/runtime-validation component surface.
+- Prior dynamic `libwinpthread-1.dll` dependency was eliminated by
+  `--extra-ldflags=-static`; the PE audit still rejects MinGW/MSYS runtime DLLs.
+- Built identities: ffmpeg
+  `e3539ce6cac1c59bc8a2dc6bcb1de44e842a91fde35654465a6b88bdaf52601b`,
+  ffprobe
+  `284e142e24745b0232d3b4cea4f3ba6eaa10bdbe7c022e0d98dca9b8040118c4`.
+- Build artifact `11427426305` has digest
+  `sha256:4212031a6c800b6fee212d9edabc00a1ccf79266c1bf1cb392232367bd901264`.
+- Build verification is complete, but synthetic roundtrip, original-TGQ,
+  external Windows playback, source-material completeness, production migration
+  and legal-compliance proof remain false.
+- Exact next work-ahead is the staged same-build synthetic startup roundtrip.
+- Gate 13 remains open for Daniel's normal Windows acceptance; the private
+  Cup-Tied trace remains blocked only by the unavailable local execution
+  sandbox.

@@ -13,6 +13,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import re
+import shlex
 import subprocess
 from typing import Iterable
 
@@ -145,7 +146,12 @@ def _version_contract(text: str, *, label: str, configure_args: Iterable[str]) -
     )
     if configuration is None:
         raise MinimalFfmpegBuildAuditError(f"{label} configuration line is missing")
-    tokens = set(configuration.split()[1:])
+    try:
+        tokens = set(shlex.split(configuration.split(":", 1)[1].strip(), posix=True))
+    except ValueError as exc:
+        raise MinimalFfmpegBuildAuditError(
+            f"{label} configuration line has invalid shell quoting"
+        ) from exc
     normalized_actual = _normalized_configuration_tokens(tokens)
     normalized_expected = _normalized_configuration_tokens(configure_args)
     missing = tuple(sorted(normalized_expected - normalized_actual))
@@ -204,7 +210,17 @@ def _simple_names(text: str) -> set[str]:
         line = raw.strip()
         if not line or line.endswith(":") or line.startswith("-"):
             continue
-        match = re.match(r"^(?:[TSCN.]{3}\s+)?([A-Za-z0-9_]+)(?:\s|$)", line)
+        match = re.match(r"^([A-Za-z0-9_]+)(?:\s|$)", line)
+        if match is not None:
+            names.add(match.group(1))
+    return names
+
+
+def _filter_names(text: str) -> set[str]:
+    """Parse the pinned FFmpeg 9 show_filters() two-flag output."""
+    names: set[str] = set()
+    for raw in text.splitlines():
+        match = re.match(r"^\s*[T.][S.]\s+([A-Za-z0-9_]+)(?:\s|$)", raw)
         if match is not None:
             names.add(match.group(1))
     return names
@@ -314,7 +330,7 @@ def audit_minimal_build(
         "protocols",
     )
     filters = _require_subset(
-        _simple_names(_run(ffmpeg, "-hide_banner", "-filters")),
+        _filter_names(_run(ffmpeg, "-hide_banner", "-filters")),
         REQUIRED_FILTERS,
         "filters",
     )

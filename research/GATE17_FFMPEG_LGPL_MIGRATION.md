@@ -188,6 +188,15 @@ FFmpeg's codec documentation lists `h264_mf` as a Media Foundation H.264
 encoder. These source facts bound the technical target but do not prove that
 the proposed minimal configure line builds successfully.
 
+The first fully compiled PE audit also exposed
+`libwinpthread-1.dll` as a dynamic dependency of the UCRT64 toolchain build.
+That dependency is outside FFmpeg's `--enable-lib*` surface. The minimal
+contract now requires `--extra-ldflags=-static` and continues to reject
+`libwinpthread-1.dll` in the final PE import table. This narrows deployment
+surface without pretending the embedded MinGW-w64/UCRT runtime has disappeared
+from provenance obligations; `source_material_complete` remains false until
+those materials are explicitly closed.
+
 All minimal-helper proof flags deliberately remain false. Promotion still
 requires an actual build from the pinned FFmpeg commit, synthetic conversion
 proof, exact original-TGQ conversion, external Windows 11 playback acceptance,
