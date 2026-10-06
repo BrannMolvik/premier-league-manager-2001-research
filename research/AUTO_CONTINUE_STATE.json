@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 335: source-close PSCFRow native status icon after PR #491 merged. Trace helper 0x418330 return codes into 0x87BBF0 32-byte source entries; bind global 0x946110 to original fm2001_art/generic/status.png, recover exact asset/frame geometry and only then implement any source-proven status pixels. Keep club-relative assignment unresolved. External Windows 11 #482 acceptance remains mandatory.",
+  "active_task": "Recovery 335: validate PR #492 source-closed PSCFRow status atlas/table contract, then continue tracing 0x418330/0x418360 priority overrides. Exact status.png is pinned; live rendering remains fail-closed until Cup-Tied and special Non-EU registration state are represented exactly. Club-relative assignment remains unresolved. External Windows 11 #482 acceptance remains mandatory.",
   "last_known_main_head": "c51353a75c9360cdc1e45b8ee4fe1c3c5be2f07d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 335,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #491 merged green: focused Gate13 734/22 skips, reconstruction 2650/24 skips, Windows package/smoke and asset policy success. Next source lead: PSCF status icon uses 0x418330 -> 0x87BBF0 and original status.png.",
+  "note": "Recovery 335 branch recovery335-squad-status-icon now has exact status.png, validator/tests, provenance, CURRENT_STATE, correlation research and PROGRESS. PR #492 open; latest branch checkpoint 2e16ceb48483cb3ab84a99bdc37a7637223a587a.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
