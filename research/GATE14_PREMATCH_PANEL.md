@@ -345,3 +345,85 @@ The next source-backed task is to recover the remaining PPreMatchPanel text,
 team/player identity controls and cross-layer draw order needed to assemble a
 complete native frame. The management-to-match transition remains separately
 fail-closed.
+
+
+## Recovery 368 — native identity/text control contract
+
+Further first-hand tracing of canonical `footballmanager.exe` closes the
+remaining low-level identity formatting used by the pre-match panel without yet
+claiming complete cross-layer draw order.
+
+### Date and weather-line formatting
+
+`PPreMatchPanel::0x49A610` reads current date global `0x9847FC`, decomposes
+it through `0x64CCD0`, and formats the visible date into panel buffer
+`+0x70` using the executable-resident exact format string at `0x81D5B8`:
+
+`%Df %Mf %Yf`
+
+The same refresh path reads the source match weather/temperature bytes and
+formats the result into panel buffer `+0x270` with exact format string
+`0x81D5B0`:
+
+`%s %d°C`
+
+The five localized weather-condition string identities are still deliberately
+unnamed until their language-resource mapping is separately closed. The format,
+source fields, and target buffers are source-closed.
+
+### Team badge identity
+
+The constructor seeds both team badge resource members at panel offsets
+`+0x600/+0x624` from `Clubbadges\\standard.bmp`. Refresh then resolves
+team-specific presentation through the canonical source family:
+
+- root `FM2001_art\\generic\\team_badge_stills`;
+- variant key `badge_2`;
+- terminal fallback
+  `fm2001_art\\generic\\team_badge_stills\\generic.444`.
+
+The resolved active controls are retained at panel offsets `+0x840/+0x890`.
+This is presentation identity only; no management-to-match transition is
+implied.
+
+### Two 18-player identity banks
+
+The refresh routine iterates exactly two match-side banks and exactly 18 slots
+per side:
+
+- side 0 count `match+0x5A4`, pointer array beginning at `match+0x004`;
+- side 1 count `match+0xB54`, pointer array beginning at `match+0x5B4`.
+
+The first 11 slots are the native starting-XI region; indices 11..17 use the
+alternate disabled/substitute presentation state already correlated with the
+dedicated pre-match strip assets. Empty slots are explicitly hidden rather than
+filled with invented rows.
+
+For populated slots, `0x417A90` computes the display-name length and
+`0x417AE0` writes the display name. The canonical full-name format string at
+`0x81858C` is exactly:
+
+`%s %s`
+
+Those helpers retain the native special handling for abbreviated/placeholder
+first names. The nearby player byte consumed by the row formatter remains
+semantically neutral in this checkpoint until its DBRPlayer field identity is
+independently proven.
+
+### Implementation boundary
+
+`original_prematch_panel.py` now exposes these exact source facts in
+`prematch_panel_contract()` with regression coverage. This does **not** yet
+promote:
+
+- the five weather-condition captions;
+- the competition/header string assembled into panel `+0x170`;
+- the remaining four rating-caption language globals;
+- a complete cross-layer setup/draw order;
+- a management-to-match launch action;
+- either missing 3D presentation path;
+- Gate 14 completion.
+
+Exact next source task: finish the remaining language identities and prove the
+PPreMatchPanel child/control registration order against the generic panel draw
+semantics, then assemble only the source-proven complete frame layers.
