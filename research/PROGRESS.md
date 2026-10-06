@@ -11578,3 +11578,27 @@ Next: apply the recovered 640x480 display contract to the modern startup-media
 path, preserving exact TGQ provenance and avoiding an unsupported interpolation
 claim. The separate top-level WPF feel remains an external Gate-13 issue and the
 final path still requires Daniel's Windows 11 acceptance.
+
+
+### 6 October 2026 KST — Recovery 330 FMV writer audit and game-window integration
+
+Merged PR #487 as `421a3e1c` after independently re-extracting and hashing the
+canonical executable and auditing the worker's stronger pixel-pipeline claim.
+The earlier same-recovery hypothesis that DirectDraw supplied an unspecified
+320->640 stretch was superseded by deeper writer evidence: startup flag 0x40
+routes through `0x69DCC0`, which emits 0x40 bytes for each 16 coded
+horizontal samples versus 0x20 in ordinary `0x69DC20`; color-table helper
+`0x69C1A0` mirrors packed 16-bit channel contributions into +16-bit
+positions, proving two identical adjacent pixels per coded sample. Ordinary
+game BPP is initialized to 16 at `0x615256`.
+
+The compatibility derivative is therefore source-backed at 640x480 with exact
+2x horizontal nearest duplication. The same PR also removes the separate
+maximized WPF top-level player: startup MediaElement playback is bound as a
+child HWND of the realized fullscreen FM2001 Tk host at the source-backed
+movie rectangle. PR-head full reconstruction, Gate-13 presentation,
+asset-policy and Windows-package workflows passed.
+
+Gate 13 remains open pending merged-head verification plus Daniel's
+human-visible/audible Windows 11 acceptance. Independent cloud-safe work
+continues with ordinary Squad row display-name/color helpers.
