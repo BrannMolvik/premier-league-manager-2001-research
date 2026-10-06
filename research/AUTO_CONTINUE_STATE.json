@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 357: source primitive CupTiedTransferWindowState is committed and 11 focused tests pass at main 9a32ddf7b65dd8d425afa897643fa6a7e7c3c5e6. Gate 13 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Exact next repository task: integrate/persist the DBRGame Cup-Tied transfer window, reuse persisted latest PlayerMovement as clean transfer-history +0x08/+0x18, and expose the root mode-1 fallback only through the current-match Squad status resolver. Verify through PR CI before merging.",
+  "active_task": "Recovery 358 resumes Recovery 357 from main 9a32ddf7b65dd8d425afa897643fa6a7e7c3c5e6. The interrupted integration branch recovery357-cup-tied-mode1 is still at the same base, so no partial edit persisted. Continue atomically integrating/persisting the DBRGame Cup-Tied transfer window, reuse persisted latest PlayerMovement as source-backed transfer-history +0x08/+0x18 for clean-room completed transfers, and expose the root mode-1 fallback only through the current-match Squad status resolver. Verify focused tests and PR CI before merge.",
   "last_known_main_head": "9a32ddf7b65dd8d425afa897643fa6a7e7c3c5e6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 357,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 357: verified Cup-Tied date-window primitive at 9a32ddf7; proceeding with persisted GameState/Squad mode-1 integration.",
+  "recovery_generation": 358,
+  "last_recovery_reason": "Connection interrupted. Waiting for the complete answer",
+  "note": "Recovery 358: transient chat interruption only; repository unchanged at 9a32ddf7. Reapplying Recovery 357 integration atomically.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
