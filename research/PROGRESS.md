@@ -12179,3 +12179,9 @@ continues with ordinary Squad row display-name/color helpers.
   and account for every native child slot before promoting a complete-frame
   claim. Management launch and missing 3D presentation remain separate
   fail-closed blockers.
+
+- Frame reconciliation also source-closed the header/date-weather, two badge,
+  three team-identity and eight rating-caption rectangles plus their text-style
+  wrappers. Remaining pre-match frame gaps are now concentrated in pitch-marker
+  placement/state, row-content binding, selector visual state, and final
+  state-to-raster assembly rather than cross-layer ordering.
