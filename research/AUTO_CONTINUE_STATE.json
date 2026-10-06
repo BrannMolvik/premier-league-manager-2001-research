@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 371: PR #513 merged as 8a6dddec87bda405f066601e42cbbdaf2076bdf5 after exact-head presentation run 37547209067 and asset-policy run 37547208964 passed. Continue first-hand PPreMatch tracing now that executable access works: source-close player-row number/name geometry/content and reserve active-vs-disabled state, then prove Match Detail selector visual state. Preserve dynamic shirt/badge pixels and complete-frame/Gate-14 claims fail-closed until actually integrated.",
-  "last_known_main_head": "8a6dddec87bda405f066601e42cbbdaf2076bdf5",
+  "active_task": "Recovery 371: PR #514 merged as 17f49fa3cdde36d16f00a8e8d02d8b3f929018a8 after presentation run 37548739763 and asset-policy run 37548739781 passed. Continue Gate-14 complete-frame closure while private source execution is available. Next exact task: integrate PPreMatch team badges by proving/reusing the same native 0x40C850 Team_badge_stills/badge_2 selector and generic fallback already source-closed for FastView; then stage/bind XI shirt pixels and remaining dynamic text/state.",
+  "last_known_main_head": "17f49fa3cdde36d16f00a8e8d02d8b3f929018a8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 371,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 371 post-PR513 merge. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance; source execution currently available.",
+  "note": "Recovery 371 post-PR514 merge. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance. Gate 14 row and selector state now source-closed; source execution remains available.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
