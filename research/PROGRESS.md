@@ -11751,3 +11751,22 @@ continues with ordinary Squad row display-name/color helpers.
   `WindowsWpfStartupMediaBackend`. That audit is the next independent
   cloud-safe repair so future external evidence cannot certify an obsolete
   playback transport.
+
+
+## 6 October 2026 KST — Recovery 341 Gate-14 startup acceptance drift repair
+
+- Audited the existing external startup-media harness after the issue-#482 WPF
+  child-window repair and found it still certifying the obsolete MCI transport.
+- Work-ahead branch `recovery341-gate14-wpf-startup-acceptance` replaces that stale direct replay with the
+  canonical production boundary: exact `WindowsWpfStartupMediaBackend` passed
+  through `run_original_game_ui()`, bound by `OriginalGameTkHost` to the
+  same child HWND and geometry used by normal startup.
+- Startup acceptance receipt schema advances to 2. The external coordinator now
+  rejects schema-1/MCI evidence and requires production-host, child-HWND,
+  source-geometry and game-owned human-confirmation fields.
+- The confirmation token is `YES-GAME-WINDOW`; it covers both clips visible,
+  both audible, source order, embedded ownership and no obvious aspect
+  distortion. Native skip/fade timing and broad exact DirectDraw treatment stay
+  explicitly false.
+- Gate 13 remains the earliest incomplete gate; no external Windows receipt has
+  been produced by this cloud-safe work.
