@@ -271,3 +271,77 @@ Next source task after integration verification: trace the inputs to
 rating widths to source-equivalent clean-room state, while separately recovering
 any remaining PPreMatchPanel draw-order/text controls required before a complete
 frame can be claimed.
+
+
+## Recovery 366 — rating semantics and dynamic widths source-closed
+
+The four previously neutral PPreMatchPanel rating rows are now source-closed by
+combining the canonical executable with the shipped Static.dat Position table.
+
+### Native XI-to-width calculation
+
+Functions `0x49A3D0`, `0x49A460`, `0x49A4F0`, and `0x49A580`
+all follow the same structure:
+
+1. select one of the two eleven-pointer starting-XI arrays from the side argument;
+2. iterate exactly eleven starter pointers;
+3. read each player's current assigned role through the runtime position object
+   at DBRPlayer `+0x248` / helper `0x4EA3C0`;
+4. index the runtime Position table at global `0x874B68`;
+5. compare Position byte `+0x11` with the function-specific discriminator;
+6. for matching players call `0x41E1B0 -> 0x41C7E0`, the already-recovered
+   exact current-role player rating;
+7. sum the matching ratings, multiply by the function-specific double,
+   convert to integer through `0x668350`, and cap at `0xAB = 171`.
+
+The exact mappings are:
+
+| Native function | Position +0x11 | Scale | Meaning |
+| --- | ---: | ---: | --- |
+| `0x49A3D0` | 3 | 1.71 | Goalkeeper |
+| `0x49A460` | 0 | 0.342 | Defence |
+| `0x49A4F0` | 1 | 0.342 | Midfield |
+| `0x49A580` | 2 | 0.57 | Attack |
+
+The scale constants are the canonical doubles at `.rdata`
+`0x7C4B68/0x7C4B70/0x7C4B78`.
+
+### Position +0x11 is the shipped lineup-group byte
+
+The Position parser at `0x4010A0` stores the final serialized Position byte
+directly at runtime Position `+0x11`. The clean-room parser already preserves
+the same byte as `Position.lineup_group = Static.dat record +6`.
+
+The complete shipped 20-position mapping proves the row semantics:
+
+- GK -> 3;
+- RB/LB/CB/SW/RWB/LWB -> 0;
+- ANC/DM/RM/LM/CM/RW/LW/AM -> 1;
+- CF/ST -> 2;
+- None/RF/LF -> 255.
+
+Thus RF/LF deliberately fail all four native equality tests and contribute to
+none of the four pre-match bars. This is not a clean-room omission.
+
+### Clean-room binding
+
+The exact player-rating source already exists as
+`RuntimePlayer.current_role_rating()`, which reproduces
+`0x41E1B0 -> 0x41C7E0`.
+
+`gate14_prematch_rating_widths.py` now reproduces the eleven-player grouping,
+rating sum, native scales and 171-pixel cap. The pre-match surface keeps
+resource loading independent and exposes a separate state-binding seam:
+
+- left-side dynamic overlays grow rightward from x=65;
+- right-side overlays preserve the native right edge at x=735 and grow
+  leftward by using `x = 564 + 171 - width`;
+- y remains 497/515/533/551 and height remains 16.
+
+This closes the dynamic-width input and mirrored geometry without inventing a
+management launch action or claiming a complete PPreMatchPanel frame.
+
+The next source-backed task is to recover the remaining PPreMatchPanel text,
+team/player identity controls and cross-layer draw order needed to assemble a
+complete native frame. The management-to-match transition remains separately
+fail-closed.
