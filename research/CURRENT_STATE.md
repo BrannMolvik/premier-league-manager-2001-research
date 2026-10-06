@@ -1,3 +1,48 @@
+# Recovery 362 continuation — PPreMatchPanel source model merged
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `4080cfb6320d162a15c6392713b68ec947188af5`,
+which merges PR #504's source-backed PPreMatchPanel model. Exact PR head
+`8042153d95d011d97d3a5d80d496cae3490e39ca` passed focused presentation
+run `37527073991` and repository asset-policy run `37527074060`.
+
+First-hand canonical executable and authorized-disc analysis now establishes:
+
+- the four Match Detail controls are a horizontal row at y=107, x=176/290/404/518,
+  each 106x25;
+- left-to-right modes/labels/events are 0/3D Match/event 4,
+  1/3D Highlights/event 3, 2/FastView/event 2, and
+  3/Quick Match/event 1;
+- the selector uses original `button_type_14.444`, SHA-256
+  `7b0148bfa65adaa7cabf08e000050ba9add3cf852a03e66423051603c4b85930`,
+  a 106x575 atlas that is exactly 23 native 106x25 Button@ease frames;
+- the adjacent `button_type_15.444` is a separate wrapper and is explicitly
+  rejected as a selector false lead;
+- selector captions use the already-proven original
+  `Zurich_BdXCn_BT_20pixel.fnt`;
+- dedicated pre-match top-bar, pitch, active/disabled player-name strips,
+  rating bars, and 800x600 background are hash/geometry pinned;
+- exact native placements are source-closed for the top bar, pitch, and four
+  player-name strips.
+
+The merged loader requires canonical-executable EA444 tables/quantization and
+exact source hashes. It deliberately keeps the shared background draw site,
+rating-bar final layout, management-to-match launch transition, complete
+pre-match frame, and Gate 14 completion false.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely
+because Daniel's normal Windows 11 acceptance of artifact `11418314765` is
+still outstanding. Continue independent Gate-14 work-ahead.
+
+Exact next task: source-close how `prematch_bground.444` is attached through
+shared panel/background machinery and finish the rating-bar placement/state
+distinction. Then import/render only the source-proven pre-match asset slice.
+Do not invent the management-to-match trigger or substitute FastView for the
+native 3D modes.
+
+---
+
 # Recovery 361 continuation — Match Detail state merged; native PPreMatchPanel launch source-closed
 
 _Updated 7 October 2026._
