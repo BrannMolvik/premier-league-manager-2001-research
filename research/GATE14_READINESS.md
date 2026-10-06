@@ -75,10 +75,12 @@ open roadmap criterion:
   Human-heard bound-path Windows evidence is also still absent.
 - **Default startup FMVs are integrated on normal Windows launch.** The exact
   original `easp.tgq` / `premintro.tgq` files are revalidated, converted
-  once into a private verified H.264/AAC cache, rehashed on reuse, and played
-  through the built-in synchronous Windows MCI backend. Hosted Windows package
-  CI proves packaging and runtime construction, not actual human-visible/
-  audible playback, native skip input, fades, or exact display treatment.
+  once into a private verified H.264/AAC cache with the recovered horizontal
+  2x repeat, rehashed on reuse, and played through the game-owned
+  `WindowsWpfStartupMediaBackend` child HWND bound by the production Tk host.
+  Hosted Windows package CI proves packaging and runtime construction, not
+  actual human-visible/audible playback, native skip input, fades, or every
+  DirectDraw-era display detail.
 - **Resolved FastView pixels have an operator-visible Tk surface.** An
   already-built `HumanFastViewResolvedPresentation` can be shown in a native
   800x600 child window using its canonical resolved-preview PNG unchanged.
