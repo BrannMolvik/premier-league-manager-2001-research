@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 340: PR #494 merged as 3eeb5b92605f338499a6dcbc132e1187856508c9. Source-close and implement the remaining PSCF 0x418480 current-date competition restriction, including the 0x419350 date-record cutoff branch and higher-priority alternate On-loan/special Non-EU interaction. Expose frame 3 only if the complete resolver is equivalent; otherwise persist the exact unresolved boundary and continue the next source-backed Gate 13 slice.",
+  "active_task": "Recovery 341: PR #494 is merged at main 3eeb5b92605f338499a6dcbc132e1187856508c9. Source-close and implement the remaining PSCF 0x418480 current-date competition restriction, including the 0x419350 date-record cutoff branch and higher-priority alternate On-loan/special Non-EU interaction. Expose frame 3 only if the complete resolver is equivalent; otherwise persist the exact unresolved boundary and continue the next source-backed Gate 13 slice.",
   "last_known_main_head": "3eeb5b92605f338499a6dcbc132e1187856508c9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 340,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 340 resumed after PR #494 green merge. Private executable trace is healthy. Gate 13 remains open; Windows 11 #482 human acceptance is still mandatory.",
+  "recovery_generation": 341,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 341 resumed from canonical main after same-chat no-progress escalation. Gate 13 remains open; Windows 11 #482 human acceptance is still mandatory.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
