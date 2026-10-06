@@ -66,6 +66,8 @@ class FakePlayer:
     loan_listed: bool = False
     wanted: bool = False
     current_position: int = 0
+    match_active: bool = False
+    match_substitute_available: bool = False
     training_modifiers: list[int] = field(
         default_factory=lambda: [0] * 17
     )
@@ -191,11 +193,13 @@ class FakeController:
             FakePlayer(
                 202, "Second", "Source", 9, (4, 0, 0),
                 91, 3, 88, transfer_listed=True,
+                match_substitute_available=True,
             ),
             FakePlayer(
                 101, "First", "Source", 1, (0, 1, 0),
                 77, 2, 92, injured=True, suspended=True,
                 out_of_contract=True, loan_listed=True, wanted=True,
+                match_active=True,
             ),
         )
         self.state.players = {player.index: player for player in self._squad}
@@ -461,19 +465,28 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
 
         self.assertEqual(
             (
-                second.full_name, second.shirt_number, second.positions,
-                second.current_position, second.match_unavailable,
+                second.first_name, second.surname, second.full_name,
+                second.shirt_number, second.positions,
+                second.current_position, second.match_active,
+                second.match_substitute_available, second.match_unavailable,
                 second.condition, second.form_state,
                 second.recent_form_average, second.current_role_rating,
                 second.morale,
             ),
-            ("Second Source", 9, (4, 0, 0), 0, False, 91, 3, 2.5, 40, 88),
+            (
+                "Second", "Source", "Second Source", 9, (4, 0, 0), 0,
+                False, True, False, 91, 3, 2.5, 40, 88,
+            ),
         )
         self.assertTrue(second.transfer_listed)
         self.assertFalse(second.injured)
         self.assertEqual(
-            (first.full_name, first.condition, first.form_state, first.morale),
-            ("First Source", 77, 2, 92),
+            (
+                first.first_name, first.surname, first.full_name,
+                first.condition, first.form_state, first.morale,
+                first.match_active, first.match_substitute_available,
+            ),
+            ("First", "Source", "First Source", 77, 2, 92, True, False),
         )
         self.assertTrue(first.injured)
         self.assertTrue(first.suspended)
