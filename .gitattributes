@@ -1,0 +1,3 @@
+# Exact-byte runtime artifacts must survive Windows checkout unchanged.
+original_assets/converted/pstartmenu-v1/manifest.json text eol=lf
+original_assets/converted/pstartmenu-v1/payload.bin.xz binary
