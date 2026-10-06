@@ -177,6 +177,76 @@ def _decode_verified(
     )
 
 
+
+def _load_selected_background_with_decoder(
+    selection: FastViewSurfacedResourceSelection,
+    source_root: Path,
+    *,
+    tables,
+    quant,
+) -> VerifiedFastViewSurfacedResource:
+    """Decode the already-selected background with caller-verified decoder state."""
+    background_path, background_raw = _read_first_existing(
+        source_root,
+        selection.background_source_candidates,
+        role="background",
+        unresolved_terminal_background=True,
+    )
+    return _decode_verified(
+        "background",
+        background_path,
+        background_raw,
+        expected_geometry=BACKGROUND_GEOMETRY,
+        tables=tables,
+        quant=quant,
+    )
+
+
+def load_verified_selected_background(
+    selection: FastViewSurfacedResourceSelection,
+    *,
+    source_root: str | Path,
+    original_executable: str | Path,
+) -> VerifiedFastViewSurfacedResource:
+    """Load/decode only the source-selected Team_Backgrounds resource.
+
+    PPreMatchPanel and FastView share the recovered background selector. This
+    helper deliberately stops at the common background seam so pre-match does
+    not need to load FastView-only club badges or duplicate candidate/fallback
+    rules.
+    """
+    if type(selection) is not FastViewSurfacedResourceSelection:
+        raise FastViewSurfacedResourceLoadError(
+            "background loader requires exact FastViewSurfacedResourceSelection"
+        )
+    root = Path(source_root)
+    if not root.is_dir():
+        raise FastViewSurfacedResourceLoadError(
+            "original source root is unavailable"
+        )
+    try:
+        executable = Path(original_executable).read_bytes()
+    except FileNotFoundError as exc:
+        raise FastViewSurfacedResourceLoadError(
+            "canonical original executable is unavailable"
+        ) from exc
+
+    try:
+        tables = tables_from_original_executable(executable)
+        quant = quantization_from_verified_executable(executable)
+    except Exception as exc:
+        raise FastViewSurfacedResourceLoadError(
+            "EA444 decode tables are not from the canonical original executable"
+        ) from exc
+
+    return _load_selected_background_with_decoder(
+        selection,
+        root,
+        tables=tables,
+        quant=quant,
+    )
+
+
 def load_verified_fastview_surfaced_resources(
     selection: FastViewSurfacedResourceSelection,
     *,
@@ -210,11 +280,11 @@ def load_verified_fastview_surfaced_resources(
             "EA444 decode tables are not from the canonical original executable"
         ) from exc
 
-    background_path, background_raw = _read_first_existing(
+    background = _load_selected_background_with_decoder(
+        selection,
         root,
-        selection.background_source_candidates,
-        role="background",
-        unresolved_terminal_background=True,
+        tables=tables,
+        quant=quant,
     )
     home_path, home_raw = _read_first_existing(
         root,
@@ -229,14 +299,7 @@ def load_verified_fastview_surfaced_resources(
 
     return VerifiedFastViewSurfacedResourceSet(
         selection=selection,
-        background=_decode_verified(
-            "background",
-            background_path,
-            background_raw,
-            expected_geometry=BACKGROUND_GEOMETRY,
-            tables=tables,
-            quant=quant,
-        ),
+        background=background,
         home_badge=_decode_verified(
             "home_badge",
             home_path,
@@ -267,6 +330,7 @@ def surfaced_resource_loader_contract() -> dict:
         "canonical_executable_quantization_required": True,
         "chosen_source_path_retained": True,
         "chosen_source_sha256_retained": True,
+        "background_only_reusable_seam": True,
         "terminal_background_fallback_recovered": False,
         "source_bytes_loaded": True,
         "ea444_decoded": True,

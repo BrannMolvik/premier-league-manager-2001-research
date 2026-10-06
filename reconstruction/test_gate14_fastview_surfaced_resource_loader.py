@@ -22,6 +22,7 @@ from gate14_fastview_surfaced_resource_loader import (
     BACKGROUND_GEOMETRY,
     FastViewSurfacedResourceLoadError,
     load_verified_fastview_surfaced_resources,
+    load_verified_selected_background,
     surfaced_resource_loader_contract,
 )
 
@@ -152,6 +153,43 @@ class FastViewSurfacedResourceLoaderTests(unittest.TestCase):
             self.assertFalse(loaded.surfaced_picture_pixels_staged)
             self.assertFalse(loaded.complete_fastview_frame_recovered)
 
+
+    def test_background_only_loader_reuses_candidate_order_without_badges(self):
+        selection = self.selection()
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            chosen_background = selection.background_source_candidates[2]
+            path = root.joinpath(*chosen_background.replace("/", "\\").split("\\"))
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"background-only-source")
+            exe = root / "footballmanager.exe"
+            exe.write_bytes(b"canonical-test-double")
+
+            with (
+                patch(
+                    "gate14_fastview_surfaced_resource_loader.tables_from_original_executable",
+                    return_value=object(),
+                ),
+                patch(
+                    "gate14_fastview_surfaced_resource_loader.quantization_from_verified_executable",
+                    return_value=object(),
+                ),
+                patch(
+                    "gate14_fastview_surfaced_resource_loader.decode_ea444",
+                    return_value=decoded(*BACKGROUND_GEOMETRY, transparent=9),
+                ),
+            ):
+                loaded = load_verified_selected_background(
+                    selection,
+                    source_root=root,
+                    original_executable=exe,
+                )
+
+            self.assertEqual(loaded.role, "background")
+            self.assertEqual(loaded.source_path, chosen_background)
+            self.assertEqual(loaded.geometry, (800, 600))
+            self.assertEqual(loaded.transparent_pixels, 9)
+
     def test_missing_background_attempts_fail_on_unresolved_terminal_fallback(self):
         selection = self.selection()
         with TemporaryDirectory() as td:
@@ -232,6 +270,7 @@ class FastViewSurfacedResourceLoaderTests(unittest.TestCase):
         self.assertEqual(contract["badge_geometry"], (135, 93))
         self.assertTrue(contract["canonical_executable_tables_required"])
         self.assertTrue(contract["canonical_executable_quantization_required"])
+        self.assertTrue(contract["background_only_reusable_seam"])
         self.assertFalse(contract["terminal_background_fallback_recovered"])
         self.assertTrue(contract["source_bytes_loaded"])
         self.assertTrue(contract["ea444_decoded"])
