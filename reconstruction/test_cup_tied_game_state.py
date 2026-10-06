@@ -83,6 +83,26 @@ class GameStateCupTiedIntegrationTests(unittest.TestCase):
         self.assertTrue(state.is_player_cup_tied(100, 11, 20))
         self.assertEqual(state.cup_tied_collections[100].recorded_club_id(11), 10)
 
+    def test_missing_runtime_kind_metadata_does_not_mutate_state(self):
+        player = Player(11, 10)
+        state = GameState.from_players((player,), date(2000, 8, 1))
+        state.competitions = {100: SimpleNamespace(id=100, parent_competition_id=None)}
+        result = SimpleNamespace(events=())
+
+        inserted = state._record_cup_tied_appearances(
+            competition_id=100,
+            home_club_id=10,
+            away_club_id=20,
+            home_side=side(0, 1),
+            away_side=side(1, 0),
+            home_participants=(player,),
+            away_participants=(),
+            result=result,
+        )
+
+        self.assertEqual(inserted, ())
+        self.assertEqual(state.cup_tied_collections, {})
+
     def test_root_league_context_never_creates_cup_tied_state(self):
         player = Player(11, 10)
         state = GameState.from_players((player,), date(2000, 8, 1))
