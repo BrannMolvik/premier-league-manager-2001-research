@@ -122,3 +122,80 @@ canonical.
 - https://learn.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation
 - https://github.com/BtbN/FFmpeg-Builds
 - https://github.com/BtbN/FFmpeg-Builds/releases/tag/autobuild-2026-10-03-18-14
+
+
+## Recovery 319 source-minimization boundary
+
+The verified BtbN LGPL archive is technically useful, but its own
+`-version` configuration proves that it statically enables many third-party
+libraries. It therefore narrows the current GPL/libx264 problem without
+providing a minimal redistribution surface.
+
+The exact source chain now pinned for that verified broad candidate is:
+
+- BtbN FFmpeg-Builds release tag `autobuild-2026-10-03-18-14`;
+- BtbN build-repository commit
+  `9acad4a9ef1583096af7836cc1e9c8cbcb4d3950`;
+- build arguments `win64 lgpl 9.0`;
+- BtbN's `9.0` add-in selects FFmpeg branch `release/9.0`;
+- the candidate executable identifies FFmpeg source commit
+  `46d8f462eeb87ee1f704d8c44a0ee24fca471ad1`;
+- the LGPL variant's FFmpeg license file is `COPYING.LGPLv3`.
+
+`third_party/ffmpeg-lgpl-candidate/SOURCE-CONTRACT.json` keeps that broad
+candidate explicitly non-minimal and non-production-ready. It also defines a
+separate minimal-helper target pinned to the same FFmpeg source commit.
+
+The minimal target uses `--disable-everything --disable-autodetect`, enables
+no `--enable-lib*` dependency, and then explicitly re-enables Windows
+Media Foundation because FFmpeg's configure script classifies
+`mediafoundation` as an autodetected platform facility and `h264_mf`
+depends on it. The first exact-source build proof then failed in
+`libavcodec/mfenc.c`: the pinned source includes
+`libavutil/hwcontext_d3d11va.h` only when `CONFIG_D3D11VA` is enabled, while
+the same Media Foundation encoder source stores and processes
+`ID3D11DeviceContext`, `AVD3D11VADeviceContext`, and `ID3D11Texture2D`
+state. The minimal contract therefore explicitly restores `d3d11va` after
+autodetection is disabled. This is a pinned-source compile dependency, not a
+claim that FM2001 derivatives require hardware-frame input at runtime. The
+`ffmpeg` program also depends on FFmpeg's generic thread capability, so the
+native `w32threads` backend is explicitly re-enabled after autodetection is
+disabled. It retains only:
+
+- file protocol;
+- the FFmpeg `ea` Electronic Arts demuxer;
+- `eatgq` plus the bounded set of EA audio codecs the upstream EA demuxer can
+  select;
+- native H.264 and AAC decoders because the runtime immediately decode-verifies
+  each generated derivative before accepting its cache receipt;
+- native AAC encoding plus FFmpeg's internal `aresample` filter, because the
+  AAC encoder accepts FLTP while EA audio decoders may produce integer PCM;
+- Windows Media Foundation `h264_mf`;
+- the actual `mp4` muxer, which selects FFmpeg's shared MOV/ISO-BMFF
+  muxing machinery, plus the `mov` demuxer so FFprobe and runtime decode
+  verification can reopen the generated MP4;
+- the `pipe` protocol and `null` muxer because the runtime verifier uses
+  `-progress pipe:1` and decodes accepted derivatives to `-f null -`;
+- the `ffmpeg` and `ffprobe` command-line programs.
+
+FFmpeg's upstream source identifies `eatgq` as the Electronic Arts TGQ video
+decoder and the `ea` input format as the Electronic Arts multimedia demuxer.
+FFmpeg's codec documentation lists `h264_mf` as a Media Foundation H.264
+encoder. These source facts bound the technical target but do not prove that
+the proposed minimal configure line builds successfully.
+
+All minimal-helper proof flags deliberately remain false. Promotion still
+requires an actual build from the pinned FFmpeg commit, synthetic conversion
+proof, exact original-TGQ conversion, external Windows 11 playback acceptance,
+and source/license material completion. The contract is technical provenance,
+not a legal-compliance determination.
+
+
+The minimal target also deliberately omits `--enable-version3`. The selected
+pinned FFmpeg sources for TGQ/EA demuxing, Media Foundation encoding, native
+AAC, MOV/MP4 muxing and internal audio resampling carry the project's LGPL
+2.1-or-later notice, and the selected configure dependencies do not require
+GPL or version-3-only mode. The minimal target therefore pins
+`COPYING.LGPLv2.1` rather than inheriting the broad BtbN build's
+`COPYING.LGPLv3`. This is a source/license-mode observation, not a legal
+redistribution-compliance conclusion.

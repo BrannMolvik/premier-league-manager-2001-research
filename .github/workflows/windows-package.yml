@@ -19,6 +19,9 @@ on:
       - "reconstruction/test_gate17_third_party_ffmpeg.py"
       - "reconstruction/gate17_ffmpeg_lgpl_candidate.py"
       - "reconstruction/test_gate17_ffmpeg_lgpl_candidate.py"
+      - "reconstruction/gate17_ffmpeg_minimal_source_contract.py"
+      - "reconstruction/test_gate17_ffmpeg_minimal_source_contract.py"
+      - "third_party/ffmpeg-lgpl-candidate/**"
       - "research/GATE17_FFMPEG_LGPL_MIGRATION.md"
       - "third_party/ffmpeg/**"
       - "reconstruction/gate17_clean_windows_install.py"
@@ -73,9 +76,13 @@ jobs:
           python gate17_ffmpeg_lgpl_candidate.py --archive $archive --output-receipt $receipt
           Get-Content $receipt
 
+      - name: Audit minimal FFmpeg source contract
+        working-directory: reconstruction
+        run: python -c "from gate17_ffmpeg_minimal_source_contract import audit_source_contract; import json; print(json.dumps(audit_source_contract('..'), indent=2, sort_keys=True))"
+
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_app_package_smoke test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_ffmpeg_lgpl_candidate test_gate17_clean_windows_install test_gate17_external_validation
+        run: python -m unittest -v test_runtime_layout test_app_package_smoke test_app_presentation_boundary test_startup_media_runtime_cache test_startup_media_windows_backend test_gate17_package_candidate test_gate17_third_party_ffmpeg test_gate17_ffmpeg_lgpl_candidate test_gate17_ffmpeg_minimal_source_contract test_gate17_clean_windows_install test_gate17_external_validation
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction
