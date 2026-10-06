@@ -13,8 +13,13 @@ from original_squad_presenter import (
 class Row:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
+    positions: tuple[int, int, int]
     current_position: int
+    match_active: bool
+    match_substitute_available: bool
     condition: int
     recent_form_average: float
     current_role_rating: int
@@ -22,7 +27,20 @@ class Row:
 
 class OriginalSquadPresenterTests(unittest.TestCase):
     def row(self, index=0):
-        return Row(index, 100 + index, f"Player {index}", 12, 88, 7.5, 63)
+        return Row(
+            index,
+            100 + index,
+            "Player",
+            str(index),
+            f"Player {index}",
+            (12, 4, 7),
+            12,
+            index == 0,
+            index == 1,
+            88,
+            7.5,
+            63,
+        )
 
     def test_exact_native_row_geometry_and_resolved_columns_are_preserved(self):
         snapshot = build_squad_row_viewport((self.row(), self.row(1)))
@@ -52,9 +70,12 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         )
         self.assertEqual(snapshot.rows[0].y, 154)
         self.assertEqual(snapshot.rows[1].y, 171)
-        self.assertEqual(snapshot.rows[0].display_name, "Player 0")
+        self.assertEqual(snapshot.rows[0].display_name, "P. 0")
+        self.assertEqual(snapshot.rows[0].display_name_rgb, (255, 255, 255))
         self.assertEqual(snapshot.rows[0].assigned_role, 12)
+        self.assertEqual(snapshot.rows[0].assigned_role_rgb, (255, 255, 255))
         self.assertEqual(snapshot.rows[0].condition, 88)
+        self.assertEqual(snapshot.rows[1].display_name_rgb, (232, 191, 94))
         self.assertEqual(snapshot.rows[0].recent_form_average, 7.5)
         self.assertEqual(snapshot.rows[0].current_role_rating, 63)
 
@@ -69,6 +90,13 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         bad = self.row()
         object.__setattr__(bad, "condition", "88")
         with self.assertRaisesRegex(OriginalSquadPresentationError, "condition"):
+            build_squad_row_viewport((bad,))
+
+        bad = self.row()
+        object.__setattr__(bad, "match_active", None)
+        with self.assertRaisesRegex(
+            OriginalSquadPresentationError, "selection color states"
+        ):
             build_squad_row_viewport((bad,))
 
         bad = self.row()

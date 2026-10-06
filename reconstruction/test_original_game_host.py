@@ -57,6 +57,10 @@ from original_pmatchinfo_resources import (
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_resources import squad_view_transition
+from original_squad_row_style import (
+    OriginalSquadRowTextResources,
+    load_verified_squad_row_text_resources,
+)
 from original_squad_top_controls import OriginalSquadTopResources
 
 from original_teamselect_resources import assemble_original_teamselect_inputs
@@ -77,8 +81,13 @@ class StubBackend:
 class Row:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
+    positions: tuple[int, int, int] = (12, 4, 7)
     current_position: int = 12
+    match_active: bool = True
+    match_substitute_available: bool = False
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
@@ -92,7 +101,7 @@ class Bridge:
         return ClubHeaderView(12, "Source Club", "Source", date(2000, 8, 1))
 
     def squad_rows(self):
-        return (Row(0, 1000, "Player 0"),)
+        return (Row(0, 1000, "Player", "0", "Player 0"),)
 
     def league_fixtures_grid_source(self):
         return LeagueFixturesGridSourceView(
@@ -135,6 +144,14 @@ def fake_squad_top_resources():
         ),
         font,
     )
+
+
+def fake_squad_row_text_resources():
+    root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+    resources = load_verified_squad_row_text_resources(root)
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise AssertionError("unexpected Squad row text resource type")
+    return resources
 
 
 class FakeHeaderFont:
@@ -477,6 +494,7 @@ class OriginalGameHostTests(unittest.TestCase):
             "squad": {
                 "management_pmenu_resources": object(),
                 "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
                 "management_background": object(),
                 "management_header_resources": object(),
             },
@@ -651,6 +669,7 @@ class OriginalGameHostTests(unittest.TestCase):
         payload = {
             "management_pmenu_resources": object(),
             "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
         }
@@ -793,6 +812,7 @@ class OriginalGameHostTests(unittest.TestCase):
         squad_payload = {
             "management_pmenu_resources": object(),
             "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
         }
@@ -1013,6 +1033,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
 
             self.assertEqual(root.values["title"], "Premier League Manager 2001")
@@ -1037,11 +1058,14 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
             self.assertFalse(host.pmenu_popup_active)
-            self.assertEqual(len(host.canvas.images), 6)
-            host.on_click(SimpleNamespace(x=600, y=1))
             self.assertEqual(len(host.canvas.images), 7)
+            # The seventh source panel image is the newly recovered first
+            # roster player-name control at x=37+76 and y=79+154+1.
+            self.assertEqual(host.canvas.images[-1][:2], (113, 234))
+            host.on_click(SimpleNamespace(x=600, y=1))
+            self.assertEqual(len(host.canvas.images), 8)
             self.assertIn("source PMenu rows rendered", host.last_status)
-            self.assertIn("6 source panel bitmaps rendered", host.last_status)
+            self.assertIn("7 source panel bitmaps rendered", host.last_status)
             self.assertIn("surrounding management background unresolved", host.last_status)
 
             before = host.management_presenter.snapshot()
@@ -1053,7 +1077,7 @@ class OriginalGameHostTests(unittest.TestCase):
             after = host.management_presenter.snapshot()
             self.assertEqual(after.panel_code, 0xCE)
             self.assertEqual(after.menu.selected_child_id, 0xCE)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 8)
 
             # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
             # matching the recovered SelectBmp +0x6C input virtual.
@@ -1062,7 +1086,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(native.panel_code, 0xCE)
             self.assertEqual(native.menu.selected_root_id, 0x259)
             self.assertIn("expand_root 0x259", host.last_status)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 8)
 
             accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
             self.assertTrue(accepted.action.accepted)
@@ -1071,12 +1095,12 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
             self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
             self.assertIn("source-accepted PMenu action", host.last_status)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 8)
 
             host.on_click(SimpleNamespace(x=100, y=120))
             self.assertIn("no source-bounded PMenu candidate row", host.last_status)
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 8)
 
     def test_management_header_draws_exact_two_bitmaps_plus_menu_caption(self):
         host = OriginalGameTkHost(
@@ -1148,6 +1172,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeRoot(),
             FakeTk,
             squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
         )
         host.canvas.delete("all")
         host._photos = []
@@ -1187,6 +1212,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeRoot(),
             FakeTk,
             squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
         )
         host.canvas.delete("all")
         host._photos = []
@@ -1217,12 +1243,13 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 8)
 
             activation = host.apply_source_accepted_squad_view(4)
             self.assertEqual(activation.transition.control_id, 4)
@@ -1243,7 +1270,7 @@ class OriginalGameHostTests(unittest.TestCase):
 
             restored = host.apply_source_accepted_squad_view(3)
             self.assertEqual(restored.transition.control_id, 3)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 8)
 
     def test_native_league_fixtures_grid_left_press_uses_exact_source_control(self):
         live = presenter()
@@ -1258,6 +1285,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
@@ -1295,6 +1323,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
