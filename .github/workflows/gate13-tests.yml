@@ -9,6 +9,8 @@ on:
       - "reconstruction/front_end_state.py"
       - "reconstruction/front_end_session.py"
       - "reconstruction/test_front_end_session.py"
+      - "reconstruction/match_detail_mode.py"
+      - "reconstruction/test_match_detail_mode.py"
       - "reconstruction/gate13_*.py"
       - "original_assets/source/reused_art/generic/main_menu_windows_buttons.png"
       - "original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/*scroll_end.444"
@@ -195,6 +197,7 @@ jobs:
           python -m unittest -v \
             test_front_end_state \
             test_front_end_session \
+            test_match_detail_mode \
             test_ea_language_strings \
             test_ea_font \
             test_original_pstartmenu_labels \
