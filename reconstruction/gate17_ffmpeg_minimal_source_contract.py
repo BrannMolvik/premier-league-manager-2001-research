@@ -138,6 +138,32 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must explicitly re-enable native Windows threads"
         )
+    if "--extra-ldflags=-static" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must statically link the MinGW/UCRT toolchain runtime"
+        )
+    expected_toolchain_linkage = {
+        "strategy": "static",
+        "configure_arg": "--extra-ldflags=-static",
+        "dynamic_runtime_dlls_forbidden": [
+            "libgcc_s*.dll",
+            "libstdc++-6.dll",
+            "libwinpthread-1.dll",
+            "libssp-0.dll",
+            "msys-2.0.dll",
+        ],
+        "provenance_boundary": (
+            "The MinGW-w64/UCRT toolchain runtime is build infrastructure, not an "
+            "FFmpeg --enable-lib* component. Static linkage removes a separate "
+            "runtime-DLL deployment dependency, but source_material_complete stays "
+            "false until required toolchain redistribution/source-license materials "
+            "are accounted for."
+        ),
+    }
+    if minimal.get("toolchain_runtime_linkage") != expected_toolchain_linkage:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper toolchain-runtime linkage contract drifted"
+        )
     if "--enable-demuxer=ea" not in args:
         raise MinimalFfmpegSourceContractError("minimal helper must enable the EA demuxer")
     if "--enable-demuxer=mov" not in args or minimal.get("required_derivative_input_demuxer") != "mov":
