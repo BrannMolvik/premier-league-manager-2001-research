@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 345: continue PR #497 native trace for DBRPlayer +0x198/+0x18, player +0x1A0, and globals 0x8755E8/EC/F0. Recovery 344 source-closed ordinary-transfer bit-11 as sticky and tied +0x198/+0x18 to normalized player +0x158 copied from source +0x58/current-club-date state. Keep mode-1 negative Cup-Tied fallback and frame 12 fail-closed until source-complete, then reconcile equivalent clean-runtime semantics. Gate 13/#482 still requires Daniel Windows acceptance.",
+  "active_task": "Recovery 345: PR #497 candidate 45c5c0e implements source-closed Squad frame 12 from sticky bit 11 + synchronized contract-expiry cutoff, corrects Cup-Tied priority when the cutoff is current, and applies the source-proven set-only post-transfer bit-11 transition. Gate-13 focused workflow 37467143159 is green; full reconstruction 37467142990 is still running. Private archive materializes but container/notebook byte access still raises caas.internal.errors.ClientError, so unresolved mode-1 Cup-Tied +0x198/+0x18, +0x1A0, 0x8755E8/EC/F0 semantics remain fail-closed. After full green, update research docs, merge #497 if main is unchanged/mergeable, sync runtime to new main, then continue highest-priority cloud-safe Gate-13/14 work; Gate 13/#482 still requires Daniel Windows acceptance.",
   "last_known_main_head": "3c17eaa1dc5a9491699d92ec99489bb796660753",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 345,
   "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery 345 resumed exact PR #497 source tracing from the Recovery 344 checkpoint. Main remains unchanged at 3c17eaa; runtime is continuous/working.",
+  "note": "Recovery 345 checkpoint: PR #497 head 45c5c0e; focused Gate-13 CI green, full reconstruction still running; main unchanged.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
