@@ -1,3 +1,52 @@
+# Recovery 363 continuation — live PPreMatch background/rating correction merged
+
+_Updated 7 October 2026._
+
+Canonical `main` is now `adff9a96b10465b8580ab09d0069bc1601a01e66`,
+which merges PR #505's correction to the PPreMatchPanel source model. Exact PR
+head `de9cbb28f7e819a47b5a80e61dd2e1211eb01835` passed focused presentation
+run `37528707689` and repository asset-policy run `37528707719`.
+
+First-hand canonical executable tracing corrects the earlier static-background
+assumption:
+
+- shipped `pre_match/prematch_bground.444` is globally initialized but is not
+  the live PPreMatchPanel background in the recovered constructor path;
+- the live panel constructs an 800x600 background at (0,0) through
+  `0x5D3490 -> 0x5D3510 -> 0x64E500` from
+  `FM2001_Art/Generic/Team_Backgrounds`, keyed by current date plus the
+  source match/team context;
+- this is the same already-recovered Team_Backgrounds contract used by the
+  FastView surfaced-resource path, so the modern pre-match seam should reuse
+  that selector rather than duplicate it.
+
+The four 171x16 rating rows are also source-closed geometrically:
+
+- y = 497/515/533/551, left x=65, right x=564;
+- width calculators `0x49A3D0/0x49A460/0x49A4F0/0x49A580` correspond to
+  neutral record discriminators 3/0/1/2;
+- side selector 0 sizes the left `rating_bar_left` overlay directly;
+- side selector 1 recalculates the width and subtracts it from the right-side
+  right edge, producing a mirrored dynamic bar;
+- human-readable meanings for the four discriminators remain deliberately
+  unassigned until separately proven.
+
+The merged loader no longer requires or renders the shipped-but-non-live
+`prematch_bground.444`. Management-to-match launch, complete pre-match frame,
+and Gate 14 completion remain fail-closed.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely
+because Daniel's normal Windows 11 acceptance of artifact `11418314765`
+is still outstanding. Continue independent Gate-14 work-ahead.
+
+Exact next task: reuse the existing source-backed FastView
+Team_Backgrounds selection/loading seam for PPreMatchPanel, stage only the exact
+original pre-match assets actually consumed by the verified panel, and build a
+renderable pre-match presentation boundary without inventing the management
+launch transition.
+
+---
+
 # Recovery 362 continuation — PPreMatchPanel source model merged
 
 _Updated 7 October 2026._
