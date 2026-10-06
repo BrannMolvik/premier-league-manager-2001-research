@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 344: PR #497 ordinary-transfer bit-11 transition is source-closed. Continue the exact native trace for DBRPlayer +0x198/+0x18, player +0x1A0, and globals 0x8755E8/EC/F0; current evidence ties +0x198/+0x18 to normalized player +0x158 copied from source +0x58/current-club-date state. Keep mode-1 negative Cup-Tied fallback fail-closed until source-complete, then reconcile frame 12 with equivalent sticky bit-11/registration-cutoff semantics. Gate 13/#482 still needs Daniel Windows acceptance.",
+  "active_task": "Recovery 345: continue PR #497 native trace for DBRPlayer +0x198/+0x18, player +0x1A0, and globals 0x8755E8/EC/F0. Recovery 344 source-closed ordinary-transfer bit-11 as sticky and tied +0x198/+0x18 to normalized player +0x158 copied from source +0x58/current-club-date state. Keep mode-1 negative Cup-Tied fallback and frame 12 fail-closed until source-complete, then reconcile equivalent clean-runtime semantics. Gate 13/#482 still requires Daniel Windows acceptance.",
   "last_known_main_head": "3c17eaa1dc5a9491699d92ec99489bb796660753",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 344,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 344 checkpointed the ordinary-transfer bit-11 proof on PR #497 and continues the remaining Cup-Tied date/club/global cutoff source trace. Main remains unchanged.",
+  "recovery_generation": 345,
+  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
+  "note": "Recovery 345 resumed exact PR #497 source tracing from the Recovery 344 checkpoint. Main remains unchanged at 3c17eaa; runtime is continuous/working.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
