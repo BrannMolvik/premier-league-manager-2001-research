@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 347: Gate 13 packaged CRLF/presenter-build blocker is fixed and merged; issue #482 now awaits Daniel's required normal Windows 11 acceptance using artifact 11418314765. Continue independent cloud-safe work: resume Gate-17 FFmpeg release/migration path from its canonical research and open PRs, without treating later-gate work as closing Gate 13. Private source trace remains execution-sandbox deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and globals 0x8755E8/EC/F0.",
+  "active_task": "Recovery 348: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Cloud-safe Gate-17 FFmpeg work-ahead is active. PR #475 has been refreshed onto main at bf3d5c6 with pinned-source proof that the minimal h264_mf contract must explicitly enable D3D11VA after --disable-autodetect; Windows package/source-contract checks are green and full reconstruction is still running. Merge #475 only when exact-head CI is fully green. Then refresh stacked PR #479 onto the canonical contract, retain its build-proof/audit files, rerun the minimal Windows FFmpeg build, and fix only source-proven build/runtime dependencies. Private Cup-Tied trace remains sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and 0x8755E8/EC/F0.",
   "last_known_main_head": "7fe07ab3837735ae7bae3bf46d353f59be89951f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 347,
+  "recovery_generation": 348,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Canonical main 7fe07ab records PR #498 merge and acceptance artifact. Gate 13 external acceptance remains open; cloud-safe Gate-17 FFmpeg work resumes. Local execution still blocked.",
+  "note": "Recovery 348 resumed after PR #498 merge. Gate 13 external acceptance remains open; PR #475 minimal FFmpeg source contract refreshed with D3D11VA source dependency and is in exact-head CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
