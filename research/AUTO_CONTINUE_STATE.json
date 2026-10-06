@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 336: PR #492 is merged at 0b9cd9b53cd525c3b4af2a27f8c1ddbf6a101a93. Continue source-closing PSCFRow status resolver 0x418330/0x418360 priority and override predicates, especially separate Cup-Tied collection and special Non-EU registration state. Materialize only exact runtime state needed before rendering any status pixels; club-relative assignment remains unresolved. External Windows 11 #482 acceptance remains mandatory.",
+  "active_task": "Recovery 336 validation: PR #493 head 2f1bf97165f15a5899c7a8ef9748a002593308fd renders only override-safe Squad status frames 0/1/2 (Injured/Banned/International) from exact status.png. Fresh CI cycle 376/1515/227/2594 is running after fixing synthetic-row fail-closed handling, PNG signature literal, and host test isolation. Merge only after all four green, then continue exact Cup-Tied collection materialization research.",
   "last_known_main_head": "0b9cd9b53cd525c3b4af2a27f8c1ddbf6a101a93",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 336,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #492 merged after green focused Gate13, Windows package/smoke, and asset-policy validation. CURRENT_STATE still describes pre-merge branch and needs reconciliation at next main checkpoint. Active work is resolver priority closure, not atlas import.",
+  "note": "PR #493 active. Source proof: 0x401DE0 PSCF scan skips 3/4/5; 0x418330 direct-returns 0..2; lower statuses enter 0x418360 overrides. Bit2 is International. First direct status screen origin 277,234. External Windows 11 #482 acceptance remains mandatory.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
