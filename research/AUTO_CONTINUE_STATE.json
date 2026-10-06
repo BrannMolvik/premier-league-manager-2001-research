@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 349: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 6b9bf4dca8969dc2e604243033a45c1e58517526. Active cloud-safe Gate-17 work-ahead is PR #479 exact head 0ff99f89abd378d9314a63b621e7f2105ff314f1. Previous exact head 1903e4ab86e3c3a7d53cff5e33c38653e72a378f compiled the minimal FFmpeg helper successfully and passed asset policy 37483599664, Windows package 37483599661, and full reconstruction 37483599575, but build audit 37483599564 failed only because FFmpeg serialized comma-grouped configure component lists as repeated tokens. Head 0ff99f89abd378d9314a63b621e7f2105ff314f1 normalizes those equivalent forms and adds a fail-closed regression for an actually missing expanded component. Merge only after exact-head build proof/package/full CI pass. If green, inspect the build-proof artifact/receipt, merge #479, then continue with a synthetic canonical scale+h264_mf+AAC+MP4 roundtrip using the minimal helper. Private Cup-Tied trace remains sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and 0x8755E8/EC/F0.",
+  "active_task": "Recovery 349: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main remains 6b9bf4dca8969dc2e604243033a45c1e58517526. Active Gate-17 work-ahead is PR #479 exact head 9a4aeda569307ae623ad65bc19dccc176263d0b2. Prior head 0ff99f89abd378d9314a63b621e7f2105ff314f1 compiled ffmpeg.exe/ffprobe.exe successfully and passed asset policy 37486929258, Windows package 37486929283, and full reconstruction 37486929058. Build proof 37486928684 failed only because the audit parsed FFmpeg's source-generated configuration string with whitespace splitting; pinned configure sh_quote() quotes comma-containing RHS values such as --enable-protocol='file,pipe'. Exact head 9a4aeda569307ae623ad65bc19dccc176263d0b2 now uses shlex shell-aware parsing and a source-shaped regression that still fails if pipe is genuinely omitted. Merge only after exact-head build proof/package/full CI pass, inspect artifact receipt, then merge. The next synthetic roundtrip is staged only on chatgpt/gate17-minimal-ffmpeg-roundtrip-r349 and must be refreshed onto the eventual merge before opening a PR. Private Cup-Tied trace remains execution-sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and 0x8755E8/EC/F0.",
   "last_known_main_head": "6b9bf4dca8969dc2e604243033a45c1e58517526",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 349,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 349: #479 audit-normalization repair at 0ff99f89abd378d9314a63b621e7f2105ff314f1; prior build itself succeeded, only grouped-arg serialization audit failed.",
+  "note": "Recovery 349: #479 exact head 9a4aeda569307ae623ad65bc19dccc176263d0b2; source-proven sh_quote parsing repair active after compile-success/audit-only false negative.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
