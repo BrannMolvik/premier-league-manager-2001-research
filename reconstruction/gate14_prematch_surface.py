@@ -458,18 +458,30 @@ _PREMATCH_CHILD_COVERAGE = {
     "date_weather_line": (1, False, "dynamic date/weather buffer is not bound"),
     "team_badges": (0, False, "team badge pixels are not staged in the pre-match surface"),
     "team_identity_text": (3, False, "left/right dynamic team identity text is not bound"),
-    "starting_xi_pitch_markers": (0, False, "22 pitch-marker placement/state controls are unresolved"),
-    "side0_starter_rows": (11, False, "starter row text/content controls remain unresolved"),
-    "side0_slots_11_17": (
-        14,
+    "starting_xi_pitch_markers": (
+        0,
         False,
-        "reserve row text plus active/disabled runtime selection remain unresolved",
+        "marker geometry/state is source-closed but dynamic goalkeeper/team shirt pixels are not staged",
     ),
-    "side1_starter_rows": (11, False, "starter row text/content controls remain unresolved"),
-    "side1_slots_11_17": (
-        14,
+    "side0_starter_rows": (
+        33,
         False,
-        "reserve row text plus active/disabled runtime selection remain unresolved",
+        "all controls are represented but supplied player number/name content is not bound",
+    ),
+    "side0_slots_11_17": (
+        28,
+        False,
+        "all controls and count-driven strip state are represented but supplied player text is not bound",
+    ),
+    "side1_starter_rows": (
+        33,
+        False,
+        "all controls are represented but supplied player number/name content is not bound",
+    ),
+    "side1_slots_11_17": (
+        28,
+        False,
+        "all controls and count-driven strip state are represented but supplied player text is not bound",
     ),
     "rating_bar_layers": (
         16,
@@ -480,7 +492,7 @@ _PREMATCH_CHILD_COVERAGE = {
     "match_detail_selectors": (
         4,
         False,
-        "selector atlas/geometry are present but exact runtime visual state is unresolved",
+        "generic Button@ease state is source-closed but current pointer/update state is not supplied",
     ),
 }
 
@@ -762,9 +774,13 @@ def prematch_surface_contract() -> dict:
         "dynamic_fixture_and_date_buffers_bound": False,
         "team_identity_text_bound": False,
         "fixed_versus_and_rating_captions_available": True,
+        "player_text_row_count": len(source_prematch_player_text_rows()),
+        "player_row_text_controls_source_closed": True,
         "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
         "player_strip_rows_source_geometry_available": True,
-        "reserve_variant_state_source_closed": False,
+        "reserve_variant_state_source_closed": True,
+        "selector_visual_state_source_closed": True,
+        "selector_persistent_selected_visual": False,
         "selector_modes": tuple(int(selector.mode) for selector in PREMATCH_SELECTORS),
         "selector_events": tuple(selector.event_id for selector in PREMATCH_SELECTORS),
         "rating_discriminators": tuple(
