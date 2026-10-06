@@ -123,16 +123,7 @@ The native calls provide these exact placements:
 - disabled left player-name strip: x=36, y=358, 200 x 16;
 - disabled right player-name strip: x=563, y=358, 200 x 16.
 
-Rating-bar wrappers are also referenced in the same panel family, including
-coordinates around x=65/y=497 and x=564/y=497, but the exact behavioral
-distinction among `rating_bar_left`, `rating_bar_right`, and
-`rating_bar_right2` is not yet fully source-closed. Do not claim a final
-simultaneous rating-bar layout until that call path is audited.
-
-The 800 x 600 `prematch_bground.444` ownership is source-proven by the
-dedicated loader/static wrapper, but its final draw invocation appears to pass
-through shared panel/background machinery rather than a simple direct literal
-reference. Do not invent a draw-site claim.
+These earlier rating/background uncertainties are superseded by the Recovery 363 correction below.
 
 ## Implementation boundary
 
@@ -151,14 +142,91 @@ It must **not**:
 - invent a management-screen button or fixture-launch action;
 - expose native sentinel 5 as a selectable mode;
 - route modes 0/1 to FastView as a substitute for missing 3D presentation;
-- assume unresolved rating-bar behavior;
-- claim that the pre-match background draw call itself is source-closed beyond
-  its dedicated resource ownership.
+- assign semantic names to the still-neutral rating discriminators 0/1/2/3;
+- use `pre_match/prematch_bground.444` as the live panel background.
 
 ## Exact next task
 
-Inspect the existing EA444 import/derivative and production Tk presentation
-paths. Import only the newly source-correlated pre-match resources required by
-the first renderable seam, add deterministic provenance/tests, and bind the
-source-backed selector row and recovered static panel geometry without adding
-the still-unrecovered management-to-match launch transition.
+Stage only the assets actually consumed by the verified panel seam, then bind the recovered selector/static/rating geometry. Reuse the dynamic Team_Backgrounds contract from source-equivalent match/date context and keep the management-to-match launch transition fail-closed.
+
+
+## Recovery 363 correction — live background and rating-bar mechanics
+
+Further first-hand tracing of the same canonical executable corrects one
+important assumption from the earlier resource census.
+
+### The shipped pre-match background is not the live panel background
+
+`FM2001_Art/Generic/pre_match/prematch_bground.444` is real, hash-verified,
+and initialized by the game's global resource setup. However, no direct
+`PPreMatchPanel` consumer was found for its wrapper/source objects. The live
+constructor instead builds its full 800x600 background dynamically:
+
+- `PPreMatchPanel::0x499C30` derives the match/team context and calls
+  `0x5D3490` into panel member `+0x6D4`;
+- `0x5D3490` consumes the current date at `0x9847FC` and resolves the
+  background family rooted at
+  `FM2001_Art\\Generic\\Team_backgrounds`;
+- source helper `0x5D3510` returns the loaded source surface;
+- the constructor passes that result into wrapper `PPreMatchPanel+0x6B4`
+  through `0x64E500` with exact geometry 800x600 at (0,0).
+
+The background resolver contains the proven name grammar `background`,
+`%s%d`, and `generic%d`. The authorized disc contains the corresponding
+`FM2001_Art/Generic/Team_Backgrounds` tree, including generic seasonal
+variants and country/team directories.
+
+Therefore `pre_match/prematch_bground.444` must remain negative evidence:
+shipped and initialized, but **not promoted as the live PPreMatchPanel
+background**. The modern seam must eventually consume the same dynamic
+Team_Backgrounds contract from source-equivalent match/date context.
+
+### Rating rows are mirrored dynamic bars
+
+The three dedicated 171x16 rating assets are source-bound as:
+
+- `rating_bar_left.444` -> wrapper `0x941FF0`;
+- `rating_bar_right.444` -> wrapper `0x941FB0`;
+- `rating_bar_right2.444` -> wrapper `0x941F70`.
+
+Four rows are constructed at y=497, 515, 533, 551. Their exact geometry is
+anchored at left x=65 and right x=564 with full width 171 and height 16.
+
+Each row has its own capped integer-width calculator:
+
+| Native function | Record discriminator | y |
+| --- | ---: | ---: |
+| `0x49A3D0` | 3 | 497 |
+| `0x49A460` | 0 | 515 |
+| `0x49A4F0` | 1 | 533 |
+| `0x49A580` | 2 | 551 |
+
+With side selector 0, the returned width sizes the left
+`rating_bar_left` overlay directly. With side selector 1, the same four
+functions are recalculated and the result is subtracted from the right-side
+objects' right-edge field, producing a mirrored dynamic length. The base layers
+under those dynamic bars use the two right-family assets.
+
+This source-closes the **geometry and mirroring mechanism**, but it does not yet
+justify human-readable semantic names for discriminators 0/1/2/3. Keep those
+identities neutral until their underlying player/record field meaning is traced.
+
+### Revised implementation boundary
+
+The source-backed pre-match module may now safely model:
+
+- the dynamic 800x600 Team_Backgrounds contract and exact constructor path;
+- the four mirrored rating rows and their native width functions;
+- the previously recovered top bar, pitch, player-name strips, selector row,
+  original selector atlas, and Zurich caption font.
+
+It must not require or render `prematch_bground.444` as the live native
+background. It must also keep the rating-row discriminator meanings,
+management-to-match launch action, complete pre-match frame, and Gate 14
+completion fail-closed.
+
+The next implementation step is to stage the exact source assets that are
+actually consumed by the verified panel seam, then build the render/input seam
+around source-equivalent match context. The dynamic Team_Backgrounds selector
+must be reused rather than replaced by the shipped but non-live pre-match
+background.
