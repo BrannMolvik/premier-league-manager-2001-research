@@ -364,3 +364,56 @@ recovered RGB8 intent without claiming RGB565 or RGB555.
 The current Recovery-332 branch projects that original abbreviation from
 `state.positions` and rasterizes the role control at the exact first-roster
 geometry. Missing position-table identity or abbreviation fails closed.
+
+## Recovery 334 - PSCFRow numeric text/color closure
+
+Fresh private analysis re-extracted the canonical root `footballmanager.exe`
+from the authorized MODE1/2352 disc and reverified SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The paired side-row path is now source-closed far enough to render its three
+numeric controls without borrowing styling from `PSquadPlayerRow`.
+
+`PSquadList::0x4B4FE0` constructs the paired `CSquadSCFList` at local
+**x=239, y=154**, with the already proven 20-row viewport. Inside each populated
+`PSCFRow::0x489B40`, the numeric controls are:
+
+| Field | Row-local rect | Source value |
+| --- | --- | --- |
+| Condition | `(24,1,19,14)` | `DBRPlayer+0x77` |
+| recent-form average | `(47,1,19,14)` | native six-entry average |
+| current-role rating | `(70,1,19,14)` | current assigned-role rating |
+
+All three route through numeric text helper `0x652400` with raw text flags
+`0x24` (horizontal + vertical centering) and font object `0x8CAB80`.
+That object is already provenance-bound to byte-identical
+`Fonts/Zurich_XCn_BT_18pixel.fnt` (79,734 bytes; SHA-256
+`968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a`;
+atlas 1366x19).
+
+The exact format strings are `%N` at `0x81ACAC` for Condition and role
+rating, and `%.N` at `0x81B534` for recent form. In formatter
+`0x655F40`, the `.` modifier maps through the `0x656194` dispatch table
+to `0x6560E5`, setting the one-decimal flag. Helper `0x655EE0` implements
+that flag by multiplying by 10, adding/subtracting 0.5 according to sign,
+integer-converting, then multiplying by 0.1. The clean-room renderer therefore
+uses whole decimal strings for Condition/rating and one-decimal, half-away-from-
+zero rounding for recent form.
+
+The canonical image stores dword **75** at condition-threshold global
+`0x821814`. `PSCFRow::0x489D4D` takes the low-color branch on `<= 75`
+and the high-color branch only on `> 75`. Native packed-color construction
+resolves those source RGB inputs as:
+
+- Condition `>75`: **(255,255,255)**;
+- Condition `<=75`: **(0,45,255)**;
+- recent form and current-role rating normal state: **(255,255,255)**.
+
+Fresh generic controls initialize state bits to `0x183` at `0x64F300`;
+therefore bit `0x4` is clear and `0x651F40` selects stored color `+0x44`,
+the normal colors above. The alternate stored color is not promoted into an
+independent user-facing state.
+
+This closure does **not** resolve the x=1 native status icon, its category
+meaning, or the player-row club-relative assignment selector. Those remain
+fail-closed.
+

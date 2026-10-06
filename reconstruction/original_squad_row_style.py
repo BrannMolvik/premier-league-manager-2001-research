@@ -1,16 +1,17 @@
-"""Executable-bound PSquadPlayerRow text and color contract.
+"""Executable-bound PSquadPlayerRow / PSCFRow text and color contract.
 
-This module keeps the newly recovered ordinary Squad row styling separate from
-viewport membership/filtering. The canonical executable proves the role/name
-controls, the display-name formatter and the five player-name color branches.
-Reserve-team selection flags are source-known but are not yet represented by
-the clean-room gameplay model, so callers must supply those states explicitly
-when they need them.
+This module keeps recovered ordinary Squad row styling separate from viewport
+membership/filtering. The canonical executable proves the player role/name
+controls plus the paired PSCFRow Condition, recent-form and current-role-rating
+numeric controls. Reserve-team selection flags are source-known but are not yet
+represented by the clean-room gameplay model, so callers must supply those
+states explicitly when they need them.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha256
+from math import ceil, floor, isfinite
 from pathlib import Path
 
 from ea_font import EAFont, EATextMask
@@ -37,6 +38,27 @@ SQUAD_ROW_FONT_SHA256 = (
 )
 SQUAD_ROW_FONT_BYTE_SIZE = 83_174
 SQUAD_ROW_FONT_ATLAS_SIZE = (1633, 18)
+
+PSCF_ROW_SETUP_VA = 0x489B40
+SQUAD_NUMERIC_CONTROL_HELPER_VA = 0x652400
+SQUAD_NUMERIC_FORMATTER_VA = 0x655F40
+SQUAD_CONDITION_THRESHOLD_VA = 0x821814
+SQUAD_CONDITION_THRESHOLD = 75
+SQUAD_SCF_LIST_LOCAL_X = 239
+SQUAD_SCF_FONT_OBJECT_VA = 0x8CAB80
+SQUAD_SCF_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_18pixel.fnt"
+SQUAD_SCF_FONT_SHA256 = (
+    "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a"
+)
+SQUAD_SCF_FONT_BYTE_SIZE = 79_734
+SQUAD_SCF_FONT_ATLAS_SIZE = (1366, 19)
+SQUAD_SCF_TEXT_FLAGS = 0x24
+SQUAD_CONDITION_RECT = (24, 1, 19, 14)
+SQUAD_RECENT_FORM_RECT = (47, 1, 19, 14)
+SQUAD_CURRENT_ROLE_RATING_RECT = (70, 1, 19, 14)
+SQUAD_CONDITION_HIGH_RGB = (255, 255, 255)
+SQUAD_CONDITION_LOW_RGB = (0, 45, 255)
+SQUAD_SCF_NUMERIC_RGB = (255, 255, 255)
 
 SQUAD_ROLE_RECT = (28, 1, 38, 14)
 SQUAD_ROLE_TEXT_FLAGS = 0x24
@@ -66,28 +88,60 @@ SQUAD_NAME_DEFAULT_RGB = (217, 210, 62)
 @dataclass(frozen=True)
 class OriginalSquadRowTextResources:
     font: EAFont
+    scf_font: EAFont
 
     def __post_init__(self) -> None:
         if (self.font.atlas_width, self.font.atlas_height) != SQUAD_ROW_FONT_ATLAS_SIZE:
             raise OriginalSquadRowStyleError("Squad row font atlas geometry drifted")
+        if (
+            self.scf_font.atlas_width,
+            self.scf_font.atlas_height,
+        ) != SQUAD_SCF_FONT_ATLAS_SIZE:
+            raise OriginalSquadRowStyleError("Squad PSCF font atlas geometry drifted")
+
+
+def _load_verified_font(
+    root: Path,
+    *,
+    source_path: str,
+    expected_size: int,
+    expected_sha256: str,
+    label: str,
+) -> EAFont:
+    path = root / source_path
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError as exc:
+        raise OriginalSquadRowStyleError(
+            f"Missing exact {label} font: {source_path}"
+        ) from exc
+    if len(raw) != expected_size:
+        raise OriginalSquadRowStyleError(f"{label} font byte-size mismatch")
+    if sha256(raw).hexdigest() != expected_sha256:
+        raise OriginalSquadRowStyleError(f"{label} font checksum mismatch")
+    return EAFont.from_bytes(raw)
 
 
 def load_verified_squad_row_text_resources(
     source_root: str | Path,
 ) -> OriginalSquadRowTextResources:
     root = Path(source_root)
-    path = root / SQUAD_ROW_FONT_SOURCE_PATH
-    try:
-        raw = path.read_bytes()
-    except FileNotFoundError as exc:
-        raise OriginalSquadRowStyleError(
-            f"Missing exact Squad row font: {SQUAD_ROW_FONT_SOURCE_PATH}"
-        ) from exc
-    if len(raw) != SQUAD_ROW_FONT_BYTE_SIZE:
-        raise OriginalSquadRowStyleError("Squad row font byte-size mismatch")
-    if sha256(raw).hexdigest() != SQUAD_ROW_FONT_SHA256:
-        raise OriginalSquadRowStyleError("Squad row font checksum mismatch")
-    return OriginalSquadRowTextResources(EAFont.from_bytes(raw))
+    return OriginalSquadRowTextResources(
+        _load_verified_font(
+            root,
+            source_path=SQUAD_ROW_FONT_SOURCE_PATH,
+            expected_size=SQUAD_ROW_FONT_BYTE_SIZE,
+            expected_sha256=SQUAD_ROW_FONT_SHA256,
+            label="Squad row",
+        ),
+        _load_verified_font(
+            root,
+            source_path=SQUAD_SCF_FONT_SOURCE_PATH,
+            expected_size=SQUAD_SCF_FONT_BYTE_SIZE,
+            expected_sha256=SQUAD_SCF_FONT_SHA256,
+            label="Squad PSCF",
+        ),
+    )
 
 
 def format_squad_display_name(first_name: str, surname: str) -> str:
@@ -101,6 +155,40 @@ def format_squad_display_name(first_name: str, surname: str) -> str:
     if first_name.startswith("-"):
         return surname
     return f"{first_name[0]}. {surname}"
+
+
+def format_squad_whole_number(value: int) -> str:
+    """Apply PSCFRow's native %N whole-number presentation."""
+    if type(value) is not int:
+        raise OriginalSquadRowStyleError("Squad whole-number value must be an integer")
+    return str(value)
+
+
+def format_squad_recent_form(value: int | float) -> str:
+    """Apply PSCFRow's native %.N one-decimal rounding contract.
+
+    The canonical formatter's '.' modifier selects 0x655EE0, which multiplies
+    by 10, rounds half away from zero, then multiplies by 0.1 before formatting.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise OriginalSquadRowStyleError("Squad recent-form value must be numeric")
+    source = float(value)
+    if not isfinite(source):
+        raise OriginalSquadRowStyleError("Squad recent-form value must be finite")
+    scaled = source * 10.0
+    rounded = floor(scaled + 0.5) if scaled >= 0.0 else ceil(scaled - 0.5)
+    return f"{rounded / 10.0:.1f}"
+
+
+def squad_condition_rgb(condition: int) -> tuple[int, int, int]:
+    """Apply PSCFRow's strict DBRPlayer+0x77 > 75 color branch."""
+    if type(condition) is not int:
+        raise OriginalSquadRowStyleError("Squad condition must be an integer")
+    return (
+        SQUAD_CONDITION_HIGH_RGB
+        if condition > SQUAD_CONDITION_THRESHOLD
+        else SQUAD_CONDITION_LOW_RGB
+    )
 
 
 def squad_role_is_preferred(
@@ -370,3 +458,80 @@ def build_first_roster_name_overlays(
             )
         )
     return tuple(overlays)
+
+def build_first_roster_scf_numeric_overlays(
+    rows,
+    resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Raster the source-closed PSCFRow numeric controls for the first roster."""
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError(
+            "Squad row rendering requires verified source font resources"
+        )
+    panel_x, panel_y, _panel_width, _panel_height = SQUAD_PANEL_RECT
+    roster = SQUAD_FIRST_ROSTER_RECT
+    font = resources.scf_font
+    overlays: list[OriginalSquadRowTextOverlay] = []
+
+    for row in tuple(rows):
+        row_y = getattr(row, "y", None)
+        if type(row_y) is not int:
+            raise OriginalSquadRowStyleError("Squad row y must be an integer")
+
+        condition = getattr(row, "condition", None)
+        recent_form = getattr(row, "recent_form_average", None)
+        current_role_rating = getattr(row, "current_role_rating", None)
+        if type(condition) is not int:
+            raise OriginalSquadRowStyleError("Squad condition must be an integer")
+        if type(current_role_rating) is not int:
+            raise OriginalSquadRowStyleError(
+                "Squad current-role rating must be an integer"
+            )
+
+        fields = (
+            (
+                format_squad_whole_number(condition),
+                SQUAD_CONDITION_RECT,
+                squad_condition_rgb(condition),
+            ),
+            (
+                format_squad_recent_form(recent_form),
+                SQUAD_RECENT_FORM_RECT,
+                SQUAD_SCF_NUMERIC_RGB,
+            ),
+            (
+                format_squad_whole_number(current_role_rating),
+                SQUAD_CURRENT_ROLE_RATING_RECT,
+                SQUAD_SCF_NUMERIC_RGB,
+            ),
+        )
+        for text, control_rect, rgb in fields:
+            local_x, local_y, width, height = control_rect
+            rect = (
+                panel_x + roster.x + SQUAD_SCF_LIST_LOCAL_X + local_x,
+                panel_y + roster.y + row_y + local_y,
+                width,
+                height,
+            )
+            mask = font.render_text_alpha(text)
+            # Native raw flags 0x24 center both horizontally and vertically.
+            line_x = rect[0] + rect[2] // 2 - font.measure_text(text) // 2
+            line_y = rect[1] + rect[3] // 2 - font.native_line_height() // 2
+            clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+            if clipped is None:
+                continue
+            x, y, out_width, out_height, alpha = clipped
+            overlays.append(
+                OriginalSquadRowTextOverlay(
+                    text=text,
+                    x=x,
+                    y=y,
+                    width=out_width,
+                    height=out_height,
+                    rgba=_rgb_rgba(alpha, rgb),
+                    source_rgb=rgb,
+                    font_source_path=SQUAD_SCF_FONT_SOURCE_PATH,
+                )
+            )
+    return tuple(overlays)
+
