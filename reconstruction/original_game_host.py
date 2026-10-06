@@ -110,6 +110,11 @@ from original_squad_top_controls import (
     build_fresh_squad_top_render,
     load_verified_squad_top_resources,
 )
+from original_squad_row_style import (
+    OriginalSquadRowTextResources,
+    build_first_roster_name_overlays,
+    load_verified_squad_row_text_resources,
+)
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
 from startup_media_playback import (
     load_and_play_verified_startup_sequence,
@@ -332,6 +337,7 @@ class OriginalGameTkHost:
         league_fixtures_grid_art=None,
         fixtures_pager_art=None,
         squad_top_resources=None,
+        squad_row_text_resources=None,
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
         pmatchinfo_font=None,
@@ -359,6 +365,7 @@ class OriginalGameTkHost:
         # PMenu is pushed by application event 2, not a permanent panel layer.
         self.pmenu_popup_active = False
         self.squad_top_resources = squad_top_resources
+        self.squad_row_text_resources = squad_row_text_resources
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
@@ -950,6 +957,7 @@ class OriginalGameTkHost:
             "squad": (
                 "management_pmenu_resources",
                 "squad_top_resources",
+                "squad_row_text_resources",
                 "management_background",
                 "management_header_resources",
             ),
@@ -1155,6 +1163,49 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=image,
+                anchor=self.tk.NW,
+            )
+            count += 1
+        return count
+
+    def _draw_squad_rows(self, frame) -> int:
+        """Draw the source-closed first-roster populated name controls."""
+        if frame.presentation.panel_class != "PSquadScreen":
+            return 0
+        transition = frame.presentation.squad_view_transition
+        if transition is None:
+            raise OriginalGameHostError(
+                "Squad panel lost its source-proven view-transition state"
+            )
+        # The current presenter exposes the source-order first-roster viewport
+        # only for the fresh combined control-3 state. Controls 4/5 still lack
+        # complete post-event roster/pitch membership and therefore remain
+        # fail-closed instead of reusing stale row pixels.
+        if transition.control_id != 3:
+            return 0
+        snapshot = frame.presentation.squad
+        if snapshot is None:
+            raise OriginalGameHostError(
+                "Squad landing renderer requires its source-backed row viewport"
+            )
+        resources = self.squad_row_text_resources
+        if not isinstance(resources, OriginalSquadRowTextResources):
+            raise OriginalGameHostError(
+                "Squad landing renderer requires verified original row font resources"
+            )
+        overlays = build_first_roster_name_overlays(snapshot.rows, resources)
+        count = 0
+        for overlay in overlays:
+            self._create_native_image(
+                overlay.x,
+                overlay.y,
+                image=self._photo(
+                    encode_rgba_png(
+                        overlay.width,
+                        overlay.height,
+                        overlay.rgba,
+                    )
+                ),
                 anchor=self.tk.NW,
             )
             count += 1
@@ -1412,6 +1463,7 @@ class OriginalGameTkHost:
 
         header_image_count = self._draw_management_header()
         squad_image_count = self._draw_squad_top_controls(frame)
+        squad_image_count += self._draw_squad_rows(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         fixture_image_count += self._draw_fixtures_pager()
         table_image_count = self._draw_league_tables_header_art(frame)
@@ -1955,6 +2007,10 @@ def run_original_game_ui(
                     resolved_source_root,
                     original_executable,
                 )
+            with timed_stage("management.resources.squad_rows"):
+                squad_row_text_resources = load_verified_squad_row_text_resources(
+                    resolved_source_root
+                )
             with timed_stage("management.resources.background"):
                 management_background = OriginalManagementBackground(
                     resolved_source_root,
@@ -1968,6 +2024,7 @@ def run_original_game_ui(
             return {
                 "management_pmenu_resources": pmenu_resources,
                 "squad_top_resources": squad_top_resources,
+                "squad_row_text_resources": squad_row_text_resources,
                 "management_background": management_background,
                 "management_header_resources": management_header_resources,
             }
