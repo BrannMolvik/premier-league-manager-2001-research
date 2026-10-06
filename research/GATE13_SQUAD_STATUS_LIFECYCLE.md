@@ -148,24 +148,54 @@ incorrect and is superseded by this trace. The semantic meaning and producer
 lifecycle of embedded `+0x198/+0x18`, `+0x1A0`, and the two global cutoffs
 remain unresolved, so the negative mode-1 path stays fail-closed.
 
+## Recovery 346 transfer-history identity
+
+The remaining embedded mode-1 fallback state has been narrowed further from
+first-hand source tracing:
+
+- DBRPlayer `+0x198` is the embedded `CPlayerTransferHistory` object;
+- DBRPlayer `+0x1A0` aliases that object's `+0x08` club-table index/club ID;
+- `CPlayerTransferHistory +0x18` is a transfer/join-history date;
+- startup initializes that date from normalized DBRPlayer
+  `+0x158` current-club join date.
+
+The remaining mutation boundary is the `0x422E7E` call into
+`CPlayerTransferHistory::0x4EBF60`. Its full argument mapping must be closed
+before the clean runtime can claim equivalent history updates. The producer and
+semantic identities of global selector/cutoffs `0x8755E8/0x8755EC/0x8755F0`
+also remain unresolved.
+
 ## Current implementation boundary
 
-No new Squad frame is enabled by this research checkpoint. Merged behavior
-remains:
+PR #497 candidate `45c5c0e09c9fec420160e9e60eedf304423fcfd9`
+implements the now source-closed special Non-EU lifecycle:
 
-- direct frames 0/1/2;
-- exact alternate On-loan frame 13;
-- positive current-day Cup-Tied frame 3 when source context is proven;
-- Non-EU and unresolved negative paths fail closed.
+- direct frames 0/1/2 remain highest priority;
+- exact alternate On-loan frame 13 remains higher priority;
+- active bit 11 plus `current_date > contract_expiry_date` publishes frame 12;
+- active bit 11 with a still-current cutoff allows the lower positive
+  source-qualified Cup-Tied predicate to run;
+- ordinary completed transfers apply the source-proven sticky bit-11 set-only
+  transition;
+- missing/invalid cutoff state and the unresolved mode-1 negative Cup-Tied path
+  remain fail-closed.
+
+The exact candidate is green in reconstruction run `37467142990`, Gate-13
+presentation run `37467143159`, and asset-policy run `37467143070`.
 
 ## Exact next source task
 
-1. Trace the producers/semantic identity of DBRPlayer embedded
-   `+0x198/+0x18`, gate `+0x1A0`, and globals `0x8755E8/EC/F0`.
-2. Reconcile the now-closed sticky bit-11/registration lifecycle with the clean
-   runtime and add frame 12 only with equivalent record/cutoff semantics.
-3. Only after the embedded-value/cutoff transition is source-closed should the
+1. Finish the `0x422E7E -> CPlayerTransferHistory::0x4EBF60` argument/update
+   mapping and identify every mutation of embedded `+0x18` / `+0x08`.
+2. Trace the runtime producers and semantic identities of
+   `0x8755E8/0x8755EC/0x8755F0`.
+3. Only after that value/cutoff transition is source-closed should the
    mode-1 negative Cup-Tied fallback be promoted into live presentation.
+
+Recovery 347 rematerialized the authorized Library archive successfully, but
+the current execution sandbox cannot launch shell/Python processes. That is an
+execution-environment blocker, not source loss; the exact trace above remains
+the next private-source action when a functioning sandbox is available.
 
 Gate 13 remains open independently for Daniel's normal Windows 11 acceptance in
 issue #482.

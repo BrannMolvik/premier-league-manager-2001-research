@@ -1,3 +1,55 @@
+# Recovery 347 continuation — frame 12 candidate green; Cup-Tied transfer-history trace blocked only by execution sandbox
+
+_Updated 6 October 2026._
+
+Canonical `main` remains `3c17eaa1dc5a9491699d92ec99489bb796660753`.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** and
+still requires Daniel's normal Windows 11 playability/visual acceptance.
+
+PR #497 branch `recovery342-gate13-status-lifecycle` now contains the
+source-closed special Non-EU/frame-12 implementation at
+`45c5c0e09c9fec420160e9e60eedf304423fcfd9`. Exact-head validation is green:
+
+- full reconstruction run `37467142990`: success;
+- Gate-13 presentation run `37467143159`: success;
+- repository asset-policy run `37467143070`: success.
+
+That candidate now publishes frame 12 only when DBRPlayer bit 11 is active and
+the synchronized registration/contract cutoff is expired, preserves the exact
+higher-priority alternate On-loan frame 13, allows a lower positive Cup-Tied
+result when an active bit-11 cutoff is still current, and applies the
+source-proven sticky post-transfer bit-11 set transition. Internal save already
+persists both the bit and contract expiry, so no save-schema change is required.
+
+Recovery 346 continued the canonical executable trace and identified the
+remaining mode-1 Cup-Tied embedded state more precisely:
+
+- DBRPlayer `+0x198` is an embedded `CPlayerTransferHistory` object;
+- DBRPlayer `+0x1A0` is that object's `+0x08` club-table index/club ID;
+- embedded `+0x18` is a transfer/join-history date, initialized from the
+  normalized current-club join date at DBRPlayer `+0x158`.
+
+The exact unresolved source step is to finish the `0x422E7E` call into
+`CPlayerTransferHistory::0x4EBF60` so every argument/update is identified,
+then trace the producers and semantic meaning of globals
+`0x8755E8/0x8755EC/0x8755F0`. Until that is complete, the negative mode-1
+Cup-Tied fallback remains fail-closed.
+
+Recovery 347 successfully rematerialized the authorized 511,121,336-byte
+Library source archive, but the current execution allocation cannot launch even
+a trivial shell or Python process: container execution returns
+`caas.internal.errors.ClientError`, while Python returns a
+`TooManyRequestsError`. This is an execution-sandbox blocker only, not a
+source-availability blocker. The archive remains available at the canonical
+Library location recorded in `research/ORIGINAL_SOURCE_LOCATOR.md`.
+
+Under the deferred-blocker policy, finish integrating the already-green PR #497
+candidate, then continue independent cloud-safe Gate-13/Gate-14 work while
+preserving the exact native-trace step above for the next functioning execution
+sandbox. Do not infer the unresolved cutoff globals.
+
+---
+
 # Recovery 342 continuation — native Squad status lifecycle narrowed
 
 _Updated 6 October 2026._

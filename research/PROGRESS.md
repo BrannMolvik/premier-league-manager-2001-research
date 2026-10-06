@@ -11820,3 +11820,28 @@ continues with ordinary Squad row display-name/color helpers.
 - Exact next source task is now the mode-1 Cup-Tied embedded value and cutoff
   lifecycle: DBRPlayer `+0x198/+0x18`, gate `+0x1A0`, and globals
   `0x8755E8/EC/F0`. No new live status frame is enabled by this checkpoint.
+
+
+## 6 October 2026 KST — Recovery 346/347 frame-12 candidate green; transfer-history identity narrowed
+
+- PR #497 candidate `45c5c0e09c9fec420160e9e60eedf304423fcfd9`
+  passed full reconstruction run `37467142990`, Gate-13 presentation run
+  `37467143159`, and repository asset-policy run `37467143070`.
+- The clean runtime now represents the source-closed special Non-EU/frame-12
+  cutoff and sticky ordinary-transfer bit-11 transition without changing the
+  internal-save schema.
+- Continued private-source tracing identifies DBRPlayer `+0x198` as embedded
+  `CPlayerTransferHistory`, `+0x1A0` as its `+0x08` club-table index/club
+  ID, and `+0x18` as a transfer/join-history date initialized from normalized
+  DBRPlayer `+0x158`.
+- Exact remaining native task: finish `0x422E7E ->
+  CPlayerTransferHistory::0x4EBF60` argument/update semantics and the producers
+  of globals `0x8755E8/0x8755EC/0x8755F0`; the negative mode-1 Cup-Tied
+  fallback remains fail-closed.
+- Recovery 347 rematerialized the authorized 511,121,336-byte Library archive,
+  but the current execution allocation fails trivial shell execution with
+  `caas.internal.errors.ClientError` and trivial Python execution with
+  `TooManyRequestsError`. This is recorded as an execution-sandbox blocker,
+  not source unavailability.
+- Gate 13 / issue #482 remains open for Daniel's mandatory normal Windows 11
+  acceptance.
