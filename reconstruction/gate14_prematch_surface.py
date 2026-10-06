@@ -365,6 +365,96 @@ def bind_prematch_rating_widths(
 
 
 @dataclass(frozen=True)
+class PrematchChildFamilyCoverage:
+    """One exact native child-array family and its clean-room frame readiness."""
+
+    role: str
+    start_index: int
+    end_index: int
+    represented_controls: int
+    supplied_state_complete: bool
+    blocker: str | None = None
+
+    @property
+    def source_control_count(self) -> int:
+        return self.end_index - self.start_index + 1
+
+    def __post_init__(self) -> None:
+        if not self.role or self.start_index < 0 or self.end_index < self.start_index:
+            raise PrematchSurfaceError("invalid pre-match child-family range")
+        if not 0 <= self.represented_controls <= self.source_control_count:
+            raise PrematchSurfaceError(
+                "pre-match represented control count exceeds source child family"
+            )
+        if self.supplied_state_complete:
+            if self.represented_controls != self.source_control_count or self.blocker is not None:
+                raise PrematchSurfaceError(
+                    "complete pre-match family must represent every source control"
+                )
+        elif not self.blocker:
+            raise PrematchSurfaceError(
+                "incomplete pre-match family must retain its explicit blocker"
+            )
+
+
+_PREMATCH_CHILD_COVERAGE = {
+    "live_background": (1, True, None),
+    "pitch": (1, True, None),
+    "top_bar": (1, True, None),
+    "fixture_header": (1, False, "dynamic fixture-header buffer is not bound"),
+    "date_weather_line": (1, False, "dynamic date/weather buffer is not bound"),
+    "team_badges": (0, False, "team badge pixels are not staged in the pre-match surface"),
+    "team_identity_text": (3, False, "left/right dynamic team identity text is not bound"),
+    "starting_xi_pitch_markers": (0, False, "22 pitch-marker placement/state controls are unresolved"),
+    "side0_starter_rows": (11, False, "starter row text/content controls remain unresolved"),
+    "side0_slots_11_17": (
+        14,
+        False,
+        "reserve row text plus active/disabled runtime selection remain unresolved",
+    ),
+    "side1_starter_rows": (11, False, "starter row text/content controls remain unresolved"),
+    "side1_slots_11_17": (
+        14,
+        False,
+        "reserve row text plus active/disabled runtime selection remain unresolved",
+    ),
+    "rating_bar_layers": (
+        16,
+        False,
+        "base surface has source pixels but supplied-state dynamic widths are not bound",
+    ),
+    "rating_captions": (8, True, None),
+    "match_detail_selectors": (
+        4,
+        False,
+        "selector atlas/geometry are present but exact runtime visual state is unresolved",
+    ),
+}
+
+
+def prematch_child_family_coverage() -> tuple[PrematchChildFamilyCoverage, ...]:
+    coverage = tuple(
+        PrematchChildFamilyCoverage(
+            role=role,
+            start_index=start,
+            end_index=end,
+            represented_controls=_PREMATCH_CHILD_COVERAGE[role][0],
+            supplied_state_complete=_PREMATCH_CHILD_COVERAGE[role][1],
+            blocker=_PREMATCH_CHILD_COVERAGE[role][2],
+        )
+        for role, start, end in PREMATCH_CHILD_ORDER_RANGES
+    )
+    flattened = tuple(
+        index
+        for family in coverage
+        for index in range(family.start_index, family.end_index + 1)
+    )
+    if flattened != tuple(range(PREMATCH_CHILD_COUNT)):
+        raise PrematchSurfaceError("pre-match child coverage no longer partitions 0..181")
+    return coverage
+
+
+@dataclass(frozen=True)
 class PrematchSurfaceBoundary:
     selection: FastViewSurfacedResourceSelection
     background: PrematchRasterLayer
@@ -603,6 +693,20 @@ def prematch_surface_contract() -> dict:
         "rating_dynamic_widths_bound_to_cleanroom_state": False,
         "source_child_count": PREMATCH_CHILD_COUNT,
         "child_order_ranges": PREMATCH_CHILD_ORDER_RANGES,
+        "represented_child_controls": sum(
+            family.represented_controls for family in prematch_child_family_coverage()
+        ),
+        "complete_child_families": tuple(
+            family.role
+            for family in prematch_child_family_coverage()
+            if family.supplied_state_complete
+        ),
+        "unresolved_child_families": tuple(
+            family.role
+            for family in prematch_child_family_coverage()
+            if not family.supplied_state_complete
+        ),
+        "child_family_coverage": prematch_child_family_coverage(),
         "full_cross_layer_draw_order_recovered": True,
         "management_launch_trigger_recovered": False,
         "complete_prematch_frame": False,
