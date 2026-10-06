@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482. PStartMenu derivative is canonical at main b6e8f23f. Continue source-backed startup-FMV 320x480 pIQT -> 640x480 game-owned surface trace, especially actual display BPP/pixel packing/state-4 writer. If unresolved, continue ordinary Squad helper trace. Windows acceptance remains deferred until these repairs have a candidate.",
-  "last_known_main_head": "b6e8f23f53e15fa5fb667008a95e8a10783718ab",
+  "active_task": "Gate 13 issue #482. Startup FMV integration candidate is merged and repository-side FMV geometry/window repair is audited. Continue the ordinary Squad player-row fidelity blocker: recover enough of helpers 0x4EA3F0 and 0x5D6C50 to source-bind display names and row colors/styling for the already closed geometry/data/font path. Windows startup/media, responsiveness, TeamSelect and first-management/Squad acceptance remain deferred external checks.",
+  "last_known_main_head": "1301a333bc8c2d8372410c83f3af710ed2bb14fc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 329,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 329 canonical-state reconciliation completed after PR #486. Continuing FMV source trace; no decoder blocker remains.",
+  "recovery_generation": 330,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 330 resumed from main 1301a333 after audited startup FMV integration. Continuing source-backed Squad row display-name/color helper trace; external Windows acceptance remains deferred.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
