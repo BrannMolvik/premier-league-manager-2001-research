@@ -11642,3 +11642,22 @@ continues with ordinary Squad row display-name/color helpers.
 - Gate 13 / issue #482 still cannot close without Daniel's normal Windows 11
   playability/visual acceptance.
 
+## 6 October 2026 KST — Recovery 335 Squad status atlas continuation
+
+- PR #491 merged the source-backed PSCFRow Condition, recent-form and
+  current-role-rating controls after focused Gate 13, full reconstruction,
+  Windows package/smoke and asset-policy validation all passed.
+- Recovery 335 imported the exact original
+  `FM2001_Art/Generic/status.png` and pinned its 18x196 geometry, fourteen
+  vertical 18x14 frames, 4,015-byte size and SHA-256
+  `59cd053c93ea789a010d813f46f650c2e4c16ea46163c63ae01209f69e4f5b1b`.
+- The Static.dat player-status table is now source-closed for its twelve
+  ordinary definitions and frame order; native frames 12/13 are alternate
+  Non-EU/On-loan variants.
+- Live status rendering remains deliberately fail-closed because resolver
+  `0x418330` / override helper `0x418360` can supersede ordinary fallback
+  state using Cup-Tied and special Non-EU registration state that the clean
+  runtime does not yet model exactly.
+- PR #492 is the current validation candidate. Gate 13 / issue #482 remains
+  open, including the mandatory normal Windows 11 playability/visual acceptance.
+
