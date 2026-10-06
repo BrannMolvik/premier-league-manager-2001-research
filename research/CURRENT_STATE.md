@@ -24,8 +24,10 @@ boundaries without publishing an unsafe frame:
 - renewal/finalizer paths keep the record cutoff synchronized to live contract
   expiry, while full reset `0x41AFE0` clears bit 11 and removes the record;
 - ordinary transfer `0x422F70` preserves an already-active bit through the
-  contract finalizer, but the exact set/clear relationship of `0x4EF600` to
-  every transfer route is still being adjudicated;
+  contract finalizer; the only two `0x4EF600` callers are the native
+  `TransferDealConcluded` and `FreeTransferDealConcluded` handlers, where a
+  positive `0x421760` result sets bit 11 and a negative result does not clear
+  it; `0x41B4D0` lazily creates a missing registration record when needed;
 - mode-1 Cup-Tied fallback helper `0x419350` returns embedded
   `DBRPlayer+0x198+0x18` when `+0x1A0 > -1`; it is not a first-list-element
   lookup. Its producer semantics and global cutoffs remain unresolved.
@@ -34,11 +36,12 @@ Durable evidence is in
 `research/GATE13_SQUAD_STATUS_LIFECYCLE.md`. No proprietary executable,
 archive, disc image or raw disassembly entered Git.
 
-Exact next task: close the ordinary-transfer bit-11 transition around
-`0x4EF600` and its callers, then trace the producer semantics of embedded
-`+0x198/+0x18`, gate `+0x1A0`, and globals `0x8755E8/EC/F0`. Keep frame
-12 and the mode-1 negative Cup-Tied fallback fail-closed until those transitions
-are source-complete.
+Exact next task: trace the producer semantics of embedded
+`+0x198/+0x18`, gate `+0x1A0`, and globals `0x8755E8/EC/F0`. The
+ordinary-transfer bit-11 transition is now source-closed as sticky until the
+full reset/removal lifecycle. Keep frame 12 and the mode-1 negative Cup-Tied
+fallback fail-closed until the remaining source semantics are reconciled with
+the clean runtime.
 ---
 
 # Recovery 341 continuation — PR #495 merged; Gate 13 external acceptance still open
