@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 334 branch recovery334-squad-scf-numeric: implement canonical PSCFRow Condition/recent-form/current-role-rating numeric controls from verified executable trace. Exact font Zurich_XCn_BT_18pixel, centered flags 0x24, %N/%.N formatting, strict condition >75 white else RGB(0,45,255), recent/rating white; preserve unresolved status icon and club-relative selector.",
-  "last_known_main_head": "7ecdb33e060ed751288e76ed8cbdf71c9876aba9",
+  "active_task": "Recovery 335: source-close PSCFRow native status icon after PR #491 merged. Trace helper 0x418330 return codes into 0x87BBF0 32-byte source entries; bind global 0x946110 to original fm2001_art/generic/status.png, recover exact asset/frame geometry and only then implement any source-proven status pixels. Keep club-relative assignment unresolved. External Windows 11 #482 acceptance remains mandatory.",
+  "last_known_main_head": "c51353a75c9360cdc1e45b8ee4fe1c3c5be2f07d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 334,
+  "recovery_generation": 335,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Private canonical EXE SHA 833bf95e re-extracted from authorized Library disc. PSCFRow 0x489B40 and numeric helper 0x652400 source-closed for three numeric side columns; implementing on branch.",
+  "note": "PR #491 merged green: focused Gate13 734/22 skips, reconstruction 2650/24 skips, Windows package/smoke and asset policy success. Next source lead: PSCF status icon uses 0x418330 -> 0x87BBF0 and original status.png.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
