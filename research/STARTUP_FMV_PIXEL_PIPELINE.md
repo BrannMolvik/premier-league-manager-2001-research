@@ -2,11 +2,10 @@
 
 _Last verified: 6 October 2026_
 
-## Scope
+## Scope and correction
 
-This note closes the previously unresolved geometry boundary between the
-original FM2001 startup TGQs and the game-owned movie surface. It is based on
-private disassembly of the authorized canonical executable:
+This note records the source-backed startup-video pixel path in the canonical
+FM2001 executable:
 
 `footballmanager.exe` / disc `FOOTBAL.EXE`
 
@@ -16,21 +15,26 @@ SHA-256:
 
 No original executable or EA media bytes are stored in Git.
 
+An earlier Recovery 330 checkpoint correctly established the 320x480 coded
+geometry and the flag-0x40 640x480 logical geometry, but stopped one layer too
+early and tentatively attributed the horizontal expansion to a DirectDraw
+stretch. Deeper writer analysis, independently rechecked before merging PR
+#487, supersedes that interpretation: the startup 16-bpp TQI writer itself
+duplicates every coded horizontal pixel into two identical display pixels.
+There is therefore a source-backed nearest-neighbor 2x horizontal treatment.
+
+The detailed adjudication also lives in
+`research/GATE13_STARTUP_FMV_PRESENTATION_SOURCE_TRACE.md`.
+
 ## Proven pipeline
 
-The original startup path is now source-backed as:
-
 ```text
-TGQ pIQT frame
+TGQ pIQT coded frame
 320 x 480
     |
-    | decoder/header geometry
-    v
-320 x 480 video intermediate
-YUY2-capable / 2-byte-per-pixel fallback path
-    |
-    | DirectDraw Blt stretch
-    | startup playback flag 0x40 doubles destination width only
+    | TQI decode / packed color tables
+    | startup flag 0x40 selects doubled 16-bpp writer
+    | each coded pixel -> two identical adjacent 16-bit pixels
     v
 640 x 480 game-owned movie surface
     |
@@ -41,14 +45,13 @@ active game display
 640 x 480 at (80,60) inside 800 x 600 in mode 1
 ```
 
-The old interpretation that the 320 x 480 derivative should be shown with
-aspect-preserving `Uniform` presentation is therefore incorrect.
+The old modern presentation that treated the 320x480 derivative as an
+aspect-preserved `Uniform` image was not faithful.
 
-## 1. TGQ dimensions remain 320 x 480 inside the decoder
+## 1. Coded source geometry is 320 x 480
 
-The `pIQT` payload stores little-endian width 320 and height 480.
-
-The video-header parser around `0x69CD10` copies those values into the movie
+The `pIQT` payload stores little-endian width 320 and height 480. The video
+header parser around `0x69CD10` preserves those coded dimensions in the movie
 base object:
 
 ```text
@@ -56,12 +59,10 @@ base + 0x64 = width  = 320
 base + 0x60 = height = 480
 ```
 
-These fields remain the source-frame geometry used by the later blit path.
+## 2. Startup explicitly requests double-width output
 
-## 2. The wrapper deliberately supplies playback flag 0x40
-
-The shared wrapper at `0x461E20` calls `0x461900` with literal `0x40` as
-its second argument:
+The shared wrapper at `0x461E20` calls `0x461900` with literal flag
+`0x40`:
 
 ```text
 0x461F2E  push 0x40
@@ -69,160 +70,103 @@ its second argument:
 0x461F31  call 0x461900
 ```
 
-At `0x461A68` the lower player ORs that caller value with its fixed movie
-configuration bits and stores the result in the decoder base object.
+Rectangle/output setup at `0x69D5C0` starts from the coded width and height.
+Flag `0x40` doubles only the logical/output width. The separate `0x30`
+vertical-doubling bits are not supplied by this wrapper.
 
-## 3. Flag 0x40 doubles destination width, not source width
+The startup logical movie geometry is therefore 640x480.
 
-Rectangle builder `0x69D5C0` starts from the parsed TGQ geometry:
+## 3. The ordinary game display is initialized to 16 bpp
 
-```text
-worker.width  = base.width
-worker.height = base.height
-```
+The ordinary graphics initialization sets the game BPP global
+`0x8547A8` to `0x10` at `0x615256`.
 
-It then tests the low byte of the movie flags:
+The display-mode machinery subsequently carries the selected mode's actual BPP
+through the same global. This is also consistent with the game's user-facing
+requirement for 16-bit color or higher and with the decoder querying the actual
+destination surface pixel format before selecting/initializing its packer.
 
-```text
-test flags, 0x40
-if set:
-    worker.width <<= 1
+The 640x480 movie surface creation at `0x461A37` uses helper `0x6555D0`
+with BPP argument `-1`, so the surface follows the active game display format
+rather than forcing an unrelated private surface format.
 
-test flags, 0x30
-if set:
-    worker.height <<= 1
-```
+## 4. Flag 0x40 selects the doubled 16-bpp writer
 
-The startup wrapper supplies `0x40`, but not `0x30`. Therefore the normal
-startup destination rectangle becomes exactly:
+At `0x69D289`, the TQI output path checks startup flag `0x40`.
 
-```text
-x = 0
-y = 0
-width  = 640
-height = 480
-```
+For the ordinary <=16-bpp path without that flag it calls `0x69DC20`.
+For the startup path with `0x40` it calls `0x69DCC0`.
 
-This is an explicit original-code instruction to double the movie horizontally.
+The distinction is exact:
 
-## 4. Normal state-1 presentation performs the 320 -> 640 stretch
+- `0x69DC20` advances the destination by `0x20` bytes for every 16 coded
+  horizontal samples, which is 16 x 2-byte display pixels.
+- `0x69DCC0` advances by `0x40` bytes for the same 16 coded samples, which
+  is 32 x 2-byte display pixels.
 
-The normal worker state in `0x69BA40` constructs two rectangles.
+So the startup path emits two 16-bit display pixels per coded horizontal
+sample.
 
-Source rectangle:
+## 5. Those two pixels are identical
 
-```text
-(0, 0) - (base.width, base.height)
-= (0, 0) - (320, 480)
-```
+The ordinary row packer `0x69F904` and doubled row packer `0x69F679` use the
+same packed-color lookup tables.
 
-Destination rectangle:
+- `0x69F904` stores lookup results as 16-bit WORD pixels.
+- `0x69F679` stores them as 32-bit DWORD values.
 
-```text
-(worker.x, worker.y)
-    -
-(worker.x + worker.width, worker.y + worker.height)
-= (0, 0) - (640, 480)
-```
+Lookup-table builder `0x69C040` calls helper `0x69C1A0`. That helper places
+each packed channel contribution both at its ordinary bit offset and at the
+same offset +16. Its correction mask is likewise symmetric
+`0x80008000`.
 
-It then invokes the DirectDraw surface blit with the decoder/intermediate
-surface as source and the configured output surface as destination. The blit
-flags include `0x01000000` (the synchronous/wait-style path used throughout
-this movie code).
-
-Therefore the 2x horizontal expansion occurs at the DirectDraw blit boundary.
-It is not a later 640 x 480 -> display stretch and it is not an inferred
-modern aspect-ratio correction.
-
-## 5. Intermediate video path is YUY2-capable
-
-Video-output setup at `0x69DE00` explicitly pushes FourCC:
-
-`0x32595559` = `YUY2`
-
-using the parsed 320 x 480 width/height.
-
-The same setup contains a fallback allocation sized:
+For the 16-bpp startup mode, the resulting table value is therefore:
 
 ```text
-width * height * 2
+packed16 | (packed16 << 16)
 ```
 
-and the state-2 fallback row writer copies `width * 2` bytes for each of
-`height` rows.
+Each DWORD store writes two adjacent identical 16-bit pixels. This is exact 2x
+horizontal pixel repetition, not bilinear or other interpolated scaling.
 
-This establishes a 16-bit packed 320 x 480 intermediate path. It does not mean
-the final 640 x 480 movie surface is permanently fixed to YUY2.
+## 6. YUY2-capable intermediate/fallback evidence
 
-## 6. Final movie surface follows the active DirectDraw display format
+Video-output setup at `0x69DE00` explicitly requests FourCC
+`0x32595559` (`YUY2`) using the coded 320x480 dimensions and includes a
+`width * height * 2` fallback allocation.
 
-The game creates the 640 x 480 movie surface at `0x461A37` through
-`0x6555D0` with the explicit BPP argument `-1`.
+That evidence describes an available packed intermediate/fallback boundary. It
+does not override the separately recovered startup output writer or the active
+game-display pixel format.
 
-In `0x6555D0`, `-1` bypasses the helper's forced 8/16/32-bit pixel-format
-descriptors. The surface therefore uses the active/default DirectDraw format.
+## 7. Final presentation is 1:1
 
-The movie decoder subsequently queries the actual destination surface pixel
-format around `0x69C640` and derives RGB mask widths/offsets from the returned
-masks. It has an explicit 8-bit/paletted branch and otherwise adapts to the
-queried RGB layout.
+The game-level callback at `0x461CD0` presents the completed 640x480 movie
+surface with a same-size destination rectangle using DirectDraw
+`DDBLT_WAIT`.
 
-So there is no source basis for hard-coding one final FMV display BPP in the
-modern port. The original movie path adapts to the game's active DirectDraw
-surface format.
+Recovered placement:
 
-## 7. Final display blit remains 1:1
+- 640x480 display mode: `(0,0)-(640,480)`
+- ordinary 800x600 display mode: `(80,60)-(720,540)`
 
-Separately, the game-level callback at `0x461CD0` presents the completed movie
-surface with a fixed 640 x 480 source rectangle and a same-size destination
-rectangle.
+There is no final source/destination size mismatch and therefore no final
+aspect-fit stretch.
 
-Recovered placement remains:
+## Modern Windows 11 contract
 
-- 640 x 480 display mode: `(0,0)-(640,480)`
-- 800 x 600 display mode: `(80,60)-(720,540)`
+PR #487, merged as main commit
+`421a3e1c34e007c1e9550aea892678fa95dde261`, applies the recovered contract:
 
-This confirms the second blit is not responsible for correcting the TGQ aspect
-ratio. The correction has already occurred inside the movie decoder/output
-path.
+1. exact TGQ identity remains fail-closed;
+2. compatibility derivatives are 640x480;
+3. FFmpeg conversion uses `scale=640:480:flags=neighbor`, matching the exact
+   recovered horizontal duplicate treatment;
+4. runtime receipts/cache identity include that presentation geometry;
+5. WPF startup playback is attached as a child HWND of the game-owned
+   fullscreen Tk host rather than a separate maximized top-level player;
+6. the ordinary 800x600 logical movie rectangle remains centered at (80,60).
 
-## Interpolation boundary
-
-The executable proves that DirectDraw is asked to stretch 320 x 480 to
-640 x 480. It does **not** encode a unique software resampling kernel in the
-game code.
-
-The exact filter may depend on the DirectDraw implementation/driver path.
-Accordingly:
-
-- 2x horizontal presentation is source-backed;
-- 640 x 480 destination geometry is source-backed;
-- nearest-neighbor, bilinear, bicubic, or another specific filtering claim is
-  **not** source-backed and must not be presented as recovered original
-  behavior.
-
-A modern implementation may choose a deterministic filter for compatibility,
-but that choice must be labelled as a port implementation decision rather than
-an original-code fact.
-
-## Consequence for the Windows 11 port
-
-The current WPF backend's literal 320 x 480 `MediaElement.Stretch=Uniform`
-presentation is not faithful.
-
-The port should preserve the proven display contract:
-
-1. derive media from the exact verified TGQ source;
-2. present it with a 2:1 horizontal pixel/display treatment so the movie is
-   640 x 480 in game coordinates;
-3. place that 640 x 480 movie rectangle at the source-backed game-display
-   location;
-4. keep the presentation integrated with the game-owned startup surface rather
-   than accepting a visually separate top-level player as final;
-5. do not claim a source-backed interpolation method unless new evidence
-   appears.
-
-This closes the earlier 320 x 480 -> 640 x 480 geometry uncertainty. The
-remaining startup presentation work is implementation/integration and external
-Windows acceptance, not discovery of whether the original intentionally
-doubled the TGQ width.
+This is a repository-side candidate, not human-visible Windows acceptance.
+Skip input, fade/transition semantics, and final Windows 11 visible/audible
+acceptance remain open until separately verified.
