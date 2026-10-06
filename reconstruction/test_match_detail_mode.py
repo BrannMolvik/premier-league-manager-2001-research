@@ -37,7 +37,7 @@ class MatchDetailModeTests(unittest.TestCase):
         for value in range(4):
             self.assertEqual(int(coerce_match_detail_mode(value)), value)
             self.assertEqual(match_detail_label(value), MATCH_DETAIL_LABELS[MatchDetailMode(value)])
-        for value in (-1, 4, NATIVE_UNRESOLVED_SENTINEL, True, False, "bad"):
+        for value in (-1, 4, NATIVE_UNRESOLVED_SENTINEL, True, False, "2", 2.0, "bad"):
             with self.subTest(value=value):
                 with self.assertRaises(ValueError):
                     coerce_match_detail_mode(value)
