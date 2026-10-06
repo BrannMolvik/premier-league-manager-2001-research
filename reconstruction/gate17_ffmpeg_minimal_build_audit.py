@@ -60,7 +60,7 @@ REQUIRED_ENCODERS = {"h264_mf", "aac"}
 REQUIRED_DEMUXERS = {"ea", "mov"}
 REQUIRED_MUXERS = {"mp4", "null"}
 REQUIRED_PROTOCOLS = {"file", "pipe"}
-REQUIRED_FILTERS = {"aresample"}
+REQUIRED_FILTERS = {"aresample", "scale"}
 
 
 def _sha256_file(path: Path) -> str:
