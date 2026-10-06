@@ -12,9 +12,22 @@ from original_prematch_panel import (
     PREMATCH_DATE_FORMAT,
     PREMATCH_DATE_FORMAT_VA,
     PREMATCH_DATE_BUFFER_OFFSET,
-    PREMATCH_TEMPERATURE_FORMAT,
-    PREMATCH_TEMPERATURE_FORMAT_VA,
-    PREMATCH_TEMPERATURE_BUFFER_OFFSET,
+    PREMATCH_WEATHER_TEMPERATURE_FORMAT,
+    PREMATCH_WEATHER_TEMPERATURE_FORMAT_VA,
+    PREMATCH_DATE_WEATHER_FORMAT,
+    PREMATCH_DATE_WEATHER_LANGUAGE_GLOBAL_VA,
+    PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+    PREMATCH_FIXTURE_HEADER_FORMAT,
+    PREMATCH_FIXTURE_HEADER_LANGUAGE_GLOBAL_VA,
+    PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+    PREMATCH_FRIENDLY_LABEL,
+    PREMATCH_FRIENDLY_LANGUAGE_GLOBAL_VA,
+    PREMATCH_VERSUS_LABEL,
+    PREMATCH_VERSUS_LANGUAGE_GLOBAL_VA,
+    PREMATCH_WEATHER_LABELS,
+    PREMATCH_WEATHER_LANGUAGE_GLOBALS,
+    PREMATCH_RATING_LABELS,
+    PREMATCH_RATING_LANGUAGE_GLOBALS,
     PREMATCH_TEAM_BADGE_ROOT,
     PREMATCH_TEAM_BADGE_VARIANT_KEY,
     PREMATCH_TEAM_BADGE_FALLBACK,
@@ -192,11 +205,51 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         )
         self.assertEqual(
             (
-                PREMATCH_TEMPERATURE_FORMAT,
-                PREMATCH_TEMPERATURE_FORMAT_VA,
-                PREMATCH_TEMPERATURE_BUFFER_OFFSET,
+                PREMATCH_WEATHER_TEMPERATURE_FORMAT,
+                PREMATCH_WEATHER_TEMPERATURE_FORMAT_VA,
             ),
-            ("%s %d°C", 0x81D5B0, 0x270),
+            ("%s %d°C", 0x81D5B0),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_DATE_WEATHER_FORMAT,
+                PREMATCH_DATE_WEATHER_LANGUAGE_GLOBAL_VA,
+                PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+            ),
+            ("%s %s", 0x98204C, 0x270),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_FIXTURE_HEADER_FORMAT,
+                PREMATCH_FIXTURE_HEADER_LANGUAGE_GLOBAL_VA,
+                PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+                PREMATCH_FRIENDLY_LABEL,
+                PREMATCH_FRIENDLY_LANGUAGE_GLOBAL_VA,
+                PREMATCH_VERSUS_LABEL,
+                PREMATCH_VERSUS_LANGUAGE_GLOBAL_VA,
+            ),
+            (
+                "%s MATCH TODAY AT %s",
+                0x982050,
+                0x170,
+                "Friendly",
+                0x9830C8,
+                "V",
+                0x9830C4,
+            ),
+        )
+        self.assertEqual(
+            PREMATCH_WEATHER_LABELS,
+            ("Clear", "Sunny", "Raining", "Sleet", "Snowy"),
+        )
+        self.assertEqual(
+            PREMATCH_WEATHER_LANGUAGE_GLOBALS,
+            (0x98252C, 0x982534, 0x982524, 0x9821E0, 0x982520),
+        )
+        self.assertEqual(PREMATCH_RATING_LABELS, ("GK", "DEF", "MID", "ATT"))
+        self.assertEqual(
+            PREMATCH_RATING_LANGUAGE_GLOBALS,
+            (0x983BE4, 0x983B70, 0x983B6C, 0x983B68),
         )
         self.assertEqual(
             (
@@ -225,7 +278,15 @@ class OriginalPrematchPanelTests(unittest.TestCase):
 
         contract = prematch_panel_contract()
         self.assertEqual(contract["date_format"], "%Df %Mf %Yf")
-        self.assertEqual(contract["temperature_format"], "%s %d°C")
+        self.assertEqual(contract["weather_temperature_format"], "%s %d°C")
+        self.assertEqual(contract["date_weather_format"], "%s %s")
+        self.assertEqual(contract["date_weather_buffer_offset"], 0x270)
+        self.assertEqual(contract["fixture_header_format"], "%s MATCH TODAY AT %s")
+        self.assertEqual(contract["fixture_header_buffer_offset"], 0x170)
+        self.assertEqual(contract["friendly_label"], "Friendly")
+        self.assertEqual(contract["versus_label"], "V")
+        self.assertEqual(contract["weather_labels"], PREMATCH_WEATHER_LABELS)
+        self.assertEqual(contract["rating_labels"], PREMATCH_RATING_LABELS)
         self.assertEqual(contract["player_slots_per_side"], 18)
         self.assertEqual(contract["starters_per_side"], 11)
         self.assertTrue(contract["identity_controls_source_closed"])
