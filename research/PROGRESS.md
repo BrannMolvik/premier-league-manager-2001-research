@@ -12034,3 +12034,12 @@ continues with ordinary Squad row display-name/color helpers.
   DBRGame cutoff, and a transfer date strictly later than that cutoff is tied.
   Next repository task is to audit/propagate the required clean transfer-history
   state and DBRGame lifecycle without inference.
+
+## 7 October 2026 KST — Recovery 359 PR #502 merged
+
+- Reviewed existing branch `recovery357-cup-tied-mode1` rather than duplicating implementation work.
+- Verified exact head `faae343ada880252246455985e29d757c6214960` was two commits ahead of main, cleanly based on `9a32ddf7b65dd8d425afa897643fa6a7e7c3c5e6`, with no unresolved review threads.
+- Exact-head CI passed: Gate-13 presentation `37517705837`, reconstruction `37517705769`, asset policy `37517705929`.
+- Semantic review confirmed completed human/AI transfer paths already persist `PlayerMovement(from_club_id,to_club_id,movement_date)`; save schema 46 preserves the DBRGame Cup-Tied window and restores its daily hook; stale or missing history fails closed; the extra predicate remains limited to current-match Squad status.
+- Merged PR #502 as `3719f7a9003fb8fc555b97f5fcd75b6f5d776b54`.
+- Gate 13 remains open only for issue #482 external Windows 11 acceptance; later-gate cloud-safe work may continue without changing the earliest validation gate.
