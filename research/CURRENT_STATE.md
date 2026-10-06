@@ -34,9 +34,18 @@ remains intentionally unnamed; it also does not yet claim complete draw order,
 invent management-to-match launch, or substitute FastView for either missing
 3D mode.
 
-Exact next task after this checkpoint validates: prove PPreMatchPanel
-child/control registration order against the generic panel draw semantics, then
-assemble only the source-proven complete pre-match frame layers. Keep management-to-match launch, missing 3D
+Cross-layer child order is now source-closed as a complete 182-slot forward
+paint array: background (0), pitch/top bar/text/badges/team identity (1..9),
+22 XI pitch markers (10..31), side-0 starter/post-starter rows (32..92),
+side-1 rows (93..153), rating layers/captions (154..177), then Match Detail
+selectors (178..181). This follows the already-proven generic `0x6533A0`
+forward traversal of parent `+0x1C/+0x38`.
+
+Exact next task after this checkpoint validates: reconcile the existing
+pre-match surface against all 182 source slots, bind the recovered text/team/
+player identity content, and promote a complete native pre-match frame only if
+every visible slot is represented or proven hidden/non-pixel for the supplied
+state. Management launch and missing 3D presentation remain fail-closed. Keep management-to-match launch, missing 3D
 presentation, and Gate 14 completion fail-closed.
 
 ---
