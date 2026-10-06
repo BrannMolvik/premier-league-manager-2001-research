@@ -90,20 +90,45 @@ the bit and removes the corresponding record from global collection
 `0x876B30`. This is a proven clearing lifecycle, but it is not evidence that
 ordinary club transfers clear the bit.
 
-## Ordinary transfer boundary still requiring adjudication
+## Ordinary transfer bit-11 transition source-closed
 
-The ordinary transfer completion path `0x422F70` installs the destination
-club and later calls the contract finalizer `0x4192B0`. `0x4192B0` installs
-the new contract expiry and, if bit 11 is already active, calls `0x4193E0` to
-synchronize the registration-record cutoff.
+The ordinary transfer mutation `0x422F70` installs the destination club in
+DBRPlayer `+0x10/+0x72`, resets other transfer-related status bits, and ends
+by calling the contract finalizer `0x4192B0`. The complete function body was
+checked through its `ret 0x0C`: none of its status masks clear bit 11.
+`0x4192B0` writes the new contract expiry to `+0x154`; when bit 11 was
+already active it calls `0x4193E0`, which resolves the bit-11 registration
+record and synchronizes its cutoff through `0x4E9BA0`.
 
-A separate transfer/event path `0x4EF600` resolves a player, calls
-`0x421760`, and conditionally calls `0x41B4A0` to set bit 11. Its exact
-relationship to every ordinary completed-transfer route, and whether any
-ordinary transfer path clears bit 11 when the new club no longer requires the
-state, is not yet fully source-closed. The clean runtime therefore must not yet
-publish frame 12 solely from `player.non_eu && current_date > contract_expiry`
-until this transition boundary is adjudicated.
+The previously separate `0x4EF600` path is now tied to ordinary transfer
+completion events. Its only two direct call sites are:
+
+- `0x5EAEFD`, in the class whose native event name is
+  `TransferDealConcluded`;
+- `0x5EAF57`, in the class whose native event name is
+  `FreeTransferDealConcluded`.
+
+Both conclusion handlers invoke `0x4EF600` with mode 0 for their transfer
+subobject. `0x4EF600` resolves the player, calls exact eligibility predicate
+`0x421760`, and on a positive result calls `0x41B4A0`. The latter is a
+direct unconditional setter: it ORs DBRPlayer `+0x14` with bit 11 and returns
+true. On a negative eligibility result, `0x4EF600` does not clear bit 11.
+
+A newly set post-transfer bit need not already have a record. The status
+override at `0x418360` calls `0x41B4D0` before testing the frame-12 cutoff;
+`0x41B4D0` looks up the player in global collection `0x876B30` and, if the
+bit is active but the record is absent, calls `0x417A20` to create it before
+returning the record. Thus the transfer conclusion can set the bit and the
+native status/contract paths lazily materialize the corresponding record.
+
+The source-backed ordinary-transfer transition is therefore sticky rather than
+symmetric: an eligible transfer can set bit 11, while a later ineligible
+transfer leaves an already-active bit intact. The proven clearing path remains
+the full reset/removal routine `0x41AFE0`, which explicitly clears bit 11 and
+removes the player's record from `0x876B30`. The broader initialization/reset
+routine `0x4185B0` also contains a bit-11 clear as part of its wholesale
+status reset, but it is not part of `0x422F70` or either concluded-transfer
+handler.
 
 ## Mode-1 Cup-Tied fallback correction
 
@@ -135,12 +160,11 @@ remains:
 
 ## Exact next source task
 
-1. Close the ordinary-transfer bit-11 transition around `0x4EF600` and its two
-   callers, including whether an already-active bit can be cleared when club
-   eligibility changes.
-2. Trace the producers/semantic identity of DBRPlayer embedded
+1. Trace the producers/semantic identity of DBRPlayer embedded
    `+0x198/+0x18`, gate `+0x1A0`, and globals `0x8755E8/EC/F0`.
-3. Only after those transitions are source-closed should frame 12 or the
+2. Reconcile the now-closed sticky bit-11/registration lifecycle with the clean
+   runtime and add frame 12 only with equivalent record/cutoff semantics.
+3. Only after the embedded-value/cutoff transition is source-closed should the
    mode-1 negative Cup-Tied fallback be promoted into live presentation.
 
 Gate 13 remains open independently for Daniel's normal Windows 11 acceptance in
