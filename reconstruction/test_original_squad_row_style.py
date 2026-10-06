@@ -15,10 +15,19 @@ from original_squad_row_style import (
     SQUAD_ROLE_PREFERRED_RGB,
     SQUAD_ROW_FONT_ATLAS_SIZE,
     SQUAD_ROW_FONT_SOURCE_PATH,
+    SQUAD_SCF_FONT_ATLAS_SIZE,
+    SQUAD_SCF_FONT_SOURCE_PATH,
+    SQUAD_CONDITION_HIGH_RGB,
+    SQUAD_CONDITION_LOW_RGB,
+    SQUAD_SCF_NUMERIC_RGB,
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
+    build_first_roster_scf_numeric_overlays,
     format_squad_display_name,
+    format_squad_recent_form,
+    format_squad_whole_number,
     load_verified_squad_row_text_resources,
+    squad_condition_rgb,
     squad_name_rgb,
     squad_name_rgb_from_available_state,
     squad_role_is_preferred,
@@ -91,14 +100,57 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
             SQUAD_NAME_DEFAULT_RGB,
         )
 
-    def test_exact_imported_18px_squad_font_is_verified(self):
+    def test_exact_imported_18px_squad_fonts_are_verified(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
         resources = load_verified_squad_row_text_resources(source_root)
         self.assertEqual(
             (resources.font.atlas_width, resources.font.atlas_height),
             SQUAD_ROW_FONT_ATLAS_SIZE,
         )
+        self.assertEqual(
+            (resources.scf_font.atlas_width, resources.scf_font.atlas_height),
+            SQUAD_SCF_FONT_ATLAS_SIZE,
+        )
         self.assertTrue((source_root / SQUAD_ROW_FONT_SOURCE_PATH).is_file())
+        self.assertTrue((source_root / SQUAD_SCF_FONT_SOURCE_PATH).is_file())
+
+    def test_pscf_numeric_formats_and_condition_threshold_are_source_exact(self):
+        self.assertEqual(format_squad_whole_number(75), "75")
+        self.assertEqual(format_squad_recent_form(7.34), "7.3")
+        self.assertEqual(format_squad_recent_form(7.35), "7.4")
+        self.assertEqual(format_squad_recent_form(-1.25), "-1.3")
+        self.assertEqual(squad_condition_rgb(75), SQUAD_CONDITION_LOW_RGB)
+        self.assertEqual(squad_condition_rgb(76), SQUAD_CONDITION_HIGH_RGB)
+        self.assertEqual(SQUAD_SCF_NUMERIC_RGB, (255, 255, 255))
+
+    def test_first_roster_scf_numeric_raster_uses_native_side_list_geometry(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_row_text_resources(source_root)
+        rows = (
+            SimpleNamespace(
+                y=154,
+                condition=75,
+                recent_form_average=7.35,
+                current_role_rating=63,
+            ),
+        )
+        overlays = build_first_roster_scf_numeric_overlays(rows, resources)
+
+        self.assertEqual(tuple(item.text for item in overlays), ("75", "7.4", "63"))
+        self.assertEqual(
+            tuple(item.source_rgb for item in overlays),
+            (SQUAD_CONDITION_LOW_RGB, SQUAD_SCF_NUMERIC_RGB, SQUAD_SCF_NUMERIC_RGB),
+        )
+        self.assertTrue(
+            all(item.font_source_path == SQUAD_SCF_FONT_SOURCE_PATH for item in overlays)
+        )
+        # PSquadList first roster starts at screen x=37. Its paired CSquadSCFList
+        # starts at local x=239; the three controls are x=24/47/70, width 19.
+        for item, left in zip(overlays, (300, 323, 346)):
+            self.assertGreaterEqual(item.x, left)
+            self.assertGreaterEqual(item.y, 234)
+            self.assertLessEqual(item.x + item.width, left + 19)
+            self.assertLessEqual(item.y + item.height, 234 + 14)
 
     def test_first_roster_name_raster_stays_inside_native_name_control(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
