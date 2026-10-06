@@ -20,6 +20,7 @@ from gate14_prematch_surface import (
     prematch_surface_contract,
     prematch_child_family_coverage,
     source_prematch_text_controls,
+    source_prematch_player_text_rows,
 )
 from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
@@ -173,6 +174,19 @@ class PrematchSurfaceTests(unittest.TestCase):
                 ("rating_right_att", (737, 552, 25, 14), 0x87BEA0, "ATT", None, True),
             ),
         )
+        self.assertEqual(boundary.player_text_rows, source_prematch_player_text_rows())
+        self.assertEqual(len(boundary.player_text_rows), 36)
+        self.assertEqual(
+            (
+                boundary.player_text_rows[0].number_rect.x,
+                boundary.player_text_rows[0].name_rect.x,
+                boundary.player_text_rows[18].number_rect.x,
+                boundary.player_text_rows[18].name_rect.x,
+            ),
+            (37, 67, 737, 564),
+        )
+        self.assertEqual(boundary.player_text_rows[11].strip_variant(11), "disabled")
+        self.assertEqual(boundary.player_text_rows[11].strip_variant(12), "active")
         self.assertEqual(len(boundary.player_strip_rows), 36)
         self.assertEqual(
             tuple(
@@ -200,7 +214,7 @@ class PrematchSurfaceTests(unittest.TestCase):
                     (row.rect.x, row.rect.y, row.rect.width, row.rect.height),
                     row.active_spec.source_path,
                     row.disabled_spec.source_path if row.disabled_spec is not None else None,
-                    False,
+                    True,
                 )
                 for row in PREMATCH_PLAYER_STRIP_ROWS
             ),
@@ -235,6 +249,10 @@ class PrematchSurfaceTests(unittest.TestCase):
                 (3, 1, "Quick Match"),
             ),
         )
+        self.assertTrue(all(s.native_visual_state_source_closed for s in boundary.selectors))
+        self.assertTrue(all(not s.persistent_selected_visual for s in boundary.selectors))
+        self.assertEqual(tuple(s.initial_flags for s in boundary.selectors), (0x183,) * 4)
+        self.assertEqual(tuple(s.group_lengths for s in boundary.selectors), ((11, 11, 1),) * 4)
 
     def test_rating_rows_expose_geometry_and_pixels_without_inventing_meanings_or_widths(self):
         selection = self._selection()
@@ -454,7 +472,7 @@ class PrematchSurfaceTests(unittest.TestCase):
             tuple(range(182)),
         )
         self.assertEqual(sum(family.source_control_count for family in coverage), 182)
-        self.assertEqual(sum(family.represented_controls for family in coverage), 86)
+        self.assertEqual(sum(family.represented_controls for family in coverage), 158)
         self.assertEqual(
             tuple(family.role for family in coverage if family.supplied_state_complete),
             ("live_background", "pitch", "top_bar", "rating_captions"),
@@ -511,7 +529,11 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(contract["fixed_versus_and_rating_captions_available"])
         self.assertEqual(contract["player_strip_row_count"], 36)
         self.assertTrue(contract["player_strip_rows_source_geometry_available"])
-        self.assertFalse(contract["reserve_variant_state_source_closed"])
+        self.assertTrue(contract["reserve_variant_state_source_closed"])
+        self.assertEqual(contract["player_text_row_count"], 36)
+        self.assertTrue(contract["player_row_text_controls_source_closed"])
+        self.assertTrue(contract["selector_visual_state_source_closed"])
+        self.assertFalse(contract["selector_persistent_selected_visual"])
         self.assertEqual(contract["selector_modes"], (0, 1, 2, 3))
         self.assertEqual(contract["selector_events"], (4, 3, 2, 1))
         self.assertEqual(contract["rating_discriminators"], (3, 0, 1, 2))
@@ -522,7 +544,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["source_child_count"], PREMATCH_CHILD_COUNT)
         self.assertEqual(contract["source_child_count"], 182)
         self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
-        self.assertEqual(contract["represented_child_controls"], 86)
+        self.assertEqual(contract["represented_child_controls"], 158)
         self.assertEqual(
             contract["complete_child_families"],
             ("live_background", "pitch", "top_bar", "rating_captions"),
