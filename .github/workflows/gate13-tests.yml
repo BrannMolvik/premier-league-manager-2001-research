@@ -201,6 +201,7 @@ jobs:
             test_front_end_session \
             test_match_detail_mode \
             test_original_prematch_panel \
+            test_gate14_prematch_surface \
             test_ea_language_strings \
             test_ea_font \
             test_original_pstartmenu_labels \
