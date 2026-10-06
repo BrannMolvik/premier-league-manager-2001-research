@@ -35,10 +35,10 @@ MATCH_DETAIL_LABELS = {
 
 def coerce_match_detail_mode(value: int | MatchDetailMode) -> MatchDetailMode:
     """Validate an exact selectable native Match Detail value."""
-    if isinstance(value, bool):
+    if isinstance(value, bool) or not isinstance(value, int):
         raise ValueError("Match Detail mode must be an integer value 0..3")
     try:
-        mode = MatchDetailMode(int(value))
+        mode = MatchDetailMode(value)
     except (TypeError, ValueError) as exc:
         raise ValueError("Match Detail mode must be an integer value 0..3") from exc
     return mode
