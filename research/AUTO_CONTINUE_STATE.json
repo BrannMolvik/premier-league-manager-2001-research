@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 357: Gate 13 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Canonical main is ce3b45fd6245c8d5939bf2779ad4a03a60850b46. The prior 0x875510 indexed-table writer candidate has been eliminated: the ten parallel DWORD tables are exactly 48 entries and end at 0x8755CF, while 0x8755D0 begins a distinct scalar-global region. Direct refs to Cup-Tied globals 0x8755E8/EC/F0 remain read-only, raw-address scans find no address-taking refs, and shipped text/config/help exposes no Cup-Tied rule key. Exact next source task: trace initialization of scalar region 0x8755D0..0x8755FC and either identify a legitimate computed producer for E8/EC/F0 or prove they remain loader-zero in the shipped build. Keep the negative mode-1 Cup-Tied fallback fail-closed and do not infer hypothetical values.",
-  "last_known_main_head": "ce3b45fd6245c8d5939bf2779ad4a03a60850b46",
+  "active_task": "Recovery 357 checkpoint a00dbefd7fe7ce2206eb75b11af769b0b73a2312 source-closes the Cup-Tied DBRGame selector/date cutoffs and corrects CPlayerTransferHistory +0x18 as transfer date (+0x1C is appearance count). Gate 13 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Exact next repository task: audit the clean transfer commit workflow for prior-club/history availability and transfer-date propagation, then implement/test the DBRGame selector/cutoff lifecycle and mode-1 negative Cup-Tied fallback only where those exact inputs are source-backed; otherwise preserve fail-closed behavior and record the missing seam.",
+  "last_known_main_head": "a00dbefd7fe7ce2206eb75b11af769b0b73a2312",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 357,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 357: resumed from ce3b45fd; trace scalar-region initialization around 0x8755D0..0x8755FC while Gate 13 external acceptance remains pending.",
+  "note": "Recovery 357: main checkpoint a00dbefd source-closes Cup-Tied DBRGame date semantics; continuing clean transfer-history integration audit.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
