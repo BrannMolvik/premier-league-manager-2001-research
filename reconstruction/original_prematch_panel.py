@@ -330,6 +330,10 @@ PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA = 0x417A90
 PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA = 0x417AE0
 PREMATCH_PLAYER_FULL_NAME_FORMAT = "%s %s"
 PREMATCH_PLAYER_FULL_NAME_FORMAT_VA = 0x81858C
+PREMATCH_PLAYER_DISPLAY_NAME_MODE = 0
+PREMATCH_PLAYER_DISPLAY_NAME_FORMAT = "%c. %s"
+PREMATCH_PLAYER_DISPLAY_NAME_FORMAT_VA = 0x818EB0
+PREMATCH_PLAYER_DISPLAY_NAME_FIRST_NAME_SENTINEL = "-"
 
 # Recovery 371 source-closes the two text children inside every 18-slot player
 # row plus the count-driven active/disabled reserve-strip rule in 0x49A610.
@@ -909,6 +913,10 @@ def prematch_panel_contract() -> dict:
         "player_name_format_function_va": PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
         "player_full_name_format": PREMATCH_PLAYER_FULL_NAME_FORMAT,
         "player_full_name_format_va": PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+        "player_display_name_mode": PREMATCH_PLAYER_DISPLAY_NAME_MODE,
+        "player_display_name_format": PREMATCH_PLAYER_DISPLAY_NAME_FORMAT,
+        "player_display_name_format_va": PREMATCH_PLAYER_DISPLAY_NAME_FORMAT_VA,
+        "player_display_name_first_name_sentinel": PREMATCH_PLAYER_DISPLAY_NAME_FIRST_NAME_SENTINEL,
         "identity_controls_source_closed": True,
         "pitch_marker_positioner_va": PREMATCH_PITCH_MARKER_POSITIONER_VA,
         "pitch_marker_coord_builder_va": PREMATCH_PITCH_MARKER_COORD_BUILDER_VA,
