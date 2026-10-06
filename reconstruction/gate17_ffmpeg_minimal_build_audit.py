@@ -13,6 +13,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import re
+import shlex
 import subprocess
 from typing import Iterable
 
@@ -145,7 +146,12 @@ def _version_contract(text: str, *, label: str, configure_args: Iterable[str]) -
     )
     if configuration is None:
         raise MinimalFfmpegBuildAuditError(f"{label} configuration line is missing")
-    tokens = set(configuration.split()[1:])
+    try:
+        tokens = set(shlex.split(configuration.split(":", 1)[1].strip(), posix=True))
+    except ValueError as exc:
+        raise MinimalFfmpegBuildAuditError(
+            f"{label} configuration line has invalid shell quoting"
+        ) from exc
     normalized_actual = _normalized_configuration_tokens(tokens)
     normalized_expected = _normalized_configuration_tokens(configure_args)
     missing = tuple(sorted(normalized_expected - normalized_actual))
