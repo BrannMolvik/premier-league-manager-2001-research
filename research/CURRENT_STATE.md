@@ -1,3 +1,20 @@
+# Recovery 369 continuation — fail-closed 182-child frame accounting staged
+
+_Updated 7 October 2026._
+
+Canonical implementation baseline is `e58caf331787c4c64a83ce35cc711f462a2a27d2`, which merges PR #510's source-closed text-control surface. Exact PR #510 head `49b950c25d210890b7f315bda7e8aae5ee119f9c` passed presentation run `37542672825` and asset-policy run `37542672250`.
+
+Current branch `chatgpt/gate14-prematch-coverage-r369` adds an explicit fail-closed audit over all 182 native PPreMatch child slots. The audit preserves the exact source range partition and records, per family, how many controls currently have a clean-room representation, whether that family is complete for a supplied match state, and the precise remaining blocker.
+
+Current coverage is 86 represented controls out of 182. Only `live_background`, `pitch`, `top_bar`, and `rating_captions` are supplied-state complete at this boundary. Fixture/date/team text, badges, 22 pitch markers, all roster-row families, rating dynamic state on the base surface, and Match Detail selector state remain explicitly incomplete.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** on Daniel's Windows 11 acceptance of artifact `11418314765`.
+
+Exact next Gate-14 source task remains the unresolved source-critical families: 22 starting-XI pitch-marker placement/state, player-row text/content/style and reserve active/disabled selector, team-badge pixel staging/path binding, dynamic identity strings, and Match Detail selector visual state. Do not promote a complete frame until the audit has no unresolved family for the supplied state.
+
+Local binary execution remains blocked by generic `ClientError` despite successful canonical Library materialization; this is recorded as infrastructure failure, not source evidence.
+
+---
 # Recovery 369 continuation — PPreMatch text-control surface staged
 
 _Updated 7 October 2026._

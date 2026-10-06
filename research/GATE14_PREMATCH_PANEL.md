@@ -561,3 +561,13 @@ Frame reconciliation now represents the exact non-roster text-control placements
 The fixed source text that can be promoted without runtime inference is limited to center `V` and the duplicated rating captions `GK/DEF/MID/ATT`. Fixture header and date/weather controls retain their exact panel buffer offsets `+0x170/+0x270`, rectangles and style wrapper but do not claim a supplied-state string yet. Left/right team identity controls retain exact geometry/style only; their dynamic team-name binding remains separate.
 
 This deliberately narrows complete-frame blockers without collapsing formatting evidence into runtime state. The surface contract continues to report dynamic fixture/date buffers unbound, team identity text unbound, reserve strip variant unresolved, complete frame false, and Gate 14 false.
+
+## Recovery 369 continuation — explicit 182-child frame coverage audit
+
+The clean-room surface now audits the already-proven 182-child native paint partition rather than relying on a single complete-frame boolean. Every source family carries a represented-control count, supplied-state-complete flag, and explicit blocker when incomplete.
+
+At this checkpoint 86 of 182 native controls have a structural/pixel representation in the surface model. This is **not** an 86/182 fidelity score: a represented dynamic control can still be incomplete for a supplied match state. Only the live background, pitch, top bar, and eight rating captions are currently marked supplied-state complete.
+
+Notable fail-closed families include zero of 22 starting-XI pitch markers, zero staged pre-match badge controls, partially represented starter/reserve row groups, unbound dynamic header/date/team strings, base-surface rating widths not yet attached to supplied state, and selector atlases whose exact runtime visual state is unresolved.
+
+The audit itself verifies that the child ranges flatten to exactly indices 0..181. Complete-frame promotion must therefore clear every family blocker rather than bypassing missing source evidence with a generic frame flag.
