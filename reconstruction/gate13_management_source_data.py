@@ -62,11 +62,12 @@ class SquadRowView:
     transfer_listed: bool
     loan_listed: bool
     wanted: bool
-    # Recovery 340 source-qualified PSCF override inputs. Defaults preserve
-    # compatibility for older bounded fixtures while live bridge rows fill all
-    # three from exact represented state.
+    # Source-qualified PSCF override inputs. The registration cutoff is
+    # optional only for bounded/legacy fixtures; live bridge rows resolve it
+    # whenever bit 11 is active.
     alternate_on_loan: bool = False
     non_eu: bool = False
+    non_eu_registration_expired: bool | None = None
     cup_tied_positive: bool = False
 
 
@@ -1076,6 +1077,25 @@ class ManagementSourceDataBridge:
                     f"Player {player_id} has invalid recovered Non-EU state"
                 )
 
+            # Recovery 342 source-closes registration record +0x14 as the live
+            # DBRPlayer +0x154 contract expiry. 0x4193E0 keeps that cutoff
+            # synchronized after contract changes, and 0x41B4D0 lazily creates
+            # a missing record for active bit 11. Therefore no separate
+            # clean-room record object is needed for this exact status result.
+            non_eu_registration_expired: bool | None = False
+            if non_eu:
+                contract_expiry = getattr(player, "contract_expiry_date", None)
+                if contract_expiry is None:
+                    non_eu_registration_expired = None
+                elif not isinstance(contract_expiry, date):
+                    raise ManagementPresentationError(
+                        f"Player {player_id} has invalid recovered contract expiry"
+                    )
+                else:
+                    non_eu_registration_expired = bool(
+                        self.state.calendar.current_date > contract_expiry
+                    )
+
             # 0x418360's alternate On-loan frame 13 precedes every lower
             # override. Recovery 340 closes it exactly as a live loan-state
             # mismatch between the represented +0x10/+0x72 club identities.
@@ -1092,10 +1112,13 @@ class ManagementSourceDataBridge:
             cup_tied_positive = False
             pending_entry = getattr(self.controller, "pending_primary_entry", None)
             primary_order = getattr(self.state, "primary_matchday_order", None)
+            non_eu_allows_lower_status = bool(
+                not non_eu or non_eu_registration_expired is False
+            )
             if (
                 pending_entry is not None
                 and not alternate_on_loan
-                and not non_eu
+                and non_eu_allows_lower_status
                 and hasattr(primary_order, "get")
             ):
                 entry = tuple(pending_entry)
@@ -1162,6 +1185,7 @@ class ManagementSourceDataBridge:
                 wanted=bool(getattr(player, "wanted")),
                 alternate_on_loan=alternate_on_loan,
                 non_eu=non_eu,
+                non_eu_registration_expired=non_eu_registration_expired,
                 cup_tied_positive=cup_tied_positive,
             ))
         return tuple(rows)

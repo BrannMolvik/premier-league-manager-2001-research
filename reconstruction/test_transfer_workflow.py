@@ -266,6 +266,62 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
             [(-1_500, 1600), (750_000, TRANSFER_ACCOUNT_CATEGORY)],
         )
 
+    def test_completed_transfer_sets_non_eu_bit_on_positive_destination_eligibility(self):
+        state = build_completion_state()
+        player = state.players[1]
+        player.non_eu = False
+        player.eu_status_code = 1
+        player.nationality_id = 5
+        state.clubs[11].country_id = 31
+        state.countries = {
+            40: SimpleNamespace(
+                nationality_id=5,
+                eu_status_flag=0,
+                european_index=0,
+            )
+        }
+
+        proposal = self.proposal()
+        schedule_ordinary_cash_transfer(state, proposal)
+        state.set_current_cash(11, 1_000_000)
+        state.set_current_cash(10, 250_000)
+        state.calendar.current_date = date(2000, 8, 19)
+        execute_due_ordinary_cash_transfers(
+            state,
+            user_controlled_club_id=11,
+            rng=ScriptedRng([0]),
+        )
+
+        self.assertTrue(player.non_eu)
+
+    def test_completed_transfer_keeps_existing_non_eu_bit_when_destination_is_ineligible(self):
+        state = build_completion_state()
+        player = state.players[1]
+        player.non_eu = True
+        player.eu_status_code = 2
+        player.nationality_id = 5
+        state.clubs[11].country_id = 31
+        state.countries = {
+            40: SimpleNamespace(
+                nationality_id=5,
+                eu_status_flag=1,
+                european_index=1,
+            )
+        }
+
+        proposal = self.proposal()
+        schedule_ordinary_cash_transfer(state, proposal)
+        state.set_current_cash(11, 1_000_000)
+        state.set_current_cash(10, 250_000)
+        state.calendar.current_date = date(2000, 8, 19)
+        execute_due_ordinary_cash_transfers(
+            state,
+            user_controlled_club_id=11,
+            rng=ScriptedRng([0]),
+        )
+
+        self.assertTrue(player.non_eu)
+
     def test_forty_player_buyer_reschedules_mode_zero_plus_seven_days(self):
         state = build_completion_state(buyer_roster_count=40)
         proposal = self.proposal()
