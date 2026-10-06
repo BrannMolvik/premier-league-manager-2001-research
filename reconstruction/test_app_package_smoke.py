@@ -1,3 +1,4 @@
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,6 +19,18 @@ class AppPackageSmokeTests(unittest.TestCase):
         ffmpeg = root / app.PACKAGED_FFMPEG_RELATIVE_PATH
         ffmpeg.parent.mkdir(parents=True, exist_ok=True)
         ffmpeg.write_bytes(b"packaged-ffmpeg")
+
+        canonical_bundle = (
+            Path(__file__).resolve().parents[1]
+            / app.PSTARTMENU_DERIVATIVE_RELATIVE
+        )
+        staged_bundle = root / app.PSTARTMENU_DERIVATIVE_RELATIVE
+        staged_bundle.mkdir(parents=True, exist_ok=True)
+        for name in ("manifest.json", "payload.bin.xz"):
+            shutil.copyfile(
+                canonical_bundle / name,
+                staged_bundle / name,
+            )
         return source, manifest
 
     def test_package_smoke_requires_assets_and_provenance(self):
@@ -31,7 +44,35 @@ class AppPackageSmokeTests(unittest.TestCase):
                 report = app.package_smoke_report()
             self.assertTrue(report["passed"])
             self.assertEqual(report["provenance_manifest"], str(manifest))
+            self.assertEqual(
+                report["pstartmenu_manifest_sha256"],
+                app.PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+            )
             self.assertTrue(report["external_game_data_required"])
+
+    def test_package_smoke_rejects_crlf_pstartmenu_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source, _manifest = self._layout(root)
+            derivative_manifest = (
+                root
+                / app.PSTARTMENU_DERIVATIVE_RELATIVE
+                / "manifest.json"
+            )
+            raw = derivative_manifest.read_bytes()
+            self.assertTrue(raw.endswith(b"\n"))
+            derivative_manifest.write_bytes(
+                raw[:-1] + b"\r\n"
+            )
+            with (
+                patch("app.application_root", return_value=root),
+                patch("app.bundled_source_root", return_value=source),
+                self.assertRaisesRegex(
+                    RuntimeError,
+                    "exact-byte verification.*pinned receipt",
+                ),
+            ):
+                app.package_smoke_report()
 
     def test_package_smoke_fails_when_provenance_manifest_is_missing(self):
         with tempfile.TemporaryDirectory() as temp:

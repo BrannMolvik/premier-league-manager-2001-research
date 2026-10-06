@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+from hashlib import sha256
 import json
 from pathlib import Path
 import platform
@@ -9,7 +10,16 @@ from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
-from original_game_host import run_original_game_ui
+from original_game_host import (
+    PSTARTMENU_DERIVATIVE_DECODER,
+    PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+    run_original_game_ui,
+)
+from gate13_pstartmenu_derivative import (
+    MANIFEST_NAME as PSTARTMENU_DERIVATIVE_MANIFEST_NAME,
+    PStartMenuDerivativeError,
+    load_verified_pstartmenu_derivative_bundle,
+)
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
 from startup_media_runtime_cache import (
     PACKAGED_FFMPEG_RELATIVE_PATH,
@@ -669,6 +679,9 @@ PACKAGE_SMOKE_REQUIRED = (
     "FM2001_Art/Generic/match_report/info_popup.444",
     "Fonts/Zurich_XCn_BT_16pixel.fnt",
 )
+PSTARTMENU_DERIVATIVE_RELATIVE = (
+    Path("original_assets") / "converted" / "pstartmenu-v1"
+)
 
 
 def package_smoke_report() -> dict:
@@ -688,6 +701,23 @@ def package_smoke_report() -> dict:
             "Packaged runtime is missing required provenance-tracked assets: "
             + ", ".join(missing)
         )
+
+    derivative_root = app_root / PSTARTMENU_DERIVATIVE_RELATIVE
+    derivative_manifest = (
+        derivative_root / PSTARTMENU_DERIVATIVE_MANIFEST_NAME
+    )
+    try:
+        load_verified_pstartmenu_derivative_bundle(
+            derivative_root,
+            expected_decoder=PSTARTMENU_DERIVATIVE_DECODER,
+            expected_manifest_sha256=PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+        )
+    except PStartMenuDerivativeError as exc:
+        raise RuntimeError(
+            "Packaged PStartMenu derivative failed exact-byte verification: "
+            f"{exc}"
+        ) from exc
+
     startup_ffmpeg = resolve_startup_ffmpeg(
         app_root,
         system_which=lambda _name: None,
@@ -698,6 +728,10 @@ def package_smoke_report() -> dict:
         "source_root": str(root),
         "provenance_manifest": str(provenance),
         "required_asset_count": len(PACKAGE_SMOKE_REQUIRED),
+        "pstartmenu_derivative_root": str(derivative_root),
+        "pstartmenu_manifest_sha256": sha256(
+            derivative_manifest.read_bytes()
+        ).hexdigest(),
         "startup_ffmpeg": str(startup_ffmpeg),
         "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "external_game_data_required": True,
