@@ -6,14 +6,18 @@ import unittest
 from unittest.mock import patch
 
 from ea444_decoder import EA444DecodedImage
-from match_detail_mode import MatchDetailMode
 from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
-    PREMATCH_BACKGROUND,
     PREMATCH_FONT_PATH,
+    PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
+    PREMATCH_LIVE_BACKGROUND_RECT,
+    PREMATCH_LIVE_BACKGROUND_ROOT,
+    PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA,
     PREMATCH_PITCH,
+    PREMATCH_RATING_ROWS,
     PREMATCH_SELECTORS,
     PREMATCH_SELECTOR_ATLAS,
+    PREMATCH_SHIPPED_BACKGROUND,
     PREMATCH_STATIC_PLACEMENTS,
     OriginalPrematchPanelError,
     _read_verified,
@@ -71,7 +75,7 @@ class OriginalPrematchPanelTests(unittest.TestCase):
             "7b0148bfa65adaa7cabf08e000050ba9add3cf852a03e66423051603c4b85930",
         )
 
-    def test_only_source_closed_static_placements_are_promoted(self):
+    def test_static_placements_live_background_and_rating_rows_are_exact(self):
         self.assertEqual(
             tuple(
                 (
@@ -89,9 +93,54 @@ class OriginalPrematchPanelTests(unittest.TestCase):
                 ("disabled_right", (563, 358, 200, 16)),
             ),
         )
-        self.assertEqual((PREMATCH_BACKGROUND.width, PREMATCH_BACKGROUND.height), (800, 600))
         self.assertEqual((PREMATCH_PITCH.width, PREMATCH_PITCH.height), (261, 374))
+        self.assertEqual(
+            (
+                PREMATCH_LIVE_BACKGROUND_ROOT,
+                (
+                    PREMATCH_LIVE_BACKGROUND_RECT.x,
+                    PREMATCH_LIVE_BACKGROUND_RECT.y,
+                    PREMATCH_LIVE_BACKGROUND_RECT.width,
+                    PREMATCH_LIVE_BACKGROUND_RECT.height,
+                ),
+                PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
+                PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA,
+            ),
+            (
+                "FM2001_Art/Generic/Team_Backgrounds",
+                (0, 0, 800, 600),
+                0x5D3490,
+                0x5D3510,
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    row.native_width_function_va,
+                    row.native_record_discriminator,
+                    row.left_x,
+                    row.right_x,
+                    row.y,
+                    row.full_width,
+                    row.height,
+                )
+                for row in PREMATCH_RATING_ROWS
+            ),
+            (
+                (0x49A3D0, 3, 65, 564, 497, 171, 16),
+                (0x49A460, 0, 65, 564, 515, 171, 16),
+                (0x49A4F0, 1, 65, 564, 533, 171, 16),
+                (0x49A580, 2, 65, 564, 551, 171, 16),
+            ),
+        )
 
+    def test_shipped_prematch_background_is_not_promoted_as_live_background(self):
+        self.assertTrue(
+            PREMATCH_SHIPPED_BACKGROUND.source_path.endswith(
+                "pre_match/prematch_bground.444"
+            )
+        )
+        self.assertNotIn(PREMATCH_SHIPPED_BACKGROUND, PREMATCH_ALL_EA444_SPECS)
         contract = prematch_panel_contract()
         self.assertEqual(contract["native_surface"], (800, 600))
         self.assertEqual(contract["selector_modes_left_to_right"], (0, 1, 2, 3))
@@ -99,9 +148,16 @@ class OriginalPrematchPanelTests(unittest.TestCase):
             contract["selector_labels_left_to_right"],
             ("3D Match", "3D Highlights", "FastView", "Quick Match"),
         )
-        self.assertTrue(contract["background_resource_owned"])
-        self.assertFalse(contract["background_draw_site_source_closed"])
-        self.assertFalse(contract["rating_bar_final_layout_source_closed"])
+        self.assertEqual(
+            contract["live_background_root"],
+            "FM2001_Art/Generic/Team_Backgrounds",
+        )
+        self.assertEqual(contract["live_background_rect"], (0, 0, 800, 600))
+        self.assertFalse(
+            contract["shipped_prematch_background_is_live_panel_background"]
+        )
+        self.assertTrue(contract["live_background_contract_source_closed"])
+        self.assertTrue(contract["rating_bar_layout_source_closed"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])
@@ -116,7 +172,7 @@ class OriginalPrematchPanelTests(unittest.TestCase):
             ):
                 _read_verified(root, "asset.444", "0" * 64)
 
-    def test_loader_consumes_all_exact_specs_selector_atlas_and_verified_font(self):
+    def test_loader_consumes_only_live_seam_assets_selector_atlas_and_font(self):
         source_payloads = {
             spec.source_path: spec.source_path.encode("ascii")
             for spec in PREMATCH_ALL_EA444_SPECS
@@ -126,6 +182,7 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         seen_decode_paths = []
 
         def fake_read(_root, source_path, _sha):
+            self.assertNotEqual(source_path, PREMATCH_SHIPPED_BACKGROUND.source_path)
             return source_payloads[source_path]
 
         def fake_decode(raw, *, tables, quant):
@@ -176,13 +233,17 @@ class OriginalPrematchPanelTests(unittest.TestCase):
 
         table_loader.assert_called_once_with(b"canonical-test-double")
         quant_loader.assert_called_once_with(b"canonical-test-double")
-        self.assertEqual(seen_decode_paths, [
-            spec.source_path for spec in PREMATCH_ALL_EA444_SPECS
-        ])
+        self.assertEqual(
+            seen_decode_paths,
+            [spec.source_path for spec in PREMATCH_ALL_EA444_SPECS],
+        )
+        self.assertNotIn(PREMATCH_SHIPPED_BACKGROUND.source_path, seen_decode_paths)
         atlas_loader.assert_called_once()
         self.assertIs(loaded.selector_atlas, fake_atlas)
         self.assertIs(loaded.font, fake_font)
         font_loader.assert_called_once_with(b"zurich-font")
+        self.assertTrue(loaded.live_background_contract_source_closed)
+        self.assertTrue(loaded.rating_bar_layout_source_closed)
         self.assertFalse(loaded.management_launch_trigger_recovered)
         self.assertFalse(loaded.complete_prematch_frame)
         self.assertFalse(loaded.gate14_complete)
