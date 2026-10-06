@@ -12083,3 +12083,31 @@ continues with ordinary Squad row display-name/color helpers.
 - Gate 13 remains externally open on Daniel's Windows 11 acceptance artifact
   `11418314765`. Next Gate-14 source task is shared pre-match background
   attachment plus the rating-bar distinction before a renderable asset slice.
+
+
+## 7 October 2026 KST — Recovery 363 live pre-match background/rating correction
+
+- Re-audited the canonical PPreMatchPanel constructor after PR #504 and found a
+  material source correction before production rendering.
+- Proved the live 800x600 panel background is dynamically produced through
+  `0x5D3490/0x5D3510` from
+  `FM2001_Art/Generic/Team_Backgrounds`, using current date and match/team
+  context. The shipped `pre_match/prematch_bground.444` is globally
+  initialized but is not the live panel background in this constructor path.
+- Confirmed this is the same source-backed Team_Backgrounds mechanism already
+  recovered for FastView, including the existing month/club/fallback selector.
+- Source-closed four mirrored rating rows at y=497/515/533/551, with left
+  x=65, right x=564, full width 171 and height 16. Native width functions are
+  `0x49A3D0/0x49A460/0x49A4F0/0x49A580`; their record discriminators are
+  3/0/1/2 respectively.
+- Side selector 0 drives the left dynamic overlay; selector 1 recalculates the
+  same metric and reduces the right-side right edge, yielding mirrored dynamic
+  lengths. Semantic names for the four discriminator categories remain neutral.
+- PR #505 exact head `de9cbb28f7e819a47b5a80e61dd2e1211eb01835`
+  passed focused presentation run `37528707689` and asset-policy run
+  `37528707719`, then merged as
+  `adff9a96b10465b8580ab09d0069bc1601a01e66`.
+- Next Gate-14 work-ahead is to reuse the already-source-closed FastView
+  Team_Backgrounds selector/loader and stage only the pre-match assets actually
+  consumed by the verified panel seam. Gate 13 remains externally open on
+  artifact `11418314765`.
