@@ -31,8 +31,13 @@ class Backend:
 class Row:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
+    positions: tuple[int, int, int] = (12, 4, 7)
     current_position: int = 12
+    match_active: bool = False
+    match_substitute_available: bool = False
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
@@ -62,7 +67,7 @@ class Bridge:
         return ClubHeaderView(12, "Source Club", "Source", date(2000, 8, 1))
 
     def squad_rows(self):
-        return tuple(Row(i, 1000 + i, f"Player {i}") for i in range(23))
+        return tuple(Row(i, 1000 + i, "Player", str(i), f"Player {i}") for i in range(23))
 
     def fixture_rows(self):
         return (
