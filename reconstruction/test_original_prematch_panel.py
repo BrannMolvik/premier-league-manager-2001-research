@@ -216,7 +216,7 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertEqual(contract["player_strip_starter_count_per_side"], 11)
         self.assertEqual(contract["player_strip_reserve_count_per_side"], 7)
         self.assertTrue(contract["reserve_rows_construct_active_and_disabled_variants"])
-        self.assertFalse(contract["reserve_variant_state_source_closed"])
+        self.assertTrue(contract["reserve_variant_state_source_closed"])
 
     def test_player_row_text_geometry_content_and_variant_state_are_exact(self):
         self.assertEqual(PREMATCH_PLAYER_DISPLAY_NAME_MODE, 0)
