@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 342: resume canonical task from current main after recovery. PR #496 exact-head validation was pending at prior heartbeat; verify its current workflow/merge state first. Gate 13/#482 remains earliest incomplete and externally blocked.",
-  "last_known_main_head": "f97238798f05931c9d952786ac256f1974ab3e36",
+  "active_task": "Recovery 343: continue PR #497 exact active task. Close ordinary-transfer bit-11 transition around 0x4EF600 and its callers, then trace +0x198/+0x18, +0x1A0, and globals 0x8755E8/EC/F0. Keep frame 12 and mode-1 negative Cup-Tied fallback fail-closed until source-complete. Gate 13/#482 still needs Daniel Windows acceptance.",
+  "last_known_main_head": "3c17eaa1dc5a9491699d92ec99489bb796660753",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 342,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 342 started from main f97238798f05931c9d952786ac256f1974ab3e36. Runtime restored to continuous/working before substantive work; exact current task will be reconciled from CURRENT_STATE and PR #496.",
+  "recovery_generation": 343,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 343 reconciled main at 3c17eaa1dc5a9491699d92ec99489bb796660753 and open PR #497 head 6b4bc829e14175ac0ed1be67ae661487e0215545. Resume the transfer/work-permit native trace without restarting completed work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
