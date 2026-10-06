@@ -57,6 +57,10 @@ from original_pmatchinfo_resources import (
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_resources import squad_view_transition
+from original_squad_status import (
+    OriginalSquadStatusResources,
+    load_verified_squad_status_resources,
+)
 from original_squad_row_style import (
     OriginalSquadRowTextResources,
     load_verified_squad_row_text_resources,
@@ -92,6 +96,9 @@ class Row:
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
+    injured: bool = False
+    suspended: bool = False
+    international: bool = False
 
 
 class Bridge:
@@ -152,6 +159,14 @@ def fake_squad_row_text_resources():
     resources = load_verified_squad_row_text_resources(root)
     if not isinstance(resources, OriginalSquadRowTextResources):
         raise AssertionError("unexpected Squad row text resource type")
+    return resources
+
+
+def fake_squad_status_resources():
+    root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+    resources = load_verified_squad_status_resources(root)
+    if not isinstance(resources, OriginalSquadStatusResources):
+        raise AssertionError("unexpected Squad status resource type")
     return resources
 
 
@@ -1235,6 +1250,41 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertLess(item[0], left + 19)
             self.assertGreaterEqual(item[1], 234)
             self.assertLess(item[1], 248)
+
+    def test_squad_landing_draws_only_override_safe_native_status_icon(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            squad_row_text_resources=fake_squad_row_text_resources(),
+            squad_status_resources=fake_squad_status_resources(),
+        )
+        row = SimpleNamespace(
+            y=154,
+            assigned_role_abbreviation="FC",
+            assigned_role_rgb=(255, 255, 255),
+            display_name="P. 0",
+            display_name_rgb=(255, 255, 255),
+            condition=88,
+            recent_form_average=7.0,
+            current_role_rating=63,
+            native_status_frame_index=0,
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=squad_view_transition(3),
+                squad=SimpleNamespace(rows=(row,)),
+            )
+        )
+
+        count = host._draw_squad_rows(frame)
+
+        self.assertEqual(count, 6)
+        self.assertEqual(len(host.canvas.images), 6)
+        self.assertEqual(host.canvas.images[-1][:2], (277, 234))
+        status_photo = host.canvas.images[-1][2]["image"]
+        self.assertEqual((status_photo.width, status_photo.height), (18, 14))
 
     def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
