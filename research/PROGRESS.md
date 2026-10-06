@@ -12137,3 +12137,26 @@ continues with ordinary Squad row display-name/color helpers.
   Gate-14 source task is the remaining PPreMatch text/team/player identity
   controls and cross-layer setup/draw order; management-to-match launch remains
   fail-closed.
+
+
+## 7 October 2026 KST — Recovery 368 PPreMatch identity-control checkpoint
+
+- Re-materialized and hash-verified canonical `footballmanager.exe`
+  (`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+  from the authorized 511,121,336-byte private source archive.
+- Source-closed exact pre-match date format `%Df %Mf %Yf` into panel
+  `+0x70` and the weather/temperature-line format `%s %d°C` into
+  `+0x270`. The five weather-condition language identities remain neutral.
+- Source-closed team-badge presentation through
+  `FM2001_art\\generic\\team_badge_stills`, variant `badge_2`, with
+  canonical `...\\generic.444` fallback; source resource members are
+  `+0x600/+0x624` and resolved active controls `+0x840/+0x890`.
+- Source-closed two 18-player identity banks, with source match count/array
+  offsets `0x5A4/0x004` and `0xB54/0x5B4`; the first 11 slots are the
+  starting-XI region and indices 11..17 use the alternate row state.
+- Proved player display-name helpers `0x417A90/0x417AE0` and exact canonical
+  full-name format `%s %s` at VA `0x81858C`.
+- Added neutral identity/text contract constants and regressions on
+  `chatgpt/gate14-prematch-identity-r368`. Unresolved competition/weather
+  captions, rating captions, cross-layer draw order, management launch and
+  missing 3D presentation remain fail-closed.
