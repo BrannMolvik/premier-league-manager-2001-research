@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 362: Gate 13 remains externally blocked on Daniel Windows acceptance of artifact 11418314765. Canonical main is 1f1402c8987edf64213f23d60f1699563eecca3a. Gate-14 work-ahead exact task: recover PPreMatchPanel resource bindings, layout, and four-choice selector geometry/labels from canonical executable and authorized FM2001_Art/Generic/pre_match assets; then implement only the source-proven pre-match presentation seam. Keep the management-to-match launch trigger unrecovered and fail-closed.",
-  "last_known_main_head": "1f1402c8987edf64213f23d60f1699563eecca3a",
+  "active_task": "Recovery 362: Gate 13 remains externally blocked on Daniel Windows acceptance of artifact 11418314765. Main checkpoint b3680c6cffefc224215a54abcf9790b62bf46c71 source-closes PPreMatchPanel selector geometry and core original pre_match asset bindings. Exact next task: inspect existing EA444 import/derivative and production presentation-host paths, then integrate only the source-proven pre-match selector/static geometry with original assets. Keep management-to-match launch unrecovered/fail-closed.",
+  "last_known_main_head": "b3680c6cffefc224215a54abcf9790b62bf46c71",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 362,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 362: resuming PPreMatchPanel source/resource/layout trace from canonical main 1f1402c8.",
+  "note": "Recovery 362: PPreMatchPanel source correlation checkpointed; integrating into existing presentation path next.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
