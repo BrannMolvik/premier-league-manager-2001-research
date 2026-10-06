@@ -10,8 +10,11 @@ from gate14_fastview_surfaced_picture_selection import (
 from gate14_fastview_surfaced_resource_loader import (
     VerifiedFastViewSurfacedResource,
 )
+from gate14_prematch_rating_widths import PrematchTeamRatingWidths
 from gate14_prematch_surface import (
+    BoundPrematchRatingRows,
     PrematchSurfaceBoundary,
+    bind_prematch_rating_widths,
     build_verified_prematch_surface_boundary,
     prematch_surface_contract,
 )
@@ -208,6 +211,84 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertFalse(boundary.complete_prematch_frame)
         self.assertFalse(boundary.gate14_complete)
 
+    def test_state_binding_uses_exact_left_growth_and_right_mirroring(self):
+        selection = self._selection()
+        background = VerifiedFastViewSurfacedResource(
+            role="background",
+            source_path=selection.background_source_candidates[0],
+            byte_size=1,
+            sha256="0" * 64,
+            geometry=(800, 600),
+            rgba=bytes(800 * 600 * 4),
+            transparent_pixels=0,
+        )
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_selected_background",
+                return_value=background,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=self.clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        left = PrematchTeamRatingWidths(169, 120, 80, 40)
+        right = PrematchTeamRatingWidths(17, 34, 51, 68)
+        bound = bind_prematch_rating_widths(
+            boundary,
+            left_widths=left,
+            right_widths=right,
+        )
+
+        self.assertIsInstance(bound, BoundPrematchRatingRows)
+        self.assertEqual(
+            tuple(
+                (
+                    row.semantic_group,
+                    row.left_width,
+                    row.right_width,
+                    (
+                        row.left_dynamic_rect.x,
+                        row.left_dynamic_rect.y,
+                        row.left_dynamic_rect.width,
+                        row.left_dynamic_rect.height,
+                    ),
+                    (
+                        row.right_dynamic_rect.x,
+                        row.right_dynamic_rect.y,
+                        row.right_dynamic_rect.width,
+                        row.right_dynamic_rect.height,
+                    ),
+                )
+                for row in bound.rows
+            ),
+            (
+                ("goalkeeper", 169, 17, (65, 497, 169, 16), (718, 497, 17, 16)),
+                ("defence", 120, 34, (65, 515, 120, 16), (701, 515, 34, 16)),
+                ("midfield", 80, 51, (65, 533, 80, 16), (684, 533, 51, 16)),
+                ("attack", 40, 68, (65, 551, 40, 16), (667, 551, 68, 16)),
+            ),
+        )
+        self.assertTrue(bound.source_state_bound)
+        self.assertTrue(bound.native_mirroring_preserved)
+        self.assertFalse(bound.complete_prematch_frame)
+        self.assertFalse(bound.gate14_complete)
+
     def test_contract_keeps_all_unresolved_claims_fail_closed(self):
         contract = prematch_surface_contract()
         self.assertEqual(contract["native_surface"], (800, 600))
@@ -216,6 +297,8 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["selector_modes"], (0, 1, 2, 3))
         self.assertEqual(contract["selector_events"], (4, 3, 2, 1))
         self.assertEqual(contract["rating_discriminators"], (3, 0, 1, 2))
+        self.assertTrue(contract["rating_width_binding_available"])
+        self.assertFalse(contract["rating_dynamic_widths_bound_by_resource_loader"])
         self.assertFalse(contract["rating_dynamic_widths_bound_to_cleanroom_state"])
         self.assertFalse(contract["full_cross_layer_draw_order_recovered"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
