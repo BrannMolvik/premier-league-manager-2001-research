@@ -150,6 +150,33 @@ PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA = 0x5D3510
 PREMATCH_LIVE_BACKGROUND_WRAPPER_OFFSET = 0x6B4
 PREMATCH_LIVE_BACKGROUND_CACHE_OFFSET = 0x6D4
 
+# Source-closed PPreMatch identity/text contracts recovered from the canonical
+# executable.  Keep the two match sides neutral here: their structural halves
+# are proven, while presentation naming belongs to the higher-level match model.
+PREMATCH_DATE_FORMAT = "%Df %Mf %Yf"
+PREMATCH_DATE_FORMAT_VA = 0x81D5B8
+PREMATCH_DATE_BUFFER_OFFSET = 0x70
+PREMATCH_TEMPERATURE_FORMAT = "%s %d°C"
+PREMATCH_TEMPERATURE_FORMAT_VA = 0x81D5B0
+PREMATCH_TEMPERATURE_BUFFER_OFFSET = 0x270
+
+PREMATCH_TEAM_BADGE_ROOT = r"FM2001_art\generic\team_badge_stills"
+PREMATCH_TEAM_BADGE_VARIANT_KEY = "badge_2"
+PREMATCH_TEAM_BADGE_FALLBACK = (
+    r"fm2001_art\generic\team_badge_stills\generic.444"
+)
+PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS = (0x600, 0x624)
+PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS = (0x840, 0x890)
+
+PREMATCH_PLAYER_SLOTS_PER_SIDE = 18
+PREMATCH_STARTERS_PER_SIDE = 11
+PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS = (0x5A4, 0xB54)
+PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS = (0x004, 0x5B4)
+PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA = 0x417A90
+PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA = 0x417AE0
+PREMATCH_PLAYER_FULL_NAME_FORMAT = "%s %s"
+PREMATCH_PLAYER_FULL_NAME_FORMAT_VA = 0x81858C
+
 PREMATCH_SELECTORS = (
     PrematchSelectorSpec(
         MatchDetailMode.THREE_D_MATCH,
@@ -396,6 +423,26 @@ def prematch_panel_contract() -> dict:
         ),
         "live_background_builder_va": PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
         "live_background_source_accessor_va": PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA,
+        "date_format": PREMATCH_DATE_FORMAT,
+        "date_format_va": PREMATCH_DATE_FORMAT_VA,
+        "date_buffer_offset": PREMATCH_DATE_BUFFER_OFFSET,
+        "temperature_format": PREMATCH_TEMPERATURE_FORMAT,
+        "temperature_format_va": PREMATCH_TEMPERATURE_FORMAT_VA,
+        "temperature_buffer_offset": PREMATCH_TEMPERATURE_BUFFER_OFFSET,
+        "team_badge_root": PREMATCH_TEAM_BADGE_ROOT,
+        "team_badge_variant_key": PREMATCH_TEAM_BADGE_VARIANT_KEY,
+        "team_badge_fallback": PREMATCH_TEAM_BADGE_FALLBACK,
+        "team_badge_resource_offsets": PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS,
+        "team_badge_active_offsets": PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS,
+        "player_slots_per_side": PREMATCH_PLAYER_SLOTS_PER_SIDE,
+        "starters_per_side": PREMATCH_STARTERS_PER_SIDE,
+        "side_player_count_match_offsets": PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS,
+        "side_player_array_match_offsets": PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS,
+        "player_name_length_function_va": PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA,
+        "player_name_format_function_va": PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
+        "player_full_name_format": PREMATCH_PLAYER_FULL_NAME_FORMAT,
+        "player_full_name_format_va": PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+        "identity_controls_source_closed": True,
         "shipped_prematch_background_path": PREMATCH_SHIPPED_BACKGROUND.source_path,
         "shipped_prematch_background_is_live_panel_background": False,
         "rating_rows": tuple(
