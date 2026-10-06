@@ -14,10 +14,12 @@ from original_squad_status import (
     ORDINARY_STATUS_FRAME_COUNT,
     SOURCE_DIMENSIONS,
     SOURCE_PATH,
+    SOURCE_QUALIFIED_STATUS_FRAME_INDICES,
     STATUS_DEFINITION_TEXT,
     OriginalSquadStatusError,
     build_first_roster_direct_status_overlays,
     direct_squad_status_frame_index,
+    source_qualified_squad_status_frame_index,
     load_verified_squad_status_resources,
     validate_original_squad_status_atlas,
 )
@@ -95,6 +97,65 @@ class OriginalSquadStatusTests(unittest.TestCase):
                 injured=False,
                 banned=False,
                 international=False,
+            )
+        )
+
+    def test_source_qualified_status_priority_keeps_unresolved_non_eu_fail_closed(self):
+        self.assertEqual(
+            SOURCE_QUALIFIED_STATUS_FRAME_INDICES,
+            (0, 1, 2, 3, 13),
+        )
+        self.assertEqual(
+            source_qualified_squad_status_frame_index(
+                injured=True,
+                banned=True,
+                international=True,
+                alternate_on_loan=True,
+                non_eu=True,
+                cup_tied_positive=True,
+            ),
+            0,
+        )
+        self.assertEqual(
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=True,
+                non_eu=True,
+                cup_tied_positive=True,
+            ),
+            ON_LOAN_ALTERNATE_FRAME_INDEX,
+        )
+        self.assertIsNone(
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=False,
+                non_eu=True,
+                cup_tied_positive=True,
+            )
+        )
+        self.assertEqual(
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=False,
+                non_eu=False,
+                cup_tied_positive=True,
+            ),
+            3,
+        )
+        self.assertIsNone(
+            source_qualified_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+                alternate_on_loan=False,
+                non_eu=False,
+                cup_tied_positive=False,
             )
         )
 
