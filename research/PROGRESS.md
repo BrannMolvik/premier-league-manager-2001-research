@@ -11602,3 +11602,28 @@ asset-policy and Windows-package workflows passed.
 Gate 13 remains open pending merged-head verification plus Daniel's
 human-visible/audible Windows 11 acceptance. Independent cloud-safe work
 continues with ordinary Squad row display-name/color helpers.
+
+
+## 6 October 2026 KST — Recovery 332 Squad row text/color continuation
+
+- PR #489 merged as `1a24b456f763a8f8899b2eb940a8316bf35aef2b`.
+- Canonical executable analysis closed ordinary `PSquadPlayerRow` display-name
+  formatting, five native selection-color branches, the exact 18px Zurich font,
+  and preferred-role color selection.
+- The live fresh Squad host now draws source-formatted first-roster player names
+  at the native `(76,1,144,14)` row control. First-team active/substitute
+  colors are rendered when proven; names whose color depends on the still
+  unmodeled reserve `+0x174` flags are withheld instead of guessed.
+- PR #489 final-head validation passed full reconstruction `37399160903`,
+  Gate-13 presentation `37399160894`, Windows package `37399160807`, and
+  repository asset-policy `37399160815`.
+- Follow-up private analysis proves the assigned-role control reads runtime
+  Position record `+0x0C`, which is the second localized string field and
+  corresponds to the original parsed `Position.abbreviation`. The role control
+  is centered in native `(28,1,38,14)` with the same 18px Zurich font.
+- Recovery-332 implementation now projects that abbreviation from
+  `state.positions` and rasterizes it using the exact source RGB branch:
+  preferred role `(255,255,255)`, out-of-position `(0,0,125)`.
+- Native packed-16 display masks, reserve selection colors, status icon meaning,
+  and club-relative assignment remain explicitly unresolved. Gate 13 remains
+  open for the real Windows 11 playability/visual acceptance required by #482.
