@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 368: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 222a6bd80399c4b0cccb742a38178640c1ac31ab. PPreMatch source asset surface and native goalkeeper/defence/midfield/attack rating widths are merged and green. Exact Gate-14 task: recover remaining PPreMatchPanel text/team/player identity controls and cross-layer setup/draw order required for a complete native pre-match frame; keep management-to-match launch, unresolved 3D presentation, and Gate 14 completion fail-closed.",
+  "active_task": "Recovery 369: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 222a6bd80399c4b0cccb742a38178640c1ac31ab. Continue the exact Gate-14 work-ahead task: recover remaining PPreMatchPanel text/team/player identity controls and cross-layer setup/draw order required for a complete native pre-match frame; keep management-to-match launch, unresolved 3D presentation, and Gate 14 completion fail-closed.",
   "last_known_main_head": "222a6bd80399c4b0cccb742a38178640c1ac31ab",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 368,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 368: continuing PPreMatch text/team/player identity and setup/draw-order trace from canonical 222a6bd.",
+  "recovery_generation": 369,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 369: resumed from fresh-chat fallback after no repository progress; continuing PPreMatch text/team/player identity and setup/draw-order trace from canonical 222a6bd.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
