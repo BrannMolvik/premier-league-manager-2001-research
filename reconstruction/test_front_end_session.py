@@ -169,6 +169,48 @@ class FrontEndSessionTests(unittest.TestCase):
         self.assertIs(session.navigation.screen, FrontEndScreen.START_MENU)
         self.assertIsNone(session.gameplay)
 
+    def test_catalog_failure_never_enters_team_select(self):
+        def failing_catalog():
+            raise OSError("canonical catalog unavailable")
+
+        session = FrontEndSession(
+            lambda: StubGameplay(),
+            team_select_catalog_factory=failing_catalog,
+            gameplay_from_catalog_factory=lambda catalog: StubGameplay(),
+        )
+
+        with self.assertRaisesRegex(OSError, "canonical catalog unavailable"):
+            session.dispatch(StartMenuControl.NEW_GAME)
+
+        self.assertIs(session.navigation.screen, FrontEndScreen.START_MENU)
+        self.assertIsNone(session.team_select_catalog)
+        self.assertIsNone(session.gameplay)
+        self.assertFalse(session.started)
+
+    def test_deferred_gameplay_failure_leaves_team_select_retryable(self):
+        catalog = object()
+
+        def failing_gameplay(source):
+            self.assertIs(source, catalog)
+            raise RuntimeError("world build failed")
+
+        session = FrontEndSession(
+            lambda: StubGameplay(),
+            team_select_catalog_factory=lambda: catalog,
+            gameplay_from_catalog_factory=failing_gameplay,
+        )
+        session.dispatch(StartMenuControl.NEW_GAME)
+        session.choose_club(12)
+
+        with self.assertRaisesRegex(RuntimeError, "world build failed"):
+            session.dispatch(TeamSelectControl.START_CONTINUE)
+
+        self.assertIs(session.navigation.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertIs(session.team_select_catalog, catalog)
+        self.assertIsNone(session.gameplay)
+        self.assertEqual(session.selected_club_ids, (12,))
+        self.assertFalse(session.started)
+
     def test_duplicate_start_and_out_of_context_choice_fail(self):
         session, backends = self.new_session()
         with self.assertRaises(FrontEndSessionError):
@@ -184,24 +226,71 @@ class FrontEndSessionTests(unittest.TestCase):
             session.choose_club(12)
         self.assertEqual(backends[0].selections, [12])
 
-    def test_canonical_game_directory_is_lazily_passed_to_real_backend_factory(self):
-        requested = []
-        fake_module = types.ModuleType("human_gameplay")
+    def test_canonical_new_game_builds_catalog_and_defers_heavy_gameplay_until_start(self):
+        verified = []
+        parsed = []
+        gameplay_builds = []
+
+        fake_verify = types.ModuleType("verify")
+        fake_data = types.ModuleType("fm2001_data")
+        fake_gameplay = types.ModuleType("human_gameplay")
+
+        def verify_canonical_files(game_dir):
+            verified.append(Path(game_dir))
+
+        class FakeDatabase:
+            def __init__(self, game_dir):
+                self.game_dir = Path(game_dir)
+                self.countries = ()
+                self.competitions = ()
+                self.clubs = ()
+                parsed.append(self)
 
         class FakeController:
             @classmethod
             def from_canonical_game_dir(cls, game_dir):
-                requested.append(game_dir)
+                raise AssertionError("New Game must not construct the heavy controller")
+
+            @classmethod
+            def from_verified_canonical_database(cls, game_dir, database):
+                gameplay_builds.append((Path(game_dir), database))
                 return StubGameplay()
 
-        fake_module.HumanGameplayController = FakeController
+        fake_verify.verify_canonical_files = verify_canonical_files
+        fake_data.FM2001Database = FakeDatabase
+        fake_gameplay.HumanGameplayController = FakeController
 
-        with patch.dict(sys.modules, {"human_gameplay": fake_module}):
+        with patch.dict(
+            sys.modules,
+            {
+                "verify": fake_verify,
+                "fm2001_data": fake_data,
+                "human_gameplay": fake_gameplay,
+            },
+        ):
             session = FrontEndSession.for_canonical_game_dir("/canonical/game")
-            self.assertEqual(requested, [])
+            self.assertEqual(verified, [])
+            self.assertEqual(parsed, [])
+            self.assertEqual(gameplay_builds, [])
+
             session.dispatch(StartMenuControl.NEW_GAME)
 
-        self.assertEqual(requested, [Path("/canonical/game")])
+            self.assertEqual(verified, [Path("/canonical/game")])
+            self.assertEqual(len(parsed), 1)
+            self.assertIs(session.team_select_catalog, parsed[0])
+            self.assertIsNone(session.gameplay)
+            self.assertEqual(gameplay_builds, [])
+            self.assertIs(session.navigation.screen, FrontEndScreen.TEAM_SELECT)
+
+            session.choose_club(12)
+            session.dispatch(TeamSelectControl.START_CONTINUE)
+
+        self.assertEqual(
+            gameplay_builds,
+            [(Path("/canonical/game"), parsed[0])],
+        )
+        self.assertIsNotNone(session.gameplay)
+        self.assertTrue(session.started)
 
 
 if __name__ == "__main__":

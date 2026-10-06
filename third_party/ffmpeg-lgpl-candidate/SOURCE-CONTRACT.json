@@ -26,11 +26,12 @@
     "source_commit": "46d8f462eeb87ee1f704d8c44a0ee24fca471ad1",
     "license_file": "COPYING.LGPLv2.1",
     "platform": "win64",
-    "third_party_library_policy": "No --enable-lib* flags; --disable-autodetect is mandatory. Windows Media Foundation and the native w32threads backend must be explicitly re-enabled after autodetection is disabled.",
+    "third_party_library_policy": "No --enable-lib* flags; --disable-autodetect is mandatory. Windows Media Foundation, D3D11VA, and the native w32threads backend must be explicitly re-enabled after autodetection is disabled.",
     "configure_args": [
       "--disable-everything",
       "--disable-autodetect",
       "--enable-mediafoundation",
+      "--enable-d3d11va",
       "--enable-w32threads",
       "--enable-ffmpeg",
       "--enable-ffprobe",
@@ -91,6 +92,11 @@
     "required_protocols": [
       "file",
       "pipe"
+    ],
+    "required_windows_platform_components": [
+      "mediafoundation",
+      "d3d11va",
+      "w32threads"
     ]
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."

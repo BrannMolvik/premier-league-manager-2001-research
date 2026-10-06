@@ -61,11 +61,14 @@ class FakePlayer:
     loan_club_id: int | None = None
     injured: bool = False
     suspended: bool = False
+    selection_excluded: bool = False
     out_of_contract: bool = False
     transfer_listed: bool = False
     loan_listed: bool = False
     wanted: bool = False
     current_position: int = 0
+    match_active: bool = False
+    match_substitute_available: bool = False
     training_modifiers: list[int] = field(
         default_factory=lambda: [0] * 17
     )
@@ -159,6 +162,13 @@ class FakeState:
                 aggression=7,
             )
         }
+        self.positions = {
+            index: SimpleNamespace(abbreviation=label)
+            for index, label in enumerate(
+                ("GK", "SW", "DR", "DL", "DC", "DM", "MR", "ML", "MC",
+                 "AMR", "AML", "AMC", "FC")
+            )
+        }
         # Deliberately Beta first: represents the backend's already recovered
         # native-comparator order, which the bridge must not second-guess.
         self._table = (
@@ -191,11 +201,13 @@ class FakeController:
             FakePlayer(
                 202, "Second", "Source", 9, (4, 0, 0),
                 91, 3, 88, transfer_listed=True,
+                match_substitute_available=True,
             ),
             FakePlayer(
                 101, "First", "Source", 1, (0, 1, 0),
                 77, 2, 92, injured=True, suspended=True,
                 out_of_contract=True, loan_listed=True, wanted=True,
+                match_active=True,
             ),
         )
         self.state.players = {player.index: player for player in self._squad}
@@ -461,25 +473,127 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
 
         self.assertEqual(
             (
-                second.full_name, second.shirt_number, second.positions,
-                second.current_position, second.match_unavailable,
+                second.first_name, second.surname, second.full_name,
+                second.shirt_number, second.positions,
+                second.current_position, second.assigned_role_abbreviation,
+                second.match_active,
+                second.match_substitute_available, second.match_unavailable,
                 second.condition, second.form_state,
                 second.recent_form_average, second.current_role_rating,
                 second.morale,
             ),
-            ("Second Source", 9, (4, 0, 0), 0, False, 91, 3, 2.5, 40, 88),
+            (
+                "Second", "Source", "Second Source", 9, (4, 0, 0), 0, "GK",
+                False, True, False, 91, 3, 2.5, 40, 88,
+            ),
         )
         self.assertTrue(second.transfer_listed)
         self.assertFalse(second.injured)
         self.assertEqual(
-            (first.full_name, first.condition, first.form_state, first.morale),
-            ("First Source", 77, 2, 92),
+            (
+                first.first_name, first.surname, first.full_name,
+                first.condition, first.form_state, first.morale,
+                first.assigned_role_abbreviation,
+                first.match_active, first.match_substitute_available,
+            ),
+            ("First", "Source", "First Source", 77, 2, 92, "GK", True, False),
         )
         self.assertTrue(first.injured)
         self.assertTrue(first.suspended)
+        self.assertFalse(first.international)
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_squad_status_projection_keeps_loan_and_non_eu_priority_inputs_exact(self):
+        controller = FakeController()
+        controller._squad[0].loan_club_id = 99
+        controller._squad[1].non_eu = True
+
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+
+        self.assertTrue(second.alternate_on_loan)
+        self.assertFalse(second.non_eu)
+        self.assertFalse(second.cup_tied_positive)
+        self.assertFalse(first.alternate_on_loan)
+        self.assertTrue(first.non_eu)
+        self.assertFalse(first.non_eu_registration_expired)
+        self.assertFalse(first.cup_tied_positive)
+
+    def test_squad_non_eu_registration_expiry_precedes_cup_tied_but_current_cutoff_does_not(self):
+        controller = FakeController()
+        entry = ("domestic_cup", ("round", 4, 0))
+        controller.pending_primary_entry = entry
+        controller.state.primary_matchday_order = {
+            controller.state.calendar.current_date: (entry,)
+        }
+        controller._primary_entry_clubs = lambda candidate: (10, 11)
+        controller._primary_entry_competition_id = lambda candidate: 25
+        controller.state.is_player_cup_tied = (
+            lambda competition_id, player_id, current_club_id:
+            competition_id == 25
+            and player_id == 101
+            and current_club_id == 10
+        )
+
+        controller._squad[1].non_eu = True
+        controller._squad[1].contract_expiry_date = date(2000, 8, 19)
+        _second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertTrue(first.non_eu_registration_expired)
+        self.assertFalse(first.cup_tied_positive)
+
+        controller._squad[1].contract_expiry_date = date(2002, 6, 30)
+        _second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertFalse(first.non_eu_registration_expired)
+        self.assertTrue(first.cup_tied_positive)
+
+        controller._squad[1].contract_expiry_date = None
+        _second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertIsNone(first.non_eu_registration_expired)
+        self.assertFalse(first.cup_tied_positive)
+
+    def test_squad_positive_cup_tied_requires_pending_entry_in_todays_primary_order(self):
+        controller = FakeController()
+        entry = ("domestic_cup", ("round", 4, 0))
+        controller.pending_primary_entry = entry
+        controller.state.primary_matchday_order = {
+            controller.state.calendar.current_date: (entry,)
+        }
+        controller._primary_entry_clubs = lambda candidate: (10, 11)
+        controller._primary_entry_competition_id = lambda candidate: 25
+        controller.state.is_player_cup_tied = (
+            lambda competition_id, player_id, current_club_id:
+            competition_id == 25
+            and player_id == 101
+            and current_club_id == 10
+        )
+
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+
+        self.assertFalse(second.cup_tied_positive)
+        self.assertTrue(first.cup_tied_positive)
+
+        controller.state.primary_matchday_order = {}
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertFalse(second.cup_tied_positive)
+        self.assertFalse(first.cup_tied_positive)
+
+    def test_squad_role_abbreviation_requires_source_position_table(self):
+        controller = FakeController()
+        controller.state.positions = {}
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "original abbreviation",
+        ):
+            ManagementSourceDataBridge(controller).squad_rows()
+
+        controller = FakeController()
+        controller.state.positions[0] = SimpleNamespace(abbreviation="")
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "original abbreviation",
+        ):
+            ManagementSourceDataBridge(controller).squad_rows()
 
     def test_squad_presentation_contract_preserves_native_roster_selection_state(self):
         contract = ManagementSourceDataBridge.squad_presentation_contract()

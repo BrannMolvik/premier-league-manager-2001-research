@@ -25,7 +25,7 @@ contracts.
 The coordinator:
 
 1. runs the existing startup-media acceptance audit;
-2. requires its explicit human `YES-BOTH` confirmation;
+2. requires its explicit human `YES-GAME-WINDOW` confirmation;
 3. runs the existing production-host bound-audio acceptance audit;
 4. requires its explicit human `YES-HEARD` confirmation;
 5. validates that both child receipts describe the same Windows client;
@@ -42,7 +42,7 @@ release-looking evidence.
 
 ## Deliberate evidence separation
 
-The child receipts remain the evidence:
+The child receipts remain the evidence. Startup evidence must be schema 2 and name the exact `WindowsWpfStartupMediaBackend`; schema-1/MCI receipts are rejected:
 
 - `startup_media.json`;
 - `bound_first_screen_audio.json`.

@@ -148,6 +148,51 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
         self.assertEqual(model.selected_club_ids, (1,))
         self.assertIs(model.club_rows()[0].state, NativeControlState.NORMAL)
 
+    def test_catalog_projection_matches_game_state_projection(self):
+        country_order = (
+            (26, "England"), (66, "Scotland"), (33, "Germany"),
+            (40, "Italy"), (73, "Spain"), (31, "France"),
+            (24, "Holland"), (9, "Belgium"),
+        )
+        country_rows = tuple(country(key, name) for key, name in country_order)
+        competitions = (
+            competition(0, "F.A. Premier League", 9),
+            competition(2, "Division 1", 10),
+            competition(3, "Division 2", 11),
+            competition(4, "Division 3", 12),
+            competition(7, "Conference", 13),
+        )
+        clubs = (
+            club(5, "Chelsea"),
+            club(0, "Arsenal"),
+            club(1, "Aston Villa"),
+        )
+        catalog = SimpleNamespace(
+            countries=country_rows,
+            competitions=competitions,
+            clubs=clubs,
+        )
+        state = SimpleNamespace(
+            countries={item.id: item for item in country_rows},
+            competitions={item.id: item for item in competitions},
+            clubs={item.index: item for item in clubs},
+        )
+
+        from_catalog = TeamSelectHierarchyModel.from_catalog(catalog)
+        from_state = TeamSelectHierarchyModel.from_game_state(state)
+
+        self.assertEqual(from_catalog.hierarchy_rows(), from_state.hierarchy_rows())
+        self.assertEqual(from_catalog.club_rows(), from_state.club_rows())
+
+    def test_catalog_projection_fails_closed_without_required_record_families(self):
+        with self.assertRaisesRegex(
+            TeamSelectNativeError,
+            "missing canonical countries/competitions/clubs",
+        ):
+            TeamSelectHierarchyModel.from_catalog(
+                SimpleNamespace(countries=(), competitions=(), clubs=())
+            )
+
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
             (26, "England"), (66, "Scotland"), (33, "Germany"),

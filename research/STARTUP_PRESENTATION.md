@@ -158,6 +158,50 @@ launch
 
 The intro FMV itself is therefore **not a reconstruction risk**. The remaining work is integration and exact startup/skip/transition behavior.
 
+## Recovery 322: native FMV surface/display geometry recovered
+
+A fresh private-source trace on 6 October 2026 used the exact canonical
+`footballmanager.exe` SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`,
+recovered again from the authorized real disc image.
+
+The lower startup movie routine `0x461900` does **not** present the encoded
+320 x 480 TGQ stream as a narrow 2:3 image. It creates a fixed **640 x 480**
+movie surface:
+
+- `0x461A2C` pushes height `0x1E0` (480);
+- `0x461A31` pushes width `0x280` (640);
+- `0x461A37` calls the DirectDraw surface creation helper `0x6555D0`;
+- the returned movie surface is stored at `0x876648`.
+
+Before playback, `0x461900` asks display-mode getter `0x615600` for the
+active game mode and computes centered offsets around that fixed movie size:
+
+- mode 0: active display 640 x 480 -> offset **(0, 0)**;
+- mode 1: active display 800 x 600 -> offset **(80, 60)**.
+
+The frame-present callback at `0x461CD0` then constructs:
+
+- source rectangle **(0, 0)-(640, 480)** on the movie surface;
+- destination rectangle **(x, y)-(x+640, y+480)** on the active game display;
+- a DirectDraw-style blit from the former to the latter.
+
+Therefore the original ordinary 800 x 600 presentation is confirmed as a
+**640 x 480 movie rectangle centered inside the game-owned display at
+(80, 60)**. The current Windows WPF backend's separate maximized window plus
+`MediaElement.Stretch=Uniform` preserves the encoded 320:480 aspect ratio and
+is not faithful to this recovered original geometry.
+
+The exact pixel-scaling/interpolation method used by the legacy movie decoder
+to populate the 640 x 480 movie surface from the encoded 320 x 480 TGQ frame is
+**still unresolved**. A 2x horizontal expansion is required by the recovered
+geometry, but nearest-neighbor duplication, filtering/interpolation, and any
+interlace-specific treatment must not be claimed without further evidence.
+
+This finding also strengthens the integration boundary: the original movie is
+presented through the game's own display surface rather than as an independent
+top-level player window.
+
 ## Still to investigate
 
 - exact input event(s) that skip `PREMINTRO.TGQ`;
@@ -165,4 +209,4 @@ The intro FMV itself is therefore **not a reconstruction risk**. The remaining w
 - whether any startup configuration disables FMVs and how that option is exposed;
 - separate menu/login music after the FMVs;
 - audio-bank contents and startup/menu sound-effect mapping;
-- whether the original 320 x 480 stream expects a particular display/interlace treatment that should be reproduced rather than naively stretched.
+- exact legacy 320 x 480 -> 640 x 480 pixel-scaling/interpolation and any interlace-specific treatment inside the movie surface. The 640 x 480 centered display geometry itself is now confirmed.

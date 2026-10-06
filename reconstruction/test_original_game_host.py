@@ -32,7 +32,10 @@ from original_league_tables_resources import (
 )
 from gate13_original_pixel_preview import encode_rgba_png
 from original_game_host import (
+    DEFAULT_PSTARTMENU_DERIVATIVE_ROOT,
     DEFAULT_SOURCE_ROOT,
+    PSTARTMENU_DERIVATIVE_DECODER,
+    PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
     OriginalGameHostError,
     OriginalGameTkHost,
     build_original_game_presenter,
@@ -54,6 +57,14 @@ from original_pmatchinfo_resources import (
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_resources import squad_view_transition
+from original_squad_status import (
+    OriginalSquadStatusResources,
+    load_verified_squad_status_resources,
+)
+from original_squad_row_style import (
+    OriginalSquadRowTextResources,
+    load_verified_squad_row_text_resources,
+)
 from original_squad_top_controls import OriginalSquadTopResources
 
 from original_teamselect_resources import assemble_original_teamselect_inputs
@@ -74,11 +85,20 @@ class StubBackend:
 class Row:
     source_roster_index: int
     player_id: int
+    first_name: str
+    surname: str
     full_name: str
+    positions: tuple[int, int, int] = (12, 4, 7)
     current_position: int = 12
+    assigned_role_abbreviation: str = "FC"
+    match_active: bool = True
+    match_substitute_available: bool = False
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
+    injured: bool = False
+    suspended: bool = False
+    international: bool = False
 
 
 class Bridge:
@@ -89,7 +109,7 @@ class Bridge:
         return ClubHeaderView(12, "Source Club", "Source", date(2000, 8, 1))
 
     def squad_rows(self):
-        return (Row(0, 1000, "Player 0"),)
+        return (Row(0, 1000, "Player", "0", "Player 0"),)
 
     def league_fixtures_grid_source(self):
         return LeagueFixturesGridSourceView(
@@ -132,6 +152,22 @@ def fake_squad_top_resources():
         ),
         font,
     )
+
+
+def fake_squad_row_text_resources():
+    root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+    resources = load_verified_squad_row_text_resources(root)
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise AssertionError("unexpected Squad row text resource type")
+    return resources
+
+
+def fake_squad_status_resources():
+    root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+    resources = load_verified_squad_status_resources(root)
+    if not isinstance(resources, OriginalSquadStatusResources):
+        raise AssertionError("unexpected Squad status resource type")
+    return resources
 
 
 class FakeHeaderFont:
@@ -468,26 +504,36 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertTrue(root.values["destroyed"])
         self.assertEqual(host.last_status, "QUIT_TO_WINDOWS")
 
-    def test_management_resources_are_loaded_only_on_explicit_management_boundary(self):
+    def test_management_resources_are_route_scoped_and_cached_once(self):
         calls = []
-        payload = {
-            "management_pmenu_resources": object(),
-            "league_fixtures_grid_art": object(),
-            "fixtures_pager_art": object(),
-            "squad_top_resources": object(),
-            "league_tables_header_art": object(),
-            "pmatchinfo_snapshot": object(),
-            "pmatchinfo_font": object(),
-            "pmatchinfo_nested_font": object(),
-            "pmatchinfo_script_art": object(),
-            "management_background": object(),
-            "management_header_resources": object(),
-            "management_text_resources": object(),
+        payloads = {
+            "squad": {
+                "management_pmenu_resources": object(),
+                "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
+                "squad_status_resources": object(),
+                "management_background": object(),
+                "management_header_resources": object(),
+            },
+            "fixtures": {
+                "league_fixtures_grid_art": object(),
+                "fixtures_pager_art": object(),
+                "pmatchinfo_snapshot": object(),
+                "pmatchinfo_font": object(),
+                "pmatchinfo_nested_font": object(),
+                "pmatchinfo_script_art": object(),
+                "_fixture_resource_names": ("fixture-grid",),
+            },
+            "league_tables": {
+                "league_tables_header_art": object(),
+                "management_text_resources": object(),
+                "_league_table_resource_names": ("league-table",),
+            },
         }
 
-        def loader():
-            calls.append("load")
-            return payload
+        def loader(family):
+            calls.append(family)
+            return payloads[family]
 
         host = OriginalGameTkHost(
             presenter(),
@@ -498,34 +544,157 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(calls, [])
         self.assertFalse(host._management_resources_loaded)
 
-        host._ensure_management_resources()
-        self.assertEqual(calls, ["load"])
+        host._ensure_management_resources("squad")
+        self.assertEqual(calls, ["squad"])
         self.assertTrue(host._management_resources_loaded)
-        host._ensure_management_resources()
-        self.assertEqual(calls, ["load"])
-        for name, value in payload.items():
-            self.assertIs(getattr(host, name), value)
+        self.assertEqual(host._management_resource_families_loaded, {"squad"})
+        self.assertIsNone(host.league_fixtures_grid_art)
+        self.assertIsNone(host.fixtures_pager_art)
+        self.assertIsNone(host.league_tables_header_art)
+        self.assertIsNone(host.pmatchinfo_snapshot)
+        self.assertIsNone(host.management_text_resources)
 
-    def test_teamselect_start_defers_management_resource_decode_off_tk_thread(self):
+        host._ensure_management_resources("squad")
+        self.assertEqual(calls, ["squad"])
+
+        host._ensure_management_resources("fixtures")
+        self.assertEqual(calls, ["squad", "fixtures"])
+        self.assertEqual(
+            host._management_resource_families_loaded,
+            {"squad", "fixtures"},
+        )
+        host._ensure_management_resources("fixtures")
+        self.assertEqual(calls, ["squad", "fixtures"])
+
+        host._ensure_management_resources("league_tables")
+        self.assertEqual(calls, ["squad", "fixtures", "league_tables"])
+        self.assertEqual(
+            host._management_resource_families_loaded,
+            {"squad", "fixtures", "league_tables"},
+        )
+        host._ensure_management_resources("league_tables")
+        self.assertEqual(calls, ["squad", "fixtures", "league_tables"])
+
+        for family in ("squad", "fixtures", "league_tables"):
+            for name, value in payloads[family].items():
+                self.assertIs(getattr(host, name), value)
+
+    def test_source_accepted_panel_routes_load_each_family_once_then_reuse_it(self):
+        calls = []
+        threads = []
+        payloads = {
+            "fixtures": {
+                "league_fixtures_grid_art": object(),
+                "fixtures_pager_art": object(),
+                "pmatchinfo_snapshot": object(),
+                "pmatchinfo_font": object(),
+                "pmatchinfo_nested_font": object(),
+                "pmatchinfo_script_art": object(),
+                "_fixture_resource_names": ("fixture-grid",),
+            },
+            "league_tables": {
+                "league_tables_header_art": object(),
+                "management_text_resources": object(),
+                "_league_table_resource_names": ("league-table",),
+            },
+        }
+
+        def loader(family):
+            calls.append(family)
+            return payloads[family]
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_resource_loader=None,
+            management_thread_factory=thread_factory,
+        )
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        with patch.object(host, "redraw"):
+            host.on_click(SimpleNamespace(x=426, y=301))
+        self.assertTrue(live.session.started)
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+
+        # The fresh Squad family is the only family considered ready when the
+        # deferred route-loader seam is installed for this host-level test.
+        host.management_resource_loader = loader
+        host._management_resource_families_loaded = {"squad"}
+        host._management_resources_loaded = True
+
+        class RoutePresenter:
+            def __init__(self):
+                self.panel_class = "PLeagueFixtures"
+
+            def source_accepted_pmenu_action(self, row_kind, menu_id, source_flags):
+                return SimpleNamespace(
+                    action=SimpleNamespace(action_kind="open_panel"),
+                    presentation=SimpleNamespace(panel_class=self.panel_class),
+                )
+
+        route = RoutePresenter()
+        host.management_presenter = route
+
+        first = host.apply_source_accepted_pmenu_action("child", 0x25C, 0)
+        self.assertEqual(first.presentation.panel_class, "PLeagueFixtures")
+        self.assertEqual(len(threads), 1)
+        self.assertEqual(host._management_loading_family, "fixtures")
+        self.assertEqual(calls, [])
+
+        with patch.object(host, "redraw") as redraw:
+            threads[0].run()
+            root.run_timer()
+            redraw.assert_called_once_with()
+        self.assertEqual(calls, ["fixtures"])
+        self.assertIn("fixtures", host._management_resource_families_loaded)
+
+        with patch.object(host, "redraw") as redraw:
+            host.apply_source_accepted_pmenu_action("child", 0x25C, 0)
+            redraw.assert_called_once_with()
+        self.assertEqual(len(threads), 1)
+        self.assertEqual(calls, ["fixtures"])
+
+        route.panel_class = "PLeagueTables"
+        host.apply_source_accepted_pmenu_action("child", 0x25A, 0)
+        self.assertEqual(len(threads), 2)
+        self.assertEqual(host._management_loading_family, "league_tables")
+
+        with patch.object(host, "redraw") as redraw:
+            threads[1].run()
+            root.run_timer()
+            redraw.assert_called_once_with()
+        self.assertEqual(calls, ["fixtures", "league_tables"])
+        self.assertIn("league_tables", host._management_resource_families_loaded)
+
+        with patch.object(host, "redraw") as redraw:
+            host.apply_source_accepted_pmenu_action("child", 0x25A, 0)
+            redraw.assert_called_once_with()
+        self.assertEqual(len(threads), 2)
+        self.assertEqual(calls, ["fixtures", "league_tables"])
+
+    def test_teamselect_start_defers_only_fresh_squad_resources_off_tk_thread(self):
         calls = []
         threads = []
         payload = {
             "management_pmenu_resources": object(),
-            "league_fixtures_grid_art": object(),
-            "fixtures_pager_art": object(),
             "squad_top_resources": object(),
-            "league_tables_header_art": object(),
-            "pmatchinfo_snapshot": object(),
-            "pmatchinfo_font": object(),
-            "pmatchinfo_nested_font": object(),
-            "pmatchinfo_script_art": object(),
+                "squad_row_text_resources": object(),
+                "squad_status_resources": object(),
             "management_background": object(),
             "management_header_resources": object(),
-            "management_text_resources": object(),
         }
 
-        def loader():
-            calls.append("load")
+        def loader(family):
+            calls.append(family)
+            self.assertEqual(family, "squad")
             return payload
 
         def thread_factory(**kwargs):
@@ -554,6 +723,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(calls, [])
             self.assertEqual(len(threads), 1)
             self.assertTrue(threads[0].started)
+            self.assertEqual(host._management_loading_family, "squad")
             self.assertFalse(host._management_resources_loaded)
             self.assertIsNotNone(host._management_load_poll)
             redraw.assert_not_called()
@@ -562,18 +732,25 @@ class OriginalGameHostTests(unittest.TestCase):
             threads[0].run()
             root.run_timer()
 
-            self.assertEqual(calls, ["load"])
+            self.assertEqual(calls, ["squad"])
             self.assertTrue(host._management_resources_loaded)
+            self.assertEqual(host._management_resource_families_loaded, {"squad"})
             redraw.assert_called_once_with()
             self.assertEqual(root.values["configure"]["cursor"], "")
             for name, value in payload.items():
                 self.assertIs(getattr(host, name), value)
+            self.assertIsNone(host.league_fixtures_grid_art)
+            self.assertIsNone(host.fixtures_pager_art)
+            self.assertIsNone(host.league_tables_header_art)
+            self.assertIsNone(host.pmatchinfo_snapshot)
+            self.assertIsNone(host.management_text_resources)
 
     def test_teamselect_async_management_loader_surfaces_worker_exception(self):
         threads = []
         messages = []
 
-        def loader():
+        def loader(family):
+            self.assertEqual(family, "squad")
             raise RuntimeError("management decode exploded")
 
         def thread_factory(**kwargs):
@@ -614,7 +791,8 @@ class OriginalGameHostTests(unittest.TestCase):
     def test_management_input_is_ignored_while_async_resources_are_loading(self):
         threads = []
 
-        def loader():
+        def loader(family):
+            self.assertEqual(family, "squad")
             raise AssertionError("deferred worker should not have run yet")
 
         def thread_factory(**kwargs):
@@ -642,9 +820,86 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertIsNone(host.management_presenter)
         self.assertEqual(
             host.last_status,
-            "Preparing source-backed management resources...",
+            "Preparing source-backed management squad resources...",
         )
         self.assertEqual(len(threads), 1)
+
+    def test_later_management_route_decode_blocks_input_and_surfaces_failure(self):
+        threads = []
+        messages = []
+        squad_payload = {
+            "management_pmenu_resources": object(),
+            "squad_top_resources": object(),
+                "squad_row_text_resources": object(),
+                "squad_status_resources": object(),
+            "management_background": object(),
+            "management_header_resources": object(),
+        }
+
+        def loader(family):
+            if family == "squad":
+                return squad_payload
+            if family == "fixtures":
+                raise RuntimeError("fixture decode exploded")
+            raise AssertionError(f"unexpected family {family}")
+
+        def thread_factory(**kwargs):
+            thread = DeferredThread(**kwargs)
+            threads.append(thread)
+            return thread
+
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(
+            live,
+            root,
+            FakeTk,
+            management_presenter_factory=management_factory,
+            management_resource_loader=loader,
+            management_thread_factory=thread_factory,
+            error_reporter=messages.append,
+        )
+
+        # Reach MANAGEMENT through the real recovered lifecycle before testing a
+        # later route family. The initial Squad decode is completed under a
+        # redraw stub because this test exercises loading/error lifecycle, not
+        # bitmap rendering of the deliberately minimal object payload.
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.choose_club(12)
+        with patch.object(host, "redraw"):
+            host.on_click(SimpleNamespace(x=426, y=301))
+            self.assertEqual(len(threads), 1)
+            self.assertEqual(host._management_loading_family, "squad")
+            threads[0].run()
+            root.run_timer()
+
+        self.assertTrue(live.session.started)
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+        self.assertEqual(host._management_resource_families_loaded, {"squad"})
+        self.assertTrue(host._management_resources_loaded)
+
+        host._begin_management_resource_load("fixtures")
+        self.assertEqual(host._management_loading_family, "fixtures")
+        self.assertEqual(len(threads), 2)
+
+        with patch.object(host, "redraw") as redraw:
+            host.on_click(SimpleNamespace(x=400, y=300))
+            self.assertEqual(
+                host.last_status,
+                "Preparing source-backed management fixtures resources...",
+            )
+            redraw.assert_not_called()
+
+            threads[1].run()
+            root.run_timer()
+
+        self.assertEqual(messages, ["RuntimeError: fixture decode exploded"])
+        self.assertEqual(host.last_status, "RuntimeError: fixture decode exploded")
+        self.assertNotIn("fixtures", host._management_resource_families_loaded)
+        self.assertIsNone(host._management_load_thread)
+        self.assertIsNone(host._management_load_queue)
+        self.assertIsNone(host._management_loading_family)
+        self.assertEqual(root.values["configure"]["cursor"], "")
 
     def test_game_host_starts_fullscreen_and_preserves_native_canvas_size(self):
         root = FakeRoot()
@@ -797,6 +1052,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
 
             self.assertEqual(root.values["title"], "Premier League Manager 2001")
@@ -821,11 +1077,16 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
             self.assertFalse(host.pmenu_popup_active)
-            self.assertEqual(len(host.canvas.images), 6)
+            self.assertEqual(len(host.canvas.images), 11)
+            # Six top-control overlays precede the five first-row text overlays.
+            # Role/name remain first in that row-text group; the three new
+            # PSCF numeric controls follow them.
+            self.assertEqual(host.canvas.images[6][:2], (77, 234))
+            self.assertEqual(host.canvas.images[7][:2], (113, 234))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
             self.assertIn("source PMenu rows rendered", host.last_status)
-            self.assertIn("6 source panel bitmaps rendered", host.last_status)
+            self.assertIn("11 source panel bitmaps rendered", host.last_status)
             self.assertIn("surrounding management background unresolved", host.last_status)
 
             before = host.management_presenter.snapshot()
@@ -837,7 +1098,7 @@ class OriginalGameHostTests(unittest.TestCase):
             after = host.management_presenter.snapshot()
             self.assertEqual(after.panel_code, 0xCE)
             self.assertEqual(after.menu.selected_child_id, 0xCE)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
 
             # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
             # matching the recovered SelectBmp +0x6C input virtual.
@@ -846,7 +1107,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(native.panel_code, 0xCE)
             self.assertEqual(native.menu.selected_root_id, 0x259)
             self.assertIn("expand_root 0x259", host.last_status)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
 
             accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
             self.assertTrue(accepted.action.accepted)
@@ -855,12 +1116,12 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
             self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
             self.assertIn("source-accepted PMenu action", host.last_status)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
 
             host.on_click(SimpleNamespace(x=100, y=120))
             self.assertIn("no source-bounded PMenu candidate row", host.last_status)
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
 
     def test_management_header_draws_exact_two_bitmaps_plus_menu_caption(self):
         host = OriginalGameTkHost(
@@ -932,6 +1193,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeRoot(),
             FakeTk,
             squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
         )
         host.canvas.delete("all")
         host._photos = []
@@ -950,6 +1212,103 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[0][:2], (37, 171))
         self.assertEqual(host.canvas.images[2][:2], (113, 171))
         self.assertEqual(host.canvas.images[4][:2], (189, 171))
+
+    def test_squad_landing_draws_source_player_and_scf_numeric_controls(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            squad_row_text_resources=fake_squad_row_text_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        row = SimpleNamespace(
+            y=154,
+            assigned_role_abbreviation="FC",
+            assigned_role_rgb=(255, 255, 255),
+            display_name="P. 0",
+            display_name_rgb=(255, 255, 255),
+            condition=75,
+            recent_form_average=7.35,
+            current_role_rating=63,
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=squad_view_transition(3),
+                squad=SimpleNamespace(rows=(row,)),
+            )
+        )
+
+        count = host._draw_squad_rows(frame)
+
+        self.assertEqual(count, 5)
+        self.assertEqual(len(host.canvas.images), 5)
+        self.assertEqual(host.canvas.images[0][:2], (77, 234))
+        self.assertEqual(host.canvas.images[1][:2], (113, 234))
+        # PSCFRow controls are centered inside native screen x ranges
+        # 300..318, 323..341 and 346..364 respectively.
+        for item, left in zip(host.canvas.images[2:], (300, 323, 346)):
+            self.assertGreaterEqual(item[0], left)
+            self.assertLess(item[0], left + 19)
+            self.assertGreaterEqual(item[1], 234)
+            self.assertLess(item[1], 248)
+
+    def test_squad_landing_draws_source_qualified_native_status_icons(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            squad_row_text_resources=fake_squad_row_text_resources(),
+            squad_status_resources=fake_squad_status_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        row = SimpleNamespace(
+            y=154,
+            assigned_role_abbreviation="FC",
+            assigned_role_rgb=(255, 255, 255),
+            display_name="P. 0",
+            display_name_rgb=(255, 255, 255),
+            condition=88,
+            recent_form_average=7.0,
+            current_role_rating=63,
+            native_status_frame_index=0,
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=squad_view_transition(3),
+                squad=SimpleNamespace(rows=(row,)),
+            )
+        )
+
+        count = host._draw_squad_rows(frame)
+
+        self.assertEqual(count, 6)
+        self.assertEqual(len(host.canvas.images), 6)
+        self.assertEqual(host.canvas.images[-1][:2], (277, 234))
+        status_photo = host.canvas.images[-1][2]["image"]
+        self.assertEqual((status_photo.width, status_photo.height), (18, 14))
+
+        for frame_index in (3, 13):
+            host.canvas.delete("all")
+            host._photos = []
+            qualified = SimpleNamespace(**{
+                **row.__dict__,
+                "native_status_frame_index": frame_index,
+            })
+            qualified_frame = SimpleNamespace(
+                presentation=SimpleNamespace(
+                    panel_class="PSquadScreen",
+                    squad_view_transition=squad_view_transition(3),
+                    squad=SimpleNamespace(rows=(qualified,)),
+                )
+            )
+            self.assertEqual(host._draw_squad_rows(qualified_frame), 6)
+            self.assertEqual(host.canvas.images[-1][:2], (277, 234))
+            status_photo = host.canvas.images[-1][2]["image"]
+            self.assertEqual((status_photo.width, status_photo.height), (18, 14))
 
     def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
@@ -971,6 +1330,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeRoot(),
             FakeTk,
             squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
         )
         host.canvas.delete("all")
         host._photos = []
@@ -1001,12 +1361,13 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
 
             activation = host.apply_source_accepted_squad_view(4)
             self.assertEqual(activation.transition.control_id, 4)
@@ -1027,7 +1388,7 @@ class OriginalGameHostTests(unittest.TestCase):
 
             restored = host.apply_source_accepted_squad_view(3)
             self.assertEqual(restored.transition.control_id, 3)
-            self.assertEqual(len(host.canvas.images), 7)
+            self.assertEqual(len(host.canvas.images), 12)
 
     def test_native_league_fixtures_grid_left_press_uses_exact_source_control(self):
         live = presenter()
@@ -1042,6 +1403,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
@@ -1079,6 +1441,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
             )
             host.on_click(SimpleNamespace(x=7, y=478))
             live.choose_club(12)
@@ -1449,6 +1812,45 @@ class OriginalGameHostTests(unittest.TestCase):
             "source",
         )
         self.assertEqual(DEFAULT_SOURCE_ROOT.parent.name, "original_assets")
+
+
+    def test_default_presenter_uses_only_pinned_pstartmenu_derivative(self):
+        calls = {}
+
+        def load_derivative(bundle_dir, **kwargs):
+            calls["derivative"] = (bundle_dir, kwargs)
+            return object()
+
+        def reject_source(**kwargs):
+            raise AssertionError("default runtime must not cold-decode PStartMenu")
+
+        fake_session = object()
+        with tempfile.TemporaryDirectory() as temp:
+            game_dir = Path(temp) / "game"
+            game_dir.mkdir()
+            with patch(
+                "original_game_host.load_verified_pstartmenu_derivative_bundle",
+                side_effect=load_derivative,
+            ), patch(
+                "original_game_host.load_verified_english_pstartmenu_inputs",
+                side_effect=reject_source,
+            ), patch(
+                "original_game_host.FrontEndSession.for_canonical_game_dir",
+                return_value=fake_session,
+            ):
+                built = build_original_game_presenter(game_dir)
+
+        self.assertIs(built.session, fake_session)
+        bundle_dir, kwargs = calls["derivative"]
+        self.assertEqual(bundle_dir, DEFAULT_PSTARTMENU_DERIVATIVE_ROOT)
+        self.assertEqual(
+            kwargs["expected_decoder"], PSTARTMENU_DERIVATIVE_DECODER
+        )
+        self.assertEqual(
+            kwargs["expected_manifest_sha256"],
+            PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+        )
+        self.assertEqual(len(kwargs["expected_sources"]), 6)
 
     def test_presenter_loader_uses_canonical_game_executable_and_imported_source_root(self):
         calls = {}

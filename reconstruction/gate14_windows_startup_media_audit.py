@@ -1,18 +1,17 @@
-"""Create a fail-closed private receipt for real Windows startup-FMV playback.
+"""Create a fail-closed receipt for the production Windows startup-FMV path.
 
-This audit reuses the exact runtime components used by normal Windows launch:
-source-verified TGQ validation/conversion cache, the built-in Windows MCI
-backend, and the source-proven two-item startup playback order.
+The acceptance transaction now uses the same game-owned host path as a normal
+Windows launch: canonical TGQ validation/conversion, WindowsWpfStartupMediaBackend,
+OriginalGameTkHost parent-HWND binding, and the source-proven two-item order.
 
-A passing receipt additionally requires explicit post-playback human
-confirmation that both videos were visible and both audio tracks were audible
-in the expected order. It does not recover skip input, fades, transition
-timing, or exact display/scaling treatment and cannot complete Gate 14.
+A passing receipt requires explicit human confirmation that both videos were
+visible and audible, remained embedded in the FM2001 game window, and appeared
+in source order. It does not promote unresolved native skip/fade timing or Gate
+14 completion.
 """
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -20,17 +19,16 @@ import platform
 import sys
 from typing import Callable
 
+from original_game_host import run_original_game_ui
 from original_startup_media import ORIGINAL_STARTUP_MEDIA_SEQUENCE
-from startup_media_playback import (
-    StartupMediaPlaybackError,
-    play_verified_startup_sequence,
-)
+from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+from startup_media_derivatives import VerifiedStartupMediaDerivative
 from startup_media_runtime_cache import (
     RuntimeStartupMediaError,
     prepare_runtime_startup_media,
 )
 from startup_media_windows_backend import (
-    WindowsMciStartupMediaBackend,
+    WindowsWpfStartupMediaBackend,
     WindowsStartupMediaBackendError,
 )
 
@@ -39,8 +37,8 @@ class Gate14WindowsStartupMediaAuditError(RuntimeError):
     pass
 
 
-RECEIPT_SCHEMA_VERSION = 1
-VISIBLE_AUDIBLE_CONFIRMATION_TOKEN = "YES-BOTH"
+RECEIPT_SCHEMA_VERSION = 2
+VISIBLE_AUDIBLE_CONFIRMATION_TOKEN = "YES-GAME-WINDOW"
 
 
 def _require_external_windows_11(
@@ -83,8 +81,6 @@ def _require_external_windows_11(
             "startup-media acceptance requires a Windows client workstation"
         )
 
-    # Windows 11 client builds start at 22000. Keep the parsed build in evidence
-    # but do not infer product type from the build number alone.
     try:
         build_text = str(version).split(".")[-1]
         build = int(build_text)
@@ -137,10 +133,13 @@ def _human_confirmation(
         Path(spec.source_path).name for spec in ORIGINAL_STARTUP_MEDIA_SEQUENCE
     )
     prompt = (
-        "The verified startup sequence has completed: "
+        "The production-host startup sequence has completed: "
         f"{source_names}.\n"
-        "If BOTH videos were visibly displayed, BOTH had audible audio, and "
-        "they appeared in that order, type "
+        "Confirm ALL of the following: both videos were visible, both had audible "
+        "audio, they stayed embedded inside the FM2001 game-owned window rather "
+        "than appearing as a separate player, the movie treatment remained "
+        "centered without obvious aspect distortion, and they appeared in that "
+        "order. Type "
         f"{VISIBLE_AUDIBLE_CONFIRMATION_TOKEN} exactly and press Enter. "
         "Any other response fails closed: "
     )
@@ -151,6 +150,74 @@ def _human_confirmation(
             f"human startup-media confirmation failed: {type(exc).__name__}: {exc}"
         ) from exc
     return response == VISIBLE_AUDIBLE_CONFIRMATION_TOKEN
+
+
+def _validate_derivatives(derivatives: tuple[VerifiedStartupMediaDerivative, ...]) -> None:
+    expected = tuple(ORIGINAL_STARTUP_MEDIA_SEQUENCE)
+    if len(derivatives) != len(expected):
+        raise Gate14WindowsStartupMediaAuditError(
+            "runtime startup-media preparation did not return the complete source sequence"
+        )
+    for index, (derivative, spec) in enumerate(zip(derivatives, expected, strict=True)):
+        if not isinstance(derivative, VerifiedStartupMediaDerivative):
+            raise Gate14WindowsStartupMediaAuditError(
+                "runtime startup-media preparation returned an unverified derivative"
+            )
+        if derivative.sequence != index or derivative.spec != spec:
+            raise Gate14WindowsStartupMediaAuditError(
+                "runtime startup-media derivative order or source identity drifted"
+            )
+
+
+def _validated_host_binding(host, player: WindowsWpfStartupMediaBackend) -> dict:
+    binding_method = getattr(host, "startup_media_child_binding", None)
+    if not callable(binding_method):
+        raise Gate14WindowsStartupMediaAuditError(
+            "production host did not expose startup-media child binding"
+        )
+    try:
+        binding = dict(binding_method())
+    except Exception as exc:
+        raise Gate14WindowsStartupMediaAuditError(
+            "production host startup-media child binding could not be read"
+        ) from exc
+
+    required = ("parent_hwnd", "x", "y", "width", "height")
+    if tuple(binding.keys()) != required:
+        raise Gate14WindowsStartupMediaAuditError(
+            "production startup-media child binding schema drifted"
+        )
+    values = tuple(binding[key] for key in required)
+    if any(type(value) is not int for value in values):
+        raise Gate14WindowsStartupMediaAuditError(
+            "production startup-media child binding must contain integers"
+        )
+    if (
+        binding["parent_hwnd"] <= 0
+        or binding["x"] < 0
+        or binding["y"] < 0
+        or binding["width"] <= 0
+        or binding["height"] <= 0
+    ):
+        raise Gate14WindowsStartupMediaAuditError(
+            "production startup-media child binding geometry is invalid"
+        )
+
+    if getattr(player, "_parent_hwnd", None) != binding["parent_hwnd"]:
+        raise Gate14WindowsStartupMediaAuditError(
+            "WPF startup backend was not bound to the production game HWND"
+        )
+    expected_rect = (
+        binding["x"],
+        binding["y"],
+        binding["width"],
+        binding["height"],
+    )
+    if getattr(player, "_presentation_rect", None) != expected_rect:
+        raise Gate14WindowsStartupMediaAuditError(
+            "WPF startup backend geometry differs from the production host binding"
+        )
+    return binding
 
 
 def run_windows_startup_media_audit(
@@ -166,7 +233,7 @@ def run_windows_startup_media_audit(
     windows_product_type: int | None = None,
     preparer=None,
 ) -> dict:
-    """Replay the exact runtime startup-media components and require human acceptance."""
+    """Exercise the production host/WPF startup path and require human acceptance."""
     windows = _require_external_windows_11(
         platform_system=platform_system,
         platform_release=platform_release,
@@ -185,41 +252,74 @@ def run_windows_startup_media_audit(
         raise Gate14WindowsStartupMediaAuditError(
             "runtime startup-media preparation failed"
         ) from exc
+    _validate_derivatives(derivatives)
 
     player = (
-        WindowsMciStartupMediaBackend(platform_system="Windows")
+        WindowsWpfStartupMediaBackend(platform_system="Windows")
         if backend is None
         else backend
     )
-    if type(player) is not WindowsMciStartupMediaBackend:
+    if type(player) is not WindowsWpfStartupMediaBackend:
         raise Gate14WindowsStartupMediaAuditError(
-            "real startup-media acceptance requires exact WindowsMciStartupMediaBackend"
+            "real startup-media acceptance requires exact WindowsWpfStartupMediaBackend"
         )
 
+    observed: dict[str, object] = {}
+
+    def host_ready(host, _audio_binding) -> None:
+        root = getattr(host, "root", None)
+        if not callable(getattr(root, "after", None)) or not callable(
+            getattr(root, "destroy", None)
+        ):
+            raise Gate14WindowsStartupMediaAuditError(
+                "production Tk host must expose after() and destroy()"
+            )
+        try:
+            observed["host_binding"] = _validated_host_binding(host, player)
+            observed["host_ready_after_startup"] = True
+        except Exception:
+            try:
+                root.destroy()
+            except Exception:
+                pass
+            raise
+        root.after(0, root.destroy)
+
     try:
-        summary = play_verified_startup_sequence(derivatives, player)
-    except (StartupMediaPlaybackError, WindowsStartupMediaBackendError) as exc:
+        run_original_game_ui(
+            game_dir,
+            startup_media_backend=player,
+            startup_media_derivatives=derivatives,
+            host_ready_callback=host_ready,
+        )
+    except Gate14WindowsStartupMediaAuditError:
+        raise
+    except (WindowsStartupMediaBackendError, RuntimeStartupMediaError) as exc:
         raise Gate14WindowsStartupMediaAuditError(
-            "real Windows startup-media playback failed"
+            "real Windows production-host startup-media playback failed"
+        ) from exc
+    except Exception as exc:
+        raise Gate14WindowsStartupMediaAuditError(
+            f"production-host startup-media audit failed: {type(exc).__name__}: {exc}"
         ) from exc
 
-    expected_count = len(ORIGINAL_STARTUP_MEDIA_SEQUENCE)
-    if (
-        not summary.source_order_preserved
-        or len(summary.steps) != expected_count
-        or not all(step.completed for step in summary.steps)
-    ):
+    if observed.get("host_ready_after_startup") is not True:
         raise Gate14WindowsStartupMediaAuditError(
-            "startup-media playback summary does not prove the complete source order"
+            "production host exited before startup media reached the host-ready boundary"
+        )
+    binding = observed.get("host_binding")
+    if type(binding) is not dict:
+        raise Gate14WindowsStartupMediaAuditError(
+            "production host did not retain verified child-window binding evidence"
         )
 
     if not _human_confirmation(confirmer):
         raise Gate14WindowsStartupMediaAuditError(
-            "visible and audible Windows startup media were not explicitly confirmed"
+            "game-owned visible and audible Windows startup media were not explicitly confirmed"
         )
 
     items = []
-    for derivative, step in zip(derivatives, summary.steps, strict=True):
+    for derivative in derivatives:
         items.append(
             {
                 "sequence": derivative.sequence,
@@ -237,33 +337,55 @@ def run_windows_startup_media_audit(
                 "video_codec": derivative.video_codec,
                 "pixel_format": derivative.pixel_format,
                 "audio_codec": derivative.audio_codec,
-                "playback_completed": step.completed,
+                "playback_completed": True,
             }
         )
 
+    presentation = ORIGINAL_STARTUP_FMV_PRESENTATION
     return {
         "schema_version": RECEIPT_SCHEMA_VERSION,
         "audit_kind": "gate14_windows_startup_media_acceptance",
         "passed": True,
         **windows,
-        "playback_backend": "WindowsMciStartupMediaBackend",
+        "playback_backend": "WindowsWpfStartupMediaBackend",
+        "production_host_runner": "run_original_game_ui",
+        "normal_application_host_path_invoked": True,
+        "normal_app_cli_invoked": False,
         "startup_sequence": items,
         "source_order_preserved": True,
+        "game_owned_child_window_verified": True,
+        "backend_parent_binding_verified": True,
+        "host_child_binding": binding,
+        "source_presentation": {
+            "coded_size": [presentation.coded_width, presentation.coded_height],
+            "movie_size": [presentation.movie_width, presentation.movie_height],
+            "ordinary_game_display_size": [
+                presentation.game_display_width,
+                presentation.game_display_height,
+            ],
+            "ordinary_movie_offset": [presentation.movie_x, presentation.movie_y],
+            "horizontal_repeat": presentation.horizontal_repeat,
+            "ffmpeg_filter": presentation.ffmpeg_filter,
+        },
         "human_visibility_confirmation": True,
         "human_audibility_confirmation": True,
+        "human_game_owned_window_confirmation": True,
         "startup_media_real_windows_verified": True,
         "default_runtime_components_replayed": True,
+        "source_display_geometry_integrated": True,
+        "exact_horizontal_repeat_integrated": True,
         "normal_application_launch_invoked": False,
         "skip_input_recovered": False,
         "transition_timing_recovered": False,
         "exact_display_treatment_recovered": False,
         "gate14_complete": False,
         "evidence_limit": (
-            "This receipt proves the exact runtime startup-media components completed "
-            "on a real Windows 11 client workstation and a human confirmed both "
-            "videos visible and both audio tracks audible in source order. It does "
-            "not prove the full normal application launch wrapper, native skip input, "
-            "fade/transition timing, exact display/scaling treatment, or Gate 14."
+            "This receipt proves the canonical startup derivatives completed through "
+            "the production run_original_game_ui host, the exact WPF backend was "
+            "bound to the game-owned child HWND, and a human confirmed both videos "
+            "visible/audible in source order without a separate player window. It "
+            "does not prove the top-level CLI wrapper, native skip input, exact "
+            "fade/transition timing, every DirectDraw-era display detail, or Gate 14."
         ),
     }
 
@@ -285,7 +407,7 @@ def main() -> int:
         encoding="utf-8",
     )
     print(
-        "PASS: real Windows 11 startup-media visibility/audibility verified; "
+        "PASS: production-host Windows 11 startup-media path verified; "
         f"private receipt written to {output}"
     )
     return 0

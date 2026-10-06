@@ -10,9 +10,12 @@ This does not claim the original skip-input or transition/fade semantics.
 """
 from __future__ import annotations
 
+import base64
 import ctypes
+import os
 from pathlib import Path
 import platform
+import subprocess
 from typing import Callable
 
 from startup_media_derivatives import VerifiedStartupMediaDerivative
@@ -120,7 +123,12 @@ class WindowsMciStartupMediaBackend:
     def play(self, item: VerifiedStartupMediaDerivative) -> bool:
         if not isinstance(item, VerifiedStartupMediaDerivative):
             return False
-        if item.container != "mp4" or item.video_codec != "h264" or item.audio_codec != "aac":
+        if (
+            item.container != "mp4"
+            or item.video_codec != "h264"
+            or item.audio_codec != "aac"
+            or item.pixel_format != "yuv420p"
+        ):
             return False
 
         alias = self._alias(item)
@@ -142,3 +150,247 @@ class WindowsMciStartupMediaBackend:
                     # unwinding; a close failure after successful playback is
                     # not evidence that the media itself failed to complete.
                     pass
+
+
+_WPF_PLAYBACK_SCRIPT = r"""
+Add-Type -AssemblyName PresentationFramework
+
+$path = [Environment]::GetEnvironmentVariable(
+    'FM2001_STARTUP_MEDIA_PATH',
+    'Process'
+)
+$parentText = [Environment]::GetEnvironmentVariable(
+    'FM2001_STARTUP_PARENT_HWND',
+    'Process'
+)
+$xText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_X', 'Process')
+$yText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_Y', 'Process')
+$widthText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_WIDTH', 'Process')
+$heightText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_HEIGHT', 'Process')
+
+if ([string]::IsNullOrWhiteSpace($path) -or -not [IO.File]::Exists($path)) {
+    exit 2
+}
+
+$parentValue = 0L
+$x = 0
+$y = 0
+$width = 0
+$height = 0
+if (
+    -not [Int64]::TryParse($parentText, [ref]$parentValue) -or $parentValue -le 0 -or
+    -not [Int32]::TryParse($xText, [ref]$x) -or
+    -not [Int32]::TryParse($yText, [ref]$y) -or
+    -not [Int32]::TryParse($widthText, [ref]$width) -or $width -le 0 -or
+    -not [Int32]::TryParse($heightText, [ref]$height) -or $height -le 0
+) {
+    exit 2
+}
+
+$script:mediaFailed = $false
+$script:mediaEnded = $false
+$script:frame = New-Object Windows.Threading.DispatcherFrame
+
+$params = New-Object Windows.Interop.HwndSourceParameters('FM2001StartupMedia')
+$params.ParentWindow = [IntPtr]::new($parentValue)
+$params.WindowStyle = 0x50000000
+$params.PositionX = $x
+$params.PositionY = $y
+$params.Width = $width
+$params.Height = $height
+
+$source = New-Object Windows.Interop.HwndSource($params)
+$grid = New-Object Windows.Controls.Grid
+$grid.Background = [Windows.Media.Brushes]::Black
+
+$media = New-Object Windows.Controls.MediaElement
+$media.LoadedBehavior = [Windows.Controls.MediaState]::Manual
+$media.UnloadedBehavior = [Windows.Controls.MediaState]::Stop
+$media.Stretch = [Windows.Media.Stretch]::Fill
+$media.Volume = 1.0
+$media.SnapsToDevicePixels = $true
+[Windows.Media.RenderOptions]::SetBitmapScalingMode(
+    $media,
+    [Windows.Media.BitmapScalingMode]::NearestNeighbor
+)
+try {
+    $media.Source = [Uri]::new([IO.Path]::GetFullPath($path), [UriKind]::Absolute)
+} catch {
+    [Console]::Error.WriteLine($_.Exception.Message)
+    $source.Dispose()
+    exit 2
+}
+
+$media.Add_MediaEnded({
+    $script:mediaEnded = $true
+    $script:frame.Continue = $false
+})
+$media.Add_MediaFailed({
+    param($sender, $eventArgs)
+    $script:mediaFailed = $true
+    if ($eventArgs -and $eventArgs.ErrorException) {
+        [Console]::Error.WriteLine($eventArgs.ErrorException.Message)
+    }
+    $script:frame.Continue = $false
+})
+$media.Add_Loaded({
+    try {
+        $media.Play()
+    } catch {
+        $script:mediaFailed = $true
+        [Console]::Error.WriteLine($_.Exception.Message)
+        $script:frame.Continue = $false
+    }
+})
+
+[void]$grid.Children.Add($media)
+$source.RootVisual = $grid
+[Windows.Threading.Dispatcher]::PushFrame($script:frame)
+
+try { $media.Stop() } catch {}
+$source.RootVisual = $null
+$source.Dispose()
+if ($script:mediaFailed -or -not $script:mediaEnded) {
+    exit 3
+}
+exit 0
+""".strip()
+
+
+class WindowsWpfStartupMediaBackend:
+    """Play verified H.264/AAC MP4s through stock Windows WPF MediaElement.
+
+    This transport deliberately avoids MCI, whose MP4 open path fails with
+    native status 277 on the external Windows 11 client. The media path is
+    passed through a process environment variable rather than interpolated into
+    PowerShell source, and the child process does not return until the
+    full-screen WPF window reaches MediaEnded or MediaFailed.
+    """
+
+    def __init__(
+        self,
+        *,
+        platform_system: str | None = None,
+        runner: Callable[..., object] = subprocess.run,
+        powershell_executable: str = "powershell.exe",
+    ):
+        system = platform.system() if platform_system is None else platform_system
+        if system != "Windows":
+            raise WindowsStartupMediaBackendError(
+                "built-in startup-media playback requires Windows"
+            )
+        if not callable(runner):
+            raise WindowsStartupMediaBackendError(
+                "Windows startup-media process runner must be callable"
+            )
+        if not isinstance(powershell_executable, str) or not powershell_executable.strip():
+            raise WindowsStartupMediaBackendError(
+                "Windows PowerShell executable must be non-empty"
+            )
+        self._runner = runner
+        self._powershell_executable = powershell_executable
+        self._parent_hwnd = None
+        self._presentation_rect = None
+
+    def bind_parent_window(
+        self,
+        parent_hwnd: int,
+        *,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+    ) -> None:
+        values = (parent_hwnd, x, y, width, height)
+        if any(type(value) is not int for value in values):
+            raise WindowsStartupMediaBackendError(
+                "startup-media parent binding requires integer HWND/geometry"
+            )
+        if parent_hwnd <= 0 or x < 0 or y < 0 or width <= 0 or height <= 0:
+            raise WindowsStartupMediaBackendError(
+                "startup-media parent binding geometry is invalid"
+            )
+        self._parent_hwnd = parent_hwnd
+        self._presentation_rect = (x, y, width, height)
+
+    @staticmethod
+    def _encoded_script() -> str:
+        return base64.b64encode(
+            _WPF_PLAYBACK_SCRIPT.encode("utf-16le")
+        ).decode("ascii")
+
+    @staticmethod
+    def _timeout_seconds(item: VerifiedStartupMediaDerivative) -> float:
+        frames = int(item.spec.decoded_video_frames)
+        rate = int(item.spec.frame_rate)
+        if frames <= 0 or rate <= 0:
+            raise WindowsStartupMediaBackendError(
+                "startup-media timing contract is invalid"
+            )
+        # Bound a broken WPF/media stack without constraining the source-proven
+        # clip duration. Both startup clips receive at least 30 seconds of
+        # initialization headroom beyond their decoded duration.
+        return max(30.0, frames / rate + 30.0)
+
+    def play(self, item: VerifiedStartupMediaDerivative) -> bool:
+        if not isinstance(item, VerifiedStartupMediaDerivative):
+            return False
+        if item.container != "mp4" or item.video_codec != "h264" or item.audio_codec != "aac":
+            return False
+
+        if self._parent_hwnd is None or self._presentation_rect is None:
+            raise WindowsStartupMediaBackendError(
+                "Windows WPF startup-media backend is not bound to the game window"
+            )
+        x, y, width, height = self._presentation_rect
+        env = os.environ.copy()
+        env["FM2001_STARTUP_MEDIA_PATH"] = str(Path(item.path))
+        env["FM2001_STARTUP_PARENT_HWND"] = str(self._parent_hwnd)
+        env["FM2001_STARTUP_MEDIA_X"] = str(x)
+        env["FM2001_STARTUP_MEDIA_Y"] = str(y)
+        env["FM2001_STARTUP_MEDIA_WIDTH"] = str(width)
+        env["FM2001_STARTUP_MEDIA_HEIGHT"] = str(height)
+        command = (
+            self._powershell_executable,
+            "-NoProfile",
+            "-NonInteractive",
+            "-Sta",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-WindowStyle",
+            "Hidden",
+            "-EncodedCommand",
+            self._encoded_script(),
+        )
+        try:
+            completed = self._runner(
+                command,
+                check=False,
+                capture_output=True,
+                text=True,
+                env=env,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                timeout=self._timeout_seconds(item),
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise WindowsStartupMediaBackendError(
+                f"Windows WPF startup-media playback timed out: {item.path}"
+            ) from exc
+        except Exception as exc:
+            raise WindowsStartupMediaBackendError(
+                "Windows WPF startup-media player failed to launch"
+            ) from exc
+
+        returncode = getattr(completed, "returncode", None)
+        if type(returncode) is not int:
+            raise WindowsStartupMediaBackendError(
+                "Windows WPF startup-media player returned no integer exit code"
+            )
+        if returncode != 0:
+            stderr = str(getattr(completed, "stderr", "") or "").strip()
+            detail = f": {stderr}" if stderr else ""
+            raise WindowsStartupMediaBackendError(
+                f"Windows WPF startup-media playback failed with exit code "
+                f"{returncode}{detail}"
+            )
+        return True

@@ -222,6 +222,14 @@ def inverse_second_pass_1d(
     source: tuple[int, ...], constants: EA444TransformConstants
 ) -> tuple[int, ...]:
     """Mirror 0x7B94C0; its x87 stores qwords then reads their low dwords."""
+    if len(source) != 8:
+        raise EA444InverseTransformError("EA444 second pass requires 8 values")
+    source = tuple(_i32(value) for value in source)
+    # The general recovered arithmetic collapses exactly to eight copies of
+    # DC when every AC input is zero. This output-equivalent shortcut avoids
+    # the expensive odd/even path for the many sparse source blocks.
+    if all(value == 0 for value in source[1:]):
+        return (source[0],) * 8
     return _inverse_1d_general(source, constants, second_pass=True)
 
 
@@ -233,6 +241,10 @@ def inverse_8x8(
         raise EA444InverseTransformError(
             "EA444 component grid must contain 64 values"
         )
+    if all(value == 0 for value in grid[1:]):
+        dc = _i32(grid[0])
+        return (dc,) * 64
+
     source_rows = [tuple(grid[row * 8:(row + 1) * 8]) for row in range(8)]
     first = [inverse_first_pass_1d(row, constants) for row in source_rows]
     scratch_rows = [

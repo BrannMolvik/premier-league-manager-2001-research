@@ -99,12 +99,30 @@ from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_popup import pmenu_open_press, pmenu_app_pointer_dismiss
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
+from gate13_pstartmenu_derivative import (
+    PSTARTMENU_SOURCE_ORIGINALS,
+    PStartMenuDecoderProvenance,
+    load_verified_pstartmenu_derivative_bundle,
+)
 from original_teamselect_resources import load_verified_original_teamselect_inputs
+from original_squad_status import (
+    OriginalSquadStatusResources,
+    build_first_roster_direct_status_overlays,
+    load_verified_squad_status_resources,
+)
 from original_squad_top_controls import (
     OriginalSquadTopResources,
     build_fresh_squad_top_render,
     load_verified_squad_top_resources,
 )
+from original_squad_row_style import (
+    OriginalSquadRowTextResources,
+    build_first_roster_name_overlays,
+    build_first_roster_role_overlays,
+    build_first_roster_scf_numeric_overlays,
+    load_verified_squad_row_text_resources,
+)
+from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
 from startup_media_playback import (
     load_and_play_verified_startup_sequence,
     play_verified_startup_sequence,
@@ -115,7 +133,31 @@ from runtime_diagnostics import timed_stage
 
 REPO_ROOT = application_root()
 DEFAULT_SOURCE_ROOT = bundled_source_root()
+DEFAULT_PSTARTMENU_DERIVATIVE_ROOT = (
+    REPO_ROOT / "original_assets" / "converted" / "pstartmenu-v1"
+)
+PSTARTMENU_DERIVATIVE_MANIFEST_SHA256 = (
+    "cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e"
+)
+PSTARTMENU_DERIVATIVE_DECODER = PStartMenuDecoderProvenance(
+    executable_sha256=(
+        "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"
+    ),
+    tqia_section_sha256=(
+        "c62a13efbb812fb2157c067aaa3eae8afbbb52283dc5dc3eaf6cb86c5a11e8da"
+    ),
+    quant_source_sha256=(
+        "6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb"
+    ),
+)
 SCREEN_SIZE = (800, 600)
+
+MANAGEMENT_RESOURCE_FAMILY_BY_PANEL = {
+    "PSquadScreen": "squad",
+    "PLeagueFixtures": "fixtures",
+    "PLeagueTables": "league_tables",
+}
+MANAGEMENT_RESOURCE_FAMILIES = frozenset(MANAGEMENT_RESOURCE_FAMILY_BY_PANEL.values())
 
 
 @lru_cache(maxsize=1024)
@@ -249,20 +291,46 @@ def build_original_game_presenter(
     game_dir: str | Path,
     *,
     source_root: str | Path | None = None,
+    pstartmenu_derivative_root: str | Path | None = None,
 ) -> OriginalFirstScreenPresenter:
-    """Load all currently integrated first-screen inputs from verified originals."""
+    """Load the first screen from the pinned derivative in normal runtime.
+
+    Explicit custom source roots retain the original source-decoder path for
+    research/verification. The default packaged/repository runtime must use the
+    separately pinned deterministic derivative and fails closed if it is absent
+    or differs; it never silently falls back to a 26-second cold source decode.
+    """
     game_dir = Path(game_dir)
     root = DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
     executable = game_dir / "FOOTBAL.EXE"
     art_root = root / "FM2001_Art"
-    font20 = root / "Fonts" / "Zurich_BdXCn_BT_20pixel.fnt"
 
-    menu = load_verified_english_pstartmenu_inputs(
-        original_art_dir=art_root,
-        original_language_dir=root,
-        original_zurich_font20=font20,
-        original_executable=executable,
-    )
+    if source_root is None or root.resolve() == DEFAULT_SOURCE_ROOT.resolve():
+        derivative_root = (
+            DEFAULT_PSTARTMENU_DERIVATIVE_ROOT
+            if pstartmenu_derivative_root is None
+            else Path(pstartmenu_derivative_root)
+        )
+        menu = load_verified_pstartmenu_derivative_bundle(
+            derivative_root,
+            expected_decoder=PSTARTMENU_DERIVATIVE_DECODER,
+            expected_manifest_sha256=PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+            expected_sources=PSTARTMENU_SOURCE_ORIGINALS,
+        )
+    else:
+        if pstartmenu_derivative_root is not None:
+            raise OriginalGameHostError(
+                "Explicit PStartMenu derivative root is valid only with the "
+                "default verified source root"
+            )
+        font20 = root / "Fonts" / "Zurich_BdXCn_BT_20pixel.fnt"
+        menu = load_verified_english_pstartmenu_inputs(
+            original_art_dir=art_root,
+            original_language_dir=root,
+            original_zurich_font20=font20,
+            original_executable=executable,
+        )
+
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
@@ -287,6 +355,8 @@ class OriginalGameTkHost:
         league_fixtures_grid_art=None,
         fixtures_pager_art=None,
         squad_top_resources=None,
+        squad_row_text_resources=None,
+        squad_status_resources=None,
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
         pmatchinfo_font=None,
@@ -314,6 +384,8 @@ class OriginalGameTkHost:
         # PMenu is pushed by application event 2, not a permanent panel layer.
         self.pmenu_popup_active = False
         self.squad_top_resources = squad_top_resources
+        self.squad_row_text_resources = squad_row_text_resources
+        self.squad_status_resources = squad_status_resources
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
@@ -327,7 +399,16 @@ class OriginalGameTkHost:
         if not callable(management_thread_factory):
             raise OriginalGameHostError("management_thread_factory must be callable")
         self.management_thread_factory = management_thread_factory
-        self._management_resources_loaded = management_resource_loader is None
+        self._management_resource_families_loaded = (
+            set(MANAGEMENT_RESOURCE_FAMILIES)
+            if management_resource_loader is None
+            else set()
+        )
+        # Compatibility alias retained for the fresh MANAGEMENT boundary: it now
+        # means the shell + fresh Squad family is ready, not that every panel has
+        # been eagerly decoded.
+        self._management_resources_loaded = "squad" in self._management_resource_families_loaded
+        self._management_loading_family = None
         self._management_load_queue = None
         self._management_load_thread = None
         self._management_load_poll = None
@@ -418,6 +499,61 @@ class OriginalGameTkHost:
         self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
         self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
+
+    def startup_media_child_binding(self) -> dict[str, int]:
+        """Return the game-owned child-HWND rectangle for source-faithful FMVs."""
+        for method_name in ("update_idletasks", "winfo_id"):
+            if not callable(getattr(self.root, method_name, None)):
+                raise OriginalGameHostError(
+                    "Startup-media child hosting requires a realized Tk window"
+                )
+        for method_name in ("winfo_x", "winfo_y"):
+            if not callable(getattr(self.canvas, method_name, None)):
+                raise OriginalGameHostError(
+                    "Startup-media child hosting requires realized canvas geometry"
+                )
+        self.root.update_idletasks()
+        presentation = ORIGINAL_STARTUP_FMV_PRESENTATION
+        return {
+            "parent_hwnd": int(self.root.winfo_id()),
+            "x": int(self.canvas.winfo_x())
+            + self._native_to_display(presentation.movie_x),
+            "y": int(self.canvas.winfo_y())
+            + self._native_to_display(presentation.movie_y),
+            "width": self._native_to_display(presentation.movie_width),
+            "height": self._native_to_display(presentation.movie_height),
+        }
+
+    def show_startup_media_backdrop(self) -> None:
+        """Hide the menu behind the native black startup-movie presentation field."""
+        create = getattr(self.canvas, "create_rectangle", None)
+        if not callable(create):
+            raise OriginalGameHostError(
+                "Startup-media backdrop requires a drawable game canvas"
+            )
+        self._startup_media_backdrop = create(
+            0,
+            0,
+            self.display_width,
+            self.display_height,
+            fill="black",
+            outline="",
+        )
+        raise_item = getattr(self.canvas, "tag_raise", None)
+        if callable(raise_item):
+            raise_item(self._startup_media_backdrop)
+        update = getattr(self.root, "update", None)
+        if callable(update):
+            update()
+        elif callable(getattr(self.root, "update_idletasks", None)):
+            self.root.update_idletasks()
+
+    def hide_startup_media_backdrop(self) -> None:
+        item = getattr(self, "_startup_media_backdrop", None)
+        if item is not None:
+            self.canvas.delete(item)
+            self._startup_media_backdrop = None
+            self.redraw()
 
     def _set_fullscreen(self, enabled: bool) -> None:
         self._fullscreen = bool(enabled)
@@ -819,45 +955,71 @@ class OriginalGameTkHost:
         if self.first_screen_animation.advance(view):
             self._update_first_screen_animation_layers(view)
 
-    def _apply_management_resources(self, loaded) -> None:
+    @staticmethod
+    def _management_resource_family(panel_class: str) -> str:
+        try:
+            return MANAGEMENT_RESOURCE_FAMILY_BY_PANEL[panel_class]
+        except KeyError as exc:
+            raise OriginalGameHostError(
+                f"No management resource family is defined for {panel_class!r}"
+            ) from exc
+
+    def _apply_management_resources(self, family: str, loaded) -> None:
+        if family not in MANAGEMENT_RESOURCE_FAMILIES:
+            raise OriginalGameHostError(
+                f"Unknown management resource family: {family!r}"
+            )
         if not isinstance(loaded, dict):
             raise OriginalGameHostError(
                 "Management resource loader must return a resource mapping"
             )
-        required = (
-            "management_pmenu_resources",
-            "league_fixtures_grid_art",
-            "fixtures_pager_art",
-            "squad_top_resources",
-            "league_tables_header_art",
-            "pmatchinfo_snapshot",
-            "pmatchinfo_font",
-            "pmatchinfo_nested_font",
-            "pmatchinfo_script_art",
-            "management_background",
-            "management_header_resources",
-            "management_text_resources",
-        )
+        required_by_family = {
+            "squad": (
+                "management_pmenu_resources",
+                "squad_top_resources",
+                "squad_row_text_resources",
+                "squad_status_resources",
+                "management_background",
+                "management_header_resources",
+            ),
+            "fixtures": (
+                "league_fixtures_grid_art",
+                "fixtures_pager_art",
+                "pmatchinfo_snapshot",
+                "pmatchinfo_font",
+                "pmatchinfo_nested_font",
+                "pmatchinfo_script_art",
+                "_fixture_resource_names",
+            ),
+            "league_tables": (
+                "league_tables_header_art",
+                "management_text_resources",
+                "_league_table_resource_names",
+            ),
+        }
+        required = required_by_family[family]
         missing = [name for name in required if name not in loaded]
         if missing:
             raise OriginalGameHostError(
-                "Management resource loader omitted: " + ", ".join(missing)
+                f"Management {family} resource loader omitted: " + ", ".join(missing)
             )
         for name in required:
             setattr(self, name, loaded[name])
-        self._management_resources_loaded = True
+        self._management_resource_families_loaded.add(family)
+        self._management_resources_loaded = "squad" in self._management_resource_families_loaded
 
-    def _ensure_management_resources(self) -> None:
+    def _ensure_management_resources(self, family: str = "squad") -> None:
         """Synchronous compatibility helper used outside the live Tk transition."""
-        if self._management_resources_loaded:
+        if family in self._management_resource_families_loaded:
             return
         loader = self.management_resource_loader
         if loader is None:
-            self._management_resources_loaded = True
+            self._management_resource_families_loaded.add(family)
+            self._management_resources_loaded = "squad" in self._management_resource_families_loaded
             return
-        with timed_stage("management.resources.load_all"):
-            loaded = loader()
-        self._apply_management_resources(loaded)
+        with timed_stage(f"management.resources.load_{family}"):
+            loaded = loader(family)
+        self._apply_management_resources(family, loaded)
 
     def _schedule_management_resource_poll(self) -> None:
         if self._management_load_poll is None:
@@ -866,9 +1028,9 @@ class OriginalGameTkHost:
                 self._poll_management_resource_load,
             )
 
-    def _begin_management_resource_load(self) -> None:
-        """Decode the verified management bundle without blocking Tk."""
-        if self._management_resources_loaded:
+    def _begin_management_resource_load(self, family: str = "squad") -> None:
+        """Decode one verified management route family without blocking Tk."""
+        if family in self._management_resource_families_loaded:
             with timed_stage("management.first_draw"):
                 self.redraw()
             return
@@ -876,24 +1038,26 @@ class OriginalGameTkHost:
             return
         loader = self.management_resource_loader
         if loader is None:
-            self._management_resources_loaded = True
+            self._management_resource_families_loaded.add(family)
+            self._management_resources_loaded = "squad" in self._management_resource_families_loaded
             with timed_stage("management.first_draw"):
                 self.redraw()
             return
 
-        self.last_status = "Preparing source-backed management resources..."
+        self.last_status = f"Preparing source-backed management {family} resources..."
         self.root.configure(cursor="watch")
         result_queue = Queue()
         self._management_load_queue = result_queue
+        self._management_loading_family = family
 
         def worker():
             try:
-                with timed_stage("management.resources.load_all"):
-                    loaded = loader()
+                with timed_stage(f"management.resources.load_{family}"):
+                    loaded = loader(family)
             except Exception as exc:
-                result_queue.put(("error", exc, traceback.format_exc()))
+                result_queue.put(("error", family, exc, traceback.format_exc()))
             else:
-                result_queue.put(("ok", loaded, None))
+                result_queue.put(("ok", family, loaded, None))
 
         thread = self.management_thread_factory(target=worker, daemon=True)
         self._management_load_thread = thread
@@ -906,13 +1070,14 @@ class OriginalGameTkHost:
         if result_queue is None:
             return
         try:
-            status, payload, traceback_text = result_queue.get_nowait()
+            status, family, payload, traceback_text = result_queue.get_nowait()
         except Empty:
             self._schedule_management_resource_poll()
             return
 
         self._management_load_thread = None
         self._management_load_queue = None
+        self._management_loading_family = None
         if status == "error":
             self.root.configure(cursor="")
             self.last_status = f"{type(payload).__name__}: {payload}"
@@ -922,7 +1087,7 @@ class OriginalGameTkHost:
             return
 
         try:
-            self._apply_management_resources(payload)
+            self._apply_management_resources(family, payload)
             self.root.configure(cursor="")
             with timed_stage("management.first_draw"):
                 self.redraw()
@@ -1022,6 +1187,81 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
             count += 1
+        return count
+
+    def _draw_squad_rows(self, frame) -> int:
+        """Draw source-closed first-roster text plus source-qualified PSCF status."""
+        if frame.presentation.panel_class != "PSquadScreen":
+            return 0
+        transition = frame.presentation.squad_view_transition
+        if transition is None:
+            raise OriginalGameHostError(
+                "Squad panel lost its source-proven view-transition state"
+            )
+        # The current presenter exposes the source-order first-roster viewport
+        # only for the fresh combined control-3 state. Controls 4/5 still lack
+        # complete post-event roster/pitch membership and therefore remain
+        # fail-closed instead of reusing stale row pixels.
+        if transition.control_id != 3:
+            return 0
+        snapshot = frame.presentation.squad
+        if snapshot is None:
+            raise OriginalGameHostError(
+                "Squad landing renderer requires its source-backed row viewport"
+            )
+        resources = self.squad_row_text_resources
+        if not isinstance(resources, OriginalSquadRowTextResources):
+            raise OriginalGameHostError(
+                "Squad landing renderer requires verified original row font resources"
+            )
+        overlays = (
+            *build_first_roster_role_overlays(snapshot.rows, resources),
+            *build_first_roster_name_overlays(snapshot.rows, resources),
+            *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
+        )
+        count = 0
+        for overlay in overlays:
+            self._create_native_image(
+                overlay.x,
+                overlay.y,
+                image=self._photo(
+                    encode_rgba_png(
+                        overlay.width,
+                        overlay.height,
+                        overlay.rgba,
+                    )
+                ),
+                anchor=self.tk.NW,
+            )
+            count += 1
+
+        source_qualified_status_rows = tuple(
+            row for row in snapshot.rows
+            if getattr(row, "native_status_frame_index", None) is not None
+        )
+        if source_qualified_status_rows:
+            status_resources = self.squad_status_resources
+            if not isinstance(status_resources, OriginalSquadStatusResources):
+                raise OriginalGameHostError(
+                    "Squad source-qualified status renderer requires verified original status resources"
+                )
+            for overlay in build_first_roster_direct_status_overlays(
+                source_qualified_status_rows,
+                status_resources,
+            ):
+                self._create_native_image(
+                    overlay.x,
+                    overlay.y,
+                    image=self._photo(
+                        encode_rgba_png(
+                            overlay.width,
+                            overlay.height,
+                            overlay.rgba,
+                        )
+                    ),
+                    anchor=self.tk.NW,
+                )
+                count += 1
         return count
 
     def _draw_league_fixtures_grid_art(self, frame) -> int:
@@ -1242,7 +1482,6 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_management_host(self) -> None:
-        self._ensure_management_resources()
         if self._first_screen_idle is not None:
             self.root.after_cancel(self._first_screen_idle)
             self._first_screen_idle = None
@@ -1253,6 +1492,10 @@ class OriginalGameTkHost:
                 )
         with timed_stage("management.first_snapshot"):
             frame = build_management_canvas_frame(self.management_presenter)
+        family = self._management_resource_family(frame.presentation.panel_class)
+        if family not in self._management_resource_families_loaded:
+            self._begin_management_resource_load(family)
+            return
         if self.management_pmenu_resources is None:
             raise OriginalGameHostError(
                 "Management PMenu renderer requires verified original row resources"
@@ -1273,6 +1516,7 @@ class OriginalGameTkHost:
 
         header_image_count = self._draw_management_header()
         squad_image_count = self._draw_squad_top_controls(frame)
+        squad_image_count += self._draw_squad_rows(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         fixture_image_count += self._draw_fixtures_pager()
         table_image_count = self._draw_league_tables_header_art(frame)
@@ -1375,7 +1619,11 @@ class OriginalGameTkHost:
             source_flags,
         )
         self.last_pmenu_activation = result
-        self.redraw()
+        family = self._management_resource_family(result.presentation.panel_class)
+        if family not in self._management_resource_families_loaded:
+            self._begin_management_resource_load(family)
+        else:
+            self.redraw()
         self.last_status = (
             "Applied source-accepted PMenu action: "
             f"{result.action.action_kind} {menu_id:#x}"
@@ -1555,15 +1803,16 @@ class OriginalGameTkHost:
 
     def on_click(self, event) -> None:
         event = self._normalize_pointer_event(event)
-        if (
-            self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
-            and not self._management_resources_loaded
-        ):
-            if self._management_load_thread is None:
-                self._begin_management_resource_load()
-            else:
-                self.last_status = "Preparing source-backed management resources..."
-            return
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            if self._management_load_thread is not None:
+                self.last_status = (
+                    "Preparing source-backed management "
+                    f"{self._management_loading_family or 'squad'} resources..."
+                )
+                return
+            if not self._management_resources_loaded:
+                self._begin_management_resource_load("squad")
+                return
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.active_pmatchinfo_art is not None:
                 if (self.active_pmatchinfo_context is not None
@@ -1667,7 +1916,11 @@ class OriginalGameTkHost:
                         source_flags,
                     )
                     self.last_pmenu_activation = result
-                    self.redraw()
+                    family = self._management_resource_family(result.presentation.panel_class)
+                    if family not in self._management_resource_families_loaded:
+                        self._begin_management_resource_load(family)
+                    else:
+                        self.redraw()
                     self.last_status = (
                         "PMenu source pointer press: "
                         f"{result.action.action_kind} {candidate.menu_id:#x}"
@@ -1696,7 +1949,7 @@ class OriginalGameTkHost:
                     self.management_resource_loader is not None
                     and not self._management_resources_loaded
                 ):
-                    self._begin_management_resource_load()
+                    self._begin_management_resource_load("squad")
                     return
             elif result.transition.command is FrontEndCommand.QUIT_TO_WINDOWS:
                 self.last_status = "QUIT_TO_WINDOWS"
@@ -1727,7 +1980,9 @@ class OriginalGameTkHost:
             with timed_stage("management.first_draw"):
                 self.redraw()
         else:
-            self.redraw()
+            redraw_screen = self.presenter.session.navigation.screen
+            with timed_stage(f"frontend.redraw screen={redraw_screen.value}"):
+                self.redraw()
 
 
 def play_configured_startup_media(
@@ -1779,13 +2034,6 @@ def run_original_game_ui(
     audio binding immediately before mainloop. Normal application launches leave
     it as None.
     """
-    with timed_stage("startup.media"):
-        play_configured_startup_media(
-            receipt_path=startup_media_receipt,
-            backend=startup_media_backend,
-            repo_root=repo_root,
-            derivatives=startup_media_derivatives,
-        )
     resolved_source_root = (
         DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
     )
@@ -1797,70 +2045,120 @@ def run_original_game_ui(
     original_executable = Path(game_dir) / "FOOTBAL.EXE"
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
 
-    def load_management_resources():
-        # Startup must expose the first screen promptly. Decode the much larger
-        # management/report surface only after TeamSelect Start actually enters
-        # MANAGEMENT, then retain the verified objects for the session.
-        pmenu_resources = load_verified_management_pmenu_resources(
-            resolved_source_root,
-            original_executable,
+    def load_management_resources(family: str):
+        # Fresh MANAGEMENT must not wait for unrelated panels. Each family is
+        # source-verified only when its route first needs it, then retained for
+        # the rest of the session.
+        if family == "squad":
+            with timed_stage("management.resources.pmenu"):
+                pmenu_resources = load_verified_management_pmenu_resources(
+                    resolved_source_root,
+                    original_executable,
+                )
+            with timed_stage("management.resources.squad_top"):
+                squad_top_resources = load_verified_squad_top_resources(
+                    resolved_source_root,
+                    original_executable,
+                )
+            with timed_stage("management.resources.squad_rows"):
+                squad_row_text_resources = load_verified_squad_row_text_resources(
+                    resolved_source_root
+                )
+            with timed_stage("management.resources.squad_status"):
+                squad_status_resources = load_verified_squad_status_resources(
+                    resolved_source_root
+                )
+            with timed_stage("management.resources.background"):
+                management_background = OriginalManagementBackground(
+                    resolved_source_root,
+                    original_executable,
+                )
+            with timed_stage("management.resources.header"):
+                management_header_resources = load_verified_management_header_resources(
+                    resolved_source_root,
+                    original_executable,
+                )
+            return {
+                "management_pmenu_resources": pmenu_resources,
+                "squad_top_resources": squad_top_resources,
+                "squad_row_text_resources": squad_row_text_resources,
+                "squad_status_resources": squad_status_resources,
+                "management_background": management_background,
+                "management_header_resources": management_header_resources,
+            }
+
+        if family == "fixtures":
+            with timed_stage("management.resources.fixture_contracts"):
+                fixture_resources = validate_original_league_fixtures_resources(
+                    resolved_source_root
+                )
+            with timed_stage("management.resources.league_fixtures_grid_art"):
+                league_fixtures_grid_art = load_verified_league_fixtures_grid_art(
+                    resolved_source_root,
+                    original_executable,
+                )
+            with timed_stage("management.resources.fixtures_pager_art"):
+                fixtures_pager_art = load_verified_fixtures_pager_art(
+                    resolved_source_root,
+                    original_executable,
+                )
+            # PMatchInfo is reachable only from the Fixtures route, so its
+            # source family is staged with that route rather than fresh Squad.
+            with timed_stage("management.resources.pmatchinfo_snapshot"):
+                pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
+                    runtime_repo_root,
+                    original_executable,
+                    require_complete_dialog=True,
+                )
+            with timed_stage("management.resources.pmatchinfo_font"):
+                pmatchinfo_font = validate_original_pmenu_font(resolved_source_root)
+            with timed_stage("management.resources.pmatchinfo_nested_font"):
+                pmatchinfo_nested_font = load_pmatchinfo_nested_font(
+                    resolved_source_root
+                )
+            with timed_stage("management.resources.pmatchinfo_script_art"):
+                pmatchinfo_script_art = load_script_row_art(
+                    runtime_repo_root,
+                    original_executable,
+                    game_dir=game_dir,
+                )
+            return {
+                "league_fixtures_grid_art": league_fixtures_grid_art,
+                "fixtures_pager_art": fixtures_pager_art,
+                "pmatchinfo_snapshot": pmatchinfo_snapshot,
+                "pmatchinfo_font": pmatchinfo_font,
+                "pmatchinfo_nested_font": pmatchinfo_nested_font,
+                "pmatchinfo_script_art": pmatchinfo_script_art,
+                "_fixture_resource_names": tuple(
+                    resource.name for resource in fixture_resources
+                ),
+            }
+
+        if family == "league_tables":
+            with timed_stage("management.resources.league_table_contracts"):
+                league_table_resources = validate_original_league_tables_resources(
+                    resolved_source_root
+                )
+            with timed_stage("management.resources.league_tables_header"):
+                league_tables_header_art = load_verified_league_tables_header_art(
+                    resolved_source_root,
+                    original_executable,
+                )
+            with timed_stage("management.resources.text"):
+                management_text_resources = load_verified_management_text_resources(
+                    resolved_source_root,
+                )
+            return {
+                "league_tables_header_art": league_tables_header_art,
+                "management_text_resources": management_text_resources,
+                "_league_table_resource_names": tuple(
+                    resource.name for resource in league_table_resources
+                ),
+            }
+
+        raise OriginalGameHostError(
+            f"Unsupported management resource family: {family!r}"
         )
-        fixture_resources = validate_original_league_fixtures_resources(
-            resolved_source_root
-        )
-        league_table_resources = validate_original_league_tables_resources(
-            resolved_source_root
-        )
-        return {
-            "management_pmenu_resources": pmenu_resources,
-            "league_fixtures_grid_art": load_verified_league_fixtures_grid_art(
-                resolved_source_root,
-                original_executable,
-            ),
-            "fixtures_pager_art": load_verified_fixtures_pager_art(
-                resolved_source_root,
-                original_executable,
-            ),
-            "squad_top_resources": load_verified_squad_top_resources(
-                resolved_source_root,
-                original_executable,
-            ),
-            "league_tables_header_art": load_verified_league_tables_header_art(
-                resolved_source_root,
-                original_executable,
-            ),
-            "pmatchinfo_snapshot": load_staged_pmatchinfo_snapshot(
-                runtime_repo_root,
-                original_executable,
-                require_complete_dialog=True,
-            ),
-            "pmatchinfo_font": validate_original_pmenu_font(resolved_source_root),
-            "pmatchinfo_nested_font": load_pmatchinfo_nested_font(
-                resolved_source_root
-            ),
-            "pmatchinfo_script_art": load_script_row_art(
-                runtime_repo_root,
-                original_executable,
-                game_dir=game_dir,
-            ),
-            "management_background": OriginalManagementBackground(
-                resolved_source_root,
-                original_executable,
-            ),
-            "management_header_resources": load_verified_management_header_resources(
-                resolved_source_root,
-                original_executable,
-            ),
-            "management_text_resources": load_verified_management_text_resources(
-                resolved_source_root,
-            ),
-            "_fixture_resource_names": tuple(
-                resource.name for resource in fixture_resources
-            ),
-            "_league_table_resource_names": tuple(
-                resource.name for resource in league_table_resources
-            ),
-        }
 
     import tkinter as tk
 
@@ -1881,6 +2179,39 @@ def run_original_game_ui(
         ),
         management_resource_loader=load_management_resources,
     )
+    if startup_media_backend is not None:
+        host.show_startup_media_backdrop()
+        try:
+            bind_parent = getattr(
+                startup_media_backend, "bind_parent_window", None
+            )
+            if callable(bind_parent):
+                binding = host.startup_media_child_binding()
+                bind_parent(
+                    binding["parent_hwnd"],
+                    x=binding["x"],
+                    y=binding["y"],
+                    width=binding["width"],
+                    height=binding["height"],
+                )
+            with timed_stage("startup.media"):
+                play_configured_startup_media(
+                    receipt_path=startup_media_receipt,
+                    backend=startup_media_backend,
+                    repo_root=repo_root,
+                    derivatives=startup_media_derivatives,
+                )
+        finally:
+            host.hide_startup_media_backdrop()
+    else:
+        with timed_stage("startup.media"):
+            play_configured_startup_media(
+                receipt_path=startup_media_receipt,
+                backend=None,
+                repo_root=repo_root,
+                derivatives=startup_media_derivatives,
+            )
+
     audio_binding = None
     try:
         audio_binding = install_live_first_screen_audio(host, game_dir)

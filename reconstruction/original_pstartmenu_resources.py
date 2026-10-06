@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 
+from runtime_diagnostics import timed_stage
+
 from ea444_decoder import EA444DecodedImage, decode_ea444
 from ea444_quantization import quantization_from_verified_executable
 from ea444_tables import tables_from_original_executable
@@ -148,43 +150,49 @@ def load_verified_english_pstartmenu_inputs(
     executable is separately verified by the EA444 table/quantization parsers.
     Unrecovered button-state selection and label alignment stay unset.
     """
-    exe = Path(original_executable).read_bytes()
-    tables = tables_from_original_executable(exe)
-    quant = quantization_from_verified_executable(exe)
+    with timed_stage("startup.pstartmenu.executable_tables"):
+        exe = Path(original_executable).read_bytes()
+        tables = tables_from_original_executable(exe)
+        quant = quantization_from_verified_executable(exe)
 
-    base = decode_ea444(
-        _read_art(original_art_dir, GLOBAL_BACKGROUND_PATH, GLOBAL_BACKGROUND_SHA256),
-        tables=tables, quant=quant,
-    )
-    menu = decode_ea444(
-        _read_art(original_art_dir, PSTARTMENU_BACKGROUND_PATH, MENU_BACKGROUND_SHA256),
-        tables=tables, quant=quant,
-    )
-    raw_atlas = _read_art(
-        original_art_dir,
-        PSTARTMENU_BUTTON_ATLAS.source_path,
-        PSTARTMENU_BUTTON_ATLAS.source_sha256,
-    )
-    buttons = decode_verified_original_button_atlas(
-        raw_atlas, spec=PSTARTMENU_BUTTON_ATLAS, tables=tables, quant=quant,
-    )
-    font = EAFont.from_bytes(
-        _read_verified(original_zurich_font20, ZURICH_FONT20_SHA256)
-    )
-    language_dir = Path(original_language_dir)
-    strings, index = parse_language_pair(
-        _read_verified(language_dir / "English.str", ENGLISH_STR_SHA256),
-        _read_verified(language_dir / "English.idx", ENGLISH_IDX_SHA256),
-    )
-    captions = prepare_original_pstartmenu_captions(font, strings, index)
-    if tuple(item.original_text for item in captions) != ENGLISH_ACTION_TEXTS:
-        raise OriginalPStartMenuResourceError(
-            "Verified English resources no longer map to original menu captions"
+    with timed_stage("startup.pstartmenu.global_background_decode"):
+        base = decode_ea444(
+            _read_art(original_art_dir, GLOBAL_BACKGROUND_PATH, GLOBAL_BACKGROUND_SHA256),
+            tables=tables, quant=quant,
         )
+    with timed_stage("startup.pstartmenu.menu_background_decode"):
+        menu = decode_ea444(
+            _read_art(original_art_dir, PSTARTMENU_BACKGROUND_PATH, MENU_BACKGROUND_SHA256),
+            tables=tables, quant=quant,
+        )
+    with timed_stage("startup.pstartmenu.button_atlas_decode"):
+        raw_atlas = _read_art(
+            original_art_dir,
+            PSTARTMENU_BUTTON_ATLAS.source_path,
+            PSTARTMENU_BUTTON_ATLAS.source_sha256,
+        )
+        buttons = decode_verified_original_button_atlas(
+            raw_atlas, spec=PSTARTMENU_BUTTON_ATLAS, tables=tables, quant=quant,
+        )
+    with timed_stage("startup.pstartmenu.font_language"):
+        font = EAFont.from_bytes(
+            _read_verified(original_zurich_font20, ZURICH_FONT20_SHA256)
+        )
+        language_dir = Path(original_language_dir)
+        strings, index = parse_language_pair(
+            _read_verified(language_dir / "English.str", ENGLISH_STR_SHA256),
+            _read_verified(language_dir / "English.idx", ENGLISH_IDX_SHA256),
+        )
+        captions = prepare_original_pstartmenu_captions(font, strings, index)
+        if tuple(item.original_text for item in captions) != ENGLISH_ACTION_TEXTS:
+            raise OriginalPStartMenuResourceError(
+                "Verified English resources no longer map to original menu captions"
+            )
 
-    result = assemble_original_pstartmenu_inputs(base, menu, buttons, captions)
-    if sha256(result.background_rgba).hexdigest() != COMPOSED_BACKGROUND_RGBA_SHA256:
-        raise OriginalPStartMenuResourceError(
-            "Source-backed original menu background RGBA regression"
-        )
+    with timed_stage("startup.pstartmenu.compose_verify"):
+        result = assemble_original_pstartmenu_inputs(base, menu, buttons, captions)
+        if sha256(result.background_rgba).hexdigest() != COMPOSED_BACKGROUND_RGBA_SHA256:
+            raise OriginalPStartMenuResourceError(
+                "Source-backed original menu background RGBA regression"
+            )
     return result

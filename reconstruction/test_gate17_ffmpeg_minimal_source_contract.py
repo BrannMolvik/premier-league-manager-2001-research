@@ -49,6 +49,18 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             ):
                 audit_source_contract(root)
 
+    def test_minimal_contract_requires_d3d11va_for_mediafoundation_encoder_source(self):
+        payload = self.canonical()
+        payload["minimal_helper_target"]["configure_args"].remove("--enable-d3d11va")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "explicitly re-enable D3D11VA",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_requires_w32threads_after_disabling_autodetect(self):
         payload = self.canonical()
         payload["minimal_helper_target"]["configure_args"].remove("--enable-w32threads")

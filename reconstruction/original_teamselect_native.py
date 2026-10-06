@@ -329,6 +329,27 @@ class TeamSelectHierarchyModel:
             clubs=tuple(state.clubs.values()),
         )
 
+    @classmethod
+    def from_catalog(cls, catalog) -> "TeamSelectHierarchyModel":
+        """Build the exact TeamSelect projection from canonical parsed records.
+
+        The catalog boundary deliberately consumes only countries, competitions,
+        and clubs. It does not require players, schedules, RNG state, or a live
+        GameState.
+        """
+        countries = tuple(getattr(catalog, "countries", ()))
+        competitions = tuple(getattr(catalog, "competitions", ()))
+        clubs = tuple(getattr(catalog, "clubs", ()))
+        if not countries or not competitions or not clubs:
+            raise TeamSelectNativeError(
+                "TeamSelect catalog is missing canonical countries/competitions/clubs"
+            )
+        return cls(
+            countries={int(item.id): item for item in countries},
+            competitions=competitions,
+            clubs=clubs,
+        )
+
     def hierarchy_rows(self) -> tuple[TeamSelectHierarchyRow, ...]:
         rows: list[tuple[HierarchyRowKind, object]] = []
         for country_id, expected_name in TEAMSELECT_ENGLISH_COUNTRY_ORDER:

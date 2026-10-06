@@ -51,6 +51,8 @@ on:
       - "reconstruction/test_gate13_management_source_data.py"
       - "reconstruction/gate13_remaining_field_source_trace.py"
       - "reconstruction/test_gate13_remaining_field_source_trace.py"
+      - "reconstruction/gate13_pstartmenu_derivative.py"
+      - "reconstruction/test_gate13_pstartmenu_derivative.py"
       - "reconstruction/original_pmenu_presenter.py"
       - "reconstruction/test_original_pmenu_presenter.py"
       - "reconstruction/original_management_presenter.py"

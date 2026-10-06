@@ -135,6 +135,8 @@ class OriginalStartupMediaTests(unittest.TestCase):
                 self.assertIn("-fps_mode", plan.ffmpeg_args)
                 self.assertIn("passthrough", plan.ffmpeg_args)
                 self.assertIn("libx264", plan.ffmpeg_args)
+                self.assertIn("-vf", plan.ffmpeg_args)
+                self.assertIn("scale=640:480:flags=neighbor", plan.ffmpeg_args)
                 self.assertIn("yuv420p", plan.ffmpeg_args)
                 self.assertIn("aac", plan.ffmpeg_args)
                 self.assertEqual(plan.ffmpeg_args[-1], str(plan.output_path))
@@ -157,6 +159,8 @@ class OriginalStartupMediaTests(unittest.TestCase):
         self.assertEqual(profile.probe_audio_codec, "aac")
         self.assertEqual(profile.pixel_format, "yuv420p")
         self.assertEqual(profile.container_name, "mp4")
+        self.assertEqual((profile.output_width, profile.output_height), (640, 480))
+        self.assertEqual(profile.video_filter, "scale=640:480:flags=neighbor")
 
         payload = b"synthetic tgq for media foundation plan"
         spec = OriginalStartupMediaSpec(
@@ -199,7 +203,7 @@ class OriginalStartupMediaTests(unittest.TestCase):
                     "codec_type": "video",
                     "codec_name": "h264",
                     "pix_fmt": "yuv420p",
-                    "width": 320,
+                    "width": 640,
                     "height": 480,
                     "avg_frame_rate": "25/1",
                     "nb_read_frames": str(spec.decoded_video_frames),

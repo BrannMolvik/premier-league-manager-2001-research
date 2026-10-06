@@ -151,6 +151,9 @@ def load_verified_startup_media_derivatives(
         "pixel_format": profile.pixel_format,
         "audio_encoder": profile.ffmpeg_audio_encoder,
         "audio_codec": profile.probe_audio_codec,
+        "output_width": profile.output_width,
+        "output_height": profile.output_height,
+        "video_filter": profile.video_filter,
     }
     if dict(raw_profile) != expected_profile:
         raise StartupMediaDerivativeError(
@@ -215,8 +218,8 @@ def load_verified_startup_media_derivatives(
         for key, expected in (
             ("container", profile.container_name),
             ("video_codec", profile.probe_video_codec),
-            ("video_width", spec.video_width),
-            ("video_height", spec.video_height),
+            ("video_width", profile.output_width),
+            ("video_height", profile.output_height),
             ("frame_rate", spec.frame_rate),
             ("decoded_video_frames", spec.decoded_video_frames),
             ("pixel_format", profile.pixel_format),

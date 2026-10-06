@@ -11,6 +11,7 @@ with alpha 0 as the modern equivalent of the legacy color-key blit.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 from ea444_bits import EA444BitReader, reader_for_ea444
@@ -65,6 +66,7 @@ def _read_transparency_rows(reader: EA444BitReader, header: EA444Header) -> byte
     return first + second
 
 
+@lru_cache(maxsize=16)
 def decode_ea444(
     source: bytes,
     *,
@@ -101,16 +103,26 @@ def decode_ea444(
                         continue
                     index = y * 8 + x
                     masked = bool(row_mask & (0x80 >> x))
+                    dest = (py * header.width + px) * 4
                     if masked:
-                        r, g, b, a = key_r, key_g, key_b, 0
+                        output[dest] = key_r
+                        output[dest + 1] = key_g
+                        output[dest + 2] = key_b
+                        output[dest + 3] = 0
                         transparent += 1
                     else:
-                        r = _sample_u8(red[index])
-                        g = _sample_u8(green[index])
-                        b = _sample_u8(blue[index])
-                        a = 255
-                    dest = (py * header.width + px) * 4
-                    output[dest:dest + 4] = bytes((r, g, b, a))
+                        # This is the exact _sample_u8 rule inlined into the
+                        # hot per-pixel path. Avoiding three Python calls and
+                        # one temporary four-byte object per pixel materially
+                        # reduces source .444 startup decode time without
+                        # changing the recovered signed 16.16 semantics.
+                        r = red[index] >> 16
+                        g = green[index] >> 16
+                        b = blue[index] >> 16
+                        output[dest] = 0 if r < 0 else 255 if r > 255 else r
+                        output[dest + 1] = 0 if g < 0 else 255 if g > 255 else g
+                        output[dest + 2] = 0 if b < 0 else 255 if b > 255 else b
+                        output[dest + 3] = 255
 
     return EA444DecodedImage(
         header.width,

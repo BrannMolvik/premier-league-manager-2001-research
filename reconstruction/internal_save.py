@@ -19,6 +19,7 @@ from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
 from cup_progression import CupResultRegistry
+from cup_tied_state import CupTiedPlayerCollection
 from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
@@ -77,7 +78,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 44
+SAVE_SCHEMA_VERSION = 45
 
 
 def _snapshot_playable_country_allocation_plan(plan):
@@ -1229,6 +1230,42 @@ def _restore_cup_result_registry(value) -> CupResultRegistry:
     return registry
 
 
+def _snapshot_cup_tied_collections(
+    collections: dict[int, CupTiedPlayerCollection],
+) -> dict[str, list[dict[str, int]]]:
+    """Serialize root +0x48 Cup-Tied records in collection insertion order."""
+    return {
+        str(int(root_id)): [
+            {
+                "player_id": int(record.player_id),
+                "club_id": int(record.club_id),
+            }
+            for record in collection.records
+        ]
+        for root_id, collection in sorted(collections.items())
+    }
+
+
+def _restore_cup_tied_collections(value) -> dict[int, CupTiedPlayerCollection]:
+    """Restore persistent first-club-wins Cup-Tied collections fail-closed."""
+    restored: dict[int, CupTiedPlayerCollection] = {}
+    for raw_root_id, records in (value or {}).items():
+        root_id = int(raw_root_id)
+        if root_id in restored:
+            raise ValueError("duplicate Cup-Tied root competition")
+        collection = CupTiedPlayerCollection()
+        for record in records:
+            if not collection.record_appearance(
+                int(record["player_id"]),
+                int(record["club_id"]),
+            ):
+                raise ValueError(
+                    f"duplicate Cup-Tied player in root competition {root_id}"
+                )
+        restored[root_id] = collection
+    return restored
+
+
 def snapshot_game_state(state: GameState) -> dict[str, Any]:
     league = state.premier_league
     league_snapshot = None
@@ -1277,6 +1314,9 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         },
         "premier_league": league_snapshot,
         "cup_results": _snapshot_cup_result_registry(state.cup_results),
+        "cup_tied_collections": _snapshot_cup_tied_collections(
+            state.cup_tied_collections
+        ),
         "domestic_cups": state.domestic_cups.snapshot(),
         "european_cups": state.european_cups.snapshot(),
         "qualification_cups": state.qualification_cups.snapshot(),
@@ -1579,6 +1619,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         players=players,
         premier_league=league,
         cup_results=_restore_cup_result_registry(snapshot.get("cup_results")),
+        cup_tied_collections=_restore_cup_tied_collections(
+            snapshot.get("cup_tied_collections")
+        ),
         domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
         european_cups=DomesticCupScheduleState.restore(snapshot.get("european_cups")),
         qualification_cups=DomesticCupScheduleState.restore(

@@ -120,6 +120,18 @@ def audit_source_contract(repo_root: str | Path) -> dict:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must explicitly re-enable Windows Media Foundation"
         )
+    if "--enable-d3d11va" not in args:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper must explicitly re-enable D3D11VA for the pinned Media Foundation encoder source"
+        )
+    if minimal.get("required_windows_platform_components") != [
+        "mediafoundation",
+        "d3d11va",
+        "w32threads",
+    ]:
+        raise MinimalFfmpegSourceContractError(
+            "minimal helper Windows platform-component contract drifted"
+        )
     if "--enable-w32threads" not in args:
         raise MinimalFfmpegSourceContractError(
             "minimal helper must explicitly re-enable native Windows threads"

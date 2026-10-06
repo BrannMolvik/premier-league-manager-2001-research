@@ -41,7 +41,7 @@ def valid_probe(frames: int):
                 "codec_type": "video",
                 "codec_name": "h264",
                 "pix_fmt": "yuv420p",
-                "width": 320,
+                "width": 640,
                 "height": 480,
                 "avg_frame_rate": "25/1",
                 "nb_read_frames": str(frames),
@@ -167,6 +167,12 @@ class Gate14StartupMediaConversionTests(unittest.TestCase):
         self.assertEqual(result["profile"]["video_encoder"], "h264_mf")
         self.assertEqual(result["profile"]["video_codec"], "h264")
         self.assertEqual(result["profile"]["audio_encoder"], "aac")
+        self.assertEqual(result["profile"]["output_width"], 640)
+        self.assertEqual(result["profile"]["output_height"], 480)
+        self.assertEqual(
+            result["profile"]["video_filter"],
+            "scale=640:480:flags=neighbor",
+        )
         self.assertTrue(result["passed"])
         self.assertFalse(result["gate14_complete"])
 
