@@ -80,6 +80,31 @@ class PrematchSurfaceTests(unittest.TestCase):
             background_club_override_id=None,
         )
 
+    def _surfaced_resources(self, selection, background):
+        home_badge = VerifiedFastViewSurfacedResource(
+            role="home_badge",
+            source_path=selection.home_badge_source_candidates[0],
+            byte_size=1,
+            sha256="1" * 64,
+            geometry=(135, 93),
+            rgba=bytes(135 * 93 * 4),
+            transparent_pixels=0,
+        )
+        away_badge = VerifiedFastViewSurfacedResource(
+            role="away_badge",
+            source_path=selection.away_badge_source_candidates[0],
+            byte_size=1,
+            sha256="2" * 64,
+            geometry=(135, 93),
+            rgba=bytes(135 * 93 * 4),
+            transparent_pixels=0,
+        )
+        return SimpleNamespace(
+            background=background,
+            home_badge=home_badge,
+            away_badge=away_badge,
+        )
+
     def test_boundary_reuses_exact_team_background_selection_and_native_layers(self):
         selection = self._selection()
         background = VerifiedFastViewSurfacedResource(
@@ -99,8 +124,8 @@ class PrematchSurfaceTests(unittest.TestCase):
                 return_value=selection,
             ) as select,
             patch(
-                "gate14_prematch_surface.load_verified_selected_background",
-                return_value=background,
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=self._surfaced_resources(selection, background),
             ) as load_background,
             patch(
                 "gate14_prematch_surface.load_verified_original_prematch_resources",
@@ -124,6 +149,24 @@ class PrematchSurfaceTests(unittest.TestCase):
             selection,
             source_root="/source",
             original_executable="/source/FOOTBAL.EXE",
+        )
+        self.assertEqual(
+            tuple(layer.role for layer in boundary.badge_layers),
+            ("home_badge", "away_badge"),
+        )
+        self.assertEqual(
+            tuple(
+                (layer.rect.x, layer.rect.y, layer.rect.width, layer.rect.height)
+                for layer in boundary.badge_layers
+            ),
+            ((101, 1, 135, 93), (563, 1, 135, 93)),
+        )
+        self.assertEqual(
+            tuple(layer.source_path for layer in boundary.badge_layers),
+            (
+                selection.home_badge_source_candidates[0],
+                selection.away_badge_source_candidates[0],
+            ),
         )
         load_prematch.assert_called_once_with(
             source_root="/source",
@@ -274,8 +317,8 @@ class PrematchSurfaceTests(unittest.TestCase):
                 return_value=selection,
             ),
             patch(
-                "gate14_prematch_surface.load_verified_selected_background",
-                return_value=background,
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=self._surfaced_resources(selection, background),
             ),
             patch(
                 "gate14_prematch_surface.load_verified_original_prematch_resources",
@@ -366,8 +409,8 @@ class PrematchSurfaceTests(unittest.TestCase):
                 return_value=selection,
             ),
             patch(
-                "gate14_prematch_surface.load_verified_selected_background",
-                return_value=background,
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=self._surfaced_resources(selection, background),
             ),
             patch(
                 "gate14_prematch_surface.load_verified_original_prematch_resources",
@@ -434,8 +477,8 @@ class PrematchSurfaceTests(unittest.TestCase):
                 return_value=selection,
             ),
             patch(
-                "gate14_prematch_surface.load_verified_selected_background",
-                return_value=background,
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=self._surfaced_resources(selection, background),
             ),
             patch(
                 "gate14_prematch_surface.load_verified_original_prematch_resources",
@@ -512,8 +555,8 @@ class PrematchSurfaceTests(unittest.TestCase):
                 return_value=selection,
             ),
             patch(
-                "gate14_prematch_surface.load_verified_selected_background",
-                return_value=background,
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=self._surfaced_resources(selection, background),
             ),
             patch(
                 "gate14_prematch_surface.load_verified_original_prematch_resources",
@@ -567,10 +610,10 @@ class PrematchSurfaceTests(unittest.TestCase):
             tuple(range(182)),
         )
         self.assertEqual(sum(family.source_control_count for family in coverage), 182)
-        self.assertEqual(sum(family.represented_controls for family in coverage), 158)
+        self.assertEqual(sum(family.represented_controls for family in coverage), 160)
         self.assertEqual(
             tuple(family.role for family in coverage if family.supplied_state_complete),
-            ("live_background", "pitch", "top_bar", "rating_captions"),
+            ("live_background", "pitch", "top_bar", "team_badges", "rating_captions"),
         )
         self.assertTrue(
             all(
@@ -586,20 +629,20 @@ class PrematchSurfaceTests(unittest.TestCase):
                 if family.role == "starting_xi_pitch_markers"
             ).supplied_state_complete
         )
-        self.assertEqual(
-            next(
-                family
-                for family in coverage
-                if family.role == "team_badges"
-            ).represented_controls,
-            0,
+        badge_family = next(
+            family for family in coverage if family.role == "team_badges"
         )
+        self.assertEqual(badge_family.represented_controls, 2)
+        self.assertTrue(badge_family.supplied_state_complete)
 
     def test_contract_keeps_all_unresolved_claims_fail_closed(self):
         contract = prematch_surface_contract()
         self.assertEqual(contract["native_surface"], (800, 600))
         self.assertTrue(contract["team_backgrounds_selector_reused"])
         self.assertTrue(contract["team_backgrounds_loader_reused"])
+        self.assertTrue(contract["team_badge_selector_reused"])
+        self.assertTrue(contract["team_badge_loader_reused"])
+        self.assertTrue(contract["team_badge_pixels_staged"])
         self.assertEqual(contract["text_control_count"], 13)
         self.assertEqual(
             contract["text_control_roles"],
@@ -642,10 +685,10 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["source_child_count"], PREMATCH_CHILD_COUNT)
         self.assertEqual(contract["source_child_count"], 182)
         self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
-        self.assertEqual(contract["represented_child_controls"], 158)
+        self.assertEqual(contract["represented_child_controls"], 160)
         self.assertEqual(
             contract["complete_child_families"],
-            ("live_background", "pitch", "top_bar", "rating_captions"),
+            ("live_background", "pitch", "top_bar", "team_badges", "rating_captions"),
         )
         self.assertIn("starting_xi_pitch_markers", contract["unresolved_child_families"])
         self.assertIn("match_detail_selectors", contract["unresolved_child_families"])
