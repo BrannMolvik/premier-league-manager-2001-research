@@ -1,3 +1,43 @@
+# Recovery 368 continuation — PPreMatch identity/text contract staged for review
+
+_Updated 7 October 2026._
+
+Canonical `main` remains `222a6bd80399c4b0cccb742a38178640c1ac31ab`.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely
+because Daniel's normal Windows 11 acceptance of artifact `11418314765`
+is still outstanding.
+
+Gate-14 work-ahead branch
+`chatgpt/gate14-prematch-identity-r368` now source-closes the remaining
+low-level PPreMatch identity/text contract that is safe to expose without
+inventing a launch path:
+
+- exact date format `%Df %Mf %Yf` into panel `+0x70`;
+- exact weather/temperature format `%s %d°C` into `+0x270`, while the five
+  localized weather-condition identities remain deliberately unnamed;
+- team-badge source family
+  `FM2001_art\\generic\\team_badge_stills`, variant `badge_2`, and
+  canonical generic fallback, with panel resource offsets `+0x600/+0x624`
+  and resolved-control offsets `+0x840/+0x890`;
+- exactly two 18-player identity banks from match-side count/array pairs
+  `0x5A4/0x004` and `0xB54/0x5B4`, with the first 11 slots as the
+  starting-XI region and indices 11..17 using the alternate row state;
+- native player-name helpers `0x417A90/0x417AE0` and exact full-name format
+  `%s %s` at VA `0x81858C`.
+
+The branch adds neutral contract constants, regression assertions, and durable
+source notes only. It does not name unresolved competition/weather/rating
+captions, claim complete draw order, invent management-to-match launch, or
+substitute FastView for either missing 3D mode.
+
+Exact next task after this checkpoint validates: finish the remaining language
+identities and prove PPreMatchPanel child/control registration order against
+the generic panel draw semantics. Then assemble only the source-proven complete
+pre-match frame layers. Keep management-to-match launch, missing 3D
+presentation, and Gate 14 completion fail-closed.
+
+---
+
 # Recovery 367 continuation — native PPreMatch rating widths merged
 
 _Updated 7 October 2026._
