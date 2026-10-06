@@ -150,6 +150,109 @@ PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA = 0x5D3510
 PREMATCH_LIVE_BACKGROUND_WRAPPER_OFFSET = 0x6B4
 PREMATCH_LIVE_BACKGROUND_CACHE_OFFSET = 0x6D4
 
+# Source-closed PPreMatch identity/text contracts recovered from the canonical
+# executable.  Keep the two match sides neutral here: their structural halves
+# are proven, while presentation naming belongs to the higher-level match model.
+PREMATCH_DATE_FORMAT = "%Df %Mf %Yf"
+PREMATCH_DATE_FORMAT_VA = 0x81D5B8
+PREMATCH_DATE_BUFFER_OFFSET = 0x70
+PREMATCH_WEATHER_TEMPERATURE_FORMAT = "%s %d°C"
+PREMATCH_WEATHER_TEMPERATURE_FORMAT_VA = 0x81D5B0
+PREMATCH_DATE_WEATHER_FORMAT = "%s %s"
+PREMATCH_DATE_WEATHER_LANGUAGE_GLOBAL_VA = 0x98204C
+PREMATCH_DATE_WEATHER_BUFFER_OFFSET = 0x270
+
+PREMATCH_FIXTURE_HEADER_FORMAT = "%s MATCH TODAY AT %s"
+PREMATCH_FIXTURE_HEADER_LANGUAGE_GLOBAL_VA = 0x982050
+PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET = 0x170
+PREMATCH_FRIENDLY_LABEL = "Friendly"
+PREMATCH_FRIENDLY_LANGUAGE_GLOBAL_VA = 0x9830C8
+PREMATCH_VERSUS_LABEL = "V"
+PREMATCH_VERSUS_LANGUAGE_GLOBAL_VA = 0x9830C4
+
+PREMATCH_WEATHER_LABELS = ("Clear", "Sunny", "Raining", "Sleet", "Snowy")
+PREMATCH_WEATHER_LANGUAGE_GLOBALS = (
+    0x98252C,
+    0x982534,
+    0x982524,
+    0x9821E0,
+    0x982520,
+)
+PREMATCH_RATING_LABELS = ("GK", "DEF", "MID", "ATT")
+PREMATCH_RATING_LANGUAGE_GLOBALS = (0x983BE4, 0x983B70, 0x983B6C, 0x983B68)
+
+PREMATCH_FIXTURE_HEADER_RECT = OriginalRect(250, 45, 300, 30)
+PREMATCH_DATE_WEATHER_RECT = OriginalRect(250, 70, 300, 16)
+PREMATCH_BADGE_RECTS = (
+    OriginalRect(38, 1, 135, 93),
+    OriginalRect(627, 1, 135, 93),
+)
+PREMATCH_TEAM_IDENTITY_RECTS = (
+    OriginalRect(184, 4, 185, 39),
+    OriginalRect(374, 5, 52, 37),
+    OriginalRect(429, 4, 185, 39),
+)
+PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA = 0x87BE30
+PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS = (0x87BE80, 0x87BE70, 0x87BE80)
+PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA = 0x87BEA0
+PREMATCH_RATING_CAPTION_RECTS = tuple(
+    OriginalRect(x, y, 25, 14)
+    for x in (37, 737)
+    for y in (498, 516, 534, 552)
+)
+
+# PPreMatchPanel::0x4967F0 allocates exactly 0x2D8 bytes for 182 child
+# pointers, stores that array at +0x1C, stores count 0xB6 at +0x38, and fills
+# every index 0..181. Generic traversal 0x6533A0 is already source-closed as
+# forward index order, so these ranges are native paint order rather than
+# constructor-order inference.
+PREMATCH_CHILD_SETUP_VA = 0x4967F0
+PREMATCH_CHILD_ARRAY_OFFSET = 0x1C
+PREMATCH_CHILD_COUNT_OFFSET = 0x38
+PREMATCH_CHILD_ARRAY_BYTES = 0x2D8
+PREMATCH_CHILD_COUNT = 0xB6
+PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA = 0x6533A0
+PREMATCH_CHILD_ORDER_RANGES = (
+    ("live_background", 0, 0),
+    ("pitch", 1, 1),
+    ("top_bar", 2, 2),
+    ("fixture_header", 3, 3),
+    ("date_weather_line", 4, 4),
+    ("team_badges", 5, 6),
+    ("team_identity_text", 7, 9),
+    ("starting_xi_pitch_markers", 10, 31),
+    ("side0_starter_rows", 32, 64),
+    ("side0_slots_11_17", 65, 92),
+    ("side1_starter_rows", 93, 125),
+    ("side1_slots_11_17", 126, 153),
+    ("rating_bar_layers", 154, 169),
+    ("rating_captions", 170, 177),
+    ("match_detail_selectors", 178, 181),
+)
+PREMATCH_SELECTOR_CHILD_MODES = (
+    MatchDetailMode.QUICK_MATCH,
+    MatchDetailMode.FASTVIEW,
+    MatchDetailMode.THREE_D_HIGHLIGHTS,
+    MatchDetailMode.THREE_D_MATCH,
+)
+
+PREMATCH_TEAM_BADGE_ROOT = r"FM2001_art\generic\team_badge_stills"
+PREMATCH_TEAM_BADGE_VARIANT_KEY = "badge_2"
+PREMATCH_TEAM_BADGE_FALLBACK = (
+    r"fm2001_art\generic\team_badge_stills\generic.444"
+)
+PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS = (0x600, 0x624)
+PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS = (0x840, 0x890)
+
+PREMATCH_PLAYER_SLOTS_PER_SIDE = 18
+PREMATCH_STARTERS_PER_SIDE = 11
+PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS = (0x5A4, 0xB54)
+PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS = (0x004, 0x5B4)
+PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA = 0x417A90
+PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA = 0x417AE0
+PREMATCH_PLAYER_FULL_NAME_FORMAT = "%s %s"
+PREMATCH_PLAYER_FULL_NAME_FORMAT_VA = 0x81858C
+
 PREMATCH_SELECTORS = (
     PrematchSelectorSpec(
         MatchDetailMode.THREE_D_MATCH,
@@ -396,6 +499,72 @@ def prematch_panel_contract() -> dict:
         ),
         "live_background_builder_va": PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
         "live_background_source_accessor_va": PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA,
+        "date_format": PREMATCH_DATE_FORMAT,
+        "date_format_va": PREMATCH_DATE_FORMAT_VA,
+        "date_buffer_offset": PREMATCH_DATE_BUFFER_OFFSET,
+        "weather_temperature_format": PREMATCH_WEATHER_TEMPERATURE_FORMAT,
+        "weather_temperature_format_va": PREMATCH_WEATHER_TEMPERATURE_FORMAT_VA,
+        "date_weather_format": PREMATCH_DATE_WEATHER_FORMAT,
+        "date_weather_language_global_va": PREMATCH_DATE_WEATHER_LANGUAGE_GLOBAL_VA,
+        "date_weather_buffer_offset": PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+        "fixture_header_format": PREMATCH_FIXTURE_HEADER_FORMAT,
+        "fixture_header_language_global_va": PREMATCH_FIXTURE_HEADER_LANGUAGE_GLOBAL_VA,
+        "fixture_header_buffer_offset": PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+        "friendly_label": PREMATCH_FRIENDLY_LABEL,
+        "friendly_language_global_va": PREMATCH_FRIENDLY_LANGUAGE_GLOBAL_VA,
+        "versus_label": PREMATCH_VERSUS_LABEL,
+        "versus_language_global_va": PREMATCH_VERSUS_LANGUAGE_GLOBAL_VA,
+        "weather_labels": PREMATCH_WEATHER_LABELS,
+        "weather_language_globals": PREMATCH_WEATHER_LANGUAGE_GLOBALS,
+        "rating_labels": PREMATCH_RATING_LABELS,
+        "rating_language_globals": PREMATCH_RATING_LANGUAGE_GLOBALS,
+        "fixture_header_rect": (
+            PREMATCH_FIXTURE_HEADER_RECT.x,
+            PREMATCH_FIXTURE_HEADER_RECT.y,
+            PREMATCH_FIXTURE_HEADER_RECT.width,
+            PREMATCH_FIXTURE_HEADER_RECT.height,
+        ),
+        "date_weather_rect": (
+            PREMATCH_DATE_WEATHER_RECT.x,
+            PREMATCH_DATE_WEATHER_RECT.y,
+            PREMATCH_DATE_WEATHER_RECT.width,
+            PREMATCH_DATE_WEATHER_RECT.height,
+        ),
+        "badge_rects": tuple(
+            (r.x, r.y, r.width, r.height) for r in PREMATCH_BADGE_RECTS
+        ),
+        "team_identity_rects": tuple(
+            (r.x, r.y, r.width, r.height) for r in PREMATCH_TEAM_IDENTITY_RECTS
+        ),
+        "rating_caption_rects": tuple(
+            (r.x, r.y, r.width, r.height) for r in PREMATCH_RATING_CAPTION_RECTS
+        ),
+        "header_text_style_wrapper_va": PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+        "team_text_style_wrapper_vas": PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+        "rating_text_style_wrapper_va": PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA,
+        "child_setup_va": PREMATCH_CHILD_SETUP_VA,
+        "child_array_offset": PREMATCH_CHILD_ARRAY_OFFSET,
+        "child_count_offset": PREMATCH_CHILD_COUNT_OFFSET,
+        "child_array_bytes": PREMATCH_CHILD_ARRAY_BYTES,
+        "child_count": PREMATCH_CHILD_COUNT,
+        "generic_forward_traversal_va": PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA,
+        "child_order_ranges": PREMATCH_CHILD_ORDER_RANGES,
+        "selector_child_modes": tuple(int(mode) for mode in PREMATCH_SELECTOR_CHILD_MODES),
+        "child_draw_order_source_closed": True,
+        "team_badge_root": PREMATCH_TEAM_BADGE_ROOT,
+        "team_badge_variant_key": PREMATCH_TEAM_BADGE_VARIANT_KEY,
+        "team_badge_fallback": PREMATCH_TEAM_BADGE_FALLBACK,
+        "team_badge_resource_offsets": PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS,
+        "team_badge_active_offsets": PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS,
+        "player_slots_per_side": PREMATCH_PLAYER_SLOTS_PER_SIDE,
+        "starters_per_side": PREMATCH_STARTERS_PER_SIDE,
+        "side_player_count_match_offsets": PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS,
+        "side_player_array_match_offsets": PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS,
+        "player_name_length_function_va": PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA,
+        "player_name_format_function_va": PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
+        "player_full_name_format": PREMATCH_PLAYER_FULL_NAME_FORMAT,
+        "player_full_name_format_va": PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+        "identity_controls_source_closed": True,
         "shipped_prematch_background_path": PREMATCH_SHIPPED_BACKGROUND.source_path,
         "shipped_prematch_background_is_live_panel_background": False,
         "rating_rows": tuple(

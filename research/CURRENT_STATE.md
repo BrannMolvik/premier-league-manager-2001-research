@@ -1,3 +1,57 @@
+# Recovery 368 continuation — PPreMatch identity/text contract staged for review
+
+_Updated 7 October 2026._
+
+Canonical `main` remains `222a6bd80399c4b0cccb742a38178640c1ac31ab`.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** solely
+because Daniel's normal Windows 11 acceptance of artifact `11418314765`
+is still outstanding.
+
+Gate-14 work-ahead branch
+`chatgpt/gate14-prematch-identity-r368` now source-closes the remaining
+low-level PPreMatch identity/text contract that is safe to expose without
+inventing a launch path:
+
+- exact date format `%Df %Mf %Yf` into panel `+0x70`;
+- exact weather/temperature temporary format `%s %d°C`, then exact `%s %s`
+  date+weather composition into panel `+0x270`;
+- English.idx-calibrated weather labels Clear/Sunny/Raining/Sleet/Snowy,
+  rating captions GK/DEF/MID/ATT, fixture-header format
+  `%s MATCH TODAY AT %s`, Friendly fallback, and center `V` label;
+- team-badge source family
+  `FM2001_art\\generic\\team_badge_stills`, variant `badge_2`, and
+  canonical generic fallback, with panel resource offsets `+0x600/+0x624`
+  and resolved-control offsets `+0x840/+0x890`;
+- exactly two 18-player identity banks from match-side count/array pairs
+  `0x5A4/0x004` and `0xB54/0x5B4`, with the first 11 slots as the
+  starting-XI region and indices 11..17 using the alternate row state;
+- native player-name helpers `0x417A90/0x417AE0` and exact full-name format
+  `%s %s` at VA `0x81858C`.
+
+The branch adds neutral contract constants, regression assertions, and durable
+source notes only. The semantic identity of the fixture header's second `%s`
+remains intentionally unnamed; it also does not yet claim complete draw order,
+invent management-to-match launch, or substitute FastView for either missing
+3D mode.
+
+Cross-layer child order is now source-closed as a complete 182-slot forward
+paint array: background (0), pitch/top bar/text/badges/team identity (1..9),
+22 XI pitch markers (10..31), side-0 starter/post-starter rows (32..92),
+side-1 rows (93..153), rating layers/captions (154..177), then Match Detail
+selectors (178..181). This follows the already-proven generic `0x6533A0`
+forward traversal of parent `+0x1C/+0x38`.
+
+Exact top-layer geometry is now also source-closed for child slots 3..9 and
+170..177 (fixture/date-weather text, two badges, team identities/V, and rating
+captions). Exact next task after this checkpoint validates: recover the 22
+starting-XI pitch-marker placement/state and the two 18-player row content/
+geometry contracts, then bind selector visual state and assemble the complete
+pre-match frame only when every visible native slot is represented or proven
+hidden for the supplied state. Management launch and missing 3D presentation remain fail-closed. Keep management-to-match launch, missing 3D
+presentation, and Gate 14 completion fail-closed.
+
+---
+
 # Recovery 367 continuation — native PPreMatch rating widths merged
 
 _Updated 7 October 2026._

@@ -23,6 +23,8 @@ from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
     PREMATCH_RATING_ROWS,
     PREMATCH_STATIC_PLACEMENTS,
+    PREMATCH_CHILD_COUNT,
+    PREMATCH_CHILD_ORDER_RANGES,
 )
 
 
@@ -207,7 +209,7 @@ class PrematchSurfaceTests(unittest.TestCase):
             ),
         )
         self.assertFalse(boundary.rating_dynamic_widths_bound_to_cleanroom_state)
-        self.assertFalse(boundary.full_cross_layer_draw_order_recovered)
+        self.assertTrue(boundary.full_cross_layer_draw_order_recovered)
         self.assertFalse(boundary.management_launch_trigger_recovered)
         self.assertFalse(boundary.complete_prematch_frame)
         self.assertFalse(boundary.gate14_complete)
@@ -359,7 +361,10 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(contract["rating_state_binding_available"])
         self.assertFalse(contract["rating_dynamic_widths_bound_by_resource_loader"])
         self.assertFalse(contract["rating_dynamic_widths_bound_to_cleanroom_state"])
-        self.assertFalse(contract["full_cross_layer_draw_order_recovered"])
+        self.assertEqual(contract["source_child_count"], PREMATCH_CHILD_COUNT)
+        self.assertEqual(contract["source_child_count"], 182)
+        self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
+        self.assertTrue(contract["full_cross_layer_draw_order_recovered"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])

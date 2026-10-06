@@ -9,6 +9,54 @@ from ea444_decoder import EA444DecodedImage
 from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
     PREMATCH_FONT_PATH,
+    PREMATCH_DATE_FORMAT,
+    PREMATCH_DATE_FORMAT_VA,
+    PREMATCH_DATE_BUFFER_OFFSET,
+    PREMATCH_WEATHER_TEMPERATURE_FORMAT,
+    PREMATCH_WEATHER_TEMPERATURE_FORMAT_VA,
+    PREMATCH_DATE_WEATHER_FORMAT,
+    PREMATCH_DATE_WEATHER_LANGUAGE_GLOBAL_VA,
+    PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+    PREMATCH_FIXTURE_HEADER_FORMAT,
+    PREMATCH_FIXTURE_HEADER_LANGUAGE_GLOBAL_VA,
+    PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+    PREMATCH_FRIENDLY_LABEL,
+    PREMATCH_FRIENDLY_LANGUAGE_GLOBAL_VA,
+    PREMATCH_VERSUS_LABEL,
+    PREMATCH_VERSUS_LANGUAGE_GLOBAL_VA,
+    PREMATCH_WEATHER_LABELS,
+    PREMATCH_WEATHER_LANGUAGE_GLOBALS,
+    PREMATCH_RATING_LABELS,
+    PREMATCH_RATING_LANGUAGE_GLOBALS,
+    PREMATCH_FIXTURE_HEADER_RECT,
+    PREMATCH_DATE_WEATHER_RECT,
+    PREMATCH_BADGE_RECTS,
+    PREMATCH_TEAM_IDENTITY_RECTS,
+    PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+    PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_RATING_CAPTION_RECTS,
+    PREMATCH_CHILD_SETUP_VA,
+    PREMATCH_CHILD_ARRAY_OFFSET,
+    PREMATCH_CHILD_COUNT_OFFSET,
+    PREMATCH_CHILD_ARRAY_BYTES,
+    PREMATCH_CHILD_COUNT,
+    PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA,
+    PREMATCH_CHILD_ORDER_RANGES,
+    PREMATCH_SELECTOR_CHILD_MODES,
+    PREMATCH_TEAM_BADGE_ROOT,
+    PREMATCH_TEAM_BADGE_VARIANT_KEY,
+    PREMATCH_TEAM_BADGE_FALLBACK,
+    PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS,
+    PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS,
+    PREMATCH_PLAYER_SLOTS_PER_SIDE,
+    PREMATCH_STARTERS_PER_SIDE,
+    PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS,
+    PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS,
+    PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA,
+    PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
+    PREMATCH_PLAYER_FULL_NAME_FORMAT,
+    PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
     PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
     PREMATCH_LIVE_BACKGROUND_RECT,
     PREMATCH_LIVE_BACKGROUND_ROOT,
@@ -158,6 +206,169 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         )
         self.assertTrue(contract["live_background_contract_source_closed"])
         self.assertTrue(contract["rating_bar_layout_source_closed"])
+        self.assertFalse(contract["management_launch_trigger_recovered"])
+        self.assertFalse(contract["complete_prematch_frame"])
+        self.assertFalse(contract["gate14_complete"])
+
+    def test_identity_text_and_roster_contract_is_exact(self):
+        self.assertEqual(
+            (
+                PREMATCH_DATE_FORMAT,
+                PREMATCH_DATE_FORMAT_VA,
+                PREMATCH_DATE_BUFFER_OFFSET,
+            ),
+            ("%Df %Mf %Yf", 0x81D5B8, 0x70),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_WEATHER_TEMPERATURE_FORMAT,
+                PREMATCH_WEATHER_TEMPERATURE_FORMAT_VA,
+            ),
+            ("%s %d°C", 0x81D5B0),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_DATE_WEATHER_FORMAT,
+                PREMATCH_DATE_WEATHER_LANGUAGE_GLOBAL_VA,
+                PREMATCH_DATE_WEATHER_BUFFER_OFFSET,
+            ),
+            ("%s %s", 0x98204C, 0x270),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_FIXTURE_HEADER_FORMAT,
+                PREMATCH_FIXTURE_HEADER_LANGUAGE_GLOBAL_VA,
+                PREMATCH_FIXTURE_HEADER_BUFFER_OFFSET,
+                PREMATCH_FRIENDLY_LABEL,
+                PREMATCH_FRIENDLY_LANGUAGE_GLOBAL_VA,
+                PREMATCH_VERSUS_LABEL,
+                PREMATCH_VERSUS_LANGUAGE_GLOBAL_VA,
+            ),
+            (
+                "%s MATCH TODAY AT %s",
+                0x982050,
+                0x170,
+                "Friendly",
+                0x9830C8,
+                "V",
+                0x9830C4,
+            ),
+        )
+        self.assertEqual(
+            PREMATCH_WEATHER_LABELS,
+            ("Clear", "Sunny", "Raining", "Sleet", "Snowy"),
+        )
+        self.assertEqual(
+            PREMATCH_WEATHER_LANGUAGE_GLOBALS,
+            (0x98252C, 0x982534, 0x982524, 0x9821E0, 0x982520),
+        )
+        self.assertEqual(PREMATCH_RATING_LABELS, ("GK", "DEF", "MID", "ATT"))
+        self.assertEqual(
+            PREMATCH_RATING_LANGUAGE_GLOBALS,
+            (0x983BE4, 0x983B70, 0x983B6C, 0x983B68),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_TEAM_BADGE_ROOT,
+                PREMATCH_TEAM_BADGE_VARIANT_KEY,
+                PREMATCH_TEAM_BADGE_FALLBACK,
+                PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS,
+                PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS,
+            ),
+            (
+                r"FM2001_art\generic\team_badge_stills",
+                "badge_2",
+                r"fm2001_art\generic\team_badge_stills\generic.444",
+                (0x600, 0x624),
+                (0x840, 0x890),
+            ),
+        )
+        self.assertEqual(PREMATCH_PLAYER_SLOTS_PER_SIDE, 18)
+        self.assertEqual(PREMATCH_STARTERS_PER_SIDE, 11)
+        self.assertEqual(PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS, (0x5A4, 0xB54))
+        self.assertEqual(PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS, (0x004, 0x5B4))
+        self.assertEqual(PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA, 0x417A90)
+        self.assertEqual(PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA, 0x417AE0)
+        self.assertEqual(PREMATCH_PLAYER_FULL_NAME_FORMAT, "%s %s")
+        self.assertEqual(PREMATCH_PLAYER_FULL_NAME_FORMAT_VA, 0x81858C)
+
+        contract = prematch_panel_contract()
+        self.assertEqual(contract["date_format"], "%Df %Mf %Yf")
+        self.assertEqual(contract["weather_temperature_format"], "%s %d°C")
+        self.assertEqual(contract["date_weather_format"], "%s %s")
+        self.assertEqual(contract["date_weather_buffer_offset"], 0x270)
+        self.assertEqual(contract["fixture_header_format"], "%s MATCH TODAY AT %s")
+        self.assertEqual(contract["fixture_header_buffer_offset"], 0x170)
+        self.assertEqual(contract["friendly_label"], "Friendly")
+        self.assertEqual(contract["versus_label"], "V")
+        self.assertEqual(contract["weather_labels"], PREMATCH_WEATHER_LABELS)
+        self.assertEqual(contract["rating_labels"], PREMATCH_RATING_LABELS)
+        self.assertEqual(contract["player_slots_per_side"], 18)
+        self.assertEqual(contract["starters_per_side"], 11)
+        self.assertTrue(contract["identity_controls_source_closed"])
+        self.assertFalse(contract["management_launch_trigger_recovered"])
+        self.assertFalse(contract["complete_prematch_frame"])
+        self.assertFalse(contract["gate14_complete"])
+
+    def test_identity_control_geometry_and_styles_are_exact(self):
+        def rect(r):
+            return (r.x, r.y, r.width, r.height)
+
+        self.assertEqual(rect(PREMATCH_FIXTURE_HEADER_RECT), (250, 45, 300, 30))
+        self.assertEqual(rect(PREMATCH_DATE_WEATHER_RECT), (250, 70, 300, 16))
+        self.assertEqual(
+            tuple(rect(r) for r in PREMATCH_BADGE_RECTS),
+            ((38, 1, 135, 93), (627, 1, 135, 93)),
+        )
+        self.assertEqual(
+            tuple(rect(r) for r in PREMATCH_TEAM_IDENTITY_RECTS),
+            ((184, 4, 185, 39), (374, 5, 52, 37), (429, 4, 185, 39)),
+        )
+        self.assertEqual(PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA, 0x87BE30)
+        self.assertEqual(
+            PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
+            (0x87BE80, 0x87BE70, 0x87BE80),
+        )
+        self.assertEqual(PREMATCH_RATING_TEXT_STYLE_WRAPPER_VA, 0x87BEA0)
+        self.assertEqual(
+            tuple(rect(r) for r in PREMATCH_RATING_CAPTION_RECTS),
+            (
+                (37, 498, 25, 14),
+                (37, 516, 25, 14),
+                (37, 534, 25, 14),
+                (37, 552, 25, 14),
+                (737, 498, 25, 14),
+                (737, 516, 25, 14),
+                (737, 534, 25, 14),
+                (737, 552, 25, 14),
+            ),
+        )
+
+    def test_child_array_is_complete_forward_native_draw_order(self):
+        self.assertEqual(PREMATCH_CHILD_SETUP_VA, 0x4967F0)
+        self.assertEqual(PREMATCH_CHILD_ARRAY_OFFSET, 0x1C)
+        self.assertEqual(PREMATCH_CHILD_COUNT_OFFSET, 0x38)
+        self.assertEqual(PREMATCH_CHILD_ARRAY_BYTES, 0x2D8)
+        self.assertEqual(PREMATCH_CHILD_COUNT, 182)
+        self.assertEqual(PREMATCH_CHILD_ARRAY_BYTES, PREMATCH_CHILD_COUNT * 4)
+        self.assertEqual(PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA, 0x6533A0)
+
+        self.assertEqual(PREMATCH_CHILD_ORDER_RANGES[0], ("live_background", 0, 0))
+        self.assertEqual(PREMATCH_CHILD_ORDER_RANGES[-1], ("match_detail_selectors", 178, 181))
+        flattened = []
+        for _name, start, end in PREMATCH_CHILD_ORDER_RANGES:
+            flattened.extend(range(start, end + 1))
+        self.assertEqual(flattened, list(range(PREMATCH_CHILD_COUNT)))
+        self.assertEqual(
+            tuple(int(mode) for mode in PREMATCH_SELECTOR_CHILD_MODES),
+            (3, 2, 1, 0),
+        )
+
+        contract = prematch_panel_contract()
+        self.assertEqual(contract["child_count"], 182)
+        self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
+        self.assertEqual(contract["selector_child_modes"], (3, 2, 1, 0))
+        self.assertTrue(contract["child_draw_order_source_closed"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])

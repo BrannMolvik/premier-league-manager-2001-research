@@ -345,3 +345,191 @@ The next source-backed task is to recover the remaining PPreMatchPanel text,
 team/player identity controls and cross-layer draw order needed to assemble a
 complete native frame. The management-to-match transition remains separately
 fail-closed.
+
+
+## Recovery 368 — native identity/text control contract
+
+Further first-hand tracing of canonical `footballmanager.exe` closes the
+remaining low-level identity formatting used by the pre-match panel without yet
+claiming complete cross-layer draw order.
+
+### Date and weather-line formatting
+
+`PPreMatchPanel::0x49A610` reads current date global `0x9847FC`, decomposes
+it through `0x64CCD0`, and formats the date into panel buffer `+0x70` using
+the executable-resident exact format string at `0x81D5B8`:
+
+`%Df %Mf %Yf`
+
+The same refresh path reads match bytes `+0xD46` (weather selector) and
+`+0xD44` (signed temperature). It first formats a temporary weather string
+with exact format `0x81D5B0`:
+
+`%s %d°C`
+
+It then combines the date buffer and that temporary weather/temperature string
+through English language global `0x98204C`, whose source text is `%s %s`, and
+writes the resulting visible line to panel buffer `+0x270`.
+
+The global-language mapping is independently calibrated by the already-proven
+Match Detail labels: English.idx position 2697 (`3D Match`) maps to
+`0x981DD4`, and positions 2698..2700 map successively down by four bytes.
+Thus `global = 0x9847F8 - 4 * idx_position`. Applying that exact mapping to
+the five weather globals used by the switch proves:
+
+- weather 0 -> `Clear` (`0x98252C`);
+- weather 1 -> `Sunny` (`0x982534`);
+- weather 2 -> `Raining` (`0x982524`);
+- weather 3 -> `Sleet` (`0x9821E0`);
+- weather 4 -> `Snowy` (`0x982520`).
+
+The same mapping resolves `0x982050` to `%s MATCH TODAY AT %s`, used for the
+panel `+0x170` fixture header. When match competition/index `+0xD20` is
+negative, the first substitution is source string `Friendly` at `0x9830C8`;
+otherwise the first substitution is the recovered competition-name object
+field. The second substitution remains behaviorally sourced through
+`0x62AC80 -> 0x514270` but is left semantically unnamed until that helper is
+separately identified. Center team label global `0x9830C4` resolves exactly
+to `V`.
+
+### Team badge identity
+
+The constructor seeds both team badge resource members at panel offsets
+`+0x600/+0x624` from `Clubbadges\\standard.bmp`. Refresh then resolves
+team-specific presentation through the canonical source family:
+
+- root `FM2001_art\\generic\\team_badge_stills`;
+- variant key `badge_2`;
+- terminal fallback
+  `fm2001_art\\generic\\team_badge_stills\\generic.444`.
+
+The resolved active controls are retained at panel offsets `+0x840/+0x890`.
+This is presentation identity only; no management-to-match transition is
+implied.
+
+### Two 18-player identity banks
+
+The refresh routine iterates exactly two match-side banks and exactly 18 slots
+per side:
+
+- side 0 count `match+0x5A4`, pointer array beginning at `match+0x004`;
+- side 1 count `match+0xB54`, pointer array beginning at `match+0x5B4`.
+
+The first 11 slots are the native starting-XI region; indices 11..17 use the
+alternate disabled/substitute presentation state already correlated with the
+dedicated pre-match strip assets. Empty slots are explicitly hidden rather than
+filled with invented rows.
+
+For populated slots, `0x417A90` computes the display-name length and
+`0x417AE0` writes the display name. The canonical full-name format string at
+`0x81858C` is exactly:
+
+`%s %s`
+
+Those helpers retain the native special handling for abbreviated/placeholder
+first names. The nearby player byte consumed by the row formatter remains
+semantically neutral in this checkpoint until its DBRPlayer field identity is
+independently proven.
+
+### Implementation boundary
+
+`original_prematch_panel.py` now exposes these exact source facts in
+`prematch_panel_contract()` with regression coverage. This does **not** yet
+promote:
+
+- the semantic identity of the second `%s` in the fixture header;
+- a complete cross-layer setup/draw order;
+- a management-to-match launch action;
+- either missing 3D presentation path;
+- Gate 14 completion.
+
+The same calibrated language mapping also resolves the four rating-caption
+globals used twice at y=498/516/534/552:
+
+- `0x983BE4` = `GK`;
+- `0x983B70` = `DEF`;
+- `0x983B6C` = `MID`;
+- `0x983B68` = `ATT`.
+
+These captions independently agree with the already source-closed
+goalkeeper/defence/midfield/attack rating functions.
+
+Exact next source task: prove the PPreMatchPanel child/control registration
+order against the generic panel draw semantics, then assemble only the
+source-proven complete frame layers.
+
+## Recovery 368 continuation — complete PPreMatch child-array paint order
+
+The remaining cross-layer ordering boundary is now source-closed by combining
+the PPreMatch setup routine with the already-proven generic panel traversal.
+
+`PPreMatchPanel::0x4967F0`:
+
+- allocates exactly `0x2D8` bytes for child pointers;
+- stores the pointer array at panel `+0x1C`;
+- writes child count `0xB6 = 182` at panel `+0x38`;
+- fills every pointer index 0 through 181.
+
+The generic control contract was already source-closed during FastView work:
+`0x6533A0` traverses parent `+0x1C` from index 0 through count-1 and invokes
+the visible-child render slot. Therefore the PPreMatch sequence below is native
+paint order, not a heuristic based on allocation or call proximity.
+
+| Child indices | Source-proven family |
+| --- | --- |
+| 0 | live 800x600 Team_Backgrounds surface |
+| 1 | pre-match pitch |
+| 2 | top bar |
+| 3 | fixture header text |
+| 4 | date + weather/temperature line |
+| 5-6 | two team badge controls |
+| 7-9 | left team identity, center `V`, right team identity text |
+| 10-31 | 22 starting-XI pitch-marker controls, 11 per match side |
+| 32-64 | side-0 starter row controls, 11 rows x 3 controls |
+| 65-92 | side-0 slots 11..17, 7 rows x 4 controls |
+| 93-125 | side-1 starter row controls, 11 rows x 3 controls |
+| 126-153 | side-1 slots 11..17, 7 rows x 4 controls |
+| 154-169 | four rating rows x four picture layers |
+| 170-177 | four rating captions on both sides |
+| 178-181 | Match Detail selector controls |
+
+The seven post-starter rows contain an additional disabled-strip picture layer,
+which accounts for four controls per row rather than the starters' three.
+This matches the separately recovered active/disabled pre-match strip assets
+without requiring a guessed visibility policy.
+
+Selector child order is the native object/event order, not left-to-right
+geometry: Quick Match, FastView, 3D Highlights, 3D Match (modes 3,2,1,0).
+Their rectangles do not overlap, so this reverse geometric order has no
+pixel-order ambiguity.
+
+The clean-room contract now exposes the complete 182-slot range partition and
+keeps the following separate blockers false: a management-screen match launch,
+3D Match/Highlights presentation, and Gate 14 completion.
+
+Exact next task: reconcile the existing `gate14_prematch_surface.py` output
+against this full source order and bind the newly recovered text/team/player
+identity content into a complete pre-match frame model. Do not mark the frame
+complete until every one of the 182 native child slots is either represented
+or intentionally proven non-pixel/hidden for the supplied match state.
+
+### Recovery 368 frame reconciliation — exact top-layer control geometry
+
+The same source setup closes exact rectangles and style-wrapper identities for
+the non-roster identity controls:
+
+- fixture header: `(250,45,300,30)`, text wrapper `0x87BE30`;
+- date/weather line: `(250,70,300,16)`, text wrapper `0x87BE30`;
+- left badge: `(38,1,135,93)`;
+- right badge: `(627,1,135,93)`;
+- left team identity: `(184,4,185,39)`, wrapper `0x87BE80`;
+- center `V`: `(374,5,52,37)`, wrapper `0x87BE70`;
+- right team identity: `(429,4,185,39)`, wrapper `0x87BE80`;
+- rating captions use wrapper `0x87BEA0`, 25x14 at x=37/737 and
+  y=498/516/534/552.
+
+These controls occupy the already-proven native child positions 3..9 and
+170..177. Their geometry is no longer a complete-frame blocker. Remaining
+frame work is concentrated in the 22 starting-XI pitch markers, the two
+18-player row banks, exact selector visual state, and state-to-text/raster
+binding rather than global z-order.

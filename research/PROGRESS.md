@@ -12137,3 +12137,51 @@ continues with ordinary Squad row display-name/color helpers.
   Gate-14 source task is the remaining PPreMatch text/team/player identity
   controls and cross-layer setup/draw order; management-to-match launch remains
   fail-closed.
+
+
+## 7 October 2026 KST — Recovery 368 PPreMatch identity-control checkpoint
+
+- Re-materialized and hash-verified canonical `footballmanager.exe`
+  (`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+  from the authorized 511,121,336-byte private source archive.
+- Source-closed exact pre-match date format `%Df %Mf %Yf` into panel
+  `+0x70`; native weather/temperature temporary format `%s %d°C`; and final
+  date+weather composition `%s %s` into `+0x270`.
+- Calibrated the English.idx global map from the already-proven Match Detail
+  labels (`global = 0x9847F8 - 4*idx_position`) and resolved weather selector
+  0..4 as Clear/Sunny/Raining/Sleet/Snowy, rating captions as GK/DEF/MID/ATT,
+  fixture-header format `%s MATCH TODAY AT %s`, Friendly fallback, and center
+  team label `V`.
+- Source-closed team-badge presentation through
+  `FM2001_art\\generic\\team_badge_stills`, variant `badge_2`, with
+  canonical `...\\generic.444` fallback; source resource members are
+  `+0x600/+0x624` and resolved active controls `+0x840/+0x890`.
+- Source-closed two 18-player identity banks, with source match count/array
+  offsets `0x5A4/0x004` and `0xB54/0x5B4`; the first 11 slots are the
+  starting-XI region and indices 11..17 use the alternate row state.
+- Proved player display-name helpers `0x417A90/0x417AE0` and exact canonical
+  full-name format `%s %s` at VA `0x81858C`.
+- Added neutral identity/text contract constants and regressions on
+  `chatgpt/gate14-prematch-identity-r368`. The semantic identity of the second
+  fixture-header substitution, cross-layer draw order, management launch and
+  missing 3D presentation remain fail-closed.
+
+- Continued the same Recovery 368 source pass through PPreMatch child ordering.
+  Setup `0x4967F0` allocates 182 pointers (`0x2D8` bytes), stores them at
+  `+0x1C`, sets `+0x38 = 0xB6`, and fills every child index 0..181.
+- Combined that with the already-source-closed generic forward traversal
+  `0x6533A0` to prove native paint order across background, pitch/top bar,
+  header/date-weather text, badges/team identity, 22 XI pitch markers, both
+  18-player row banks, rating layers/captions, and the four Match Detail
+  selectors.
+- The exact next Gate-14 task is now frame reconciliation: bind these newly
+  recovered text/team/player identities into the existing pre-match surface
+  and account for every native child slot before promoting a complete-frame
+  claim. Management launch and missing 3D presentation remain separate
+  fail-closed blockers.
+
+- Frame reconciliation also source-closed the header/date-weather, two badge,
+  three team-identity and eight rating-caption rectangles plus their text-style
+  wrappers. Remaining pre-match frame gaps are now concentrated in pitch-marker
+  placement/state, row-content binding, selector visual state, and final
+  state-to-raster assembly rather than cross-layer ordering.
