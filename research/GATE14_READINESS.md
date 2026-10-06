@@ -1,6 +1,6 @@
 # Gate 14 readiness audit
 
-_Status: fail-closed active Gate-14 roadmap audit after Gate 13 closure._
+_Status: fail-closed Gate-14 work-ahead audit while Gate 13 / issue #482 remains the earliest incomplete validation gate._
 
 ## Purpose
 
