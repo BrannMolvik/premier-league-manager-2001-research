@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 371: source execution recovered. Branch chatgpt/gate14-prematch-markers-r370 source-closes the 22 PPreMatch XI marker geometry/resource/visibility/formation-coordinate/pixel-transform contract with regression coverage; dynamic team-shirt pixels remain fail-closed. Validate/merge this checkpoint, then continue first-hand source tracing of player-row text/style and reserve active/disabled selection, then Match Detail selector visual state and dynamic badge/team identity binding.",
-  "last_known_main_head": "6a6627b50f66b178eac0804560824c00f7b954e2",
+  "active_task": "Recovery 371: PR #513 merged as 8a6dddec87bda405f066601e42cbbdaf2076bdf5 after exact-head presentation run 37547209067 and asset-policy run 37547208964 passed. Continue first-hand PPreMatch tracing now that executable access works: source-close player-row number/name geometry/content and reserve active-vs-disabled state, then prove Match Detail selector visual state. Preserve dynamic shirt/badge pixels and complete-frame/Gate-14 claims fail-closed until actually integrated.",
+  "last_known_main_head": "8a6dddec87bda405f066601e42cbbdaf2076bdf5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 371,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 371 heartbeat after stale-repository recovery. Canonical main remains 6a6627b; marker-source checkpoint staged at branch head 1d970ef6. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance.",
+  "note": "Recovery 371 post-PR513 merge. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance; source execution currently available.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
