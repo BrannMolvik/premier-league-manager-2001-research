@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 351: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is c624387f9fd0464148ed3a8c370c292d01618918. PR #499 synthetic same-build FFmpeg roundtrip is active at exact head 67d92aaafc8baa3973e86d07e6d5fe3209e70bb2. Prior head 3a68ead passed asset policy 37495148467 and full reconstruction 37495148923; build and build-audit also passed, but roundtrip step never launched because workflow used invalid PowerShell backslash+backtick continuations. Head 67d92aa replaces only that invocation with a PowerShell argument array. Require exact-head build+roundtrip, full reconstruction, and asset policy success; inspect roundtrip receipt/artifact before merge. Keep exact-original-TGQ, external playback, source-material completeness, production migration, and legal compliance false. Private Cup-Tied trace remains blocked by local caas ClientError.",
+  "active_task": "Recovery 351: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is c624387f9fd0464148ed3a8c370c292d01618918. PR #499 active exact head is 3f381f8c7e22f9cd95f35337017b2a34792b066d. Prior head 67d92aa passed asset/full suite and completed the canonical h264_mf/AAC synthetic conversion, then failed only at null video decode verification because wrapped_avframe was disabled. Pinned FFmpeg nullenc.c proves Windows null defaults: wrapped_avframe video + pcm_s16le audio. Current head adds exactly those internal encoders to source contract/build audit and documents the source boundary. Asset policy 37497778288 passed; Windows package 37497778304, full reconstruction 37497778268, and exact-source build+roundtrip 37497778277 are running. Merge only after all exact-head checks pass and inspect roundtrip receipt/artifact. Keep exact-original-TGQ, external playback, source-material completeness, production migration, and legal compliance false.",
   "last_known_main_head": "c624387f9fd0464148ed3a8c370c292d01618918",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 351,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 351: #499 head 67d92aa fixes only PowerShell roundtrip invocation; fresh exact-head CI authoritative.",
+  "note": "Recovery 351: #499 3f381f8 adds source-proven null muxer default verification encoders after real roundtrip reached decode-verification boundary.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
