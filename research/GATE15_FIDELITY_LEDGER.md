@@ -20,11 +20,17 @@ machine-checkable.
 
 ## Current checkpoint
 
-The live fidelity table currently contains exactly **11** rows:
+The live fidelity table currently contains exactly **12** rows:
 
 - ten Gate-15-owned or Gate-15-deferred items; and
-- one Gate-14-owned prerequisite:
+- two Gate-14-owned prerequisites:
+  `External Windows front-end/management playability regression (#482)` and
   `FastView/3D and original audio/match presentation`.
+
+The schema-1 JSON already contains all 12 exact names/planned-gate cells, and
+the canonical unit test asserts both prerequisite rows. Recovery 369 adds a
+documentation-count regression so this prose cannot silently drift from the
+machine-parsed Active gaps table again.
 
 The ledger has one exact entry for each row, including the exact **Planned
 gate** cell from the source table. It deliberately declares
@@ -54,16 +60,18 @@ An `accepted_documented` item must carry
 `release_limitation_required_if_accepted=true`; otherwise the audit rejects
 it. A fallback marked `fallback_described_as_original=true` is always rejected.
 
-## Gate 14 boundary
+## Gate 13/14 boundary
 
-The current FastView/audio row is owned by Gate 14. While that row remains in
-the active fidelity table, the ledger requires
+Two current rows are owned by Gate 14 for ledger purposes: the externally
+observed Windows front-end/management regression (#482), which reopened Gate 13
+and crosses into startup/match-presentation acceptance, and the broader
+FastView/3D/audio presentation row. While either remains live, each must stay
 `status=prerequisite_gate_14`, and `gate15_ready` remains false.
 
-After Gate 14 actually closes, its completed presentation boundary should be
-moved from the **Active gaps** table into the resolved/superseded history (or
-otherwise removed as a live gap) before final Gate-15 closure. Gate 15 must not
-simply relabel the open Gate-14 row as an accepted limitation.
+Gate 15 may not document either row away as an accepted limitation. After the
+earlier Gate-13 acceptance regression is externally cleared and Gate 14 actually
+closes, completed prerequisite rows must be removed from the live Active gaps
+table (or moved to resolved/superseded history) before final Gate-15 closure.
 
 ## Coverage contract
 
@@ -89,11 +97,11 @@ silently omit a known deviation.
 
 ## Current execution boundary
 
-Recovery 315 can resolve and materialize the authorized private 511,121,336-byte
-FM2001 source archive, but both the shell/container and notebook Python
-execution paths currently fail with `caas.internal.errors.ClientError`.
-Source-dependent rows therefore remain pending rather than being inferred from
-nearby code or analogy.
+Recovery 369 again resolved and materialized the authorized private
+511,121,336-byte FM2001 source archive, but current container and Python
+execution routes still fail with `caas.internal.errors.ClientError`, including
+trivial process probes. Source-dependent rows therefore remain pending rather
+than being inferred from nearby code or analogy.
 
 This ledger does not decide that a source-dependent difference is acceptable.
 It only prevents the difference from disappearing from the final audit while

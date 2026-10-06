@@ -12202,3 +12202,11 @@ continues with ordinary Squad row display-name/color helpers.
 - Recovery 369 continued frame reconciliation after PR #509 by surfacing all 13 source-closed non-roster PPreMatch text controls: exact fixture/date buffers and geometry, left/V/right team geometry, and fixed V plus GK/DEF/MID/ATT captions. Dynamic fixture/date/team strings remain deliberately unbound; complete-frame and Gate-14 claims remain false.
 
 - Recovery 369 added fail-closed PPreMatch 182-child frame accounting. The exact native range partition is verified end-to-end; 86 controls currently have a clean-room representation, while only background, pitch, top bar and rating captions are supplied-state complete. Every other child family now exposes its concrete unresolved blocker instead of being hidden behind a single complete-frame flag.
+
+## 7 October 2026 KST — Recovery 369 Gate-15/16 readiness reconciliation
+
+- Audited the live `FIDELITY_GAPS.md` table after Gate-14 source work became locally execution-blocked.
+- Confirmed the schema-1 Gate-15 JSON ledger already covers all 12 live gaps exactly, including the reopened external Windows regression #482 and FastView/3D/audio as two Gate-14-owned prerequisite rows.
+- Found stale prose: `GATE15_FIDELITY_LEDGER.md` still claimed 11 rows, while Gate-15 and Gate-16 readiness audits still described Gate 13 as closed.
+- Reconciled those audits with Recovery 369 state and added a regression that makes the documented live-gap count match the machine-parsed Active gaps count.
+- Gate 15 and Gate 16 remain work-ahead only. No completion checkbox or release claim is changed.

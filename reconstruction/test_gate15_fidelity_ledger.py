@@ -19,6 +19,7 @@ from gate15_fidelity_ledger import (
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GAPS_PATH = REPO_ROOT / "research" / "FIDELITY_GAPS.md"
 LEDGER_PATH = REPO_ROOT / "research" / "GATE15_FIDELITY_ACCEPTANCE_LEDGER.json"
+LEDGER_DOC_PATH = REPO_ROOT / "research" / "GATE15_FIDELITY_LEDGER.md"
 
 
 def _canonical_markdown() -> str:
@@ -89,6 +90,28 @@ class Gate15FidelityLedgerTests(unittest.TestCase):
             ),
         )
         self.assertIn(("prerequisite_gate_14", 2), audit.status_counts)
+
+    def test_ledger_documentation_live_gap_count_matches_canonical_table(self):
+        markdown = _canonical_markdown()
+        active_count = len(parse_active_fidelity_gaps(markdown))
+        ledger_doc = LEDGER_DOC_PATH.read_text(encoding="utf-8")
+        match = __import__("re").search(
+            r"currently contains exactly \*\*(\d+)\*\* rows",
+            ledger_doc,
+        )
+        self.assertIsNotNone(
+            match,
+            "Gate-15 ledger documentation must publish its canonical live-gap count",
+        )
+        self.assertEqual(int(match.group(1)), active_count)
+        self.assertIn(
+            "External Windows front-end/management playability regression (#482)",
+            ledger_doc,
+        )
+        self.assertIn(
+            "FastView/3D and original audio/match presentation",
+            ledger_doc,
+        )
 
     def test_repository_audit_derives_gate14_open_from_roadmap(self):
         audit = audit_repository_gate15(REPO_ROOT)
