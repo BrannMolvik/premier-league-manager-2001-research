@@ -656,7 +656,7 @@ The first three low bits of `DBRPlayer+0x14` are all exclusion inputs to the com
 
 - bit 0 = **injured**;
 - bit 1 = **banned/suspended**;
-- bit 2 = **separate selection-exclusion state**, exact semantic label unresolved.
+- bit 2 = **International** status. Recovery 336 source-closes this through the Static.dat player-status definition table plus the exact 0x401DE0 bit-index scan used by PSCFRow.
 
 The simpler helper `0x418130` tests only bits 0 and 1, confirming injury/suspension as the common global unavailability pair. Bit 2 is managed by a separate club roster-selection path and should not be mislabeled as cup-tied; a distinct `CCupTiedPlayer` persistence class and competition lookup path exist in the executable.
 ## Cup-tied player persistence
