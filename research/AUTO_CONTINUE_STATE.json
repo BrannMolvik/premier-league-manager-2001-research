@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 347: PR #497 is merged. Active cloud-safe task is PR #498 Windows exact-byte PStartMenu packaging repair. Refresh #498 onto current main 03c5783d1f7627615e4238a143321cadb484c4dc, require exact-head Gate-13, full reconstruction, asset-policy, and Windows package/frozen --package-smoke success, merge only if green, record candidate artifact for issue #482, then continue cloud-safe work. Private source trace remains execution-sandbox deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and globals 0x8755E8/EC/F0. Gate 13 still requires Daniel Windows acceptance.",
+  "active_task": "Recovery 347: PR #498 exact-byte Windows package repair is at final intended head 33d3419bbca133ba9c6c9c9c2425e6fc0f39774c. Gate-13 run 37476333087, asset policy 37476333115, and Windows package run 37476333086 are green. Frozen --package-smoke restored manifest hash cc541cac0e844abdb7539627ea68a982288c0ba735a6bf91c84d3c502961877e and built production presenter to pstartmenu; artifact 11418314765, release archive SHA256 eb3cd65c729152469ac36def2186eb7be76b2f1ae22d95ca031907b9c8e7ebdb. Await exact-head full reconstruction run 37476333090; merge only if green, then record merged artifact for issue #482 and continue cloud-safe work. Private source trace remains sandbox-deferred at 0x422E7E -> CPlayerTransferHistory::0x4EBF60 and globals 0x8755E8/EC/F0.",
   "last_known_main_head": "03c5783d1f7627615e4238a143321cadb484c4dc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 347,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 347: PR #497 merged as a881d62; canonical docs checkpoint is 03c5783. PR #498 exact-byte Windows package fix is active. Private source materializes but local execution remains blocked.",
+  "note": "Recovery 347 package repair final code head is 33d3419; Windows frozen presenter smoke passed. Full reconstruction exact-head run remains the only merge gate. Trivial container probe still returns TooManyRequestsError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
