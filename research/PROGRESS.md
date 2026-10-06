@@ -12194,3 +12194,7 @@ continues with ordinary Squad row display-name/color helpers.
 - Reconciled complete 36-row pre-match player-strip geometry onto current main: 11 starter rows and seven reserve rows per side, 18-pixel vertical spacing, x=36/563, 200x16 strips.
 - Preserved the source distinction that starter rows construct only active strips while reserve rows construct both active and disabled variants at the same rectangle; the runtime variant selector remains fail-closed.
 - Exact next task is the remaining 22 pitch-marker placement/state plus player-row text/style/state and selector visual-state trace before complete-frame promotion.
+
+
+- PR #509 exact head `cd6ec2c1f03c3d108bfd957122828b5e520a0ddb` then surfaced all 36 source-proven row rectangles and original strip payloads through `gate14_prematch_surface.py` without selecting the unresolved reserve active/disabled state. Focused presentation run `37542137513` and asset-policy run `37542137447` passed; merged as `29a799309b41f01384d47f6184d5704b5abda958`.
+- Recovery 369 private-source locator/materialization succeeded for the canonical 511,121,336-byte Library ZIP, but the current execution sandbox rejects both container and Python execution with generic `ClientError`, including trivial commands. Native pitch-marker/state tracing is therefore deferred, not guessed; cloud-safe source-proven frame reconciliation continues.
