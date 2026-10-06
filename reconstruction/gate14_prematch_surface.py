@@ -26,6 +26,7 @@ from gate14_prematch_rating_widths import (
     source_prematch_team_rating_widths,
 )
 from original_front_end_layout import OriginalRect
+from original_squad_row_style import format_squad_display_name, format_squad_whole_number
 from original_prematch_panel import (
     PREMATCH_ACTIVE_LEFT,
     PREMATCH_ACTIVE_RIGHT,
@@ -260,6 +261,106 @@ class PrematchPlayerStripSurface:
             raise PrematchSurfaceError(
                 "pre-match player-strip variant state must retain source-closed count rule"
             )
+
+
+@dataclass(frozen=True)
+class BoundPrematchPlayerRowSurface:
+    source: PrematchPlayerTextSurface
+    strip: PrematchPlayerStripSurface
+    variant: str
+    shirt_number_text: str | None
+    display_name_text: str | None
+
+    def __post_init__(self) -> None:
+        if self.variant not in ("active", "disabled", "hidden"):
+            raise PrematchSurfaceError("invalid bound pre-match player row variant")
+        populated = self.variant == "active"
+        if populated != (self.shirt_number_text is not None):
+            raise PrematchSurfaceError("pre-match shirt-number visibility drifted")
+        if populated != (self.display_name_text is not None):
+            raise PrematchSurfaceError("pre-match display-name visibility drifted")
+        if self.variant == "disabled" and self.strip.disabled_rgba is None:
+            raise PrematchSurfaceError("disabled row requires native disabled strip pixels")
+
+
+@dataclass(frozen=True)
+class BoundPrematchPlayerRows:
+    rows: tuple[BoundPrematchPlayerRowSurface, ...]
+    left_participant_count: int
+    right_participant_count: int
+    source_state_bound: bool = True
+    complete_prematch_frame: bool = False
+    gate14_complete: bool = False
+
+    def __post_init__(self) -> None:
+        if len(self.rows) != 36:
+            raise PrematchSurfaceError("bound pre-match player rows must contain both 18-slot sides")
+        if not self.source_state_bound or self.complete_prematch_frame or self.gate14_complete:
+            raise PrematchSurfaceError("row binding cannot weaken source/fidelity boundary")
+
+
+def _strip_surface_for_slot(
+    boundary: "PrematchSurfaceBoundary",
+    side: str,
+    slot_index: int,
+) -> PrematchPlayerStripSurface:
+    roster_group = "starter" if slot_index < 11 else "reserve"
+    row_index = slot_index if slot_index < 11 else slot_index - 11
+    for row in boundary.player_strip_rows:
+        if row.side == side and row.roster_group == roster_group and row.row_index == row_index:
+            return row
+    raise PrematchSurfaceError("pre-match strip surface is missing for supplied player row")
+
+
+def bind_prematch_player_rows(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    left_players,
+    right_players,
+) -> BoundPrematchPlayerRows:
+    """Bind the exact 18-slot native row state from supplied match participants."""
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError("player-row binding requires exact PrematchSurfaceBoundary")
+    sides = (("left", tuple(left_players)), ("right", tuple(right_players)))
+    for _side, players in sides:
+        if len(players) > 18:
+            raise PrematchSurfaceError("pre-match participant side cannot exceed 18 players")
+
+    rows = []
+    text_rows = {(row.side, row.slot_index): row for row in boundary.player_text_rows}
+    for side, players in sides:
+        participant_count = len(players)
+        for slot_index in range(18):
+            source = text_rows[(side, slot_index)]
+            strip = _strip_surface_for_slot(boundary, side, slot_index)
+            variant = source.strip_variant(participant_count)
+            if slot_index < participant_count:
+                player = players[slot_index]
+                try:
+                    shirt_number = player.shirt_number
+                    first_name = player.first_name
+                    surname = player.surname
+                except AttributeError as exc:
+                    raise PrematchSurfaceError("pre-match player row requires source name/number fields") from exc
+                shirt_text = format_squad_whole_number(shirt_number)
+                display_text = format_squad_display_name(first_name, surname)
+            else:
+                shirt_text = None
+                display_text = None
+            rows.append(
+                BoundPrematchPlayerRowSurface(
+                    source=source,
+                    strip=strip,
+                    variant=variant,
+                    shirt_number_text=shirt_text,
+                    display_name_text=display_text,
+                )
+            )
+    return BoundPrematchPlayerRows(
+        rows=tuple(rows),
+        left_participant_count=len(sides[0][1]),
+        right_participant_count=len(sides[1][1]),
+    )
 
 
 @dataclass(frozen=True)
@@ -776,6 +877,9 @@ def prematch_surface_contract() -> dict:
         "fixed_versus_and_rating_captions_available": True,
         "player_text_row_count": len(source_prematch_player_text_rows()),
         "player_row_text_controls_source_closed": True,
+        "player_row_state_binding_available": True,
+        "player_row_display_name_reuses_source_formatter": True,
+        "player_row_shirt_number_reuses_source_formatter": True,
         "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
         "player_strip_rows_source_geometry_available": True,
         "reserve_variant_state_source_closed": True,
