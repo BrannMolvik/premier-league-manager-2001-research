@@ -13,6 +13,8 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
+from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+
 
 class OriginalStartupMediaError(ValueError):
     """Supplied startup media differs from the verified original source."""
@@ -97,10 +99,25 @@ class StartupMediaConversionProfile:
     ffmpeg_audio_encoder: str = "aac"
     probe_audio_codec: str = "aac"
     container_name: str = "mp4"
+    output_width: int = ORIGINAL_STARTUP_FMV_PRESENTATION.movie_width
+    output_height: int = ORIGINAL_STARTUP_FMV_PRESENTATION.movie_height
+    video_filter: str = ORIGINAL_STARTUP_FMV_PRESENTATION.ffmpeg_filter
 
     def __post_init__(self) -> None:
         if self.output_suffix != ".mp4":
             raise OriginalStartupMediaError("Startup conversion target must remain MP4")
+        if (
+            self.output_width,
+            self.output_height,
+            self.video_filter,
+        ) != (
+            ORIGINAL_STARTUP_FMV_PRESENTATION.movie_width,
+            ORIGINAL_STARTUP_FMV_PRESENTATION.movie_height,
+            ORIGINAL_STARTUP_FMV_PRESENTATION.ffmpeg_filter,
+        ):
+            raise OriginalStartupMediaError(
+                "Startup conversion must preserve the recovered 640x480 nearest-duplicate presentation"
+            )
         if not all((
             self.ffmpeg_video_encoder,
             self.probe_video_codec,
@@ -108,6 +125,7 @@ class StartupMediaConversionProfile:
             self.ffmpeg_audio_encoder,
             self.probe_audio_codec,
             self.container_name,
+            self.video_filter,
         )):
             raise OriginalStartupMediaError("Startup conversion profile is incomplete")
 
@@ -208,6 +226,8 @@ def build_startup_media_conversion_plans(
             "0:v:0",
             "-map",
             "0:a:0",
+            "-vf",
+            profile.video_filter,
             "-c:v",
             profile.ffmpeg_video_encoder,
             "-pix_fmt",
@@ -326,11 +346,11 @@ def validate_startup_media_probe(
             "Converted startup pixel format differs from compatibility target"
         )
     if (
-        _require_int(video.get("width"), label="video width") != spec.video_width
-        or _require_int(video.get("height"), label="video height") != spec.video_height
+        _require_int(video.get("width"), label="video width") != profile.output_width
+        or _require_int(video.get("height"), label="video height") != profile.output_height
     ):
         raise OriginalStartupMediaError(
-            "Converted startup video geometry differs from original"
+            "Converted startup video geometry differs from recovered movie surface"
         )
     _require_frame_rate(video, spec.frame_rate)
     frame_count = _require_frame_count(video, spec.decoded_video_frames)

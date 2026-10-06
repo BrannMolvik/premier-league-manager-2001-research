@@ -159,35 +159,71 @@ $path = [Environment]::GetEnvironmentVariable(
     'FM2001_STARTUP_MEDIA_PATH',
     'Process'
 )
+$parentText = [Environment]::GetEnvironmentVariable(
+    'FM2001_STARTUP_PARENT_HWND',
+    'Process'
+)
+$xText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_X', 'Process')
+$yText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_Y', 'Process')
+$widthText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_WIDTH', 'Process')
+$heightText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_HEIGHT', 'Process')
+
 if ([string]::IsNullOrWhiteSpace($path) -or -not [IO.File]::Exists($path)) {
+    exit 2
+}
+
+$parentValue = 0L
+$x = 0
+$y = 0
+$width = 0
+$height = 0
+if (
+    -not [Int64]::TryParse($parentText, [ref]$parentValue) -or $parentValue -le 0 -or
+    -not [Int32]::TryParse($xText, [ref]$x) -or
+    -not [Int32]::TryParse($yText, [ref]$y) -or
+    -not [Int32]::TryParse($widthText, [ref]$width) -or $width -le 0 -or
+    -not [Int32]::TryParse($heightText, [ref]$height) -or $height -le 0
+) {
     exit 2
 }
 
 $script:mediaFailed = $false
 $script:mediaEnded = $false
-$window = New-Object Windows.Window
-$window.WindowStyle = [Windows.WindowStyle]::None
-$window.ResizeMode = [Windows.ResizeMode]::NoResize
-$window.WindowState = [Windows.WindowState]::Maximized
-$window.Topmost = $true
-$window.ShowInTaskbar = $false
-$window.Background = [Windows.Media.Brushes]::Black
+$script:frame = New-Object Windows.Threading.DispatcherFrame
+
+$params = New-Object Windows.Interop.HwndSourceParameters('FM2001StartupMedia')
+$params.ParentWindow = [IntPtr]::new($parentValue)
+$params.WindowStyle = 0x50000000
+$params.PositionX = $x
+$params.PositionY = $y
+$params.Width = $width
+$params.Height = $height
+
+$source = New-Object Windows.Interop.HwndSource($params)
+$grid = New-Object Windows.Controls.Grid
+$grid.Background = [Windows.Media.Brushes]::Black
 
 $media = New-Object Windows.Controls.MediaElement
 $media.LoadedBehavior = [Windows.Controls.MediaState]::Manual
 $media.UnloadedBehavior = [Windows.Controls.MediaState]::Stop
-$media.Stretch = [Windows.Media.Stretch]::Uniform
+$media.Stretch = [Windows.Media.Stretch]::Fill
 $media.Volume = 1.0
+$media.SnapsToDevicePixels = $true
+[Windows.Media.RenderOptions]::SetBitmapScalingMode(
+    $media,
+    [Windows.Media.BitmapScalingMode]::NearestNeighbor
+)
 try {
     $media.Source = [Uri]::new([IO.Path]::GetFullPath($path), [UriKind]::Absolute)
 } catch {
     [Console]::Error.WriteLine($_.Exception.Message)
+    $source.Dispose()
     exit 2
 }
 
 $media.Add_MediaEnded({
     $script:mediaEnded = $true
-    $window.Close()
+    $script:frame.Continue = $false
 })
 $media.Add_MediaFailed({
     param($sender, $eventArgs)
@@ -195,21 +231,25 @@ $media.Add_MediaFailed({
     if ($eventArgs -and $eventArgs.ErrorException) {
         [Console]::Error.WriteLine($eventArgs.ErrorException.Message)
     }
-    $window.Close()
+    $script:frame.Continue = $false
 })
-$window.Add_ContentRendered({
+$media.Add_Loaded({
     try {
         $media.Play()
     } catch {
         $script:mediaFailed = $true
         [Console]::Error.WriteLine($_.Exception.Message)
-        $window.Close()
+        $script:frame.Continue = $false
     }
 })
-$window.Content = $media
 
-[void]$window.ShowDialog()
+[void]$grid.Children.Add($media)
+$source.RootVisual = $grid
+[Windows.Threading.Dispatcher]::PushFrame($script:frame)
+
 try { $media.Stop() } catch {}
+$source.RootVisual = $null
+$source.Dispose()
 if ($script:mediaFailed -or -not $script:mediaEnded) {
     exit 3
 }
@@ -249,6 +289,29 @@ class WindowsWpfStartupMediaBackend:
             )
         self._runner = runner
         self._powershell_executable = powershell_executable
+        self._parent_hwnd = None
+        self._presentation_rect = None
+
+    def bind_parent_window(
+        self,
+        parent_hwnd: int,
+        *,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+    ) -> None:
+        values = (parent_hwnd, x, y, width, height)
+        if any(type(value) is not int for value in values):
+            raise WindowsStartupMediaBackendError(
+                "startup-media parent binding requires integer HWND/geometry"
+            )
+        if parent_hwnd <= 0 or x < 0 or y < 0 or width <= 0 or height <= 0:
+            raise WindowsStartupMediaBackendError(
+                "startup-media parent binding geometry is invalid"
+            )
+        self._parent_hwnd = parent_hwnd
+        self._presentation_rect = (x, y, width, height)
 
     @staticmethod
     def _encoded_script() -> str:
@@ -275,8 +338,18 @@ class WindowsWpfStartupMediaBackend:
         if item.container != "mp4" or item.video_codec != "h264" or item.audio_codec != "aac":
             return False
 
+        if self._parent_hwnd is None or self._presentation_rect is None:
+            raise WindowsStartupMediaBackendError(
+                "Windows WPF startup-media backend is not bound to the game window"
+            )
+        x, y, width, height = self._presentation_rect
         env = os.environ.copy()
         env["FM2001_STARTUP_MEDIA_PATH"] = str(Path(item.path))
+        env["FM2001_STARTUP_PARENT_HWND"] = str(self._parent_hwnd)
+        env["FM2001_STARTUP_MEDIA_X"] = str(x)
+        env["FM2001_STARTUP_MEDIA_Y"] = str(y)
+        env["FM2001_STARTUP_MEDIA_WIDTH"] = str(width)
+        env["FM2001_STARTUP_MEDIA_HEIGHT"] = str(height)
         command = (
             self._powershell_executable,
             "-NoProfile",
