@@ -533,3 +533,23 @@ These controls occupy the already-proven native child positions 3..9 and
 frame work is concentrated in the 22 starting-XI pitch markers, the two
 18-player row banks, exact selector visual state, and state-to-text/raster
 binding rather than global z-order.
+
+
+## Recovery 369 — full player-strip row geometry recovered
+
+A separate Recovery 368 branch had already persisted a narrower constructor trace that was not merged with PR #508. Recovery 369 reconciles that evidence on top of the source-closed identity/text and 182-child order contract instead of repeating the trace.
+
+The full player-strip layout is now source-closed:
+
+- starter rows per side: 11 rows at y = 152, 170, 188, 206, 224, 242, 260, 278, 296, 314, 332;
+- reserve/post-starter rows per side: seven rows at y = 358, 376, 394, 412, 430, 448, 466;
+- left-side strip x = 36, right-side strip x = 563;
+- every strip is 200 x 16;
+- starter rows construct only the corresponding active-left/active-right strip;
+- reserve rows construct both the active and disabled side-specific strip at the same rectangle.
+
+This geometry aligns exactly with the already-proven child ranges: side-0 starters 32..64, side-0 post-starters 65..92, side-1 starters 93..125, and side-1 post-starters 126..153. The extra co-located disabled picture on each reserve row explains the four-child reserve-row group versus the starters' three-child group.
+
+The reserve active/disabled selection itself remains unresolved. The clean-room contract therefore exposes both native source variants and keeps `reserve_variant_state_source_closed = False`; it must not infer eligibility, bench status, or selection state from modern assumptions.
+
+Exact next source task: source-close the 22 starting-XI pitch-marker placement/state, row text/content/style and reserve-state selector, and Match Detail selector visual state, then account for every visible child in native paint order for a supplied match state.
