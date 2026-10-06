@@ -12145,8 +12145,13 @@ continues with ordinary Squad row display-name/color helpers.
   (`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
   from the authorized 511,121,336-byte private source archive.
 - Source-closed exact pre-match date format `%Df %Mf %Yf` into panel
-  `+0x70` and the weather/temperature-line format `%s %d°C` into
-  `+0x270`. The five weather-condition language identities remain neutral.
+  `+0x70`; native weather/temperature temporary format `%s %d°C`; and final
+  date+weather composition `%s %s` into `+0x270`.
+- Calibrated the English.idx global map from the already-proven Match Detail
+  labels (`global = 0x9847F8 - 4*idx_position`) and resolved weather selector
+  0..4 as Clear/Sunny/Raining/Sleet/Snowy, rating captions as GK/DEF/MID/ATT,
+  fixture-header format `%s MATCH TODAY AT %s`, Friendly fallback, and center
+  team label `V`.
 - Source-closed team-badge presentation through
   `FM2001_art\\generic\\team_badge_stills`, variant `badge_2`, with
   canonical `...\\generic.444` fallback; source resource members are
@@ -12157,6 +12162,6 @@ continues with ordinary Squad row display-name/color helpers.
 - Proved player display-name helpers `0x417A90/0x417AE0` and exact canonical
   full-name format `%s %s` at VA `0x81858C`.
 - Added neutral identity/text contract constants and regressions on
-  `chatgpt/gate14-prematch-identity-r368`. Unresolved competition/weather
-  captions, rating captions, cross-layer draw order, management launch and
+  `chatgpt/gate14-prematch-identity-r368`. The semantic identity of the second
+  fixture-header substitution, cross-layer draw order, management launch and
   missing 3D presentation remain fail-closed.
