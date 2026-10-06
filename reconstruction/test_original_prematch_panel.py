@@ -57,6 +57,10 @@ from original_prematch_panel import (
     PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
     PREMATCH_PLAYER_FULL_NAME_FORMAT,
     PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+    PREMATCH_PLAYER_DISPLAY_NAME_MODE,
+    PREMATCH_PLAYER_DISPLAY_NAME_FORMAT,
+    PREMATCH_PLAYER_DISPLAY_NAME_FORMAT_VA,
+    PREMATCH_PLAYER_DISPLAY_NAME_FIRST_NAME_SENTINEL,
     PREMATCH_PLAYER_ROW_UPDATE_VA,
     PREMATCH_PLAYER_NUMBER_TEXT_CONSTRUCTOR_VA,
     PREMATCH_PLAYER_NAME_TEXT_CONSTRUCTOR_VA,
@@ -215,6 +219,10 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertFalse(contract["reserve_variant_state_source_closed"])
 
     def test_player_row_text_geometry_content_and_variant_state_are_exact(self):
+        self.assertEqual(PREMATCH_PLAYER_DISPLAY_NAME_MODE, 0)
+        self.assertEqual(PREMATCH_PLAYER_DISPLAY_NAME_FORMAT, "%c. %s")
+        self.assertEqual(PREMATCH_PLAYER_DISPLAY_NAME_FORMAT_VA, 0x818EB0)
+        self.assertEqual(PREMATCH_PLAYER_DISPLAY_NAME_FIRST_NAME_SENTINEL, "-")
         self.assertEqual(PREMATCH_PLAYER_ROW_UPDATE_VA, 0x49A610)
         self.assertEqual(PREMATCH_PLAYER_NUMBER_TEXT_CONSTRUCTOR_VA, 0x6507A0)
         self.assertEqual(PREMATCH_PLAYER_NAME_TEXT_CONSTRUCTOR_VA, 0x6503F0)
@@ -303,6 +311,8 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertTrue(contract["reserve_variant_state_source_closed"])
         self.assertTrue(contract["player_row_count_driven_visibility_source_closed"])
         self.assertEqual(contract["player_text_row_count"], 36)
+        self.assertEqual(contract["player_display_name_mode"], 0)
+        self.assertEqual(contract["player_display_name_format"], "%c. %s")
         self.assertEqual(contract["player_number_format"], "%N")
         self.assertEqual(contract["player_shirt_number_runtime_offset"], 0x70)
 
