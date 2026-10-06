@@ -14,7 +14,7 @@
   "last_verified_test_count": 2619,
   "asset_policy_validated_head": "2e0366467e966c0a83a60b9ece40afc7e474daf9",
   "asset_policy_status": "passed",
-  "active_task": "Issue #482 remains externally blocked only on Daniel's normal Windows 11 acceptance of artifact 11418314765. PR #502 merged source-backed Cup-Tied mode-1 transfer-date fallback; while acceptance is pending, continue earliest independent cloud-safe Gate 14/15/16 work without bypassing external validation.",
+  "active_task": "Gate 13 issue #482 remains externally blocked on Daniel's normal Windows 11 acceptance of artifact 11418314765. Gate-14 work-ahead: PR #503 merged source-backed Match Detail state; exact next task is correlate PPreMatchPanel resource bindings/layout/four-choice geometry using authorized original pre-match assets, while keeping management-to-match launch fail-closed until source-recovered.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -2838,7 +2838,7 @@
   "gate14_operator_surface_windows_package_run": 37307919062,
   "gate14_operator_surface_gate13_run": 37307919034,
   "gate14_operator_surface_asset_policy_run": 37307918885,
-  "gate14_source_fastview_navigation_trigger_recovered": false,
+  "gate14_source_fastview_navigation_trigger_recovered": true,
   "gate14_startup_media_windows_acceptance_audit_tooling": true,
   "gate14_startup_media_windows_acceptance_audit_merge": "3465043767cffb40a822df15b01a6fb20dd37747",
   "gate14_startup_media_windows_acceptance_reconstruction_run": 37309256252,
@@ -3062,5 +3062,14 @@
   "recovery359_cup_tied_mode1_head": "faae343ada880252246455985e29d757c6214960",
   "recovery359_gate13_run": 37517705837,
   "recovery359_reconstruction_run": 37517705769,
-  "recovery359_asset_policy_run": 37517705929
+  "recovery359_asset_policy_run": 37517705929,
+  "recovery361_match_detail_pr": 503,
+  "recovery361_match_detail_merge": "531266d1676f7200f8a071250d4ea1d8b1807a14",
+  "recovery361_match_detail_head": "b8e7497d7de245dbe4436181626bc9cbc2fa0ba6",
+  "recovery361_gate13_run": 37522687749,
+  "recovery361_asset_policy_run": 37522687692,
+  "gate14_match_detail_source_recovered": true,
+  "gate14_prematch_modal_launch_source_recovered": true,
+  "gate14_match_detail_modern_state_integrated": true,
+  "gate14_management_match_launch_recovered": false
 }
