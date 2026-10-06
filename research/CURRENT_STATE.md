@@ -41,11 +41,13 @@ side-1 rows (93..153), rating layers/captions (154..177), then Match Detail
 selectors (178..181). This follows the already-proven generic `0x6533A0`
 forward traversal of parent `+0x1C/+0x38`.
 
-Exact next task after this checkpoint validates: reconcile the existing
-pre-match surface against all 182 source slots, bind the recovered text/team/
-player identity content, and promote a complete native pre-match frame only if
-every visible slot is represented or proven hidden/non-pixel for the supplied
-state. Management launch and missing 3D presentation remain fail-closed. Keep management-to-match launch, missing 3D
+Exact top-layer geometry is now also source-closed for child slots 3..9 and
+170..177 (fixture/date-weather text, two badges, team identities/V, and rating
+captions). Exact next task after this checkpoint validates: recover the 22
+starting-XI pitch-marker placement/state and the two 18-player row content/
+geometry contracts, then bind selector visual state and assemble the complete
+pre-match frame only when every visible native slot is represented or proven
+hidden for the supplied state. Management launch and missing 3D presentation remain fail-closed. Keep management-to-match launch, missing 3D
 presentation, and Gate 14 completion fail-closed.
 
 ---
