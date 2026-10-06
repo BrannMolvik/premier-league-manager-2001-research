@@ -20,6 +20,7 @@ from gate14_fastview_surfaced_resource_loader import (
     VerifiedFastViewSurfacedResource,
     load_verified_selected_background,
 )
+from gate14_prematch_rating_widths import PrematchTeamRatingWidths
 from original_front_end_layout import OriginalRect
 from original_prematch_panel import (
     PREMATCH_ACTIVE_LEFT,
@@ -92,6 +93,134 @@ class PrematchRatingSurface:
         ):
             if len(payload) != expected:
                 raise PrematchSurfaceError("rating source geometry mismatch")
+
+
+@dataclass(frozen=True)
+class BoundPrematchRatingSurface:
+    """One source row with exact state-bound left/right dynamic rectangles."""
+
+    source: PrematchRatingSurface
+    semantic_group: str
+    left_width: int
+    right_width: int
+    left_dynamic_rect: OriginalRect
+    right_dynamic_rect: OriginalRect
+
+    def __post_init__(self) -> None:
+        if not self.semantic_group:
+            raise PrematchSurfaceError("bound rating group must be named")
+        for width in (self.left_width, self.right_width):
+            if not 0 <= int(width) <= 171:
+                raise PrematchSurfaceError("bound rating width must be in 0..171")
+        if (
+            self.left_dynamic_rect.x,
+            self.left_dynamic_rect.y,
+            self.left_dynamic_rect.width,
+            self.left_dynamic_rect.height,
+        ) != (
+            self.source.left_rect.x,
+            self.source.left_rect.y,
+            self.left_width,
+            self.source.left_rect.height,
+        ):
+            raise PrematchSurfaceError("left dynamic rating rectangle is not native")
+        if (
+            self.right_dynamic_rect.x,
+            self.right_dynamic_rect.y,
+            self.right_dynamic_rect.width,
+            self.right_dynamic_rect.height,
+        ) != (
+            self.source.right_rect.x + self.source.right_rect.width - self.right_width,
+            self.source.right_rect.y,
+            self.right_width,
+            self.source.right_rect.height,
+        ):
+            raise PrematchSurfaceError("right dynamic rating rectangle is not mirrored")
+
+
+@dataclass(frozen=True)
+class BoundPrematchRatingRows:
+    rows: tuple[BoundPrematchRatingSurface, ...]
+    left_widths: PrematchTeamRatingWidths
+    right_widths: PrematchTeamRatingWidths
+    source_state_bound: bool = True
+    native_mirroring_preserved: bool = True
+    complete_prematch_frame: bool = False
+    gate14_complete: bool = False
+
+    def __post_init__(self) -> None:
+        if len(self.rows) != 4:
+            raise PrematchSurfaceError("bound pre-match rating set must have four rows")
+        if not self.source_state_bound or not self.native_mirroring_preserved:
+            raise PrematchSurfaceError("bound pre-match ratings cannot weaken source state")
+        if self.complete_prematch_frame or self.gate14_complete:
+            raise PrematchSurfaceError(
+                "rating binding cannot promote complete-frame or Gate-14 claims"
+            )
+
+
+_PREMATCH_RATING_GROUP_NAMES = {
+    3: "goalkeeper",
+    0: "defence",
+    1: "midfield",
+    2: "attack",
+}
+
+
+def bind_prematch_rating_widths(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    left_widths: PrematchTeamRatingWidths,
+    right_widths: PrematchTeamRatingWidths,
+) -> BoundPrematchRatingRows:
+    """Bind exact native width results without mutating the resource boundary.
+
+    Native side 0 grows rightward from x=65. Side 1 is anchored at its right
+    edge (x=564+171) and therefore grows leftward by subtracting the width.
+    """
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError("rating binding requires exact PrematchSurfaceBoundary")
+    if type(left_widths) is not PrematchTeamRatingWidths:
+        raise PrematchSurfaceError("left widths require exact PrematchTeamRatingWidths")
+    if type(right_widths) is not PrematchTeamRatingWidths:
+        raise PrematchSurfaceError("right widths require exact PrematchTeamRatingWidths")
+
+    rows = []
+    for source in boundary.rating_rows:
+        discriminator = int(source.native_record_discriminator)
+        try:
+            semantic_group = _PREMATCH_RATING_GROUP_NAMES[discriminator]
+        except KeyError as exc:
+            raise PrematchSurfaceError(
+                f"unsupported native rating discriminator: {discriminator}"
+            ) from exc
+        left_width = left_widths.by_discriminator(discriminator)
+        right_width = right_widths.by_discriminator(discriminator)
+        rows.append(
+            BoundPrematchRatingSurface(
+                source=source,
+                semantic_group=semantic_group,
+                left_width=left_width,
+                right_width=right_width,
+                left_dynamic_rect=OriginalRect(
+                    source.left_rect.x,
+                    source.left_rect.y,
+                    left_width,
+                    source.left_rect.height,
+                ),
+                right_dynamic_rect=OriginalRect(
+                    source.right_rect.x + source.right_rect.width - right_width,
+                    source.right_rect.y,
+                    right_width,
+                    source.right_rect.height,
+                ),
+            )
+        )
+    return BoundPrematchRatingRows(
+        rows=tuple(rows),
+        left_widths=left_widths,
+        right_widths=right_widths,
+    )
 
 
 @dataclass(frozen=True)
@@ -264,7 +393,8 @@ def prematch_surface_contract() -> dict:
         "rating_discriminators": tuple(
             row.native_record_discriminator for row in PREMATCH_RATING_ROWS
         ),
-        "rating_dynamic_widths_bound_to_cleanroom_state": False,
+        "rating_width_binding_available": True,
+        "rating_dynamic_widths_bound_by_resource_loader": False,
         "full_cross_layer_draw_order_recovered": False,
         "management_launch_trigger_recovered": False,
         "complete_prematch_frame": False,
