@@ -291,6 +291,7 @@ def build_original_game_presenter(
     game_dir: str | Path,
     *,
     source_root: str | Path | None = None,
+    pstartmenu_derivative_root: str | Path | None = None,
 ) -> OriginalFirstScreenPresenter:
     """Load the first screen from the pinned derivative in normal runtime.
 
@@ -305,13 +306,23 @@ def build_original_game_presenter(
     art_root = root / "FM2001_Art"
 
     if source_root is None or root.resolve() == DEFAULT_SOURCE_ROOT.resolve():
+        derivative_root = (
+            DEFAULT_PSTARTMENU_DERIVATIVE_ROOT
+            if pstartmenu_derivative_root is None
+            else Path(pstartmenu_derivative_root)
+        )
         menu = load_verified_pstartmenu_derivative_bundle(
-            DEFAULT_PSTARTMENU_DERIVATIVE_ROOT,
+            derivative_root,
             expected_decoder=PSTARTMENU_DERIVATIVE_DECODER,
             expected_manifest_sha256=PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
             expected_sources=PSTARTMENU_SOURCE_ORIGINALS,
         )
     else:
+        if pstartmenu_derivative_root is not None:
+            raise OriginalGameHostError(
+                "Explicit PStartMenu derivative root is valid only with the "
+                "default verified source root"
+            )
         font20 = root / "Fonts" / "Zurich_BdXCn_BT_20pixel.fnt"
         menu = load_verified_english_pstartmenu_inputs(
             original_art_dir=art_root,

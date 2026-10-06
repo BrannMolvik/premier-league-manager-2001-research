@@ -12,13 +12,12 @@ from gate13_management_source_data import ManagementSourceDataBridge, Management
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from original_game_host import run_original_game_ui
 from original_game_host import (
-    PSTARTMENU_DERIVATIVE_DECODER,
     PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+    build_original_game_presenter,
 )
 from gate13_pstartmenu_derivative import (
     MANIFEST_NAME as PSTARTMENU_DERIVATIVE_MANIFEST_NAME,
     PStartMenuDerivativeError,
-    load_verified_pstartmenu_derivative_bundle,
 )
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
 from startup_media_runtime_cache import (
@@ -707,11 +706,15 @@ def package_smoke_report() -> dict:
         derivative_root / PSTARTMENU_DERIVATIVE_MANIFEST_NAME
     )
     try:
-        load_verified_pstartmenu_derivative_bundle(
-            derivative_root,
-            expected_decoder=PSTARTMENU_DERIVATIVE_DECODER,
-            expected_manifest_sha256=PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
+        # Exercise the exact production presenter-build boundary that normal
+        # launch enters under the "startup.presenter_build" timing stage. The
+        # canonical FrontEndSession is lazy, so no user-owned game data is read
+        # until New Game is activated.
+        package_presenter = build_original_game_presenter(
+            app_root / "__package_smoke_no_game_data__",
+            pstartmenu_derivative_root=derivative_root,
         )
+        package_snapshot = package_presenter.snapshot()
     except PStartMenuDerivativeError as exc:
         raise RuntimeError(
             "Packaged PStartMenu derivative failed exact-byte verification: "
@@ -732,6 +735,8 @@ def package_smoke_report() -> dict:
         "pstartmenu_manifest_sha256": sha256(
             derivative_manifest.read_bytes()
         ).hexdigest(),
+        "pstartmenu_presenter_build_passed": True,
+        "pstartmenu_presenter_screen": str(package_snapshot.screen.value),
         "startup_ffmpeg": str(startup_ffmpeg),
         "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "external_game_data_required": True,

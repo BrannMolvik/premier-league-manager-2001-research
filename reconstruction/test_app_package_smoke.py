@@ -48,6 +48,8 @@ class AppPackageSmokeTests(unittest.TestCase):
                 report["pstartmenu_manifest_sha256"],
                 app.PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
             )
+            self.assertTrue(report["pstartmenu_presenter_build_passed"])
+            self.assertEqual(report["pstartmenu_presenter_screen"], "pstartmenu")
             self.assertTrue(report["external_game_data_required"])
 
     def test_package_smoke_rejects_crlf_pstartmenu_manifest(self):
