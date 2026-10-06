@@ -45,7 +45,12 @@ DECODERS = "\n".join(
         "pcm_s16le","pcm_s16le_planar","pcm_s8","mp3","h264","aac"
     )
 )
-ENCODERS = " V..... h264_mf synthetic\n A..... aac synthetic\n"
+ENCODERS = (
+    " V..... h264_mf synthetic\n"
+    " A..... aac synthetic\n"
+    " V..... wrapped_avframe synthetic\n"
+    " A..... pcm_s16le synthetic\n"
+)
 DEMUXERS = " D  ea synthetic\n D  mov,mp4,m4a synthetic\n"
 MUXERS = " E  mp4 synthetic\n E  null synthetic\n"
 PROTOCOLS = "Input:\n  file\n  pipe\nOutput:\n  file\n  pipe\n"

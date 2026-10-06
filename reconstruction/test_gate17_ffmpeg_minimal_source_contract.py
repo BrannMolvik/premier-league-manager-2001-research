@@ -114,6 +114,20 @@ class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
             ):
                 audit_source_contract(root)
 
+    def test_minimal_contract_requires_null_muxer_default_encoders(self):
+        payload = self.canonical()
+        args = payload["minimal_helper_target"]["configure_args"]
+        index = next(i for i, arg in enumerate(args) if arg.startswith("--enable-encoder="))
+        args[index] = "--enable-encoder=h264_mf,aac"
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.write_contract(root, payload)
+            with self.assertRaisesRegex(
+                MinimalFfmpegSourceContractError,
+                "wrapped_avframe/pcm_s16le",
+            ):
+                audit_source_contract(root)
+
     def test_minimal_contract_requires_runtime_pipe_and_null_plumbing(self):
         payload = self.canonical()
         args = payload["minimal_helper_target"]["configure_args"]

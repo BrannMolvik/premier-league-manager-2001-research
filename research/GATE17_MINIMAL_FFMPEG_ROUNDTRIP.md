@@ -35,7 +35,10 @@ stereo audio and must execute the production-shaped command:
 - MP4 muxing;
 - FFprobe validation;
 - video and audio decode verification through the same null/pipe plumbing used
-  by the runtime cache.
+  by the runtime cache. Pinned FFmpeg `libavformat/nullenc.c` source-closes
+  the null muxer's default output encoders as `wrapped_avframe` for video and
+  `pcm_s16le` for audio on Windows, so the minimal helper retains those two
+  internal encoders rather than treating the null muxer alone as sufficient.
 
 The roundtrip receipt is bound to the SHA-256 identities from the immediately
 preceding minimal build proof.

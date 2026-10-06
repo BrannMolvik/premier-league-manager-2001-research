@@ -180,6 +180,10 @@ disabled. It retains only:
   verification can reopen the generated MP4;
 - the `pipe` protocol and `null` muxer because the runtime verifier uses
   `-progress pipe:1` and decodes accepted derivatives to `-f null -`;
+- the null muxer's pinned-source default encoders, `wrapped_avframe` for
+  video and `pcm_s16le` for audio on Windows. Synthetic run
+  `37496357053` reached the real verification command and proved that the
+  null muxer alone is insufficient when those encoders are disabled;
 - the `ffmpeg` and `ffprobe` command-line programs.
 
 FFmpeg's upstream source identifies `eatgq` as the Electronic Arts TGQ video
