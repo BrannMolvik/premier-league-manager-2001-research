@@ -230,3 +230,44 @@ actually consumed by the verified panel seam, then build the render/input seam
 around source-equivalent match context. The dynamic Team_Backgrounds selector
 must be reused rather than replaced by the shipped but non-live pre-match
 background.
+
+
+## Recovery 365 implementation checkpoint — shared background seam and staged live asset slice
+
+The repository-side pre-match presentation boundary now reuses the existing
+FastView Team_Backgrounds selection contract rather than implementing a second
+background resolver. `gate14_fastview_surfaced_resource_loader.py` exposes a
+background-only load/decode seam that preserves the exact candidate order,
+terminal-fallback fail-closed behavior, canonical executable EA444 tables, and
+canonical quantization verification. The full FastView loader shares the same
+private decode core so executable/table verification is not duplicated.
+
+`gate14_prematch_surface.py` joins that source-selected 800x600 background to
+the already-recovered pre-match resources. It exports only source-proven data:
+
+- native background pixels and selected original source path;
+- the six exact static placements already recovered from PPreMatchPanel;
+- the four Match Detail selector rectangles, labels, modes, event IDs, original
+  `button_type_14.444` atlas, and Zurich caption font;
+- the four neutral rating-row discriminators, native width-function identities,
+  mirrored left/right rectangles, and exact original rating source pixels.
+
+The exact live original asset slice is now intentionally imported under
+`original_assets/source/` with provenance in `original_assets/MANIFEST.md`:
+the nine resources in `PREMATCH_ALL_EA444_SPECS` plus
+`GenericButtonsAndBars/button_type_14.444`. The shipped but non-live
+`pre_match/prematch_bground.444` remains excluded from the live import slice.
+The Team_Backgrounds family and Zurich selector font were already
+provenance-tracked.
+
+This checkpoint deliberately does **not** bind the native rating-width
+calculators to clean-room player/match state, claim a complete cross-layer draw
+order, expose the modal from an invented management action, substitute FastView
+for either 3D mode, or claim a complete pre-match/Gate-14 frame. Those remain
+fail-closed.
+
+Next source task after integration verification: trace the inputs to
+`0x49A3D0/0x49A460/0x49A4F0/0x49A580` far enough to bind the four dynamic
+rating widths to source-equivalent clean-room state, while separately recovering
+any remaining PPreMatchPanel draw-order/text controls required before a complete
+frame can be claimed.
