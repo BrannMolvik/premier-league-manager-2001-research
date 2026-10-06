@@ -96,14 +96,26 @@ def cup_tied_root_competition_id(
     competition_id: int,
     competitions: Mapping[int, CompetitionParentSource],
 ) -> int | None:
-    """Return the root whose virtual +0x18 enables Cup-Tied state.
+    """Return a source-qualified root whose virtual +0x18 enables Cup-Tied state.
 
     Recovered runtime class mapping:
     League=1 -> false, Cup=2 -> true, DummyLeague=3 -> true.
+
+    Lightweight tests and partial callers can carry competition stand-ins that
+    predate recovery of the runtime class/parent fields. Missing source metadata
+    is unresolved and therefore returns None rather than guessing a Cup root.
+    The strict root_competition_id helper remains available for malformed
+    parent-graph diagnostics.
     """
-    root_id = root_competition_id(int(competition_id), competitions)
-    root = competitions[root_id]
-    if int(getattr(root, "runtime_kind_code")) in (
+    try:
+        root_id = root_competition_id(int(competition_id), competitions)
+        root = competitions[root_id]
+    except (KeyError, AttributeError, TypeError, ValueError):
+        return None
+    runtime_kind = getattr(root, "runtime_kind_code", None)
+    if runtime_kind is None:
+        return None
+    if int(runtime_kind) in (
         RUNTIME_KIND_CUP,
         RUNTIME_KIND_DUMMY_LEAGUE,
     ):
