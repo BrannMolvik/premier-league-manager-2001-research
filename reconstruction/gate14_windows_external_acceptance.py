@@ -51,9 +51,13 @@ def _validate_startup_receipt(receipt: object) -> dict:
         raise Gate14WindowsAcceptanceCoordinatorError(
             "startup-media audit must return an exact receipt object"
         )
-    if receipt.get("schema_version") != 1:
+    if receipt.get("schema_version") != 2:
         raise Gate14WindowsAcceptanceCoordinatorError(
             "startup-media receipt schema drifted"
+        )
+    if receipt.get("playback_backend") != "WindowsWpfStartupMediaBackend":
+        raise Gate14WindowsAcceptanceCoordinatorError(
+            "startup-media receipt must prove the canonical Windows WPF backend"
         )
     if receipt.get("audit_kind") != "gate14_windows_startup_media_acceptance":
         raise Gate14WindowsAcceptanceCoordinatorError(
@@ -66,8 +70,15 @@ def _validate_startup_receipt(receipt: object) -> dict:
         ("source_order_preserved", True),
         ("human_visibility_confirmation", True),
         ("human_audibility_confirmation", True),
+        ("human_game_owned_window_confirmation", True),
         ("startup_media_real_windows_verified", True),
         ("default_runtime_components_replayed", True),
+        ("normal_application_host_path_invoked", True),
+        ("game_owned_child_window_verified", True),
+        ("backend_parent_binding_verified", True),
+        ("source_display_geometry_integrated", True),
+        ("exact_horizontal_repeat_integrated", True),
+        ("normal_application_launch_invoked", False),
         ("gate14_complete", False),
     ):
         _require_bool(receipt, key, expected, label="startup-media")

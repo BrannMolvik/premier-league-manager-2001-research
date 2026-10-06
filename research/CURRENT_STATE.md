@@ -1,3 +1,38 @@
+# Recovery 341 continuation — Gate 14 startup acceptance follows production WPF host
+
+_Updated 6 October 2026._
+
+Canonical `main` is `f97238798f05931c9d952786ac256f1974ab3e36`.
+**Gate 13 / issue #482 remains the earliest incomplete validation gate.** This
+branch is independent cloud-safe Gate-14 work-ahead under the deferred-blocker
+policy.
+
+Branch `recovery341-gate14-wpf-startup-acceptance` repairs acceptance-tool drift discovered after PR #495:
+
+- startup-media acceptance schema advances from 1 to 2;
+- the obsolete direct `WindowsMciStartupMediaBackend` replay is removed;
+- acceptance now passes the exact `WindowsWpfStartupMediaBackend` through
+  `run_original_game_ui()`;
+- the production host must bind that backend to its own child HWND and exact
+  reported presentation rectangle before the sequence can pass;
+- reaching the host-ready boundary proves both verified derivatives completed
+  before ordinary main-loop play;
+- human confirmation now requires both visible/audible clips, source order, and
+  an embedded game-owned presentation rather than a separate player window;
+- the aggregate coordinator rejects schema-1 and MCI startup receipts.
+
+The source display record remains bounded: 320x480 coded video, exact 2x
+horizontal repeat to 640x480, ordinary logical 800x600 host with (80,60) movie
+offset. Native skip/fade timing and broad byte-identical DirectDraw display
+treatment remain unresolved and are not promoted by this acceptance tool.
+
+Next: validate the branch through the applicable Gate-14/full reconstruction,
+asset-policy and Windows-package workflows. Merge only if green. This work does
+not close Gate 13 or Gate 14 and does not replace Daniel's external Windows 11
+acceptance.
+
+---
+
 # Recovery 341 continuation — PR #495 merged; Gate 13 external acceptance still open
 
 _Updated 6 October 2026._

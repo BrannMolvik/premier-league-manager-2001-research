@@ -32,15 +32,23 @@ def _windows_fields() -> dict:
 
 def _startup_receipt() -> dict:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "audit_kind": "gate14_windows_startup_media_acceptance",
         "passed": True,
         **_windows_fields(),
+        "playback_backend": "WindowsWpfStartupMediaBackend",
         "source_order_preserved": True,
         "human_visibility_confirmation": True,
         "human_audibility_confirmation": True,
+        "human_game_owned_window_confirmation": True,
         "startup_media_real_windows_verified": True,
         "default_runtime_components_replayed": True,
+        "normal_application_host_path_invoked": True,
+        "game_owned_child_window_verified": True,
+        "backend_parent_binding_verified": True,
+        "source_display_geometry_integrated": True,
+        "exact_horizontal_repeat_integrated": True,
+        "normal_application_launch_invoked": False,
         "gate14_complete": False,
     }
 
@@ -106,6 +114,24 @@ class Gate14WindowsExternalAcceptanceTests(unittest.TestCase):
                 startup[key] = value
                 with self.assertRaises(Gate14WindowsAcceptanceCoordinatorError):
                     build_external_acceptance_bundle(startup, _bound_audio_receipt())
+
+    def test_stale_mci_startup_receipt_is_rejected(self):
+        stale = _startup_receipt()
+        stale["schema_version"] = 1
+        stale["playback_backend"] = "WindowsMciStartupMediaBackend"
+        with self.assertRaisesRegex(
+            Gate14WindowsAcceptanceCoordinatorError,
+            "schema drifted",
+        ):
+            build_external_acceptance_bundle(stale, _bound_audio_receipt())
+
+        stale = _startup_receipt()
+        stale["playback_backend"] = "WindowsMciStartupMediaBackend"
+        with self.assertRaisesRegex(
+            Gate14WindowsAcceptanceCoordinatorError,
+            "canonical Windows WPF backend",
+        ):
+            build_external_acceptance_bundle(stale, _bound_audio_receipt())
 
     def test_child_receipts_must_describe_same_windows_client(self):
         audio = _bound_audio_receipt()

@@ -1,14 +1,17 @@
 """Contract tests for the real-Windows startup-media acceptance audit."""
 from pathlib import Path
+from types import SimpleNamespace
 import json
 import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
+import gate14_windows_startup_media_audit as audit
 from original_startup_media import ORIGINAL_STARTUP_MEDIA_SEQUENCE
 from startup_media_derivatives import VerifiedStartupMediaDerivative
-from startup_media_windows_backend import WindowsMciStartupMediaBackend
+from startup_media_playback import play_verified_startup_sequence
+from startup_media_windows_backend import WindowsWpfStartupMediaBackend
 from gate14_windows_startup_media_audit import (
     Gate14WindowsStartupMediaAuditError,
     VISIBLE_AUDIBLE_CONFIRMATION_TOKEN,
@@ -40,39 +43,104 @@ def derivatives(root: Path):
     return tuple(result)
 
 
-def backend():
-    return WindowsMciStartupMediaBackend(
+class FakeRoot:
+    def __init__(self):
+        self.destroyed = False
+
+    def after(self, _delay, callback):
+        callback()
+
+    def destroy(self):
+        self.destroyed = True
+
+
+def backend(process_calls):
+    def runner(command, **kwargs):
+        process_calls.append((command, kwargs))
+        return SimpleNamespace(returncode=0, stderr="")
+
+    return WindowsWpfStartupMediaBackend(
         platform_system="Windows",
-        sender=lambda _command: 0,
+        runner=runner,
     )
 
 
+def production_host_stub(expected_items, host_calls):
+    def run(game_dir, **kwargs):
+        player = kwargs["startup_media_backend"]
+        items = tuple(kwargs["startup_media_derivatives"])
+        host_calls.append((game_dir, kwargs))
+        if items != tuple(expected_items):
+            raise AssertionError("audit did not pass the prepared derivatives to production host")
+        binding = {
+            "parent_hwnd": 12345,
+            "x": 80,
+            "y": 60,
+            "width": 640,
+            "height": 480,
+        }
+        player.bind_parent_window(
+            binding["parent_hwnd"],
+            x=binding["x"],
+            y=binding["y"],
+            width=binding["width"],
+            height=binding["height"],
+        )
+        summary = play_verified_startup_sequence(items, player)
+        if not summary.source_order_preserved or not all(
+            step.completed for step in summary.steps
+        ):
+            raise AssertionError("fake production host did not complete startup sequence")
+        root = FakeRoot()
+        host = SimpleNamespace(
+            root=root,
+            startup_media_child_binding=lambda: dict(binding),
+        )
+        kwargs["host_ready_callback"](host, None)
+        if not root.destroyed:
+            raise AssertionError("acceptance callback did not close production host")
+
+    return run
+
+
 class Gate14WindowsStartupMediaAuditTests(unittest.TestCase):
-    def test_pass_replays_exact_runtime_sequence_and_requires_human_yes_both(self):
+    def test_pass_uses_production_host_wpf_child_path_and_requires_human_confirmation(self):
         with tempfile.TemporaryDirectory() as temp:
             items = derivatives(Path(temp))
             prepare = Mock(return_value=items)
             prompts = []
+            process_calls = []
+            host_calls = []
 
-            receipt = run_windows_startup_media_audit(
-                "C:/FM2001",
-                "C:/FM2001-port",
-                backend=backend(),
-                confirmer=lambda prompt: (
-                    prompts.append(prompt) or VISIBLE_AUDIBLE_CONFIRMATION_TOKEN
-                ),
-                platform_system="Windows",
-                platform_release="11",
-                platform_version="10.0.26100",
-                github_actions="",
-                windows_product_type=1,
-                preparer=prepare,
-            )
+            with patch.object(
+                audit,
+                "run_original_game_ui",
+                production_host_stub(items, host_calls),
+            ):
+                receipt = run_windows_startup_media_audit(
+                    "C:/FM2001",
+                    "C:/FM2001-port",
+                    backend=backend(process_calls),
+                    confirmer=lambda prompt: (
+                        prompts.append(prompt) or VISIBLE_AUDIBLE_CONFIRMATION_TOKEN
+                    ),
+                    platform_system="Windows",
+                    platform_release="11",
+                    platform_version="10.0.26100",
+                    github_actions="",
+                    windows_product_type=1,
+                    preparer=prepare,
+                )
 
         prepare.assert_called_once_with("C:/FM2001", "C:/FM2001-port")
+        self.assertEqual(len(host_calls), 1)
+        self.assertEqual(len(process_calls), 2)
         self.assertEqual(len(prompts), 1)
         self.assertIn("easp.tgq, then premintro.tgq", prompts[0])
+        self.assertIn("game-owned window", prompts[0])
+        self.assertEqual(VISIBLE_AUDIBLE_CONFIRMATION_TOKEN, "YES-GAME-WINDOW")
         self.assertTrue(receipt["passed"])
+        self.assertEqual(receipt["schema_version"], 2)
         self.assertEqual(
             receipt["audit_kind"],
             "gate14_windows_startup_media_acceptance",
@@ -82,8 +150,37 @@ class Gate14WindowsStartupMediaAuditTests(unittest.TestCase):
         self.assertEqual(receipt["windows_product_type"], 1)
         self.assertEqual(
             receipt["playback_backend"],
-            "WindowsMciStartupMediaBackend",
+            "WindowsWpfStartupMediaBackend",
         )
+        self.assertEqual(receipt["production_host_runner"], "run_original_game_ui")
+        self.assertTrue(receipt["normal_application_host_path_invoked"])
+        self.assertFalse(receipt["normal_app_cli_invoked"])
+        self.assertTrue(receipt["game_owned_child_window_verified"])
+        self.assertTrue(receipt["backend_parent_binding_verified"])
+        self.assertEqual(
+            receipt["host_child_binding"],
+            {
+                "parent_hwnd": 12345,
+                "x": 80,
+                "y": 60,
+                "width": 640,
+                "height": 480,
+            },
+        )
+        self.assertEqual(
+            receipt["source_presentation"]["coded_size"],
+            [320, 480],
+        )
+        self.assertEqual(
+            receipt["source_presentation"]["movie_size"],
+            [640, 480],
+        )
+        self.assertEqual(
+            receipt["source_presentation"]["ordinary_movie_offset"],
+            [80, 60],
+        )
+        self.assertEqual(receipt["source_presentation"]["horizontal_repeat"], 2)
+        self.assertIn("flags=neighbor", receipt["source_presentation"]["ffmpeg_filter"])
         self.assertEqual(len(receipt["startup_sequence"]), 2)
         self.assertEqual(
             tuple(row["source_path"] for row in receipt["startup_sequence"]),
@@ -95,13 +192,24 @@ class Gate14WindowsStartupMediaAuditTests(unittest.TestCase):
         self.assertTrue(receipt["source_order_preserved"])
         self.assertTrue(receipt["human_visibility_confirmation"])
         self.assertTrue(receipt["human_audibility_confirmation"])
+        self.assertTrue(receipt["human_game_owned_window_confirmation"])
         self.assertTrue(receipt["startup_media_real_windows_verified"])
         self.assertTrue(receipt["default_runtime_components_replayed"])
+        self.assertTrue(receipt["source_display_geometry_integrated"])
+        self.assertTrue(receipt["exact_horizontal_repeat_integrated"])
         self.assertFalse(receipt["normal_application_launch_invoked"])
         self.assertFalse(receipt["skip_input_recovered"])
         self.assertFalse(receipt["transition_timing_recovered"])
         self.assertFalse(receipt["exact_display_treatment_recovered"])
         self.assertFalse(receipt["gate14_complete"])
+
+        for _command, kwargs in process_calls:
+            env = kwargs["env"]
+            self.assertEqual(env["FM2001_STARTUP_PARENT_HWND"], "12345")
+            self.assertEqual(env["FM2001_STARTUP_MEDIA_X"], "80")
+            self.assertEqual(env["FM2001_STARTUP_MEDIA_Y"], "60")
+            self.assertEqual(env["FM2001_STARTUP_MEDIA_WIDTH"], "640")
+            self.assertEqual(env["FM2001_STARTUP_MEDIA_HEIGHT"], "480")
 
     def test_external_windows_guard_rejects_non_windows_hosted_server_and_old_build(self):
         cases = (
@@ -169,7 +277,7 @@ class Gate14WindowsStartupMediaAuditTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(
                 Gate14WindowsStartupMediaAuditError,
-                "exact WindowsMciStartupMediaBackend",
+                "exact WindowsWpfStartupMediaBackend",
             ):
                 run_windows_startup_media_audit(
                     backend=object(),
@@ -177,17 +285,69 @@ class Gate14WindowsStartupMediaAuditTests(unittest.TestCase):
                     **common,
                 )
 
-            for response in ("YES", "yes-both", "", "YES-BOTH "):
+            for response in ("YES", "YES-BOTH", "yes-game-window", "", "YES-GAME-WINDOW "):
                 with self.subTest(response=response):
-                    with self.assertRaisesRegex(
-                        Gate14WindowsStartupMediaAuditError,
-                        "not explicitly confirmed",
+                    process_calls = []
+                    host_calls = []
+                    with (
+                        patch.object(
+                            audit,
+                            "run_original_game_ui",
+                            production_host_stub(items, host_calls),
+                        ),
+                        self.assertRaisesRegex(
+                            Gate14WindowsStartupMediaAuditError,
+                            "not explicitly confirmed",
+                        ),
                     ):
                         run_windows_startup_media_audit(
-                            backend=backend(),
+                            backend=backend(process_calls),
                             confirmer=lambda _prompt, value=response: value,
                             **common,
                         )
+                    self.assertEqual(len(host_calls), 1)
+                    self.assertEqual(len(process_calls), 2)
+
+    def test_production_host_must_bind_exact_wpf_backend_to_same_child_geometry(self):
+        with tempfile.TemporaryDirectory() as temp:
+            items = derivatives(Path(temp))
+            process_calls = []
+
+            def bad_host(_game_dir, **kwargs):
+                player = kwargs["startup_media_backend"]
+                player.bind_parent_window(1, x=80, y=60, width=640, height=480)
+                play_verified_startup_sequence(items, player)
+                host = SimpleNamespace(
+                    root=FakeRoot(),
+                    startup_media_child_binding=lambda: {
+                        "parent_hwnd": 2,
+                        "x": 80,
+                        "y": 60,
+                        "width": 640,
+                        "height": 480,
+                    },
+                )
+                kwargs["host_ready_callback"](host, None)
+
+            with (
+                patch.object(audit, "run_original_game_ui", bad_host),
+                self.assertRaisesRegex(
+                    Gate14WindowsStartupMediaAuditError,
+                    "not bound to the production game HWND",
+                ),
+            ):
+                run_windows_startup_media_audit(
+                    "C:/FM2001",
+                    "C:/port",
+                    backend=backend(process_calls),
+                    confirmer=lambda _: VISIBLE_AUDIBLE_CONFIRMATION_TOKEN,
+                    platform_system="Windows",
+                    platform_release="11",
+                    platform_version="10.0.26100",
+                    github_actions="",
+                    windows_product_type=1,
+                    preparer=lambda _game, _root: items,
+                )
 
     def test_private_receipt_must_be_outside_git_and_never_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -220,10 +380,11 @@ class Gate14WindowsStartupMediaAuditTests(unittest.TestCase):
 
     def test_cli_writes_only_returned_private_receipt(self):
         receipt = {
-            "schema_version": 1,
+            "schema_version": 2,
             "audit_kind": "gate14_windows_startup_media_acceptance",
             "passed": True,
             "startup_media_real_windows_verified": True,
+            "normal_application_host_path_invoked": True,
             "skip_input_recovered": False,
             "gate14_complete": False,
         }
