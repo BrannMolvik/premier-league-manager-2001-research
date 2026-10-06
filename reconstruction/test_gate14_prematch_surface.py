@@ -12,8 +12,11 @@ from gate14_fastview_surfaced_resource_loader import (
 )
 from gate14_prematch_rating_widths import PrematchTeamRatingWidths
 from gate14_prematch_surface import (
+    BoundPrematchPlayerRows,
     BoundPrematchRatingRows,
     PrematchSurfaceBoundary,
+    PrematchSurfaceError,
+    bind_prematch_player_rows,
     bind_prematch_rating_state,
     bind_prematch_rating_widths,
     build_verified_prematch_surface_boundary,
@@ -253,6 +256,98 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(all(not s.persistent_selected_visual for s in boundary.selectors))
         self.assertEqual(tuple(s.initial_flags for s in boundary.selectors), (0x183,) * 4)
         self.assertEqual(tuple(s.group_lengths for s in boundary.selectors), ((11, 11, 1),) * 4)
+
+    def test_player_row_binding_uses_source_name_number_and_count_driven_state(self):
+        selection = self._selection()
+        background = VerifiedFastViewSurfacedResource(
+            role="background",
+            source_path=selection.background_source_candidates[0],
+            byte_size=1,
+            sha256="0" * 64,
+            geometry=(800, 600),
+            rgba=bytes(800 * 600 * 4),
+            transparent_pixels=0,
+        )
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_selected_background",
+                return_value=background,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=self.clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        left = tuple(
+            SimpleNamespace(
+                shirt_number=index + 1,
+                first_name="-Alias" if index == 1 else "David",
+                surname="Ronaldo" if index == 1 else f"Left{index}",
+            )
+            for index in range(12)
+        )
+        right = tuple(
+            SimpleNamespace(
+                shirt_number=index + 20,
+                first_name="Ryan",
+                surname=f"Right{index}",
+            )
+            for index in range(18)
+        )
+
+        bound = bind_prematch_player_rows(
+            boundary,
+            left_players=left,
+            right_players=right,
+        )
+
+        self.assertIsInstance(bound, BoundPrematchPlayerRows)
+        self.assertEqual(bound.left_participant_count, 12)
+        self.assertEqual(bound.right_participant_count, 18)
+        self.assertEqual(len(bound.rows), 36)
+
+        left_rows = bound.rows[:18]
+        right_rows = bound.rows[18:]
+        self.assertEqual(
+            tuple(row.variant for row in left_rows),
+            ("active",) * 12 + ("disabled",) * 6,
+        )
+        self.assertEqual(
+            tuple(row.variant for row in right_rows),
+            ("active",) * 18,
+        )
+        self.assertEqual(left_rows[0].shirt_number_text, "1")
+        self.assertEqual(left_rows[0].display_name_text, "D. Left0")
+        self.assertEqual(left_rows[1].display_name_text, "Ronaldo")
+        self.assertIsNone(left_rows[12].shirt_number_text)
+        self.assertIsNone(left_rows[12].display_name_text)
+        self.assertEqual(right_rows[0].shirt_number_text, "20")
+        self.assertEqual(right_rows[0].display_name_text, "R. Right0")
+        self.assertTrue(bound.source_state_bound)
+        self.assertFalse(bound.complete_prematch_frame)
+        self.assertFalse(bound.gate14_complete)
+
+        with self.assertRaisesRegex(PrematchSurfaceError, "cannot exceed 18"):
+            bind_prematch_player_rows(
+                boundary,
+                left_players=tuple(left) + tuple(left[:7]),
+                right_players=right,
+            )
 
     def test_rating_rows_expose_geometry_and_pixels_without_inventing_meanings_or_widths(self):
         selection = self._selection()
@@ -532,6 +627,9 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(contract["reserve_variant_state_source_closed"])
         self.assertEqual(contract["player_text_row_count"], 36)
         self.assertTrue(contract["player_row_text_controls_source_closed"])
+        self.assertTrue(contract["player_row_state_binding_available"])
+        self.assertTrue(contract["player_row_display_name_reuses_source_formatter"])
+        self.assertTrue(contract["player_row_shirt_number_reuses_source_formatter"])
         self.assertTrue(contract["selector_visual_state_source_closed"])
         self.assertFalse(contract["selector_persistent_selected_visual"])
         self.assertEqual(contract["selector_modes"], (0, 1, 2, 3))
