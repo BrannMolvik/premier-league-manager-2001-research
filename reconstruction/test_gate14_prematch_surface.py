@@ -14,6 +14,7 @@ from gate14_prematch_rating_widths import PrematchTeamRatingWidths
 from gate14_prematch_surface import (
     BoundPrematchRatingRows,
     PrematchSurfaceBoundary,
+    bind_prematch_rating_state,
     bind_prematch_rating_widths,
     build_verified_prematch_surface_boundary,
     prematch_surface_contract,
@@ -289,6 +290,63 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertFalse(bound.complete_prematch_frame)
         self.assertFalse(bound.gate14_complete)
 
+    def test_state_helper_composes_native_xi_calculation_for_both_sides(self):
+        selection = self._selection()
+        background = VerifiedFastViewSurfacedResource(
+            role="background",
+            source_path=selection.background_source_candidates[0],
+            byte_size=1,
+            sha256="0" * 64,
+            geometry=(800, 600),
+            rgba=bytes(800 * 600 * 4),
+            transparent_pixels=0,
+        )
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_selected_background",
+                return_value=background,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=self.clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        expected_left = PrematchTeamRatingWidths(10, 20, 30, 40)
+        expected_right = PrematchTeamRatingWidths(50, 60, 70, 80)
+        with patch(
+            "gate14_prematch_surface.source_prematch_team_rating_widths",
+            side_effect=(expected_left, expected_right),
+        ) as calculate:
+            bound = bind_prematch_rating_state(
+                boundary,
+                left_starters=tuple(range(11)),
+                right_starters=tuple(range(11, 22)),
+                positions={},
+            )
+
+        self.assertEqual(calculate.call_count, 2)
+        self.assertEqual(bound.left_widths, expected_left)
+        self.assertEqual(bound.right_widths, expected_right)
+        self.assertEqual(
+            tuple(row.semantic_group for row in bound.rows),
+            ("goalkeeper", "defence", "midfield", "attack"),
+        )
+
     def test_contract_keeps_all_unresolved_claims_fail_closed(self):
         contract = prematch_surface_contract()
         self.assertEqual(contract["native_surface"], (800, 600))
@@ -298,6 +356,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["selector_events"], (4, 3, 2, 1))
         self.assertEqual(contract["rating_discriminators"], (3, 0, 1, 2))
         self.assertTrue(contract["rating_width_binding_available"])
+        self.assertTrue(contract["rating_state_binding_available"])
         self.assertFalse(contract["rating_dynamic_widths_bound_by_resource_loader"])
         self.assertFalse(contract["rating_dynamic_widths_bound_to_cleanroom_state"])
         self.assertFalse(contract["full_cross_layer_draw_order_recovered"])
