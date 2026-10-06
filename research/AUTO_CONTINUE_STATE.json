@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 354: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is 8d670a72da4b159f654df5a6c5ac194f8e271528. PR #500 is merged as 52d2cb84aa2f47ea18ee222d4383fb0f6b72a4b1 after asset 37502428343, Windows package 37502428326, and full reconstruction 37502428345 passed. Private trace now source-closes CPlayerTransferHistory::0x4EBF60 mapping: +08<-player+74, +10/+14<-0x5E48D0 qword, +18<-WORD player+18C, +1C<-0x9847FC, +20<-0. Selector 0x8755E8 chooses cutoff 0x8755EC for mode1 or 0x8755F0 for mode2, but producer/semantic identities remain unresolved. Exact next source task: identify 0x419350 fully and trace indirect initialization of global cluster 0x8755D0..0x8755FC. Keep negative mode-1 Cup-Tied fallback fail-closed. Separate toolchain provenance branch 13532aa must be refreshed onto current main before review.",
-  "last_known_main_head": "8d670a72da4b159f654df5a6c5ac194f8e271528",
+  "active_task": "Recovery 355: Gate 13 remains externally blocked on Daniel Windows acceptance artifact 11418314765. Canonical main is ae578fc1461569b282d77f4c7c4eefe2bece2fb1. Recovery 354 corrected DBRPlayer +0x18C / CPlayerTransferHistory +0x18 from the older date interpretation to an actual-appearance count for the current/prior club tenure; selector 0x8755E8 modes 1/2 choose appearance-count cutoffs 0x8755EC/F0. No direct writes/address-taking refs/RVA table refs to those three BSS globals have been found, but a derived/block initializer is not yet ruled out, so negative Cup-Tied remains fail-closed. Active Gate-17 work-ahead is PR #501 exact head 59d99fc7ca35ac8d4a9bd89252df80b156c64efb, pinning action/toolchain provenance while source_material_complete=false. Asset policy 37506276574 passed; Windows package 37506276605, minimal build 37506276513, and full reconstruction 37506276550 are running. Merge only if exact-head checks all pass.",
+  "last_known_main_head": "ae578fc1461569b282d77f4c7c4eefe2bece2fb1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 354,
+  "recovery_generation": 355,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 354: PR #500 merged; exact-original private proof producer canonical. Native transfer-history setter mapping persisted. Continuing 0x419350/global cutoff producer trace.",
+  "note": "Recovery 355: appearance-history correction canonical; PR #501 toolchain provenance exact head 59d99fc in CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
