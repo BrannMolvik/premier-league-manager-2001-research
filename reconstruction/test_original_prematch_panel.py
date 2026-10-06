@@ -9,6 +9,25 @@ from ea444_decoder import EA444DecodedImage
 from original_prematch_panel import (
     PREMATCH_ALL_EA444_SPECS,
     PREMATCH_FONT_PATH,
+    PREMATCH_DATE_FORMAT,
+    PREMATCH_DATE_FORMAT_VA,
+    PREMATCH_DATE_BUFFER_OFFSET,
+    PREMATCH_TEMPERATURE_FORMAT,
+    PREMATCH_TEMPERATURE_FORMAT_VA,
+    PREMATCH_TEMPERATURE_BUFFER_OFFSET,
+    PREMATCH_TEAM_BADGE_ROOT,
+    PREMATCH_TEAM_BADGE_VARIANT_KEY,
+    PREMATCH_TEAM_BADGE_FALLBACK,
+    PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS,
+    PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS,
+    PREMATCH_PLAYER_SLOTS_PER_SIDE,
+    PREMATCH_STARTERS_PER_SIDE,
+    PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS,
+    PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS,
+    PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA,
+    PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
+    PREMATCH_PLAYER_FULL_NAME_FORMAT,
+    PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
     PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
     PREMATCH_LIVE_BACKGROUND_RECT,
     PREMATCH_LIVE_BACKGROUND_ROOT,
@@ -158,6 +177,58 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         )
         self.assertTrue(contract["live_background_contract_source_closed"])
         self.assertTrue(contract["rating_bar_layout_source_closed"])
+        self.assertFalse(contract["management_launch_trigger_recovered"])
+        self.assertFalse(contract["complete_prematch_frame"])
+        self.assertFalse(contract["gate14_complete"])
+
+    def test_identity_text_and_roster_contract_is_exact(self):
+        self.assertEqual(
+            (
+                PREMATCH_DATE_FORMAT,
+                PREMATCH_DATE_FORMAT_VA,
+                PREMATCH_DATE_BUFFER_OFFSET,
+            ),
+            ("%Df %Mf %Yf", 0x81D5B8, 0x70),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_TEMPERATURE_FORMAT,
+                PREMATCH_TEMPERATURE_FORMAT_VA,
+                PREMATCH_TEMPERATURE_BUFFER_OFFSET,
+            ),
+            ("%s %d°C", 0x81D5B0, 0x270),
+        )
+        self.assertEqual(
+            (
+                PREMATCH_TEAM_BADGE_ROOT,
+                PREMATCH_TEAM_BADGE_VARIANT_KEY,
+                PREMATCH_TEAM_BADGE_FALLBACK,
+                PREMATCH_TEAM_BADGE_RESOURCE_OFFSETS,
+                PREMATCH_TEAM_BADGE_ACTIVE_OFFSETS,
+            ),
+            (
+                r"FM2001_art\generic\team_badge_stills",
+                "badge_2",
+                r"fm2001_art\generic\team_badge_stills\generic.444",
+                (0x600, 0x624),
+                (0x840, 0x890),
+            ),
+        )
+        self.assertEqual(PREMATCH_PLAYER_SLOTS_PER_SIDE, 18)
+        self.assertEqual(PREMATCH_STARTERS_PER_SIDE, 11)
+        self.assertEqual(PREMATCH_SIDE_PLAYER_COUNT_MATCH_OFFSETS, (0x5A4, 0xB54))
+        self.assertEqual(PREMATCH_SIDE_PLAYER_ARRAY_MATCH_OFFSETS, (0x004, 0x5B4))
+        self.assertEqual(PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA, 0x417A90)
+        self.assertEqual(PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA, 0x417AE0)
+        self.assertEqual(PREMATCH_PLAYER_FULL_NAME_FORMAT, "%s %s")
+        self.assertEqual(PREMATCH_PLAYER_FULL_NAME_FORMAT_VA, 0x81858C)
+
+        contract = prematch_panel_contract()
+        self.assertEqual(contract["date_format"], "%Df %Mf %Yf")
+        self.assertEqual(contract["temperature_format"], "%s %d°C")
+        self.assertEqual(contract["player_slots_per_side"], 18)
+        self.assertEqual(contract["starters_per_side"], 11)
+        self.assertTrue(contract["identity_controls_source_closed"])
         self.assertFalse(contract["management_launch_trigger_recovered"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])
