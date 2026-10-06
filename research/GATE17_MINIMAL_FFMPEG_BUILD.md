@@ -34,6 +34,8 @@ explicitly restores only the runtime path required by FM2001 startup media:
 - source-bounded EA/TGQ decoders plus H.264/AAC derivative decoders;
 - `h264_mf` and native AAC encoders;
 - internal `aresample` for AAC sample-format conversion;
+- internal `scale` + `swscale` for the canonical
+  `scale=640:480:flags=neighbor` startup presentation treatment;
 - MP4 and null muxers.
 
 No `--enable-lib*`, GPL, nonfree or version-3 mode is accepted.
@@ -45,6 +47,12 @@ D3D11VA. The same pinned source guards `hwcontext_d3d11va.h` behind
 texture types. The canonical source contract now explicitly enables
 `--enable-d3d11va`. This is a build dependency of the pinned encoder source,
 not a claim that the FM2001 conversion path supplies D3D11 hardware frames.
+
+A separate audit against the current converter also found that a merely
+compilable helper is insufficient: every canonical startup conversion invokes
+`-vf scale=640:480:flags=neighbor`. The minimal helper therefore retains the
+internal `scale` filter and its `swscale` dependency. No external library is
+introduced by that correction.
 
 ## Binary audit
 
