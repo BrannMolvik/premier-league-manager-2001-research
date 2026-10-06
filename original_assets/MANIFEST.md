@@ -203,6 +203,8 @@ This manifest will be populated as authorized FM2001 resources are intentionally
 
 | original_assets/source/Fonts/Zurich_XCn_BT_18pixel.fnt | Fonts/Zurich_XCn_BT_18pixel.fnt | 968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a | original | Gate 14 direct FastView header TextControl style-3 font. Byte-identical 79,734-byte source asset; executable binding recovered through style selector `0x527BA0` -> wrapper `0x87BE30` -> font object `0x8CAB80` / loader `0x657650`. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
 
+| original_assets/source/FM2001_Art/Generic/status.png | FM2001_Art/Generic/status.png | 59cd053c93ea789a010d813f46f650c2e4c16ea46163c63ae01209f69e4f5b1b | original | Gate 13 source-proven PSCFRow status atlas. Exact 18x196 RGB PNG, 4,015 bytes, sliced by canonical initializer 0x603940 into fourteen vertical 18x14 frames at 0x87BBF0. Frames 0..11 follow the recovered Static.dat status-definition order; frames 12/13 are native alternate Non-EU/On-loan variants. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
+
 Forms:
 
 - **original** - byte-identical extracted source asset;
