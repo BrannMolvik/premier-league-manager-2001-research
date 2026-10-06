@@ -137,18 +137,24 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
         injured = getattr(row, "injured", None)
         banned = getattr(row, "suspended", None)
         international = getattr(row, "international", None)
-        if any(type(value) is not bool for value in (injured, banned, international)):
-            raise OriginalSquadPresentationError(
-                "Squad direct status states must be booleans"
-            )
-        try:
-            native_status_frame_index = direct_squad_status_frame_index(
-                injured=injured,
-                banned=banned,
-                international=international,
-            )
-        except ValueError as exc:
-            raise OriginalSquadPresentationError(str(exc)) from exc
+        status_states = (injured, banned, international)
+        if all(value is None for value in status_states):
+            # Older/minimal source fixtures that do not carry the newly
+            # recovered status state remain unresolved rather than fabricated.
+            native_status_frame_index = None
+        else:
+            if any(type(value) is not bool for value in status_states):
+                raise OriginalSquadPresentationError(
+                    "Squad direct status states must be booleans when present"
+                )
+            try:
+                native_status_frame_index = direct_squad_status_frame_index(
+                    injured=injured,
+                    banned=banned,
+                    international=international,
+                )
+            except ValueError as exc:
+                raise OriginalSquadPresentationError(str(exc)) from exc
 
         condition = _require_int(getattr(row, "condition", None), label="condition")
         current_role_rating = _require_int(
