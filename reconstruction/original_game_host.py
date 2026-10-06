@@ -1226,7 +1226,7 @@ class OriginalGameTkHost:
 
         direct_status_rows = tuple(
             row for row in snapshot.rows
-            if row.native_status_frame_index is not None
+            if getattr(row, "native_status_frame_index", None) is not None
         )
         if direct_status_rows:
             status_resources = self.squad_status_resources
