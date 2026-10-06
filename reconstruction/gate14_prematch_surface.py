@@ -26,6 +26,7 @@ from gate14_prematch_rating_widths import (
     source_prematch_team_rating_widths,
 )
 from original_front_end_layout import OriginalRect
+from original_squad_row_style import format_squad_display_name, format_squad_whole_number
 from original_prematch_panel import (
     PREMATCH_ACTIVE_LEFT,
     PREMATCH_ACTIVE_RIGHT,
@@ -49,6 +50,15 @@ from original_prematch_panel import (
     PREMATCH_RATING_ROWS,
     PREMATCH_SELECTORS,
     PREMATCH_PLAYER_STRIP_ROWS,
+    PREMATCH_PLAYER_TEXT_ROWS,
+    PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA,
+    PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA,
+    PREMATCH_PLAYER_NUMBER_FORMAT,
+    PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET,
+    PREMATCH_PLAYER_NAME_MODE_BY_SIDE,
+    PREMATCH_SELECTOR_INITIAL_FLAGS,
+    PREMATCH_SELECTOR_GROUP_LENGTHS,
+    prematch_player_row_variant,
     PREMATCH_CHILD_COUNT,
     PREMATCH_CHILD_ORDER_RANGES,
     PREMATCH_STATIC_PLACEMENTS,
@@ -165,6 +175,50 @@ class PrematchSelectorSurface:
     label: str
     rect: OriginalRect
     atlas: object
+    initial_flags: int = PREMATCH_SELECTOR_INITIAL_FLAGS
+    group_lengths: tuple[int, ...] = PREMATCH_SELECTOR_GROUP_LENGTHS
+    native_visual_state_source_closed: bool = True
+    persistent_selected_visual: bool = False
+
+    def __post_init__(self) -> None:
+        if self.initial_flags != PREMATCH_SELECTOR_INITIAL_FLAGS:
+            raise PrematchSurfaceError("pre-match selector initial flags drifted")
+        if self.group_lengths != PREMATCH_SELECTOR_GROUP_LENGTHS:
+            raise PrematchSurfaceError("pre-match selector frame groups drifted")
+        if not self.native_visual_state_source_closed or self.persistent_selected_visual:
+            raise PrematchSurfaceError("pre-match selector cannot invent radio selection state")
+
+
+@dataclass(frozen=True)
+class PrematchPlayerTextSurface:
+    side: str
+    slot_index: int
+    roster_group: str
+    number_rect: OriginalRect
+    name_rect: OriginalRect
+    strip_child_index: int
+    number_child_index: int
+    name_child_index: int
+    disabled_child_index: int | None
+    style_wrapper_va: int = PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA
+    number_aux_wrapper_va: int = PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA
+    number_format: str = PREMATCH_PLAYER_NUMBER_FORMAT
+    shirt_number_runtime_offset: int = PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET
+    name_mode: int = 0
+
+    def __post_init__(self) -> None:
+        if self.side not in ("left", "right"):
+            raise PrematchSurfaceError("pre-match player text side must be left/right")
+        expected_name_mode = PREMATCH_PLAYER_NAME_MODE_BY_SIDE[0 if self.side == "left" else 1]
+        if self.name_mode != expected_name_mode:
+            raise PrematchSurfaceError("pre-match player name mode differs from source")
+        if self.style_wrapper_va != PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA:
+            raise PrematchSurfaceError("pre-match player text style wrapper drifted")
+        if self.number_format != PREMATCH_PLAYER_NUMBER_FORMAT:
+            raise PrematchSurfaceError("pre-match player number format drifted")
+
+    def strip_variant(self, participant_count: int) -> str:
+        return prematch_player_row_variant(self.slot_index, participant_count)
 
 
 @dataclass(frozen=True)
@@ -179,7 +233,7 @@ class PrematchPlayerStripSurface:
     active_rgba: bytes
     disabled_source_path: str | None = None
     disabled_rgba: bytes | None = None
-    variant_state_source_closed: bool = False
+    variant_state_source_closed: bool = True
 
     def __post_init__(self) -> None:
         if self.side not in ("left", "right"):
@@ -203,10 +257,110 @@ class PrematchPlayerStripSurface:
                 or len(self.disabled_rgba) != expected
             ):
                 raise PrematchSurfaceError("native reserve strip requires both source variants")
-        if self.variant_state_source_closed:
+        if not self.variant_state_source_closed:
             raise PrematchSurfaceError(
-                "reserve/player-strip variant state is not yet source-closed"
+                "pre-match player-strip variant state must retain source-closed count rule"
             )
+
+
+@dataclass(frozen=True)
+class BoundPrematchPlayerRowSurface:
+    source: PrematchPlayerTextSurface
+    strip: PrematchPlayerStripSurface
+    variant: str
+    shirt_number_text: str | None
+    display_name_text: str | None
+
+    def __post_init__(self) -> None:
+        if self.variant not in ("active", "disabled", "hidden"):
+            raise PrematchSurfaceError("invalid bound pre-match player row variant")
+        populated = self.variant == "active"
+        if populated != (self.shirt_number_text is not None):
+            raise PrematchSurfaceError("pre-match shirt-number visibility drifted")
+        if populated != (self.display_name_text is not None):
+            raise PrematchSurfaceError("pre-match display-name visibility drifted")
+        if self.variant == "disabled" and self.strip.disabled_rgba is None:
+            raise PrematchSurfaceError("disabled row requires native disabled strip pixels")
+
+
+@dataclass(frozen=True)
+class BoundPrematchPlayerRows:
+    rows: tuple[BoundPrematchPlayerRowSurface, ...]
+    left_participant_count: int
+    right_participant_count: int
+    source_state_bound: bool = True
+    complete_prematch_frame: bool = False
+    gate14_complete: bool = False
+
+    def __post_init__(self) -> None:
+        if len(self.rows) != 36:
+            raise PrematchSurfaceError("bound pre-match player rows must contain both 18-slot sides")
+        if not self.source_state_bound or self.complete_prematch_frame or self.gate14_complete:
+            raise PrematchSurfaceError("row binding cannot weaken source/fidelity boundary")
+
+
+def _strip_surface_for_slot(
+    boundary: "PrematchSurfaceBoundary",
+    side: str,
+    slot_index: int,
+) -> PrematchPlayerStripSurface:
+    roster_group = "starter" if slot_index < 11 else "reserve"
+    row_index = slot_index if slot_index < 11 else slot_index - 11
+    for row in boundary.player_strip_rows:
+        if row.side == side and row.roster_group == roster_group and row.row_index == row_index:
+            return row
+    raise PrematchSurfaceError("pre-match strip surface is missing for supplied player row")
+
+
+def bind_prematch_player_rows(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    left_players,
+    right_players,
+) -> BoundPrematchPlayerRows:
+    """Bind the exact 18-slot native row state from supplied match participants."""
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError("player-row binding requires exact PrematchSurfaceBoundary")
+    sides = (("left", tuple(left_players)), ("right", tuple(right_players)))
+    for _side, players in sides:
+        if len(players) > 18:
+            raise PrematchSurfaceError("pre-match participant side cannot exceed 18 players")
+
+    rows = []
+    text_rows = {(row.side, row.slot_index): row for row in boundary.player_text_rows}
+    for side, players in sides:
+        participant_count = len(players)
+        for slot_index in range(18):
+            source = text_rows[(side, slot_index)]
+            strip = _strip_surface_for_slot(boundary, side, slot_index)
+            variant = source.strip_variant(participant_count)
+            if slot_index < participant_count:
+                player = players[slot_index]
+                try:
+                    shirt_number = player.shirt_number
+                    first_name = player.first_name
+                    surname = player.surname
+                except AttributeError as exc:
+                    raise PrematchSurfaceError("pre-match player row requires source name/number fields") from exc
+                shirt_text = format_squad_whole_number(shirt_number)
+                display_text = format_squad_display_name(first_name, surname)
+            else:
+                shirt_text = None
+                display_text = None
+            rows.append(
+                BoundPrematchPlayerRowSurface(
+                    source=source,
+                    strip=strip,
+                    variant=variant,
+                    shirt_number_text=shirt_text,
+                    display_name_text=display_text,
+                )
+            )
+    return BoundPrematchPlayerRows(
+        rows=tuple(rows),
+        left_participant_count=len(sides[0][1]),
+        right_participant_count=len(sides[1][1]),
+    )
 
 
 @dataclass(frozen=True)
@@ -405,18 +559,30 @@ _PREMATCH_CHILD_COVERAGE = {
     "date_weather_line": (1, False, "dynamic date/weather buffer is not bound"),
     "team_badges": (0, False, "team badge pixels are not staged in the pre-match surface"),
     "team_identity_text": (3, False, "left/right dynamic team identity text is not bound"),
-    "starting_xi_pitch_markers": (0, False, "22 pitch-marker placement/state controls are unresolved"),
-    "side0_starter_rows": (11, False, "starter row text/content controls remain unresolved"),
-    "side0_slots_11_17": (
-        14,
+    "starting_xi_pitch_markers": (
+        0,
         False,
-        "reserve row text plus active/disabled runtime selection remain unresolved",
+        "marker geometry/state is source-closed but dynamic goalkeeper/team shirt pixels are not staged",
     ),
-    "side1_starter_rows": (11, False, "starter row text/content controls remain unresolved"),
-    "side1_slots_11_17": (
-        14,
+    "side0_starter_rows": (
+        33,
         False,
-        "reserve row text plus active/disabled runtime selection remain unresolved",
+        "all controls are represented but supplied player number/name content is not bound",
+    ),
+    "side0_slots_11_17": (
+        28,
+        False,
+        "all controls and count-driven strip state are represented but supplied player text is not bound",
+    ),
+    "side1_starter_rows": (
+        33,
+        False,
+        "all controls are represented but supplied player number/name content is not bound",
+    ),
+    "side1_slots_11_17": (
+        28,
+        False,
+        "all controls and count-driven strip state are represented but supplied player text is not bound",
     ),
     "rating_bar_layers": (
         16,
@@ -427,7 +593,7 @@ _PREMATCH_CHILD_COVERAGE = {
     "match_detail_selectors": (
         4,
         False,
-        "selector atlas/geometry are present but exact runtime visual state is unresolved",
+        "generic Button@ease state is source-closed but current pointer/update state is not supplied",
     ),
 }
 
@@ -460,6 +626,7 @@ class PrematchSurfaceBoundary:
     background: PrematchRasterLayer
     static_layers: tuple[PrematchRasterLayer, ...]
     text_controls: tuple[PrematchTextControlSurface, ...]
+    player_text_rows: tuple[PrematchPlayerTextSurface, ...]
     player_strip_rows: tuple[PrematchPlayerStripSurface, ...]
     selectors: tuple[PrematchSelectorSurface, ...]
     rating_rows: tuple[PrematchRatingSurface, ...]
@@ -491,14 +658,24 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError("pre-match static layer set is incomplete")
         if self.text_controls != source_prematch_text_controls():
             raise PrematchSurfaceError("pre-match native text-control set is incomplete")
+        if self.player_text_rows != source_prematch_player_text_rows():
+            raise PrematchSurfaceError("pre-match player text row set is incomplete")
         if len(self.player_strip_rows) != len(PREMATCH_PLAYER_STRIP_ROWS):
             raise PrematchSurfaceError("pre-match player strip row set is incomplete")
-        if any(row.variant_state_source_closed for row in self.player_strip_rows):
+        if any(not row.variant_state_source_closed for row in self.player_strip_rows):
             raise PrematchSurfaceError(
-                "pre-match player strip boundary cannot invent reserve variant state"
+                "pre-match player strip boundary lost source-closed reserve state"
             )
         if len(self.selectors) != len(PREMATCH_SELECTORS):
             raise PrematchSurfaceError("pre-match selector surface set is incomplete")
+        if any(
+            not selector.native_visual_state_source_closed
+            or selector.persistent_selected_visual
+            for selector in self.selectors
+        ):
+            raise PrematchSurfaceError(
+                "pre-match selector surface lost generic Button@ease state"
+            )
         if len(self.rating_rows) != len(PREMATCH_RATING_ROWS):
             raise PrematchSurfaceError("pre-match rating row set is incomplete")
         if not (
@@ -520,6 +697,24 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError(
                 "pre-match boundary cannot promote unresolved runtime/fidelity claims"
             )
+
+
+def source_prematch_player_text_rows() -> tuple[PrematchPlayerTextSurface, ...]:
+    return tuple(
+        PrematchPlayerTextSurface(
+            side=row.side,
+            slot_index=row.slot_index,
+            roster_group=row.roster_group,
+            number_rect=row.number_rect,
+            name_rect=row.name_rect,
+            strip_child_index=row.strip_child_index,
+            number_child_index=row.number_child_index,
+            name_child_index=row.name_child_index,
+            disabled_child_index=row.disabled_child_index,
+            name_mode=PREMATCH_PLAYER_NAME_MODE_BY_SIDE[0 if row.side == "left" else 1],
+        )
+        for row in PREMATCH_PLAYER_TEXT_ROWS
+    )
 
 
 def _layer_from_decoded(role, rect, spec, decoded) -> PrematchRasterLayer:
@@ -659,6 +854,7 @@ def build_verified_prematch_surface_boundary(
         background=background,
         static_layers=static_layers,
         text_controls=source_prematch_text_controls(),
+        player_text_rows=source_prematch_player_text_rows(),
         player_strip_rows=tuple(player_strip_rows),
         selectors=selectors,
         rating_rows=rating_rows,
@@ -679,9 +875,16 @@ def prematch_surface_contract() -> dict:
         "dynamic_fixture_and_date_buffers_bound": False,
         "team_identity_text_bound": False,
         "fixed_versus_and_rating_captions_available": True,
+        "player_text_row_count": len(source_prematch_player_text_rows()),
+        "player_row_text_controls_source_closed": True,
+        "player_row_state_binding_available": True,
+        "player_row_display_name_reuses_source_formatter": True,
+        "player_row_shirt_number_reuses_source_formatter": True,
         "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
         "player_strip_rows_source_geometry_available": True,
-        "reserve_variant_state_source_closed": False,
+        "reserve_variant_state_source_closed": True,
+        "selector_visual_state_source_closed": True,
+        "selector_persistent_selected_visual": False,
         "selector_modes": tuple(int(selector.mode) for selector in PREMATCH_SELECTORS),
         "selector_events": tuple(selector.event_id for selector in PREMATCH_SELECTORS),
         "rating_discriminators": tuple(

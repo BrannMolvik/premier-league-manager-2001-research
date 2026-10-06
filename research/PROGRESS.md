@@ -12227,3 +12227,21 @@ continues with ordinary Squad row display-name/color helpers.
 - Added clean-room contract constants plus regression coverage for native
   placement/mirroring. Dynamic team-shirt pixels remain deliberately unstaged,
   so complete-frame and Gate-14 claims remain false.
+
+
+## 7 October 2026 KST — Recovery 371 PPreMatch row/selector trace
+
+- Source-closed the 36 pre-match player-row number/name controls, including
+  exact mirrored text rectangles, style wrappers, native `%N` shirt-number
+  formatting, and PPreMatch display-name mode 0 (`%c. %s` / surname sentinel).
+- Proved reserve strip selection is driven by the side participant count:
+  populated reserve rows use active art; unused reserve capacity uses disabled
+  art and no player text.
+- Added `bind_prematch_player_rows()` using existing source-backed name/number
+  formatters; the binder is supplied-state only and does not invent selection.
+- Proved Match Detail has no persistent radio-selected visual. The four controls
+  use ordinary Button@ease 11+11+1 state; a click commits the mode and closes
+  the modal immediately.
+- Updated frame coverage from 86 to 158 structurally represented native
+  controls while retaining all remaining supplied-state/pixel blockers.
+

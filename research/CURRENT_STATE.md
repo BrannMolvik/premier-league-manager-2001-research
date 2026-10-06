@@ -1,3 +1,21 @@
+# Recovery 371 continuation — PPreMatch row/selector source closure staged
+
+_Updated 7 October 2026._
+
+Canonical `main` is `8a6dddec87bda405f066601e42cbbdaf2076bdf5`, which merges PR #513's first-hand starting-XI marker contract. Exact PR #513 head `1d970ef6b4c25752475bc89db60d0cbec9e5b649` passed presentation run `37547209067` and asset-policy run `37547208964`.
+
+Private executable access remains available and branch `chatgpt/gate14-prematch-row-selector-state-r371` now source-closes two further PPreMatch families:
+
+- all 36 player-row text/state groups: exact number/name rectangles, `%N` source shirt number, PPreMatch mode-0 `%c. %s` / surname-only display name, and count-driven active-vs-disabled reserve strip state;
+- Match Detail selector visuals: ordinary generic Button@ease 11+11+1 state only, with no persistent radio-selected mode; mode commit writes `0x877530`, signals the modal owner and closes immediately.
+
+The pre-match surface now exposes all row text controls, keeps reserve strip state source-closed, and provides `bind_prematch_player_rows()` to bind supplied left/right participant arrays through the already source-closed display-name and whole-number formatters. The 182-child coverage audit now counts 158 structurally represented controls, but no complete-frame claim is promoted.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open.
+
+Immediate next action: exact-head CI for the current row/selector branch and merge if green. Then continue first-hand Gate-14 frame closure while executable access is available, prioritizing team-badge pixel/path binding and starting-XI team-shirt pixel staging, followed by dynamic fixture/date/team identity binding and final supplied-state frame assembly. Management-to-match launch and missing 3D Match/Highlights presentation remain fail-closed.
+
+---
 # Recovery 370 continuation — PPreMatch XI marker source contract staged
 
 _Updated 7 October 2026._

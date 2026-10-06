@@ -16,6 +16,8 @@ from ea444_tables import tables_from_original_executable
 from ea_font import EAFont
 from match_detail_mode import MATCH_DETAIL_LABELS, MatchDetailMode
 from original_button_frames import (
+    BUTTON_GROUP_LENGTHS,
+    BUTTON_INITIAL_FLAGS,
     ButtonAtlasSpec,
     OriginalButtonAtlas,
     decode_verified_original_button_atlas,
@@ -80,6 +82,36 @@ class PrematchPlayerStripRowSpec:
             raise OriginalPrematchPanelError(
                 "native reserve rows require the co-located disabled strip variant"
             )
+
+
+@dataclass(frozen=True)
+class PrematchPlayerTextRowSpec:
+    side: str
+    slot_index: int
+    roster_group: str
+    strip_child_index: int
+    number_child_index: int
+    name_child_index: int
+    disabled_child_index: int | None
+    number_rect: OriginalRect
+    name_rect: OriginalRect
+
+    def __post_init__(self) -> None:
+        if self.side not in ("left", "right"):
+            raise OriginalPrematchPanelError("pre-match row text side must be left/right")
+        if not 0 <= self.slot_index < 18:
+            raise OriginalPrematchPanelError("pre-match row text slot must be in 0..17")
+        expected_group = "starter" if self.slot_index < 11 else "reserve"
+        if self.roster_group != expected_group:
+            raise OriginalPrematchPanelError("pre-match row text group differs from slot")
+        if self.number_rect.height != 14 or self.name_rect.height != 14:
+            raise OriginalPrematchPanelError("pre-match row text controls must be 14 pixels high")
+        if self.number_rect.width != 25 or self.name_rect.width != 167:
+            raise OriginalPrematchPanelError("pre-match row text widths differ from source")
+        if expected_group == "starter" and self.disabled_child_index is not None:
+            raise OriginalPrematchPanelError("starter row cannot expose a disabled child")
+        if expected_group == "reserve" and self.disabled_child_index is None:
+            raise OriginalPrematchPanelError("reserve row requires disabled child")
 
 
 @dataclass(frozen=True)
@@ -264,6 +296,24 @@ PREMATCH_SELECTOR_CHILD_MODES = (
     MatchDetailMode.THREE_D_MATCH,
 )
 
+# The selector row is an immediate-action Button@ease modal, not a persistent
+# radio selection. 0x4996F4..0x499803 constructs the four standard buttons via
+# 0x5D3810. The panel does not read match-detail global 0x877530 in its setup or
+# refresh path; 0x49ABA0 writes the chosen mode, hides/refreshes all four, signals
+# the modal owner and closes immediately. Visual animation therefore reuses the
+# already-source-closed generic Button@ease 11+11+1 frame state machine.
+PREMATCH_SELECTOR_SETUP_VA = 0x4996F4
+PREMATCH_SELECTOR_CONTROL_BUILDER_VA = 0x5D3810
+PREMATCH_SELECTOR_BUTTON_SETUP_VA = 0x652FD0
+PREMATCH_SELECTOR_EVENT_HANDLER_VA = 0x49AB50
+PREMATCH_SELECTOR_COMMIT_VA = 0x49ABA0
+PREMATCH_SELECTOR_MODE_GLOBAL_VA = 0x877530
+PREMATCH_SELECTOR_MODAL_OWNER_VA = 0x877960
+PREMATCH_SELECTOR_MODAL_SIGNAL_VA = 0x5328B0
+PREMATCH_SELECTOR_CLOSE_VA = 0x6539F0
+PREMATCH_SELECTOR_INITIAL_FLAGS = BUTTON_INITIAL_FLAGS
+PREMATCH_SELECTOR_GROUP_LENGTHS = BUTTON_GROUP_LENGTHS
+
 PREMATCH_TEAM_BADGE_ROOT = r"FM2001_art\generic\team_badge_stills"
 PREMATCH_TEAM_BADGE_VARIANT_KEY = "badge_2"
 PREMATCH_TEAM_BADGE_FALLBACK = (
@@ -280,6 +330,29 @@ PREMATCH_PLAYER_NAME_LENGTH_FUNCTION_VA = 0x417A90
 PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA = 0x417AE0
 PREMATCH_PLAYER_FULL_NAME_FORMAT = "%s %s"
 PREMATCH_PLAYER_FULL_NAME_FORMAT_VA = 0x81858C
+PREMATCH_PLAYER_DISPLAY_NAME_MODE = 0
+PREMATCH_PLAYER_DISPLAY_NAME_FORMAT = "%c. %s"
+PREMATCH_PLAYER_DISPLAY_NAME_FORMAT_VA = 0x818EB0
+PREMATCH_PLAYER_DISPLAY_NAME_FIRST_NAME_SENTINEL = "-"
+
+# Recovery 371 source-closes the two text children inside every 18-slot player
+# row plus the count-driven active/disabled reserve-strip rule in 0x49A610.
+PREMATCH_PLAYER_ROW_UPDATE_VA = 0x49A610
+PREMATCH_PLAYER_NUMBER_TEXT_CONSTRUCTOR_VA = 0x6507A0
+PREMATCH_PLAYER_NAME_TEXT_CONSTRUCTOR_VA = 0x6503F0
+PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA = 0x87BEA0
+PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA = 0x87B6B0
+PREMATCH_PLAYER_NUMBER_FORMAT = "%N"
+PREMATCH_PLAYER_NUMBER_FORMAT_VA = 0x81ACAC
+PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET = 0x70
+PREMATCH_PLAYER_NAME_MODE_BY_SIDE = (0x21, 0x22)
+PREMATCH_PLAYER_ROW_TEXT_HEIGHT = 14
+PREMATCH_PLAYER_NUMBER_WIDTH = 25
+PREMATCH_PLAYER_NAME_WIDTH = 167
+PREMATCH_PLAYER_NUMBER_X_BY_SIDE = (37, 737)
+PREMATCH_PLAYER_NAME_X_BY_SIDE = (67, 564)
+PREMATCH_CONTROL_SHOW_VTABLE_OFFSET = 0x30
+PREMATCH_CONTROL_HIDE_VTABLE_OFFSET = 0x34
 
 # Recovery 370 source-closes the 22 starting-XI pitch-marker controls.
 # Native 0x499820 positions exactly eleven markers per side from normalized
@@ -458,6 +531,70 @@ PREMATCH_PLAYER_STRIP_ROWS = tuple(
     )
     for index, y in enumerate(PREMATCH_RESERVE_ROW_YS)
 )
+
+PREMATCH_ALL_PLAYER_ROW_YS = PREMATCH_STARTER_ROW_YS + PREMATCH_RESERVE_ROW_YS
+
+
+def _player_row_child_indices(side: str, slot_index: int) -> tuple[int, int, int, int | None]:
+    if side == "left":
+        if slot_index < 11:
+            base = 32 + slot_index * 3
+            return base, base + 1, base + 2, None
+        base = 65 + (slot_index - 11) * 4
+        return base, base + 1, base + 2, base + 3
+    if side == "right":
+        if slot_index < 11:
+            base = 93 + slot_index * 3
+            return base, base + 1, base + 2, None
+        base = 126 + (slot_index - 11) * 4
+        return base, base + 1, base + 2, base + 3
+    raise OriginalPrematchPanelError("pre-match row child side must be left/right")
+
+
+PREMATCH_PLAYER_TEXT_ROWS = tuple(
+    PrematchPlayerTextRowSpec(
+        side=side,
+        slot_index=slot_index,
+        roster_group="starter" if slot_index < 11 else "reserve",
+        strip_child_index=_player_row_child_indices(side, slot_index)[0],
+        number_child_index=_player_row_child_indices(side, slot_index)[1],
+        name_child_index=_player_row_child_indices(side, slot_index)[2],
+        disabled_child_index=_player_row_child_indices(side, slot_index)[3],
+        number_rect=OriginalRect(
+            PREMATCH_PLAYER_NUMBER_X_BY_SIDE[side_index],
+            y + 1,
+            PREMATCH_PLAYER_NUMBER_WIDTH,
+            PREMATCH_PLAYER_ROW_TEXT_HEIGHT,
+        ),
+        name_rect=OriginalRect(
+            PREMATCH_PLAYER_NAME_X_BY_SIDE[side_index],
+            y + 1,
+            PREMATCH_PLAYER_NAME_WIDTH,
+            PREMATCH_PLAYER_ROW_TEXT_HEIGHT,
+        ),
+    )
+    for side_index, side in enumerate(("left", "right"))
+    for slot_index, y in enumerate(PREMATCH_ALL_PLAYER_ROW_YS)
+)
+
+
+def prematch_player_row_variant(slot_index: int, participant_count: int) -> str:
+    """Return the native child-visible strip state for one 18-slot row.
+
+    Populated slots use the active strip. Empty reserve capacity uses the
+    co-located disabled strip. An empty starter slot has no registered disabled
+    child and therefore contributes no strip pixels.
+    """
+    if type(slot_index) is not int or not 0 <= slot_index < 18:
+        raise OriginalPrematchPanelError("pre-match row slot must be in 0..17")
+    if type(participant_count) is not int or not 0 <= participant_count <= 18:
+        raise OriginalPrematchPanelError("pre-match participant count must be in 0..18")
+    if slot_index < participant_count:
+        return "active"
+    if slot_index >= 11:
+        return "disabled"
+    return "hidden"
+
 
 # Four native rating-width calculators test record discriminator 3, 0, 1, 2
 # respectively and cap their integer result at the 171-pixel bar width. Calls
@@ -649,6 +786,21 @@ def prematch_panel_contract() -> dict:
         "selector_atlas_path": PREMATCH_SELECTOR_ATLAS.source_path,
         "selector_atlas_frames": PREMATCH_SELECTOR_ATLAS.frame_count,
         "selector_font_path": PREMATCH_FONT_PATH,
+        "selector_setup_va": PREMATCH_SELECTOR_SETUP_VA,
+        "selector_control_builder_va": PREMATCH_SELECTOR_CONTROL_BUILDER_VA,
+        "selector_button_setup_va": PREMATCH_SELECTOR_BUTTON_SETUP_VA,
+        "selector_event_handler_va": PREMATCH_SELECTOR_EVENT_HANDLER_VA,
+        "selector_commit_va": PREMATCH_SELECTOR_COMMIT_VA,
+        "selector_mode_global_va": PREMATCH_SELECTOR_MODE_GLOBAL_VA,
+        "selector_modal_owner_va": PREMATCH_SELECTOR_MODAL_OWNER_VA,
+        "selector_modal_signal_va": PREMATCH_SELECTOR_MODAL_SIGNAL_VA,
+        "selector_close_va": PREMATCH_SELECTOR_CLOSE_VA,
+        "selector_initial_flags": PREMATCH_SELECTOR_INITIAL_FLAGS,
+        "selector_group_lengths": PREMATCH_SELECTOR_GROUP_LENGTHS,
+        "selector_visual_uses_generic_button_state": True,
+        "selector_persistent_selected_visual": False,
+        "selector_mode_global_read_by_panel_visuals": False,
+        "selector_commit_closes_modal": True,
         "static_placement_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
@@ -658,7 +810,35 @@ def prematch_panel_contract() -> dict:
         "player_strip_starter_count_per_side": 11,
         "player_strip_reserve_count_per_side": 7,
         "reserve_rows_construct_active_and_disabled_variants": True,
-        "reserve_variant_state_source_closed": False,
+        "reserve_variant_state_source_closed": True,
+        "player_text_row_count": len(PREMATCH_PLAYER_TEXT_ROWS),
+        "player_row_update_va": PREMATCH_PLAYER_ROW_UPDATE_VA,
+        "player_number_text_constructor_va": PREMATCH_PLAYER_NUMBER_TEXT_CONSTRUCTOR_VA,
+        "player_name_text_constructor_va": PREMATCH_PLAYER_NAME_TEXT_CONSTRUCTOR_VA,
+        "player_row_text_style_wrapper_va": PREMATCH_PLAYER_ROW_TEXT_STYLE_WRAPPER_VA,
+        "player_number_aux_wrapper_va": PREMATCH_PLAYER_NUMBER_AUX_WRAPPER_VA,
+        "player_number_format": PREMATCH_PLAYER_NUMBER_FORMAT,
+        "player_number_format_va": PREMATCH_PLAYER_NUMBER_FORMAT_VA,
+        "player_shirt_number_runtime_offset": PREMATCH_PLAYER_SHIRT_NUMBER_RUNTIME_OFFSET,
+        "player_name_mode_by_side": PREMATCH_PLAYER_NAME_MODE_BY_SIDE,
+        "player_row_number_rects": tuple(
+            (row.number_rect.x, row.number_rect.y, row.number_rect.width, row.number_rect.height)
+            for row in PREMATCH_PLAYER_TEXT_ROWS
+        ),
+        "player_row_name_rects": tuple(
+            (row.name_rect.x, row.name_rect.y, row.name_rect.width, row.name_rect.height)
+            for row in PREMATCH_PLAYER_TEXT_ROWS
+        ),
+        "player_row_child_indices": tuple(
+            (
+                row.strip_child_index,
+                row.number_child_index,
+                row.name_child_index,
+                row.disabled_child_index,
+            )
+            for row in PREMATCH_PLAYER_TEXT_ROWS
+        ),
+        "player_row_count_driven_visibility_source_closed": True,
         "live_background_root": PREMATCH_LIVE_BACKGROUND_ROOT,
         "live_background_rect": (
             PREMATCH_LIVE_BACKGROUND_RECT.x,
@@ -733,6 +913,10 @@ def prematch_panel_contract() -> dict:
         "player_name_format_function_va": PREMATCH_PLAYER_NAME_FORMAT_FUNCTION_VA,
         "player_full_name_format": PREMATCH_PLAYER_FULL_NAME_FORMAT,
         "player_full_name_format_va": PREMATCH_PLAYER_FULL_NAME_FORMAT_VA,
+        "player_display_name_mode": PREMATCH_PLAYER_DISPLAY_NAME_MODE,
+        "player_display_name_format": PREMATCH_PLAYER_DISPLAY_NAME_FORMAT,
+        "player_display_name_format_va": PREMATCH_PLAYER_DISPLAY_NAME_FORMAT_VA,
+        "player_display_name_first_name_sentinel": PREMATCH_PLAYER_DISPLAY_NAME_FIRST_NAME_SENTINEL,
         "identity_controls_source_closed": True,
         "pitch_marker_positioner_va": PREMATCH_PITCH_MARKER_POSITIONER_VA,
         "pitch_marker_coord_builder_va": PREMATCH_PITCH_MARKER_COORD_BUILDER_VA,

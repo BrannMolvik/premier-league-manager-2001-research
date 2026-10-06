@@ -634,3 +634,67 @@ pixel staging false. Therefore the marker family's geometry, visibility rule,
 formation-coordinate producer, resource ownership, and pixel transform are
 source-closed, while complete supplied-state marker rasterization remains
 fail-closed until the dynamic shirt sources are staged/bound.
+
+
+## Recovery 371 — player-row content/state and selector visual state source-closed
+
+With private executable access restored, the same canonical `FOOTBAL.EXE`
+was traced through PPreMatch refresh `0x49A610`, the row text constructors,
+the player display-name helpers, and the Match Detail selector commit path.
+
+### Player rows
+
+The two 18-slot row banks now have source-closed content and visibility rules:
+
+- side 0 uses match count `+0x5A4` and player array `+0x004`; side 1 uses
+  count `+0xB54` and array `+0x5B4`;
+- populated slots show the active 200x16 strip and their two text controls;
+- unused reserve slots 11..17 hide the active strip, show the co-located
+  disabled strip, and do not publish player text;
+- empty starter slots have no disabled-strip child and therefore contribute no
+  substitute placeholder layer;
+- shirt number comes from runtime player byte `+0x70` and is formatted through
+  the native whole-number `%N` path;
+- PPreMatch calls native `0x417A90/0x417AE0` with mode 0, so its visible name
+  is `%c. %s`, or surname-only when the first-name source string begins `-`;
+- the clean-room reuses the already-source-closed Squad helpers
+  `format_squad_whole_number()` and `format_squad_display_name()` rather than
+  maintaining a second approximation of those native formatters.
+
+Exact text geometry for every row is now represented:
+
+- left number `(37, y+1, 25, 14)`, left name `(67, y+1, 167, 14)`;
+- right name `(564, y+1, 167, 14)`, right number `(737, y+1, 25, 14)`;
+- shared text-style wrapper `0x87BEA0`, number auxiliary wrapper `0x87B6B0`;
+- starter rows contain strip/number/name children; reserve rows contain
+  active-strip/number/name/disabled-strip children in the already-proven
+  182-child paint sequence.
+
+`bind_prematch_player_rows()` now accepts supplied left/right participant arrays
+(maximum 18 each), preserves their source order, and returns exact native strip
+state plus source-formatted shirt-number and display-name text. This is a
+supplied-state binding seam, not a match-selection policy.
+
+### Match Detail selector visual state
+
+The four selector controls are ordinary Button@ease controls constructed by
+`0x5D3810 -> 0x652FD0`. PPreMatch does not read mode global `0x877530` in its
+setup/refresh path. `0x49ABA0` writes the selected mode, hides/refreshes all
+four controls, signals modal owner `0x877960` through `0x5328B0`, and closes
+the modal through `0x6539F0` immediately.
+
+Therefore there is no separate persistent radio/selected visual to recover.
+The source visual contract is the already-proven generic Button@ease state:
+initial flags `0x183`, 11-frame normal group, 11-frame alternate group, and
+one disabled frame, with pointer-driven animation. The only remaining runtime
+input for a specific rendered selector frame is the live pointer/update state.
+
+### Frame impact
+
+All four player-row child families are now structurally represented, raising
+the fail-closed 182-child audit from 86 to 158 represented controls. This is
+not a complete-frame claim: supplied player content must still be attached by
+the row-binding seam, marker shirt pixels and team badge pixels are not yet
+staged, dynamic header/team text remains unbound, rating widths require supplied
+state, and live selector pointer state must still be supplied.
+
