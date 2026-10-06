@@ -24,6 +24,9 @@ class Row:
     condition: int
     recent_form_average: float
     current_role_rating: int
+    injured: bool = False
+    suspended: bool = False
+    international: bool = False
 
 
 class OriginalSquadPresenterTests(unittest.TestCase):
@@ -81,6 +84,32 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.rows[1].display_name_rgb, (232, 191, 94))
         self.assertEqual(snapshot.rows[0].recent_form_average, 7.5)
         self.assertEqual(snapshot.rows[0].current_role_rating, 63)
+        self.assertIsNone(snapshot.rows[0].native_status_frame_index)
+
+    def test_direct_status_frames_follow_native_priority(self):
+        injured = self.row()
+        object.__setattr__(injured, "injured", True)
+        object.__setattr__(injured, "suspended", True)
+        object.__setattr__(injured, "international", True)
+        self.assertEqual(
+            build_squad_row_viewport((injured,)).rows[0].native_status_frame_index,
+            0,
+        )
+
+        banned = self.row()
+        object.__setattr__(banned, "suspended", True)
+        object.__setattr__(banned, "international", True)
+        self.assertEqual(
+            build_squad_row_viewport((banned,)).rows[0].native_status_frame_index,
+            1,
+        )
+
+        international = self.row()
+        object.__setattr__(international, "international", True)
+        self.assertEqual(
+            build_squad_row_viewport((international,)).rows[0].native_status_frame_index,
+            2,
+        )
 
     def test_more_than_twenty_visible_rows_fails_closed(self):
         with self.assertRaisesRegex(
