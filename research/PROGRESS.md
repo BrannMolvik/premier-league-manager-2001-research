@@ -12165,3 +12165,17 @@ continues with ordinary Squad row display-name/color helpers.
   `chatgpt/gate14-prematch-identity-r368`. The semantic identity of the second
   fixture-header substitution, cross-layer draw order, management launch and
   missing 3D presentation remain fail-closed.
+
+- Continued the same Recovery 368 source pass through PPreMatch child ordering.
+  Setup `0x4967F0` allocates 182 pointers (`0x2D8` bytes), stores them at
+  `+0x1C`, sets `+0x38 = 0xB6`, and fills every child index 0..181.
+- Combined that with the already-source-closed generic forward traversal
+  `0x6533A0` to prove native paint order across background, pitch/top bar,
+  header/date-weather text, badges/team identity, 22 XI pitch markers, both
+  18-player row banks, rating layers/captions, and the four Match Detail
+  selectors.
+- The exact next Gate-14 task is now frame reconciliation: bind these newly
+  recovered text/team/player identities into the existing pre-match surface
+  and account for every native child slot before promoting a complete-frame
+  claim. Management launch and missing 3D presentation remain separate
+  fail-closed blockers.
