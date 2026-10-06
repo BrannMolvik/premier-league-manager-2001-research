@@ -457,3 +457,58 @@ goalkeeper/defence/midfield/attack rating functions.
 Exact next source task: prove the PPreMatchPanel child/control registration
 order against the generic panel draw semantics, then assemble only the
 source-proven complete frame layers.
+
+## Recovery 368 continuation — complete PPreMatch child-array paint order
+
+The remaining cross-layer ordering boundary is now source-closed by combining
+the PPreMatch setup routine with the already-proven generic panel traversal.
+
+`PPreMatchPanel::0x4967F0`:
+
+- allocates exactly `0x2D8` bytes for child pointers;
+- stores the pointer array at panel `+0x1C`;
+- writes child count `0xB6 = 182` at panel `+0x38`;
+- fills every pointer index 0 through 181.
+
+The generic control contract was already source-closed during FastView work:
+`0x6533A0` traverses parent `+0x1C` from index 0 through count-1 and invokes
+the visible-child render slot. Therefore the PPreMatch sequence below is native
+paint order, not a heuristic based on allocation or call proximity.
+
+| Child indices | Source-proven family |
+| --- | --- |
+| 0 | live 800x600 Team_Backgrounds surface |
+| 1 | pre-match pitch |
+| 2 | top bar |
+| 3 | fixture header text |
+| 4 | date + weather/temperature line |
+| 5-6 | two team badge controls |
+| 7-9 | left team identity, center `V`, right team identity text |
+| 10-31 | 22 starting-XI pitch-marker controls, 11 per match side |
+| 32-64 | side-0 starter row controls, 11 rows x 3 controls |
+| 65-92 | side-0 slots 11..17, 7 rows x 4 controls |
+| 93-125 | side-1 starter row controls, 11 rows x 3 controls |
+| 126-153 | side-1 slots 11..17, 7 rows x 4 controls |
+| 154-169 | four rating rows x four picture layers |
+| 170-177 | four rating captions on both sides |
+| 178-181 | Match Detail selector controls |
+
+The seven post-starter rows contain an additional disabled-strip picture layer,
+which accounts for four controls per row rather than the starters' three.
+This matches the separately recovered active/disabled pre-match strip assets
+without requiring a guessed visibility policy.
+
+Selector child order is the native object/event order, not left-to-right
+geometry: Quick Match, FastView, 3D Highlights, 3D Match (modes 3,2,1,0).
+Their rectangles do not overlap, so this reverse geometric order has no
+pixel-order ambiguity.
+
+The clean-room contract now exposes the complete 182-slot range partition and
+keeps the following separate blockers false: a management-screen match launch,
+3D Match/Highlights presentation, and Gate 14 completion.
+
+Exact next task: reconcile the existing `gate14_prematch_surface.py` output
+against this full source order and bind the newly recovered text/team/player
+identity content into a complete pre-match frame model. Do not mark the frame
+complete until every one of the 182 native child slots is either represented
+or intentionally proven non-pixel/hidden for the supplied match state.
