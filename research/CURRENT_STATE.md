@@ -1,3 +1,41 @@
+# Recovery 332 continuation — Squad names merged; assigned-role abbreviation active
+
+_Updated 6 October 2026._
+
+Canonical `main` is `1a24b456f763a8f8899b2eb940a8316bf35aef2b`.
+PR #489 merged the source-bound first-roster player-name renderer after all four
+candidate validations passed: reconstruction `37399160903`, Gate-13
+presentation `37399160894`, Windows package `37399160807`, and repository
+asset policy `37399160815`.
+
+The merged row path now preserves native initial+surname formatting, the exact
+18px Zurich font, first-team active/substitute source colors, and fail-closed
+withholding when the unmodeled reserve-selection pair would be needed to choose
+a color.
+
+**Active gate remains Gate 13 / issue #482.** The current source-backed follow-up
+is the ordinary assigned-role control. Fresh canonical executable analysis
+proves `PSquadPlayerRow::0x489530` reads the current role's runtime Position
+record `+0x0C`; the Position reader stores localized name at `+0x08` and
+localized abbreviation at `+0x0C`, matching the clean-room Static.dat
+`Position(name, abbreviation, lineup_order, lineup_group)` parse. Therefore
+the visible role label is the original `Position.abbreviation`.
+
+Recovery branch `recovery332-squad-role-abbreviation` projects that source
+abbreviation from `state.positions`, fails closed when it is unavailable, and
+rasterizes it in native first-roster control `(28,1,38,14)` with raw text
+flags `0x24`. The already recovered `0x4EA3F0` predicate selects source RGB
+`(255,255,255)` for a preferred-role match and `(0,0,125)` otherwise.
+Runtime packed-16 mask identity remains a separate unresolved display receipt;
+no RGB565/RGB555 assumption is introduced.
+
+After this slice is verified and merged, continue the next source-backed Squad
+fidelity work that does not invent reserve/status semantics. The mandatory
+normal Windows 11 #482 acceptance remains deferred external evidence and Gate 13
+must not close before it passes.
+
+---
+
 # Recovery 330 continuation — startup FMV candidate merged; continue Squad fidelity
 
 _Updated 6 October 2026._
