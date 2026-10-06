@@ -16,6 +16,11 @@ from original_squad_resources import (
     SQUAD_VISIBLE_ROW_COUNT,
     SQUAD_VISIBLE_ROW_Y_ORIGINS,
 )
+from original_squad_row_style import (
+    format_squad_display_name,
+    squad_name_rgb,
+    squad_role_rgb,
+)
 
 
 class OriginalSquadPresentationError(ValueError):
@@ -38,7 +43,9 @@ class OriginalSquadRowSnapshot:
     player_id: int
     y: int
     display_name: str
+    display_name_rgb: tuple[int, int, int]
     assigned_role: int
+    assigned_role_rgb: tuple[int, int, int]
     condition: int
     recent_form_average: float
     current_role_rating: int
@@ -96,15 +103,34 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
             label="source_roster_index",
         )
         player_id = _require_int(getattr(row, "player_id", None), label="player_id")
-        display_name = getattr(row, "full_name", None)
-        if not isinstance(display_name, str) or not display_name:
-            raise OriginalSquadPresentationError(
-                "full_name must be a non-empty source string"
+        first_name = getattr(row, "first_name", None)
+        surname = getattr(row, "surname", None)
+        positions = getattr(row, "positions", None)
+        match_active = getattr(row, "match_active", None)
+        match_substitute_available = getattr(
+            row, "match_substitute_available", None
+        )
+        try:
+            display_name = format_squad_display_name(first_name, surname)
+            display_name_rgb = squad_name_rgb(
+                first_team_active=match_active,
+                first_team_substitute=match_substitute_available,
+                # The clean-room runtime does not yet model the native +0x174
+                # reserve-selection pair. Preserve those source branches in the
+                # style module while keeping this current modeled state false.
+                reserve_active=False,
+                reserve_substitute=False,
             )
+        except ValueError as exc:
+            raise OriginalSquadPresentationError(str(exc)) from exc
         assigned_role = _require_int(
             getattr(row, "current_position", None),
             label="current_position",
         )
+        try:
+            assigned_role_rgb = squad_role_rgb(assigned_role, positions)
+        except ValueError as exc:
+            raise OriginalSquadPresentationError(str(exc)) from exc
         condition = _require_int(getattr(row, "condition", None), label="condition")
         current_role_rating = _require_int(
             getattr(row, "current_role_rating", None),
@@ -125,7 +151,9 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 player_id=player_id,
                 y=SQUAD_VISIBLE_ROW_Y_ORIGINS[visible_index],
                 display_name=display_name,
+                display_name_rgb=display_name_rgb,
                 assigned_role=assigned_role,
+                assigned_role_rgb=assigned_role_rgb,
                 condition=condition,
                 recent_form_average=float(recent_form_average),
                 current_role_rating=current_role_rating,
