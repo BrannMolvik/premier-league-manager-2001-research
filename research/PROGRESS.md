@@ -11709,3 +11709,23 @@ continues with ordinary Squad row display-name/color helpers.
   predicates are the exact next source-backed status task after this candidate
   merges. Gate 13 / issue #482 remains open for mandatory human Windows 11
   acceptance.
+
+
+## 6 October 2026 KST — Recovery 341 source-qualified Squad status candidate
+
+- Recovered the remaining safe positive `0x418480` boundary from the canonical
+  executable and retained competition packed +0x24 as exact Cup restriction
+  mode input.
+- Completed the live PSCF wiring on `recovery340-squad-cup-tied-resolver`:
+  direct 0/1/2 remain first, exact alternate On-loan can publish frame 13,
+  unresolved Non-EU blocks lower output, and frame 3 requires a positive
+  current-day Cup-Tied collection lookup.
+- The source bridge requires the pending primary entry to still exist in the
+  recovered order for the global current date before it can supply a positive
+  Cup-Tied signal. Missing/ambiguous context remains fail-closed.
+- Added focused tests for resolver priority, presenter integration, and the
+  current-day bridge predicate.
+- Next boundary is candidate CI/merge. After merge, the mode-1 negative
+  transfer-history cutoff and the special Non-EU registration lifecycle remain
+  unresolved; Gate 13 / issue #482 also still requires normal Windows 11 human
+  acceptance.
