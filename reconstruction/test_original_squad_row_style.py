@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 
 from original_squad_row_style import (
@@ -14,6 +15,7 @@ from original_squad_row_style import (
     SQUAD_ROLE_PREFERRED_RGB,
     SQUAD_ROW_FONT_ATLAS_SIZE,
     SQUAD_ROW_FONT_SOURCE_PATH,
+    build_first_roster_name_overlays,
     format_squad_display_name,
     load_verified_squad_row_text_resources,
     squad_name_rgb,
@@ -64,6 +66,26 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
             SQUAD_ROW_FONT_ATLAS_SIZE,
         )
         self.assertTrue((source_root / SQUAD_ROW_FONT_SOURCE_PATH).is_file())
+
+    def test_first_roster_name_raster_stays_inside_native_name_control(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_row_text_resources(source_root)
+        rows = (
+            SimpleNamespace(
+                y=154,
+                display_name="D. Beckham",
+                display_name_rgb=(217, 210, 62),
+            ),
+        )
+        overlays = build_first_roster_name_overlays(rows, resources)
+        self.assertEqual(len(overlays), 1)
+        overlay = overlays[0]
+        self.assertEqual(overlay.text, "D. Beckham")
+        self.assertEqual(overlay.source_rgb, (217, 210, 62))
+        self.assertGreaterEqual(overlay.x, 113)
+        self.assertGreaterEqual(overlay.y, 234)
+        self.assertLessEqual(overlay.x + overlay.width, 113 + 144)
+        self.assertLessEqual(overlay.y + overlay.height, 234 + 14)
 
 
 if __name__ == "__main__":
