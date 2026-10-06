@@ -517,6 +517,39 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertFalse(second.cup_tied_positive)
         self.assertFalse(first.alternate_on_loan)
         self.assertTrue(first.non_eu)
+        self.assertFalse(first.non_eu_registration_expired)
+        self.assertFalse(first.cup_tied_positive)
+
+    def test_squad_non_eu_registration_expiry_precedes_cup_tied_but_current_cutoff_does_not(self):
+        controller = FakeController()
+        entry = ("domestic_cup", ("round", 4, 0))
+        controller.pending_primary_entry = entry
+        controller.state.primary_matchday_order = {
+            controller.state.calendar.current_date: (entry,)
+        }
+        controller._primary_entry_clubs = lambda candidate: (10, 11)
+        controller._primary_entry_competition_id = lambda candidate: 25
+        controller.state.is_player_cup_tied = (
+            lambda competition_id, player_id, current_club_id:
+            competition_id == 25
+            and player_id == 101
+            and current_club_id == 10
+        )
+
+        controller._squad[1].non_eu = True
+        controller._squad[1].contract_expiry_date = date(2000, 8, 19)
+        _second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertTrue(first.non_eu_registration_expired)
+        self.assertFalse(first.cup_tied_positive)
+
+        controller._squad[1].contract_expiry_date = date(2002, 6, 30)
+        _second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertFalse(first.non_eu_registration_expired)
+        self.assertTrue(first.cup_tied_positive)
+
+        controller._squad[1].contract_expiry_date = None
+        _second, first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertIsNone(first.non_eu_registration_expired)
         self.assertFalse(first.cup_tied_positive)
 
     def test_squad_positive_cup_tied_requires_pending_entry_in_todays_primary_order(self):

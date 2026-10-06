@@ -70,9 +70,11 @@ DIRECT_STATUS_FRAME_INDICES = (0, 1, 2)
 DIRECT_STATUS_TEXT = STATUS_DEFINITION_TEXT[:3]
 # Additional frames that can now be published without completing every
 # 0x418360 negative branch. Frame 13 is the exact higher-priority loan
-# override. Frame 3 is safe only from a positively proven current-match
-# Cup-Tied collection hit while the higher Non-EU override is proven false.
-SOURCE_QUALIFIED_STATUS_FRAME_INDICES = (0, 1, 2, 3, 13)
+# override. Frame 12 is exact when bit 11 is active and its synchronized
+# registration cutoff (live contract expiry) is past. Frame 3 is safe from a
+# positively proven current-match Cup-Tied collection hit whenever frame 12
+# does not win.
+SOURCE_QUALIFIED_STATUS_FRAME_INDICES = (0, 1, 2, 3, 12, 13)
 STATUS_SCAN_ALWAYS_SKIP_INDEX = 3
 STATUS_SCAN_CONTEXT_SKIP_INDICES = (4, 5)
 STATUS_OVERRIDE_BIT15_FRAME_INDEX = 10
@@ -198,20 +200,25 @@ def source_qualified_squad_status_frame_index(
     international: bool,
     alternate_on_loan: bool,
     non_eu: bool,
+    non_eu_registration_expired: bool | None,
     cup_tied_positive: bool,
 ) -> int | None:
     """Resolve only PSCF statuses whose native priority outcome is proven.
 
     0x418330 returns frames 0..2 before the override helper. 0x418360 then
     prioritizes alternate On-loan frame 13, special Non-EU frame 12, and
-    Cup-Tied frame 3. The complete Non-EU registration expiry lifecycle and
-    the mode-1 Cup-Tied negative transfer-history cutoff remain incomplete.
+    Cup-Tied frame 3. Recovery 342/344 source-closes frame 12 as bit 11 plus a
+    registration record whose +0x14 cutoff is synchronized to DBRPlayer +0x154
+    contract expiry. The mode-1 Cup-Tied negative transfer-history cutoff
+    remains unresolved.
 
     Consequently:
     - direct 0/1/2 are always safe;
     - exact active-loan mismatch is safely frame 13;
-    - a true Non-EU state blocks lower publication because frame 12 may win;
-    - a positive source-qualified Cup-Tied collection hit is safely frame 3;
+    - bit 11 plus an expired registration/contract cutoff is exactly frame 12;
+    - unresolved bit-11 cutoff state fails closed;
+    - a current bit-11 cutoff that has not expired allows the lower Cup-Tied
+      predicate to run, matching native override priority;
     - every other lower result remains unresolved rather than guessed.
     """
     states = (
@@ -226,6 +233,18 @@ def source_qualified_squad_status_frame_index(
         raise OriginalSquadStatusError(
             "Source-qualified Squad status states must be booleans"
         )
+    if (
+        non_eu_registration_expired is not None
+        and type(non_eu_registration_expired) is not bool
+    ):
+        raise OriginalSquadStatusError(
+            "Non-EU registration cutoff state must be boolean or unresolved"
+        )
+    if not non_eu and non_eu_registration_expired is True:
+        raise OriginalSquadStatusError(
+            "Non-EU registration cutoff cannot expire without active bit 11"
+        )
+
     direct = direct_squad_status_frame_index(
         injured=injured,
         banned=banned,
@@ -236,7 +255,10 @@ def source_qualified_squad_status_frame_index(
     if alternate_on_loan:
         return ON_LOAN_ALTERNATE_FRAME_INDEX
     if non_eu:
-        return None
+        if non_eu_registration_expired is None:
+            return None
+        if non_eu_registration_expired:
+            return NON_EU_ALTERNATE_FRAME_INDEX
     if cup_tied_positive:
         return 3
     return None
