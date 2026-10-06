@@ -57,6 +57,7 @@ class SquadRowView:
     morale: int
     injured: bool
     suspended: bool
+    international: bool
     out_of_contract: bool
     transfer_listed: bool
     loan_listed: bool
@@ -1072,6 +1073,9 @@ class ManagementSourceDataBridge:
                 morale=int(getattr(player, "morale")),
                 injured=bool(getattr(player, "injured")),
                 suspended=bool(getattr(player, "suspended")),
+                # Static.dat status index 2 plus 0x401DE0 now source-close
+                # DBRPlayer+0x14 bit 2 as the original "International" state.
+                international=bool(getattr(player, "selection_excluded")),
                 out_of_contract=bool(getattr(player, "out_of_contract")),
                 transfer_listed=bool(getattr(player, "transfer_listed")),
                 loan_listed=bool(getattr(player, "loan_listed")),

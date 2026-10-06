@@ -463,3 +463,51 @@ collection or of the special Non-EU registration branch. Recovery 335 therefore
 pins the exact source image/frame/table contract but deliberately leaves live
 status selection fail-closed until those priority predicates are represented.
 
+
+
+## Recovery 336 - direct PSCFRow status priority closure
+
+Fresh canonical disassembly of the verified executable (SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+closes the direct-return portion of `0x418330`.
+
+`0x401DE0` scans `DBRPlayer+0x14` status bits in ascending source-table
+index order. It always skips index 3 (Cup Tied), and when called with the
+nonzero PSCFRow context it also skips indices 4 and 5 (First Team and source-
+spelled "Subsitute"). `0x418330` returns scan results `<=5` immediately and
+only invokes override helper `0x418360` for later results or -1. Therefore
+the only PSCFRow status results guaranteed to bypass every later override are:
+
+- frame 0 / bit 0: Injured;
+- frame 1 / bit 1: Banned;
+- frame 2 / bit 2: International.
+
+This source table identification supersedes the older neutral label
+"selection-exclusion state" for bit 2. Cup-tie state remains separate, as
+previously proven.
+
+The lower-priority `0x418360` chain is now bounded as:
+
+1. bit-6 loan state with `WORD +0x10 != WORD +0x72` -> alternate frame 13;
+2. Non-EU bit 11 plus its separate registration-record date predicate -> alternate frame 12;
+3. `0x418480` Cup-Tied predicate -> frame 3;
+4. bit 15 -> frame 10;
+5. bit 12 -> frame 6;
+6. otherwise retain the fallback scan result.
+
+The special Non-EU branch is backed by the separate collection at global
+`0x876B30`: `0x41B4D0` resolves/creates the player record and `0x4E9BE0`
+tests the global current date against record `+0x14`. The exact user-facing
+meaning of that date is not promoted beyond this predicate.
+
+`0x418480` reaches the competition Cup-Tied collection. Its lookup eventually
+uses `0x4E9710(collection, player_id, team_id)`, which returns tied when the
+same player has a stored club/team ID different from the team being checked.
+The clean runtime does not yet materialize this collection, so all statuses
+that enter `0x418360` remain fail-closed in the current presentation.
+
+The PSCFRow status control itself is row-local `(1,1,18,14)`. Combined with
+PSquadList first-roster x=37, paired CSquadSCFList local x=239, panel y=79 and
+first visible row y=154, the first direct status frame is placed at screen
+`(277,234)`. Recovery 336 renders only frames 0..2 from the byte-identical
+original `status.png`; no lower-priority fallback is shown yet.

@@ -5,6 +5,8 @@ import tempfile
 import unittest
 
 from original_squad_status import (
+    DIRECT_STATUS_FRAME_INDICES,
+    DIRECT_STATUS_TEXT,
     FRAME_COUNT,
     FRAME_SIZE,
     NON_EU_ALTERNATE_FRAME_INDEX,
@@ -14,6 +16,9 @@ from original_squad_status import (
     SOURCE_PATH,
     STATUS_DEFINITION_TEXT,
     OriginalSquadStatusError,
+    build_first_roster_direct_status_overlays,
+    direct_squad_status_frame_index,
+    load_verified_squad_status_resources,
     validate_original_squad_status_atlas,
 )
 
@@ -54,6 +59,73 @@ class OriginalSquadStatusTests(unittest.TestCase):
         self.assertEqual(ORDINARY_STATUS_FRAME_COUNT, 12)
         self.assertEqual(NON_EU_ALTERNATE_FRAME_INDEX, 12)
         self.assertEqual(ON_LOAN_ALTERNATE_FRAME_INDEX, 13)
+
+    def test_direct_status_priority_is_exact_and_override_safe(self):
+        self.assertEqual(DIRECT_STATUS_FRAME_INDICES, (0, 1, 2))
+        self.assertEqual(
+            DIRECT_STATUS_TEXT,
+            ("Injured", "Banned", "International"),
+        )
+        self.assertEqual(
+            direct_squad_status_frame_index(
+                injured=True,
+                banned=True,
+                international=True,
+            ),
+            0,
+        )
+        self.assertEqual(
+            direct_squad_status_frame_index(
+                injured=False,
+                banned=True,
+                international=True,
+            ),
+            1,
+        )
+        self.assertEqual(
+            direct_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=True,
+            ),
+            2,
+        )
+        self.assertIsNone(
+            direct_squad_status_frame_index(
+                injured=False,
+                banned=False,
+                international=False,
+            )
+        )
+
+    def test_verified_status_png_decodes_to_fourteen_exact_rgba_frames(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_status_resources(source_root)
+
+        self.assertEqual(len(resources.frames), 14)
+        self.assertEqual(
+            tuple((frame.width, frame.height) for frame in resources.frames),
+            (FRAME_SIZE,) * 14,
+        )
+        self.assertTrue(all(len(frame.rgba) == 18 * 14 * 4 for frame in resources.frames))
+        self.assertEqual(
+            tuple(frame.index for frame in resources.frames),
+            tuple(range(14)),
+        )
+
+    def test_direct_status_overlay_uses_exact_first_roster_pscf_geometry(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        resources = load_verified_squad_status_resources(source_root)
+        rows = (
+            type("Row", (), {"y": 154, "native_status_frame_index": 0})(),
+            type("Row", (), {"y": 171, "native_status_frame_index": None})(),
+            type("Row", (), {"y": 188, "native_status_frame_index": 2})(),
+        )
+        overlays = build_first_roster_direct_status_overlays(rows, resources)
+
+        self.assertEqual(tuple(item.frame_index for item in overlays), (0, 2))
+        self.assertEqual(tuple((item.x, item.y) for item in overlays), ((277, 234), (277, 268)))
+        self.assertEqual(tuple((item.width, item.height) for item in overlays), (FRAME_SIZE, FRAME_SIZE))
 
     def test_status_atlas_validator_fails_closed_without_exact_source(self):
         with tempfile.TemporaryDirectory() as temp:

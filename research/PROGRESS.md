@@ -11661,3 +11661,19 @@ continues with ordinary Squad row display-name/color helpers.
 - PR #492 is the current validation candidate. Gate 13 / issue #482 remains
   open, including the mandatory normal Windows 11 playability/visual acceptance.
 
+
+
+## 6 October 2026 KST — Recovery 336 direct Squad status continuation
+
+- Recovered the exact `0x401DE0 -> 0x418330 -> 0x418360` PSCFRow status
+  priority chain from the hash-verified original executable.
+- Static.dat status index 2 now source-closes `DBRPlayer+0x14` bit 2 as
+  **International**, superseding the older neutral selection-exclusion label.
+- Frames 0/1/2 (Injured/Banned/International) return before every later
+  override and are therefore safe to render directly.
+- Lower-priority status rendering remains withheld because Cup-Tied and the
+  special Non-EU registration-record predicate are not yet fully represented
+  by the clean runtime.
+- Branch `recovery336-squad-direct-status` decodes the pinned original
+  `status.png`, projects only override-safe status indices, and places them at
+  the exact PSCFRow geometry; first visible status origin is `(277,234)`.

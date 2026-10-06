@@ -1,3 +1,38 @@
+# Recovery 336 continuation — direct Squad statuses active
+
+_Updated 6 October 2026._
+
+Canonical `main` is `0b9cd9b53cd525c3b4af2a27f8c1ddbf6a101a93`.
+PR #492 merged the exact original Squad status atlas/source-table contract.
+**Active gate remains Gate 13 / issue #482.**
+
+The current branch is `recovery336-squad-direct-status`. Canonical executable
+analysis now closes the `0x401DE0 -> 0x418330 -> 0x418360` priority boundary.
+In PSCFRow context, status-table indices 0/1/2 are the only scan results that
+return before the later override helper, and the recovered Static.dat table
+identifies them exactly as Injured, Banned and International. Bit 2 is therefore
+no longer merely a neutral selection-exclusion label.
+
+The implementation decodes the already pinned byte-identical
+`FM2001_Art/Generic/status.png` and renders only those three override-safe
+frames at native PSCFRow geometry `(1,1,18,14)`; the first visible first-roster
+icon lands at screen `(277,234)`. Every lower-priority status remains
+fail-closed.
+
+The remaining native override chain is bounded: alternate On-loan frame 13,
+special Non-EU frame 12, separate Cup-Tied frame 3, bit-15 frame 10, bit-12
+frame 6, then fallback. The clean runtime still lacks the exact competition
+Cup-Tied collection and the separate Non-EU registration-record date state.
+
+Next: validate this branch through the focused/full reconstruction, Windows
+package/smoke and asset-policy workflows, merge only if green, then materialize
+the exact Cup-Tied runtime state from its proven producer/lookup path before
+expanding lower-priority status rendering. Club-relative assignment remains
+unresolved. The mandatory normal Windows 11 #482 acceptance remains external
+evidence and Gate 13 must not close before it passes.
+
+---
+
 # Recovery 335 continuation — Squad status atlas/source table pinned
 
 _Updated 6 October 2026._

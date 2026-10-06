@@ -105,6 +105,11 @@ from gate13_pstartmenu_derivative import (
     load_verified_pstartmenu_derivative_bundle,
 )
 from original_teamselect_resources import load_verified_original_teamselect_inputs
+from original_squad_status import (
+    OriginalSquadStatusResources,
+    build_first_roster_direct_status_overlays,
+    load_verified_squad_status_resources,
+)
 from original_squad_top_controls import (
     OriginalSquadTopResources,
     build_fresh_squad_top_render,
@@ -340,6 +345,7 @@ class OriginalGameTkHost:
         fixtures_pager_art=None,
         squad_top_resources=None,
         squad_row_text_resources=None,
+        squad_status_resources=None,
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
         pmatchinfo_font=None,
@@ -368,6 +374,7 @@ class OriginalGameTkHost:
         self.pmenu_popup_active = False
         self.squad_top_resources = squad_top_resources
         self.squad_row_text_resources = squad_row_text_resources
+        self.squad_status_resources = squad_status_resources
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
@@ -960,6 +967,7 @@ class OriginalGameTkHost:
                 "management_pmenu_resources",
                 "squad_top_resources",
                 "squad_row_text_resources",
+                "squad_status_resources",
                 "management_background",
                 "management_header_resources",
             ),
@@ -1215,6 +1223,34 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
             count += 1
+
+        direct_status_rows = tuple(
+            row for row in snapshot.rows
+            if getattr(row, "native_status_frame_index", None) is not None
+        )
+        if direct_status_rows:
+            status_resources = self.squad_status_resources
+            if not isinstance(status_resources, OriginalSquadStatusResources):
+                raise OriginalGameHostError(
+                    "Squad direct status renderer requires verified original status resources"
+                )
+            for overlay in build_first_roster_direct_status_overlays(
+                direct_status_rows,
+                status_resources,
+            ):
+                self._create_native_image(
+                    overlay.x,
+                    overlay.y,
+                    image=self._photo(
+                        encode_rgba_png(
+                            overlay.width,
+                            overlay.height,
+                            overlay.rgba,
+                        )
+                    ),
+                    anchor=self.tk.NW,
+                )
+                count += 1
         return count
 
     def _draw_league_fixtures_grid_art(self, frame) -> int:
@@ -2017,6 +2053,10 @@ def run_original_game_ui(
                 squad_row_text_resources = load_verified_squad_row_text_resources(
                     resolved_source_root
                 )
+            with timed_stage("management.resources.squad_status"):
+                squad_status_resources = load_verified_squad_status_resources(
+                    resolved_source_root
+                )
             with timed_stage("management.resources.background"):
                 management_background = OriginalManagementBackground(
                     resolved_source_root,
@@ -2031,6 +2071,7 @@ def run_original_game_ui(
                 "management_pmenu_resources": pmenu_resources,
                 "squad_top_resources": squad_top_resources,
                 "squad_row_text_resources": squad_row_text_resources,
+                "squad_status_resources": squad_status_resources,
                 "management_background": management_background,
                 "management_header_resources": management_header_resources,
             }
