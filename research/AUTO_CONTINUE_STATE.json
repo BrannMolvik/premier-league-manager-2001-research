@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 346: continue PR #497 native Gate-13 trace. Candidate 45c5c0e is green in full reconstruction 37467142990, Gate-13 presentation 37467143159, and asset policy 37467143070. Source trace has now identified DBRPlayer+0x198 as CPlayerTransferHistory, +0x1A0 as its +0x08 club-table index/club ID, and +0x18 as a transfer/join-history date initialized from normalized DBRPlayer+0x158. Exact next task: finish the 0x422E7E CPlayerTransferHistory::0x4EBF60 argument mapping and trace runtime producers/semantics of 0x8755E8/EC/F0. Keep unresolved mode-1 negative Cup-Tied fallback fail-closed until source-complete. Gate 13/#482 still requires Daniel Windows acceptance.",
+  "active_task": "Recovery 347: continue PR #497 native Gate-13 trace from the Recovery 346 checkpoint. Candidate 45c5c0e is green in full reconstruction 37467142990, Gate-13 presentation 37467143159, and asset policy 37467143070. Source trace has identified DBRPlayer+0x198 as CPlayerTransferHistory, +0x1A0 as its +0x08 club-table index/club ID, and +0x18 as a transfer/join-history date initialized from normalized DBRPlayer+0x158. Exact next task: finish the 0x422E7E CPlayerTransferHistory::0x4EBF60 argument mapping and trace runtime producers/semantics of 0x8755E8/EC/F0. Keep unresolved mode-1 negative Cup-Tied fallback fail-closed until source-complete. Gate 13/#482 still requires Daniel Windows acceptance.",
   "last_known_main_head": "3c17eaa1dc5a9491699d92ec99489bb796660753",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 346,
-  "last_recovery_reason": "transient-connection-interrupted",
-  "note": "Recovery 346 resumed after transient connection interruption; main unchanged; PR #497 candidate CI fully green; private source trace active.",
+  "recovery_generation": 347,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 347 resumed exact Recovery 346 source trace after stale-session recovery; main unchanged; PR #497 candidate CI fully green.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
