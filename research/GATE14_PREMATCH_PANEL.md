@@ -48,11 +48,18 @@ The four controls are contiguous 0x4C-byte objects at:
 - `PPreMatchPanel+0x3824`.
 
 Setup code around `0x4996F4..0x499803` binds all four to global wrapper
-`0x946350`. Static initializer `0x5F4A10` defines that wrapper as
-**106 x 25** with resource type/index 15. Its underlying original path is
-loaded at `0x5F4A50` from string VA `0x835C18`:
+`0x946350`. Static initializer `0x5F4A10` defines that wrapper as **106 x 25**. Its
+underlying resource object is `0x946370`, loaded at `0x5F49C0` from string VA
+`0x835BDC`:
 
-`FM2001_Art/Generic/GenericButtonsAndBars/button_type_15.444`
+`FM2001_Art/Generic/GenericButtonsAndBars/button_type_14.444`
+
+The exact original atlas is 36,964 bytes, decodes as **106 x 575**, and hashes
+to `7b0148bfa65adaa7cabf08e000050ba9add3cf852a03e66423051603c4b85930`.
+That is exactly 23 vertical 106 x 25 frames, matching the already recovered
+Button@ease native group lengths 11 + 11 + 1. The adjacent initializer at
+`0x5F4A50` loads `button_type_15.444` into a different source object
+(`0x946330`) used by the following wrapper and is not the four-choice selector.
 
 The constructor calls pass a common y-coordinate 107 and four x-coordinates.
 Accounting for x86 thiscall argument order plus the event-to-mode mapping gives
@@ -136,7 +143,8 @@ presentation model/render seam with:
 - exact four-choice row, labels, modes, and button dimensions;
 - exact recovered top-bar/pitch/player-strip positions;
 - original assets, once intentionally imported/provenance-tracked under
-  `original_assets/`.
+  `original_assets/`; specifically the selector requires the source-proven
+  `button_type_14.444`, not adjacent `button_type_15.444`.
 
 It must **not**:
 
