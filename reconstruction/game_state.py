@@ -3316,7 +3316,7 @@ class GameState:
     def _record_cup_tied_appearances(
         self,
         *,
-        competition_id: int,
+        competition_id: int | None,
         home_club_id: int,
         away_club_id: int,
         home_side: PreparedMatchSide,
@@ -3333,6 +3333,8 @@ class GameState:
         appeared. 0x4E9690 is idempotent by player ID, so the first club
         recorded in that root context remains authoritative.
         """
+        if competition_id is None:
+            return ()
         root_id = cup_tied_root_competition_id(
             int(competition_id),
             self.competitions,
@@ -3391,7 +3393,7 @@ class GameState:
     def _persist_domestic_cup_shared_post_match(
         self,
         *,
-        competition_id: int,
+        competition_id: int | None = None,
         home_club_id: int,
         away_club_id: int,
         home_side: PreparedMatchSide,
@@ -3422,7 +3424,7 @@ class GameState:
         # branches below. The native producer runs for every appeared player
         # whenever 0x511170 returns a qualifying root competition context.
         self._record_cup_tied_appearances(
-            competition_id=int(competition_id),
+            competition_id=(None if competition_id is None else int(competition_id)),
             home_club_id=home_club_id,
             away_club_id=away_club_id,
             home_side=home_side,
