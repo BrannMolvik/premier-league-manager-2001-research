@@ -10,10 +10,10 @@ from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
+from original_game_host import run_original_game_ui
 from original_game_host import (
     PSTARTMENU_DERIVATIVE_DECODER,
     PSTARTMENU_DERIVATIVE_MANIFEST_SHA256,
-    run_original_game_ui,
 )
 from gate13_pstartmenu_derivative import (
     MANIFEST_NAME as PSTARTMENU_DERIVATIVE_MANIFEST_NAME,
