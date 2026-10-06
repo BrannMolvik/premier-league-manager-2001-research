@@ -1068,7 +1068,7 @@ class OriginalGameHostTests(unittest.TestCase):
             host.on_click(SimpleNamespace(x=600, y=1))
             self.assertEqual(len(host.canvas.images), 12)
             self.assertIn("source PMenu rows rendered", host.last_status)
-            self.assertIn("8 source panel bitmaps rendered", host.last_status)
+            self.assertIn("11 source panel bitmaps rendered", host.last_status)
             self.assertIn("surrounding management background unresolved", host.last_status)
 
             before = host.management_presenter.snapshot()
