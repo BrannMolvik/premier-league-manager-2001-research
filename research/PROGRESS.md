@@ -11945,3 +11945,46 @@ continues with ordinary Squad row display-name/color helpers.
 - Local process execution has recovered; next work-ahead is private exact
   original-TGQ conversion using authorized source bytes without committing them.
 - Gate 13 remains externally blocked on Daniel's normal Windows acceptance.
+
+
+## 7 October 2026 KST — Recovery 353 exact-original proof producer merged; Cup-Tied trace advanced
+
+- PR #500 merged as `52d2cb84aa2f47ea18ee222d4383fb0f6b72a4b1`.
+- Exact head `c7ac1ad5186f143451d6cdf5df4ce823a38ac7d6` passed asset policy
+  `37502428343`, Windows package `37502428326`, and full reconstruction
+  `37502428345`.
+- The new private Gate-17 proof producer binds exact original TGQ conversion to
+  the exact proven minimal helper, build receipt, and synthetic-roundtrip
+  receipt without uploading original media to hosted CI.
+- Authorized private `easp.tgq` and `premintro.tgq` were independently
+  re-extracted and matched their pinned hashes, geometry, frame counts, and
+  audio format. Exact `h264_mf` conversion remains a private Windows locality
+  boundary because the current private sandbox is Linux.
+- First-hand executable tracing closed
+  `0x422E7E -> CPlayerTransferHistory::0x4EBF60`: embedded `+0x08` receives
+  DBRPlayer `+0x74`, `+0x10/+0x14` receives the `0x5E48D0` qword,
+  `+0x18` receives WORD `+0x18C`, `+0x1C` receives global
+  `0x9847FC`, and `+0x20` receives zero.
+- Global `0x8755E8` is now source-bounded as a selector choosing cutoff
+  `0x8755EC` for mode 1 or `0x8755F0` for mode 2, but the producer and
+  semantic identities remain unresolved. No negative Cup-Tied fallback was
+  implemented.
+
+
+## 7 October 2026 KST — Recovery 354 Cup-Tied history value corrected
+
+- Continued first-hand analysis of canonical `footballmanager.exe` corrected
+  the old transfer-history `+0x18` interpretation.
+- DBRPlayer WORD `+0x18C` increments only in the appeared-player path,
+  while `+0x18A` also increments on a non-appearance path. `+0x18C`
+  triggers milestone handling at 10/20/50 and is reset on the later
+  current-club/wholesale reset.
+- Transfer conclusion snapshots `+0x18C` into
+  `CPlayerTransferHistory +0x18`; `0x419350 -> 0x4EBE80` returns that
+  exact historical count when transfer-history `+0x08` is valid.
+- `0x8755EC` and `0x8755F0` are therefore appearance-count cutoffs selected
+  by `0x8755E8` modes 1/2. Their exact configuration producer/rule names
+  remain unresolved.
+- Proved `0x874B88` is only a 16-byte dynamic-array header for 0x2A8-byte
+  records, eliminating an unrelated tactics-enum coincident-offset false lead.
+- No negative Cup-Tied fallback was implemented; it remains fail-closed.
