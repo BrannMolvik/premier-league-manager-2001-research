@@ -54,7 +54,22 @@ class PrematchPlacement:
     rect: OriginalRect
 
 
-PREMATCH_BACKGROUND = PrematchAssetSpec(
+@dataclass(frozen=True)
+class PrematchRatingRowSpec:
+    native_width_function_va: int
+    native_record_discriminator: int
+    y: int
+    left_x: int = 65
+    right_x: int = 564
+    full_width: int = 171
+    height: int = 16
+
+
+# Shipped and initialized globally, but first-hand tracing of PPreMatchPanel
+# proves that its live 800x600 background is instead built dynamically from
+# Generic/Team_Backgrounds. Keep this exact source identity as negative evidence
+# and do not silently promote it to a required/rendered panel asset.
+PREMATCH_SHIPPED_BACKGROUND = PrematchAssetSpec(
     "FM2001_Art/Generic/pre_match/prematch_bground.444",
     "964d6765d7eedd7d064b3c439ed144c851ab102ec029e8fc198df0c9adb31576",
     800,
@@ -128,6 +143,13 @@ PREMATCH_FONT_SHA256 = (
     "47e3b21f07a3013ba19d257f31e1e876c9b03856c930a8fa5fe58103974ed166"
 )
 
+PREMATCH_LIVE_BACKGROUND_ROOT = "FM2001_Art/Generic/Team_Backgrounds"
+PREMATCH_LIVE_BACKGROUND_RECT = OriginalRect(0, 0, 800, 600)
+PREMATCH_LIVE_BACKGROUND_BUILDER_VA = 0x5D3490
+PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA = 0x5D3510
+PREMATCH_LIVE_BACKGROUND_WRAPPER_OFFSET = 0x6B4
+PREMATCH_LIVE_BACKGROUND_CACHE_OFFSET = 0x6D4
+
 PREMATCH_SELECTORS = (
     PrematchSelectorSpec(
         MatchDetailMode.THREE_D_MATCH,
@@ -155,9 +177,6 @@ PREMATCH_SELECTORS = (
     ),
 )
 
-# Only placements with first-hand native call-site coordinates are included.
-# The dedicated 800x600 background resource is loaded below but is not placed
-# here because its final draw invocation passes through shared panel machinery.
 PREMATCH_STATIC_PLACEMENTS = (
     PrematchPlacement("top_bar", PREMATCH_TOP_BAR, OriginalRect(0, 0, 800, 95)),
     PrematchPlacement("pitch", PREMATCH_PITCH, OriginalRect(269, 152, 261, 374)),
@@ -175,8 +194,22 @@ PREMATCH_STATIC_PLACEMENTS = (
     ),
 )
 
+# Four native rating-width calculators test record discriminator 3, 0, 1, 2
+# respectively and cap their integer result at the 171-pixel bar width. Calls
+# made with side selector 0 size the left rating_bar_left overlay directly.
+# Calls made with side selector 1 subtract that width from the right-side
+# rating_bar_right object's right edge, mirroring the dynamic length.
+PREMATCH_RATING_ROWS = (
+    PrematchRatingRowSpec(0x49A3D0, 3, 497),
+    PrematchRatingRowSpec(0x49A460, 0, 515),
+    PrematchRatingRowSpec(0x49A4F0, 1, 533),
+    PrematchRatingRowSpec(0x49A580, 2, 551),
+)
+
+# These are the source-proven resources the first panel seam may actually load.
+# prematch_bground.444 is intentionally excluded because the live constructor
+# uses Generic/Team_Backgrounds instead.
 PREMATCH_ALL_EA444_SPECS = (
-    PREMATCH_BACKGROUND,
     PREMATCH_TOP_BAR,
     PREMATCH_PITCH,
     PREMATCH_ACTIVE_LEFT,
@@ -196,6 +229,8 @@ class OriginalPrematchPanelResources:
     font: EAFont
     source_bytes_verified: bool = True
     selector_geometry_source_closed: bool = True
+    live_background_contract_source_closed: bool = True
+    rating_bar_layout_source_closed: bool = True
     management_launch_trigger_recovered: bool = False
     complete_prematch_frame: bool = False
     gate14_complete: bool = False
@@ -219,6 +254,8 @@ class OriginalPrematchPanelResources:
         if (
             not self.source_bytes_verified
             or not self.selector_geometry_source_closed
+            or not self.live_background_contract_source_closed
+            or not self.rating_bar_layout_source_closed
             or self.management_launch_trigger_recovered
             or self.complete_prematch_frame
             or self.gate14_complete
@@ -259,7 +296,7 @@ def load_verified_original_prematch_resources(
     source_root: str | Path,
     original_executable: str | Path,
 ) -> OriginalPrematchPanelResources:
-    """Load only exact hash-pinned original PPreMatchPanel resources."""
+    """Load only exact hash-pinned original assets actually used by the seam."""
     root = Path(source_root)
     try:
         executable = Path(original_executable).read_bytes()
@@ -350,9 +387,35 @@ def prematch_panel_contract() -> dict:
         "static_placement_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
-        "background_resource_owned": True,
-        "background_draw_site_source_closed": False,
-        "rating_bar_final_layout_source_closed": False,
+        "live_background_root": PREMATCH_LIVE_BACKGROUND_ROOT,
+        "live_background_rect": (
+            PREMATCH_LIVE_BACKGROUND_RECT.x,
+            PREMATCH_LIVE_BACKGROUND_RECT.y,
+            PREMATCH_LIVE_BACKGROUND_RECT.width,
+            PREMATCH_LIVE_BACKGROUND_RECT.height,
+        ),
+        "live_background_builder_va": PREMATCH_LIVE_BACKGROUND_BUILDER_VA,
+        "live_background_source_accessor_va": PREMATCH_LIVE_BACKGROUND_SOURCE_ACCESSOR_VA,
+        "shipped_prematch_background_path": PREMATCH_SHIPPED_BACKGROUND.source_path,
+        "shipped_prematch_background_is_live_panel_background": False,
+        "rating_rows": tuple(
+            (
+                row.native_width_function_va,
+                row.native_record_discriminator,
+                row.left_x,
+                row.right_x,
+                row.y,
+                row.full_width,
+                row.height,
+            )
+            for row in PREMATCH_RATING_ROWS
+        ),
+        "rating_left_dynamic_asset": PREMATCH_RATING_LEFT.source_path,
+        "rating_left_base_asset": PREMATCH_RATING_RIGHT.source_path,
+        "rating_right_base_asset": PREMATCH_RATING_RIGHT2.source_path,
+        "rating_right_mask_asset": PREMATCH_RATING_RIGHT.source_path,
+        "live_background_contract_source_closed": True,
+        "rating_bar_layout_source_closed": True,
         "management_launch_trigger_recovered": False,
         "complete_prematch_frame": False,
         "gate14_complete": False,
