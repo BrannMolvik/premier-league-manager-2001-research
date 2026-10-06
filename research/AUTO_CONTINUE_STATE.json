@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 341: PR #495 merged at main 0a91c088f14f5988ab96430de5dc9239b24457cf after Gate13 37424300671, asset 37424300703, Windows package 37424300615, and reconstruction 37424300721 all passed. Gate 13/#482 remains open for Daniel's real Windows acceptance. Continue independent cloud-safe Gate-14 repair: replace the stale MCI-only startup-media external acceptance audit with one that exercises the canonical game-owned WindowsWpfStartupMediaBackend parent-HWND production path.",
-  "last_known_main_head": "0a91c088f14f5988ab96430de5dc9239b24457cf",
+  "active_task": "Recovery 341: Gate 13/#482 remains externally open. Independent Gate-14 work-ahead branch recovery341-gate14-wpf-startup-acceptance replaces stale schema-1/MCI startup acceptance with schema-2 production run_original_game_ui + exact WindowsWpfStartupMediaBackend child-HWND verification, and rejects old MCI receipts. Open/validate PR; merge only if applicable CI is green.",
+  "last_known_main_head": "f97238798f05931c9d952786ac256f1974ab3e36",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 341,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 341 checkpoint after PR #495 merge. Gate 13 remains externally blocked; next cloud-safe work is Gate-14 startup acceptance tooling drift.",
+  "note": "Recovery 341 WPF startup acceptance tooling repair checkpoint. Main latest is f97238798f05931c9d952786ac256f1974ab3e36; Gate 13 remains earliest incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
