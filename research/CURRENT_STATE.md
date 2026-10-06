@@ -1,3 +1,26 @@
+# Recovery 360 continuation — original FastView activation mode source-closed
+
+_Updated 7 October 2026._
+
+Canonical source tracing against the authorized executable SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` closes the missing ordinary FastView activation boundary without inventing a post-match navigation action.
+
+Confirmed native chain:
+
+- RTTI identifies the pre-match owner as `PPreMatchPanel` (COL `0x7E52D8`, vtable `0x7C4B1C`).
+- Its four-choice handler `0x49AB50 -> 0x49ABA0` writes values 0..3 to global `0x877530`; the four event branches map control/event values 1..4 to stored modes 3,2,1,0.
+- The shipped English resource contains the contiguous match-detail labels `3D Match`, `3D Highlights`, `FastView`, `Quick Match`.
+- Normal high-level match processing at `0x513010` reads `0x877530`. After match calculation/result processing, modes 0 and 1 call `0x533D80` with subtype 0/1, mode 2 calls `0x5331C0`, and mode 3 skips those presentation wrappers.
+- `0x5331C0` has exactly one direct caller, `0x513272`, and contains the unique external direct call `0x53321A -> FastViewPanel::0x51F490`; it then runs the FastView setup/lifetime path and destroys the stack-owned panel.
+- The same setting is copied into MatchCalculator `+0xD3C` at `0x510D95`, so it is a real pre-match mode setting consumed by match runtime, not a compatibility-only display switch.
+
+Therefore the source-backed ordinary trigger is: **when the pre-match Match Detail selection is FastView (mode 2), normal match processing enters the FastViewPanel presentation wrapper.** The port must not invent an unconditional post-match popup. A modern automatic FastView invocation may be added only by carrying an explicit source-equivalent match-detail selection through the human match path and invoking the existing operator-visible FastView presentation for mode 2.
+
+Gate 13 remains the earliest incomplete validation gate because issue #482 still needs Daniel's normal Windows 11 acceptance on artifact `11418314765`. This Gate-14 work-ahead does not change that gate status.
+
+Exact next task: audit the modern pre-match/match-detail selection state. If it already carries the original four-mode contract, bind mode 2 to `OriginalGameTkHost.present_completed_match_fastview(...)`; otherwise introduce the smallest source-backed selection state/UI seam with 0=3D Match, 1=3D Highlights, 2=FastView, 3=Quick Match, keeping unimplemented 3D modes fail-closed rather than pretending the partial FastView surface is universal.
+
+---
+
 # Recovery 359 continuation — PR #502 merged; Gate 13 repository repair source-closed
 
 _Updated 7 October 2026._
