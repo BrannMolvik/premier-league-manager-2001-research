@@ -41,10 +41,14 @@ class SquadRowView:
     source_roster_index: int
     player_id: int
     full_name: str
+    first_name: str
+    surname: str
     shirt_number: int
     positions: tuple[int, int, int]
     current_position: int
     match_unavailable: bool
+    match_active: bool
+    match_substitute_available: bool
     condition: int
     form_state: int
     recent_form_average: float
@@ -1021,10 +1025,16 @@ class ManagementSourceDataBridge:
                 source_roster_index=source_index,
                 player_id=player_id,
                 full_name=self._player_name(player),
+                first_name=str(getattr(player, "first_name")),
+                surname=str(getattr(player, "surname")),
                 shirt_number=int(getattr(player, "shirt_number", 0)),
                 positions=positions,
                 current_position=int(getattr(player, "current_position")),
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
+                match_active=bool(getattr(player, "match_active", False)),
+                match_substitute_available=bool(
+                    getattr(player, "match_substitute_available", False)
+                ),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
                 recent_form_average=recent_form_average,

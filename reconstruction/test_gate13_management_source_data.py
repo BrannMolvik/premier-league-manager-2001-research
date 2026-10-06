@@ -66,6 +66,8 @@ class FakePlayer:
     loan_listed: bool = False
     wanted: bool = False
     current_position: int = 0
+    match_active: bool = False
+    match_substitute_available: bool = False
     training_modifiers: list[int] = field(
         default_factory=lambda: [0] * 17
     )
@@ -461,25 +463,62 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
 
         self.assertEqual(
             (
-                second.full_name, second.shirt_number, second.positions,
+                second.full_name, second.first_name, second.surname,
+                second.shirt_number, second.positions,
                 second.current_position, second.match_unavailable,
+                second.match_active, second.match_substitute_available,
                 second.condition, second.form_state,
                 second.recent_form_average, second.current_role_rating,
                 second.morale,
             ),
-            ("Second Source", 9, (4, 0, 0), 0, False, 91, 3, 2.5, 40, 88),
+            (
+                "Second Source", "Second", "Source", 9, (4, 0, 0),
+                0, False, False, False, 91, 3, 2.5, 40, 88,
+            ),
         )
         self.assertTrue(second.transfer_listed)
         self.assertFalse(second.injured)
         self.assertEqual(
-            (first.full_name, first.condition, first.form_state, first.morale),
-            ("First Source", 77, 2, 92),
+            (
+                first.full_name, first.first_name, first.surname,
+                first.condition, first.form_state, first.morale,
+                first.match_active, first.match_substitute_available,
+            ),
+            ("First Source", "First", "Source", 77, 2, 92, False, False),
         )
         self.assertTrue(first.injured)
         self.assertTrue(first.suspended)
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_squad_projection_exposes_exact_row_name_status_flags(self):
+        controller = FakeController()
+        controller._squad[0].match_active = True
+        controller._squad[1].match_substitute_available = True
+
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+
+        self.assertEqual(
+            (
+                second.first_name,
+                second.surname,
+                second.match_active,
+                second.match_substitute_available,
+            ),
+            ("Second", "Source", True, False),
+        )
+        self.assertEqual(
+            (
+                first.first_name,
+                first.surname,
+                first.match_active,
+                first.match_substitute_available,
+                first.injured,
+                first.suspended,
+            ),
+            ("First", "Source", False, True, True, True),
+        )
 
     def test_squad_presentation_contract_preserves_native_roster_selection_state(self):
         contract = ManagementSourceDataBridge.squad_presentation_contract()

@@ -132,7 +132,10 @@ SQUAD_PLAYER_COLUMNS = (
         "assigned_role", 28, 38, "current position code and role table +0x0C"
     ),
     OriginalSquadListColumn(
-        "display_name", 76, 144, "first-name + surname formatter"
+        "display_name",
+        76,
+        144,
+        "0x5D6C50 -> 0x417AE0 initial-plus-surname formatter",
     ),
 )
 SQUAD_SCF_COLUMNS = (
