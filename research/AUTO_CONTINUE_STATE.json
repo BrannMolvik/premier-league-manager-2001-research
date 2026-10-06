@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 369: PR #508 merged source-closing PPreMatch identity/text controls and the 182-child native paint order. Continue by reconciling the separately persisted recovery368-prematch-player-rows work onto current main, then recover starting-XI pitch-marker placement/state, player-row content/state, selector visual state, and complete-frame assembly without inventing management launch or 3D presentation.",
+  "active_task": "Recovery 369: PR #509 now reconciles the persisted 36-row PPreMatch geometry and exposes every row's original active art plus the co-located reserve disabled art through gate14_prematch_surface. Exact branch head cd6ec2c1f03c3d108bfd957122828b5e520a0ddb has focused CI pending. Continue frame reconciliation without guessing: recover pitch-marker placement/state, player-row text/style and reserve variant selector, and Match Detail selector visual state when source execution is available; meanwhile advance only source-proven cloud-safe frame bindings.",
   "last_known_main_head": "065eeb8303afe1c6621dd37ab110e39c9db9f4a1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 369,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 369: merged PR #508 at main 065eeb8303afe1c6621dd37ab110e39c9db9f4a1; continuing persisted player-strip branch reconciliation.",
+  "note": "Recovery 369 heartbeat: PR #509 head cd6ec2c is mergeable; presentation run 37542137513 and asset-policy run 37542137447 pending. Local container/python still fail with generic ClientError after successful private source materialization.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
