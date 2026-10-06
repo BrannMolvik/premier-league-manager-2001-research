@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #489 is merged at main 1a24b456 after green reconstruction, Gate-13, Windows-package and asset-policy CI. Continue the next source-backed Squad fidelity slice: bind the PSquadPlayerRow assigned-role control to the runtime Position record +0x0C localized abbreviation, project that original abbreviation from state.positions, and raster it at native (28,1,38,14) with the already recovered preferred/out-of-position RGB contract. Keep reserve colors/status icons/club-relative assignment fail-closed. Windows 11 acceptance remains deferred external evidence.",
-  "last_known_main_head": "1a24b456f763a8f8899b2eb940a8316bf35aef2b",
+  "active_task": "PR #490 merged at main 7ecdb33e after green full reconstruction, Gate-13, Windows-package and asset-policy validation. Continue the next source-backed ordinary Squad fidelity slice without inventing reserve/status semantics; audit remaining resolved-but-unrendered row controls first. External Windows 11 issue #482 acceptance remains mandatory before Gate 13 closure.",
+  "last_known_main_head": "7ecdb33e060ed751288e76ed8cbdf71c9876aba9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 333,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery resumed from canonical merged PR #489 checkpoint. Continuing exact active Squad assigned-role Position.abbreviation fidelity slice; no prior investigation restarted.",
+  "note": "Recovery 333 merged the persisted assigned-role Position.abbreviation slice. Now auditing remaining PSquadPlayerRow/PSCFRow controls for the next cloud-safe source-backed rendering task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
