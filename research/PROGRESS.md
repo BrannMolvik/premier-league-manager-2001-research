@@ -12055,3 +12055,31 @@ continues with ordinary Squad row display-name/color helpers.
 - Added strict mode and session regressions and included them in focused presentation CI.
 - PR #503 exact head `b8e7497d7de245dbe4436181626bc9cbc2fa0ba6` passed focused presentation run `37522687749` and asset-policy run `37522687692`; merged as `531266d1676f7200f8a071250d4ea1d8b1807a14`.
 - Authorized disc scan confirms reusable original pre-match assets under `FM2001_Art/Generic/pre_match/`, including `prematch_bground.444`, `top_bar.444`, `pitch.444`, player-name states, and rating bars. Exact executable binding/layout remains the next source task.
+
+
+## 7 October 2026 KST — Recovery 362 PPreMatchPanel resource/model integration
+
+- Recovered the exact native Match Detail selector row: y=107, x=176/290/404/518,
+  106x25 controls; modes 0..3 map left-to-right to 3D Match, 3D Highlights,
+  FastView, Quick Match, with native events 4..1.
+- Corrected an adjacent-resource false lead before implementation:
+  `button_type_14.444`, not `button_type_15.444`, backs the four selectors.
+  The exact original type-14 atlas is 106x575, SHA-256
+  `7b0148bfa65adaa7cabf08e000050ba9add3cf852a03e66423051603c4b85930`,
+  giving exactly 23 106x25 frames and matching the recovered Button@ease
+  11+11+1 group structure.
+- Source-closed the selector caption font as
+  `Fonts/Zurich_BdXCn_BT_20pixel.fnt`, already provenance-tracked.
+- Hash/geometry-pinned the dedicated original pre-match art family and exact
+  native placements for top bar, pitch, and active/disabled player-name strips.
+  Background draw ownership through shared panel machinery and rating-bar final
+  state/layout remain intentionally unresolved.
+- Added `reconstruction/original_prematch_panel.py` plus strict regressions,
+  keeping management launch, complete-frame and Gate-14 claims fail-closed.
+- PR #504 exact head `8042153d95d011d97d3a5d80d496cae3490e39ca`
+  passed focused presentation run `37527073991` and asset-policy run
+  `37527074060`; merged as
+  `4080cfb6320d162a15c6392713b68ec947188af5`.
+- Gate 13 remains externally open on Daniel's Windows 11 acceptance artifact
+  `11418314765`. Next Gate-14 source task is shared pre-match background
+  attachment plus the rating-bar distinction before a renderable asset slice.
