@@ -27,6 +27,7 @@ from startup_media_runtime_cache import (
     prepare_runtime_startup_media,
     resolve_startup_ffmpeg,
 )
+from startup_media_profile_marker import resolve_packaged_startup_media_profile
 from startup_media_windows_backend import WindowsWpfStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
@@ -744,6 +745,10 @@ def package_smoke_report() -> dict:
         app_root,
         system_which=lambda _name: None,
     )
+    startup_profile, startup_profile_marker = resolve_packaged_startup_media_profile(
+        app_root,
+        startup_ffmpeg,
+    )
     return {
         "passed": True,
         "application_root": str(app_root),
@@ -761,6 +766,18 @@ def package_smoke_report() -> dict:
         "settings_default_fullscreen": package_presenter.session.settings.fullscreen,
         "startup_ffmpeg": str(startup_ffmpeg),
         "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
+        "startup_media_video_encoder": startup_profile.ffmpeg_video_encoder,
+        "startup_media_profile_marker_present": startup_profile_marker is not None,
+        "startup_media_candidate_only": (
+            startup_profile_marker.get("candidate_only") is True
+            if startup_profile_marker is not None
+            else False
+        ),
+        "startup_media_production_runtime_switched": (
+            startup_profile_marker.get("production_runtime_switched")
+            if startup_profile_marker is not None
+            else False
+        ),
         "external_game_data_required": True,
     }
 
@@ -809,9 +826,16 @@ def configure_startup_media(
         return None, None, None
 
     root = application_root() if app_root is None else Path(app_root).resolve()
+    ffmpeg = resolve_startup_ffmpeg(root)
+    profile, _candidate_marker = resolve_packaged_startup_media_profile(
+        root,
+        ffmpeg,
+    )
     derivatives = prepare_runtime_startup_media(
         Path(game_dir),
         root,
+        ffmpeg_executable=ffmpeg,
+        profile=profile,
     )
     backend = WindowsWpfStartupMediaBackend(platform_system=system)
     return None, backend, derivatives
