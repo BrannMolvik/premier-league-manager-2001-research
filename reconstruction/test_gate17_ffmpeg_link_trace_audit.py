@@ -61,7 +61,7 @@ class Gate17FfmpegLinkTraceAuditTests(unittest.TestCase):
         self.assertTrue(result["passed"])
         self.assertEqual(
             result["targets"]["ffmpeg_g.exe"]["release_command_token_count"],
-            7,
+            8,
         )
 
     def test_trace_command_drift_fails_closed(self):
