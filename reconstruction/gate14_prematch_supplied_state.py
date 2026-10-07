@@ -76,13 +76,7 @@ class BoundPrematchSuppliedState:
             raise PrematchSuppliedStateError(
                 "dynamic text selection differs from base pre-match boundary"
             )
-        if tuple(row.source for row in self.player_rows.rows) != tuple(
-            self.boundary.player_text_rows[
-                0 if row.source.side == "left" else 18
-                + row.source.slot_index
-            ]
-            for row in self.player_rows.rows
-        ):
+        if tuple(row.source for row in self.player_rows.rows) != self.boundary.player_text_rows:
             raise PrematchSuppliedStateError(
                 "player-row supplied state is detached from base boundary"
             )
