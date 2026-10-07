@@ -1,3 +1,19 @@
+# Recovery 376 continuation — PR #516 merged; native PPreMatch compositor is next
+
+_Updated 7 October 2026._
+
+Canonical `main` is `77120385ec8563bc760cdb4398859cf7e9424eb0`, which merges PR #516's source-backed PPreMatch supplied-state/raster checkpoint. Exact PR head `c2b662e0ee52236a8f87782557d8f485a0aa48e9` passed Gate-13 presentation source run `37567629313`, full reconstruction run `37567629340`, and repository asset-policy run `37567629367` before merge.
+
+The merged checkpoint now provides source-backed supplied pixels/state for all 182 native PPreMatch children: exact four-font TextControl rasterization and alignment, dynamic fixture/date/weather/team text, player rows, XI marker shirts, team badges, rating layers, selector frames, static layers, visibility, geometry, and native child order 0..181. `gate14_prematch_child_rasters.py` deliberately stops at the child raster ledger. It does **not** flatten the final frame because the legacy cross-control Picture/Text/Button destination-write/blend rule is not yet fully recovered.
+
+The authorized canonical executable was recovered again through `research/ORIGINAL_SOURCE_LOCATOR.md` during Recovery 376 and verified at SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. The ordinary container shell still returned `ClientError`, but the Python analysis environment successfully read the recovered raw MODE1/2352 source, located `footballmanager.exe`, and verified the canonical hash, so source work remains available rather than externally blocked.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open work-ahead; complete PPreMatch frame, management-to-match launch, 3D Match/Highlights presentation, and Gate 14 completion remain false.
+
+Immediate next Gate-14 task: source-close the PPreMatch child destination-write/composition rule. Reuse the already recovered generic child order and text blend evidence where source-identical, then trace the PictureControl and Button@ease draw paths far enough to determine how transparent/opaque pixels modify the destination surface. Once those per-control rules are proven, flatten the supplied native 0..181 child raster ledger into one exact 800x600 frame with regression coverage. Do not resolve overlapping pixels by modern RGBA assumptions or geometry alone.
+
+---
+
 # Recovery 375 continuation — all 182 PPreMatch child states can now be supplied
 
 _Updated 7 October 2026._
