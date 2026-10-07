@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 378,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 378 compositor checkpoint merged. Continuing disjoint Match Detail route source work without waiting for local pixel-format receipt.",
+  "recovery_generation": 379,
+  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
+  "note": "Recovery 379 restored from GitHub after missing worker tab; continuing persisted Match Detail route work and ordinary management fixture-start tracing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
