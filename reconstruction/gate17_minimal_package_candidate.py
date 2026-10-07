@@ -469,7 +469,7 @@ def build_minimal_package_candidate(
         encoding="utf-8",
         newline="\n",
     )
-    return {"archive": archive, "receipt": sidecar, **receipt}
+    return {**receipt, "archive": archive, "receipt": sidecar}
 
 
 def main() -> int:
