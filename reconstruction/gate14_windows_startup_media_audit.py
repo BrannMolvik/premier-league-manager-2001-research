@@ -37,7 +37,7 @@ class Gate14WindowsStartupMediaAuditError(RuntimeError):
     pass
 
 
-RECEIPT_SCHEMA_VERSION = 2
+RECEIPT_SCHEMA_VERSION = 3
 VISIBLE_AUDIBLE_CONFIRMATION_TOKEN = "YES-GAME-WINDOW"
 
 
@@ -220,6 +220,38 @@ def _validated_host_binding(host, player: WindowsWpfStartupMediaBackend) -> dict
     return binding
 
 
+def _validated_transport_receipts(
+    player: WindowsWpfStartupMediaBackend,
+    binding: dict,
+    derivatives: tuple[VerifiedStartupMediaDerivative, ...],
+) -> tuple[dict, ...]:
+    receipts = tuple(player.transport_receipts)
+    if len(receipts) != len(derivatives):
+        raise Gate14WindowsStartupMediaAuditError(
+            "startup-media transport probe did not cover the complete source sequence"
+        )
+    expected_requested = {
+        "x": binding["x"],
+        "y": binding["y"],
+        "width": binding["width"],
+        "height": binding["height"],
+    }
+    for index, (receipt, derivative) in enumerate(zip(receipts, derivatives, strict=True)):
+        if receipt.get("sequence") != index or receipt.get("source_path") != derivative.spec.source_path:
+            raise Gate14WindowsStartupMediaAuditError(
+                "startup-media transport receipt sequence/source identity drifted"
+            )
+        if receipt.get("parent_hwnd") != binding["parent_hwnd"]:
+            raise Gate14WindowsStartupMediaAuditError(
+                "startup-media transport receipt parent HWND differs from the game host"
+            )
+        if receipt.get("requested_child_rect") != expected_requested:
+            raise Gate14WindowsStartupMediaAuditError(
+                "startup-media transport receipt requested geometry differs from the game host"
+            )
+    return receipts
+
+
 def run_windows_startup_media_audit(
     game_dir: str | Path,
     application_root: str | Path,
@@ -232,6 +264,7 @@ def run_windows_startup_media_audit(
     github_actions: str | None = None,
     windows_product_type: int | None = None,
     preparer=None,
+    transport_probe_only: bool = False,
 ) -> dict:
     """Exercise the production host/WPF startup path and require human acceptance."""
     windows = _require_external_windows_11(
@@ -263,6 +296,11 @@ def run_windows_startup_media_audit(
         raise Gate14WindowsStartupMediaAuditError(
             "real startup-media acceptance requires exact WindowsWpfStartupMediaBackend"
         )
+    if type(transport_probe_only) is not bool:
+        raise Gate14WindowsStartupMediaAuditError(
+            "transport-probe-only flag must be boolean"
+        )
+    player.enable_transport_receipt_capture()
 
     observed: dict[str, object] = {}
 
@@ -313,10 +351,11 @@ def run_windows_startup_media_audit(
             "production host did not retain verified child-window binding evidence"
         )
 
-    if not _human_confirmation(confirmer):
-        raise Gate14WindowsStartupMediaAuditError(
-            "game-owned visible and audible Windows startup media were not explicitly confirmed"
-        )
+    transport_receipts = _validated_transport_receipts(
+        player,
+        binding,
+        derivatives,
+    )
 
     items = []
     for derivative in derivatives:
@@ -342,10 +381,8 @@ def run_windows_startup_media_audit(
         )
 
     presentation = ORIGINAL_STARTUP_FMV_PRESENTATION
-    return {
+    common = {
         "schema_version": RECEIPT_SCHEMA_VERSION,
-        "audit_kind": "gate14_windows_startup_media_acceptance",
-        "passed": True,
         **windows,
         "playback_backend": "WindowsWpfStartupMediaBackend",
         "production_host_runner": "run_original_game_ui",
@@ -356,6 +393,8 @@ def run_windows_startup_media_audit(
         "game_owned_child_window_verified": True,
         "backend_parent_binding_verified": True,
         "host_child_binding": binding,
+        "transport_receipts": list(transport_receipts),
+        "actual_hwnd_dpi_transport_captured": True,
         "source_presentation": {
             "coded_size": [presentation.coded_width, presentation.coded_height],
             "movie_size": [presentation.movie_width, presentation.movie_height],
@@ -367,10 +406,6 @@ def run_windows_startup_media_audit(
             "horizontal_repeat": presentation.horizontal_repeat,
             "ffmpeg_filter": presentation.ffmpeg_filter,
         },
-        "human_visibility_confirmation": True,
-        "human_audibility_confirmation": True,
-        "human_game_owned_window_confirmation": True,
-        "startup_media_real_windows_verified": True,
         "default_runtime_components_replayed": True,
         "source_display_geometry_integrated": True,
         "exact_horizontal_repeat_integrated": True,
@@ -379,6 +414,40 @@ def run_windows_startup_media_audit(
         "transition_timing_recovered": False,
         "exact_display_treatment_recovered": False,
         "gate14_complete": False,
+    }
+
+    if transport_probe_only:
+        return {
+            **common,
+            "audit_kind": "gate13_windows_startup_transport_probe",
+            "passed": True,
+            "human_visibility_confirmation": False,
+            "human_audibility_confirmation": False,
+            "human_game_owned_window_confirmation": False,
+            "startup_media_real_windows_verified": False,
+            "visual_acceptance_claimed": False,
+            "evidence_limit": (
+                "This diagnostic receipt records the actual production parent/child HWND "
+                "geometry and DPI-awareness state while both canonical startup derivatives "
+                "play through the normal WPF child path. It intentionally makes no visual "
+                "equivalence or Gate-13 acceptance claim."
+            ),
+        }
+
+    if not _human_confirmation(confirmer):
+        raise Gate14WindowsStartupMediaAuditError(
+            "game-owned visible and audible Windows startup media were not explicitly confirmed"
+        )
+
+    return {
+        **common,
+        "audit_kind": "gate14_windows_startup_media_acceptance",
+        "passed": True,
+        "human_visibility_confirmation": True,
+        "human_audibility_confirmation": True,
+        "human_game_owned_window_confirmation": True,
+        "startup_media_real_windows_verified": True,
+        "visual_acceptance_claimed": True,
         "evidence_limit": (
             "This receipt proves the canonical startup derivatives completed through "
             "the production run_original_game_ui host, the exact WPF backend was "
@@ -395,21 +464,36 @@ def main() -> int:
     parser.add_argument("--game-dir", type=Path, required=True)
     parser.add_argument("--application-root", type=Path, required=True)
     parser.add_argument("--output-receipt", type=Path, required=True)
+    parser.add_argument(
+        "--transport-probe-only",
+        action="store_true",
+        help=(
+            "Capture actual parent/child HWND rectangles and DPI-awareness state "
+            "without making or requiring a visual-acceptance claim."
+        ),
+    )
     args = parser.parse_args()
 
     output = _require_private_receipt(args.output_receipt)
     receipt = run_windows_startup_media_audit(
         args.game_dir,
         args.application_root,
+        transport_probe_only=args.transport_probe_only,
     )
     output.write_text(
         json.dumps(receipt, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(
-        "PASS: production-host Windows 11 startup-media path verified; "
-        f"private receipt written to {output}"
-    )
+    if args.transport_probe_only:
+        print(
+            "CAPTURED: production-host startup HWND/DPI transport evidence; "
+            f"no visual acceptance claimed; private receipt written to {output}"
+        )
+    else:
+        print(
+            "PASS: production-host Windows 11 startup-media path verified; "
+            f"private receipt written to {output}"
+        )
     return 0
 
 
