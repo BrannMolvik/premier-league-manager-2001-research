@@ -562,9 +562,9 @@ _PREMATCH_CHILD_COVERAGE = {
     "team_badges": (2, True, None),
     "team_identity_text": (3, False, "left/right dynamic team identity text is not bound"),
     "starting_xi_pitch_markers": (
-        0,
+        22,
         False,
-        "marker geometry/state is source-closed but dynamic goalkeeper/team shirt pixels are not staged",
+        "all marker controls and source pixel families are represented but supplied XI players/formation coordinates are not bound to the base surface",
     ),
     "side0_starter_rows": (
         33,
@@ -928,6 +928,8 @@ def prematch_surface_contract() -> dict:
         "player_row_state_binding_available": True,
         "player_row_display_name_reuses_source_formatter": True,
         "player_row_shirt_number_reuses_source_formatter": True,
+        "starting_xi_marker_resource_binding_available": True,
+        "starting_xi_marker_supplied_state_bound_by_resource_loader": False,
         "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
         "player_strip_rows_source_geometry_available": True,
         "reserve_variant_state_source_closed": True,
