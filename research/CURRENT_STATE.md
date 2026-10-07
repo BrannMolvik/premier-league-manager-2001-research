@@ -39,6 +39,51 @@ same tests now **pass: 171 tests / 69.269 seconds / zero skips**, using an
 explicitly authorized workspace-local temporary directory. Receipt:
 `work/recovery-membership-integration-focused-qualified-temp.log` outside Git.
 Do not count the earlier denied run as a successful validation.
+---
+
+Historical incoming main checkpoint (its 36px font claim is superseded by
+the canonical-byte correction above):
+
+# Recovery 403 — management redraw hot path reduced; primary club-name raster contract closed
+
+_Updated 8 October 2026._
+
+**Gate 13 remains the earliest incomplete validation gate and the post-#482 original-behavior retrospective audit remains open.** Recovery 403 made two independent, source-preserving advances without declaring fresh management/Squad complete.
+
+PR #549 removed repeated compatibility-host raster work that was still on the normal management interaction path. Exact head `46016655e79a5f80ddee1cc65a11a7d8979a06a9` now routes the twelve management/report RGBA-to-PNG sites through the existing bounded deterministic runtime PNG cache, skips PMenu row/font/PNG rasterization entirely while the native popup is closed, and reuses an immutable open-PMenu snapshot render across unchanged redraws. It does not alter source pixels, pointer geometry, navigation, or fail-closed behavior. Exact-head verification passed repository asset policy `37691412936`, Gate-13 presentation `37691413034`, Windows package `37691413060`, and the full reconstruction suite `37691412914`. PR #549 merged as `c78644a744fb4c734cfa0bb1431f406b79f8f409`. This is a verified hot-path removal, not a claim of measured external Windows latency acceptance.
+
+PR #550 closes the already source-proven primary management club-name **raster contract** while deliberately leaving runtime wiring fail-closed until the exact font bytes are staged. Exact rebased head `654b9dd696dea4ff766671d02f0e12ce73e49bb5` records the native control at `(172,1,378,32)`, raw style `0x2102` (right aligned and vertically centered/clipped), white endpoint `0xFFFF`, refresh `0x432A20`, club-name accessor `0x40DA50` -> `Club.name`, and exact font identity `Fonts/Zurich_BdXCn_BT_36pixel.fnt`, 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. The renderer accepts the font explicitly and never substitutes another font. Rebased exact-head asset-policy run `37692292200` and Gate-13 presentation run `37692292284` passed. PR #550 merged as `2d82a2b69e57b73ebb1289a4659f9fd732e3bdf2`.
+
+The authorized original archive is still available in ChatGPT Library at `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`. The verified disc inventory locates `ZURICH8.FNT` / `Fonts/Zurich_BdXCn_BT_36pixel.fnt` at ISO extent `170896`, size `155544`, with the hash above. In this recovery, the archive was materialized, but **all available process-execution backends** (container, private Python, and visible Python) failed even trivial process startup with `caas.internal.errors.ClientError`. GitHub history/branches, Library search, and Dropbox search contained no separately preserved byte-identical font copy. This is an infrastructure transfer blocker, not a source-evidence blocker. Do not commit fabricated bytes and do not substitute another Zurich font.
+
+**Exact next task:** when binary execution is available, extract and hash the exact font bytes from the authorized archive, stage them under `original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt` with normal provenance/manifest coverage, validate/load that font into the management-header resource bundle, draw `ClubHeaderView.name` through the now-merged club-name overlay, and add live regressions for Southport **and at least one additional club**. Southport remains only the canonical reproduction fixture; fixes must remain generic. Then continue the remaining Gate-13 retrospective audit.
+
+The startup-FMV compatibility transport remains independently blocked on the private Windows parent/child HWND rectangle and DPI-awareness receipt. Native/source geometry remains 320x480 coded TGQ -> exact 2x horizontal expansion -> 640x480 -> 1:1 at (80,60) in 800x600 mode. Do not change that geometry without the receipt. No Gate-17 completion claim or new external acceptance claim is authorized while Gate 13/audit exit criteria remain open.
+
+---
+
+# Recovery 402 — bounded direct fixed-League management header integrated and verified
+
+_Updated 8 October 2026._
+
+Canonical `main` is now `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`. **Gate 13 remains the earliest incomplete validation gate.**
+
+**Scope correction:** Southport is only the current reproduction fixture for the broken fresh-management/Squad presentation. Treat missing header/player-name/content layers as a likely **shared club-screen path defect** unless evidence proves otherwise. Do not introduce Southport-specific fixes; validate the shared presenter/resource/binding path and confirm behavior on at least one additional club before narrowing scope.
+
+Recovery 402 implemented the source-closed direct fixed-League management-header selector without broadening it into a generic next-fixture search. The primary schedule shadow now carries explicit wrapper-link certainty (`clear / linked / unknown`). Fresh startup wrappers are source-known clear; explicit linked wrappers are skipped; relevant symbolic, unsupported, or unknown states fail closed. Every clean-room GameState day-advance route invalidates previously clear wrapper-link certainty because the original post-start reschedule producers at `0x4A801F` and `0x5E3C34` are not yet modeled.
+
+The management source bridge now binds only an exact clear direct first-season Premier League fixture, verifies schedule token/date/participants against the live fixture state, and carries the result through the original-management presenter. The host renders the recovered conditional central-header controls at y=34/y=51 using the exact staged Zurich 18px font, source style `0x2102`, white endpoint, source competition name, short club names and native two-digit-year date formatting. Unsupported or post-invalidation cases render no invented match line.
+
+Validation PR #547 head `d54184a0767416cb51d756f8edcc45a82d272677` passed:
+- Gate 13 presentation source tests: run `37679247332`;
+- full reconstruction suite: run `37679247185`, **2,915 tests, 25 skipped, zero failures**;
+- repository asset policy: run `37679247320`.
+
+PR #547 merged as `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`.
+
+The remaining ordinary central-header omission is the primary club-name line at `(172,1,378,32)`. Its behavior is already source-closed: `Club.name`, raw style `0x2102`, native white endpoint and exact `Fonts/Zurich_BdXCn_BT_36pixel.fnt`. The authorized bytes have been re-extracted again and verified at 155,544 bytes / SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, but the binary is not yet staged in Git. Do not substitute another font.
+
+**Exact next task:** stage the byte-identical 36px Zurich font through a binary-safe Git path, add provenance, render the club-name control using the already recovered alignment/clipping semantics, and add a fresh Southport regression. Then continue the Gate-13 retrospective audit. The private Windows startup-FMV parent/child HWND/DPI transport receipt remains a separate external blocker; do not change source movie geometry without that receipt. No new external acceptance build or Gate-17 work-ahead is authorized before the audit exit criteria pass.
 
 ---
 

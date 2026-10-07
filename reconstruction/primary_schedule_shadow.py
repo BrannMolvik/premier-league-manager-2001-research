@@ -7,13 +7,23 @@ shared 0x615D10 next-team-match lookup used by 0x5127A0.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from typing import Callable, Iterable
 
 from competition_schedule import club_refs_conflict
 from competition_startup import CupClubRefDescriptor
 from competition_state import season_weekday_date
+
+
+WRAPPER_LINK_CLEAR = "clear"
+WRAPPER_LINK_LINKED = "linked"
+WRAPPER_LINK_UNKNOWN = "unknown"
+WRAPPER_LINK_STATES = frozenset((
+    WRAPPER_LINK_CLEAR,
+    WRAPPER_LINK_LINKED,
+    WRAPPER_LINK_UNKNOWN,
+))
 
 
 class PrimaryScheduleResolutionPending(RuntimeError):
@@ -38,6 +48,11 @@ class PrimaryScheduleShadowEntry:
     participant_1_ref: CupClubRefDescriptor
     participant_0_candidates: frozenset[int]
     participant_1_candidates: frozenset[int]
+    wrapper_link_state: str = WRAPPER_LINK_CLEAR
+
+    def __post_init__(self) -> None:
+        if self.wrapper_link_state not in WRAPPER_LINK_STATES:
+            raise ValueError("primary schedule wrapper-link state is invalid")
 
     @property
     def refs(self) -> tuple[CupClubRefDescriptor, CupClubRefDescriptor]:
@@ -251,6 +266,73 @@ class PrimaryScheduleShadowState:
         self.days[on_date] = (entry,) + tuple(self.days.get(on_date, ()))
         return entry
 
+    def invalidate_unmodelled_wrapper_links(self) -> None:
+        """Downgrade source-known clear wrapper links after an unknown reschedule pass.
+
+        Recovery 401 source-closes fresh direct wrappers as clear, but native
+        post-start producers at 0x4A801F/0x5E3C34 can later create +0x08 links.
+        Until those producers are represented, a day-advance boundary cannot
+        preserve a positive claim that any previously clear wrapper stayed clear.
+        Explicit linked state remains linked.
+        """
+        self.days = {
+            on_date: tuple(
+                entry if entry.wrapper_link_state == WRAPPER_LINK_LINKED
+                else replace(entry, wrapper_link_state=WRAPPER_LINK_UNKNOWN)
+                for entry in entries
+            )
+            for on_date, entries in self.days.items()
+        }
+
+    def direct_fixed_league_header_candidate(
+        self,
+        club_id: int,
+        from_date: date,
+        *,
+        played_fixture_ids: Iterable[int] = (),
+    ) -> tuple[date, PrimaryScheduleShadowEntry] | None:
+        """Bounded 0x615D10/0x615C50 projection for fresh direct LeagueMatch.
+
+        Only the Recovery-401 source-closed subset is accepted. Exact
+        date-forward bucket order and head-to-tail entry order are preserved.
+        A relevant symbolic/unsupported/unknown entry fails closed rather than
+        being skipped. Native linked wrappers and already-played fixed League
+        matches are skipped by the recovered selector predicates.
+        """
+        club_id = int(club_id)
+        played = {int(value) for value in played_fixture_ids}
+        for on_date in sorted(value for value in self.days if value >= from_date):
+            for entry in self.days[on_date]:
+                direct = tuple(ref.direct_club_id for ref in entry.refs)
+                if any(value is None for value in direct):
+                    if any(club_id in possible for possible in entry.candidate_sets):
+                        return None
+                    continue
+                participants = tuple(int(value) for value in direct)
+                if club_id not in participants:
+                    continue
+
+                if (
+                    entry.node_kind != "fixed_league_match"
+                    or entry.competition_id != 0
+                    or entry.competition_context != 0
+                ):
+                    return None
+                if len(entry.node_token) != 4:
+                    return None
+                try:
+                    fixture_id = int(entry.node_token[-1])
+                except (TypeError, ValueError):
+                    return None
+                if fixture_id in played:
+                    continue
+                if entry.wrapper_link_state == WRAPPER_LINK_LINKED:
+                    continue
+                if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
+                    return None
+                return on_date, entry
+        return None
+
     def next_match_date(
         self,
         club_id: int,
@@ -311,6 +393,7 @@ class PrimaryScheduleShadowState:
                     "participant_1_ref": snap_ref(entry.participant_1_ref),
                     "participant_0_candidates": sorted(entry.participant_0_candidates),
                     "participant_1_candidates": sorted(entry.participant_1_candidates),
+                    "wrapper_link_state": entry.wrapper_link_state,
                 }
                 for entry in entries
             ]
@@ -361,6 +444,9 @@ class PrimaryScheduleShadowState:
                         ),
                         participant_1_candidates=frozenset(
                             int(v) for v in raw["participant_1_candidates"]
+                        ),
+                        wrapper_link_state=str(
+                            raw.get("wrapper_link_state", WRAPPER_LINK_UNKNOWN)
                         ),
                     )
                     for raw in entries

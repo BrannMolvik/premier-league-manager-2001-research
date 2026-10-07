@@ -281,9 +281,11 @@ enabled.
 
 ## Unsafe or Unproven Active Behavior
 
+**Scope note:** Southport is only the current reproduction fixture. Missing header/player-name/content layers should be treated as a probable shared club-management/Squad presentation defect until cross-club evidence narrows it. Fix the shared source-backed path; do not hard-code Southport-specific behavior.
+
 1. **Startup FMV frame-content transform — INCONCLUSIVE and externally contradicted.** The game-owned 640x480/(80,60) surface is retained, but exact live frame-content equivalence is not accepted. This blocks another external candidate.
-2. **Fresh Squad ordinary-name completeness — source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
-3. **Fresh management header completeness — source contract recovered, runtime integration incomplete.** Recovery 396 source-closes the central club-name and current-date controls and explains the blank Southport result as an omitted live text layer. The conditional match selector remains source-open, so its two lines stay fail-closed.
+2. **Fresh Squad ordinary-name completeness — likely shared club-screen defect; source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
+3. **Fresh management header completeness — likely shared club-screen defect; source contract recovered, runtime integration incomplete.** Recovery 396 source-closes the central club-name and current-date controls and explains the blank Southport result as an omitted live text layer. The conditional match selector remains source-open, so its two lines stay fail-closed.
 4. **Startup Escape/skip semantics — INCONCLUSIVE but safely isolated.** Fullscreen mutation is blocked during startup; native skip behavior still requires source evidence.
 5. **Cup-Tied negative mode-1 fallback — source semantics unresolved and the disproven model is now isolated.** `0db90b97` removed the date-based gameplay decision and `b890c578` removed the rejected date helper from construction, daily hooks, season reset and save restore. The positive source-proven appeared-player collection remains active; every unresolved collection miss fails closed.
 6. **Ordinary match-entry trigger / 3D presentation — unresolved and fail-closed.** Gate-14 contracts are not reachable-flow proof.
@@ -315,3 +317,45 @@ First finish the audit corrections rather than resume feature work:
 4. only after the retrospective audit exits, return to current-baseline latency measurement and a new Windows acceptance candidate.
 
 Gate 17 work-ahead and Settings remain frozen while these Gate-13 audit blockers exist.
+
+
+## Recovery 402 audit reconciliation
+
+The retrospective audit has advanced materially since the Recovery-396 text above:
+
+- source-closed reserve-team selection state is now propagated through the live
+  clean-room Squad row/presenter path, so ordinary fresh-player names are no
+  longer withheld solely because `+0x174` reserve state is unavailable;
+- the corrected `0x615D10/0x615DA0` direct fixed-League selector and
+  `wrapper+0x08` lifecycle are source-closed for the bounded fresh path;
+- Recovery 402 integrates the conditional y=34/y=51 header lines only while
+  wrapper-link state is source-known clear, and fails closed after unmodeled
+  post-start reschedule-capable day boundaries;
+- PR #547 exact head `d54184a0767416cb51d756f8edcc45a82d272677`
+  passed Gate-13 source tests `37679247332`, the full reconstruction suite
+  `37679247185` (**2915 tests, 25 skipped, zero failures**), and asset policy
+  `37679247320`;
+- the normal/default original PStartMenu path remains isolated from the
+  DEFERRED-MODERNIZATION Settings extension. Commit `86f7d22b` removed
+  Settings resource loading and package-smoke dependency from that path, and
+  the Recovery-402 full validation confirms the isolated baseline still passes.
+
+The remaining fresh-header omission is narrower than the older audit wording:
+the current-date and bounded conditional match lines are integrated, but the
+primary `Club.name` control at `(172,1,378,32)` is still absent because its
+exact `Zurich_BdXCn_BT_36pixel.fnt` bytes are verified but not yet staged in
+Git. The font is 155,544 bytes with SHA-256
+`92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`.
+The current GitHub connector has no local-file-reference upload path for
+repository blobs. Passing the binary through UTF-8 or manually reassembling a
+large base64 payload would weaken byte-identity assurance, so that transfer is
+kept blocked rather than guessed.
+
+The startup-FMV blocker is unchanged: the native 640x480 movie field and
+(80,60) placement are source-proven, but the externally wrong in-field content
+still requires a private Windows parent/child HWND rectangle and DPI-awareness
+receipt before the transport layer can be corrected without guessing.
+
+Accordingly, the audit is still open. The remaining material exit blockers are
+the exact club-name asset/render and the startup-FMV transport distinction,
+followed by final focused/full re-verification and Windows acceptance.

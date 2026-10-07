@@ -312,7 +312,7 @@ Completion criteria:
 - [x] Simulation logic remains separated from presentation code. See `research/GATE13_PRESENTATION_SEPARATION_AUDIT.md`.
 - [x] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
 - [x] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
-- [ ] The normal/default main-menu path is verified against the shipped original without depending on modernization-only controls. Any previously merged Settings extension is isolated/deferred until modernization is explicitly authorized.
+- [x] The normal/default main-menu path is verified against the shipped original without depending on modernization-only controls. Post-#482 commit `86f7d22b` removed Settings resource loading and package-smoke dependency from the original presenter; Recovery 402 re-verification on PR #547 passed Gate-13 source tests (`37679247332`), the 2,915-test reconstruction suite (`37679247185`), and asset policy (`37679247320`). The Settings extension remains isolated/deferred until modernization is explicitly authorized.
 - [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI. **Reopened:** Daniel's 6 October Windows 11 run showed multi-second interaction latency and a materially incomplete fresh Squad landing.
 
 Prior closure evidence: `research/GATE13_CLOSURE_AUDIT.md` and

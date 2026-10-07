@@ -40,6 +40,7 @@ from original_game_host import (
     OriginalGameTkHost,
     build_original_game_presenter,
     play_configured_startup_media,
+    _cached_runtime_png,
     _scaled_rgba,
 )
 from original_management_presenter import OriginalManagementPresenter
@@ -191,16 +192,12 @@ class FakeHeaderDateFont:
     atlas_height = 19
 
     def measure_text(self, text):
-        if not text.startswith("Today is "):
-            raise AssertionError(text)
         return 100
 
     def native_line_height(self):
         return 18
 
     def render_text_alpha(self, text):
-        if not text.startswith("Today is "):
-            raise AssertionError(text)
         return SimpleNamespace(
             width=100,
             height=10,
@@ -1154,6 +1151,37 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(live.session.selected_club_ids, (999,))
         self.assertFalse(live.session.started)
 
+    def test_closed_pmenu_skips_render_and_open_snapshot_reuses_render(self):
+        live = presenter()
+        root = FakeRoot()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ) as render:
+            host = OriginalGameTkHost(
+                live,
+                root,
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
+            )
+
+            host.on_click(SimpleNamespace(x=141, y=512))
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+
+            self.assertFalse(host.pmenu_popup_active)
+            render.assert_not_called()
+
+            host.on_click(SimpleNamespace(x=600, y=1))
+            self.assertTrue(host.pmenu_popup_active)
+            self.assertEqual(render.call_count, 1)
+
+            host.redraw()
+            self.assertEqual(render.call_count, 1)
+
     def test_clean_host_routes_first_screens_into_fixed_management_without_debug_ui(self):
         live = presenter()
         root = FakeRoot()
@@ -1272,6 +1300,32 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[-1][:2], (460, 1))
         self.assertEqual(host._draw_management_header(replace(club, native_user_club_caption=None)), 3)
 
+    def test_management_header_redraw_reuses_cached_native_pngs(self):
+        _cached_runtime_png.cache_clear()
+        try:
+            host = OriginalGameTkHost(
+                presenter(),
+                FakeRoot(),
+                FakeTk,
+                management_header_resources=fake_management_header_resources(),
+            )
+            host.canvas.delete("all")
+            host._photos = []
+
+            with patch("original_game_host.encode_rgba_png", wraps=encode_rgba_png) as encoder:
+                host._draw_management_header()
+                first_draw_calls = encoder.call_count
+                self.assertGreater(first_draw_calls, 0)
+
+                host.canvas.delete("all")
+                host._photos = []
+                host._draw_management_header()
+
+                self.assertEqual(encoder.call_count, first_draw_calls)
+                self.assertGreaterEqual(_cached_runtime_png.cache_info().hits, 3)
+        finally:
+            _cached_runtime_png.cache_clear()
+
     def test_management_current_date_draws_exact_source_control(self):
         host = OriginalGameTkHost(
             presenter(),
@@ -1298,6 +1352,46 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(len(host.canvas.images), 1)
         self.assertEqual(host.canvas.images[0][:2], (450, 68))
         self.assertEqual(len(host._photos), 1)
+
+    def test_management_match_lines_draw_exact_two_source_controls(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                header_match=SimpleNamespace(
+                    competition_name="Premier League",
+                    home_short_name="Beta",
+                    away_short_name="Alpha",
+                    scheduled_date=date(2000, 8, 26),
+                ),
+            )
+        )
+
+        count = host._draw_management_match_lines(frame)
+
+        self.assertEqual(count, 2)
+        self.assertEqual(len(host.canvas.images), 2)
+        self.assertEqual(host.canvas.images[0][:2], (450, 34))
+        self.assertEqual(host.canvas.images[1][:2], (450, 51))
+        self.assertEqual(len(host._photos), 2)
+
+    def test_management_match_lines_fail_closed_without_candidate(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(header_match=None)
+        )
+        self.assertEqual(host._draw_management_match_lines(frame), 0)
 
     def test_management_header_hover_uses_one_idle_update_per_pass(self):
         live = presenter()

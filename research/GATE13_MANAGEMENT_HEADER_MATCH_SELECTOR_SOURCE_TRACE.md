@@ -343,3 +343,58 @@ implementation:
 This is intentionally narrower than claiming season-long reschedule fidelity.
 It is sufficient to repair the fresh ordinary-management header without
 inventing postponed-fixture behavior.
+
+
+## Recovery 402: bounded clean-room integration and verification
+
+Recovery 402 implements only the source-closed direct fixed-League subset described above.
+
+The clean-room primary schedule shadow now records wrapper link certainty as
+`clear`, `linked`, or `unknown`:
+
+- fresh startup materialization is `clear`;
+- explicit source-backed linked state is skipped by the header selector;
+- a relevant `unknown` state fails closed;
+- legacy snapshots that predate this field restore as `unknown`, never as
+  invented `clear`;
+- all current GameState day-advance routes invalidate previously clear state to
+  `unknown`, because the original post-start `0x4A801F` / `0x5E3C34`
+  reschedule producers remain unmodeled.
+
+The management bridge scans the retained exact bucket/head-to-tail shadow order
+and accepts only an unplayed `fixed_league_match` for competition 0/context 0
+with two direct ClubRefs and `clear` wrapper state. The selected node token,
+scheduled date, home/away club IDs, competition name, and source short names
+are checked against live Premier League state before presentation. No
+chronological fixture sort or nearest-fixture fallback was introduced.
+
+For the accepted ordinary LeagueMatch formatter path, first-hand formatter
+tracing also closes the remaining literal expansion details:
+
+- `%Rf{ Round}` contributes no suffix for the ordinary League branch;
+- `%Lf{ Leg}` contributes no suffix for a normal LeagueMatch;
+- y=34 is therefore the source competition name;
+- y=51 expands `%1s Vs %2s %D{%D %M %Y}` using source short names,
+  unpadded day, three-letter month, and native two-digit `%Y`.
+
+The live host now rasterizes those two controls with the already staged exact
+18px Zurich font, recovered right/vertical-center `0x2102` style, white
+`0xFFFF` endpoint, and exact control rectangles `(172,34,378,16)` and
+`(172,51,378,16)`. When the bounded selector returns no source-known
+candidate, both lines remain absent.
+
+Validation was performed on PR #547 exact head
+`d54184a0767416cb51d756f8edcc45a82d272677`:
+
+- Gate 13 presentation source tests: run `37679247332`, success;
+- reconstruction suite: run `37679247185`, **2915 tests / 25 skipped / 0
+  failures**;
+- repository asset policy: run `37679247320`, success.
+
+PR #547 merged as
+`97f8ecb3d39addbe3d036016bc52a05a91eb8c83`.
+
+This integration does not claim later-season postponed-match fidelity and does
+not close Gate 13. The primary club-name line still requires the verified exact
+36px Zurich font to be staged and rendered, and the startup-FMV Windows
+transport receipt remains a separate audit blocker.

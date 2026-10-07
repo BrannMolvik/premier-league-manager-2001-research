@@ -2035,6 +2035,7 @@ class GameState:
 
     def advance_one_day(self) -> date:
         self.calendar.increment_one_day()
+        self.primary_schedule_shadow.invalidate_unmodelled_wrapper_links()
         self.calendar.run_post_fixture_maintenance()
 
         # Original 0x42A9E0 processes commercial timing before its daily
@@ -2651,6 +2652,7 @@ class GameState:
         """Advance one day and execute live matches in shared primary order."""
         rng = self._resolve_rng(rng)
         self.calendar.increment_one_day()
+        self.primary_schedule_shadow.invalidate_unmodelled_wrapper_links()
         results = self.simulate_due_primary_ai_entries(
             attack_matrix,
             defence_matrix,
@@ -2695,6 +2697,7 @@ class GameState:
         """
         rng = self._resolve_rng(rng)
         self.calendar.increment_one_day()
+        self.primary_schedule_shadow.invalidate_unmodelled_wrapper_links()
         results = self.simulate_due_premier_league_ai_fixtures(
             attack_matrix,
             defence_matrix,
@@ -3261,6 +3264,10 @@ class GameState:
             if token not in owners[0].results:
                 due.append(token)
         return tuple(due)
+
+    def invalidate_primary_schedule_wrapper_links(self) -> None:
+        """Fail closed after a day boundary can cross unmodelled reschedule work."""
+        self.primary_schedule_shadow.invalidate_unmodelled_wrapper_links()
 
     def install_primary_schedule_shadow(
         self,
