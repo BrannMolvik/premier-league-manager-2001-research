@@ -53,6 +53,10 @@ from gate14_live_first_screen_audio import (
     Gate14LiveFirstScreenAudioError,
     install_live_first_screen_audio,
 )
+from gate14_match_detail_route_source import (
+    MatchPresentationRoute,
+    source_match_detail_dispatch,
+)
 from gate14_fastview_human_tk_window import open_human_fastview_tk_window
 from original_first_screen_presenter import (
     OriginalFirstScreenPresenter,
@@ -1585,6 +1589,34 @@ class OriginalGameTkHost:
             self._draw_management_host()
             return
         raise OriginalGameHostError(f"Unsupported source-backed screen: {screen!r}")
+
+    def present_completed_match_by_source_mode(self, presentation, mode):
+        """Apply only the source-closed post-PPreMatch presentation dispatch.
+
+        The caller must already own a completed-human presentation bundle and
+        an accepted Match Detail mode. This method does not start, simulate,
+        advance, or select a fixture and is deliberately not called from any
+        management pointer/navigation path while the native entry trigger
+        remains unresolved.
+
+        Source routes 0/1 require the still-unrecovered 3D presentation
+        wrapper and therefore fail closed. Mode 2 opens the existing FastView
+        surface. Mode 3 is Quick Match and intentionally opens no presentation
+        wrapper.
+        """
+        dispatch = source_match_detail_dispatch(mode)
+        if dispatch.route is MatchPresentationRoute.FASTVIEW:
+            return self.present_completed_match_fastview(presentation)
+        if dispatch.route is MatchPresentationRoute.QUICK_MATCH:
+            self.last_status = (
+                "Applied source Match Detail Quick Match route; "
+                "native mode 3 has no presentation wrapper"
+            )
+            return None
+        raise OriginalGameHostError(
+            "Selected Match Detail mode requires the unrecovered native 3D "
+            "presentation wrapper; FastView substitution is forbidden"
+        )
 
     def present_completed_match_fastview(self, presentation):
         """Open the existing resolved FastView bundle without inventing navigation.
