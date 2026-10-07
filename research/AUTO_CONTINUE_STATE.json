@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 376: continue PR #516 from the persisted Recovery 375 checkpoint. PR #516 source-closes all 182 supplied PPreMatch child states plus TextControl alignment/font ownership. First-hand 0x64F090 proves 0x01 left, 0x02 right, 0x04 horizontal center, 0x08 top, 0x10 bottom, 0x20 vertical center. Shared style-3 font is Zurich_XCn_BT_16pixel.fnt. Recheck exact PR head and CI, then rasterize supplied PPreMatch text with the four exact source fonts and compose state-dependent child pixels in native 0..181 order. Complete frame/Gate14 remain false. Gate13 #482 remains earliest validation blocker.",
-  "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
+  "active_task": "Recovery 376: PR #516 merged and main handoff advanced. Gate 13 #482 remains earliest validation blocker; Gate 14 work-ahead now has source-backed supplied pixels/state for all 182 PPreMatch children. Immediate task: source-close PictureControl/Button@ease destination-write/transparency semantics, reuse source-identical TextControl blend evidence, then flatten the native 0..181 child raster ledger into an exact 800x600 supplied PPreMatch frame with regression coverage. Complete frame/Gate14 remain false.",
+  "last_known_main_head": "b154480742b09a30d754ad5848cd218d6801f75d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 376,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 376 resumed after same-chat no-progress fallback. Continue PR #516 from its exact current head; do not merge until exact-head CI is green.",
+  "note": "Recovery 376 heartbeat after PR #516 merge and canonical handoff update. Canonical executable recovered and hash-verified; Python source analysis path is available despite ordinary container ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
