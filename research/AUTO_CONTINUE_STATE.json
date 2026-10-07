@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 400 resumed from main dd767a485d9cf16cc53881b1339ca112feae2a30. Continue Gate-13 source/runtime mapping of schedule wrapper +0x08 and Side::0x510320 -> 0x615F40 -> 0x510BA0 effects into the primary schedule shadow. Do not integrate y=34/y=51 header lines until that link-state acceptance boundary is proven; keep unsupported cases fail-closed.",
+  "active_task": "Recovery 401 continuing Gate 13 from dd767a485d9cf16cc53881b1339ca112feae2a30. Private canonical-executable verification has now proven startup wrapper +0x08 is zero, direct Side::0x510320 returns before 0x615F40, and ordinary direct/direct 0x510AD0 prevents the current-day 0x615C10 reschedule path. Persist the bounded exact link-state mapping, then integrate only direct fixed-League header candidates while runtime link state is known; invalidate/fail closed after unmodeled reschedule producers can run.",
   "last_known_main_head": "dd767a485d9cf16cc53881b1339ca112feae2a30",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 400,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 400 resumed from canonical main head dd767a485d9cf16cc53881b1339ca112feae2a30. The corrected 0x615C50 branch semantics are preserved. Exact task remains mapping node+0x08 linked-schedule state and Side resolution side effects before any match-line integration.",
+  "recovery_generation": 401,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 401 resumed after stale-repository-activity without restarting source work. Canonical executable SHA-256 reverified. Direct fixed startup link state is source-closed; external reschedule callers remain outside the clean-room and require conservative invalidation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
