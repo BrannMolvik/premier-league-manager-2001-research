@@ -18,7 +18,11 @@ The resulting aggregate is a **complete 182-child supplied-state model**: every 
 
 Current technical checkpoint is `eff0c3c357813e78a1c210c4388f06e0dd316dc9` plus subsequent supplied-state commits on PR #516. Exact-head PR CI is pending after these new commits.
 
-Immediate next action: verify the exact PR head in presentation/full reconstruction/asset-policy CI. Then continue pixel-frame closure by rasterizing the source-bound PPreMatch text and state-dependent layers with the existing verified font/atlas/resource pixels while preserving native child order. Do not mark the pre-match frame complete until the full 800x600 supplied-state raster is actually reproducible.
+Recovery 375 has now also source-closed the PPreMatch TextControl style path. TextStyle draw routine `0x64F090` proves ordinary-orientation alignment bits exactly: `0x01` left, `0x02` right, `0x04` horizontal center, `0x08` top, `0x10` bottom, `0x20` vertical center. This source-closes the PPreMatch raw flag families `0x21/0x22/0x24` without geometry-based inference. Four wrapper-to-font mappings are first-hand closed: header/date regular 16px (`0x87BE30`), team identity bold 20px (`0x87BE80`), center V bold 25px (`0x87BE70`), and rows/captions bold 16px (`0x87BEA0`). The older FastView style-3 font claim was corrected: `0x87BE30 -> 0x8CAB80` loads `Zurich_XCn_BT_16pixel.fnt`, not the 18px file, and the old `0x08` “forced render” label is superseded by the source-proven top-alignment fallback meaning.
+
+Current PR #516 technical head is `63582e58328d4b148e8b523c7160a68e9433b677`. Exact-head CI must be green before merge.
+
+Immediate next action: implement source-font PPreMatch text rasterization from the now-proven flag/alignment contract, including dynamic header/date/team text, all visible player number/name controls, fixed V, and rating captions. Then compose those text pixels with the existing supplied marker/rating/selector/static layers in native child order. Do not mark the pre-match frame complete until the full 800x600 supplied-state raster is actually reproducible.
 
 ---
 
