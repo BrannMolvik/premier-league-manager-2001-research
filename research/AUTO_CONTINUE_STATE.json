@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41. Audit starts at roadmap reopen e2770be0649853e00d1e849ffd377ea3a115d237; first-parent inventory contains 99 in-scope main commits. PR #539 is closed/suspended under the freeze. Enumerate every in-scope main commit/merged PR, classify all behavior-affecting changes against reproducible original evidence, reconcile Daniel's four external contradictions, identify unsupported/deferred active behavior, make only minimal isolation/status corrections required by the audit, and persist exact next original-proven Gate-13 source task. Do not resume Gate-17 work-ahead.",
-  "last_known_main_head": "e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41",
+  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main 86f7d22bdd3ae63903e91c09a8403e298def0dd7. Exact first-parent walk from Gate-13 reopen e2770be0649853e00d1e849ffd377ea3a115d237 through pre-correction head e4a60f0 found 119 entries; corrective Settings-isolation commit 86f7d22 is the 120th in-scope first-parent entry. Settings is DEFERRED-MODERNIZATION and is now disconnected from the normal presenter/package-smoke baseline. Continue complete classification of all behavior-affecting merges, reconcile Daniel's four external contradictions, identify any other unsupported/inconclusive active behavior, correct status claims, then persist the exact next ORIGINAL-PROVEN Gate-13 source task. Do not resume Gate-17 work-ahead.",
+  "last_known_main_head": "86f7d22bdd3ae63903e91c09a8403e298def0dd7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 393,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 393: fresh-chat fallback resumed the mandatory post-#482 retrospective audit from canonical GitHub state at main e4a60f0; modernization and Gate-17 work-ahead remain frozen.",
+  "note": "Recovery 393 audit continuation: Settings contamination was verified and isolated on main 86f7d22; full post-#482 audit remains active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
