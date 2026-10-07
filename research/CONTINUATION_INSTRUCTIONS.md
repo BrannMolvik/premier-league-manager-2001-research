@@ -17,6 +17,8 @@ Premier-League-only human path is an intermediate reconstruction boundary, not
 an acceptable final release limitation. Do not close Gate 17 by documenting
 away missing original functionality. Modernization may replace incompatible
 implementation details, but must not intentionally reduce shipped functionality.
+**Current implementation freeze:** until Daniel explicitly lifts it, "modernization" means only the minimum technical work required to make the shipped original run correctly on Windows 11. Do not add new features, settings, UI/UX, graphics modes, quality-of-life behavior, or altered gameplay/presentation. Read and obey `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md` before implementation work.
+
 Each gate's exact next task is the next action within this larger mission.
 When a verified subtask finishes, take the next available source-backed step
 in the same session if possible. When a gate passes its audit, advance to the
@@ -52,7 +54,8 @@ Before doing new work:
 6. Read only the relevant `FINDINGS.md`, topic-specific research, and historical `PROGRESS.md` sections needed for the active task.
 7. Check the relevant test/CI state before claiming that current code passes.
 8. If the active task needs `FOOTBAL.EXE`, canonical game files, disc-image evidence, or another original binary resource, read `research/ORIGINAL_SOURCE_LOCATOR.md` and attempt its private Library recovery procedure before reporting that source material is unavailable.
-9. State the active gate and exact next task, then continue from there.
+9. Read `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`. Before writing implementation code, identify the original shipped behavior and the evidence that proves it. If evidence is missing, the next task is source investigation—not implementation by assumption.
+10. State the active gate and exact next task, then continue from there.
 
 Do **not** read the entire multi-thousand-line `PROGRESS.md` as a prerequisite unless a task genuinely requires the full chronology.
 
@@ -161,6 +164,17 @@ Clearly separate:
 - **Approximation**: intentionally incomplete model of a recovered original path.
 
 A chat conclusion is provisional until it is persisted with enough evidence that another session can reproduce it.
+
+### Mandatory implementation evidence check
+
+Before every behavior-changing implementation, explicitly record:
+- the original behavior being reproduced;
+- the source/original evidence for it;
+- the Windows 11 incompatibility or reconstruction defect being fixed;
+- the minimum compatibility change required;
+- any remaining unknowns.
+
+If those cannot be stated from evidence, do not implement a guessed behavior. Investigate the original first. Existing reconstruction code and passing tests demonstrate repository behavior, not original-game truth.
 
 ## Original-resource and repository rule
 
