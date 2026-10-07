@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Post-#482 Gate-13 audit: source-close 0x615D10/0x615DA0 central-header match selector, then hand off only original-proven fresh-Squad reserve-name + central club/date integration. Startup FMV DPI/HWND receipt remains deferred and Gate-17 work-ahead remains frozen.",
+  "active_task": "Post-#482 Gate-13 audit: 0x615D10 is reconciled to the proven same-club ScheduleContainer forward scan; 0x615DA0 wrapper filtering remains fail-closed. Continue source-closed fresh-Squad reserve-state propagation; then current-date header integration. Exact 36px club-name font extraction remains blocked by process startup.",
   "last_known_main_head": "57eb578630742a02e07797de13ed155335a566af",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 397,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 397 resumed from main 57eb5786. Continuing the first-hand 0x615D10/0x615DA0 central-header match-selector trace; no acceptance build, modernization work, or Gate-17 work-ahead.",
+  "note": "Recovery 397 checkpoint: GitHub reads and source/history audit continue. Authorized archive is present, but container/Python process startup fails with caas.internal.errors.ClientError. The 36px header font never existed in Git history. Repository mutation endpoints also returned internal errors during this recovery; retrying without changing canonical main.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
