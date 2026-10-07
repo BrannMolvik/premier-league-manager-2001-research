@@ -203,6 +203,25 @@ class Gate17FfmpegLinkMapAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(LinkMapAuditError, "package lock"):
             self.run_audit(ownership=ownership)
 
+    def test_workflow_pins_pe_timestamp_to_pinned_source_epoch(self):
+        repo = Path(__file__).resolve().parent.parent
+        workflow = (
+            repo / ".github" / "workflows" / "gate17-minimal-ffmpeg-build.yml"
+        ).read_text(encoding="utf-8")
+        start = workflow.index(
+            "      - name: Build exact minimal FFmpeg helper and capture link evidence"
+        )
+        end = workflow.index(
+            "      - name: Audit resolved final-link inputs", start
+        )
+        step = workflow[start:end]
+        self.assertIn(
+            'SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"', step
+        )
+        self.assertIn("export SOURCE_DATE_EPOCH", step)
+        self.assertIn("Pinned SOURCE_DATE_EPOCH:", step)
+        self.assertNotIn("--no-insert-timestamp", step)
+
     def test_workflow_keeps_release_unstripped_binaries_out_of_artifact(self):
         repo = Path(__file__).resolve().parent.parent
         workflow = (
