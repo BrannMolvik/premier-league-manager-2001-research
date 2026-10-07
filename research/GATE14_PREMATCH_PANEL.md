@@ -892,3 +892,46 @@ the runtime DirectDraw masks: `0x653090 -> 0x6530D0 -> 0x653120` derives
 per-channel mask/left-shift/right-truncation descriptors, and `0x5E4980`
 applies them. No fixed RGB565 assumption is made. The original quirk forcing a
 nonblack color that quantizes to zero to packed value `0x0001` is preserved.
+
+
+## Recovery 375 — dynamic text and complete supplied child-state binding
+
+The remaining dynamic PPreMatch text contract is now bound from explicit match
+state rather than left as unnamed panel buffers.
+
+Source-backed behavior retained by `gate14_prematch_text_binding.py`:
+
+- date formatter `0x64D150` with exact `%Df %Mf %Yf`, English ordinal
+  suffix table `th/st/nd/rd`, full month names and full year;
+- weather selector 0..4 -> Clear/Sunny/Raining/Sleet/Snowy, signed temperature,
+  exact `%s %d°C`, and exact `%s %s` date/weather line;
+- fixture header exact `%s MATCH TODAY AT %s`, with Friendly when the source
+  competition state is absent/negative;
+- stadium helper `0x514270`, including exact `N/A` / `NA` fallback to the
+  DBRClub +0x0C short name;
+- team display getter `0x40DA70`: an explicitly supplied runtime/network name
+  may win, otherwise DBRClub +0x0C short name is used.
+
+The selector surface now has a separate supplied-state seam. A caller supplies
+one exact source-frame index 0..22 for each of the four Button@ease controls.
+The canonical decoded atlas returns those pixels directly. This does not infer
+a persistent selected/radio state and does not derive hover state from modern
+UI assumptions.
+
+Finally, `gate14_prematch_supplied_state.py` attaches the dynamic text,
+36 player rows, 22 XI markers, four rating rows and four selector frames to one
+verified `PrematchSurfaceBoundary`. It verifies that marker visibility agrees
+with the populated first 11 row slots and that every bound source object still
+belongs to the same base boundary.
+
+At this point all 182 native child **states** can be supplied for one concrete
+match. The distinction remains important: the final 800x600 pixel frame is not
+yet flattened. In particular, bound text strings still need source-font
+rasterization and all state-dependent layers must be composed in native child
+order. Therefore `complete_prematch_frame` and `gate14_complete` remain
+false.
+
+Exact next task: rasterize the now-bound text and other state-dependent child
+layers against the existing source resources, then compose a supplied frame in
+the proven 0..181 order. Preserve fail-closed behavior for any unresolved blend
+or transparency rule rather than guessing.
