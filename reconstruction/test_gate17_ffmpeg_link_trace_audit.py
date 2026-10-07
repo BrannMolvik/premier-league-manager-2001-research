@@ -62,6 +62,15 @@ class Gate17FfmpegLinkTraceAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(LinkTraceAuditError, "exactly one"):
             self.run_audit(ffmpeg=FFMPEG_TRACE.replace(" -Wl,--trace", ""))
 
+
+    def test_command_line_archive_without_trace_output_fails_closed(self):
+        command_only = (
+            "gcc -static -Wl,--image-base,0x140000000 -Wl,--trace "
+            "-o ffmpeg_g.exe ffmpeg.o libavcodec/libavcodec.a -lm\n"
+        )
+        with self.assertRaisesRegex(LinkTraceAuditError, "no resolved"):
+            self.run_audit(ffmpeg=command_only)
+
     def test_missing_resolved_archive_evidence_fails_closed(self):
         no_archives = (
             "gcc -static -Wl,--image-base,0x140000000 -Wl,--trace "
