@@ -310,6 +310,79 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
         self.assertEqual(receipt["child_dpi"], 96)
         self.assertEqual(receipt["parent_dpi_awareness"], 2)
         self.assertEqual(receipt["child_dpi_awareness"], 2)
+        self.assertTrue(receipt["transport_comparison"]["offset_matches_request"])
+        self.assertTrue(receipt["transport_comparison"]["window_size_matches_request"])
+        self.assertFalse(receipt["transport_comparison"]["visual_equivalence_assessed"])
+
+    def test_transport_receipt_rejects_inconsistent_win32_structural_fields(self):
+        # Reject internally self-contradictory captures instead of treating
+        # presence of fields as sufficient Windows evidence.
+        def mutate_edge(row):
+            row["child_window_rect"]["right"] += 1
+
+        def mutate_client_origin(row):
+            row["parent_client_rect"]["top"] = 1
+            row["parent_client_rect"]["height"] -= 1
+
+        def mutate_child_offset(row):
+            row["child_offset_from_parent_client"]["x"] += 1
+
+        def mutate_invalid_awareness(row):
+            row["child_dpi_awareness"] = -1
+
+        for label, mutate, error in (
+            ("rect edge", mutate_edge, "inconsistent child_window_rect edges"),
+            ("client origin", mutate_client_origin, "nonzero parent_client_rect origin"),
+            ("child offset", mutate_child_offset, "inconsistent child offset"),
+            ("invalid DPI context", mutate_invalid_awareness, "invalid child_dpi_awareness enumeration"),
+        ):
+            with self.subTest(label=label):
+                row = json.loads(transport_receipt_json().split(":", 1)[1])
+                mutate(row)
+                backend = WindowsWpfStartupMediaBackend(
+                    platform_system="Windows", runner=RecordingRunner()
+                )
+                backend.enable_transport_receipt_capture()
+                completed = SimpleNamespace(
+                    stdout="FM2001_TRANSPORT_RECEIPT:" + json.dumps(row)
+                )
+                with self.assertRaisesRegex(WindowsStartupMediaBackendError, error):
+                    backend._record_transport_receipt(
+                        completed, derivative(Path(r"C:\\private\\easp.mp4"))
+                    )
+                self.assertEqual(backend.transport_receipts, ())
+
+    def test_transport_receipt_preserves_observed_dpi_and_size_disagreements(self):
+        # Requested geometry and measured geometry may differ in real Windows.
+        # A coherent mismatch must remain usable diagnostic evidence, not be
+        # silently forced to 640x480 or promoted to visual acceptance.
+        row = json.loads(transport_receipt_json().split(":", 1)[1])
+        row["child_window_rect"]["right"] += 80
+        row["child_window_rect"]["width"] += 80
+        row["child_client_rect"]["right"] += 80
+        row["child_client_rect"]["width"] += 80
+        row["parent_dpi"] = 144
+        row["child_dpi"] = 96
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows", runner=RecordingRunner()
+        )
+        backend.enable_transport_receipt_capture()
+        backend._record_transport_receipt(
+            SimpleNamespace(stdout="FM2001_TRANSPORT_RECEIPT:" + json.dumps(row)),
+            derivative(Path(r"C:\\private\\easp.mp4")),
+        )
+        receipt = backend.transport_receipts[0]
+        self.assertEqual(receipt["child_window_rect"]["width"], 720)
+        self.assertEqual(
+            receipt["transport_comparison"],
+            {
+                "offset_matches_request": True,
+                "window_size_matches_request": False,
+                "client_size_matches_request": False,
+                "parent_child_dpi_equal": False,
+                "visual_equivalence_assessed": False,
+            },
+        )
 
     def test_failed_wpf_process_surfaces_exit_and_stderr(self):
         backend = WindowsWpfStartupMediaBackend(
