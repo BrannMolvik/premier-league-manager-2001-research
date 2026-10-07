@@ -583,7 +583,7 @@ class PrematchSurfaceTests(unittest.TestCase):
             tuple(range(182)),
         )
         self.assertEqual(sum(family.source_control_count for family in coverage), 182)
-        self.assertEqual(sum(family.represented_controls for family in coverage), 160)
+        self.assertEqual(sum(family.represented_controls for family in coverage), 182)
         self.assertEqual(
             tuple(family.role for family in coverage if family.supplied_state_complete),
             ("live_background", "pitch", "top_bar", "team_badges", "rating_captions"),
@@ -601,6 +601,14 @@ class PrematchSurfaceTests(unittest.TestCase):
                 for family in coverage
                 if family.role == "starting_xi_pitch_markers"
             ).supplied_state_complete
+        )
+        self.assertEqual(
+            next(
+                family
+                for family in coverage
+                if family.role == "starting_xi_pitch_markers"
+            ).represented_controls,
+            22,
         )
         badge_family = next(
             family
@@ -644,6 +652,8 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertFalse(contract["team_identity_text_bound"])
         self.assertTrue(contract["fixed_versus_and_rating_captions_available"])
         self.assertEqual(contract["player_strip_row_count"], 36)
+        self.assertTrue(contract["starting_xi_marker_resource_binding_available"])
+        self.assertFalse(contract["starting_xi_marker_supplied_state_bound_by_resource_loader"])
         self.assertTrue(contract["player_strip_rows_source_geometry_available"])
         self.assertTrue(contract["reserve_variant_state_source_closed"])
         self.assertEqual(contract["player_text_row_count"], 36)
@@ -663,7 +673,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["source_child_count"], PREMATCH_CHILD_COUNT)
         self.assertEqual(contract["source_child_count"], 182)
         self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
-        self.assertEqual(contract["represented_child_controls"], 160)
+        self.assertEqual(contract["represented_child_controls"], 182)
         self.assertEqual(
             contract["complete_child_families"],
             ("live_background", "pitch", "top_bar", "team_badges", "rating_captions"),
