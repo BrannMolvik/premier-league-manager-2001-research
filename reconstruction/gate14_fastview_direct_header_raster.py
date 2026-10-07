@@ -1,7 +1,7 @@
 """Exact white-endpoint raster for the two direct FastView header TextControls.
 
 The source closes both direct header controls as centered style-3 TextControls
-using the exact Zurich_XCn_BT_18pixel.fnt font and native color 0xFFFF. This
+using the exact Zurich_XCn_BT_16pixel.fnt font and native color 0xFFFF. This
 module rasterizes already source-backed final strings only. It does not invent
 match type, referee identity, stadium, attendance, or bind missing runtime
 metadata.
