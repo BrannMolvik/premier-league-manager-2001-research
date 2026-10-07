@@ -26,7 +26,11 @@ def _command_tokens(text: str, target: str) -> list[str]:
             tokens = shlex.split(line, posix=True)
         except ValueError:
             continue
-        if target in tokens and "-o" in tokens:
+        try:
+            output_index = tokens.index("-o")
+        except ValueError:
+            continue
+        if output_index + 1 < len(tokens) and tokens[output_index + 1] == target:
             matches.append(tokens)
     if len(matches) != 1:
         raise LinkTraceAuditError(
