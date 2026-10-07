@@ -935,3 +935,62 @@ Exact next task: rasterize the now-bound text and other state-dependent child
 layers against the existing source resources, then compose a supplied frame in
 the proven 0..181 order. Preserve fail-closed behavior for any unresolved blend
 or transparency rule rather than guessing.
+
+
+## Recovery 375 continuation — TextControl alignment and four-font source contract
+
+PPreMatch text rendering is no longer blocked on interpreting the raw
+`0x21/0x22/0x24` constructor flags by appearance.
+
+The exact dispatch chain is:
+
+1. `0x6503F0` stores the supplied TextStyle wrapper at child `+0x28` and
+   the raw flags at child `+0x30`;
+2. generic child draw `0x64F6D0` calls the TextStyle vtable `+0x08`;
+3. the shared TextStyle vtable `0x7D7034` maps that slot to `0x64F090`;
+4. `0x64F090` consumes the alignment bits directly.
+
+For the ordinary, non-rotated text path used by these controls:
+
+- `0x01` = left;
+- `0x02` = right;
+- `0x04` = horizontal center;
+- `0x08` = top;
+- `0x10` = bottom;
+- `0x20` = vertical center.
+
+The horizontal branch prioritizes right, then center, otherwise left. The
+vertical branch prioritizes bottom, then center, otherwise top. Width is
+measured by `0x6574E0`; native line height by `0x6574D0`. Signed half
+arithmetic uses truncation toward zero, matching the existing source-backed
+FastView text rasterizer.
+
+This resolves the PPreMatch placements exactly:
+
+- header/date `0x24`: horizontally and vertically centered;
+- left team identity `0x22`: right-aligned, vertically centered;
+- right team identity `0x21`: left-aligned, vertically centered;
+- center `V`, player numbers and rating captions `0x24`: centered;
+- left player names `0x21`: left-aligned, vertically centered;
+- right player names `0x22`: right-aligned, vertically centered.
+
+The four style wrappers are also source-closed to exact original font objects
+and paths:
+
+| Wrapper | Use | Original font |
+| --- | --- | --- |
+| `0x87BE30` | fixture/date | `Zurich_XCn_BT_16pixel.fnt` |
+| `0x87BE80` | team identities | `Zurich_BdXCn_BT_20pixel.fnt` |
+| `0x87BE70` | center V | `Zurich_BdXCn_BT_25pixel.fnt` |
+| `0x87BEA0` | rows/captions | `Zurich_BdXCn_BT_16pixel.fnt` |
+
+The `0x87BE30` mapping corrects an older FastView header claim: object
+`0x8CAB80` is loaded from the 16px path at `0x839E30`; the 18px path at
+`0x839E10` belongs to the next font object. The old description of wrapper
+added bit `0x08` as a “forced render” flag is likewise superseded by the
+source-proven top-alignment fallback meaning.
+
+No PPreMatch text pixel claim is made by this checkpoint. The exact next task is
+to rasterize the already bound strings with these exact fonts, native white
+`0xFFFF`, source alignment and control clipping, then integrate those child
+pixels into the supplied 0..181 frame order.
