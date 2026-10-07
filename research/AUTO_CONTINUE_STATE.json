@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 399 selector correction merged at dd767a485d9cf16cc53881b1339ca112feae2a30. Continue Gate-13 source/runtime mapping of schedule wrapper +0x08 and Side::0x510320 -> 0x615F40 -> 0x510BA0 effects into the primary schedule shadow. Do not integrate y=34/y=51 header lines until that link-state acceptance boundary is proven; keep unsupported cases fail-closed.",
+  "active_task": "Recovery 400 resumed from main dd767a485d9cf16cc53881b1339ca112feae2a30. Continue Gate-13 source/runtime mapping of schedule wrapper +0x08 and Side::0x510320 -> 0x615F40 -> 0x510BA0 effects into the primary schedule shadow. Do not integrate y=34/y=51 header lines until that link-state acceptance boundary is proven; keep unsupported cases fail-closed.",
   "last_known_main_head": "dd767a485d9cf16cc53881b1339ca112feae2a30",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 399,
+  "recovery_generation": 400,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #545 corrected the Recovery-399 branch-direction error before any runtime implementation. Main now correctly records that 0x615C50 returns a candidate only when node+0x08 remains null after 0x514520 Side resolution. Exact next task is +0x08/link-state mapping; no acceptance build or Gate-17 work-ahead.",
+  "note": "Recovery 400 resumed from canonical main head dd767a485d9cf16cc53881b1339ca112feae2a30. The corrected 0x615C50 branch semantics are preserved. Exact task remains mapping node+0x08 linked-schedule state and Side resolution side effects before any match-line integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
