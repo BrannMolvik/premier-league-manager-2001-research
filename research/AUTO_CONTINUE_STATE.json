@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 383: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 is active at exact head f6143d9a912629b100442e9512a5d4c5f5e2952a. It captures direct pacman ownership for every absolute external .a/.o resolved by the validated ld trace and audits owner/version against TOOLCHAIN-PACKAGES.lock plus critical source-family mappings. Require exact-head asset 37593786518, reconstruction 37593786587, and minimal FFmpeg 37593786593 success. If green, inspect ownership artifact/receipt, persist exact owners, merge, then strengthen evidence to archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
+  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 is active at exact head f6143d9a912629b100442e9512a5d4c5f5e2952a. It captures direct pacman ownership for every absolute external .a/.o resolved by the validated ld trace and audits owner/version against TOOLCHAIN-PACKAGES.lock plus critical source-family mappings. Asset policy 37593786518 and reconstruction 37593786587 passed; minimal FFmpeg proof 37593786593 remains the merge gate. If green, inspect ownership artifact/receipt, persist exact owners, merge, then strengthen evidence to archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
   "last_known_main_head": "c73e07e5c34115a7644bfd1b1a8cd1163a5739ce",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 383,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #528 opened for direct linker-input package ownership; exact-head CI queued.",
+  "recovery_generation": 384,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 384 resumed exact PR #528 ownership task; two exact-head checks are green and minimal FFmpeg proof is still active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
