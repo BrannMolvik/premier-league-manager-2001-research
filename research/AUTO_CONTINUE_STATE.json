@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 399 selector trace merged at 671f98492661a43ae07ea60517971cf66d2916dc. Continue Gate-13 post-#482 audit by integrating only the source-closed direct fixed-League y=34/y=51 management-header selector from exact recovered schedule/runtime order; fail closed for symbolic ClubRefs, unsupported node classes, or missing exact order. The exact 36px club-name font remains verified but unstaged due the current binary-transfer connector boundary.",
-  "last_known_main_head": "671f98492661a43ae07ea60517971cf66d2916dc",
+  "active_task": "Recovery 399 selector correction merged at dd767a485d9cf16cc53881b1339ca112feae2a30. Continue Gate-13 source/runtime mapping of schedule wrapper +0x08 and Side::0x510320 -> 0x615F40 -> 0x510BA0 effects into the primary schedule shadow. Do not integrate y=34/y=51 header lines until that link-state acceptance boundary is proven; keep unsupported cases fail-closed.",
+  "last_known_main_head": "dd767a485d9cf16cc53881b1339ca112feae2a30",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 399,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 399 source-closure checkpoint merged as 671f98492661a43ae07ea60517971cf66d2916dc via PR #544. Main had no PR workflow/status for the research-only head. Continue bounded fixed-League header integration; do not create an acceptance build or resume Gate-17 work-ahead.",
+  "note": "PR #545 corrected the Recovery-399 branch-direction error before any runtime implementation. Main now correctly records that 0x615C50 returns a candidate only when node+0x08 remains null after 0x514520 Side resolution. Exact next task is +0x08/link-state mapping; no acceptance build or Gate-17 work-ahead.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
