@@ -53,6 +53,127 @@ def parse_package_list(text: str) -> dict[str, str]:
     return packages
 
 
+def audit_critical_source_material(contract: dict) -> dict:
+    """Validate the bounded source-material plan without promoting completeness."""
+    required = contract.get("required_package_versions")
+    if not isinstance(required, dict) or not required:
+        raise MinimalFfmpegToolchainError("required toolchain package map is missing")
+
+    plan = contract.get("critical_package_source_material")
+    if not isinstance(plan, dict):
+        raise MinimalFfmpegToolchainError("critical source-material plan is missing")
+    for flag in ("complete_package_lock", "source_material_complete", "legal_compliance_claimed"):
+        if plan.get(flag) is not False:
+            raise MinimalFfmpegToolchainError(
+                f"critical source-material plan must keep {flag}=false"
+            )
+
+    mapping = plan.get("package_to_source_family")
+    families = plan.get("source_families")
+    if not isinstance(mapping, dict) or not isinstance(families, dict) or not families:
+        raise MinimalFfmpegToolchainError("critical source-material family map is invalid")
+    if set(mapping) != set(required):
+        missing = sorted(set(required) - set(mapping))
+        extra = sorted(set(mapping) - set(required))
+        raise MinimalFfmpegToolchainError(
+            "critical source-material package coverage drifted: "
+            + json.dumps({"missing": missing, "extra": extra}, sort_keys=True)
+        )
+
+    verified = 0
+    for package, family_name in mapping.items():
+        family = families.get(family_name)
+        if not isinstance(family, dict):
+            raise MinimalFfmpegToolchainError(
+                f"source-material family is missing for {package}: {family_name}"
+            )
+        expected_version = required[package]
+        if family.get("binary_version") != expected_version:
+            raise MinimalFfmpegToolchainError(
+                f"source-material family version drifted for {package}: "
+                f"expected {expected_version}, got {family.get('binary_version')}"
+            )
+
+    for family_name, family in families.items():
+        if not isinstance(family, dict):
+            raise MinimalFfmpegToolchainError(
+                f"source-material family row is invalid: {family_name}"
+            )
+        metadata_url = family.get("metadata_url")
+        if (
+            not isinstance(metadata_url, str)
+            or not metadata_url.startswith("https://packages.msys2.org/")
+        ):
+            raise MinimalFfmpegToolchainError(
+                f"source-material metadata URL is invalid: {family_name}"
+            )
+        licenses = family.get("license_metadata")
+        if (
+            not isinstance(licenses, list)
+            or not licenses
+            or any(not isinstance(value, str) or not value for value in licenses)
+        ):
+            raise MinimalFfmpegToolchainError(
+                f"source-material license metadata is invalid: {family_name}"
+            )
+        verified_flag = family.get("source_tarball_metadata_verified")
+        if type(verified_flag) is not bool:
+            raise MinimalFfmpegToolchainError(
+                f"source-material verification flag is invalid: {family_name}"
+            )
+        tarball = family.get("source_only_tarball")
+        if verified_flag:
+            if (
+                not isinstance(tarball, str)
+                or not tarball.startswith("https://mirror.msys2.org/")
+                or family.get("binary_version") not in tarball
+                or not tarball.endswith(".src.tar.zst")
+            ):
+                raise MinimalFfmpegToolchainError(
+                    f"verified source-only tarball identity is invalid: {family_name}"
+                )
+            verified += 1
+        else:
+            if tarball is not None:
+                raise MinimalFfmpegToolchainError(
+                    f"unverified source family must not publish a tarball URL: {family_name}"
+                )
+            if not isinstance(family.get("note"), str) or not family["note"].strip():
+                raise MinimalFfmpegToolchainError(
+                    f"unverified source family needs an explicit blocker note: {family_name}"
+                )
+
+    declared_verified = plan.get("verified_source_family_count")
+    declared_total = plan.get("total_source_family_count")
+    if declared_verified != verified or declared_total != len(families):
+        raise MinimalFfmpegToolchainError(
+            "source-material family counts drifted"
+        )
+    unresolved = plan.get("unresolved")
+    if (
+        not isinstance(unresolved, list)
+        or not unresolved
+        or any(not isinstance(value, str) or not value for value in unresolved)
+    ):
+        raise MinimalFfmpegToolchainError(
+            "critical source-material plan must retain explicit unresolved work"
+        )
+
+    return {
+        "critical_package_count": len(required),
+        "source_family_count": len(families),
+        "verified_source_family_count": verified,
+        "unverified_source_families": sorted(
+            name
+            for name, family in families.items()
+            if family.get("source_tarball_metadata_verified") is False
+        ),
+        "complete_package_lock": False,
+        "source_material_complete": False,
+        "legal_compliance_claimed": False,
+    }
+
+
 def audit_toolchain(
     *,
     repo_root: str | Path,
@@ -91,6 +212,8 @@ def audit_toolchain(
             + json.dumps(mismatches, sort_keys=True)
         )
 
+    source_material = audit_critical_source_material(contract)
+
     actions = contract.get("pinned_actions")
     if not isinstance(actions, dict) or any(
         not isinstance(value, str) or len(value) != 40
@@ -106,6 +229,7 @@ def audit_toolchain(
         "package_list_sha256": _sha256_file(package_path),
         "required_package_versions": dict(sorted(required.items())),
         "pinned_actions": dict(sorted(actions.items())),
+        "critical_source_material": source_material,
         "complete_package_lock": False,
         "source_material_complete": False,
         "legal_compliance_claimed": False,
