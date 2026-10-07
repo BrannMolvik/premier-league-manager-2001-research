@@ -632,12 +632,69 @@ class WindowsWpfStartupMediaBackend:
                 raise WindowsStartupMediaBackendError(
                     f"startup-media transport receipt has invalid {key} dimensions"
                 )
+            # These are structural Win32 RECT identities, not comparisons
+            # with the requested movie size (which may differ under DPI).
+            if (
+                rect["right"] - rect["left"] != rect["width"]
+                or rect["bottom"] - rect["top"] != rect["height"]
+            ):
+                raise WindowsStartupMediaBackendError(
+                    f"startup-media transport receipt has inconsistent {key} edges"
+                )
+            # GetClientRect is defined in client coordinates, with (0,0)
+            # at the origin even when the containing window is positioned.
+            if key.endswith("_client_rect") and (
+                rect["left"] != 0 or rect["top"] != 0
+            ):
+                raise WindowsStartupMediaBackendError(
+                    f"startup-media transport receipt has nonzero {key} origin"
+                )
         for key in (
             "parent_client_origin_screen",
             "child_client_origin_screen",
             "child_offset_from_parent_client",
         ):
             self._require_int_mapping(payload, key, ("x", "y"))
+        for key in (
+            "parent_dpi_awareness",
+            "child_dpi_awareness",
+            "probe_thread_dpi_awareness",
+        ):
+            if payload[key] not in (0, 1, 2):
+                raise WindowsStartupMediaBackendError(
+                    f"startup-media transport receipt has invalid {key} enumeration"
+                )
+
+        origin = payload["parent_client_origin_screen"]
+        child_rect = payload["child_window_rect"]
+        offset = payload["child_offset_from_parent_client"]
+        if (
+            offset["x"] != child_rect["left"] - origin["x"]
+            or offset["y"] != child_rect["top"] - origin["y"]
+        ):
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport receipt has inconsistent child offset"
+            )
+
+        # Record observable comparisons without enforcing requested geometry
+        # as original visual equivalence: mismatches are precisely the
+        # transport evidence that the private Windows probe must preserve.
+        child_client = payload["child_client_rect"]
+        payload["transport_comparison"] = {
+            "offset_matches_request": (
+                offset["x"] == requested["x"] and offset["y"] == requested["y"]
+            ),
+            "window_size_matches_request": (
+                child_rect["width"] == requested["width"]
+                and child_rect["height"] == requested["height"]
+            ),
+            "client_size_matches_request": (
+                child_client["width"] == requested["width"]
+                and child_client["height"] == requested["height"]
+            ),
+            "parent_child_dpi_equal": payload["parent_dpi"] == payload["child_dpi"],
+            "visual_equivalence_assessed": False,
+        }
 
         payload["sequence"] = int(item.sequence)
         payload["source_path"] = str(item.spec.source_path)
