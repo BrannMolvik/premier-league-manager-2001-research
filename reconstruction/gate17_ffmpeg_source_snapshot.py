@@ -19,10 +19,17 @@ def audit_snapshot_contract(repo_root: str|Path) -> dict:
     root=Path(repo_root); audit_source_contract(root)
     s=_load(root)["minimal_helper_target"].get("source_snapshot")
     if not isinstance(s,dict): raise FfmpegSourceSnapshotError("source_snapshot contract is missing")
-    for k in ("assembled","hashes_pinned","source_material_complete","legal_compliance_claimed"):
-        if s.get(k) is not False: raise FfmpegSourceSnapshotError(f"{k} must remain false before evidence review")
+    if s.get("assembled") is not True or s.get("hashes_pinned") is not True:
+        raise FfmpegSourceSnapshotError("reviewed source snapshot must be assembled and hash-pinned")
+    for k in ("source_material_complete","legal_compliance_claimed"):
+        if s.get(k) is not False: raise FfmpegSourceSnapshotError(f"{k} must remain false")
     if s.get("archive_format")!="tar.xz": raise FfmpegSourceSnapshotError("source snapshot archive format drifted")
-    return {"passed":True,"assembled":False,"hashes_pinned":False,"source_material_complete":False,"legal_compliance_claimed":False}
+    for key in ("archive_sha256","license_sha256","build_recipe_manifest_sha256"):
+        value=s.get(key)
+        if not isinstance(value,str) or len(value)!=64: raise FfmpegSourceSnapshotError(f"{key} is not pinned")
+    for key in ("archive_size_bytes","license_size_bytes","build_recipe_manifest_size_bytes"):
+        if not isinstance(s.get(key),int) or s[key]<=0: raise FfmpegSourceSnapshotError(f"{key} is not pinned")
+    return {"passed":True,"assembled":True,"hashes_pinned":True,"source_material_complete":False,"legal_compliance_claimed":False}
 
 def build_snapshot(*, repo_root: str|Path, ffmpeg_source: str|Path, output_dir: str|Path) -> dict:
     root=Path(repo_root); source=Path(ffmpeg_source); out=Path(output_dir)
@@ -45,7 +52,10 @@ def build_snapshot(*, repo_root: str|Path, ffmpeg_source: str|Path, output_dir: 
     recipe={"schema_version":1,"source_repository":target["source_repository"],"source_commit":commit,"configure_args":target["configure_args"],"license_file":target["license_file"],"archive_filename":archive.name}
     recipe_path=out/"build-recipe-manifest.json"; recipe_path.write_text(json.dumps(recipe,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     lic_copy=out/target["license_file"]; lic_copy.write_bytes(lic.read_bytes())
-    receipt={"schema_version":1,"passed":True,"source_commit":commit,"archive_filename":archive.name,"archive_sha256":_sha(archive),"archive_size_bytes":archive.stat().st_size,"license_sha256":_sha(lic_copy),"license_size_bytes":lic_copy.stat().st_size,"build_recipe_manifest_sha256":_sha(recipe_path),"build_recipe_manifest_size_bytes":recipe_path.stat().st_size,"assembled":True,"hashes_pinned":False,"source_material_complete":False,"legal_compliance_claimed":False}
+    receipt={"schema_version":1,"passed":True,"source_commit":commit,"archive_filename":archive.name,"archive_sha256":_sha(archive),"archive_size_bytes":archive.stat().st_size,"license_sha256":_sha(lic_copy),"license_size_bytes":lic_copy.stat().st_size,"build_recipe_manifest_sha256":_sha(recipe_path),"build_recipe_manifest_size_bytes":recipe_path.stat().st_size,"assembled":True,"hashes_pinned":True,"source_material_complete":False,"legal_compliance_claimed":False}
+    for key in ("archive_sha256","archive_size_bytes","license_sha256","license_size_bytes","build_recipe_manifest_sha256","build_recipe_manifest_size_bytes"):
+        if receipt[key] != snap[key]:
+            raise FfmpegSourceSnapshotError(f"{key} drifted: {receipt[key]} != {snap[key]}")
     (out/"ffmpeg-source-snapshot-manifest.json").write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     return receipt
 
