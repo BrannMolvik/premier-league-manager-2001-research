@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 385: Gate 13 remains earliest incomplete. PR #532 is open at exact head 1cf9650c4c6ba86722011f2d05546bfe9b298f13 implementing the new source-styled Settings surface. It leaves all four recovered original PStartMenu controls and the pinned derivative unchanged, reuses the verified Button@ease atlas and Zurich 20px font, keeps default Original/fullscreen baseline, and package-smokes Settings without user game data. Require fresh exact-head Gate-13 presentation, reconstruction, asset-policy, and Windows-package success before merge. External Windows acceptance of artifact 11464212544 remains separately pending.",
+  "active_task": "Recovery 385: Gate 13 remains earliest incomplete. PR #532 exact head is now 7b7f5df36ecf12b2cb7a17b63f042182b3be380f after correcting only the custom-source test fixture; production Settings code is unchanged from the head where all new Settings-specific focused tests passed. Require fresh exact-head Gate-13 presentation, reconstruction, asset-policy, and Windows-package success before merge. External Windows acceptance of artifact 11464212544 remains separately pending.",
   "last_known_main_head": "1a580ea7f38a0fba608237b21dd9e21d9f5661e3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 385,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #532 is the active Gate-13 Settings implementation. Local container has no GitHub DNS/network, so exact-head hosted CI is authoritative.",
+  "note": "PR #532 fixture-only correction complete; exact-head CI must rerun before merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
