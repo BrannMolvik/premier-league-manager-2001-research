@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 378: continue PR #517 at exact head 075c4233d460ee9372e83a7a9997cf28de0b8f85. Verify the compositor source-contract/caption correction checkpoint, then continue the source-backed runtime native pixel-mask path needed for exact TextControl/Button caption blending and eventual 800x600 PPreMatch flattening. Gate 13 #482 remains earliest validation blocker; complete frame/Gate14 remain false.",
-  "last_known_main_head": "b154480742b09a30d754ad5848cd218d6801f75d",
+  "active_task": "Recovery 378: PR #517 merged and canonical state advanced. Continue Gate-14 branch chatgpt/gate14-match-detail-route-r378 from checkpoint e2f53880551d9ffe517e111fd8fdd5b68c1c6d8d: reconcile it onto current main, verify exact mode 0/1/2/3 PPreMatch modal-to-presentation dispatch, merge if exact-head CI is green, then trace the ordinary management-screen fixture-start entry into match processing. Gate 13 #482 remains earliest validation blocker. Original Windows pixel-format receipt remains a separate deferred local evidence task; do not guess RGB565/RGB555.",
+  "last_known_main_head": "bf91dc0338de7c9b31486d1d3ff50c6e5251f743",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 378,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 378 resumed from current PR #517 without replaying completed PR #516 work.",
+  "note": "Recovery 378 compositor checkpoint merged. Continuing disjoint Match Detail route source work without waiting for local pixel-format receipt.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
