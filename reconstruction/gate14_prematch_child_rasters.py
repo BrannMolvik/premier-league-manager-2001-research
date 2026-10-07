@@ -11,6 +11,10 @@ from dataclasses import dataclass
 from hashlib import sha256
 
 from gate14_prematch_supplied_state import BoundPrematchSuppliedState
+from gate14_prematch_compositor_source import (
+    PREMATCH_SELECTOR_CAPTION_STYLE,
+    prematch_selector_caption_color16,
+)
 from gate14_prematch_text_raster import PrematchTextRasterSet
 from original_front_end_layout import OriginalRect
 from original_prematch_panel import PREMATCH_CHILD_COUNT, PREMATCH_CHILD_ORDER_RANGES
@@ -29,6 +33,13 @@ class PrematchChildRaster:
     rgba: bytes | None
     rgba_sha256: str | None
     source_identity: str | None
+    caption_text: str | None = None
+    caption_alpha: bytes | None = None
+    caption_alpha_sha256: str | None = None
+    caption_size: tuple[int, int] | None = None
+    caption_origin: tuple[int, int] | None = None
+    caption_native_color_16: int | None = None
+    caption_native_style: int | None = None
 
     def __post_init__(self) -> None:
         if type(self.child_index) is not int or not 0 <= self.child_index < PREMATCH_CHILD_COUNT:
@@ -45,7 +56,53 @@ class PrematchChildRaster:
                 raise PrematchChildRasterError("visible child RGBA checksum mismatch")
             if not self.source_identity:
                 raise PrematchChildRasterError("visible child requires source identity")
-        elif any(value is not None for value in (self.rect, self.rgba, self.rgba_sha256, self.source_identity)):
+            caption_fields = (
+                self.caption_text,
+                self.caption_alpha,
+                self.caption_alpha_sha256,
+                self.caption_size,
+                self.caption_origin,
+                self.caption_native_color_16,
+                self.caption_native_style,
+            )
+            if any(value is not None for value in caption_fields):
+                if any(value is None for value in caption_fields):
+                    raise PrematchChildRasterError(
+                        "selector caption metadata must be complete or absent"
+                    )
+                width, height = self.caption_size
+                if width <= 0 or height <= 0 or len(self.caption_alpha) != width * height:
+                    raise PrematchChildRasterError("selector caption alpha geometry mismatch")
+                if sha256(self.caption_alpha).hexdigest() != self.caption_alpha_sha256:
+                    raise PrematchChildRasterError("selector caption alpha checksum mismatch")
+                origin_x, origin_y = self.caption_origin
+                if (
+                    origin_x < self.rect.x
+                    or origin_y < self.rect.y
+                    or origin_x + width > self.rect.right
+                    or origin_y + height > self.rect.bottom
+                ):
+                    raise PrematchChildRasterError("selector caption exceeds native control rect")
+                if self.caption_native_color_16 not in (0x0000, 0xFFFF):
+                    raise PrematchChildRasterError("selector caption endpoint color drifted")
+                if self.caption_native_style != PREMATCH_SELECTOR_CAPTION_STYLE:
+                    raise PrematchChildRasterError("selector caption style drifted")
+        elif any(
+            value is not None
+            for value in (
+                self.rect,
+                self.rgba,
+                self.rgba_sha256,
+                self.source_identity,
+                self.caption_text,
+                self.caption_alpha,
+                self.caption_alpha_sha256,
+                self.caption_size,
+                self.caption_origin,
+                self.caption_native_color_16,
+                self.caption_native_style,
+            )
+        ):
             raise PrematchChildRasterError("hidden child cannot publish pixels or geometry")
 
 
@@ -85,7 +142,20 @@ class PrematchChildRasterLedger:
             )
 
 
-def _visible(index, role, rect, rgba, source_identity):
+def _visible(
+    index,
+    role,
+    rect,
+    rgba,
+    source_identity,
+    *,
+    caption_text=None,
+    caption_alpha=None,
+    caption_size=None,
+    caption_origin=None,
+    caption_native_color_16=None,
+    caption_native_style=None,
+):
     payload = bytes(rgba)
     return PrematchChildRaster(
         child_index=index,
@@ -95,6 +165,17 @@ def _visible(index, role, rect, rgba, source_identity):
         rgba=payload,
         rgba_sha256=sha256(payload).hexdigest(),
         source_identity=source_identity,
+        caption_text=caption_text,
+        caption_alpha=(bytes(caption_alpha) if caption_alpha is not None else None),
+        caption_alpha_sha256=(
+            sha256(bytes(caption_alpha)).hexdigest()
+            if caption_alpha is not None
+            else None
+        ),
+        caption_size=caption_size,
+        caption_origin=caption_origin,
+        caption_native_color_16=caption_native_color_16,
+        caption_native_style=caption_native_style,
     )
 
 
@@ -338,12 +419,33 @@ def build_prematch_child_raster_ledger(
             raise PrematchChildRasterError(
                 "selector frame pixels do not match native PPreMatch control"
             )
+        font = boundary.font
+        label = item.source.label
+        mask = font.render_text_alpha(label)
+        measured_width = font.measure_text(label)
+        line_height = font.native_line_height()
+        if mask.width != measured_width:
+            raise PrematchChildRasterError(
+                "selector Zurich glyph mask differs from native text measure"
+            )
+        origin = (
+            item.source.rect.x + (item.source.rect.width - measured_width) // 2,
+            item.source.rect.y + (item.source.rect.height - line_height) // 2,
+        )
         children[child_index] = _visible(
             child_index,
             f"match_detail_selector_mode_{mode}",
             item.source.rect,
             rgba,
-            f"selector_frame:{item.source_frame_index}",
+            f"selector_frame:{item.source_frame_index}:caption:{label}",
+            caption_text=label,
+            caption_alpha=mask.alpha,
+            caption_size=(mask.width, mask.height),
+            caption_origin=origin,
+            caption_native_color_16=prematch_selector_caption_color16(
+                item.source_frame_index
+            ),
+            caption_native_style=PREMATCH_SELECTOR_CAPTION_STYLE,
         )
 
     if any(child is None for child in children):
@@ -369,6 +471,8 @@ def prematch_child_raster_contract() -> dict:
         "all_visible_child_pixel_binding_available": True,
         "rating_right_layer_semantics": "full_right2_base_plus_shrinking_right_mask",
         "selector_child_modes": (3, 2, 1, 0),
+        "selector_caption_planes_bound": True,
+        "selector_caption_style": PREMATCH_SELECTOR_CAPTION_STYLE,
         "cross_control_blend_recovered": False,
         "flattened_frame_available": False,
         "complete_prematch_frame": False,
