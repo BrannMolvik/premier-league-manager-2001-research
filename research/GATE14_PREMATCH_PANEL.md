@@ -857,3 +857,38 @@ source-RGB generic atlas being available. Exact next task: recover the
 `0x5E4980` display mask/shift initialization and reproduce its packed-color
 quantization, then combine primary custom, generic/alternate and goalkeeper
 sources into the supplied-state marker binder.
+
+
+### Recovery 373 continuation — 22 marker controls structurally represented
+
+The shirt-resource layer now joins all three source families without weakening
+the native selector:
+
+- primary context first attempts the club-specific custom 36x1280 EA444 atlas;
+- if that source is absent, or the side uses alternate context, the exact
+  TeamNN.bmp generic source is loaded and recolored through the recovered
+  `0x5E4C60` source-RGB path;
+- children 10 and 21 use the dedicated original 36x32 goalkeeper EA444;
+- outfield children crop the exact numbered frame selected by
+  `0x41E3F0 -> 0x41E3D0`;
+- runtime player `+0x76` is source-proven to initialize from `+0x70` at
+  `0x418E27..0x418E31`, while later `0x41E400` updates remain explicit
+  supplied runtime state.
+
+`gate14_prematch_marker_binding.py` binds supplied player slots, normalized
+`0x499A50` coordinate outputs, team club IDs, verified team atlases and the
+goalkeeper resource into children 10..31. Unresolved slots remain hidden with
+no substitute pixels, matching the existing `0x417F50` visibility contract.
+
+The fail-closed 182-child audit therefore now has a structural/source-pixel
+representation for every native child: **182/182 represented controls**.
+This is not a complete-frame claim. The marker family still requires supplied
+XI/formation state to be attached to the base surface, and other families still
+retain their own supplied-state blockers (dynamic fixture/date/team text,
+rating widths and selector pointer/update state).
+
+The legacy 16-bit generic-shirt packer is also source-closed generically from
+the runtime DirectDraw masks: `0x653090 -> 0x6530D0 -> 0x653120` derives
+per-channel mask/left-shift/right-truncation descriptors, and `0x5E4980`
+applies them. No fixed RGB565 assumption is made. The original quirk forcing a
+nonblack color that quantizes to zero to packed value `0x0001` is preserved.
