@@ -273,9 +273,11 @@ enabled.
 
 ## Unsafe or Unproven Active Behavior
 
+**Scope note:** Southport is only the current reproduction fixture. Missing header/player-name/content layers should be treated as a probable shared club-management/Squad presentation defect until cross-club evidence narrows it. Fix the shared source-backed path; do not hard-code Southport-specific behavior.
+
 1. **Startup FMV frame-content transform — INCONCLUSIVE and externally contradicted.** The game-owned 640x480/(80,60) surface is retained, but exact live frame-content equivalence is not accepted. This blocks another external candidate.
-2. **Fresh Squad ordinary-name completeness — source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
-3. **Fresh management header completeness — source contract recovered, runtime integration incomplete.** Recovery 396 source-closes the central club-name and current-date controls and explains the blank Southport result as an omitted live text layer. The conditional match selector remains source-open, so its two lines stay fail-closed.
+2. **Fresh Squad ordinary-name completeness — likely shared club-screen defect; source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
+3. **Fresh management header completeness — likely shared club-screen defect; source contract recovered, runtime integration incomplete.** Recovery 396 source-closes the central club-name and current-date controls and explains the blank Southport result as an omitted live text layer. The conditional match selector remains source-open, so its two lines stay fail-closed.
 4. **Startup Escape/skip semantics — INCONCLUSIVE but safely isolated.** Fullscreen mutation is blocked during startup; native skip behavior still requires source evidence.
 5. **Cup-Tied negative mode-1 fallback — source semantics unresolved and the disproven model is now isolated.** `0db90b97` removed the date-based gameplay decision and `b890c578` removed the rejected date helper from construction, daily hooks, season reset and save restore. The positive source-proven appeared-player collection remains active; every unresolved collection miss fails closed.
 6. **Ordinary match-entry trigger / 3D presentation — unresolved and fail-closed.** Gate-14 contracts are not reachable-flow proof.
