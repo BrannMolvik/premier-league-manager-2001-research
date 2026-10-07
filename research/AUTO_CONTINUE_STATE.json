@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending external Windows acceptance. PR #532 merged as 2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff; Settings is complete. Current acceptance candidate is artifact 11473439363 from exact head 7b7f5df36ecf12b2cb7a17b63f042182b3be380f. PR #533 reconciled canonical state. Under deferred-blocker policy, next cloud-safe task is Gate-17 source-material bundle assembly for the four proven static contributor source families: download exact first-party MSYS2 source packages, checksum and manifest them fail-closed, then inspect/extract license/notice material. Keep source_material_complete=false and legal_compliance_claimed=false.",
+  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #534 is the active independent Gate-17 task at exact head f6f198038dbad1d318ab2362843c7915cbbde1bf. The four proven static-contributor MSYS2 source packages are assembled and hash/size-pinned; source-bundle run 37606602048 passed and uploaded artifact 11475127433 (digest sha256:5e839c839eb9bdd595c339b43a2165c369e5fa9c765517c491b023067f54ef45). Asset policy 37606602020 passed. Require exact-head reconstruction 37606601881, Windows package 37606602099, and minimal FFmpeg 37606601917 success before merge. After merge, extract and checksum actual license/notice material from the pinned source packages. Keep source_material_complete=false and legal_compliance_claimed=false.",
   "last_known_main_head": "5cb72c979ac7fb4e1000eb0dc20310b55107b61d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 386,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Settings merged and current acceptance candidate refreshed; source-bundle assembly is the active independent task.",
+  "note": "PR #534 pinned source-package bundle proof passed; broader exact-head CI remains pending/in progress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
