@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 402 resumes Gate 13 from main 36335b97fa7e395d685624c212f89663ffe7d5a2. Implement the persisted clear/linked/unknown wrapper-link contract in primary_schedule_shadow.py, invalidate clear state at the first unmodelled post-start reschedule-capable runtime boundary, expose only exact direct fixed-League header candidates through the management bridge, then render y=34/y=51 with the recovered formatter/layout. Keep symbolic/unknown cases fail-closed.",
-  "last_known_main_head": "36335b97fa7e395d685624c212f89663ffe7d5a2",
+  "active_task": "Recovery 402 continues Gate 13 after verified conditional-header integration. Stage exact Zurich_BdXCn_BT_36pixel.fnt through a binary-safe Git path, add asset provenance, render Club.name at (172,1,378,32) with recovered 0x2102/white/right-center clipping, and add fresh Southport regression. If binary transfer remains unavailable, persist the precise blocker and continue another source-backed Gate-13 audit item. Startup-FMV HWND/DPI receipt remains external.",
+  "last_known_main_head": "62e3c13f262d10a51e3396797df34671da626b97",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 402,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 402 picked up after Recovery 401's source-only checkpoint. No implementation from that checkpoint is being repeated.",
+  "note": "PR #547 merged as 97f8ecb3d39addbe3d036016bc52a05a91eb8c83. Exact PR head d54184a passed Gate13 37679247332, reconstruction 37679247185 (2915 tests, 25 skipped, zero failures), asset policy 37679247320. Canonical docs/status reconciled through main 62e3c13f.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
