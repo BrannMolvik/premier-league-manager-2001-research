@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 396,
-  "last_recovery_reason": "Analysis errored / sandbox",
-  "note": "Recovery 396 heartbeat: main 57eb5786 source-closes the central management club-name/current-date header controls and exact conditional match-line templates. Required 36px original font identity is pinned but not staged. Continue first-hand match-selector trace; no acceptance build.",
+  "recovery_generation": 397,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 397 resumed from main 57eb5786. Continuing the first-hand 0x615D10/0x615DA0 central-header match-selector trace; no acceptance build, modernization work, or Gate-17 work-ahead.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
