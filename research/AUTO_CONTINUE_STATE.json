@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 403 is checkpointed on main e05c71c1. Gate 13/audit remain open. Primary next implementation is exact 36px Zurich font staging/provenance, live generic Club.name binding, and Southport plus second-club regressions when binary execution recovers. Until then, continue the highest-priority independent cloud-safe post-#482 Gate-13 audit item. Startup-FMV parent/child HWND/DPI receipt remains external; do not change native geometry.",
+  "active_task": "Recovery 403: PR #551 `recovery403-startup-hwnd-dpi-probe` exact head 98adacf71e8fed800e351231a32a94a1688f2d92 is under CI. Focused Gate-13 tests already passed; full reconstruction and Windows packaging are still completing. If green, merge #551, reconcile POST_482 audit wording, and record the private Windows command using --transport-probe-only. Exact 36px Zurich font staging/live generic Club.name binding remains separately blocked by caas process-start ClientError.",
   "last_known_main_head": "e05c71c11e50b6f5b42bfee1e9054bd7c4dab7e8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 403,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #549 latency repair and PR #550 club-name raster contract are merged and documented. Authorized font archive is materialized but process execution is blocked by caas.internal.errors.ClientError; no substitute font.",
+  "note": "PR #551 is diagnostics-only: opt-in WPF probe captures actual parent/child HWND/window/client geometry, DPI, and awareness contexts; normal playback geometry is unchanged. Do not claim FMV equivalence until a private Windows receipt is captured and interpreted.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
