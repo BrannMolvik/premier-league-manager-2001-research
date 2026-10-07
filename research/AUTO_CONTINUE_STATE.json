@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 still awaits Daniel's external Windows acceptance of artifact 11464212544. Gate-17 PR #524 merged as eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5 after exact-head asset 37586325795, Windows package 37586325957, reconstruction 37586325832 (2,858 tests, 25 skipped), and minimal FFmpeg 37586326031 all passed. Immediate cloud-safe task: fix the minimal-FFmpeg workflow's masked source-contract audit failure (package import path plus PowerShell native-command fail-fast), add regression coverage, reconcile CURRENT_STATE/PROGRESS/project_status, then require exact-head CI before merge.",
+  "active_task": "Recovery 381: Gate 13 remains earliest incomplete; issue #482 still awaits Daniel's external Windows acceptance of artifact 11464212544. PR #525 is open on source-audit CI hardening. Initial head 5b43ef92e53306fd761511f663dd29455cf7efb7 exposed a test-context error in Windows package run 37587446525: the new package-import regression was executed from reconstruction/ rather than the repo-root workflow context. Fixed by running the exact import in a subprocess with cwd at repository root. Current exact head e8cfa685139f3e67df681fb150c58e500e847c55 requires fresh reconstruction, asset, Windows-package, and minimal-FFmpeg success before merge.",
   "last_known_main_head": "eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 381,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #524 merged. Complete package lock is 151 rows, SHA-256 c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec. Newly discovered CI integrity bug: source-contract audit logs ModuleNotFoundError from repo-root package import but PowerShell masks the first native-command failure when the second command succeeds.",
+  "note": "PR #525 source-audit hardening remains bounded. First Windows failure was regression-test setup only; the actual Windows package source-contract audit itself succeeded. Current head e8cfa685139f3e67df681fb150c58e500e847c55 mimics the repo-root workflow import context exactly.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
