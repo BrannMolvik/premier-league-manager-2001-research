@@ -64,9 +64,9 @@ original row art/fonts and translate each nested owner's geometry. Do not
 publish the database-first-20 projection as original membership. No guessed
 zero boundary, fixed split, automatic modern selection or scrolling is added.
 
-Next source action: adjudicate `404A70 -> 40AB40 -> 4067B0` in this precise
-fresh-view call chain, then lock `4B7500` ordered mutations and `4B6FE0` holes
-with source-qualified tests. The canonical post-#482 audit remains an open
+The `404A70 -> 40AB40 -> 4067B0` call chain is adjudicated below. Next:
+lock `4B7500` ordered mutations and `4B6FE0` holes/state binding with
+source-qualified tests. The canonical post-#482 audit remains an open
 implementation prerequisite; no new acceptance build is certified here.
 
 Follow-on dependency read: `40AB40` is the original reserve XI/three-player
@@ -159,3 +159,11 @@ receipts: `work/squad-paired-availability-role-occupancy.txt`,
 `work/squad-row-factories-and-registration.txt`, and
 `work/squad-mapper-count-and-registration-init.txt`. The exploratory window
 `work/squad-slot-mapper-callers.txt` begins unaligned and is NOT CFG proof.
+
+8 October: repository-tool reproduction completed with all eighteen trace
+windows against the canonical executable, including the reserve selector and
+size/overflow guards. Private report `work/squad-paired-source-20261008.json`
+SHA-256: `de54482f18c83019940277d8f9445dc6bb3d77f3a7108097a802b2c6c25f805d`.
+The report retains candidate/linear-disassembly caveats; the semantic findings
+above come from the separate aligned CFG/data-flow review, not from treating
+the generated report as automatic proof. No original-game launch.
