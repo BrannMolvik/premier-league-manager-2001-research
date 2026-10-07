@@ -14,7 +14,7 @@ class LinkTraceAuditError(RuntimeError):
 
 TRACE_FLAG = "-Wl,--trace"
 TARGETS = ("ffmpeg_g.exe", "ffprobe_g.exe")
-_ARCHIVE_RE = re.compile(r"(?<!\\S)([^\\s]+\\.a)(?!\\S)")
+_ARCHIVE_RE = re.compile(r"(?<!\S)([^\s]+\.a)(?!\S)")
 
 
 def _command_tokens(text: str, target: str) -> list[str]:
@@ -42,7 +42,7 @@ def _archive_inputs(text: str, target: str) -> list[str]:
         if target in line and " -o " in f" {line} ":
             continue
         for match in _ARCHIVE_RE.finditer(line):
-            value = match.group(1).replace("\\\\", "/")
+            value = match.group(1).replace("\\", "/")
             if value not in seen:
                 seen.add(value)
                 ordered.append(value)
