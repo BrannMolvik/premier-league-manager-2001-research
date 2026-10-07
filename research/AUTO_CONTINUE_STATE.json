@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 406: resume at main 8a85e9170a30a1a0c349ca1a29298184d6d2f021. Gate 13 external private Windows HWND/DPI startup-FMV receipt and normal latency/visual acceptance remain absent. Inspect source-backend and audit tools for next independent source-safe/testable improvement without altering original pixels; continue after meaningful verification. Gate 17 mission remains active.",
+  "active_task": "Recovery 406 active PR #554: opt-in startup-FMV HWND/DPI diagnostic receipt structural validation, original movie pixels/geometry untouched. Exact revised head 017d1d550f021e9e9ee39602b2d51cd252c5c8e4. Asset policy 37704161379, Gate13 37704161255 and Windows package 37704161266 green; full reconstruction 37704161253 in progress. Check exact-head full success before merge, then checkpoint CURRENT_STATE/PROGRESS/status and continue independent source-safe follow-up. Private Win11 geometry/visual/latency acceptance still absent; Gate13 and Gate17 remain incomplete.",
   "last_known_main_head": "8a85e9170a30a1a0c349ca1a29298184d6d2f021",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 406,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Latest technical merge #553 08deb86a; Windows package run 37701923950 and asset policy 37701923921 passed exact head 8f76847. Main status checkpoint 8a85e91. Last full reconstruction success #552 run 37700777348. No extra workflows dispatched. Runtime working.",
+  "note": "First PR head d5c174a tests failed on synthetic client-origin fixture (not production logic); one-file fixture correction in 017d1d5. Three revised checks passed; full suite pending. No external Windows acceptance or video geometry edits.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
