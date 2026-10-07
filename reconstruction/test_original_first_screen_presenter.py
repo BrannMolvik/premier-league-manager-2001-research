@@ -1,5 +1,6 @@
 """End-to-end headless first-screen source-bundle/navigation regressions."""
 import struct
+from pathlib import Path
 from types import SimpleNamespace
 import unittest
 
@@ -7,7 +8,19 @@ from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
 from ea_language_strings import parse_language_pair
 from front_end_session import FrontEndSession
-from front_end_state import FrontEndCommand, FrontEndScreen
+from front_end_settings import (
+    SETTINGS_BACK_RECT,
+    SETTINGS_FULLSCREEN_RECT,
+    SETTINGS_MENU_RECT,
+    SETTINGS_PROFILE_RECT,
+    load_source_styled_settings_resources,
+)
+from front_end_state import (
+    FrontEndCommand,
+    FrontEndScreen,
+    ModernStartMenuControl,
+    SettingsControl,
+)
 from original_button_frames import (
     OriginalButtonAtlasError,
     OriginalButtonFrame,
@@ -83,6 +96,9 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         cls.menu = assemble_original_pstartmenu_inputs(
             global_bg, menu_bg, menu_atlas, captions
         )
+        cls.settings_resources = load_source_styled_settings_resources(
+            Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        )
         # Production hierarchy controls address the complete native source
         # groups: animation indices 0..22 and league-bar indices 0..4. Keep the
         # headless fixture source-complete so a real catalog snapshot exercises
@@ -150,7 +166,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
             ),
         )
 
-    def presenter(self):
+    def presenter(self, *, settings=False):
         built = []
 
         def factory():
@@ -159,7 +175,10 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
             return backend
 
         presenter = OriginalFirstScreenPresenter(
-            FrontEndSession(factory), self.menu, self.team
+            FrontEndSession(factory),
+            self.menu,
+            self.team,
+            settings_resources=(self.settings_resources if settings else None),
         )
         return presenter, built
 
@@ -184,6 +203,63 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         )
         with self.assertRaises(OriginalButtonAtlasError):
             view.controls[0].exact_source_frame(23)
+        self.assertEqual(built, [])
+
+    def test_settings_extension_reuses_source_menu_art_without_backend_work(self):
+        presenter, built = self.presenter(settings=True)
+        start = presenter.snapshot()
+        self.assertEqual(
+            tuple(item.event for item in start.controls),
+            (1, 2, 3, 4, int(ModernStartMenuControl.SETTINGS)),
+        )
+        settings_control = start.controls[-1]
+        self.assertEqual(settings_control.rect, SETTINGS_MENU_RECT)
+        self.assertEqual(settings_control.caption.original_text, "Settings")
+        self.assertTrue(settings_control.caption.modern_extension)
+        self.assertIs(settings_control.atlas, self.menu.button_atlas)
+
+        opened = presenter.pointer(SETTINGS_MENU_RECT.x, SETTINGS_MENU_RECT.y)
+        self.assertIs(opened.transition.screen, FrontEndScreen.SETTINGS)
+        self.assertEqual(built, [])
+
+        view = presenter.snapshot()
+        self.assertIs(view.background_rgba, self.menu.background_rgba)
+        self.assertEqual(
+            tuple(item.event for item in view.controls),
+            (
+                int(SettingsControl.RESET_ORIGINAL),
+                int(SettingsControl.TOGGLE_FULLSCREEN),
+                int(SettingsControl.BACK),
+            ),
+        )
+        self.assertEqual(
+            tuple(item.rect for item in view.controls),
+            (SETTINGS_PROFILE_RECT, SETTINGS_FULLSCREEN_RECT, SETTINGS_BACK_RECT),
+        )
+        self.assertEqual(
+            tuple(item.caption.original_text for item in view.controls),
+            ("Profile: Original", "Fullscreen: On", "Back"),
+        )
+        self.assertTrue(all(item.caption.modern_extension for item in view.controls))
+
+        toggled = presenter.pointer(
+            SETTINGS_FULLSCREEN_RECT.x, SETTINGS_FULLSCREEN_RECT.y
+        )
+        self.assertIs(toggled.transition.command, FrontEndCommand.APPLY_SETTINGS)
+        self.assertFalse(presenter.session.settings.fullscreen)
+        self.assertEqual(
+            presenter.snapshot().controls[0].caption.original_text,
+            "Profile: Custom",
+        )
+
+        reset = presenter.pointer(
+            SETTINGS_PROFILE_RECT.x, SETTINGS_PROFILE_RECT.y
+        )
+        self.assertIs(reset.transition.command, FrontEndCommand.APPLY_SETTINGS)
+        self.assertTrue(presenter.session.settings.original_baseline)
+
+        back = presenter.pointer(SETTINGS_BACK_RECT.x, SETTINGS_BACK_RECT.y)
+        self.assertIs(back.transition.screen, FrontEndScreen.START_MENU)
         self.assertEqual(built, [])
 
     def test_teamselect_resources_can_be_loaded_lazily_at_new_game_boundary(self):
