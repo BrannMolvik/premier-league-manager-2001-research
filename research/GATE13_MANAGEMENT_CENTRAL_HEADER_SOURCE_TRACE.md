@@ -118,15 +118,32 @@ Routine `0x432760` clears the two match-line buffers and asks `0x615DA0`
 for a qualifying match using the current human club and date. Only a successful
 result populates y=34/y=51 via the two exact templates above.
 
-`0x615DA0` is source-bounded but its internal exclusion predicate is not yet
-semantically named. It calls `0x615D10` with the selected collection, club and
-date, examines the returned wrapper/underlying match, and can advance to another
-date/match before returning a qualifying wrapper. This trace therefore does
-**not** replace that selector with a plausible "next fixture" search.
+Existing canonical-executable analysis independently source-closes `0x615D10`
+through the shared post-match path `0x5127A0`: from current relative day + 1,
+the caller selects the primary/secondary `ScheduleContainer` through
+`0x510300`, then `0x615D10` scans forward in that container for a match
+involving the same club. The base same-club forward scan is therefore no longer
+an open semantic boundary.
+
+The remaining source-open boundary is `0x615DA0` itself. It calls the proven
+`0x615D10` scan, examines the returned wrapper/underlying match, and can
+advance to another date/match before returning a qualifying wrapper. Its
+exclusion/advance predicate is not yet semantically named. This trace therefore
+does **not** replace that wrapper filter with a plausible "next fixture" search.
 
 The two match-line **format/layout contracts are closed**; their clean-room
-producer remains fail-closed until `0x615D10/0x615DA0` is either source-closed
-or matched to an already reconstructed equivalent.
+producer remains fail-closed until the remaining `0x615DA0` wrapper filter is
+source-closed or matched to an already reconstructed equivalent.
+
+### Recovery 397 execution blocker
+
+The authorized Library ZIP was successfully resolved and materialized again,
+but the current execution sandbox fails even trivial container and Python
+process startup with `caas.internal.errors.ClientError`. Therefore a fresh
+private byte-level trace of `0x615DA0` cannot be executed in this recovery.
+This is an infrastructure blocker, not evidence that the source is unavailable
+and not a reason to infer the missing predicate. The wrapper filter remains
+fail-closed while independent source-closed Squad integration proceeds.
 
 ## Clean-room consequence and bounded implementation task
 
