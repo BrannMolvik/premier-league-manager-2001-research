@@ -1,3 +1,16 @@
+### 7 October 2026 KST — Recovery 388 integrated Gate-17 redistribution material bundle merged
+
+PR #537 merged as `edf24e7148007768619514c97822185a6dd43942` after exact head `0023d62c381ff5c6150db30cfef472ddc2a292cb` passed integrated-material run `37615747271` and asset-policy run `37615747138`. Artifact `11478824629` has digest `sha256:880a37d379ffa9d0bf5a606a828cfad32827519af00bd02f544119b93b8ed5df`.
+
+The downloaded artifact was independently enumerated and rehashed: 21 ZIP entries, 20 manifest-hashed payload files, four exact MSYS2/UCRT64 source-package archives for the proven static contributors, nine package-recipe license/declaration evidence files, the exact FFmpeg source snapshot, and zero missing/hash/size mismatches. The integrated manifest deliberately keeps `license_notice_material_complete=false`, `source_material_complete=false`, and `legal_compliance_claimed=false`.
+
+Immediately before that, PR #536 merged as `0e1abef659ea067096fce100969515d1a78a2a34`. Exact head `b9bbd3ecf4c753128feb8574d552929b9581831e` passed source-snapshot `37610811963`, reconstruction `37610811929` (2,903 tests, 25 skipped), asset-policy `37610811926`, minimal-FFmpeg `37610812027`, and Windows-package `37610812038`. Source artifact `11477761759` has digest `sha256:fbf85db39113a1c29e734907b02935cb19750dc543d2c7076ed9264e44ab657b`.
+
+PR #535 had already merged as `513afeffc060fd3e2e9834a9084b651a37947c88`, pinning the nine toolchain contributor license/declaration files after its contributor-license, static-source-bundle, reconstruction, minimal-FFmpeg, Windows-package and asset-policy workflows all passed.
+
+Gate 13 remains open pending Daniel's external Windows acceptance of Settings-inclusive artifact `11473439363`. The next independent cloud-safe Gate-17 step is a **separate minimal-helper package candidate**, not production promotion: package the already-proven minimal helper through the Windows release layout and smoke/provenance checks while keeping the current production helper unchanged. Exact original-TGQ conversion and visible/audible playback remain private Windows blockers.
+
+
 ## 2026-10-07 — Recovery 379: Gate 13 issue #482 WPF/Tk repair merged
 
 - Recovered canonical work from GitHub; merged PR #518 first as `f7b17cca6cffb30aca50f920e2d120589e62e911`, source-closing the native PPreMatch Match Detail mode commit and post-modal presentation dispatch while leaving the ordinary management-screen entry into match router `0x513010` unresolved.
