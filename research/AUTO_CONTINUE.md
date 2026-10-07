@@ -23,7 +23,20 @@ when a session ends but Gate 17 is not finished. The local recovery extension
 may then resume after its normal health/lease checks.
 
 Do not generate unnecessary commits, fabricate recovered source behavior, or
-repeatedly run an impossible task merely to keep a session active. If genuine
+repeatedly run an impossible task merely to keep a session active.
+
+Before implementing any behavior or presentation change, read
+`research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md` and establish the shipped
+original behavior from source/original evidence. Current reconstruction code,
+tests, modern conventions, or visual plausibility are not substitutes for that
+evidence. If the behavior is unresolved, investigate first or preserve an
+explicit unresolved/fail-closed boundary.
+
+Until Daniel explicitly lifts the modernization freeze, autonomous work is
+limited to restoring the original game and the minimum technical compatibility
+work required for Windows 11. Do not add or expand Settings, upscaling, visual
+enhancements, redesigned UX, convenience features, or other non-original
+behavior. If genuine
 infrastructure failure blocks all productive work, document the specific
 failed operation and preserve the next executable action. Use
 `waiting_for_user` only when user intervention is genuinely required, not

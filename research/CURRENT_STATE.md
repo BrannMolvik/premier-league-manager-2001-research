@@ -1,3 +1,12 @@
+# Current local task - original-style build restoration
+
+Fetched canonical main e4a60f0a on 7 October 2026. Its mandatory retrospective
+audit and original-behavior-first freeze apply to this recovery branch.
+No new acceptance build or guessed gameplay/presentation is permitted until
+the audit exit criteria pass. Retain the local verified repairs below as
+auditable evidence, not as automatic original-behavior approval. The temporary
+travel fallback is separate and is not the target normal interface.
+
 # Local source-runtime recovery - 7 October 2026
 
 Daniel explicitly authorized installed-Python development testing independently
@@ -116,6 +125,40 @@ launches or investigations are running. Resume with the remaining ordinary
 Squad presentation/interaction, preserving the proven startup fix; packaged
 acceptance remains blocked by the recorded Windows trust-policy denial.
 ---
+# Mandatory retrospective audit before further implementation
+
+_Added 7 October 2026._
+
+**STOP implementation work temporarily.** The next canonical task is the retrospective audit defined in `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`.
+
+Audit every merged change from Gate 13 / issue #482 reopening through current `main`. Every behavior/presentation-affecting change must be checked against reproducible original-game evidence under `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
+
+Until the audit exit criteria pass:
+
+- do not implement new gameplay/presentation behavior;
+- do not expand Settings or other modernization;
+- do not resume Gate-17 work-ahead merely because it is cloud-safe;
+- do not create a new external acceptance build;
+- do not preserve a merged behavior solely because tests are green or an older worker called it source-backed;
+- correct/downgrade any historical/current completion claim contradicted by Daniel's Windows evidence;
+- isolate/revert/fail-close unsupported behavior rather than replacing it with a new guess.
+
+After the audit, resume only the highest-priority **original-proven** Gate-13 repair identified by the audit.
+
+---
+
+# Daniel directive - original-behavior-first / modernization freeze
+
+_Updated 7 October 2026._
+
+Effective immediately, the active project objective is **restore the shipped original FM2001 experience on Windows 11**, not modernize it. Every implementation must first establish how the original game behaved from original/source evidence and use the minimum compatibility adaptation necessary. Unknown behavior must remain unresolved/fail-closed rather than be filled with plausible modern behavior. See `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
+
+The previously merged Settings extension is **deferred modernization**, not an active Gate-13 requirement and not evidence of original behavior. Do not expand it. Before the next external acceptance candidate, ensure the normal/default tested path restores the original menu baseline and does not depend on modernization-only controls.
+
+**Immediate priority remains issue #482:** source-first diagnosis and repair of the externally demonstrated Gate-13 failures (startup-video content transform/framing, startup input semantics, menu-transition latency, and incomplete Southport management/Squad presentation). For each fix, recover/confirm the original behavior first, then implement only the minimum Windows-11-compatible equivalent.
+
+---
+
 # Recovery 388 continuation - integrated third-party material bundle merged; minimal package candidate next
 
 _Updated 7 October 2026._

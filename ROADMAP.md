@@ -20,6 +20,8 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 8. Mark every fidelity claim as confirmed, probable, hypothesis, fallback, or approximation as appropriate.
 9. Use accessible original FM2001 resources and recovered original behavior by default. Do not recreate or substitute them for convenience, implementation speed, aesthetics, or modernization preference. Replace only when the original is technically incompatible with the Windows 11 runtime after reasonable adaptation/conversion, or genuinely inaccessible/unrecoverable from the authorized source; document that boundary. Store intentionally reused resources under `original_assets/` with provenance. Keep raw disc images, duplicate archives, temporary dumps, and unrelated binary noise out of Git.
 10. Before moving to the next gate, verify the gate's completion criteria.
+11. **Original-behavior-first is a hard implementation gate.** Before changing behavior, presentation, controls, timing, navigation, layouts, asset transforms, or simulation semantics, first establish and persist how the shipped original behaved and the evidence supporting it. If the original behavior is unresolved, investigate it or leave the boundary unresolved/fail-closed; do not invent a plausible modern substitute. See `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
+12. **Modernization freeze:** until Daniel explicitly lifts it, the only modernization permitted is the minimum technical adaptation required to make the original game run correctly on Windows 11. Do not add new UX, graphics features, settings, controls, gameplay changes, or quality-of-life behavior during this phase. Performance work is allowed only to remove reconstruction overhead while preserving original behavior.
 
 ## Current roadmap status
 
@@ -285,10 +287,9 @@ Goal: restore the original FM2001 interaction flow and visual identity after gam
 Suggested screen order:
 
 1. main menu / TeamSelect;
-   - add a **Settings** button alongside the existing main-menu buttons as an intentional modernization extension;
-   - the Settings surface must use the restored FM2001 visual language rather than introducing a generic modern launcher/settings UI;
-   - its default/baseline profile must reproduce the original game's recovered presentation and behavior, so a user who changes nothing receives the original-style experience;
-   - keep this first Settings implementation narrow and compatible with Gate 13. Advanced rendering/upscaling options belong to Gate 17 rather than being allowed to delay restoration of the original baseline.
+   - restore and validate the shipped original menu first;
+   - no new controls or menu entries are part of Gate 13 while the modernization freeze is active;
+   - the previously implemented Settings extension is deferred and is not evidence of original behavior.
 2. PMenu management shell / fresh-game Squad landing;
 3. Squad composition and navigation;
 4. tactics/team selection;
@@ -311,7 +312,7 @@ Completion criteria:
 - [x] Simulation logic remains separated from presentation code. See `research/GATE13_PRESENTATION_SEPARATION_AUDIT.md`.
 - [x] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
 - [x] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
-- [x] A Settings button is integrated with the other main-menu controls and opens a source-styled settings surface whose untouched/default state preserves the original FM2001 baseline. This is an intentional modernization extension and must not replace or visually compromise the recovered original menu.
+- [ ] The normal/default main-menu path is verified against the shipped original without depending on modernization-only controls. Any previously merged Settings extension is isolated/deferred until modernization is explicitly authorized.
 - [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI. **Reopened:** Daniel's 6 October Windows 11 run showed multi-second interaction latency and a materially incomplete fresh Squad landing.
 
 Prior closure evidence: `research/GATE13_CLOSURE_AUDIT.md` and
@@ -365,23 +366,16 @@ Temporary reconstruction limits such as Premier-League-only human control are ac
 
 Goal: produce a stable Windows 11 port/modernization build with intentional provenance for reused original resources.
 
-### Modernization settings
+### Deferred modernization settings
 
-Expand the Gate-13 Settings surface as modernization features become available. The **Original** profile remains the reference/default and must continue to reproduce the recovered original presentation. New visual features are exposed as explicit user-selectable options rather than silently changing the baseline.
+**Not active work.** Settings, upscaling, visual enhancements, and other non-original UX/graphics features are deliberately deferred until Daniel explicitly lifts the modernization freeze after the original Windows 11 baseline is restored and accepted.
 
-Planned settings growth includes:
-
-- upscaling/render-resolution controls once the modern rendering path supports them;
-- optional visual-improvement features added by later modernization work;
-- other graphics/display settings that become meaningful as the port gains modern rendering capabilities;
-- clear reset/return-to-original behavior so modern enhancements can always be disabled.
-
-The settings architecture should be extensible: future graphics options should plug into the same in-game Settings surface rather than requiring separate launchers or ad-hoc configuration files.
+The previously requested Settings concept remains a future roadmap item only. When modernization is later authorized, the original FM2001 presentation must remain the reference/default and modern enhancements must be optional and reversible.
 
 Completion criteria:
 
 - [ ] Reused original assets are intentional, authorized, organized under the asset policy, and provenance-tracked.
-- [ ] The in-game Settings surface exposes completed modernization graphics options, including upscaling/visual improvements where implemented, while preserving a one-action return to the original baseline.
+- [ ] After Daniel explicitly authorizes the modernization phase, deferred Settings/upscaling/visual-improvement work may be reactivated without changing the accepted original baseline.
 - [ ] Raw disc images, temporary dumps, and accidental packaging artifacts are excluded.
 - [ ] Full automated suite passes.
 - [ ] Clean installation works outside the development environment.
