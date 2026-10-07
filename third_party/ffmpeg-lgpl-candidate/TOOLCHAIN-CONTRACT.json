@@ -36,5 +36,119 @@
   "complete_package_lock": false,
   "source_material_complete": false,
   "legal_compliance_claimed": false,
-  "boundary": "This receipt pins build-tool identity and an audited critical package subset only. It does not assert that every transitive build package, corresponding source archive, license text, redistribution notice, or legal obligation has been collected."
+  "boundary": "This receipt pins build-tool identity and an audited critical package subset only. It does not assert that every transitive build package, corresponding source archive, license text, redistribution notice, or legal obligation has been collected.",
+  "critical_package_source_material": {
+    "scope": "Source-package family map for the already-pinned critical package subset only. This is not a complete transitive package/source lock.",
+    "package_to_source_family": {
+      "msys2-runtime": "msys2-runtime",
+      "mingw-w64-ucrt-x86_64-gcc": "mingw-w64-gcc",
+      "mingw-w64-ucrt-x86_64-binutils": "mingw-w64-binutils",
+      "mingw-w64-ucrt-x86_64-nasm": "mingw-w64-nasm",
+      "mingw-w64-ucrt-x86_64-cc-libs": "mingw-w64-gcc",
+      "mingw-w64-ucrt-x86_64-crt": "mingw-w64-crt",
+      "mingw-w64-ucrt-x86_64-headers": "mingw-w64-headers",
+      "mingw-w64-ucrt-x86_64-libatomic": "mingw-w64-gcc",
+      "mingw-w64-ucrt-x86_64-libgcc": "mingw-w64-gcc",
+      "mingw-w64-ucrt-x86_64-libquadmath": "mingw-w64-gcc",
+      "mingw-w64-ucrt-x86_64-libstdc++": "mingw-w64-gcc",
+      "mingw-w64-ucrt-x86_64-libwinpthread": "mingw-w64-winpthreads",
+      "mingw-w64-ucrt-x86_64-winpthreads": "mingw-w64-winpthreads",
+      "mingw-w64-ucrt-x86_64-windows-default-manifest": "mingw-w64-windows-default-manifest"
+    },
+    "source_families": {
+      "msys2-runtime": {
+        "binary_version": "3.6.10-6",
+        "metadata_url": "https://packages.msys2.org/packages/msys2-runtime",
+        "source_only_tarball": null,
+        "source_tarball_metadata_verified": false,
+        "license_metadata": [
+          "GPL-3.0-or-later"
+        ],
+        "note": "Official MSYS2 repo metadata confirms 3.6.10-6 is the pinned runtime version, but this checkpoint has not independently verified the exact -6 source-only tarball URL."
+      },
+      "mingw-w64-gcc": {
+        "binary_version": "16.2.0-4",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-gcc?repo=ucrt64",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-gcc-16.2.0-4.src.tar.zst",
+        "source_tarball_metadata_verified": true,
+        "license_metadata": [
+          "GPL-3.0-or-later WITH GCC-exception-3.1",
+          "GFDL-1.3-or-later"
+        ]
+      },
+      "mingw-w64-binutils": {
+        "binary_version": "2.47-3",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-binutils",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-binutils-2.47-3.src.tar.zst",
+        "source_tarball_metadata_verified": true,
+        "license_metadata": [
+          "GPL-3.0-or-later",
+          "GPL-2.0-or-later",
+          "LGPL-3.0-or-later",
+          "LGPL-2.0-or-later"
+        ]
+      },
+      "mingw-w64-nasm": {
+        "binary_version": "3.02-1",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-nasm",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-nasm-3.02-1.src.tar.zst",
+        "source_tarball_metadata_verified": true,
+        "license_metadata": [
+          "BSD"
+        ]
+      },
+      "mingw-w64-crt": {
+        "binary_version": "14.0.0.r426.g4564ee4b5-1",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-crt",
+        "source_only_tarball": null,
+        "source_tarball_metadata_verified": false,
+        "license_metadata": [
+          "ZPL-2.1"
+        ],
+        "note": "Current MSYS2 package index confirms the pinned r426 binary version, but this checkpoint has not independently verified its exact source-only tarball URL."
+      },
+      "mingw-w64-headers": {
+        "binary_version": "14.0.0.r426.g4564ee4b5-1",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-headers",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-headers-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
+        "source_tarball_metadata_verified": true,
+        "license_metadata": [
+          "ZPL-2.1",
+          "LGPL-2.1-or-later"
+        ]
+      },
+      "mingw-w64-winpthreads": {
+        "binary_version": "14.0.0.r426.g4564ee4b5-1",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-libwinpthread?repo=ucrt64",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
+        "source_tarball_metadata_verified": true,
+        "license_metadata": [
+          "MIT",
+          "BSD-3-Clause-Clear"
+        ]
+      },
+      "mingw-w64-windows-default-manifest": {
+        "binary_version": "20260815-1",
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-windows-default-manifest",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-windows-default-manifest-20260815-1.src.tar.zst",
+        "source_tarball_metadata_verified": true,
+        "license_metadata": [
+          "custom:Public Domain"
+        ]
+      }
+    },
+    "verified_source_family_count": 6,
+    "total_source_family_count": 8,
+    "unresolved": [
+      "Verify the exact MSYS2 source-only tarball metadata for msys2-runtime 3.6.10-6.",
+      "Verify the exact MSYS2 source-only tarball metadata for mingw-w64-crt 14.0.0.r426.g4564ee4b5-1.",
+      "Derive and lock the complete transitive package set actually present in the successful build environment.",
+      "Map every transitive runtime/build component that contributes redistributed code into the static helper to corresponding source/license/notice material.",
+      "Assemble and checksum the final redistribution source/license/notice bundle.",
+      "Perform a separate legal/compliance review; this technical plan makes no compliance conclusion."
+    ],
+    "complete_package_lock": false,
+    "source_material_complete": false,
+    "legal_compliance_claimed": false
+  }
 }
