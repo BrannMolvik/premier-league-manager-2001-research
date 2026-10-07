@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main 2d7e9b87ff96b12075c85150f989bdb96242a4b3. Settings DEFERRED-MODERNIZATION is isolated from the original baseline (86f7d22). Startup Escape/fullscreen contamination is fail-closed during unrecovered startup input semantics (2d7e9b8). Continue classifying all post-#482 behavior-affecting first-parent merges, especially FMV composition, menu latency, fresh Squad completeness, and live Gate-14 host dispatch. Persist complete audit table/status corrections before any new acceptance build or Gate-17 work-ahead.",
-  "last_known_main_head": "2d7e9b87ff96b12075c85150f989bdb96242a4b3",
+  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main 0db90b975f1f2bb39797272a00f022ed380bdfb4. Settings is isolated from the original baseline; startup Escape is fail-closed; disproved Cup-Tied transfer-date fallback is now fail-closed. Continue complete first-parent classification and correct any remaining unsupported/inconclusive active behavior, especially FMV frame-content transform, menu latency, fresh Squad name/header completeness, and Gate-14 host reachability. Do not resume Gate-17 work-ahead or produce an acceptance build until audit exits.",
+  "last_known_main_head": "0db90b975f1f2bb39797272a00f022ed380bdfb4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 395,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 395: resumed mandatory post-#482 retrospective audit from main 2d7e9b87; implementation freeze remains active.",
+  "note": "Recovery 395: audit found and corrected active disproved Cup-Tied date fallback at main 0db90b97; implementation freeze remains active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
