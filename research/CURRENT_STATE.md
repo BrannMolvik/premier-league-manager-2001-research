@@ -1,3 +1,23 @@
+# Recovery 388 continuation - integrated third-party material bundle merged; minimal package candidate next
+
+_Updated 7 October 2026._
+
+Canonical `main` is `edf24e7148007768619514c97822185a6dd43942`, merging PR #537. **Gate 13 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of the Settings-inclusive artifact `11473439363`. Hosted CI and later Gate-17 work-ahead do not satisfy that external recognizability/playability criterion.
+
+Recovery 387/388 closed the current cloud-safe third-party material assembly chain without making a legal conclusion:
+
+- PR #535, exact head `8b88af102cfbe504289ca825adfe24b10e75a475`, merged as `513afeffc060fd3e2e9834a9084b651a37947c88`. Its exact-head runs all passed: contributor-license `37608149346`, static-source-bundle `37608149361`, reconstruction `37608149368`, minimal-FFmpeg `37608149358`, Windows-package `37608149365`, and asset-policy `37608149344`. This pins the nine package-recipe license/declaration evidence files for the four proven static toolchain contributor families.
+- PR #536, exact head `b9bbd3ecf4c753128feb8574d552929b9581831e`, merged as `0e1abef659ea067096fce100969515d1a78a2a34`. Source-snapshot `37610811963`, reconstruction `37610811929` (**2,903 tests, 25 skipped**), asset-policy `37610811926`, minimal-FFmpeg `37610812027`, and Windows-package `37610812038` all passed. Exact-head source artifact `11477761759` has Actions digest `sha256:fbf85db39113a1c29e734907b02935cb19750dc543d2c7076ed9264e44ab657b`. The pinned FFmpeg tree remains commit `46d8f462eeb87ee1f704d8c44a0ee24fca471ad1`, with deterministic source archive SHA-256 `5b67f561b8412a4232c45f5a48e9046872bd762c048ef07f725f088352ff3b3d`.
+- PR #537, exact head `0023d62c381ff5c6150db30cfef472ddc2a292cb`, merged as `edf24e7148007768619514c97822185a6dd43942`. Integrated-material run `37615747271` and asset-policy `37615747138` passed. Artifact `11478824629`, digest `sha256:880a37d379ffa9d0bf5a606a828cfad32827519af00bd02f544119b93b8ed5df`, was independently inspected: 21 ZIP entries, 20 manifest-hashed payload files, four exact toolchain source packages, nine license/declaration evidence files, the exact FFmpeg source snapshot, and **zero** missing/hash/size mismatches.
+
+This proves that the currently identified third-party source and package-recipe license/declaration evidence can be reproduced and assembled into one deterministic technical bundle. It does **not** decide notice sufficiency, redistribution compliance, or final release legality. Therefore `license_notice_material_complete=false`, `source_material_complete=false`, and `legal_compliance_claimed=false` remain mandatory.
+
+The exact minimal helper already has hosted build and synthetic-roundtrip proof. The next promotion boundary, exact `easp.tgq` / `premintro.tgq` conversion with `h264_mf`, remains a private Windows-only task and has no successful receipt. Production Windows packaging still bundles the older `imageio-ffmpeg==0.6.0` / Gyan helper and therefore has **not** migrated to the minimal helper.
+
+**Exact next cloud-safe task:** prepare a separate Windows package-candidate path that stages the exact already-proven minimal FFmpeg helper into a candidate package and exercises package smoke/provenance checks without changing the canonical production/default helper. Keep `production_runtime_switched=false` until the private exact-TGQ Windows proof and real Windows visible/audible playback acceptance exist. Do not use this candidate work to close Gate 13, Gate 14, or Gate 17.
+
+---
+
 # Recovery 386 continuation - Settings merged; current Windows acceptance candidate refreshed
 
 _Updated 7 October 2026._
