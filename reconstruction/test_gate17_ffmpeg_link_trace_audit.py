@@ -10,6 +10,8 @@ from gate17_ffmpeg_link_trace_audit import LinkTraceAuditError, audit_link_trace
 
 RELEASE = """gcc -static -Wl,--image-base,0x140000000 -o ffmpeg_g.exe ffmpeg.o libavcodec/libavcodec.a -lm
 gcc -static -Wl,--image-base,0x140000000 -o ffprobe_g.exe ffprobe.o libavcodec/libavcodec.a -lm
+strip -o ffmpeg.exe ffmpeg_g.exe
+strip -o ffprobe.exe ffprobe_g.exe
 """
 FFMPEG_TRACE = """gcc -static -Wl,--image-base,0x140000000 -Wl,--trace -o ffmpeg_g.exe ffmpeg.o libavcodec/libavcodec.a -lm
 libavcodec/libavcodec.a
@@ -52,6 +54,15 @@ class Gate17FfmpegLinkTraceAuditTests(unittest.TestCase):
         self.assertFalse(result["source_material_complete"])
         self.assertFalse(result["legal_compliance_claimed"])
         self.assertFalse(result["contributor_package_attribution_complete"])
+
+
+    def test_strip_command_using_unstripped_input_is_not_a_second_link(self):
+        result = self.run_audit()
+        self.assertTrue(result["passed"])
+        self.assertEqual(
+            result["targets"]["ffmpeg_g.exe"]["release_command_token_count"],
+            7,
+        )
 
     def test_trace_command_drift_fails_closed(self):
         drifted = FFMPEG_TRACE.replace("-lm", "-lws2_32")
