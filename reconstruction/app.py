@@ -803,6 +803,8 @@ def choose_dir() -> Path | None:
     return Path(p) if p else None
 
 def main():
+    from windows_display_context import initialize_windows_display_context
+    initialize_windows_display_context()
     ap = argparse.ArgumentParser()
     ap.add_argument('game_dir', nargs='?', default=str(DEFAULT_GAME_DIR))
     ap.add_argument(

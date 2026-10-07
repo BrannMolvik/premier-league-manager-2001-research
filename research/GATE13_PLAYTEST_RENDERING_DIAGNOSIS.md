@@ -47,9 +47,61 @@ The reproduced screen also lacks additional management/roster presentation;
 existing fail-closed rendering boundaries must be completed from original
 evidence before calling the whole build playable or closing Gate 13.
 
-Daniel additionally reports the longer Premier League intro as cropped/off-center.
-The bounded DPI-aware EA check measures the expected centered physical child
-rectangle `(512,144)-(2048,1296)` on a 2560x1440 desktop at 150% DPI, with
-WPF content 1024x768 DIPs and device transform 1.5. That validates the EA
-geometry only; it does not dismiss the Premier League clip report or establish
-its visual acceptance. No speculative media conversion/placement change is made.
+## Both intro clips: confirmed mixed-DPI defect and compatibility fix
+
+The frozen PyInstaller executable has no DPI-awareness manifest declaration.
+Its default Tk parent is DPI-unaware; loading WPF makes the player thread
+system-aware. A same-clip A/B test on Daniel's 150% DPI display established:
+
+| Parent setup | Parent/child DPI | WPF content units | Device transform |
+| --- | --- | --- | --- |
+| Default unaware parent | 96/96; child awareness 0, thread awareness 1 | 800x600 | 1.5 |
+| System-aware parent before Tk creation | 144/144; child/thread awareness 1 | 533.333x400 | 1.5 |
+
+The first path applies the device scale to an already full-sized layout,
+explaining cropped content inside a correctly centered outer child rectangle.
+Both tests used the same verified EA derivative and both reached MediaEnded;
+this was a framing error, not another timeout. Private event receipts:
+`work/wpf-inner-dpi-{unaware,aligned}-proof1/events.log`.
+
+`windows_display_context.py` now initializes and verifies process-local DPI
+awareness before any application Tk root. Existing awareness is not downgraded;
+an unsuccessful context qualification fails closed. Desktop settings, source
+media, cache checks, source order, audio and duration-plus-30 timeout are unchanged.
+The rebuilt frozen executable completed both ordinary intros and restored the
+menu. The Premier League circular content was visibly centered and uncropped.
+The separate short EA A/B tests both completed. No subjective audio confirmation
+or cross-monitor/per-monitor-DPI acceptance is claimed.
+
+The compatibility viewport now scales down as well as up when the actual game
+client changes size. It retains the original 800x600 coordinates and 640x480
+movie rectangle at (80,60), with nearest-neighbour game art. The backend resizes
+only its PID-qualified direct game child using NOACTIVATE/NOZORDER, without
+restarting playback. A real two-clip resize test exercised 1000x750, 640x480 and
+400x300 clients, verified child client dimensions, reached both MediaEnded events
+and restored the menu. Its private receipt is `work/intro-resize-check/passed.json`.
+The 50ms resize coalescing is modern transport handling, not original game timing.
+F11/Alt+Enter/Escape remain rejected while startup media is active.
+
+## Explicit remaining playability boundary
+
+The corrected frozen build was operated through Start New Game -> Conference ->
+Southport -> Start in an ordinary window. Twenty visible names now render with
+roles and source-qualified numeric fields, and no startup exception appeared.
+However, the blank management header and incomplete roster controls are real
+missing presentation, not fixed by DPI initialization. The source-backed host
+also lacks the ordinary advance/play binding. Existing backend tests can calculate
+a Conference fixture and save/reload it, but are not ordinary UI play acceptance.
+The earlier development notebook (`--prototype-ui`) is a distinct host, not a
+substitute production solution. Gate 13 is not closed by this checkpoint.
+
+Validation for this checkpoint: 81 focused host/DPI/startup tests passed with
+one licensed-media opt-in skip; 22 final DPI/owned-child tests passed; full
+reconstruction suite passed 2,859 tests with 24 expected skips (381.983s), using
+the existing private Capstone dependency. Asset policy and whitespace checks
+passed. The actual rebuilt frozen executable passed package-smoke and PStartMenu
+manifest verification, both normal intros, windowed menu input and ordinary
+Conference/Southport selection. Private logs: `work/dpi-final-focused.log`,
+`work/dpi-ownership-final.log`, `work/dpi-final-full.log`, and
+`work/issue482-dpi-build-smoke.log`. These results do not certify missing normal
+management interaction, subjective audio, or final release acceptance.

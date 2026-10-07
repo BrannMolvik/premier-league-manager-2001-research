@@ -4,6 +4,7 @@ from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 import base64
+import ctypes
 import platform
 import subprocess
 import unittest
@@ -15,6 +16,7 @@ from startup_media_windows_backend import (
     WindowsMciStartupMediaBackend,
     WindowsWpfStartupMediaBackend,
     WindowsStartupMediaBackendError,
+    _GameOwnedChildViewport,
 )
 
 
@@ -72,6 +74,76 @@ class RecordingRunner:
 
 
 class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
+    def test_native_viewport_is_scoped_to_owned_direct_child_and_never_activates(self):
+        calls = []
+        child = _GameOwnedChildViewport.__new__(_GameOwnedChildViewport)
+        child.parent_hwnd, child.player_pid = 123, 456
+        child.child_hwnd = child.last_rect = None
+        child.callback_type = lambda callback: callback
+        child.pid_type = ctypes.c_ulong
+        pids, parents = {10: 999, 20: 456, 30: 456}, {10: 123, 20: 123, 30: 20}
+        def pid(hwnd, output):
+            output._obj.value = pids[hwnd]
+        def enum(parent, callback, parameter):
+            self.assertEqual(parent, 123)
+            for hwnd in (10, 20, 30):
+                callback(hwnd, parameter)
+        child.user32 = SimpleNamespace(EnumChildWindows=enum,
+            GetWindowThreadProcessId=pid, GetParent=lambda hwnd: parents[hwnd],
+            SetWindowPos=lambda *args: calls.append(args) or True)
+        child((80, 60, 640, 480))
+        child((80, 60, 640, 480))  # No repeated geometry request.
+        child((40, 30, 320, 240))
+        self.assertEqual(calls, [(20, None, 80, 60, 640, 480, 0x0014),
+                                 (20, None, 40, 30, 320, 240, 0x0014)])
+        pids[20] = 999  # A stale/reused HWND must not target another application.
+        with self.assertRaises(WindowsStartupMediaBackendError):
+            child((40, 30, 320, 240))  # Even unchanged geometry rechecks ownership.
+        self.assertEqual(len(calls), 2)
+
+    def test_live_child_geometry_follows_owner_without_restarting_media(self):
+        rects, ownership = [], []
+        process = SimpleNamespace(pid=456, returncode=0, poll=lambda: None)
+        count = []
+        def communicate(timeout=None):
+            if len(count) < 2:
+                raise subprocess.TimeoutExpired('still playing', timeout)
+            return '', ''
+        process.communicate = communicate
+        process.kill = lambda: self.fail('completed player must not be killed')
+        def viewport(parent, pid):
+            ownership.append((parent, pid))
+            return rects.append
+        backend = WindowsWpfStartupMediaBackend(platform_system='Windows',
+            process_factory=lambda *a, **k: process, viewport_factory=viewport)
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
+        backend.bind_event_pump(lambda: count.append(True))
+        def binding():
+            half = len(count) == 2
+            return dict(parent_hwnd=123, x=40 if half else 80, y=30 if half else 60,
+                        width=320 if half else 640, height=240 if half else 480)
+        backend.bind_presentation_geometry(binding)
+        self.assertTrue(backend.play(derivative(Path('easp.mp4'))))
+        self.assertEqual(ownership, [(123, 456)])
+        self.assertEqual(rects, [(80, 60, 640, 480), (40, 30, 320, 240)])
+
+    def test_changed_parent_and_invalid_live_geometry_fail_closed(self):
+        process = unittest.mock.Mock(pid=456)
+        process.poll.return_value = None
+        process.communicate.return_value = ('', '')
+        backend = WindowsWpfStartupMediaBackend(platform_system='Windows',
+            process_factory=lambda *a, **k: process, viewport_factory=lambda *a: lambda rect: None)
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
+        backend.bind_event_pump(lambda: None)
+        for binding in (dict(parent_hwnd=999, x=80, y=60, width=640, height=480),
+                        dict(parent_hwnd=123, x=80, y=60, width=0, height=480)):
+            backend.bind_presentation_geometry(lambda: binding)
+            with self.assertRaises(WindowsStartupMediaBackendError):
+                backend.play(derivative(Path('easp.mp4')))
+        self.assertEqual(process.kill.call_count, 2)
+        with self.assertRaises(WindowsStartupMediaBackendError):
+            backend.bind_presentation_geometry(None)
+
     def test_game_owned_child_creation_requires_parent_pump_before_completion(self):
         # Model the real HwndSource constructor's cross-process parent request.
         # A blocking runner cannot service it; communicate must yield to Tk.

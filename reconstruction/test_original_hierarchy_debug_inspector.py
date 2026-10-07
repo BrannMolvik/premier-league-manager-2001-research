@@ -57,7 +57,7 @@ class HierarchyPrivateDebugTests(unittest.TestCase):
     def test_only_verified_teamselect_art_can_be_previewed_off_canvas(self):
         live = presenter_with_hierarchy_art()
         self.assertIsNone(inspect_original_hierarchy_source_frames(live.snapshot()))
-        live.pointer(7, 478)
+        live.pointer(141, 512)
         view = live.snapshot()
         self.assertIs(view.screen, FrontEndScreen.TEAM_SELECT)
         bundle = inspect_original_hierarchy_source_frames(
@@ -106,7 +106,7 @@ class HierarchyPrivateDebugTests(unittest.TestCase):
 
     def test_absent_hierarchy_resources_do_not_invent_atlas_pixels(self):
         live = presenter()
-        live.pointer(7, 478)
+        live.pointer(141, 512)
         self.assertIsNone(inspect_original_hierarchy_source_frames(live.snapshot()))
         window = OriginalFirstScreenTkDebug(live, FakeRoot(), FakeTk, FakeTtk)
         self.assertEqual(len(window.canvas.images), 3)
@@ -122,7 +122,7 @@ class HierarchyPrivateDebugTests(unittest.TestCase):
         self.assertEqual(len(window.canvas.images), 9)
         self.assertEqual(window.hierarchy_anim_label.values.get("image"), "")
         self.assertEqual(window.hierarchy_bars_label.values.get("image"), "")
-        window.on_original_click(SimpleNamespace(x=7, y=478))
+        window.on_original_click(SimpleNamespace(x=141, y=512))
         # Only proven Back/Start geometry reaches original 800x600 canvas.
         self.assertEqual(len(window.canvas.images), 3)
         self.assertEqual(

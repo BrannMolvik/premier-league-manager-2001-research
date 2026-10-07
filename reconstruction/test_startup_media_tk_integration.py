@@ -29,21 +29,27 @@ class StartupMediaTkIntegrationTests(unittest.TestCase):
             def bind_parent_window(self, parent_hwnd, **rect):
                 self.binding = (parent_hwnd, rect)
                 events.append('bind child')
+            def bind_presentation_geometry(self, provider):
+                self.geometry = provider
+                events.append('bind geometry')
         backend = Backend()
         def play(**kwargs):
             self.assertIs(kwargs['backend'], backend)
             self.assertIs(backend.pump, pump)
+            self.assertEqual(backend.geometry(), dict(parent_hwnd=123, x=80, y=60, width=640, height=480))
             events.append('easp then premintro')
             backend.pump()
         with (patch('original_game_host.build_original_game_presenter'),
-              patch('tkinter.Tk', return_value=root),
+              patch('windows_display_context.initialize_windows_display_context',
+                    side_effect=lambda: events.append('DPI context')),
+              patch('tkinter.Tk', side_effect=lambda: (events.append('Tk root'), root)[1]),
               patch('original_game_host.OriginalGameTkHost', return_value=host),
               patch('original_game_host.play_configured_startup_media', side_effect=play),
               patch('original_game_host.install_live_first_screen_audio', return_value=None)):
             run_original_game_ui(Path('game'), startup_media_backend=backend,
                 startup_media_derivatives=('verified sequence',))
-        self.assertEqual(events, ['black backdrop', 'bind pump', 'bind child',
-            'easp then premintro', 'pump', 'restore menu', 'mainloop'])
+        self.assertEqual(events, ['DPI context', 'Tk root', 'black backdrop', 'bind pump', 'bind child',
+            'bind geometry', 'easp then premintro', 'pump', 'restore menu', 'mainloop'])
         self.assertEqual(backend.binding, (123, dict(x=80, y=60, width=640, height=480)))
 
     def test_pumping_does_not_accept_hidden_menu_input_or_redraw_over_movie(self):
@@ -93,6 +99,8 @@ class StartupMediaTkIntegrationTests(unittest.TestCase):
         no original game is launched and no media is stored in the repository.
         """
         import tkinter as tk
+        from windows_display_context import initialize_windows_display_context
+        initialize_windows_display_context()
         cache = Path(os.environ['FM2001_WPF_TEST_CACHE'])
         receipt = json.loads((cache / CACHE_RECEIPT_NAME).read_text(encoding='utf-8'))
         items = _load_cache(cache, ffmpeg_sha256=receipt['ffmpeg_sha256'])
