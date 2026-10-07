@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 405 PR #552 exact head 970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64 imports SHA-verified 36px Zurich font and integrates source Club.name across Southport and Arsenal; 3 PR workflows green, full reconstruction workflow #37700777348 running. Verify last workflow before merging, then update canonical Gate-13 audit/current state. Separately private Windows --transport-probe-only HWND/DPI receipt remains outstanding; do not claim Gate 13 or Gate 17 closure.",
-  "last_known_main_head": "aecef5b0c194e6ea951cf2f0dbed1e9f0ab0de90",
+  "active_task": "Recovery 405: PR #552 merged verified original Zurich 36px font + live generic Club.name at main 08ad7e9; canonical status/docs checkpoint 5b8fafe. Next cloud-safe Gate-13 task is per-first-parent classification of post-#482 main commits after b890c578 while awaiting private Windows --transport-probe-only HWND/DPI receipt and external visual/latency acceptance. Audit remains open; continue Gate 17 mission.",
+  "last_known_main_head": "5b8fafe123ed601377ff44886f39cd27845453da",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 405,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Verified Git blob a5127c02be6f6ff20594701e3507afb9e56086b0 for exact 155544-byte font; PR #552 has source/header/host tests, Windows packaging and asset policy green. Avoid extra Actions dispatches; preserve earliest incomplete gate13.",
+  "note": "Four PR #552 workflows success, exact head 970ea1c (asset 37700777454, gate13 37700777378, package 37700777327, full 37700777348). Runtime working; no further CI without milestone.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
