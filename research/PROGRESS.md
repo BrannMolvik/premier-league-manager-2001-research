@@ -12375,3 +12375,13 @@ continues with ordinary Squad row display-name/color helpers.
 - Re-resolved and materialized the authorized 511,121,336-byte private source archive from the canonical Library location. Container execution still fails with `caas.internal.errors.ClientError` even for trivial process startup, so first-hand executable tracing remains infrastructure-blocked rather than source-blocked.
 - Inspected stale PR #520: it consists only of the candidate-only match-processing caller tracer, its tests, and two reconstruction-CI path entries. Next task is to rebuild that three-file change on `c28c998`; do not infer management semantics from candidate edges.
 
+## 7 October 2026 KST — Recovery 380 PR #520 rebuild, tracker reconciliation, and deferred boundaries
+
+- Rebuilt PR #520 on canonical main after archiving the stale Recovery-379 head.
+- Exact rebuilt head `d5b23dbff3f9223ec718fc0e8121c9108397abe4` changed only the candidate-only `0x513010` tracer, its regression tests, and two CI path entries.
+- Exact-head reconstruction run `37581218818` passed 2,850 tests with 25 expected skips; asset-policy run `37581218783` passed.
+- Merged PR #520 as `a117df66251926bae1931daa8897dfbdffc5062d`. The tool remains discovery-only and does not establish any management navigation semantics.
+- Found #482 closed despite its explicit external-acceptance requirement. Reopened the issue and added comment `6032308224` with artifact `11464212544`, its digest, verification runs, and the instruction not to close before Daniel's normal Windows acceptance.
+- Reconciled two stale status fields: the ordinary management-to-FastView trigger remains unrecovered, and the live Gate-15 fidelity ledger contains 12 rows rather than the older 11-row count.
+- Private Library source availability is intact, but process execution remains blocked by `caas.internal.errors.ClientError`; caller adjudication is deferred without guessing.
+
