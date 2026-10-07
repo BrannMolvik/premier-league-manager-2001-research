@@ -108,7 +108,9 @@ class Club:
     # Master.dat +58/+70 -> expanded DBRClub +0x4A/+0x56. 0x5EF940 uses
     # these source color IDs to decide primary/alternate kit context.
     primary_kit_color_id: int = 0
+    primary_kit_secondary_color_id: int = 0
     alternate_kit_color_id: int = 0
+    alternate_kit_secondary_color_id: int = 0
 
 @dataclass(frozen=True)
 class Player:
@@ -406,7 +408,9 @@ class FM2001Database:
             primary_shirt_template_index = r[52]
             alternate_shirt_template_index = r[55]
             primary_kit_color_id = r[58]
+            primary_kit_secondary_color_id = r[59]
             alternate_kit_color_id = r[70]
+            alternate_kit_secondary_color_id = r[71]
             fan_base_index = struct.unpack_from('<I', r, 94)[0]
             team_category_code = r[98]
             related_club_id_0 = struct.unpack_from('<i', r, 99)[0]
@@ -435,7 +439,9 @@ class FM2001Database:
                 primary_shirt_template_index,
                 alternate_shirt_template_index,
                 primary_kit_color_id,
+                primary_kit_secondary_color_id,
                 alternate_kit_color_id,
+                alternate_kit_secondary_color_id,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
