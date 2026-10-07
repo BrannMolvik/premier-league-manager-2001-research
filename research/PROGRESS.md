@@ -12419,3 +12419,14 @@ continues with ordinary Squad row display-name/color helpers.
 - All 22 `ffmpeg_g.exe` and 21 `ffprobe_g.exe` absolute external `.a/.o` inputs are directly owned by exactly four locked packages: MinGW-w64 CRT, GCC, winpthreads, and windows-default-manifest. Their exact pinned versions already map to verified source-family metadata.
 - PR #528 merged as `0f1739c2e0d606e398a8e6a350d55a22c78a178e`.
 - This closes direct package ownership only. Archive-member incorporation, final static contributor attribution, source-material completeness, and legal-compliance review remain open. Next cloud-safe task is deterministic link-map/member evidence tied to the byte-identical release link.
+
+
+## 7 October 2026 KST — Recovery 385 archive-member attribution review and Gate-13 Settings pivot
+
+- Reviewed PR #530 exact head `1c68e01738208e633b17353aadf079819358da1e` after asset policy `37599721223`, reconstruction `37599721162` (2,884 tests, 25 skipped), and minimal FFmpeg proof `37599721084` all passed.
+- Merged PR #530 as `5edc4764f3e6906cdee996f8f11309efe806e4db`.
+- Artifact `11472084438` has digest `sha256:adc1c935b650b4c71a36d414f832c3dd03692f282cea97728c7581dd116810b7`; reviewed link-member receipt SHA-256 is `f2e018148144277402ebc7b455d4e2d7ca132a1525b7674746f7f37f4e19a975`.
+- Observation-only map relinks are byte-identical to the preserved release unstripped binaries. Both targets prove all four direct external objects plus actual included members from 11 external archives; traced-but-unused archives are explicitly separated.
+- Contributing external code/data is attributable to exactly four pinned owner packages/source families: MinGW-w64 CRT, GCC, winpthreads, and windows-default-manifest.
+- Bounded static contributor attribution is therefore complete. Final source/license/notice bundle assembly and legal review remain open; `source_material_complete=false` and `legal_compliance_claimed=false`.
+- Roadmap commit `21eb5031102f2ab2bd326596cef3c7fe9e673cf3` added a Gate-13 Settings requirement. Gate 13 remains earliest incomplete, and Settings implementation now takes priority over further Gate-17 provenance work while external artifact `11464212544` acceptance remains separately pending.
