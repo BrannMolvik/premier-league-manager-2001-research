@@ -116,39 +116,3 @@ or data to the statically linked helper. That attribution, the corresponding
 source/license/notice bundle, and the separate legal review remain unresolved.
 Accordingly `source_material_complete=false` and
 `legal_compliance_claimed=false` remain mandatory.
-
-
-## Recovery 384 direct final-link input ownership
-
-The exact minimal-helper link-input traces are now reduced to direct package
-ownership evidence inside the same pinned MSYS2/UCRT64 build environment.
-
-PR #528 exact head `125018bf9ef5feba3d58e9a73f67603fadd51cc1`
-passed reconstruction run `37596223784` (2,874 tests, 25 skipped), asset-policy
-run `37596223786`, and minimal FFmpeg proof `37596223802`. Artifact
-`11471081671` has digest
-`sha256:328d0215658f2789329d9dd680afc782b139f76e7ed0acc13541bdd66bccaa7f`.
-
-For every absolute external `.a/.o` path emitted by the validated GNU ld
-trace, the workflow normalizes the actual path and asks the live pinned package
-database for its owner with `pacman -Qo`. Coverage is exact: 22 external
-inputs for `ffmpeg_g.exe` and 21 for `ffprobe_g.exe`. The fail-closed
-ownership receipt is
-`sha256:9f511952e664edc1ed2363f26552eb21d4bd1b9f8763327c64669bf6979ac546`.
-
-Only four locked packages own those observed inputs:
-
-- `mingw-w64-ucrt-x86_64-crt 14.0.0.r426.g4564ee4b5-1` -> `mingw-w64-crt`;
-- `mingw-w64-ucrt-x86_64-gcc 16.2.0-4` -> `mingw-w64-gcc`;
-- `mingw-w64-ucrt-x86_64-winpthreads 14.0.0.r426.g4564ee4b5-1` -> `mingw-w64-winpthreads`;
-- `mingw-w64-ucrt-x86_64-windows-default-manifest 20260815-1` -> `mingw-w64-windows-default-manifest`.
-
-Each source family was already independently source-tarball verified in the
-critical source-material contract. This proves direct package ownership of the
-files presented to the final linker. It still does **not** prove that every
-traced archive contributed one or more members to the executable, so static
-contributor attribution is not complete. The next evidence boundary is an
-equivalent deterministic link-map/archive-member capture for the same release
-link, preferably paired with byte identity of the evidence-only unstripped
-relink. `source_material_complete=false` and
-`legal_compliance_claimed=false` remain mandatory.
