@@ -6,7 +6,10 @@ from pathlib import Path
 import re
 from typing import Mapping
 
-from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+if __package__:
+    from .startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+else:
+    from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
 
 
 class MinimalFfmpegSourceContractError(RuntimeError):
