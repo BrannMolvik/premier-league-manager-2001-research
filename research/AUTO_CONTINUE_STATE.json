@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #534 merged as 85f1534e642bd99cc1e8f2eab6cad062fd5c6256 after exact-head source-bundle 37606602048, asset 37606602020, Windows package 37606602099, reconstruction 37606601881 (2897 tests, 25 skipped), and minimal FFmpeg 37606601917 all passed. Exact four proven toolchain-contributor source packages are hash/size-pinned. Next cloud-safe task: extract and checksum actual package-recipe license/notice material from those pinned source packages, with Public-Domain manifest evidence treated separately. Keep source_material_complete=false and legal_compliance_claimed=false.",
+  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #535 is active at exact head 8b88af102cfbe504289ca825adfe24b10e75a475. The initial license-material workflow passed extraction but artifact review found actions/upload-artifact omitted hidden windows-default-manifest/.SRCINFO; workflow now sets include-hidden-files=true. Require fresh exact-head license artifact and verify .SRCINFO is physically present, plus reconstruction, Windows package, minimal FFmpeg, source-bundle and asset-policy success before merge. Keep license_notice_material_complete=false, source_material_complete=false, legal_compliance_claimed=false.",
   "last_known_main_head": "85f1534e642bd99cc1e8f2eab6cad062fd5c6256",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 386,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #534 source-package bundle merged; license-material extraction is next.",
+  "note": "PR #535 artifact-hidden-file defect fixed; fresh exact-head validation is required.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
