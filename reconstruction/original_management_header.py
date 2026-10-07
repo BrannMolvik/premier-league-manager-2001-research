@@ -153,6 +153,7 @@ class OriginalManagementHeaderResources:
     right_state: EA444DecodedImage
     font: EAFont
     date_font: EAFont
+    club_name_font: EAFont | None = None
 
     def __post_init__(self) -> None:
         if (self.left_anim.width, self.left_anim.height) != HEADER_LEFT_RESOURCE.size:
@@ -161,6 +162,10 @@ class OriginalManagementHeaderResources:
             raise OriginalManagementHeaderError("back_4 decoded geometry mismatch")
         if (self.date_font.atlas_width, self.date_font.atlas_height) != HEADER_DATE_FONT_ATLAS_SIZE:
             raise OriginalManagementHeaderError("Central date font atlas geometry mismatch")
+        if self.club_name_font is not None and (
+            self.club_name_font.atlas_width, self.club_name_font.atlas_height
+        ) != (2678, 38):
+            raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
 
 
 @dataclass(frozen=True)
@@ -319,6 +324,25 @@ def validate_management_header_date_font(source_root: str | Path) -> EAFont:
     return font
 
 
+def validate_management_header_club_name_font(source_root: str | Path) -> EAFont:
+    """Load only the byte-identical source 36px Zurich Bold club-name font."""
+    path = Path(source_root) / HEADER_CLUB_NAME_FONT_SOURCE_PATH
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError as exc:
+        raise OriginalManagementHeaderError(
+            f"Missing exact original central club-name font: {HEADER_CLUB_NAME_FONT_SOURCE_PATH}"
+        ) from exc
+    if len(raw) != HEADER_CLUB_NAME_FONT_BYTE_SIZE:
+        raise OriginalManagementHeaderError("Club-name font byte-size mismatch")
+    if sha256(raw).hexdigest() != HEADER_CLUB_NAME_FONT_SHA256:
+        raise OriginalManagementHeaderError("Club-name font checksum mismatch")
+    font = EAFont.from_bytes(raw)
+    if (font.atlas_width, font.atlas_height) != (2678, 38):
+        raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
+    return font
+
+
 def load_verified_management_header_resources(
     source_root: str | Path,
     original_executable: str | Path,
@@ -329,13 +353,14 @@ def load_verified_management_header_resources(
     right_raw = _validate_source_file(root, HEADER_RIGHT_RESOURCE)
     font = validate_management_header_font(root)
     date_font = validate_management_header_date_font(root)
+    club_name_font = validate_management_header_club_name_font(root)
 
     executable = Path(original_executable).read_bytes()
     tables = tables_from_original_executable(executable)
     quant = quantization_from_verified_executable(executable)
     left = decode_ea444(left_raw, tables=tables, quant=quant)
     right = decode_ea444(right_raw, tables=tables, quant=quant)
-    return OriginalManagementHeaderResources(left, right, font, date_font)
+    return OriginalManagementHeaderResources(left, right, font, date_font, club_name_font)
 
 
 def _crop_frame(image: EA444DecodedImage, source_row: int) -> bytes:
@@ -688,9 +713,8 @@ def management_header_club_name_overlay(
 ) -> OriginalManagementHeaderClubNameOverlay:
     """Rasterize the source-bound primary management Club.name control.
 
-    The exact 36px font is intentionally supplied by the caller. Runtime wiring
-    remains fail-closed until the byte-identical original font is provenance-
-    staged; this function never substitutes another font.
+    The caller must supply the exact verified 36px original font; no font
+    substitution or modern styling is permitted.
     """
     if not isinstance(club_name, str) or not club_name:
         raise OriginalManagementHeaderError(
