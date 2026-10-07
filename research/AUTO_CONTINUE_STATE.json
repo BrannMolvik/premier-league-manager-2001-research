@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Post-#482 Gate-13 audit: fresh-Squad reserve-selection propagation is integrated on main at 0c8d9a717c15d870961c6c93f89754fe8c010dca. Continue the source-exact central management header with the independently source-closed current-date line using the staged 18px Zurich font. Keep the club-name line blocked until exact 36px font staging is available, and keep y=34/y=51 match lines fail-closed until 0x615DA0 filtering is closed.",
-  "last_known_main_head": "0c8d9a717c15d870961c6c93f89754fe8c010dca",
+  "active_task": "Post-#482 Gate-13 audit: reserve-selection propagation is integrated at 0c8d9a717c15d870961c6c93f89754fe8c010dca and the source-exact y=68 management current-date line is integrated at 62ba573e11a6f5a1a7bd28d75517790405ab600c with fixture repair at de130503546f3a49db8e6d8a9e7aa133148d13a0. Continue the exact next source-backed central-header step: verify whether the exact 36px bold Zurich club-name font has been staged/provenance-tracked; if available integrate the source-closed club-name control, otherwise preserve that blocker and continue closing the 0x615D10/0x615DA0 match-line selector without guessing.",
+  "last_known_main_head": "de130503546f3a49db8e6d8a9e7aa133148d13a0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 398,
+  "recovery_generation": 399,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 398 progress: reserve-state runtime/save/bridge/presenter propagation committed on main as 0c8d9a717c15d870961c6c93f89754fe8c010dca. GitHub reports no workflow run/status for that head, so no remote CI claim is made. Continuing central current-date header integration; exact 36px club font and 0x615DA0 match-line selector remain unresolved blockers.",
+  "note": "Recovery 399 resumed from main de130503546f3a49db8e6d8a9e7aa133148d13a0. The prior runtime handoff was stale at 0c8d9a7; current-date header rendering and its verification-fixture repair are already on main. Continuing only the next source-backed Gate-13 header/audit step; no Settings, acceptance build, or Gate-17 work-ahead is authorized while the retrospective audit remains active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
