@@ -11,6 +11,16 @@ from original_management_header import (
     HEADER_CAPTION_STYLE,
     HEADER_CAPTION_TEXT,
     HEADER_COMPOUND_RECT,
+    HEADER_CLUB_NAME_ACCESSOR_VA,
+    HEADER_CLUB_NAME_FONT_BYTE_SIZE,
+    HEADER_CLUB_NAME_FONT_LOADER_VA,
+    HEADER_CLUB_NAME_FONT_OBJECT_VA,
+    HEADER_CLUB_NAME_FONT_SHA256,
+    HEADER_CLUB_NAME_FONT_SOURCE_PATH,
+    HEADER_CLUB_NAME_NATIVE_COLOR_16,
+    HEADER_CLUB_NAME_RAW_STYLE,
+    HEADER_CLUB_NAME_RECT,
+    HEADER_CLUB_NAME_REFRESH_VA,
     HEADER_CENTRAL_TEXT_NATIVE_COLOR_16,
     HEADER_CENTRAL_TEXT_RAW_STYLE,
     HEADER_DATE_ENGLISH_INDEX,
@@ -41,6 +51,7 @@ from original_management_header import (
     format_management_header_fixed_league_competition,
     format_management_header_matchup,
     management_header_caption_overlay,
+    management_header_club_name_overlay,
     management_header_date_overlay,
     management_header_match_overlays,
     management_header_group_for_flags,
@@ -60,6 +71,25 @@ class FakeHeaderFont:
         if text != "MENU":
             raise AssertionError(text)
         return SimpleNamespace(width=20, height=5, alpha=bytes([255]) * 100)
+
+
+class FakeClubNameFont:
+    def measure_text(self, text):
+        if text != "Southport":
+            raise AssertionError(text)
+        return 160
+
+    def native_line_height(self):
+        return 36
+
+    def render_text_alpha(self, text):
+        if text != "Southport":
+            raise AssertionError(text)
+        return SimpleNamespace(
+            width=160,
+            height=30,
+            alpha=bytes([255]) * (160 * 30),
+        )
 
 
 class FakeDateFont:
@@ -111,6 +141,22 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(HEADER_CAPTION_GLOBAL_VA, 0x9820F4)
         self.assertEqual(HEADER_CAPTION_ENGLISH_INDEX, 2497)
         self.assertEqual(HEADER_CAPTION_TEXT, "MENU")
+        self.assertEqual(HEADER_CLUB_NAME_RECT, (172, 1, 378, 32))
+        self.assertEqual(HEADER_CLUB_NAME_RAW_STYLE, 0x2102)
+        self.assertEqual(HEADER_CLUB_NAME_NATIVE_COLOR_16, 0xFFFF)
+        self.assertEqual(HEADER_CLUB_NAME_REFRESH_VA, 0x432A20)
+        self.assertEqual(HEADER_CLUB_NAME_ACCESSOR_VA, 0x40DA50)
+        self.assertEqual(HEADER_CLUB_NAME_FONT_LOADER_VA, 0x6043F2)
+        self.assertEqual(HEADER_CLUB_NAME_FONT_OBJECT_VA, 0x8F21B0)
+        self.assertEqual(
+            HEADER_CLUB_NAME_FONT_SOURCE_PATH,
+            "Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+        )
+        self.assertEqual(HEADER_CLUB_NAME_FONT_BYTE_SIZE, 155_544)
+        self.assertEqual(
+            HEADER_CLUB_NAME_FONT_SHA256,
+            "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df",
+        )
         self.assertEqual(HEADER_DATE_RECT, (172, 68, 378, 16))
         self.assertEqual(HEADER_CENTRAL_TEXT_RAW_STYLE, 0x2102)
         self.assertEqual(HEADER_CENTRAL_TEXT_NATIVE_COLOR_16, 0xFFFF)
@@ -124,6 +170,29 @@ class OriginalManagementHeaderTests(unittest.TestCase):
             HEADER_DATE_FONT_SOURCE_PATH,
             "Fonts/Zurich_XCn_BT_18pixel.fnt",
         )
+
+    def test_club_name_overlay_uses_source_rect_right_center_style_and_white_endpoint(self):
+        overlay = management_header_club_name_overlay(
+            FakeClubNameFont(),
+            "Southport",
+        )
+        self.assertEqual(overlay.text, "Southport")
+        # 172 + 378 - 160 = 390. The fake 36px native line starts at y=-1,
+        # so the exact y=1..33 half-open control clips two source rows.
+        self.assertEqual((overlay.x, overlay.y), (390, 1))
+        self.assertEqual((overlay.width, overlay.height), (160, 28))
+        self.assertEqual(overlay.control_rect, HEADER_CLUB_NAME_RECT)
+        self.assertEqual(overlay.raw_style, 0x2102)
+        self.assertEqual(overlay.native_color_16, 0xFFFF)
+        self.assertEqual(
+            overlay.font_source_path,
+            "Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+        )
+        self.assertEqual(overlay.rgba[:4], b"\xff\xff\xff\xff")
+        self.assertEqual(len(overlay.rgba), 160 * 28 * 4)
+
+        with self.assertRaises(OriginalManagementHeaderError):
+            management_header_club_name_overlay(FakeClubNameFont(), "")
 
     def test_recovered_date_formatter_uses_unpadded_day_abbreviated_month_and_full_year(self):
         self.assertEqual(
