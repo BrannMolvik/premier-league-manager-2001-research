@@ -311,7 +311,7 @@ Completion criteria:
 - [x] Simulation logic remains separated from presentation code. See `research/GATE13_PRESENTATION_SEPARATION_AUDIT.md`.
 - [x] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
 - [x] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
-- [ ] A Settings button is integrated with the other main-menu controls and opens a source-styled settings surface whose untouched/default state preserves the original FM2001 baseline. This is an intentional modernization extension and must not replace or visually compromise the recovered original menu.
+- [x] A Settings button is integrated with the other main-menu controls and opens a source-styled settings surface whose untouched/default state preserves the original FM2001 baseline. This is an intentional modernization extension and must not replace or visually compromise the recovered original menu.
 - [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI. **Reopened:** Daniel's 6 October Windows 11 run showed multi-second interaction latency and a materially incomplete fresh Squad landing.
 
 Prior closure evidence: `research/GATE13_CLOSURE_AUDIT.md` and

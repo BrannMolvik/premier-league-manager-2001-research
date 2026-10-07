@@ -1,3 +1,19 @@
+# Recovery 386 continuation - Settings merged; current Windows acceptance candidate refreshed
+
+_Updated 7 October 2026._
+
+Canonical `main` is `2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff`, merging PR #532. **Gate 13 remains the earliest incomplete validation gate**, but its new Settings requirement is now implemented and CI-verified.
+
+PR #532 exact head `7b7f5df36ecf12b2cb7a17b63f042182b3be380f` passed Gate-13 presentation run `37603687802`, reconstruction run `37603687671`, asset-policy run `37603687683`, and Windows-package run `37603687969`. The Settings control is an explicit modernization extension with separate IDs from the four recovered original PStartMenu controls; it reuses the verified source button atlas and Zurich 20px font, leaves simulation untouched, and defaults to the recovered original-style fullscreen baseline.
+
+The current Gate-13 external-acceptance candidate is therefore artifact `11473439363`, `FM2001-Windows11-7b7f5df36ecf12b2cb7a17b63f042182b3be380f`, Actions digest `sha256:b6a0da08a1c81fba3c93e4268dcee7c59004c8efcd5ce9f4e8f50c0073584e61`, expiring 21 October 2026. It supersedes artifact `11464212544` for future acceptance because it contains the Settings-inclusive current runtime.
+
+Gate 13 must still remain open until Daniel's normal Windows 11 run verifies the issue #482 startup, responsiveness, Southport -> Squad, ordinary management-navigation, and recognizability criteria on the current candidate. Hosted CI cannot substitute for that acceptance.
+
+Under the deferred-blocker policy, the next independent cloud-safe task returns to Gate 17: assemble and checksum the source/license/notice material for the four package/source families now proven to contribute to the exact minimal FFmpeg helper (MinGW-w64 CRT, GCC runtime, winpthreads, and windows-default-manifest), without making a legal-compliance conclusion. `source_material_complete=false` and `legal_compliance_claimed=false` remain mandatory until the bundle is actually assembled and audited.
+
+---
+
 # Recovery 385 continuation - archive-member attribution proved; Gate-13 Settings now active
 
 _Updated 7 October 2026._
