@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 375: PR #516 head eff0c3c357813e78a1c210c4388f06e0dd316dc9 now adds source-backed PPreMatch dynamic fixture/date/weather/team text, explicit native selector-frame binding, and an aggregate that attaches all 182 native child states to one verified base surface. Complete flattened/pixel frame remains false. Exact-head CI is pending. Next: persist Recovery 375 evidence, inspect CI, then rasterize/bind dynamic text and state-dependent rating/selector/marker layers into a supplied frame without guessing blend behavior. Gate 13 #482 remains earliest validation blocker.",
+  "active_task": "Recovery 375: PR #516 now source-closes all 182 supplied PPreMatch child states plus TextControl alignment/font ownership. First-hand 0x64F090 proves 0x01 left, 0x02 right, 0x04 horizontal center, 0x08 top, 0x10 bottom, 0x20 vertical center. Shared style-3 font corrected to Zurich_XCn_BT_16pixel.fnt. Current branch work is at/after f836c9a2ca545538e657bc553dc1c06c8c7a7466; exact branch HEAD must be rechecked before merge. Next: rasterize supplied PPreMatch text with the four exact source fonts, then compose state-dependent child pixels in native 0..181 order. Complete frame/Gate14 remain false. Gate13 #482 remains earliest validation blocker.",
   "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 375,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 375 checkpoint after supplied-state model. PR #516 remains open; no Gate 14 completion claim.",
+  "note": "Recovery 375 heartbeat after TextControl alignment and four-font source closure. Continue PR #516; do not merge until exact-head CI green.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
