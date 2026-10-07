@@ -919,6 +919,21 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertTrue(host._fullscreen)
         self.assertTrue(root.values["attributes"]["-fullscreen"])
 
+    def test_escape_fails_closed_during_unrecovered_startup_input_semantics(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        host.show_startup_media_backdrop()
+
+        self.assertTrue(host._fullscreen)
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values["attributes"]["-fullscreen"])
+
+        host.hide_startup_media_backdrop()
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertFalse(host._fullscreen)
+        self.assertFalse(root.values["attributes"]["-fullscreen"])
+
     def test_first_screen_photo_cache_reuses_background_and_source_frame_images(self):
         root = FakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)

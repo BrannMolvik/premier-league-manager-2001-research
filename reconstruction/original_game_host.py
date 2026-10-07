@@ -579,6 +579,11 @@ class OriginalGameTkHost:
         return "break"
 
     def leave_fullscreen(self, event=None):
+        # Startup input semantics are not recovered. While the verified movie
+        # sequence is active, fail closed instead of letting Escape trigger the
+        # compatibility fullscreen control.
+        if getattr(self, "_startup_media_active", False):
+            return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
             if self.presenter.session.navigation.screen is FrontEndScreen.SETTINGS:
