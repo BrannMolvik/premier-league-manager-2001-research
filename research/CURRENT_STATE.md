@@ -1,3 +1,25 @@
+# Recovery 385 continuation - archive-member attribution proved; Gate-13 Settings now active
+
+_Updated 7 October 2026._
+
+Canonical `main` is `5edc4764f3e6906cdee996f8f11309efe806e4db`, merging PR #530 on top of the roadmap Settings requirement. **Gate 13 remains the earliest incomplete validation gate**. Two independent Gate-13 requirements are still open: Daniel's external Windows 11 acceptance of artifact `11464212544`, and the newly required source-styled main-menu **Settings** surface whose untouched/default state preserves the recovered original FM2001 baseline.
+
+Recovery 385 reviewed and accepted PR #530's generated Gate-17 link-map evidence:
+
+- Exact head `1c68e01738208e633b17353aadf079819358da1e` passed asset policy `37599721223`, reconstruction `37599721162` (**2,884 tests, 25 skipped**), and minimal FFmpeg proof `37599721084`.
+- Artifact `11472084438` (`gate17-minimal-ffmpeg-build-1c68e01738208e633b17353aadf079819358da1e`) has Actions digest `sha256:adc1c935b650b4c71a36d414f832c3dd03692f282cea97728c7581dd116810b7`.
+- The reviewed `link-member-proof.json` is `sha256:f2e018148144277402ebc7b455d4e2d7ca132a1525b7674746f7f37f4e19a975`. The raw maps are `sha256:695cac93ce18de0876c92b828925ae718ea685ae9f72aff652125f18c00f4e1e` (ffmpeg) and `sha256:8b5db72b5155706b4cb5ae8b82169dee58ab0bddd6bd567932187f1463f6f584` (ffprobe).
+- The map relink commands are token-identical to the release links after removing only their single `-Wl,-Map,...` observation flag.
+- The preserved release and map-relinked unstripped binaries are byte-identical: ffmpeg `f1ff8c8d29aedcb606825e06adc14a61bd9c4425e9384da66d3287e8a829f85e`; ffprobe `cc044ad964a0a4983221e570803fe8b6bd3bb4512930b21babe6d98c6d4b1033`.
+- Both targets prove all four direct external startup/object inputs. Eleven external archives actually contribute members to each target; seven ffmpeg-traced and six ffprobe-traced external archives contribute no members and are explicitly separated as noncontributors.
+- The complete contributing owner-package set is exactly four pinned packages/source families already verified by the direct-ownership checkpoint: MinGW-w64 CRT, GCC, winpthreads, and windows-default-manifest.
+
+This is sufficient to mark the bounded **static contributor attribution** complete for the exact minimal helper build. It does **not** assemble the final redistribution source/license/notice bundle and does not make a legal conclusion. Therefore `gate17_static_contributor_attribution_complete=true`, while `source_material_complete=false` and `legal_compliance_claimed=false` remain mandatory.
+
+**Exact next task:** implement the Gate-13 Settings requirement before any further Gate-17 provenance work. Add a Settings control alongside the existing source-backed PStartMenu controls, route it through the existing front-end interaction boundary, and render a source-styled settings surface without replacing the recovered menu. The untouched/default Settings state must preserve the original FM2001 baseline. Keep the first implementation narrow; Gate-17-only advanced rendering/upscaling options must not delay this Gate-13 requirement.
+
+---
+
 # Recovery 384 continuation - direct external link-input package ownership proved; archive-member map next
 
 _Updated 7 October 2026._
