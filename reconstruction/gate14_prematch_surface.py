@@ -670,6 +670,20 @@ class PrematchSurfaceBoundary:
                 raise PrematchSurfaceError("pre-match team badge role identity mismatch")
             if badge.rect != rect:
                 raise PrematchSurfaceError("pre-match team badge geometry drifted")
+        if len(self.badges) != 2:
+            raise PrematchSurfaceError("pre-match badge layer set is incomplete")
+        for index, (badge, rect) in enumerate(
+            zip(self.badges, PREMATCH_BADGE_RECTS, strict=True)
+        ):
+            if badge.role != ("home_badge" if index == 0 else "away_badge"):
+                raise PrematchSurfaceError("pre-match badge role order drifted")
+            if (
+                badge.rect.x,
+                badge.rect.y,
+                badge.rect.width,
+                badge.rect.height,
+            ) != (rect.x, rect.y, rect.width, rect.height):
+                raise PrematchSurfaceError("pre-match badge geometry drifted")
         if len(self.static_layers) != len(PREMATCH_STATIC_PLACEMENTS):
             raise PrematchSurfaceError("pre-match static layer set is incomplete")
         if self.text_controls != source_prematch_text_controls():
@@ -804,6 +818,20 @@ def build_verified_prematch_surface_boundary(
     if any(resource.geometry != (135, 93) for resource in badge_resources):
         raise PrematchSurfaceError("shared club-art badge resource is not 135x93")
 
+    home_badge_resource, away_badge_resource = load_verified_selected_badges(
+        selection,
+        source_root=source_root,
+        original_executable=original_executable,
+    )
+    for expected_role, resource in (
+        ("home_badge", home_badge_resource),
+        ("away_badge", away_badge_resource),
+    ):
+        if resource.role != expected_role:
+            raise PrematchSurfaceError("shared team-badge loader returned wrong role")
+        if resource.geometry != (135, 93):
+            raise PrematchSurfaceError("shared team-badge resource is not 135x93")
+
     resources: OriginalPrematchPanelResources = load_verified_original_prematch_resources(
         source_root=source_root,
         original_executable=original_executable,
@@ -826,6 +854,18 @@ def build_verified_prematch_surface_boundary(
             badge_resources,
             PREMATCH_BADGE_RECTS,
             strict=True,
+        )
+    )
+    badges = tuple(
+        PrematchRasterLayer(
+            role=role,
+            rect=rect,
+            source_path=resource.source_path,
+            rgba=resource.rgba,
+        )
+        for role, rect, resource in (
+            ("home_badge", PREMATCH_BADGE_RECTS[0], home_badge_resource),
+            ("away_badge", PREMATCH_BADGE_RECTS[1], away_badge_resource),
         )
     )
     static_layers = tuple(
@@ -910,6 +950,9 @@ def prematch_surface_contract() -> dict:
         "native_surface": (800, 600),
         "team_backgrounds_selector_reused": True,
         "team_backgrounds_loader_reused": True,
+        "team_badge_selector_reused": True,
+        "team_badge_loader_reused": True,
+        "team_badge_pixels_staged": True,
         "team_badge_selector_va": PREMATCH_TEAM_BADGE_SELECTOR_VA,
         "team_badge_selector_reused": True,
         "team_badge_loader_reused": True,
