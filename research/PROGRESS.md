@@ -12511,3 +12511,14 @@ continues with ordinary Squad row display-name/color helpers.
 - Exhaustive static direct-call enumeration still finds later reschedule producers at `0x4A801F` and `0x5E3C34`; season-long link immutability is therefore not claimed.
 - Authorized next implementation is a bounded clear/linked/unknown shadow contract with fail-closed invalidation after unmodelled post-start reschedule processing.
 
+
+
+## 2026-10-08 — Recovery 402 integrates bounded direct fixed-League management header
+
+- Implemented explicit primary-wrapper link certainty (`clear / linked / unknown`) from Recovery-401 source evidence. Fresh wrappers are clear; explicit links are skipped; relevant unknown/symbolic state fails closed.
+- GameState day-advance paths invalidate prior clear certainty because the original post-start `0x4A801F` / `0x5E3C34` reschedule producers remain unmodeled.
+- The management source bridge now selects only an exact unplayed direct first-season Premier League node in retained bucket/head-to-tail order and verifies its token/date/participants against live fixture state.
+- The original-management presenter and live host now carry and draw the conditional y=34/y=51 header controls using the recovered competition/short-name/date formatter contract and exact 18px Zurich source font.
+- Validation PR #547 exact head `d54184a0767416cb51d756f8edcc45a82d272677` passed Gate-13 run `37679247332`, reconstruction run `37679247185` (**2915 tests, 25 skipped, zero failures**), and asset-policy run `37679247320`.
+- PR #547 merged as `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`.
+- Gate 13 remains open. Exact next repair is the already source-closed primary club-name line using byte-identical `Zurich_BdXCn_BT_36pixel.fnt`; startup-FMV parent/child HWND/DPI transport remains separately blocked on a private Windows receipt.
