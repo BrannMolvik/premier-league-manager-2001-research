@@ -37,6 +37,15 @@ class ClubHeaderView:
 
 
 @dataclass(frozen=True)
+class ManagementHeaderMatchView:
+    fixture_id: int
+    competition_name: str
+    home_short_name: str
+    away_short_name: str
+    scheduled_date: date
+
+
+@dataclass(frozen=True)
 class SquadRowView:
     source_roster_index: int
     player_id: int
@@ -985,6 +994,84 @@ class ManagementSourceDataBridge:
             ),
             fan_base_index=getattr(club, 'fan_base_index', 0),
             competition_id=getattr(club, 'competition_id', -1),
+        )
+
+    def management_header_match(self) -> ManagementHeaderMatchView | None:
+        """Project only the Recovery-401 source-closed fixed-League header match."""
+        club_id = self._human_club_id()
+        calendar = getattr(self.state, "calendar", None)
+        current_date = getattr(calendar, "current_date", None)
+        if not isinstance(current_date, date):
+            raise ManagementPresentationError("Game calendar date is unavailable")
+
+        shadow = getattr(self.state, "primary_schedule_shadow", None)
+        selector = getattr(shadow, "direct_fixed_league_header_candidate", None)
+        if not callable(selector):
+            return None
+
+        league = getattr(self.state, "premier_league", None)
+        fixtures = getattr(league, "fixtures", None)
+        results = getattr(league, "results", None)
+        round_date = getattr(league, "round_date", None)
+        if (
+            league is None
+            or not hasattr(fixtures, "get")
+            or not hasattr(results, "keys")
+            or not callable(round_date)
+        ):
+            return None
+
+        candidate = selector(
+            club_id,
+            current_date,
+            played_fixture_ids=tuple(int(value) for value in results.keys()),
+        )
+        if candidate is None:
+            return None
+        scheduled_date, entry = candidate
+        if len(entry.node_token) != 4:
+            raise ManagementPresentationError(
+                "Header schedule candidate has invalid fixed-League identity"
+            )
+        fixture_id = int(entry.node_token[-1])
+        fixture = fixtures.get(fixture_id)
+        if fixture is None:
+            raise ManagementPresentationError(
+                f"Header fixture {fixture_id} is missing from live Premier League state"
+            )
+
+        fixture_date = round_date(int(fixture.round_index))
+        if fixture_date != scheduled_date:
+            raise ManagementPresentationError(
+                "Header schedule candidate date disagrees with live fixture state"
+            )
+        direct_ids = tuple(int(ref.direct_club_id) for ref in entry.refs)
+        fixture_ids = (int(fixture.home_club_id), int(fixture.away_club_id))
+        if direct_ids != fixture_ids:
+            raise ManagementPresentationError(
+                "Header schedule candidate participants disagree with live fixture state"
+            )
+
+        competitions = getattr(self.state, "competitions", None)
+        if not hasattr(competitions, "get"):
+            raise ManagementPresentationError(
+                "Header competition definitions are unavailable"
+            )
+        competition = competitions.get(int(entry.competition_id))
+        competition_name = getattr(competition, "name", None)
+        if not isinstance(competition_name, str):
+            raise ManagementPresentationError(
+                "Header competition has no recovered source name"
+            )
+
+        home = self._source_club(fixture_ids[0])
+        away = self._source_club(fixture_ids[1])
+        return ManagementHeaderMatchView(
+            fixture_id=fixture_id,
+            competition_name=competition_name,
+            home_short_name=home.short_name,
+            away_short_name=away.short_name,
+            scheduled_date=scheduled_date,
         )
 
     @staticmethod
