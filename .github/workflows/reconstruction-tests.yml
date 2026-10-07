@@ -140,6 +140,8 @@ on:
       - "reconstruction/test_gate14_prematch_text_binding.py"
       - "reconstruction/gate14_prematch_text_style.py"
       - "reconstruction/test_gate14_prematch_text_style.py"
+      - "reconstruction/gate14_prematch_text_raster.py"
+      - "reconstruction/test_gate14_prematch_text_raster.py"
       - "reconstruction/gate14_prematch_surface.py"
       - "reconstruction/test_gate14_prematch_surface.py"
       - "reconstruction/gate14_prematch_supplied_state.py"
