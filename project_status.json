@@ -11,7 +11,7 @@
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
   "last_verified_reconstruction_ci_head": "7b7f5df36ecf12b2cb7a17b63f042182b3be380f",
-  "last_verified_test_count": 2884,
+  "last_verified_test_count": 2891,
   "asset_policy_validated_head": "7b7f5df36ecf12b2cb7a17b63f042182b3be380f",
   "asset_policy_status": "passed",
   "active_task": "Gate 13 remains active pending external Windows acceptance. PR #532 merged as 2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff and satisfies the Settings requirement. Current acceptance candidate is artifact 11473439363 from exact head 7b7f5df36ecf12b2cb7a17b63f042182b3be380f. While acceptance is deferred, resume independent Gate-17 source/license/notice bundle assembly for the four proven static contributor source families; keep legal_compliance_claimed=false until separate review.",
