@@ -11,6 +11,7 @@ on:
       - "reconstruction/gate17_ffmpeg_toolchain_provenance.py"
       - "reconstruction/test_gate17_ffmpeg_toolchain_provenance.py"
       - "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json"
+      - "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock"
       - "research/GATE17_MINIMAL_FFMPEG_TOOLCHAIN.md"
       - "reconstruction/gate17_ffmpeg_minimal_roundtrip.py"
       - "reconstruction/test_gate17_ffmpeg_minimal_roundtrip.py"
