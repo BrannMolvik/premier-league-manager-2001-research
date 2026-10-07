@@ -18,7 +18,6 @@ from datetime import date
 from original_fixture_match_info_link import (
     SourceFixtureMatchInfoContext, resolve_source_match_info_link,
 )
-from primary_schedule_shadow import PrimaryScheduleHeaderMatchPending
 
 
 class ManagementPresentationError(ValueError):
@@ -1018,13 +1017,14 @@ class ManagementSourceDataBridge:
             raise ManagementPresentationError("Game calendar date is unavailable")
 
         shadow = getattr(self.state, "primary_schedule_shadow", None)
-        selector = getattr(shadow, "management_header_fixed_league_candidate", None)
+        selector = getattr(
+            shadow,
+            "source_known_management_header_fixed_league_candidate",
+            None,
+        )
         if not callable(selector):
             return None
-        try:
-            selected = selector(club_id, current_date)
-        except PrimaryScheduleHeaderMatchPending:
-            return None
+        selected = selector(club_id, current_date)
         if selected is None:
             return None
 

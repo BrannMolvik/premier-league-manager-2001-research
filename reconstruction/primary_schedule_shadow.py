@@ -358,6 +358,20 @@ class PrimaryScheduleShadowState:
                 return on_date, entry
         return None
 
+    def source_known_management_header_fixed_league_candidate(
+        self,
+        club_id: int,
+        on_or_after: date,
+    ) -> tuple[date, PrimaryScheduleShadowEntry] | None:
+        """Presentation-safe fail-closed form of the bounded header lookup."""
+        try:
+            return self.management_header_fixed_league_candidate(
+                club_id,
+                on_or_after,
+            )
+        except PrimaryScheduleHeaderMatchPending:
+            return None
+
     def next_match_date(
         self,
         club_id: int,

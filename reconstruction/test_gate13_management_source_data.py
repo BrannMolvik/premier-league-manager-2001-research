@@ -441,6 +441,16 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             ManagementSourceDataBridge(controller).management_header_match()
         )
 
+
+    def test_management_header_match_accepts_backend_fail_closed_none_without_type_dependency(self):
+        controller = FakeController()
+        controller.state.primary_schedule_shadow = SimpleNamespace(
+            source_known_management_header_fixed_league_candidate=lambda *_args: None
+        )
+        self.assertIsNone(
+            ManagementSourceDataBridge(controller).management_header_match()
+        )
+
     def test_fixtures_presentation_contract_preserves_fixed_real_fixture_path(self):
         contract = ManagementSourceDataBridge.fixtures_presentation_contract()
         self.assertIs(contract, FIXTURES_PRESENTATION_CONTRACT)
