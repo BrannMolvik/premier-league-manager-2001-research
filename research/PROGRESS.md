@@ -1,3 +1,13 @@
+### 8 October 2026 KST — Recovery 399 management-header fixed-League selector closure
+
+Recovery 399 resumed from canonical `main` `de130503546f3a49db8e6d8a9e7aa133148d13a0` and corrected the stale agent-runtime handoff to generation 399 / status `working`. Current main has no GitHub Actions workflow run or commit status, so no remote-green claim is made for the newly merged reserve/date-header work.
+
+The authorized 511,121,336-byte original disc archive was materialized again. Canonical `footballmanager.exe` was re-extracted from the MODE1/2352 track and SHA-256 reverified as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. First-hand tracing now closes the management-header `0x615D10/0x615DA0` selector for the shipped direct fixed-League first-season path: date-forward ScheduleContainer bucket traversal, native linked-list order, current-club membership, native flag/materialization gating, and the concrete match virtual dependency predicate are documented in `research/GATE13_MANAGEMENT_HEADER_MATCH_SELECTOR_SOURCE_TRACE.md`. Fixed Premier League nodes already carry two direct ClubRefs; direct refs make the common `0x510B20` dependency predicate return zero. Symbolic Cup refs and SecondLegMatch dependency chains remain fail-closed.
+
+The exact 36px bold club-name Zurich font was also re-extracted from ISO extent 170896 and rehashed byte-identically at 155,544 bytes / `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. It parses as a 2678x38 atlas with native line height 39; `Southport` measures 99 pixels and right-aligns at x=451 in the recovered `(172,1,378,32)` control. The binary is not staged because the current GitHub connector cannot transfer the private container file; no substitute is used.
+
+Gate 13 remains open under the post-#482 audit. Next repository-side work is the bounded direct fixed-League y=34/y=51 header integration, with every unsupported schedule/node/ref case remaining no-output/fail-closed. The separate startup-FMV private Windows transport receipt remains unresolved.
+
 ### 7 October 2026 KST — Recovery 388 integrated Gate-17 redistribution material bundle merged
 
 PR #537 merged as `edf24e7148007768619514c97822185a6dd43942` after exact head `0023d62c381ff5c6150db30cfef472ddc2a292cb` passed integrated-material run `37615747271` and asset-policy run `37615747138`. Artifact `11478824629` has digest `sha256:880a37d379ffa9d0bf5a606a828cfad32827519af00bd02f544119b93b8ed5df`.
