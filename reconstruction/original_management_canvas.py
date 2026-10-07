@@ -11,7 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ea444_decoder import EA444DecodedImage, decode_ea444
+from ea444_decoder import EA444DecodedImage
+from gate13_ea444_staged_rasters import decode_staged_or_original as decode_ea444
 from ea444_quantization import quantization_from_verified_executable
 from ea444_tables import tables_from_original_executable
 from ea_font import EAFont, EATextMask

@@ -706,6 +706,15 @@ class OriginalGameTkHost:
         self._photos.append(photo)
         return photo
 
+    def _rgba_photo(self, width: int, height: int, rgba: bytes):
+        """Cache before PNG encoding, not after an unchanged image is compressed.
+
+        Content and dimensions identify the pixels; a changed value never reuses
+        stale text/art. The existing viewport invalidation clears this cache too.
+        """
+        return self._photo_from_rgba(('management-rgba', width, height, rgba),
+                                     width, height, rgba)
+
     def _draw_first_screen(self) -> None:
         if self._management_header_idle is not None:
             self.root.after_cancel(self._management_header_idle)
@@ -1169,15 +1178,10 @@ class OriginalGameTkHost:
         frame = self.management_header_state.source_frame()
         count = 0
         for overlay in management_header_overlays(resources, frame):
-            png = encode_rgba_png(
-                overlay.width,
-                overlay.height,
-                overlay.rgba,
-            )
             self._create_native_image(
                 overlay.x,
                 overlay.y,
-                image=self._photo(png),
+                image=self._rgba_photo(overlay.width, overlay.height, overlay.rgba),
                 anchor=self.tk.NW,
             )
             count += 1
@@ -1186,13 +1190,7 @@ class OriginalGameTkHost:
         self._create_native_image(
             caption.x,
             caption.y,
-            image=self._photo(
-                encode_rgba_png(
-                    caption.width,
-                    caption.height,
-                    caption.rgba,
-                )
-            ),
+            image=self._rgba_photo(caption.width, caption.height, caption.rgba),
             anchor=self.tk.NW,
         )
         count += 1
@@ -1266,13 +1264,7 @@ class OriginalGameTkHost:
             self._create_native_image(
                 overlay.x,
                 overlay.y,
-                image=self._photo(
-                    encode_rgba_png(
-                        overlay.width,
-                        overlay.height,
-                        overlay.rgba,
-                    )
-                ),
+                image=self._rgba_photo(overlay.width, overlay.height, overlay.rgba),
                 anchor=self.tk.NW,
             )
             count += 1
@@ -1294,13 +1286,7 @@ class OriginalGameTkHost:
                 self._create_native_image(
                     overlay.x,
                     overlay.y,
-                    image=self._photo(
-                        encode_rgba_png(
-                            overlay.width,
-                            overlay.height,
-                            overlay.rgba,
-                        )
-                    ),
+                    image=self._rgba_photo(overlay.width, overlay.height, overlay.rgba),
                     anchor=self.tk.NW,
                 )
                 count += 1
@@ -1545,17 +1531,19 @@ class OriginalGameTkHost:
                 "Management PMenu renderer requires verified original row resources"
             )
 
-        with timed_stage("management.pmenu.render"):
-            menu_render = build_management_pmenu_render(
-                frame,
-                self.management_pmenu_resources,
-            )
+        menu_render = None
+        if self.pmenu_popup_active:
+            with timed_stage("management.pmenu.render"):
+                menu_render = build_management_pmenu_render(
+                    frame,
+                    self.management_pmenu_resources,
+                )
         self.canvas.delete("all")
         self._photos = []
 
         if self.management_background is not None:
             for image in self.management_background.images(frame.presentation.club):
-                photo = self._photo(encode_rgba_png(image.width, image.height, image.rgba))
+                photo = self._rgba_photo(image.width, image.height, image.rgba)
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header()
@@ -1570,7 +1558,7 @@ class OriginalGameTkHost:
         )
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
-        for overlay in (menu_render.overlays if self.pmenu_popup_active else ()):
+        for overlay in (menu_render.overlays if menu_render is not None else ()):
             art = self._photo(overlay.png)
             self._create_native_image(
                 menu_x + overlay.x,

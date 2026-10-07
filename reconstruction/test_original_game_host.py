@@ -441,6 +441,21 @@ class FullHDFakeRoot(FakeRoot):
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_rgba_photo_cache_precedes_encoding_and_tracks_content_geometry(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        pixels = bytes((1, 2, 3, 255)) * 2
+        with patch('original_game_host.encode_rgba_png', wraps=encode_rgba_png) as encoder:
+            first = host._rgba_photo(2, 1, pixels)
+            self.assertIs(first, host._rgba_photo(2, 1, pixels))
+            self.assertEqual(encoder.call_count, 1)
+            self.assertIsNot(first, host._rgba_photo(1, 2, pixels))
+            self.assertIsNot(first, host._rgba_photo(2, 1, bytes((3, 2, 1, 255))*2))
+            self.assertEqual(encoder.call_count, 3)
+        self.assertIn(first, host._photos)  # Own lifetime beyond canvas redraw.
+        host.on_window_configure(SimpleNamespace(widget=host.root, width=400, height=300))
+        host.root.run_timer()
+        self.assertIsNot(first, host._rgba_photo(2, 1, pixels))
+
     def test_window_resize_rebuilds_scaled_images_and_pointer_mapping(self):
         root = LargeFakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
