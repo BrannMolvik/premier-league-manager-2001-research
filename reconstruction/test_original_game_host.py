@@ -1931,6 +1931,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 built = build_original_game_presenter(game_dir)
 
         self.assertIs(built.session, fake_session)
+        self.assertIsNone(built.settings_resources)
         bundle_dir, kwargs = calls["derivative"]
         self.assertEqual(bundle_dir, DEFAULT_PSTARTMENU_DERIVATIVE_ROOT)
         self.assertEqual(
@@ -1954,8 +1955,7 @@ class OriginalGameHostTests(unittest.TestCase):
             return object()
 
         def load_settings(source_root):
-            calls["settings"] = Path(source_root)
-            return object()
+            raise AssertionError("original baseline must not load deferred Settings")
 
         fake_session = object()
         with tempfile.TemporaryDirectory() as temp:
@@ -1984,7 +1984,8 @@ class OriginalGameHostTests(unittest.TestCase):
                 built._ensure_team_select_resources()
 
         self.assertIs(built.session, fake_session)
-        self.assertEqual(calls["settings"], source_root)
+        self.assertIsNone(built.settings_resources)
+        self.assertNotIn("settings", calls)
         self.assertEqual(
             calls["menu"]["original_executable"],
             game_dir / "FOOTBAL.EXE",

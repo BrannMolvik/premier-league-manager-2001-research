@@ -339,7 +339,10 @@ def build_original_game_presenter(
             original_executable=executable,
         )
 
-    settings_resources = load_source_styled_settings_resources(root)
+    # Canonical original-behavior audit: 4C1BA0 creates only the four recovered
+    # PStartMenu actions. Keep the non-original Settings extension available to
+    # explicit research presenters, but absent from the normal/default host.
+    # It must not be a resource-loading dependency of the original baseline.
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
@@ -347,7 +350,6 @@ def build_original_game_presenter(
             original_art_dir=art_root,
             original_executable=executable,
         ),
-        settings_resources=settings_resources,
     )
 
 

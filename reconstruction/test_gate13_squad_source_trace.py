@@ -12,6 +12,14 @@ from gate13_squad_source_trace import (
     SQUAD_PLAYER_COLOR_PREDICATE_VA,
     SQUAD_PLAYER_INDEX_HELPER_VA,
     SQUAD_PLAYER_NAME_CONTROL_SETUP_VA,
+    SQUAD_SCREEN_CONSTRUCTOR_VA,
+    SQUAD_LIST_ROW_MAPPER_VA,
+    SQUAD_LIST_PREPARE_ORDER_VA,
+    SQUAD_RESERVE_SELECTION_NORMALIZER_VA,
+    SQUAD_LIST_REFRESH_VA,
+    SQUAD_RESERVE_SELECTOR_VA,
+    SQUAD_RESERVE_ROSTER_GUARD_VA,
+    SQUAD_SELECTION_OVERFLOW_REPAIR_VA,
     SQUAD_TRACE_WINDOWS,
     SQUAD_VTABLE_SEEDS,
     squad_trace_report,
@@ -59,6 +67,14 @@ class Gate13SquadSourceTraceTests(unittest.TestCase):
                 SQUAD_PLAYER_COLOR_PREDICATE_VA,
                 SQUAD_PLAYER_INDEX_HELPER_VA,
                 SQUAD_PLAYER_NAME_CONTROL_SETUP_VA,
+                SQUAD_SCREEN_CONSTRUCTOR_VA,
+                SQUAD_LIST_ROW_MAPPER_VA,
+                SQUAD_LIST_PREPARE_ORDER_VA,
+                SQUAD_RESERVE_SELECTION_NORMALIZER_VA,
+                SQUAD_LIST_REFRESH_VA,
+                SQUAD_RESERVE_SELECTOR_VA,
+                SQUAD_RESERVE_ROSTER_GUARD_VA,
+                SQUAD_SELECTION_OVERFLOW_REPAIR_VA,
             ),
         )
         self.assertEqual(PSQUAD_PLAYER_ROW_SETUP_VA, 0x489530)
@@ -66,6 +82,14 @@ class Gate13SquadSourceTraceTests(unittest.TestCase):
         self.assertEqual(SQUAD_PLAYER_COLOR_PREDICATE_VA, 0x4EA3F0)
         self.assertEqual(SQUAD_PLAYER_INDEX_HELPER_VA, 0x4EA3C0)
         self.assertEqual(SQUAD_PLAYER_NAME_CONTROL_SETUP_VA, 0x5D6C50)
+        self.assertEqual(SQUAD_SCREEN_CONSTRUCTOR_VA, 0x4B8240)
+        self.assertEqual(SQUAD_LIST_ROW_MAPPER_VA, 0x4B6FE0)
+        self.assertEqual(SQUAD_LIST_PREPARE_ORDER_VA, 0x4B7500)
+        self.assertEqual(SQUAD_RESERVE_SELECTION_NORMALIZER_VA, 0x4B7BD0)
+        self.assertEqual(SQUAD_LIST_REFRESH_VA, 0x4B8C50)
+        self.assertEqual(SQUAD_RESERVE_SELECTOR_VA, 0x40AB40)
+        self.assertEqual(SQUAD_RESERVE_ROSTER_GUARD_VA, 0x40B360)
+        self.assertEqual(SQUAD_SELECTION_OVERFLOW_REPAIR_VA, 0x4067B0)
         self.assertEqual(CBASE_PLAYER_LIST_VFTABLE_VA, 0x7C5BC8)
         self.assertEqual(FORMATION_TEXT_VFTABLE_VA, 0x7C5700)
         self.assertEqual(SQUAD_PITCH_VFTABLE_VA, 0x7C54A8)

@@ -7,6 +7,25 @@ the audit exit criteria pass. Retain the local verified repairs below as
 auditable evidence, not as automatic original-behavior approval. The temporary
 travel fallback is separate and is not the target normal interface.
 
+Local audit correction: default original PStartMenu now excludes the
+non-original Settings extension and no longer depends on its resource loader.
+Explicit research presenters preserve that extension separately. Package smoke
+requires the four original event IDs/rectangles and rejects added controls,
+without weakening resource/media provenance. The native paired Squad +D8
+receiver, constructor/refresh producer and reserve-normalization caller are
+now qualified; `40AB40` is distinct from first-team autofill, and `4067B0`
+repairs selection overflow rather than sorting. Actual paired-list integration
+still awaits exact state/role dependencies and the mandatory retrospective
+audit. See GATE13_PAIRED_SQUAD_PRODUCER.md and
+POST_482_LOCAL_AUDIT_PROGRESS.md. No new actual-build acceptance claim.
+
+Validation after menu isolation: 90 focused tests pass / one opt-in skip;
+full reconstruction runs 2,954 tests / 24 skips with the same three failures
+and one error in Gate-17 package-lock fixtures. Asset policy and diff checks
+pass. No original execution, security change, main merge, or agent-runtime
+change. Next: complete source audit and native paired-list preparation,
+then bind/verify original-style ordinary gameplay before a new play-test build.
+
 # Local source-runtime recovery - 7 October 2026
 
 Daniel explicitly authorized installed-Python development testing independently
@@ -31,12 +50,12 @@ is not a passing full-suite claim. No overall Gate-13 closure is claimed.
 Historical comparison establishes the current ordinary host switched from the
 development notebook at 62a1bbcd. The first original-style Squad presenter
 (2673bc0e) already limited its initial viewport to 20 rows. Southport has 30
-database players; the missing ten are not lost data, but an unbound native list
-interaction. Ordinary advance/play is also unbound. Daniel accepted a clearly
+database players; the missing ten are not lost data, but incomplete paired-list
+production/presentation. Ordinary advance/play is also unbound. Daniel accepted a clearly
 labeled, separate development fallback for the train while original-style
-interaction remains unfinished. Next: verify that fallback's full roster,
-calculation and save/reload; integrate newer disjoint Settings work without
-merging main; retain original-host defects as actual acceptance blockers.
+interaction remains unfinished. Historical next action was fallback validation
+and integration of main; those are completed below. The newer original-first
+audit/isolation above supersedes the default Settings integration target.
 
 Follow-on: canonical main f2772868 is integrated on the recovery branch at
 e0e3ef59, preserving Settings and all disjoint worker changes. The separate

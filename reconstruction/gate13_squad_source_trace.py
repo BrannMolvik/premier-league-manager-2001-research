@@ -53,6 +53,14 @@ PSCF_ROW_SETUP_VA = 0x489B40
 SQUAD_PLAYER_COLOR_PREDICATE_VA = 0x4EA3F0
 SQUAD_PLAYER_INDEX_HELPER_VA = 0x4EA3C0
 SQUAD_PLAYER_NAME_CONTROL_SETUP_VA = 0x5D6C50
+SQUAD_SCREEN_CONSTRUCTOR_VA = 0x4B8240
+SQUAD_LIST_ROW_MAPPER_VA = 0x4B6FE0
+SQUAD_LIST_PREPARE_ORDER_VA = 0x4B7500
+SQUAD_RESERVE_SELECTION_NORMALIZER_VA = 0x4B7BD0
+SQUAD_LIST_REFRESH_VA = 0x4B8C50
+SQUAD_RESERVE_SELECTOR_VA = 0x40AB40
+SQUAD_RESERVE_ROSTER_GUARD_VA = 0x40B360
+SQUAD_SELECTION_OVERFLOW_REPAIR_VA = 0x4067B0
 
 SQUAD_TRACE_WINDOWS = (
     ("PSquadPitch setup / FormationText row construction", SQUAD_PITCH_SETUP_VA, 0x500),
@@ -65,6 +73,14 @@ SQUAD_TRACE_WINDOWS = (
     ("PSquadPlayerRow branch predicate helper", SQUAD_PLAYER_COLOR_PREDICATE_VA, 0x180),
     ("PSquadPlayerRow player-index helper", SQUAD_PLAYER_INDEX_HELPER_VA, 0x180),
     ("PSquadPlayerRow display-name control helper", SQUAD_PLAYER_NAME_CONTROL_SETUP_VA, 0x280),
+    ("PSquadScreen constructor / context producer", SQUAD_SCREEN_CONSTRUCTOR_VA, 0x4B0),
+    ("Paired Squad visible-slot mapper", SQUAD_LIST_ROW_MAPPER_VA, 0x190),
+    ("Squad roster ordering / boundary output producer", SQUAD_LIST_PREPARE_ORDER_VA, 0x6D0),
+    ("Squad reserve-selection normalization", SQUAD_RESERVE_SELECTION_NORMALIZER_VA, 0x110),
+    ("Squad refresh / boundary recomputation", SQUAD_LIST_REFRESH_VA, 0x130),
+    ("Squad reserve XI / bench selector", SQUAD_RESERVE_SELECTOR_VA, 0x420),
+    ("Squad reserve roster-size guard", SQUAD_RESERVE_ROSTER_GUARD_VA, 0x20),
+    ("Squad selection overflow repair", SQUAD_SELECTION_OVERFLOW_REPAIR_VA, 0x1A0),
 )
 
 SQUAD_CODE_SEEDS = tuple((label, va) for label, va, _ in SQUAD_TRACE_WINDOWS)

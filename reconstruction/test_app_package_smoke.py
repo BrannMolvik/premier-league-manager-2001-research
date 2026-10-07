@@ -50,10 +50,33 @@ class AppPackageSmokeTests(unittest.TestCase):
             )
             self.assertTrue(report["pstartmenu_presenter_build_passed"])
             self.assertEqual(report["pstartmenu_presenter_screen"], "pstartmenu")
-            self.assertTrue(report["settings_surface_present"])
+            self.assertFalse(report["settings_surface_present"])
+            self.assertEqual(report["original_menu_control_ids"], [1, 2, 3, 4])
             self.assertEqual(report["settings_default_profile"], "Original")
             self.assertTrue(report["settings_default_fullscreen"])
             self.assertTrue(report["external_game_data_required"])
+
+    def test_smoke_rejects_nonoriginal_default_menu_controls(self):
+        from dataclasses import replace
+        from original_game_host import build_original_game_presenter
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source, _manifest = self._layout(root)
+            presenter = build_original_game_presenter(root / '__no_game_data__')
+            native_snapshot = presenter.snapshot()
+            invalid_snapshot = replace(
+                native_snapshot,
+                controls=native_snapshot.controls + (native_snapshot.controls[-1],),
+            )
+            with (
+                patch('app.application_root', return_value=root),
+                patch('app.bundled_source_root', return_value=source),
+                patch('app.build_original_game_presenter', return_value=presenter),
+                patch.object(type(presenter), 'snapshot', return_value=invalid_snapshot),
+                self.assertRaisesRegex(RuntimeError, 'four-control baseline differs'),
+            ):
+                app.package_smoke_report()
 
     def test_package_smoke_rejects_crlf_pstartmenu_manifest(self):
         with tempfile.TemporaryDirectory() as temp:
