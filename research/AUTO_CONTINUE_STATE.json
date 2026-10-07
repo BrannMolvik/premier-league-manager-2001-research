@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #525 merged as 2583ff7394606f47a19f11068916b01663b3d962. Current cloud-safe task is PR #526, head e2b6a9557528e6172003735a13c8dca707056eec, which captures resolved minimal-FFmpeg final-link/archive inputs via an evidence-only GNU ld --trace relink and fail-closed command-equivalence audit. Reconstruction 37590594633, asset policy 37590594746, and minimal FFmpeg proof 37590594794 are queued; require exact-head success before merge, then inspect the trace artifact and map only proven archive contributors. Keep source_material_complete and legal_compliance_claimed false.",
+  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #526 is the active cloud-safe Gate-17 provenance task. Static review fixed an over-escaped archive parser; exact head is now cca0550e255bc314e7d67e03742876779b517360. Require exact-head success in reconstruction 37590666279, asset policy 37590666312, and minimal FFmpeg proof 37590666262. If green, inspect link-input-proof and raw ld traces, then map only proven external archive paths to owning locked packages/source families. Keep source_material_complete and legal_compliance_claimed false.",
   "last_known_main_head": "2583ff7394606f47a19f11068916b01663b3d962",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 382,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #526 created as bounded observation tooling. It does not alter the packaged helper and cannot close source/legal completeness.",
+  "note": "PR #526 exact head cca0550e... is under CI after the parser escape correction. No completion claim advanced.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
