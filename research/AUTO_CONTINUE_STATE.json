@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 380: Gate 13 issue #482 is explicitly reopened and artifact 11464212544 is the canonical external Windows acceptance candidate. PR #520 is rebuilt on main at head d5b23dbff3f9223ec718fc0e8121c9108397abe4; asset policy passed and full reconstruction run 37581218818 is still in progress. Merge #520 only after exact-head reconstruction passes, then persist the candidate-only tracer boundary and continue the highest-priority cloud-safe Gate-14 work while private process execution remains blocked.",
-  "last_known_main_head": "3b88bc67ab7d76b6053eb6786c629518a2c8e25f",
+  "active_task": "Recovery 380: Gate 13 remains the earliest incomplete validation gate. Issue #482 is reopened; artifact 11464212544 awaits Daniel's external Windows acceptance. PR #520 is merged as a117df66251926bae1931daa8897dfbdffc5062d, but canonical-executable tracer execution is deferred because process startup still fails with caas ClientError. Tracker flags now correctly keep the management-to-FastView trigger unresolved. Continue the highest-priority independent cloud-safe work; inspect pending Gate-17 packaging/source-provenance branches without declaring later gates complete.",
+  "last_known_main_head": "12544b6f6ff80d520a5d7795f8a7aea2a423685c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 380,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 380: PR #519 merged and canonical package artifact 11464212544 is ready for Daniel's external #482 acceptance. Issue #482 had been accidentally/temporarily closed despite its explicit external-acceptance requirement; it was reopened and comment 6032308224 records the candidate. PR #520 was rebuilt exactly three files ahead of current main; asset policy run 37581218783 passed, reconstruction run 37581218818 remains active. Private source archive materializes, but caas ClientError blocks even trivial process startup.",
+  "note": "Recovery 380 canonical main now includes state/progress/status checkpoint 12544b6. #519 package candidate is ready, #520 candidate-only tracer merged and exact-head green (2850 tests, 25 skipped; asset policy green), issue #482 reopened, stale source_fastview_navigation_trigger_recovered flag corrected false, Gate-15 live gap count corrected to 12. Private process execution remains blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
