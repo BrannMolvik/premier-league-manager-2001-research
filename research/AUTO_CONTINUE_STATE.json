@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 381: Gate 13 remains earliest incomplete; artifact 11464212544 awaits external Windows acceptance and canonical-executable tracer adjudication remains blocked by caas ClientError. Independent cloud-safe Gate-17 PR #522 is open at exact head 2b510252018dd123c868576a7f72e434090da5c8, mapping the 14 pinned critical toolchain packages to eight source families while keeping completeness/legal claims false. Require all exact-head checks before merge, then persist the boundary and continue independent work without declaring Gate 17 complete.",
-  "last_known_main_head": "12544b6f6ff80d520a5d7795f8a7aea2a423685c",
+  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 awaits Daniel's external Windows acceptance. Bounded Gate-17 PR #523 is open at exact head de2f904c71a7407b202afa2affc9728fbda0df6b after first-party MSYS2 metadata closed the two source-family tarball blockers from PR #522. Require all exact-head checks before merge; completeness/legal flags must remain false. After merge, persist the boundary and continue the next independent cloud-safe task.",
+  "last_known_main_head": "073099c79779def832fdd35612f9cf9f2b811bcb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 381,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered from main 12544b6f6ff80d520a5d7795f8a7aea2a423685c and runtime a32bb5c505ed48ca4d08c5aa636816d1ff56e5ef. PR #522 exact-head checks and merge boundary are the immediate cloud-safe task. Gate 13 #482 remains open.",
+  "note": "PR #522 merged at 073099c79779def832fdd35612f9cf9f2b811bcb after all four required workflows passed. PR #523 exact-head workflows queued: asset policy 37585092177, minimal FFmpeg 37585092239, Windows package 37585092245, reconstruction 37585092251.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
