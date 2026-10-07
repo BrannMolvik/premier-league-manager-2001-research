@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 merged as 0f1739c2e0d606e398a8e6a350d55a22c78a178e after exact-head asset 37596223786, reconstruction 37596223784 (2,874 tests, 25 skipped), and minimal FFmpeg 37596223802 success. Artifact 11471081671 proves direct pacman ownership of all 22 ffmpeg and 21 ffprobe external .a/.o inputs. Exactly four owner packages are involved: mingw-w64-ucrt-x86_64-crt 14.0.0.r426.g4564ee4b5-1, mingw-w64-ucrt-x86_64-gcc 16.2.0-4, mingw-w64-ucrt-x86_64-winpthreads 14.0.0.r426.g4564ee4b5-1, and mingw-w64-ucrt-x86_64-windows-default-manifest 20260815-1. Reconcile this evidence in CURRENT_STATE/PROGRESS/project_status/toolchain research, then continue archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
+  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. Technical PR #528 merged as 0f1739c2e0d606e398a8e6a350d55a22c78a178e after exact-head asset 37596223786, reconstruction 37596223784 (2,874 tests, 25 skipped), and minimal FFmpeg 37596223802 success. Artifact 11471081671 proves all 22 ffmpeg and 21 ffprobe external .a/.o inputs are directly owned by exactly four already source-mapped packages: CRT, GCC, winpthreads, and windows-default-manifest. Documentation/status PR #529 is open at exact head 6f92bc3ef7f5dc953153bf8ef4f465f51b7a5680 and intentionally changes only project_status.json, CURRENT_STATE.md, and PROGRESS.md to avoid another full FFmpeg build. Merge it after its exact-head checks, then immediately start the next technical archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
   "last_known_main_head": "0f1739c2e0d606e398a8e6a350d55a22c78a178e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 384,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #528 merged; direct owner package set is exactly four source-mapped packages. Next checkpoint is evidence reconciliation, then archive-member/link-map proof.",
+  "note": "PR #529 is the bounded ownership-evidence reconciliation; next technical task is link-map/archive-member proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
