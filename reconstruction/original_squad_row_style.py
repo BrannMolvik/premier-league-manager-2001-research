@@ -15,6 +15,7 @@ from math import ceil, floor, isfinite
 from pathlib import Path
 
 from ea_font import EAFont, EATextMask
+from ea_language_strings import parse_language_pair
 from original_squad_resources import SQUAD_FIRST_ROSTER_RECT, SQUAD_PANEL_RECT
 
 
@@ -59,6 +60,15 @@ SQUAD_CURRENT_ROLE_RATING_RECT = (70, 1, 19, 14)
 SQUAD_CONDITION_HIGH_RGB = (255, 255, 255)
 SQUAD_CONDITION_LOW_RGB = (0, 45, 255)
 SQUAD_SCF_NUMERIC_RGB = (255, 255, 255)
+
+# PSquadList +A54 wraps +8C at (238,22); 48A590 constructs four 22x99
+# controls in that owner. 651F00 receives raw flags 2050 and font 8CAB80.
+SQUAD_COLUMN_HEADINGS = (
+    (0, 0x984554, 169, 'Status'),
+    (23, 0x984550, 170, 'Condition'),
+    (46, 0x98454C, 171, 'Form'),
+    (69, 0x982910, 1978, 'Skill'),
+)
 
 SQUAD_ROLE_RECT = (28, 1, 38, 14)
 SQUAD_ROLE_TEXT_FLAGS = 0x24
@@ -126,6 +136,11 @@ def load_verified_squad_row_text_resources(
     source_root: str | Path,
 ) -> OriginalSquadRowTextResources:
     root = Path(source_root)
+    strings, indices = parse_language_pair((root / 'English.str').read_bytes(),
+                                          (root / 'English.idx').read_bytes())
+    if any(indices.resolve(strings, index) != text
+           for _, _, index, text in SQUAD_COLUMN_HEADINGS):
+        raise OriginalSquadRowStyleError('Squad column language binding mismatch')
     return OriginalSquadRowTextResources(
         _load_verified_font(
             root,
@@ -343,6 +358,43 @@ def _rgb_rgba(alpha: bytes, rgb: tuple[int, int, int]) -> bytes:
         pos = index * 4
         rgba[pos:pos + 4] = bytes((red, green, blue, value))
     return bytes(rgba)
+
+
+def _rotate_heading_mask(mask: EATextMask) -> EATextMask:
+    # Native 6570F0 flag 40: x grows with source y, y decreases with
+    # source x (rotation token 5A), without scaling/interpolation.
+    alpha = bytearray(len(mask.alpha))
+    for y in range(mask.height):
+        for x in range(mask.width):
+            alpha[(mask.width - 1 - x) * mask.height + y] = mask.alpha[y * mask.width + x]
+    return EATextMask(mask.height, mask.width, bytes(alpha))
+
+
+def build_first_roster_column_heading_overlays(
+    resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Render exact owner-local Status/Condition/Form/Skill, not guessed labels."""
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError('Squad headings require verified font resources')
+    font = resources.scf_font
+    parent_x = SQUAD_PANEL_RECT[0] + SQUAD_FIRST_ROSTER_RECT.x + 238
+    parent_y = SQUAD_PANEL_RECT[1] + SQUAD_FIRST_ROSTER_RECT.y + 22
+    overlays = []
+    for local_x, _global, _index, text in SQUAD_COLUMN_HEADINGS:
+        rect = (parent_x + local_x, parent_y, 22, 99)
+        mask = _rotate_heading_mask(font.render_text_alpha(text))
+        # 65215A..65219E centers by native line height on the rotated X.
+        # 6521CA..6521F8/65232F anchor Y at control bottom; 6572B4
+        # starts advance at the space glyph WIDTH, not a guessed padding.
+        line_x = rect[0] + 22 // 2 - font.native_line_height() // 2
+        line_y = rect[1] + 99 - font.glyph_for_byte(32).width - mask.height
+        clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+        if clipped is None:
+            continue
+        x, y, width, height, alpha = clipped
+        overlays.append(OriginalSquadRowTextOverlay(text, x, y, width, height,
+            _rgb_rgba(alpha, (255, 255, 255)), (255, 255, 255), SQUAD_SCF_FONT_SOURCE_PATH))
+    return tuple(overlays)
 
 
 def build_first_roster_role_overlays(

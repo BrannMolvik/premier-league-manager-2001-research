@@ -1,3 +1,36 @@
+# Local source-runtime recovery - 7 October 2026
+
+Daniel explicitly authorized installed-Python development testing independently
+of the denied unsigned frozen executable. No security policy, signing, MOTW,
+original game binary or agent-runtime ownership is changed. Frozen distribution
+acceptance remains separate; source development is not blocked by that denial.
+
+Current recovery branch fixes a demonstrated normal WPF child-teardown race:
+the child disappears after MediaEnded before PowerShell exits. The host now
+waits for the actual verified player exit, retaining failure/timeout/foreign-owner
+checks. A real source launch completed BOTH clips naturally and reached the
+menu (private source-windowed-playtest-5 receipts). Native bit-0 startup input
+registration is qualified at 461900/461BB0/461C10/461C70; EA remains unskippable,
+Premier accepts the registered messages, and startup Escape cannot resize the
+game. Parent Escape forwarding is integrated; full parent input parity and
+native transition timing are not claimed. Native Squad column headings now
+render with recovered owner transform, rotation, English strings and clipping.
+97 focused startup/host/Squad tests pass. The preceding full run had 2,924 tests,
+24 skips and the same four baseline Gate-17 Windows lock-fixture failures; it
+is not a passing full-suite claim. No overall Gate-13 closure is claimed.
+
+Historical comparison establishes the current ordinary host switched from the
+development notebook at 62a1bbcd. The first original-style Squad presenter
+(2673bc0e) already limited its initial viewport to 20 rows. Southport has 30
+database players; the missing ten are not lost data, but an unbound native list
+interaction. Ordinary advance/play is also unbound. Daniel accepted a clearly
+labeled, separate development fallback for the train while original-style
+interaction remains unfinished. Next: verify that fallback's full roster,
+calculation and save/reload; integrate newer disjoint Settings work without
+merging main; retain original-host defects as actual acceptance blockers.
+
+---
+
 # Local Gate-13 recovery resumed - 7 October 2026
 
 Dedicated branch `codex/gate13-windows-playability-recovery` integrates current

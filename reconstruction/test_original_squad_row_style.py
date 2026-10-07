@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import unittest
 
 from original_squad_row_style import (
+    build_first_roster_column_heading_overlays, _rotate_heading_mask,
     OriginalSquadRowStyleError,
     SQUAD_NAME_DEFAULT_RGB,
     SQUAD_NAME_FIRST_TEAM_ACTIVE_RGB,
@@ -36,6 +37,28 @@ from original_squad_row_style import (
 
 
 class OriginalSquadRowStyleTests(unittest.TestCase):
+    def test_rotated_heading_pixels_follow_native_decreasing_y(self):
+        from ea_font import EATextMask
+        rotated = _rotate_heading_mask(EATextMask(3, 2, bytes((1,2,3,4,5,6))))
+        self.assertEqual((rotated.width, rotated.height, rotated.alpha),
+                         (2, 3, bytes((3,6,2,5,1,4))))
+
+    def test_native_headings_use_exact_language_font_owner_and_clipping(self):
+        root = Path(__file__).resolve().parents[1] / 'original_assets/source'
+        resources = load_verified_squad_row_text_resources(root)
+        headings = build_first_roster_column_heading_overlays(resources)
+        self.assertEqual([h.text for h in headings], ['Status','Condition','Form','Skill'])
+        for local_x, heading in zip((0,23,46,69), headings):
+            self.assertEqual(heading.font_source_path, SQUAD_SCF_FONT_SOURCE_PATH)
+            self.assertEqual(heading.source_rgb, (255,255,255))
+            self.assertGreaterEqual(heading.x, 275 + local_x)
+            self.assertLessEqual(heading.x + heading.width, 297 + local_x)
+            self.assertGreaterEqual(heading.y, 101)
+            self.assertEqual(heading.y + heading.height,
+                             200 - resources.scf_font.glyph_for_byte(32).width)
+        with self.assertRaises(OriginalSquadRowStyleError):
+            build_first_roster_column_heading_overlays(None)
+
     def test_native_style_zero_display_name_formatter(self):
         self.assertEqual(format_squad_display_name("David", "Beckham"), "D. Beckham")
         self.assertEqual(format_squad_display_name("-Alias", "Ronaldo"), "Ronaldo")

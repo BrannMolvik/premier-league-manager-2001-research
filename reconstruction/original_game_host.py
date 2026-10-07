@@ -120,6 +120,7 @@ from original_squad_top_controls import (
     load_verified_squad_top_resources,
 )
 from original_squad_row_style import (
+    build_first_roster_column_heading_overlays,
     OriginalSquadRowTextResources,
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
@@ -127,6 +128,7 @@ from original_squad_row_style import (
     load_verified_squad_row_text_resources,
 )
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+from startup_media_input import WM_KEYDOWN, VK_ESCAPE
 from original_window_viewport import window_fit_scale
 from startup_media_playback import (
     load_and_play_verified_startup_sequence,
@@ -606,6 +608,9 @@ class OriginalGameTkHost:
 
     def leave_fullscreen(self, event=None):
         if getattr(self, "_startup_media_active", False):
+            request = getattr(self, '_startup_native_input', None)
+            if callable(request):
+                request(WM_KEYDOWN, VK_ESCAPE)
             return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
@@ -1266,6 +1271,7 @@ class OriginalGameTkHost:
                 "Squad landing renderer requires verified original row font resources"
             )
         overlays = (
+            *build_first_roster_column_heading_overlays(resources),
             *build_first_roster_role_overlays(snapshot.rows, resources),
             *build_first_roster_name_overlays(snapshot.rows, resources),
             *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
@@ -2262,6 +2268,7 @@ def run_original_game_ui(
         management_resource_loader=load_management_resources,
     )
     if startup_media_backend is not None:
+        host._startup_native_input = getattr(startup_media_backend, 'request_native_input', None)
         host.show_startup_media_backdrop()
         try:
             bind_pump = getattr(startup_media_backend, "bind_event_pump", None)
@@ -2290,6 +2297,7 @@ def run_original_game_ui(
                     derivatives=startup_media_derivatives,
                 )
         finally:
+            host._startup_native_input = None
             host.hide_startup_media_backdrop()
     else:
         with timed_stage("startup.media"):

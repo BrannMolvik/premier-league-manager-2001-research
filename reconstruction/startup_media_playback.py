@@ -5,10 +5,9 @@ only the immutable derivative records produced by startup_media_derivatives.py,
 requires the source-proven startup sequence, and invokes a caller-supplied
 synchronous playback backend one item at a time.
 
-The original wrapper's bit-0 flag is preserved only as neutral metadata. This
-module does not interpret it as a skip flag, does not define input handling,
-does not invent fades/transitions, and does not choose scaling/interlace
-behavior. Those remain separate source-evidence and platform-integration tasks.
+The source-qualified bit-0 callback contract is implemented by the Windows
+backend. A registered input stop is recorded distinctly from normal MediaEnded;
+failures cannot be promoted into skips. Fades/transitions remain unresolved.
 """
 from __future__ import annotations
 
@@ -24,6 +23,7 @@ from startup_media_derivatives import (
     VerifiedStartupMediaDerivative,
     load_verified_startup_media_derivatives,
 )
+from startup_media_input import startup_input_allowed
 
 
 class StartupMediaPlaybackError(RuntimeError):
@@ -34,7 +34,7 @@ class StartupMediaPlaybackBackend(Protocol):
     """Minimal synchronous platform-player boundary."""
 
     def play(self, item: VerifiedStartupMediaDerivative) -> bool:
-        """Return exactly True only after this item completes."""
+        """Return True after completion or a separately recorded native input stop."""
 
 
 @dataclass(frozen=True)
@@ -44,6 +44,11 @@ class StartupMediaPlaybackStep:
     derivative_path: Path
     playback_flag_bit0: bool
     completed: bool
+    native_input_message: int | None = None
+
+    @property
+    def skipped(self) -> bool:
+        return self.native_input_message is not None
 
 
 @dataclass(frozen=True)
@@ -103,9 +108,8 @@ def play_verified_startup_sequence(
 ) -> StartupMediaPlaybackSummary:
     """Play exact verified derivatives synchronously in the proven source order.
 
-    A failed item aborts before any later media item is invoked. The differing
-    original bit-0 values are carried in the result but never supplied to the
-    backend as a user-facing behavior switch.
+    A failed item aborts before any later media item is invoked. Native input
+    stops require the recovered backend contract and the exact clip flag.
     """
     if backend is None or not callable(getattr(backend, "play", None)):
         raise StartupMediaPlaybackError(
@@ -127,6 +131,12 @@ def play_verified_startup_sequence(
                 f"Startup-media backend did not complete sequence {item.sequence} "
                 f"({item.spec.source_path})"
             )
+        native_input = getattr(backend, 'last_native_input_message', None)
+        if native_input is not None and (
+            getattr(backend, 'source_input_contract_recovered', False) is not True
+            or not startup_input_allowed(item.spec.playback_flag_bit0, native_input)
+        ):
+            raise StartupMediaPlaybackError('Invalid native startup-input completion')
         completed.append(
             StartupMediaPlaybackStep(
                 sequence=item.sequence,
@@ -134,14 +144,15 @@ def play_verified_startup_sequence(
                 derivative_path=Path(item.path),
                 playback_flag_bit0=item.spec.playback_flag_bit0,
                 completed=True,
+                native_input_message=native_input,
             )
         )
 
     return StartupMediaPlaybackSummary(
         steps=tuple(completed),
         source_order_preserved=True,
-        playback_flag_semantics_recovered=False,
-        skip_input_recovered=False,
+        playback_flag_semantics_recovered=getattr(backend, 'source_input_contract_recovered', False) is True,
+        skip_input_recovered=getattr(backend, 'source_input_contract_recovered', False) is True,
         transition_timing_recovered=False,
         gate14_complete=False,
     )
