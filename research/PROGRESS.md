@@ -12363,3 +12363,15 @@ continues with ordinary Squad row display-name/color helpers.
 - Complete-frame and Gate-14 claims remain false. The next frame-critical task
   is starting-XI goalkeeper/team shirt pixel staging and binding, followed by
   the remaining dynamic text/state bindings.
+
+## 7 October 2026 KST — Recovery 380 PR #519 rebuild and canonical package
+
+- Reloaded canonical GitHub state and advanced the worker runtime to Recovery 380.
+- Preserved the pre-repair PR #519 head on `chatgpt/archive-gate14-host-mode-dispatch-r379`, reset the live #519 branch to repaired main, and reapplied only the source-backed Match Detail host seam plus focused regression tests.
+- Reopened PR #519 after GitHub automatically closed it during the momentary zero-diff reset.
+- Exact rebuilt head `34f8c09a5b0591ca961868eba9ea18d98c06969d` passed reconstruction run `37580530606` with 2,846 tests and 25 expected skips, Gate-13 presentation run `37580530636`, Windows package run `37580530537`, and asset-policy run `37580530517`.
+- Windows artifact `11464212544` (`FM2001-Windows11-34f8c09a5b0591ca961868eba9ea18d98c06969d`) was uploaded with digest `sha256:00d34f8311ace797cf9c2b185ab9281a0d012dcb20bb438c95163e18a0ea93a5`.
+- Merged PR #519 as `c28c9984bfacbbec410e37b519471526f994d7c5`. A compare from packaged head `34f8c09` to the merge commit reports no changed files, so artifact `11464212544` is tree-identical to canonical main and is the next issue-482 external Windows acceptance candidate.
+- Re-resolved and materialized the authorized 511,121,336-byte private source archive from the canonical Library location. Container execution still fails with `caas.internal.errors.ClientError` even for trivial process startup, so first-hand executable tracing remains infrastructure-blocked rather than source-blocked.
+- Inspected stale PR #520: it consists only of the candidate-only match-processing caller tracer, its tests, and two reconstruction-CI path entries. Next task is to rebuild that three-file change on `c28c998`; do not infer management semantics from candidate edges.
+
