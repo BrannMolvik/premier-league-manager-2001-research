@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 397,
+  "recovery_generation": 398,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 397 checkpoint: GitHub reads and source/history audit continue. Authorized archive is present, but container/Python process startup fails with caas.internal.errors.ClientError. The 36px header font never existed in Git history. Repository mutation endpoints also returned internal errors during this recovery; retrying without changing canonical main.",
+  "note": "Recovery 398: re-established canonical main 57eb578630742a02e07797de13ed155335a566af and Gate-13 post-#482 active task from repository. Continuing fresh-Squad reserve-state propagation first; then source-closed current-date/club-name header integration. Unresolved 0x615DA0 filtering and exact 36px font staging remain fail-closed/external-blocked unless new source evidence resolves them.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
