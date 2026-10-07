@@ -126,6 +126,8 @@ on:
       - "reconstruction/test_gate14_fastview_surfaced_resource_loader.py"
       - "reconstruction/test_gate14_fastview_surfaced_resource_raster.py"
       - "reconstruction/test_gate14_fastview_surfaced_component_integration.py"
+      - "reconstruction/gate14_prematch_shirt_selection.py"
+      - "reconstruction/test_gate14_prematch_shirt_selection.py"
       - "reconstruction/gate14_fastview_surfaced_resource_raster.py"
       - "reconstruction/gate14_fastview_component_rasters.py"
       - "reconstruction/test_gate14_fastview_component_rasters.py"
