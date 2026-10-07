@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 388: PR #536 merged as 0e1abef659ea067096fce100969515d1a78a2a34 after all five exact-head checks passed at b9bbd3ecf4c753128feb8574d552929b9581831e. Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. Continue independent Gate-17 source-material work: reconcile #535/#536 into canonical state, then close the technical source/license/notice bundle boundary without claiming legal compliance.",
+  "active_task": "Recovery 388: Gate 13 remains earliest incomplete pending external Windows acceptance of artifact 11473439363. PR #536 merged as 0e1abef659ea067096fce100969515d1a78a2a34. Active cloud-safe Gate-17 task is PR #537 at exact head 0023d62c381ff5c6150db30cfef472ddc2a292cb, integrating the pinned FFmpeg source snapshot, four proven toolchain source packages, nine license/declaration evidence files, and a full hash inventory while keeping license_notice_material_complete=false, source_material_complete=false, and legal_compliance_claimed=false. Verify exact-head CI, repair if needed, merge only if green, then reconcile canonical state and continue.",
   "last_known_main_head": "0e1abef659ea067096fce100969515d1a78a2a34",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 388,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #536 merged and heartbeat advanced; next is canonical reconciliation plus the next bounded Gate-17 material-completeness step.",
+  "note": "PR #537 opened; exact-head CI verification is the immediate task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
