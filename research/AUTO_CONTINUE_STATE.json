@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Recovery 402 continues Gate 13 after verified conditional-header integration. Stage exact Zurich_BdXCn_BT_36pixel.fnt through a binary-safe Git path, add asset provenance, render Club.name at (172,1,378,32) with recovered 0x2102/white/right-center clipping, and add fresh Southport regression. If binary transfer remains unavailable, persist the precise blocker and continue another source-backed Gate-13 audit item. Startup-FMV HWND/DPI receipt remains external. Scope correction: Southport is only the canonical reproduction fixture; treat missing header/player-name/content as a likely shared club-screen presenter/resource/binding defect. Do not implement Southport-specific fixes. Verify the generic path and at least one additional club before narrowing scope.",
-  "last_known_main_head": "4760e071697cb359f9b70d593e185ec451ee8f3b",
+  "last_known_main_head": "c78644a744fb4c734cfa0bb1431f406b79f8f409",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,8 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 403,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 403 resumed from canonical GitHub state at main 4760e071697cb359f9b70d593e185ec451ee8f3b. Continue the shared club-screen Gate 13 repair; Southport is a reproduction fixture, not a special-case target.",
+  "note": "Recovery 403 remains continuous/working. Binary extraction from the authorized Library archive is still blocked by caas.internal.errors.ClientError across container, private Python, and visible Python. No substitute font allowed.",
   "same_chat_fallback_minutes": 20,
-  "active_generation_grace_minutes": 10
+  "active_generation_grace_minutes": 10,
+  "current_task": "Recovery 403: PR #549 merged latency repair at main c78644a7. Continue Gate 13 primary club-name closure: verify PR #550 renderer contract, then stage exact Fonts/Zurich_BdXCn_BT_36pixel.fnt when binary execution is available, wire Club.name into the live header, and add Southport plus second-club regressions. Startup-FMV HWND/DPI receipt remains external."
 }
