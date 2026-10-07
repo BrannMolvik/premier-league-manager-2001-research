@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 371: PR #514 merged as 17f49fa3cdde36d16f00a8e8d02d8b3f929018a8 after presentation run 37548739763 and asset-policy run 37548739781 passed. Continue Gate-14 complete-frame closure while private source execution is available. Next exact task: integrate PPreMatch team badges by proving/reusing the same native 0x40C850 Team_badge_stills/badge_2 selector and generic fallback already source-closed for FastView; then stage/bind XI shirt pixels and remaining dynamic text/state.",
+  "active_task": "Recovery 372: resumed from canonical main 17f49fa3cdde36d16f00a8e8d02d8b3f929018a8. PR #514 is already merged and verified. Continue Gate-14 complete-frame closure: integrate PPreMatch team badges by proving/reusing native 0x40C850 Team_badge_stills/badge_2 selector and generic fallback already source-closed for FastView; then stage/bind XI shirt pixels and remaining dynamic text/state.",
   "last_known_main_head": "17f49fa3cdde36d16f00a8e8d02d8b3f929018a8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 371,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 371 post-PR514 merge. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance. Gate 14 row and selector state now source-closed; source execution remains available.",
+  "recovery_generation": 372,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 372 started from fresh chat after no-progress fallback. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance. Gate 14 row and selector state is merged; continuing source-backed badge/frame closure.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
