@@ -112,6 +112,42 @@ Therefore an ordinary fresh management header with valid human-club and game
 date state cannot source-correctly be entirely blank: the club-name line and
 the current-date line have independent source paths.
 
+## Recovery 398 formatter/style closure
+
+Recovery 398 re-materialized the authorized original disc archive and
+re-extracted the canonical executable. Its SHA-256 again matched
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+First-hand disassembly of date formatter `0x64D150` closes the three tokens
+used by English.idx 517:
+
+- `%D` emits the **unpadded decimal day**;
+- `%M` emits the **first three CP1252 bytes of the localized month name**;
+- `%Yf` emits the **full four-digit year**.
+
+For the canonical fresh start on 1 July 2000 the exact English result is
+therefore `Today is 1 Jul 2000`. This is not a Python `strftime`
+substitution.
+
+The recovered `0x2102` setup for the central text controls reaches the shared
+eCText draw path with **right alignment and vertical centering**. The clean-room
+renderer may therefore place the y=68 date line by right-aligning its exact
+Zurich glyph width inside `(172,68,378,16)`, vertically centering by the
+font's native line height, and clipping half-open to that control rectangle.
+The native endpoint remains white `0xFFFF`.
+
+The authorized disc also yielded the exact missing
+`Fonts/Zurich_BdXCn_BT_36pixel.fnt` bytes (disc basename `ZURICH8.FNT`).
+The re-extracted file is 155,544 bytes and independently rehashed to the
+already-recorded SHA-256
+`92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`.
+Those bytes are verified but are still **not staged in Git** at this checkpoint;
+the club-name renderer must remain blocked until the byte-identical asset is
+imported through the repository provenance path.
+
+No raw executable, disc image, private disassembly dump, or unstaged font bytes
+are committed by this trace.
+
 ## Conditional next-match selection boundary
 
 Routine `0x432760` clears the two match-line buffers and asks `0x615DA0`

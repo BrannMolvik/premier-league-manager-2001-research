@@ -186,6 +186,28 @@ class FakeHeaderFont:
         )
 
 
+class FakeHeaderDateFont:
+    atlas_width = 1366
+    atlas_height = 19
+
+    def measure_text(self, text):
+        if not text.startswith("Today is "):
+            raise AssertionError(text)
+        return 100
+
+    def native_line_height(self):
+        return 18
+
+    def render_text_alpha(self, text):
+        if not text.startswith("Today is "):
+            raise AssertionError(text)
+        return SimpleNamespace(
+            width=100,
+            height=10,
+            alpha=bytes([255]) * 1000,
+        )
+
+
 def fake_management_header_resources():
     return OriginalManagementHeaderResources(
         EA444DecodedImage(
@@ -203,6 +225,7 @@ def fake_management_header_resources():
             transparent_pixels=0,
         ),
         FakeHeaderFont(),
+        FakeHeaderDateFont(),
     )
 
 
@@ -1155,6 +1178,33 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[0][:2], (599, 0))
         self.assertEqual(host.canvas.images[1][:2], (629, 0))
         self.assertEqual(host.canvas.images[2][:2], (681, 62))
+
+    def test_management_current_date_draws_exact_source_control(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                club=ClubHeaderView(
+                    12,
+                    "Source Club",
+                    "Source",
+                    date(2000, 8, 1),
+                ),
+            )
+        )
+
+        count = host._draw_management_current_date(frame)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(host.canvas.images), 1)
+        self.assertEqual(host.canvas.images[0][:2], (450, 68))
+        self.assertEqual(len(host._photos), 1)
 
     def test_management_header_hover_uses_one_idle_update_per_pass(self):
         live = presenter()
