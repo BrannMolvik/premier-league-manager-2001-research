@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 378: PR #517 merged and canonical state advanced. Continue Gate-14 branch chatgpt/gate14-match-detail-route-r378 from checkpoint e2f53880551d9ffe517e111fd8fdd5b68c1c6d8d: reconcile it onto current main, verify exact mode 0/1/2/3 PPreMatch modal-to-presentation dispatch, merge if exact-head CI is green, then trace the ordinary management-screen fixture-start entry into match processing. Gate 13 #482 remains earliest validation blocker. Original Windows pixel-format receipt remains a separate deferred local evidence task; do not guess RGB565/RGB555.",
-  "last_known_main_head": "bf91dc0338de7c9b31486d1d3ff50c6e5251f743",
+  "active_task": "Gate 13 issue #482: validate and merge PR #521 WPF/Tk owner-pump repair after exact-head reconstruction CI; then reconcile Gate 14 PRs #519/#520 onto the repaired main. External acceptance must use replacement artifact 11463330603, not failed artifact 11418314765.",
+  "last_known_main_head": "f7b17cca6cffb30aca50f920e2d120589e62e911",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 379,
   "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery 379 restored from GitHub after missing worker tab; continuing persisted Match Detail route work and ordinary management fixture-start tracing.",
+  "note": "Recovery 379 reconciled newer issue #482 evidence: artifact 11418314765 fatally times out on embedded WPF easp playback. PR #521 isolates Tk-owner message starvation and has green Gate13/Windows-package/asset checks; full reconstruction run 37576911430 remains in progress. Keep Gate 13 open. Gate 14 management->0x513010 private caller trace remains deferred by process ClientError; candidate-only tracer is PR #520.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
