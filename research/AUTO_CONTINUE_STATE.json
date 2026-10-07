@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 385: Gate 13 remains earliest incomplete with external acceptance artifact 11464212544 and the new Settings requirement still open. Gate-17 PR #530 is active at exact head 1c68e01738208e633b17353aadf079819358da1e. Exact-head asset 37599721223, reconstruction 37599721162, and minimal FFmpeg 37599721084 all passed after SOURCE_DATE_EPOCH was pinned to the exact FFmpeg source commit. Inspect the successful link-member artifact/receipt; if it confirms byte-identical release/map relinks and complete external member/direct-object coverage, persist exact evidence and merge #530. Then pivot immediately to Gate-13 Settings implementation before any further Gate-17 provenance.",
-  "last_known_main_head": "21eb5031102f2ab2bd326596cef3c7fe9e673cf3",
+  "active_task": "Recovery 385: PR #530 and reconciliation PR #531 are merged; canonical main is 1a580ea7f38a0fba608237b21dd9e21d9f5661e3. Gate 13 remains earliest incomplete. Implement the new source-styled PStartMenu Settings control/surface now, reusing the verified button atlas and Zurich font, keeping Original as untouched/default baseline, and limiting the first surface to baseline-safe settings. External Windows acceptance of artifact 11464212544 remains separately pending. Do not resume Gate-17 provenance until Settings is verified.",
+  "last_known_main_head": "1a580ea7f38a0fba608237b21dd9e21d9f5661e3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 385,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 385 resumed after all exact-head PR #530 workflows passed. Artifact evidence inspection is the only pre-merge task.",
+  "note": "Gate-17 member-level provenance checkpoint is merged and reconciled. Active work has pivoted to the new Gate-13 Settings requirement.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
