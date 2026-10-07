@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 384: Gate 13 remains earliest incomplete with external acceptance artifact 11464212544 and the new Settings requirement still open. Near-complete Gate-17 PR #530 is active at fresh exact head 1c68e01738208e633b17353aadf079819358da1e. Prior minimal run 37598558531 proved map generation, trace, and package ownership but failed byte identity because GNU ld PE links insert wall-clock timestamps by default. Workflow now exports SOURCE_DATE_EPOCH from the exact pinned FFmpeg source commit before configure/build, preserving normal timestamp insertion while making release/trace/map relinks deterministic; regression coverage requires this and forbids --no-insert-timestamp. Require fresh exact-head asset, reconstruction, and minimal-FFmpeg success. If green, inspect link-member-proof artifact, reconcile/merge #530, then pivot immediately to Gate-13 Settings implementation before further Gate-17 provenance.",
+  "active_task": "Recovery 385: Gate 13 remains earliest incomplete with external acceptance artifact 11464212544 and the new Settings requirement still open. Gate-17 PR #530 is active at exact head 1c68e01738208e633b17353aadf079819358da1e. Exact-head asset 37599721223, reconstruction 37599721162, and minimal FFmpeg 37599721084 all passed after SOURCE_DATE_EPOCH was pinned to the exact FFmpeg source commit. Inspect the successful link-member artifact/receipt; if it confirms byte-identical release/map relinks and complete external member/direct-object coverage, persist exact evidence and merge #530. Then pivot immediately to Gate-13 Settings implementation before any further Gate-17 provenance.",
   "last_known_main_head": "21eb5031102f2ab2bd326596cef3c7fe9e673cf3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 384,
+  "recovery_generation": 385,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #530 fresh head pins SOURCE_DATE_EPOCH to the pinned FFmpeg commit after real PE timestamp nondeterminism broke byte identity.",
+  "note": "Recovery 385 resumed after all exact-head PR #530 workflows passed. Artifact evidence inspection is the only pre-merge task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
