@@ -247,6 +247,73 @@ def load_verified_selected_background(
     )
 
 
+def load_verified_selected_badges(
+    selection: FastViewSurfacedResourceSelection,
+    *,
+    source_root: str | Path,
+    original_executable: str | Path,
+) -> tuple[VerifiedFastViewSurfacedResource, VerifiedFastViewSurfacedResource]:
+    """Load/decode only the source-selected home/away badge resources.
+
+    PPreMatchPanel and FastView call the same native club-art selector 0x40C850
+    for badge_2 and share the same generic fallback. This helper preserves that
+    shared selector/loader contract without requiring the caller to load the
+    unrelated Team_Backgrounds surface.
+    """
+    if type(selection) is not FastViewSurfacedResourceSelection:
+        raise FastViewSurfacedResourceLoadError(
+            "badge loader requires exact FastViewSurfacedResourceSelection"
+        )
+    root = Path(source_root)
+    if not root.is_dir():
+        raise FastViewSurfacedResourceLoadError(
+            "original source root is unavailable"
+        )
+    try:
+        executable = Path(original_executable).read_bytes()
+    except FileNotFoundError as exc:
+        raise FastViewSurfacedResourceLoadError(
+            "canonical original executable is unavailable"
+        ) from exc
+
+    try:
+        tables = tables_from_original_executable(executable)
+        quant = quantization_from_verified_executable(executable)
+    except Exception as exc:
+        raise FastViewSurfacedResourceLoadError(
+            "EA444 decode tables are not from the canonical original executable"
+        ) from exc
+
+    home_path, home_raw = _read_first_existing(
+        root,
+        selection.home_badge_source_candidates,
+        role="home_badge",
+    )
+    away_path, away_raw = _read_first_existing(
+        root,
+        selection.away_badge_source_candidates,
+        role="away_badge",
+    )
+    return (
+        _decode_verified(
+            "home_badge",
+            home_path,
+            home_raw,
+            expected_geometry=BADGE_GEOMETRY,
+            tables=tables,
+            quant=quant,
+        ),
+        _decode_verified(
+            "away_badge",
+            away_path,
+            away_raw,
+            expected_geometry=BADGE_GEOMETRY,
+            tables=tables,
+            quant=quant,
+        ),
+    )
+
+
 def load_verified_fastview_surfaced_resources(
     selection: FastViewSurfacedResourceSelection,
     *,
@@ -331,6 +398,7 @@ def surfaced_resource_loader_contract() -> dict:
         "chosen_source_path_retained": True,
         "chosen_source_sha256_retained": True,
         "background_only_reusable_seam": True,
+        "badge_only_reusable_seam": True,
         "terminal_background_fallback_recovered": False,
         "source_bytes_loaded": True,
         "ea444_decoded": True,
