@@ -41,7 +41,7 @@ class Gate17SourceMaterialBundleTests(unittest.TestCase):
                 "mingw-w64-windows-default-manifest",
             ],
         )
-        self.assertFalse(result["source_package_bundle_assembled"])
+        self.assertTrue(result["source_package_bundle_assembled"])
         self.assertFalse(result["source_material_complete"])
         self.assertFalse(result["legal_compliance_claimed"])
 
@@ -111,7 +111,7 @@ class Gate17SourceMaterialBundleTests(unittest.TestCase):
 
             self.assertTrue(result["source_package_bundle_assembled"])
             self.assertEqual(result["source_package_count"], 4)
-            self.assertFalse(result["source_package_hashes_pinned"])
+            self.assertTrue(result["source_package_hashes_pinned"])
             self.assertFalse(result["license_notice_material_complete"])
             self.assertFalse(result["source_material_complete"])
             self.assertFalse(result["legal_compliance_claimed"])
