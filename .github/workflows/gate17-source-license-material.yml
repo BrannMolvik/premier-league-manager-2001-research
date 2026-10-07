@@ -1,0 +1,71 @@
+name: Gate 17 contributor license material
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/gate17-source-license-material.yml"
+      - "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json"
+      - "reconstruction/gate17_source_material_bundle.py"
+      - "reconstruction/gate17_source_license_material.py"
+      - "reconstruction/test_gate17_source_license_material.py"
+  workflow_dispatch:
+
+concurrency:
+  group: gate17-license-material-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  license-material:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out exact candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Run focused license-material tests
+        working-directory: reconstruction
+        run: python -m unittest -v test_gate17_source_license_material
+
+      - name: Audit license-material contract
+        run: |
+          python reconstruction/gate17_source_license_material.py \
+            --repo-root "." \
+            --output-dir "_gate17-license-material/evidence" \
+            --preflight-only
+
+      - name: Re-materialize exact pinned source packages
+        run: |
+          python reconstruction/gate17_source_material_bundle.py \
+            --repo-root "." \
+            --output-dir "_gate17-license-material/source-input"
+
+      - name: Extract exact package-recipe license material
+        run: |
+          python reconstruction/gate17_source_license_material.py \
+            --repo-root "." \
+            --source-packages-dir "_gate17-license-material/source-input/source-packages" \
+            --output-dir "_gate17-license-material/evidence"
+
+      - name: Verify exact evidence count
+        run: |
+          test "$(find _gate17-license-material/evidence -type f ! -name 'license-material-manifest.json' | wc -l)" -eq 9
+          test -s _gate17-license-material/evidence/license-material-manifest.json
+
+      - name: Upload license-material checkpoint
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gate17-contributor-license-material-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            _gate17-license-material/evidence/
+            _gate17-license-material/source-input/source-package-manifest.json
+          if-no-files-found: error
+          retention-days: 14
