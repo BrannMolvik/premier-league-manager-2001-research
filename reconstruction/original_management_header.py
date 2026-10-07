@@ -13,6 +13,7 @@ boundary.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from hashlib import sha256
 from pathlib import Path
 
@@ -99,12 +100,46 @@ HEADER_CAPTION_ENGLISH_INDEX = 2497
 HEADER_CAPTION_TEXT = "MENU"
 HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 
+# Recovery 396/398 source-closed central management date control.  The two
+# y=34/y=51 match lines remain intentionally absent until 0x615D10/0x615DA0
+# filtering is semantically closed.
+HEADER_DATE_RECT = (172, 68, 378, 16)
+HEADER_CENTRAL_TEXT_RAW_STYLE = 0x2102
+HEADER_CENTRAL_TEXT_NATIVE_COLOR_16 = 0xFFFF
+HEADER_DATE_REFRESH_VA = 0x432710
+HEADER_DATE_FORMATTER_VA = 0x64D150
+HEADER_DATE_TEMPLATE_GLOBAL_VA = 0x983FE4
+HEADER_DATE_ENGLISH_INDEX = 517
+HEADER_DATE_TEMPLATE = "Today is %D %M %Yf"
+HEADER_DATE_FONT_OBJECT_VA = 0x8CAB80
+HEADER_DATE_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_18pixel.fnt"
+HEADER_DATE_FONT_SHA256 = (
+    "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a"
+)
+HEADER_DATE_FONT_BYTE_SIZE = 79_734
+HEADER_DATE_FONT_ATLAS_SIZE = (1366, 19)
+HEADER_DATE_MONTH_NAMES = (
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+)
+
 
 @dataclass(frozen=True)
 class OriginalManagementHeaderResources:
     left_anim: EA444DecodedImage
     right_state: EA444DecodedImage
     font: EAFont
+    date_font: EAFont
     club_font: EAFont | None = None
 
     def __post_init__(self) -> None:
@@ -112,6 +147,8 @@ class OriginalManagementHeaderResources:
             raise OriginalManagementHeaderError("back_4_anim decoded geometry mismatch")
         if (self.right_state.width, self.right_state.height) != HEADER_RIGHT_RESOURCE.size:
             raise OriginalManagementHeaderError("back_4 decoded geometry mismatch")
+        if (self.date_font.atlas_width, self.date_font.atlas_height) != HEADER_DATE_FONT_ATLAS_SIZE:
+            raise OriginalManagementHeaderError("Central date font atlas geometry mismatch")
 
 
 @dataclass(frozen=True)
@@ -168,6 +205,20 @@ class OriginalManagementHeaderCaptionOverlay:
     native_color_16: int = HEADER_CAPTION_NATIVE_COLOR_16
 
 
+@dataclass(frozen=True)
+class OriginalManagementHeaderDateOverlay:
+    text: str
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+    control_rect: tuple[int, int, int, int] = HEADER_DATE_RECT
+    raw_style: int = HEADER_CENTRAL_TEXT_RAW_STYLE
+    native_color_16: int = HEADER_CENTRAL_TEXT_NATIVE_COLOR_16
+    font_source_path: str = HEADER_DATE_FONT_SOURCE_PATH
+
+
 def _validate_source_file(root: Path, resource: OriginalManagementHeaderResource) -> bytes:
     path = root / resource.source_path
     try:
@@ -208,6 +259,25 @@ def validate_management_header_font(source_root: str | Path) -> EAFont:
     return EAFont.from_bytes(raw)
 
 
+def validate_management_header_date_font(source_root: str | Path) -> EAFont:
+    root = Path(source_root)
+    path = root / HEADER_DATE_FONT_SOURCE_PATH
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError as exc:
+        raise OriginalManagementHeaderError(
+            f"Missing exact original central-date font: {HEADER_DATE_FONT_SOURCE_PATH}"
+        ) from exc
+    if len(raw) != HEADER_DATE_FONT_BYTE_SIZE:
+        raise OriginalManagementHeaderError("Central-date font byte-size mismatch")
+    if sha256(raw).hexdigest() != HEADER_DATE_FONT_SHA256:
+        raise OriginalManagementHeaderError("Central-date font checksum mismatch")
+    font = EAFont.from_bytes(raw)
+    if (font.atlas_width, font.atlas_height) != HEADER_DATE_FONT_ATLAS_SIZE:
+        raise OriginalManagementHeaderError("Central-date font atlas geometry mismatch")
+    return font
+
+
 def load_verified_management_header_resources(
     source_root: str | Path,
     original_executable: str | Path,
@@ -217,6 +287,7 @@ def load_verified_management_header_resources(
     left_raw = _validate_source_file(root, HEADER_LEFT_RESOURCE)
     right_raw = _validate_source_file(root, HEADER_RIGHT_RESOURCE)
     font = validate_management_header_font(root)
+    date_font = validate_management_header_date_font(root)
 
     executable = Path(original_executable).read_bytes()
     tables = tables_from_original_executable(executable)
@@ -224,7 +295,7 @@ def load_verified_management_header_resources(
     left = decode_ea444(left_raw, tables=tables, quant=quant)
     right = decode_ea444(right_raw, tables=tables, quant=quant)
     return OriginalManagementHeaderResources(
-        left, right, font, load_verified_management_club_font(root)
+        left, right, font, date_font, load_verified_management_club_font(root)
     )
 
 
@@ -526,6 +597,64 @@ def management_header_caption_overlay(
         pos = index * 4
         rgba[pos:pos + 4] = bytes((255, 255, 255, value))
     return OriginalManagementHeaderCaptionOverlay(
+        text=text,
+        x=out_x,
+        y=out_y,
+        width=out_width,
+        height=out_height,
+        rgba=bytes(rgba),
+    )
+
+
+def format_management_header_date(value: date) -> str:
+    """Apply the recovered English 0x64D150 %D %M %Yf expansion.
+
+    %D is the unpadded numeric day, %M is the first three CP1252 bytes of the
+    localized month string, and %Yf is the full four-digit year.
+    """
+    if not isinstance(value, date):
+        raise OriginalManagementHeaderError("Management date must be a calendar date")
+    month = HEADER_DATE_MONTH_NAMES[value.month - 1][:3]
+    return f"Today is {value.day} {month} {value.year}"
+
+
+def management_header_date_overlay(
+    resources: OriginalManagementHeaderResources,
+    current_date: date,
+) -> OriginalManagementHeaderDateOverlay:
+    """Rasterize the independently refreshed y=68 central date control."""
+    if not isinstance(resources, OriginalManagementHeaderResources):
+        raise OriginalManagementHeaderError(
+            "Central date rendering requires verified management-header resources"
+        )
+    text = format_management_header_date(current_date)
+    font = resources.date_font
+    mask = font.render_text_alpha(text)
+    x, y, width, height = HEADER_DATE_RECT
+
+    # Native 0x2102 setup resolves to right alignment plus vertical centering
+    # for this TextControl.  Use the source font line-height and clip to the
+    # exact half-open control rectangle just like the other recovered text.
+    line_x = x + width - font.measure_text(text)
+    line_y = y + height // 2 - font.native_line_height() // 2
+    clipped = _clip_alpha(
+        mask.alpha,
+        mask.width,
+        mask.height,
+        line_x=line_x,
+        line_y=line_y,
+        rect=HEADER_DATE_RECT,
+    )
+    if clipped is None:
+        raise OriginalManagementHeaderError(
+            "Central management date clips to no source pixels"
+        )
+    out_x, out_y, out_width, out_height, alpha = clipped
+    rgba = bytearray(len(alpha) * 4)
+    for index, value in enumerate(alpha):
+        pos = index * 4
+        rgba[pos:pos + 4] = bytes((255, 255, 255, value))
+    return OriginalManagementHeaderDateOverlay(
         text=text,
         x=out_x,
         y=out_y,

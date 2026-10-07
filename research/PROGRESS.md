@@ -1,3 +1,15 @@
+### 8 October 2026 KST — Recovery 399 selector trace corrected before implementation
+
+Recovery 399 resumed from `de130503546f3a49db8e6d8a9e7aa133148d13a0`, reverified canonical `footballmanager.exe` as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, and merged the initial management-header selector trace as `671f98492661a43ae07ea60517971cf66d2916dc`. A subsequent instruction-level verification pass caught a material branch-direction error in that trace **before any renderer implementation**.
+
+The corrected `0x615C50` behavior skips a node when `node+0x08` is already non-null and, after `0x514520` invokes Side resolvers, returns the current node only when `node+0x08` remains null. `0x514520` itself does not allocate the link. `Side::+0x00` at `0x510320` can reach `0x615F40`, which can call `0x510BA0` and create/insert the linked 0x1c schedule object. The common direct-ClubRef `0x510B20` predicate is still source-closed as zero once reached, but direct fixed-League participants alone do not prove the earlier linked-state acceptance condition.
+
+The corrected source boundary is now: native date-forward bucket traversal, current-club membership, flag gating and common `+0x64` behavior are closed; live mapping of the `+0x08` linked state and the Side-resolution schedule side effects remains required before y=34/y=51 can be integrated. Symbolic Cup refs and SecondLegMatch dependency chains remain fail-closed.
+
+The exact 36px bold Zurich club-name font remains independently reverified from the authorized disc at 155,544 bytes / SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, atlas 2678x38, native line height 39. It is not staged because the current connector cannot transfer the private binary from the analysis container; no substitute is used.
+
+Gate 13 remains open under the post-#482 audit. Exact next source/runtime task: map the `node+0x08` link and `0x510320 -> 0x615F40 -> 0x510BA0` effects onto the existing primary schedule shadow, then reassess bounded fixed-League header integration. The private Windows startup-FMV receipt remains a separate blocker.
+
 ### 7 October 2026 KST — Recovery 388 integrated Gate-17 redistribution material bundle merged
 
 PR #537 merged as `edf24e7148007768619514c97822185a6dd43942` after exact head `0023d62c381ff5c6150db30cfef472ddc2a292cb` passed integrated-material run `37615747271` and asset-policy run `37615747138`. Artifact `11478824629` has digest `sha256:880a37d379ffa9d0bf5a606a828cfad32827519af00bd02f544119b93b8ed5df`.
@@ -12451,3 +12463,51 @@ continues with ordinary Squad row display-name/color helpers.
 - Merged PR #532 as `2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff`. The new Settings surface is an explicit modernization extension, preserves the recovered original PStartMenu controls/default baseline, and does not touch simulation.
 - Windows artifact `11473439363` (`FM2001-Windows11-7b7f5df36ecf12b2cb7a17b63f042182b3be380f`) has Actions digest `sha256:b6a0da08a1c81fba3c93e4268dcee7c59004c8efcd5ce9f4e8f50c0073584e61` and supersedes the older acceptance candidate for future Gate-13 hands-on testing.
 - Gate 13 remains open until Daniel's external issue-482 acceptance succeeds on the current runtime. Under deferred-blocker policy, resume independent Gate-17 source/license/notice bundle assembly for the four proven static-contributor source families; do not make a legal-compliance claim.
+
+## 8 October 2026 KST — Recovery 395 post-#482 retrospective audit checkpoint
+
+- Recovered canonical work from `main` `2d7e9b87ff96b12075c85150f989bdb96242a4b3` and the worker-owned `agent-runtime` handoff without relying on the expired chat.
+- Reconstructed the exact first-parent history from audit boundary `e2770be0649853e00d1e849ffd377ea3a115d237` and persisted the complete behavior classification in `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`.
+- Found a real unsupported gameplay rule: the live mode-1 Cup-Tied collection-miss path still interpreted transfer-history `+0x18` as a date, despite later first-hand executable evidence proving it is an appearance count.
+- Commit `0db90b975f1f2bb39797272a00f022ed380bdfb4` removes that date-based gameplay decision. Positive source-proven appeared-player Cup-Tied collections remain active; unresolved collection misses fail closed.
+- Commit `b890c578eeebbf8ad4375e58dbd236e3f957b5cb` removes the rejected date-window helper from live GameState construction, daily advancement, season rebuild and save restoration. Existing internal-save schema shape remains compatible through an inert `None` tombstone.
+- The audit reconciles Daniel's four external #482 failures: startup FMV content remains wrong inside a source-proven outer field; startup Escape is safely fail-closed but native skip semantics are unknown; latency optimizations did not constitute acceptance; and fresh Squad names/header remain incomplete.
+- The startup-FMV source trace itself still supports coded 320x480, exact horizontal pixel duplication to 640x480, and a 1:1 final blit at (80,60) in 800x600 mode. Next investigation is the compatibility derivative/WPF child-HWND transport boundary, with DPI/layout-unit mismatch a hypothesis to prove or reject rather than a basis for a visual guess.
+- Retrospective audit remains **open**. No new acceptance artifact, Settings expansion or Gate-17 work-ahead is authorized before audit exit.
+
+
+
+## 8 October 2026 KST — Recovery 396 fresh-Squad reserve-selection source closure
+
+- Recovered from canonical `main` `b8be966db032654fc13eb733b19ae1cfafc39374` and restored `agent-runtime` to continuous/working generation 396 before investigation.
+- Bounded the startup-FMV transport defect without changing native geometry: the compatibility host passes display-scaled geometry into a cross-process WPF `HwndSource`; repository evidence does not record parent/child DPI-awareness contexts or actual HWND rectangles. A private Windows DPI/rectangle receipt is therefore required before changing the source-proven 640x480/(80,60) field.
+- Materialized the authorized 511,121,336-byte original disc archive from ChatGPT Library, extracted `FOOTBAL.EXE` through the raw MODE1/2352 ISO payload, and independently reverified canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- First-hand disassembly source-closed the missing Squad reserve-selection state. `0x4218E0` returns exact state codes 4 first active, 3 first substitute, 2 reserve active, 1 reserve substitute, 0 none; `0x421950` dispatches the inverse mapping.
+- Native initialization `0x417700` clears `DBRPlayer+0x174`; `0x4181E0` sets reserve-active bit 0, `0x418280` sets reserve-substitute bit 1, and first-team setters `0x4182F0/0x4182C0` clear both reserve bits. All four selection branches are mutually exclusive.
+- This supersedes the earlier assumption that reserve state must remain unknown for fresh clean-room players. No name color is guessed: fresh default reserve bits now have direct source evidence.
+- Detailed evidence is in `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`. Fresh Squad remains incomplete until the runtime worker propagates the two reserve booleans through `RuntimePlayer -> SquadRowView -> OriginalSquadPresenter`, verifies the five-state lifecycle/default-yellow names, and then closes the missing fresh management-header binding.
+- Retrospective audit remains **open**; no new Windows acceptance artifact, Settings work, or Gate-17 work-ahead is authorized.
+
+
+## 8 October 2026 KST — Recovery 396 central management-header source closure
+
+- Continued the issue-#482 retrospective audit from `b29faef5f37226604b795829f7c857bbd369d472` without changing the source-proven startup-FMV geometry.
+- First-hand canonical-executable analysis separates the existing right-side `MENU` compound from the central `back_2_<variant>.444` header family that Daniel observed as blank.
+- The original central club-name control is source-closed at screen rect `(172,1,378,32)`. Management refresh `0x432A20` supplies current-club accessor `0x40DA50`; the accessor returns the first localized DBRClub name field, matching clean-room `Club.name`. Fresh Southport therefore expects exact source text `Southport`.
+- Font object `0x8F21B0` is source-bound to `Fonts/Zurich_BdXCn_BT_36pixel.fnt`. The authorized source file is 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`; it is not currently staged and must be imported through the normal manifest/provenance path rather than substituted.
+- Supporting source controls are `(172,34,378,16)`, `(172,51,378,16)`, and `(172,68,378,16)`, using the already staged exact `Zurich_XCn_BT_18pixel.fnt`.
+- Canonical English resources resolve the exact templates used by those controls: `%C %Rf{ Round} %Lf{ Leg}`, `%1s Vs %2s %D{%D %M %Y}`, and `Today is %D %M %Yf`. The bottom date line is independently refreshed from the current game date.
+- Current clean host already carries `ClubHeaderView.name/current_date` and draws the central background bitmap, but renders no central dynamic text. The blank central header is therefore a source-proven renderer omission.
+- The two match-line format/layout contracts are closed, but internal selector `0x615D10/0x615DA0` still has an unnamed exclusion/advance predicate. Those lines remain fail-closed until that producer is source-closed or matched to an exact existing clean-room equivalent.
+- Detailed evidence and bounded implementation handoff are persisted in `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
+- Retrospective audit remains **open**. Fresh Squad is not complete until reserve-state runtime propagation, central-header rendering and focused/full verification pass; a new external candidate remains forbidden during the audit.
+
+## 2026-10-08 — Recovery 401 source-closes fresh direct wrapper-link state
+
+- Reverified canonical private executable SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- `0x510380` explicitly zeros wrapper `+0x08`; ordinary LeagueMatch construction reaches it through `0x5103D0/0x5104F0`, and common match flags start at zero.
+- Direct `Side::0x510320` returns its already-populated concrete club before the `0x615F40 -> 0x510BA0` reschedule path, closing the header's own Side-resolution effect for fresh direct/direct fixed-League matches.
+- `0x615C10 -> 0x510AD0` also does not link fresh direct/direct matches; the direct `+0x64` predicate keeps `0x615DA0` out of its continuation/link path.
+- Exhaustive static direct-call enumeration still finds later reschedule producers at `0x4A801F` and `0x5E3C34`; season-long link immutability is therefore not claimed.
+- Authorized next implementation is a bounded clear/linked/unknown shadow contract with fail-closed invalidation after unmodelled post-start reschedule processing.
+

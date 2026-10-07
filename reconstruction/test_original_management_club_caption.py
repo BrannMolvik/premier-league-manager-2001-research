@@ -1,5 +1,6 @@
 from pathlib import Path
 from types import SimpleNamespace
+import os
 import unittest
 
 from original_management_club_caption import (
@@ -45,6 +46,18 @@ class ManagementClubCaptionTests(unittest.TestCase):
         pixels = management_club_caption_pixels(font, 'Southport', '')
         self.assertEqual(pixels[:4], (460, 1, 90, 32))
         self.assertGreater(sum(pixels[4][3::4]), 0)
+
+    @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),
+                         'authorized canonical executable not supplied')
+    def test_canonical_loader_binds_32pixel_path_to_caption_font_object(self):
+        from gate13_button_source_trace import OriginalPE32
+        # OriginalPE32 rejects noncanonical executable identities by default.
+        pe = OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        path = b'Fonts\\Zurich_BdXCn_BT_32pixel.fnt\0'
+        self.assertEqual(pe.read(0x839E94, len(path)), path)
+        self.assertEqual(pe.read(0x6043AA, 5), b'\x68\x94\x9e\x83\x00')
+        self.assertEqual(pe.read(0x6043F2, 5), b'\xb9\xb0\x21\x8f\x00')
+        self.assertEqual(pe.read(0x430651, 5), b'\x68\xb0\x21\x8f\x00')
 
 
 if __name__ == '__main__':

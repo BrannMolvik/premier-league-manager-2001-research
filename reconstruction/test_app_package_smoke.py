@@ -52,8 +52,6 @@ class AppPackageSmokeTests(unittest.TestCase):
             self.assertEqual(report["pstartmenu_presenter_screen"], "pstartmenu")
             self.assertFalse(report["settings_surface_present"])
             self.assertEqual(report["original_menu_control_ids"], [1, 2, 3, 4])
-            self.assertEqual(report["settings_default_profile"], "Original")
-            self.assertTrue(report["settings_default_fullscreen"])
             self.assertTrue(report["external_game_data_required"])
 
     def test_smoke_rejects_nonoriginal_default_menu_controls(self):

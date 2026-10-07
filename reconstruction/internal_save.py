@@ -19,7 +19,7 @@ from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
 from cup_progression import CupResultRegistry
-from cup_tied_state import CupTiedPlayerCollection, CupTiedTransferWindowState
+from cup_tied_state import CupTiedPlayerCollection
 from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
@@ -413,6 +413,10 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_MATCH_ACTIVE
     if player.match_substitute_available:
         flags |= _PLAYER_FLAG_SUBSTITUTE
+    if player.reserve_active:
+        flags |= _PLAYER_FLAG_RESERVE_ACTIVE
+    if player.reserve_substitute:
+        flags |= _PLAYER_FLAG_RESERVE_SUBSTITUTE
     if player.injured:
         flags |= _PLAYER_FLAG_INJURED
     if player.suspended:
@@ -433,11 +437,6 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_STATUS_BIT_3
     if player.wanted:
         flags |= _PLAYER_FLAG_WANTED
-    if player.reserve_active:
-        flags |= _PLAYER_FLAG_RESERVE_ACTIVE
-    if player.reserve_substitute_available:
-        flags |= _PLAYER_FLAG_RESERVE_SUBSTITUTE
-
     training = [int(v) for v in player.training_modifiers]
     return [
         int(player.index),
@@ -548,7 +547,7 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         match_active=bool(flags & _PLAYER_FLAG_MATCH_ACTIVE),
         match_substitute_available=bool(flags & _PLAYER_FLAG_SUBSTITUTE),
         reserve_active=bool(flags & _PLAYER_FLAG_RESERVE_ACTIVE),
-        reserve_substitute_available=bool(flags & _PLAYER_FLAG_RESERVE_SUBSTITUTE),
+        reserve_substitute=bool(flags & _PLAYER_FLAG_RESERVE_SUBSTITUTE),
         condition=int(value[7]),
         form_state=int(value[8]),
         current_position=int(value[9]),
@@ -1640,19 +1639,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         cup_tied_collections=_restore_cup_tied_collections(
             snapshot.get("cup_tied_collections")
         ),
-        cup_tied_transfer_window=(
-            None
-            if snapshot.get("cup_tied_transfer_window") is None
-            else CupTiedTransferWindowState(
-                selector=int(snapshot["cup_tied_transfer_window"]["selector"]),
-                cutoff_1=date.fromisoformat(
-                    snapshot["cup_tied_transfer_window"]["cutoff_1"]
-                ),
-                cutoff_2=date.fromisoformat(
-                    snapshot["cup_tied_transfer_window"]["cutoff_2"]
-                ),
-            )
-        ),
+        # Legacy schema field is intentionally ignored. Recovery 354
+        # disproved its transfer-date semantics; live state must remain inert.
+        cup_tied_transfer_window=None,
         domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
         european_cups=DomesticCupScheduleState.restore(snapshot.get("european_cups")),
         qualification_cups=DomesticCupScheduleState.restore(
@@ -1974,9 +1963,6 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     state.configure_stadium_source_loader(database)
     validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
                           {} if league is None else league.fixtures)
-    state.calendar.daily_hooks.append(
-        state._run_daily_cup_tied_transfer_window
-    )
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)
     state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
     state.calendar.monthly_hooks.append(state._run_monthly_player_development)

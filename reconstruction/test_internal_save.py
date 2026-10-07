@@ -128,10 +128,9 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
-    def test_cup_tied_transfer_window_survives_roundtrip(self):
+    def test_disproved_cup_tied_date_window_stays_inert_across_roundtrip(self):
         original = self.build_controller()
-        self.assertIsNotNone(original.state.cup_tied_transfer_window)
-        original.state.cup_tied_transfer_window.selector = 1
+        self.assertIsNone(original.state.cup_tied_transfer_window)
 
         restored = loads_human_gameplay(
             Database(),
@@ -140,10 +139,7 @@ class InternalSaveTests(unittest.TestCase):
             dumps_human_gameplay(original),
         )
 
-        self.assertEqual(
-            restored.state.cup_tied_transfer_window,
-            original.state.cup_tied_transfer_window,
-        )
+        self.assertIsNone(restored.state.cup_tied_transfer_window)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
@@ -187,7 +183,7 @@ class InternalSaveTests(unittest.TestCase):
         players[0].clear_match_selection()
         players[0].reserve_active = True
         players[1].clear_match_selection()
-        players[1].reserve_substitute_available = True
+        players[1].reserve_substitute = True
         restored = loads_human_gameplay(Database(), coefficient_matrix(),
                                        coefficient_matrix(), dumps_human_gameplay(original))
         by_id = {player.index: player for player in restored.squad()}
@@ -198,7 +194,7 @@ class InternalSaveTests(unittest.TestCase):
                 first_team_active=saved.match_active,
                 first_team_substitute=saved.match_substitute_available,
                 reserve_active=saved.reserve_active,
-                reserve_substitute=saved.reserve_substitute_available), expected)
+                reserve_substitute=saved.reserve_substitute), expected)
 
     def build_controller_with_playable_scope_policy(self):
         controller = self.build_controller()
@@ -1564,6 +1560,31 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(restored_player.match_performance_history_count, 6)
         self.assertEqual(restored_player.match_performance_history_write_index, 1)
         self.assertAlmostEqual(restored_player.match_performance_average(), 43 / 6)
+
+    def test_reserve_selection_state_survives_existing_player_flag_roundtrip(self):
+        original = self.build_controller()
+        original.state.players[1000].set_reserve_active()
+        original.state.players[2000].set_reserve_substitute()
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        first = restored.state.players[1000]
+        second = restored.state.players[2000]
+        self.assertEqual(first.match_selection_state_code, 2)
+        self.assertEqual(second.match_selection_state_code, 1)
+        self.assertTrue(first.reserve_active)
+        self.assertFalse(first.reserve_substitute)
+        self.assertFalse(second.reserve_active)
+        self.assertTrue(second.reserve_substitute)
+        self.assertFalse(first.match_active)
+        self.assertFalse(first.match_substitute_available)
+        self.assertFalse(second.match_active)
+        self.assertFalse(second.match_substitute_available)
 
     def test_current_club_join_date_survives_roundtrip(self):
         original = self.build_controller()

@@ -30,6 +30,7 @@ from original_management_header import (
     OriginalManagementHeaderState,
     load_verified_management_header_resources,
     management_header_caption_overlay,
+    management_header_date_overlay,
     management_header_overlays,
 )
 from original_fixtures_pager import (
@@ -46,7 +47,6 @@ from original_pmatchinfo_script_rows import load_script_row_art
 from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
-from front_end_settings import load_source_styled_settings_resources
 from front_end_state import FrontEndCommand, FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
 from gate14_live_first_screen_audio import (
@@ -1226,6 +1226,32 @@ class OriginalGameTkHost:
         self._schedule_management_header_update()
         return count
 
+    def _draw_management_current_date(self, frame) -> int:
+        """Draw the independently refreshed source y=68 management date line."""
+        resources = self.management_header_resources
+        if resources is None:
+            return 0
+        if not isinstance(resources, OriginalManagementHeaderResources):
+            raise OriginalGameHostError(
+                "Management current-date renderer requires verified header resources"
+            )
+        club = getattr(frame.presentation, "club", None)
+        current_date = getattr(club, "current_date", None)
+        overlay = management_header_date_overlay(resources, current_date)
+        self._create_native_image(
+            overlay.x,
+            overlay.y,
+            image=self._photo(
+                encode_rgba_png(
+                    overlay.width,
+                    overlay.height,
+                    overlay.rgba,
+                )
+            ),
+            anchor=self.tk.NW,
+        )
+        return 1
+
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
         if frame.presentation.panel_class != "PSquadScreen":
@@ -1580,6 +1606,7 @@ class OriginalGameTkHost:
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header(frame.presentation.club)
+        header_image_count += self._draw_management_current_date(frame)
         squad_image_count = self._draw_squad_top_controls(frame)
         squad_image_count += self._draw_squad_rows(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)

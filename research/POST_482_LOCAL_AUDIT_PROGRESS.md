@@ -1,5 +1,14 @@
 # Post-482 local original-baseline audit progress
 
+**Historical snapshot, superseded 8 October 2026:** the canonical
+`POST_482_ORIGINAL_BEHAVIOR_AUDIT.md` now has the complete per-commit
+classification. This earlier partial register must not override that ledger.
+Local paired-Squad producer evidence remains supplemental, and the canonical
+audit exit is still not passed. Recovery branch integration preserves main's
+Cup-Tied correction, reserve selection state and central date header. The
+central club-caption font ownership is corrected to 32px by the canonical
+loader bytes, not replaced from a conflicting 36px research claim.
+
 7 October 2026. Canonical scope ends at fetched main
 `e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41`; first-parent start is
 `e2770be0` (reopening). This is a PARTIAL adjudication, not satisfaction of

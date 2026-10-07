@@ -679,7 +679,6 @@ PACKAGE_SMOKE_REQUIRED = (
     "FM2001_Art/Generic/menu_popup/menu_anim.444",
     "FM2001_Art/Generic/match_report/info_popup.444",
     "Fonts/Zurich_XCn_BT_16pixel.fnt",
-    "Fonts/Zurich_BdXCn_BT_20pixel.fnt",
 )
 PSTARTMENU_DERIVATIVE_RELATIVE = (
     Path("original_assets") / "converted" / "pstartmenu-v1"
@@ -751,8 +750,6 @@ def package_smoke_report() -> dict:
         "pstartmenu_presenter_screen": str(package_snapshot.screen.value),
         "original_menu_control_ids": [control.event for control in package_snapshot.controls],
         "settings_surface_present": False,
-        "settings_default_profile": package_presenter.session.settings.profile_name,
-        "settings_default_fullscreen": package_presenter.session.settings.fullscreen,
         "startup_ffmpeg": str(startup_ffmpeg),
         "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "external_game_data_required": True,

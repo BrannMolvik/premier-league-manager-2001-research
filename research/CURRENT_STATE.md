@@ -1,3 +1,140 @@
+# Local recovery integration — 8 October 2026
+
+Recovery branch `codex/gate13-windows-playability-recovery` reconciles canonical
+main `36335b97fa7e395d685624c212f89663ffe7d5a2`, preserving the worker's
+Cup-Tied date-model removal, source reserve state and central date header.
+No main merge, ownership update, original launch or acceptance build is made.
+
+**Source correction:** `6043AA` pushes path pointer `839E94`, whose exact
+string is `Fonts/Zurich_BdXCn_BT_32pixel.fnt`; the same loader binds
+`8F21B0` at `6043F2`, and constructor `430651` passes that object.
+The earlier 36px club-caption mapping is false. Retain the staged verified
+32px font and right-aligned Southport x=460, not the proposed 36px/x=451
+replacement. See the correction atop the central-header source trace and
+the new opt-in canonical-byte regression. Club accessor `40DA50` retains
+its human-caption override before the `+8` fallback.
+
+Native paired Squad setup remains required: `4B8240 -> 4B7BD0 -> 4B7500`
+prepares selection and ordered membership before the two list mappers.
+The renderer's current database-first-20 view is not the original paired view.
+Continue that source-backed producer integration and the private startup-FMV
+transport receipt; do not duplicate the parallel header-link task below.
+Gate 13 and the retrospective audit exit remain open. Integration verification:
+165 focused tests pass, including the opt-in canonical font-loader byte check.
+
+---
+
+# Recovery 401 — fresh direct wrapper-link state closed; bounded integration authorized
+
+_Updated 8 October 2026._
+
+Canonical `main` entering this recovery is `dd767a485d9cf16cc53881b1339ca112feae2a30`. **Gate 13 remains the earliest incomplete validation gate.**
+
+Canonical-executable verification now closes the missing direct fixed-League
+`wrapper+0x08` startup boundary. `0x510380` zeros the link, `0x5103D0`
+routes ordinary LeagueMatch construction through it, and the common match
+constructor zeros `match+0x44`. A direct Side reaches `0x510320` with its
+concrete club pointer already present and returns before `0x615F40`, so the
+header's `0x514520` Side-resolution pass cannot create the link for a fresh
+direct/direct fixed-League wrapper. `0x615C10 -> 0x510AD0` also leaves that
+case unlinked, and the `0x615DA0` continuation does not run because the
+common direct `+0x64` predicate is zero.
+
+The important limit is also source-proven: external post-start callers at
+`0x4A801F` and `0x5E3C34` can invoke `0x510BA0` later. The clean-room
+does not model those reschedule side effects. Therefore link state must be
+explicitly **clear / linked / unknown**, with startup wrappers clear and later
+unmodelled mutation boundaries invalidating clear state to unknown. The header
+may use only clear direct fixed-League candidates; a relevant unknown entry
+must fail closed.
+
+**Exact next task:** implement that bounded link-state contract in
+`primary_schedule_shadow.py`, invalidate source-known-clear state once
+unmodelled post-start reschedule processing could have occurred, and expose the
+exact bucket/head-to-tail direct fixed-League header candidate through the
+management source bridge. Then render y=34/y=51 using only the already recovered
+templates/font/layout. Do not broaden this to symbolic Cup refs or season-long
+postponement semantics.
+
+The exact 36px club-name font is still verified but unstaged. The private
+Windows startup-FMV transport receipt remains a separate Gate-13 blocker.
+
+---
+
+# Recovery 399 correction — selector control flow closed; +0x08 link mapping remains
+
+_Updated 8 October 2026._
+
+Canonical `main` baseline is `671f98492661a43ae07ea60517971cf66d2916dc`. **Gate 13 remains the earliest incomplete validation gate.** The mandatory post-#482 retrospective audit remains active; no acceptance build, Settings expansion, or Gate-17 work-ahead is authorized.
+
+Recovery 399 re-materialized the authorized original disc archive and re-extracted canonical `footballmanager.exe`; SHA-256 again matched `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. First-hand analysis in `research/GATE13_MANAGEMENT_HEADER_MATCH_SELECTOR_SOURCE_TRACE.md` closes the native `0x615D10/0x615DA0` traversal and the common direct-ClubRef `+0x64` predicate, but a verification pass caught and corrected an important branch-direction error before implementation.
+
+The corrected `0x615C50` semantics are: with the header's materializing selector state, a node whose `+0x08` link is already non-null is skipped; after `0x514520` invokes the embedded Side resolvers, the current node is returned only if that link is **still null**. `0x514520` does not allocate the link itself. `Side::+0x00` (`0x510320`) can search neighboring schedule state through `0x615F40`, whose conflict path can call `0x510BA0` and create/insert the linked 0x1c object. Therefore two direct fixed-League participants are enough to prove the later `0x510B20` predicate returns zero, but are **not yet enough** to prove the earlier `+0x08` acceptance state in the live clean-room.
+
+The direct fixed-League y=34/y=51 producer must therefore remain unintegrated until the `node+0x08` linked state and `0x510320 -> 0x615F40 -> 0x510BA0` side effects are mapped to the existing primary-schedule shadow/runtime. Unsupported node kinds, symbolic ClubRefs, or unresolved link state remain fail-closed. This correction supersedes the first Recovery-399 wording that called the entire direct fixed-League producer source-closed.
+
+The exact missing club-name font was re-extracted from disc extent 170896 and independently reverified: 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, EA atlas 2678x38, native line height 39. `Southport` measures 99 source pixels, placing the recovered right-aligned line at x=451 inside `(172,1,378,32)`. The bytes are still **not staged in Git** because the current connector path cannot transfer the private binary from the analysis container; no substitute font is authorized.
+
+**Exact next task:** source-close and map the `+0x08` linked-schedule state/Side-resolution effects into the primary schedule shadow, then decide whether the direct fixed-League header producer is safe to integrate. Separately stage the byte-identical 36px font when a binary-capable provenance write path is available. Focused/full verification and the private Windows startup-FMV transport receipt remain required before Gate 13 can close.
+---
+
+# Recovery 396 continuation — central fresh-management header source-closed
+
+_Updated 8 October 2026._
+
+Canonical source-investigation baseline is `b29faef5f37226604b795829f7c857bbd369d472`. **Gate 13 remains the earliest incomplete validation gate.** The mandatory post-#482 retrospective audit remains active; no acceptance build, Settings expansion, or Gate-17 work-ahead is authorized.
+
+Fresh-Squad reserve selection is source-closed in `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`: native fresh `DBRPlayer+0x174` starts at zero and the exact five-state none/reserve-sub/reserve-active/first-sub/first-active transitions are known. Runtime propagation and regression coverage are still required before ordinary default-yellow names can be considered integrated.
+
+Recovery 396 now also source-closes the ordinary **central** management-header text contract in `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`. This is distinct from the already-rendered right-side `MENU` compound. The original constructs the club-name control at `(172,1,378,32)`, fills it from the current club's first localized name field, and uses exact `Fonts/Zurich_BdXCn_BT_36pixel.fnt`. The y=68 control independently formats the current date from exact English template `Today is %D %M %Yf` with the source 18-pixel Zurich font. Thus Daniel's blank central Southport header is explained by a real host omission: the compatibility host draws `back_2_<variant>.444` but no central dynamic text layer.
+
+The two conditional y=34/y=51 match-line layouts and exact English templates are also source-closed, but the `0x615D10/0x615DA0` match-selection filter is not yet semantically closed. Do not replace it with a plausible next-fixture search. The next source task is to close that selector or prove an exact already-reconstructed equivalent. If it remains unresolved, the minimum safe header repair is still club name + current-date line, with match lines fail-closed.
+
+The required 36-pixel bold Zurich source asset is not yet staged. Its authorized canonical identity is recorded in the trace (155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`) so a later implementation worker can import it through the normal asset-policy/provenance path rather than substituting another font.
+
+The startup-FMV source geometry remains unchanged: 320x480 coded TGQ -> exact 2x horizontal expansion -> 640x480 movie surface -> 1:1 blit at (80,60) in the ordinary 800x600 mode. The current packaged parent/child DPI/actual-HWND geometry still requires a private Windows receipt before changing any source geometry.
+
+Fresh Squad completeness remains **false** until reserve-state runtime propagation, central-header rendering, focused/full verification and the remaining audit exit criteria pass.
+
+---
+# Recovery 396 continuation — fresh-Squad reserve selection state source-closed
+
+_Updated 8 October 2026._
+
+Canonical investigation baseline is `b8be966db032654fc13eb733b19ae1cfafc39374`. **Gate 13 remains the earliest incomplete validation gate.** The post-#482 retrospective audit is still active; no acceptance build, Settings expansion, or Gate-17 work-ahead is authorized yet.
+
+The startup-FMV transport investigation is now bounded rather than guessed: the recovered original still requires 320x480 coded TGQ pixels, exact 2x horizontal duplication, a 640x480 movie surface, and the final 1:1 blit. The current cross-process Tk -> WPF path supplies host-scaled geometry to `HwndSource`, whose dimensions are device-pixel values, while the packaged parent/child DPI-awareness contexts are not captured by any repository receipt. No geometry was changed. A private Windows receipt of parent/child HWND rectangles and DPI-awareness contexts is required before attributing Daniel's wrong in-field framing to DPI virtualization versus derivative pixel content.
+
+Independent first-hand source work then closed the fresh-Squad reserve-selection producer that had been blocking ordinary name colors. Re-extraction of the canonical executable from the authorized MODE1/2352 disc reverified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md` records the exact five-state selection enum: 0 none, 1 reserve substitute, 2 reserve active, 3 first-team substitute, 4 first-team active. Native player initialization zeros `+0x174`; `0x4181E0` and `0x418280` set reserve active/substitute, and the first-team setters clear both reserve bits.
+
+This proves fresh clean-room reserve state is not inherently unknowable: current reachable fresh players may source-correctly begin reserve-active=false and reserve-substitute=false. The exact next Squad task is to have the implementation worker propagate those two source-closed booleans through `RuntimePlayer -> SquadRowView -> OriginalSquadPresenter`, preserve five-way setter exclusivity, cover save/restore only where current selection state is already persisted, and add regression coverage for default-yellow ordinary names. After that, recover/bind the missing fresh management header content. Fresh Squad completeness remains false until both integration steps are verified.
+
+---
+# Recovery 395 continuation — post-#482 ledger complete; Cup-Tied date model removed
+
+_Updated 8 October 2026._
+
+Canonical `main` is `b890c578eeebbf8ad4375e58dbd236e3f957b5cb`. **Gate 13 remains the earliest incomplete validation gate.** The mandatory post-#482 retrospective audit is still active and blocks new acceptance builds, Settings work, and Gate-17 work-ahead.
+
+The first-parent audit is now durably classified in `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`. A material gameplay defect was found: the mode-1 Cup-Tied collection-miss fallback had been implemented from an older interpretation of `CPlayerTransferHistory+0x18` as a transfer date, although later canonical-executable evidence proves that field is an **appearance count** and leaves the actual cutoff producer unresolved.
+
+Corrections now on `main`:
+- `0db90b975f1f2bb39797272a00f022ed380bdfb4` removes the disproven date comparison from `is_player_cup_tied_for_status()`; the positive source-proven appeared-player collection remains authoritative and every unresolved collection miss fails closed.
+- `b890c578eeebbf8ad4375e58dbd236e3f957b5cb` removes the rejected `CupTiedTransferWindowState` from live construction, daily hooks, season rebuild and save restore. The old schema slot remains an inert `None` tombstone only.
+- Settings remains DEFERRED-MODERNIZATION and isolated from the original/default presenter.
+- Startup Escape no longer reaches the modern fullscreen-leave behavior while startup media is active; original startup skip/input semantics remain unresolved.
+
+The next audit blocker is the startup movie **content inside the already source-proven 640x480/(80,60) field**. The native trace still supports 320x480 coded TGQ pixels, exact 2x horizontal duplication, and a final 1:1 640x480 blit. Daniel's Windows evidence therefore contradicts the current compatibility integration rather than that outer geometry. Investigate the TGQ derivative/WPF child-HWND transport boundary, including cross-process DPI/layout units, before changing native geometry or margins.
+
+If that distinction cannot be resolved without a private Windows receipt, record the exact external blocker and continue the independent source-backed fresh-Squad work: recover the reserve +0x174 selection predicates/state required for ordinary player-name colors and then the missing fresh management header binding.
+
+Do **not** resume Gate-17 work-ahead or create another acceptance artifact until the retrospective audit exit criteria pass.
+
+---
+
+
+# Historical local recovery checkpoints (reconciled on 8 October)
+
 # Current local task - original-style build restoration
 
 Fetched canonical main e4a60f0a on 7 October 2026. Its mandatory retrospective

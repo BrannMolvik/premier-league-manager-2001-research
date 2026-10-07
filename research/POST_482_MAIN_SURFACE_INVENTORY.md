@@ -1,5 +1,10 @@
 # Post-482 complete main-surface inventory
 
+**Historical pinned inventory:** the newer canonical
+`POST_482_ORIGINAL_BEHAVIOR_AUDIT.md` supersedes this snapshot's provisional
+classifications. Retain this file for reproducibility, not as the live audit
+or a reason to duplicate the completed inventory.
+
 Snapshot: canonical `e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41`, 7 October 2026.
 All **129 first-parent main integration/checkpoint commits** from `e2770be0`
 through this snapshot are enumerated below. Each merge includes its complete

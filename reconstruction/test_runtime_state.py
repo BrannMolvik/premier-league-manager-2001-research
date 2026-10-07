@@ -186,30 +186,83 @@ class RuntimePlayerTests(unittest.TestCase):
 
         self.assertFalse(player.match_active)
         self.assertFalse(player.match_substitute_available)
+        self.assertFalse(player.reserve_active)
+        self.assertFalse(player.reserve_substitute)
         self.assertEqual(player.current_position, 12)
         self.assertEqual(player.position_aux_code, 0)
         self.assertEqual(player.balance_position_code, 10)
 
-    def test_match_selection_flags_are_mutually_exclusive(self):
+    def test_match_selection_states_follow_source_five_way_exclusivity(self):
         player = RuntimePlayer.from_database_player(
             FakePlayer(),
             date(2000, 7, 1),
             MsvcCrtRng(1),
         )
+        self.assertEqual(player.match_selection_state_code, 0)
         self.assertFalse(player.match_active)
         self.assertFalse(player.match_substitute_available)
+        self.assertFalse(player.reserve_active)
+        self.assertFalse(player.reserve_substitute)
 
-        player.set_match_active()
-        self.assertTrue(player.match_active)
-        self.assertFalse(player.match_substitute_available)
+        player.set_reserve_substitute()
+        self.assertEqual(player.match_selection_state_code, 1)
+        self.assertEqual(
+            (
+                player.match_active,
+                player.match_substitute_available,
+                player.reserve_active,
+                player.reserve_substitute,
+            ),
+            (False, False, False, True),
+        )
+
+        player.set_reserve_active()
+        self.assertEqual(player.match_selection_state_code, 2)
+        self.assertEqual(
+            (
+                player.match_active,
+                player.match_substitute_available,
+                player.reserve_active,
+                player.reserve_substitute,
+            ),
+            (False, False, True, False),
+        )
 
         player.set_match_substitute_available()
-        self.assertFalse(player.match_active)
-        self.assertTrue(player.match_substitute_available)
+        self.assertEqual(player.match_selection_state_code, 3)
+        self.assertEqual(
+            (
+                player.match_active,
+                player.match_substitute_available,
+                player.reserve_active,
+                player.reserve_substitute,
+            ),
+            (False, True, False, False),
+        )
+
+        player.set_match_active()
+        self.assertEqual(player.match_selection_state_code, 4)
+        self.assertEqual(
+            (
+                player.match_active,
+                player.match_substitute_available,
+                player.reserve_active,
+                player.reserve_substitute,
+            ),
+            (True, False, False, False),
+        )
 
         player.clear_match_selection()
-        self.assertFalse(player.match_active)
-        self.assertFalse(player.match_substitute_available)
+        self.assertEqual(player.match_selection_state_code, 0)
+        self.assertEqual(
+            (
+                player.match_active,
+                player.match_substitute_available,
+                player.reserve_active,
+                player.reserve_substitute,
+            ),
+            (False, False, False, False),
+        )
 
     def test_initializer_clamps_stored_baseline_age(self):
         young = FakePlayer(date_of_birth=date(1995, 1, 1))

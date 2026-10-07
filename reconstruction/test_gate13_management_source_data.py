@@ -69,6 +69,8 @@ class FakePlayer:
     current_position: int = 0
     match_active: bool = False
     match_substitute_available: bool = False
+    reserve_active: bool = False
+    reserve_substitute: bool = False
     training_modifiers: list[int] = field(
         default_factory=lambda: [0] * 17
     )
@@ -477,14 +479,16 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
                 second.shirt_number, second.positions,
                 second.current_position, second.assigned_role_abbreviation,
                 second.match_active,
-                second.match_substitute_available, second.match_unavailable,
+                second.match_substitute_available,
+                second.reserve_active, second.reserve_substitute,
+                second.match_unavailable,
                 second.condition, second.form_state,
                 second.recent_form_average, second.current_role_rating,
                 second.morale,
             ),
             (
                 "Second", "Source", "Second Source", 9, (4, 0, 0), 0, "GK",
-                False, True, False, 91, 3, 2.5, 40, 88,
+                False, True, False, False, False, 91, 3, 2.5, 40, 88,
             ),
         )
         self.assertTrue(second.transfer_listed)
@@ -495,8 +499,12 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
                 first.condition, first.form_state, first.morale,
                 first.assigned_role_abbreviation,
                 first.match_active, first.match_substitute_available,
+                first.reserve_active, first.reserve_substitute,
             ),
-            ("First", "Source", "First Source", 77, 2, 92, "GK", True, False),
+            (
+                "First", "Source", "First Source", 77, 2, 92, "GK",
+                True, False, False, False,
+            ),
         )
         self.assertTrue(first.injured)
         self.assertTrue(first.suspended)
@@ -504,6 +512,23 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_squad_projection_carries_source_closed_reserve_selection_state(self):
+        controller = FakeController()
+        controller._squad[0].match_substitute_available = False
+        controller._squad[0].reserve_active = True
+
+        second, _first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertFalse(second.match_active)
+        self.assertFalse(second.match_substitute_available)
+        self.assertTrue(second.reserve_active)
+        self.assertFalse(second.reserve_substitute)
+
+        controller._squad[0].reserve_active = False
+        controller._squad[0].reserve_substitute = True
+        second, _first = ManagementSourceDataBridge(controller).squad_rows()
+        self.assertFalse(second.reserve_active)
+        self.assertTrue(second.reserve_substitute)
 
     def test_squad_status_projection_keeps_loan_and_non_eu_priority_inputs_exact(self):
         controller = FakeController()

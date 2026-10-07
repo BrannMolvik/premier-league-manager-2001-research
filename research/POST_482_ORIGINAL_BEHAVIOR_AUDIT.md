@@ -1,135 +1,317 @@
 # Retrospective Original-Behavior Audit — Post-#482 Work
 
-_Status: REQUIRED BEFORE FURTHER GAMEPLAY/PRESENTATION IMPLEMENTATION_
+_Status: IN PROGRESS — INVENTORY COMPLETE; AUDIT EXIT BLOCKED BY ACTIVE/UNRESOLVED ORIGINAL-BEHAVIOR BOUNDARIES_
 
-## Scope
+_Last updated: 8 October 2026 KST. Canonical audited behavior/correction head: `b890c578eeebbf8ad4375e58dbd236e3f957b5cb`._
 
-Audit **all merged work from the reopening of Gate 13 / issue #482 through the current main HEAD**, not only the most recent PR.
+## Scope and counting rule
 
-The audit is retrospective because the stronger original-behavior-first policy was added after substantial work had already landed. The purpose is to determine which recent changes are genuinely source-backed, which are Windows 11 compatibility-only, which are unsupported reconstruction assumptions, and which are deferred modernization.
+The audit boundary is commit `e2770be0649853e00d1e849ffd377ea3a115d237`, the durable marker created when issue #482 was promoted back into Gate 13. The table below enumerates every **first-parent main commit after that boundary through the audited head**, including direct-to-main checkpoints and corrections rather than only merge commits.
 
-Do not assume a change is correct because:
-- its tests pass;
-- CI is green;
-- it was previously reviewed or merged;
-- it appears visually plausible;
-- it improves responsiveness;
-- it resembles an earlier reconstruction;
-- another worker described it as "source-backed" without reproducible evidence.
+Current main through `b890c578` contains **134 first-parent commits after the audit boundary**. The original table covers the 131 entries through `0db90b97`; post-table entries `41e35626` and `8eae9825` are audit-bookkeeping-only, while `b890c578` is the subsequent corrective behavior entry classified below. The ledger-refresh commit that writes this text is mechanically research-only and is excluded from the behavior count.
 
-## Required inventory
+Primary-classification counts at this checkpoint:
+- ORIGINAL-PROVEN: 23
+- COMPATIBILITY-EQUIVALENT: 5
+- RESEARCH/INFRASTRUCTURE-ONLY: 97
+- DEFERRED-MODERNIZATION: 3
+- UNSUPPORTED: 2
+- INCONCLUSIVE: 4
 
-Enumerate every merged PR/commit in scope and classify each changed surface.
+A green reconstruction test proves only that the reconstruction is internally consistent. ORIGINAL-PROVEN rows below cite the canonical executable/resource trace family that establishes the original contract. COMPATIBILITY-EQUIVALENT rows change only a modern implementation mechanism and preserve the proven source-visible result.
 
-At minimum inspect any work affecting:
+## How the mandatory behavior questions are represented
 
-- PStartMenu / TeamSelect;
-- startup FMV decoding, conversion, geometry, aspect, timing, input, skip behavior and WPF/Tk hosting;
-- fullscreen/window/input compatibility;
-- New Game lifecycle and loading/performance changes;
-- resource loading/caching/deferred loading;
-- management shell/PMenu routing;
-- Squad/header/player-row content, fonts, colors, icons, z-order and state binding;
-- tactics/team selection;
-- fixtures/results/table/player profile/transfers/finances/messages/training/scouting presentation;
-- PPreMatch/FastView/3D/match-detail routing and presentation;
-- audio/music/SFX behavior;
-- simulation/gameplay changes merged during the same period;
-- packaging/runtime changes that alter observable behavior;
-- Settings or any other non-original extension.
+For every behavior-affecting row:
+- **Original evidence** states what the shipped original did and the source/observation proving it.
+- **Behavioral impact** states what the change implements and whether it is player/simulation visible.
+- **Classification** answers whether the change is original-proven, a minimum compatibility mechanism, unsupported, or unresolved.
+- **Corrective action** records guessed/approximated semantics, whether tests are only reconstruction tests, and the required disposition.
 
-Pure documentation, CI, provenance and release-material changes may be classified as non-behavioral, but still enumerate them so the audit has no silent gaps.
+Where a row is deliberately bounded, its classification applies only to the stated sub-contract. It must not be used as evidence that the whole screen/flow is complete.
 
-## Classification for each item
+## Complete first-parent inventory
 
-Use exactly one primary classification:
+| # | Identifier / title | Files / subsystem | Behavioral impact | Original evidence | Classification / confidence | Corrective action |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 001 | `ac0e4077` State: prioritize external playability regression 482 | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 002 | `af75dabc` Fidelity: promote external playability regression to Gate 13 | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 003 | `193d29f7` Gate 13: mark prior closure interpretation superseded | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 004 | `6252923c` Progress: checkpoint recovery 322 regression audit | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 005 | `b669b253` Status: reopen Gate 13 on external regression 482 | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 006 | `f4d23116` Research: recover native startup FMV display geometry | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 007 | `40e99eaa` Executable: trace startup movie surface and blit geometry | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 008 | `2b33de0a` State: persist native FMV geometry and recovered private source access | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 009 | `a630a34e` Progress: checkpoint native startup FMV geometry trace | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 010 | `e9635ee0` Status: record recovered native startup FMV geometry | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 011 | `b8fab87b` Gate 13: bound ordinary Squad row helper traces | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 012 | `4c045b0b` Gate 13: scope management resources to active route | management resource loading | Fresh management loads shell/Squad only; Fixtures/PMatchInfo/League Tables are lazy, off-Tk-thread, cached. | Original route is fresh PSquadScreen; this removes reconstruction-only eager work without changing selected route/pixels. | **COMPATIBILITY-EQUIVALENT** / High | Retain. Do not claim this alone fixes all latency. |
+| 013 | `3c325a5d` Gate 13: defer canonical world build until TeamSelect Start | New Game / TeamSelect lifecycle | Canonical New Game parses/verifies once; heavy GameState/schedule construction moves to TeamSelect Start and reuses the exact parsed database. | TeamSelect consumes countries/competitions/clubs only; tests prove hierarchy/data equivalence and exact parsed-object reuse. Construction timing is a Python reconstruction concern. | **COMPATIBILITY-EQUIVALENT** / Medium | Retain, but external latency remains open and no original timing claim is made. |
+| 014 | `6fa06557` Recovery 326: advance after #482 latency slices | research/CURRENT_STATE.md | State-only checkpoint after the latency slices; no runtime files changed. | Non-behavioral repository state. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth only. |
+| 015 | `1ff263f2` Progress: record #482 route and TeamSelect latency repairs | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 016 | `32f02fc8` Gate 13: stage and use verified PStartMenu derivative | PStartMenu cold-start assets | Default runtime consumes a pinned deterministic source-derived first-screen derivative instead of decoding immutable originals every cold launch. | Exact original first-screen hashes plus pinned derivative manifest cc541cac… and payload 24285104…; package-time output is immutable source-derived presentation data. | **COMPATIBILITY-EQUIVALENT** / High | Retain strict provenance/hash checks. PR #498 fixes Windows newline packaging. |
+| 017 | `87868d39` State: reconcile PStartMenu derivative merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 018 | `d0f2e34d` Progress: record PStartMenu derivative promotion | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 019 | `b6e8f23f` Status: advance Gate 13 after PStartMenu repair | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 020 | `3226956a` Research: recover exact startup FMV pixel pipeline | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 021 | `322bca92` Progress: checkpoint recovered FMV stretch path | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 022 | `0266ad13` State: advance Gate 13 to FMV display integration | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 023 | `421a3e1c` Merge PR #487: recover native startup FMV presentation | startup FMV presentation | Embeds WPF player as child of game HWND and presents 640x480 at native (80,60); derivatives horizontally expand coded TGQ frames. | Canonical executable 833bf95e…; research/GATE13_STARTUP_FMV_PRESENTATION_SOURCE_TRACE.md and STARTUP_FMV_PIXEL_PIPELINE.md; 640x480 surface and 800x600 offset (80,60) are source-traced. Daniel's later Windows run proves the outer field exists but frame content is visibly offset/cropped. | **INCONCLUSIVE** / High | Retain proven outer geometry only. Revoke exact live frame-content equivalence; investigate TGQ/TQI decoded-frame layout before another acceptance build. |
+| 024 | `beb256a2` Research: correct FMV path to doubled pixel writer | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 025 | `4856f6ad` State: advance Gate 13 after FMV integration | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 026 | `1301a333` Progress: record audited FMV integration | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 027 | `1a24b456` Merge PR #489: render source-bound Squad player names | Squad player names | Adds source formatter/font/name-color branches for the first roster. | Canonical executable 833bf95e…; research/GATE13_SQUAD_RESOURCE_CORRELATION.md; retained row traces 0x489530/0x489B40, color predicate 0x4EA3F0, name helper 0x5D6C50. Names are rendered only when the native color branch is resolved; unresolved reserve +0x174 states are deliberately skipped. | **ORIGINAL-PROVEN** / High | Retain bounded branches. Correct any claim that ordinary fresh-Squad names are complete; recover reserve selection state. |
+| 028 | `7ecdb33e` Merge PR #490: render native Squad assigned-role abbreviations | Squad assigned-role text | Renders native Position abbreviation at source geometry/color branch. | Canonical executable 833bf95e…; research/GATE13_SQUAD_RESOURCE_CORRELATION.md; retained row traces 0x489530/0x489B40, color predicate 0x4EA3F0, name helper 0x5D6C50. Position record +0x0C second localized string maps to parsed Position.abbreviation. | **ORIGINAL-PROVEN** / High | Retain. |
+| 029 | `c51353a7` Merge PR #491: render native Squad PSCF numeric fields | Squad PSCF numeric fields | Renders Condition, recent form and current-role rating with source font/format/colors. | Canonical executable 833bf95e…; research/GATE13_SQUAD_RESOURCE_CORRELATION.md; retained row traces 0x489530/0x489B40, color predicate 0x4EA3F0, name helper 0x5D6C50. PSCFRow 0x489B40; 19x14 controls; threshold >75; native %N/%.N formatting. | **ORIGINAL-PROVEN** / High | Retain. |
+| 030 | `0b9cd9b5` Merge PR #492: pin native Squad status atlas contract | Squad status asset contract | Pins exact original status.png atlas/frame order; unresolved resolver paths remain closed. | Canonical executable 833bf95e…; research/GATE13_SQUAD_RESOURCE_CORRELATION.md; retained row traces 0x489530/0x489B40, color predicate 0x4EA3F0, name helper 0x5D6C50. | **ORIGINAL-PROVEN** / High | Retain. |
+| 031 | `7e1597e5` Merge PR #493: render override-safe native Squad statuses | Squad direct statuses | Renders Injured/Banned/International direct status frames and native priority only. | Canonical executable 833bf95e…; research/GATE13_SQUAD_RESOURCE_CORRELATION.md; retained row traces 0x489530/0x489B40, color predicate 0x4EA3F0, name helper 0x5D6C50. Direct resolver returns before lower override branches. | **ORIGINAL-PROVEN** / High | Retain bounded path. |
+| 032 | `3eeb5b92` Merge PR #494: materialize exact Cup-Tied runtime state | Cup-Tied positive runtime state | Models root-competition first-club-wins appeared-player collections. | Canonical executable 833bf95e…; research/GATE13_CUP_TIED_RUNTIME.md and research/GATE13_SQUAD_STATUS_LIFECYCLE.md; positive collection path 0x418480/0x4F8E40/0x4E9710. | **ORIGINAL-PROVEN** / High | Retain. |
+| 033 | `0a91c088` Merge pull request #495 from BrannMolvik/recovery340-squad-cup-tied-resolver | Squad On-loan/Cup-Tied positive statuses | Publishes frame 13 On-loan and frame 3 only from positively proven Cup-Tied collection state. | Canonical executable 833bf95e…; research/GATE13_CUP_TIED_RUNTIME.md and research/GATE13_SQUAD_STATUS_LIFECYCLE.md; positive collection path 0x418480/0x4F8E40/0x4E9710. | **ORIGINAL-PROVEN** / High | Retain positive paths. |
+| 034 | `378dd847` Reconcile Recovery 341 PR 495 merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 035 | `f9723879` Record PR 495 merge and validation evidence | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 036 | `3c17eaa1` Merge pull request #496 from BrannMolvik/recovery341-gate14-wpf-startup-acceptance | Windows startup acceptance tooling | Updates audit tooling to production WPF child-HWND path; no game semantics. | Tooling only; no external receipt was manufactured. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 037 | `a881d628` Merge PR #497: source-closed Non-EU Squad status lifecycle | Squad Non-EU status lifecycle | Implements source-traced bit-11/cutoff positive status lifecycle while unresolved lower paths fail closed. | Canonical executable 833bf95e…; research/GATE13_CUP_TIED_RUNTIME.md and research/GATE13_SQUAD_STATUS_LIFECYCLE.md; positive collection path 0x418480/0x4F8E40/0x4E9710. research/GATE13_SQUAD_STATUS_LIFECYCLE.md. | **ORIGINAL-PROVEN** / High | Retain bounded positive path. |
+| 038 | `03c5783d` Record Recovery 347 package blocker and PR 497 merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 039 | `e24485b5` Merge PR #498: preserve exact PStartMenu bytes on Windows | Windows package byte identity | Forces LF/binary treatment and frozen presenter smoke so the exact PStartMenu derivative hash survives Windows checkout/package. | Exact original first-screen hashes plus pinned derivative manifest cc541cac… and payload 24285104…; package-time output is immutable source-derived presentation data. | **COMPATIBILITY-EQUIVALENT** / High | Retain. |
+| 040 | `7fe07ab3` Checkpoint Recovery 347 after package repair | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 041 | `6b9bf4dc` Merge PR #475: pin minimal FFmpeg source contract | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 042 | `b150555f` Merge PR #479: prove minimal FFmpeg build from pinned source | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 043 | `c624387f` Checkpoint Recovery 350 minimal FFmpeg build proof | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 044 | `d918d621` Merge PR #499: prove minimal FFmpeg synthetic startup roundtrip | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 045 | `f71b56c5` Checkpoint Recovery 351 synthetic FFmpeg roundtrip | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 046 | `52d2cb84` Merge PR #500: bind exact original TGQ proof to minimal FFmpeg helper | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 047 | `8d670a72` Checkpoint Recovery 353 source and TGQ proof state | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 048 | `ae578fc1` Correct Cup-Tied transfer-history appearance semantics | Cup-Tied research documentation | Corrects the source interpretation from date to appearance count in CURRENT_STATE / status-lifecycle research; no runtime files changed. | First-hand executable trace; this correction is the evidence that later invalidates the date-based live fallback. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; runtime contradiction corrected separately by `0db90b97`. |
+| 049 | `a6711b09` Merge PR #501: pin minimal FFmpeg toolchain provenance | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 050 | `ce3b45fd` Checkpoint Recovery 356 Cup-Tied producer trace | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 051 | `a00dbefd` Checkpoint Recovery 357 Cup-Tied DBRGame date semantics | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 052 | `9a32ddf7` Model source-closed Cup-Tied date window | Cup-Tied collection-miss model | Introduces a date-window model and date comparison intended for mode-1 Cup-Tied fallback. | Later first-hand trace in GATE13_SQUAD_STATUS_LIFECYCLE.md Recovery 354 disproves CPlayerTransferHistory+0x18 as a date; it is an appearance count and the actual cutoff producer remains unresolved. | **UNSUPPORTED** / High | Live gameplay use removed by 0db90b97. The historical date-window helper must not be evidence for Cup-Tied semantics. |
+| 053 | `3719f7a9` Merge PR #502: integrate Cup-Tied mode-1 transfer-date fallback | Cup-Tied mode-1 fallback | Connected PlayerMovement date/history to the collection-miss mode-1 status predicate. | Contradicted by later canonical executable evidence: +0x18 is an appearance count, not movement date. | **UNSUPPORTED** / High | Corrected by 0db90b97: collection misses now fail closed. |
+| 054 | `4453b20b` Checkpoint Recovery 359 Cup-Tied integration merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 055 | `1b3e8af7` Checkpoint Recovery 359 Cup-Tied integration merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 056 | `26836742` Checkpoint Recovery 359 Cup-Tied integration merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 057 | `c643e777` Checkpoint Recovery 360 FastView activation trace | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 058 | `531266d1` Merge PR #503: model source-backed Match Detail selection | Match Detail state | Models source modes 0=3D, 1=3D Highlights, 2=FastView, 3=Quick; sentinel 5 remains unselectable. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain. Does not prove ordinary management entry trigger. |
+| 059 | `2f34b6aa` Checkpoint Recovery 361 Match Detail integration | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 060 | `cfaa6227` Record Recovery 360-361 Match Detail progress | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 061 | `1f1402c8` Update Recovery 361 Match Detail status | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 062 | `b3680c6c` Document source-backed PPreMatchPanel layout | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 063 | `f85e3ddf` Correct pre-match selector atlas binding | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 064 | `4080cfb6` Merge PR #504: model source-backed PPreMatchPanel | PPreMatch selector/layout | Models exact four-choice selector geometry, event mapping, button_type_14 atlas and source font. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain unresolved families fail-closed. |
+| 065 | `4d43313f` Record Recovery 362 pre-match integration state | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 066 | `d83ce244` Record Recovery 362 pre-match progress | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 067 | `adff9a96` Merge PR #505: correct PPreMatch live background and rating bars | PPreMatch background/rating geometry | Corrects live Team_Backgrounds source and rating-row anchors/direction. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. background selectors 0x5D3490/0x5D3510; rating width functions 0x49A3D0/0x49A460/0x49A4F0/0x49A580. | **ORIGINAL-PROVEN** / High | Retain. |
+| 068 | `c25e4c1c` Record Recovery 363 pre-match correction state | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 069 | `c754fd46` Record Recovery 363 pre-match correction progress | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 070 | `f84b0ca5` Merge PR #506: stage and expose PPreMatch presentation surface | PPreMatch presentation seam | Stages source-proven static PPreMatch layers and selector surface without inventing launch. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain bounded surface. |
+| 071 | `58bf939e` Merge PR #507: bind native PPreMatch rating widths | PPreMatch rating widths | Binds source position groups and exact rating scales/171px cap. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain. |
+| 072 | `6c2bd690` Update Recovery 367 PPreMatch rating state | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 073 | `7cae8004` Record Recovery 365-367 pre-match progress | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 074 | `222a6bd8` Reconcile Recovery 367 project status | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 075 | `065eeb83` Merge pull request #508 from BrannMolvik/chatgpt/gate14-prematch-identity-r368 | PPreMatch identity controls | Adds source-closed date/temperature/badge/team-bank/full-name contracts; unresolved dynamic values remain unbound. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain bounded contracts. |
+| 076 | `29a79930` Merge pull request #509 from BrannMolvik/chatgpt/gate14-prematch-rows-r369 | PPreMatch player strips | Adds exact 36 player-strip rectangles and active/disabled structural states. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain; row semantics not inferred beyond trace. |
+| 077 | `91bcac71` Record verified Recovery 369 pre-match row merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 078 | `aee48673` Log Recovery 369 verified pre-match row merge | research/PROGRESS.md | Progress-log checkpoint only; no runtime files changed. | Non-behavioral repository state. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 079 | `e58caf33` Merge pull request #510 from BrannMolvik/chatgpt/gate14-prematch-text-surface-r369 | PPreMatch text surfaces | Adds exact 13 non-roster text-control surfaces with only source-closed fixed content. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain. |
+| 080 | `b142892a` Merge pull request #511 from BrannMolvik/chatgpt/gate14-prematch-coverage-r369 | PPreMatch coverage audit | Accounts for all 182 native child slots and explicit blockers; no new gameplay semantics. | Coverage/tooling only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 081 | `6a6627b5` Merge pull request #512 from BrannMolvik/chatgpt/gate15-ledger-doc-reconcile-r369 | Gate 15 ledger docs | Reconciles fidelity/readiness ledgers after Gate 13 reopen; no runtime behavior. | Documentation/test ledger only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 082 | `8a6dddec` Merge pull request #513 from BrannMolvik/chatgpt/gate14-prematch-markers-r370 | PPreMatch XI markers | Models exact XI marker control geometry, side transforms and source input context; raster remains closed. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain. |
+| 083 | `17f49fa3` Merge pull request #514 from BrannMolvik/chatgpt/gate14-prematch-row-selector-state-r371 | PPreMatch rows/selector state | Source-closes row number/name binding, reserve active state and Button@ease selector behavior. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain. |
+| 084 | `9e4d2377` Merge PR #515: Gate 14 PPreMatch team badges | PPreMatch team badges | Uses canonical club-art selector/fallback for both 135x93 badge slots. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. canonical club-art selector 0x40C850 at 0x49A792/0x49A7D6. | **ORIGINAL-PROVEN** / High | Retain. |
+| 085 | `77120385` Merge PR #516: Gate 14 PPreMatch supplied raster state | PPreMatch XI shirt selection | Binds source kit-context selection and per-player numbered-frame offsets; generic recolor pixels remain closed. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. source path 0x5EF940/0x5EF9E0, selector 0x408320, offsets 0x41E3F0. | **ORIGINAL-PROVEN** / High | Retain bounded path. |
+| 086 | `43809408` State: advance to PPreMatch compositor recovery | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 087 | `b1544807` Progress: record Recovery 376 merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 088 | `37b709ef` Merge PR #517: Gate 14 PPreMatch native compositor | PPreMatch compositor | Implements source-order packed-16 write modes only when an explicit valid runtime mask triplet exists. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. no RGB565/RGB555 guess is accepted. | **ORIGINAL-PROVEN** / High | Retain fail-closed mask boundary. |
+| 089 | `d1268e62` State: advance beyond PPreMatch native compositor | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 090 | `bf91dc03` Progress: record Recovery 378 compositor merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 091 | `f7b17cca` Merge PR #518: Gate 14 Match Detail presentation dispatch | Match Detail presentation dispatch | Source-closes mode dispatch: 0/1 3D wrappers, 2 FastView, 3 Quick/no wrapper; ordinary entry trigger remains unresolved. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain contract; do not claim ordinary match flow reachable. |
+| 092 | `bfe95f25` Merge PR #521: fix embedded WPF startup owner pumping | startup WPF/Tk ownership | Services Tk parent messages while owned WPF child plays, eliminating the external MediaElement/HwndSource deadlock. | Windows reproduction proved blocked owner stalls before Loaded; same child with owner pumping reaches Loaded→MediaOpened→MediaEnded. Later Daniel run confirmed timeout was fixed. | **COMPATIBILITY-EQUIVALENT** / High | Retain. It does not validate frame-content geometry. |
+| 093 | `532833a8` State: reconcile Recovery 379 Gate 13 startup fix | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 094 | `27143dd0` Status: record Gate 13 WPF repair merge and package boundary | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 095 | `581a3d2d` Progress: record Recovery 379 Gate 13 repair merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 096 | `c28c9984` Merge PR #519: bind host to source Match Detail dispatch | host Match Detail dispatch | Binds completed host presentation seam to proven mode dispatch; 0/1 fail closed, mode 2 FastView, mode 3 no wrapper. | Canonical executable 833bf95e…; research/GATE14_PREMATCH_PANEL.md; PPreMatch constructor 0x499C30, selector/commit 0x49AB50/0x49ABA0, plus per-family trace recorded by each merge. | **ORIGINAL-PROVEN** / High | Retain. Ordinary management fixture-start trigger is still absent. |
+| 097 | `855a4d9b` State: record Recovery 380 canonical package and tracer boundary | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 098 | `bb7734f4` Progress: record Recovery 380 PR 519 rebuild and package | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 099 | `3b88bc67` Status: record Recovery 380 Gate 13 candidate | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 100 | `a117df66` Merge PR #520: add candidate-only match entry caller tracer | match-entry caller tracer | Candidate-only static CALL/JMP discovery tool; no candidate promoted to runtime semantics. | Tooling explicitly rejects candidate as CFG proof. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 101 | `100f7544` State: record Recovery 380 caller-tracer merge and blockers | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 102 | `79695509` Progress: record Recovery 380 PR 520 merge | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 103 | `12544b6f` Status: reconcile Gate 14 trigger and Recovery 380 tracer | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 104 | `073099c7` Merge PR #522: bound critical toolchain source-material plan | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 105 | `aadaf484` Merge PR #523: verify remaining critical source-family tarballs | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 106 | `eb5fe6a4` Merge PR #524: lock complete successful build package environment | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 107 | `2583ff73` Merge PR #525: harden minimal source-contract CI audit | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 108 | `1bdbb2d9` Merge PR #526: capture resolved minimal FFmpeg link inputs | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 109 | `c73e07e5` Merge PR #527: reconcile Recovery 382 link-input state | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 110 | `0f1739c2` Merge PR #528: prove package owners of resolved link inputs | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 111 | `84437800` Merge PR #529: reconcile link-input ownership evidence | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 112 | `21eb5031` Roadmap: add in-game settings and modernization graphics options | roadmap Settings modernization | Added non-original in-game Settings/graphics modernization roadmap work. | No shipped-original evidence; policy now freezes modernization. | **DEFERRED-MODERNIZATION** / High | Keep out of original baseline. |
+| 113 | `5edc4764` Merge PR #530: prove archive-member contribution | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 114 | `1a580ea7` Merge PR #531: reconcile link-map proof and Settings pivot | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 115 | `2ccec2ce` Merge PR #532: add source-styled Settings surface | Settings surface | Adds a source-styled but non-original Settings extension. | Known non-original by audit mandate. | **DEFERRED-MODERNIZATION** / High | Isolated from default presenter/package smoke by 86f7d22b; no further Settings work. |
+| 116 | `5cb72c97` Merge PR #533: reconcile Settings and current acceptance artifact | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 117 | `85f1534e` Merge PR #534: pin exact static-contributor source bundle | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 118 | `513afeff` Merge PR #535: pin contributor license material | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 119 | `0e1abef6` Merge PR #536: assemble exact FFmpeg source snapshot | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 120 | `edf24e71` Merge PR #537: assemble integrated redistribution material bundle | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 121 | `f2772868` Merge PR #538: reconcile Gate 17 material checkpoints | Gate 17 provenance/release material | Build/source/license/provenance evidence or reconciliation only; production runtime behavior is not switched by this entry. | Repository/CI/release-material evidence only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain; Gate-17 work-ahead remains frozen during this audit. |
+| 122 | `2da9782a` Policy: require original-behavior evidence before implementation | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 123 | `f6a4cf3a` Roadmap: freeze modernization and require source-first implementation | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 124 | `cf4a1861` Instructions: enforce original-behavior-first compatibility work | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 125 | `e6dd1cfb` Autoworker: require source-first evidence and freeze modernization | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 126 | `087ea771` State: prioritize original Gate 13 behavior over modernization | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 127 | `0ccb9192` Audit: require retrospective source validation of post-482 work | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 128 | `e4a60f0a` State: block implementation pending post-482 source audit | research/status/policy | Documentation, source trace, status, or workflow policy only; no new runtime semantic contract is introduced by this entry. | Non-behavioral repository state/evidence. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain current truth; historical superseded claims are not acceptance evidence. |
+| 129 | `86f7d22b` Audit: isolate deferred Settings from original baseline | Settings isolation | Removes Settings resource loading and Settings assertions from normal original-baseline presenter/package smoke. | Restores baseline independence; feature remains deferred rather than used as source evidence. | **DEFERRED-MODERNIZATION** / High | Retain isolation. |
+| 130 | `2d7e9b87` Audit: fail closed on Escape during startup media | startup Escape input | Suppresses the modern fullscreen-leave handler while startup media is active. | Daniel proved current Escape→fullscreen behavior is wrong; native skip/input semantics are not yet recovered. | **INCONCLUSIVE** / High | Retain as fail-closed guard only. Recover original startup Escape/skip semantics before claiming equivalence. |
+| 131 | `0db90b97` Audit: fail close disproved Cup-Tied date fallback | Cup-Tied audit correction | Removes disproven date-based mode-1 collection-miss gameplay decision; positive source-proven collection hit remains. | Recovery 354 canonical-executable correction proves +0x18 is an appearance count and cutoff producer remains unresolved. | **INCONCLUSIVE** / High | Retain fail-closed guard. Recover appearance-count cutoff producer before implementing negative mode-1 branch. |
 
-1. **ORIGINAL-PROVEN**
-   - user-visible/gameplay behavior matches direct original evidence.
-2. **COMPATIBILITY-EQUIVALENT**
-   - implementation mechanism differs only because of Windows 11/runtime constraints, while externally observable behavior is proven equivalent to the original.
-3. **RESEARCH/INFRASTRUCTURE-ONLY**
-   - no game behavior/presentation semantics changed.
-4. **DEFERRED-MODERNIZATION**
-   - intentionally non-original feature; must not participate in the current baseline.
-5. **UNSUPPORTED**
-   - implementation exists without adequate original-behavior evidence.
-6. **INCONCLUSIVE**
-   - evidence is insufficient or conflicting; further original-source investigation is required.
+## Post-table first-parent entries
 
-For ORIGINAL-PROVEN and COMPATIBILITY-EQUIVALENT, cite the exact reproducible evidence: executable addresses/control flow, original resource identity/layout, direct original observation, or previously established finding with valid provenance.
+| # | Identifier / title | Files / subsystem | Behavioral impact | Original evidence | Classification / confidence | Corrective action |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 132 | `41e35626` Audit: classify post-482 first-parent history | audit ledger only | Writes the retrospective classification ledger; no runtime behavior changed. | Repository bookkeeping only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 133 | `8eae9825` Audit: close inventory classification gaps | audit ledger only | Corrects three classification-table gaps; no runtime behavior changed. | Repository bookkeeping only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 134 | `b890c578` Audit: remove disproved Cup-Tied date lifecycle | Cup-Tied/GameState/save lifecycle | Deletes the disproved date-window helper, stops constructing/advancing/resetting/restoring it, leaves an inert schema tombstone, and keeps the source-proven positive appeared-player collection path unchanged. | Recovery 354 canonical-executable evidence proves transfer-history +0x18 is an appearance count and the true cutoff producer is unresolved. | **INCONCLUSIVE** / High | Retain as a fail-closed correction. Do not implement the negative mode-1 branch until the original appearance-count producer/rule is recovered. |
 
-A test of the reconstruction is not sufficient evidence by itself.
+## Major audit findings
 
-## Mandatory questions per behavior-affecting PR/change
+### 1. A disproven Cup-Tied rule remained active
 
-For every behavior-affecting change answer:
+Commit `9a32ddf7` and merge `3719f7a9` modeled the mode-1 collection-miss Cup-Tied fallback using a transfer date. Later first-hand canonical-executable work, already present in `research/GATE13_SQUAD_STATUS_LIFECYCLE.md`, proves `CPlayerTransferHistory+0x18` is an **appearance count**, not a calendar date, and says the selector/cutoff producer is still unresolved.
 
-1. What did the shipped original do?
-2. What exact evidence establishes that?
-3. What did this change implement?
-4. Does it change anything player-visible or simulation-visible?
-5. Is the implementation the minimum compatibility adaptation?
-6. Are any semantics guessed, approximated, or inferred?
-7. Does the current test suite verify original behavior, or merely current reconstructed behavior?
-8. What corrective action is required?
+This was an actual audit violation because `GameState.is_player_cup_tied_for_status()` still called the disproven date predicate. Audit correction `0db90b97` removes that live branch. The source-proven positive appeared-player collection remains active; every collection miss now fails closed.
 
-## Corrective action rules
+The older `CupTiedTransferWindowState` date helper still exists in the clean-room state/save model, but after `0db90b97` it is not evidence for, and does not decide, the Squad Cup-Tied status. Its naming/continued lifecycle wiring must be separately cleaned up or requalified before the retrospective audit is declared complete.
 
-- **ORIGINAL-PROVEN:** retain.
-- **COMPATIBILITY-EQUIVALENT:** retain, but document why the mechanism differs and why output/semantics remain equivalent.
-- **RESEARCH/INFRASTRUCTURE-ONLY:** retain if otherwise valid.
-- **DEFERRED-MODERNIZATION:** isolate/disable from the normal original-baseline path; preserve for later only if it does not contaminate source reconstruction.
-- **UNSUPPORTED:** do not leave it silently active. Revert, isolate, or replace with a fail-closed/unresolved boundary until original evidence is recovered.
-- **INCONCLUSIVE:** no further implementation on that semantic boundary until the original is investigated.
+### 2. Startup FMV has a proven outer rectangle but unproven live frame content
 
-Do not rewrite an unsupported feature into a new guess merely to make the audit green.
+The canonical executable proves:
+- a 640x480 movie surface;
+- normal 800x600 placement at (80,60)-(720,540);
+- a game-owned presentation surface rather than a separate top-level player.
 
-## Settings-specific requirement
+Those contracts remain valid. PR #487 also source-traced the doubled 16-bit writer, but Daniel's later normal Windows 11 run is decisive integration evidence: the movie **field** is present while the visible content inside it is offset/cropped. Therefore the current TGQ -> compatibility derivative -> WPF presentation chain cannot be called equivalent merely because the outer geometry and nearest-neighbor write branch are source-backed.
 
-The merged Settings extension is already known to be non-original and must be classified **DEFERRED-MODERNIZATION**.
+The next FMV investigation must compare decoded frame-content coordinates/stride/field treatment to the original writer, not tune WPF margins by eye.
 
-It is not a Gate-13 completion requirement under the current freeze. Verify that:
-- the original/default menu path does not depend on it;
-- source reconstruction tests can exercise the original menu baseline without it;
-- it is not used as evidence for original PStartMenu geometry/navigation;
-- no new Settings work is performed during the freeze.
+### 3. Startup Escape is no longer wrong, but original skip semantics remain unknown
 
-If clean isolation requires a code change, make the smallest isolation change and preserve the work for a later explicitly authorized modernization phase.
+Daniel demonstrated that Escape during startup was reaching the compatibility fullscreen-leave binding. Commit `2d7e9b87` now intercepts that path while startup media is active, so Escape no longer changes fullscreen. This is a safe fail-closed correction, not a claim that the original's skip/input behavior has been recovered.
 
-## External failures that must be reconciled with the audit
+### 4. Squad row merges are source-backed but the fresh landing is still incomplete
 
-The audit must explicitly explain how recently merged claims relate to Daniel's actual Windows evidence:
+PRs #489-#497 recovered real row sub-contracts: native names, roles, numeric fields, atlas/status priority and positive status state. They do **not** prove that the live fresh Southport Squad is complete.
 
-- intro video still misframed/offset inside the movie field;
-- Escape during startup invokes fullscreen behavior instead of original startup semantics;
-- menu transitions remain extremely slow;
-- fresh Southport Squad remains incomplete with blank/missing header/name content.
+The current name renderer intentionally skips a row when `display_name_rgb` is unresolved. For players that are neither first-team active nor substitutes, `squad_name_rgb_from_available_state()` returns `None` until the reserve-team +0x174 selection flags are available. That exactly explains why an ordinary fresh squad can show role/numeric fields while the name column remains blank. This is fail-closed rather than fabricated, but any historical wording implying that PR #489 completed fresh-Squad names is superseded.
 
-Any earlier merged claim contradicted by this evidence must be downgraded/corrected. Historical documents may remain, but current truth must not preserve a disproven completion claim.
+The external blank/missing header content is also unresolved. Current code draws verified header chrome/caption, but the externally expected dynamic header/team/manager content has not been demonstrated complete on the normal Southport path.
 
-## Deliverable
+### 5. Latency repairs were legitimate but did not satisfy acceptance
 
-Create a complete audit table with, for every in-scope merged PR/commit:
+The PStartMenu derivative, route-scoped management resources and deferred Python world construction remove reconstruction-only overhead without replacing original game semantics. They remain valid compatibility optimizations. They are **not** evidence that issue #482 responsiveness is fixed. Daniel's current Windows evidence still reports extremely slow menu transitions, including Start/New Game -> club selection.
 
-- identifier/title;
-- files/subsystem;
-- behavioral impact;
-- original evidence;
-- classification;
-- confidence;
-- corrective action;
-- correction commit/PR if needed.
+No future audit/status file may convert those local improvements into a broad responsiveness acceptance claim without a new normal Windows measurement on the current original baseline.
 
-Then provide a section named **Unsafe or Unproven Active Behavior** containing every item that must be corrected before another external acceptance build.
+### 6. Gate 14 source contracts are not the same as a reachable original match flow
 
-Finally provide **Audit Exit Criteria**:
+The PPreMatch and Match Detail work is intentionally bounded. The selector, many child families, packed-16 compositor rules and mode dispatch are source-backed. The ordinary management-screen fixture-start trigger remains unresolved, and modes 0/1 remain fail-closed because the original 3D presentation wrapper is not reconstructed. These merges therefore do not close Gate 14 and must not be cited as proof of ordinary match-flow completion.
 
-- all in-scope merges enumerated;
-- every behavior-affecting item classified;
-- no unsupported/deferred-modernization behavior contaminates the original baseline;
-- contradicted completion/status claims corrected;
-- exact next source-backed Gate-13 task identified;
-- focused/full tests run after any corrective changes.
+### 7. Settings is deferred modernization and is isolated
 
-Do not declare this audit complete while an in-scope behavior-affecting merge remains unclassified.
+PR #532 is intentionally **DEFERRED-MODERNIZATION**. Commit `86f7d22b` removed Settings resource loading and package-smoke dependency from the normal original-baseline presenter. Settings work is not a Gate-13 criterion and is frozen until explicitly reauthorized after original reconstruction.
+
+### 8. Fresh-Squad reserve selection producer/state is now source-closed
+
+Recovery 396 re-extracted the canonical executable from the authorized raw disc
+and reverified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The former `DBRPlayer+0x174` producer gap is closed in
+`research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`.
+
+The native five-state reader `0x4218E0` returns 4 first-team active, 3
+first-team substitute, 2 reserve active, 1 reserve substitute, 0 none. Its
+inverse dispatcher `0x421950` maps those codes to the corresponding setters.
+Player initialization zeros `+0x174`, reserve setters `0x4181E0/0x418280`
+set bits 0/1 mutually exclusively, and first-team setters
+`0x4182F0/0x4182C0` clear both reserve bits.
+
+Therefore the existing presenter no longer needs to treat reserve state as
+intrinsically unknown for fresh reachable clean-room players. The remaining
+work is integration, regression coverage, and the separate header binding.
+Fresh-Squad completeness is still false at this checkpoint.
+
+### 9. Blank Southport central header is a source-proven renderer omission
+
+Recovery 396 distinguishes the already-rendered right-side `MENU` compound
+from the central competition-header bitmap/text family. Canonical-executable
+analysis source-closes a current-club name control at
+`(172,1,378,32)`, populated through club accessor `0x40DA50`, plus an
+independently refreshed current-date control at `(172,68,378,16)`.
+
+The club-name control uses exact original
+`Fonts/Zurich_BdXCn_BT_32pixel.fnt`; the ordinary supporting lines use the
+already staged `Fonts/Zurich_XCn_BT_18pixel.fnt`. Exact language templates
+for the two conditional match lines and bottom date line are recorded in
+`research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
+
+Local 8 October verification corrects the earlier 36px ownership claim:
+`6043AA -> string 839E94 -> font object 8F21B0`, also passed at `430651`,
+proves 32px. The 36px file's valid hash is not control ownership evidence.
+The recovery branch retains the verified 32px club-caption rendering alongside
+main's independent date-line correction. Native paired Squad normalization,
+ordering and both list mappings remain required; default reserve-state zero
+alone does not prove that the Squad constructor leaves those flags untouched.
+
+Current host code draws the `back_2_<variant>.444` central bitmap but no
+central dynamic text layer. Daniel's blank Southport header is therefore
+explained by an implementation omission, not by an unknown title string or a
+failure of the separate `MENU` control. Club name and current-date binding
+are source-closed; the internal `0x615D10/0x615DA0` match-selection filter
+still needs source closure before the optional y=34/y=51 match lines may be
+enabled.
+
+## External Windows failures reconciled
+
+| External observation | Audit interpretation | Current disposition |
+| --- | --- | --- |
+| Intro movie content is offset/cropped inside the 640x480 field | Contradicts any broad claim that PR #487 made the live startup movie presentation equivalent. Outer geometry remains source-proven; frame-content transform is INCONCLUSIVE. | No acceptance build. Recover native decoded-frame content layout/stride/field semantics first. |
+| Escape leaves fullscreen during startup | Compatibility handler leaked into an unrecovered original input boundary. | Corrected by `2d7e9b87`: fail closed during startup. Native skip semantics still open. |
+| Menu transitions remain extremely slow | Prior derivative/lazy-load/lifecycle optimizations removed specific reconstruction overhead only. | Responsiveness criterion remains open. Profile current original-baseline transition after audit corrections; do not invent a timing target from tests. |
+| Fresh Southport Squad has blank/missing header and no names | Row sub-contracts are real. Recovery 396 source-closed both the five-way reserve/first-team name state and the central club-name/current-date header controls. Runtime propagation/rendering remains incomplete; conditional match-line selection is still source-open. | Propagate reserve booleans and render the source club/date header. Keep the two conditional match lines fail-closed until `0x615D10/0x615DA0` is closed. |
+
+## Unsafe or Unproven Active Behavior
+
+1. **Startup FMV frame-content transform — INCONCLUSIVE and externally contradicted.** The game-owned 640x480/(80,60) surface is retained, but exact live frame-content equivalence is not accepted. This blocks another external candidate.
+2. **Fresh Squad ordinary-name completeness — source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
+3. **Fresh management header completeness — source contract recovered, runtime integration incomplete.** Recovery 396 source-closes the central club-name and current-date controls and explains the blank Southport result as an omitted live text layer. The conditional match selector remains source-open, so its two lines stay fail-closed.
+4. **Startup Escape/skip semantics — INCONCLUSIVE but safely isolated.** Fullscreen mutation is blocked during startup; native skip behavior still requires source evidence.
+5. **Cup-Tied negative mode-1 fallback — source semantics unresolved and the disproven model is now isolated.** `0db90b97` removed the date-based gameplay decision and `b890c578` removed the rejected date helper from construction, daily hooks, season reset and save restore. The positive source-proven appeared-player collection remains active; every unresolved collection miss fails closed.
+6. **Ordinary match-entry trigger / 3D presentation — unresolved and fail-closed.** Gate-14 contracts are not reachable-flow proof.
+7. **Issue #482 responsiveness — externally unaccepted.** Specific optimizations are retained, but broad “latency fixed” status is prohibited.
+
+## Audit Exit Criteria
+
+- [x] Every first-parent main commit after the issue-#482 audit boundary through `0db90b97` is enumerated.
+- [x] Every behavior-affecting entry in that inventory has a primary classification.
+- [x] Settings is classified DEFERRED-MODERNIZATION and isolated from the default original-baseline presenter.
+- [x] The disproven live Cup-Tied transfer-date fallback is fail-closed.
+- [x] Startup Escape no longer mutates fullscreen while the original startup input contract is unresolved.
+- [x] Historical broad claims contradicted by Daniel's Windows evidence are superseded in this audit.
+- [x] Remove/requalify the stale Cup-Tied date-window helper from active GameState lifecycle state (`b890c578`).
+- [ ] Resolve or explicitly fail-close the externally wrong startup FMV frame-content transformation.
+- [ ] Recover enough source state for ordinary fresh-Squad names and header content to be recognizably complete without guessed colors/content.
+- [ ] Re-verify the corrected focused/full suite after the final audit corrective changes.
+- [ ] Only after the above, update CURRENT_STATE/project_status to mark the retrospective audit exited and identify the next source-backed Gate-13 implementation task.
+
+**The retrospective audit is not complete at this checkpoint.**
+
+## Exact next source-backed task
+
+First finish the audit corrections rather than resume feature work:
+
+1. investigate the startup TGQ/TQI-to-Windows transport boundary so the proven 640x480 field contains the same coordinates/content as the original; first distinguish source decode/derivative errors from WPF/Win32 DPI or layout-unit mismatch rather than tuning margins by eye;
+2. if the remaining FMV distinction requires a private Windows receipt, persist that exact blocker and continue the independent source-backed Squad work;
+3. integrate the source-closed reserve +0x174 Squad name state and central club/date header contract; source-close `0x615D10/0x615DA0` before enabling the two optional match lines;
+4. only after the retrospective audit exits, return to current-baseline latency measurement and a new Windows acceptance candidate.
+
+Gate 17 work-ahead and Settings remain frozen while these Gate-13 audit blockers exist.

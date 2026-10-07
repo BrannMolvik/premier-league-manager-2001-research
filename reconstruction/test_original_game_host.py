@@ -186,6 +186,28 @@ class FakeHeaderFont:
         )
 
 
+class FakeHeaderDateFont:
+    atlas_width = 1366
+    atlas_height = 19
+
+    def measure_text(self, text):
+        if not text.startswith("Today is "):
+            raise AssertionError(text)
+        return 100
+
+    def native_line_height(self):
+        return 18
+
+    def render_text_alpha(self, text):
+        if not text.startswith("Today is "):
+            raise AssertionError(text)
+        return SimpleNamespace(
+            width=100,
+            height=10,
+            alpha=bytes([255]) * 1000,
+        )
+
+
 def fake_management_header_resources():
     return OriginalManagementHeaderResources(
         EA444DecodedImage(
@@ -203,6 +225,7 @@ def fake_management_header_resources():
             transparent_pixels=0,
         ),
         FakeHeaderFont(),
+        FakeHeaderDateFont(),
     )
 
 
@@ -369,6 +392,14 @@ class FakeCanvas(FakeWidget):
     def create_image(self, x, y, **kwargs):
         self.images.append((x, y, kwargs))
         return len(self.images)
+
+    def create_rectangle(self, x0, y0, x1, y1, **kwargs):
+        rectangles = self.values.setdefault("rectangles", [])
+        rectangles.append((x0, y0, x1, y1, kwargs))
+        return ("rectangle", len(rectangles))
+
+    def tag_raise(self, item_id):
+        self.values["tag_raise"] = item_id
 
     def itemconfigure(self, item_id, **kwargs):
         self.itemconfigure_count += 1
@@ -989,6 +1020,21 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertFalse(host._fullscreen)
         self.assertEqual(requests, [(0x100, 0x1B)])
 
+    def test_escape_fails_closed_during_unrecovered_startup_input_semantics(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        host.show_startup_media_backdrop()
+
+        self.assertTrue(host._fullscreen)
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values["attributes"]["-fullscreen"])
+
+        host.hide_startup_media_backdrop()
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertFalse(host._fullscreen)
+        self.assertFalse(root.values["attributes"]["-fullscreen"])
+
     def test_first_screen_photo_cache_reuses_background_and_source_frame_images(self):
         root = FakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
@@ -1225,6 +1271,33 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host._draw_management_header(club), 4)
         self.assertEqual(host.canvas.images[-1][:2], (460, 1))
         self.assertEqual(host._draw_management_header(replace(club, native_user_club_caption=None)), 3)
+
+    def test_management_current_date_draws_exact_source_control(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                club=ClubHeaderView(
+                    12,
+                    "Source Club",
+                    "Source",
+                    date(2000, 8, 1),
+                ),
+            )
+        )
+
+        count = host._draw_management_current_date(frame)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(host.canvas.images), 1)
+        self.assertEqual(host.canvas.images[0][:2], (450, 68))
+        self.assertEqual(len(host._photos), 1)
 
     def test_management_header_hover_uses_one_idle_update_per_pass(self):
         live = presenter()
@@ -1954,9 +2027,6 @@ class OriginalGameHostTests(unittest.TestCase):
             calls["team"] = kwargs
             return object()
 
-        def load_settings(source_root):
-            raise AssertionError("original baseline must not load deferred Settings")
-
         fake_session = object()
         with tempfile.TemporaryDirectory() as temp:
             game_dir = Path(temp) / "game"
@@ -1969,9 +2039,6 @@ class OriginalGameHostTests(unittest.TestCase):
             ), patch(
                 "original_game_host.load_verified_original_teamselect_inputs",
                 side_effect=load_team,
-            ), patch(
-                "original_game_host.load_source_styled_settings_resources",
-                side_effect=load_settings,
             ), patch(
                 "original_game_host.FrontEndSession.for_canonical_game_dir",
                 return_value=fake_session,
