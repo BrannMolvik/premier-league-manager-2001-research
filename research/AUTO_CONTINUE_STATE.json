@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 merged as 0f1739c2e0d606e398a8e6a350d55a22c78a178e and documentation/status PR #529 merged as 84437800010cc2b42e68c4ec199bd7d8e77cd259. Direct package ownership is complete for all 22 ffmpeg and 21 ffprobe observed external .a/.o inputs, owned by exactly four verified source-mapped packages. Start the next cloud-safe Gate-17 task now: capture deterministic GNU ld link-map/archive-member evidence for the same release link, require observation-only command equivalence and preferably byte-identical unstripped relink output, then map actual included members/direct objects to those four packages. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false until member-level proof passes.",
-  "last_known_main_head": "84437800010cc2b42e68c4ec199bd7d8e77cd259",
+  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #530 is active at exact head 33baf3787712c2ea90c0b577822de56d4846b1e1 against current main 21eb5031102f2ab2bd326596cef3c7fe9e673cf3. It captures deterministic GNU ld archive-member/direct-object maps for the same minimal FFmpeg release link, requires observation-only map command equivalence and byte-identical unstripped relink outputs, and maps included external members/direct objects through the validated four-package ownership receipt. Asset policy 37598558634 passed; reconstruction 37598558526 and minimal FFmpeg proof 37598558531 are running. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false until real artifact review.",
+  "last_known_main_head": "21eb5031102f2ab2bd326596cef3c7fe9e673cf3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 384,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Ownership evidence reconciled. Active work is now deterministic archive-member/link-map proof.",
+  "note": "PR #530 exact head is under CI. Current main advanced only by ROADMAP Settings/modernization requirements and does not overlap the proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
