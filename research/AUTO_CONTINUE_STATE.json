@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 awaits Daniel's external Windows acceptance. PR #523 merged as aadaf484754ade2854a2b48e52c853ccf31a7a57 after all four exact-head checks passed. Three independent successful minimal-build artifacts (Recovery 356, PR #522, PR #523) produced the same 151-row pacman inventory, SHA-256 c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec. Next cloud-safe task: add a fail-closed complete build-environment package/version lock from that inventory while keeping source-material completeness and legal-compliance claims false.",
+  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 awaits Daniel's external Windows acceptance. Bounded Gate-17 PR #524 is open at exact head 7061fe0524203b65e3a2ca44045099736b7c53eb. It adds the artifact-backed 151-row complete build-environment package lock and fail-closed validator. Require exact-head asset-policy 37586325795, Windows-package 37586325957, reconstruction 37586325832, and minimal-FFmpeg 37586326031 success before merge. Source-material completeness and legal-compliance claims must remain false.",
   "last_known_main_head": "aadaf484754ade2854a2b48e52c853ccf31a7a57",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 381,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #523 merged. Exact-head checks: asset 37585092177, Windows package 37585092245, reconstruction 37585092251, minimal FFmpeg 37585092239. Fresh artifact 11465843961 digest sha256:0bb3bb84778217b70fa20b4e3996a2e5cac1fcdfbb734d148ad682e06b81d46c; package inventory is byte-identical to artifacts 11431743521 and 11465166679.",
+  "note": "PR #524 head 7061fe0524203b65e3a2ca44045099736b7c53eb. Asset policy already passed; remaining exact-head checks in progress. Lock evidence is three byte-identical 151-row inventories, SHA-256 c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
