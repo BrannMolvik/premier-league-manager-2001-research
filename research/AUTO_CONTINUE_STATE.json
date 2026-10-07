@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Original-behavior-first Gate 13 recovery. BEFORE ANY implementation, read research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md and establish the shipped original behavior from original/source evidence. Modernization freeze is active: do not add/expand Settings, upscaling, graphics enhancements, redesigned UX, QoL, or other non-original behavior. Immediate source-first targets are issue #482 external failures: (1) recover exact original TGQ/frame/presentation transform and fix current intro content framing only to match it; (2) recover original startup Escape/input semantics before changing handlers, while preventing modern fullscreen handlers from corrupting playback; (3) profile current packaged/source path and compare with original timing/lifecycle so reconstruction-only latency is removed without changing original semantics; (4) recover/verify original Southport Squad/header/player-row composition and fix missing packaged layers. Existing Settings extension is deferred and must not be expanded or treated as Gate-13 evidence. Before next external candidate, ensure normal/default menu baseline does not depend on modernization-only controls.",
-  "last_known_main_head": "087ea771e1a8720c6ef7d6abc0741cb8ae6bbcca",
+  "active_task": "MANDATORY RETROSPECTIVE AUDIT. Stop new gameplay/presentation implementation and Gate17 work-ahead. Read research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md and research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md. Audit every merged PR/commit from Gate13/#482 reopening through current main. Enumerate all changes, including non-behavioral ones; for each behavior/presentation/simulation-affecting change establish what the shipped original did, cite reproducible original evidence, classify ORIGINAL-PROVEN / COMPATIBILITY-EQUIVALENT / RESEARCH-INFRASTRUCTURE-ONLY / DEFERRED-MODERNIZATION / UNSUPPORTED / INCONCLUSIVE, and specify corrective action. Explicitly reconcile the external Windows contradictions: misframed intro content, wrong Escape/fullscreen behavior during intro, extreme transition latency, and incomplete Southport Squad/header/names. Settings is DEFERRED-MODERNIZATION and must be isolated from the original baseline. Do not create another external acceptance build or resume implementation until the audit exit criteria pass. Unsupported active behavior must be reverted/isolated/fail-closed, not replaced by guesses. Correct current status claims contradicted by evidence. Persist the complete audit and exact next original-proven Gate13 task.",
+  "last_known_main_head": "e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 389,
+  "recovery_generation": 390,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Daniel directive: original behavior must be checked/proved before implementation. Modernization frozen except minimum Windows 11 compatibility. Settings/upscaling/visual improvements deferred. Prioritize source-first issue #482 repair.",
+  "note": "Daniel ordered a full retrospective audit of recent worker work for original-behavior fidelity. Implementation/build generation is blocked until the post-#482 audit passes.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
