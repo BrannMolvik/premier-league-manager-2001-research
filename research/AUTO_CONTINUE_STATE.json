@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 377: resume branch chatgpt/gate14-prematch-compositor-r376 from the interrupted Recovery 376 compositor trace. First checkpoint: correct selector child pixels to include source-backed Button@ease captions, then source-close per-child PictureControl/Button@ease destination-write semantics and flatten the native 0..181 PPreMatch ledger only when exact text/picture composition is proven. Gate 13 #482 remains earliest validation blocker; complete frame/Gate14 remain false.",
+  "active_task": "Recovery 378: continue PR #517 at exact head 075c4233d460ee9372e83a7a9997cf28de0b8f85. Verify the compositor source-contract/caption correction checkpoint, then continue the source-backed runtime native pixel-mask path needed for exact TextControl/Button caption blending and eventual 800x600 PPreMatch flattening. Gate 13 #482 remains earliest validation blocker; complete frame/Gate14 remain false.",
   "last_known_main_head": "b154480742b09a30d754ad5848cd218d6801f75d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 377,
+  "recovery_generation": 378,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 377 resumed after stale repository activity. GitHub main and CURRENT_STATE match the Recovery 376 checkpoint; do not restart completed PR #516 work.",
+  "note": "Recovery 378 resumed from current PR #517 without replaying completed PR #516 work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
