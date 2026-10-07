@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 405 canonical main efa925d: PR #552 merged with four green workflows; exact Zurich 36px font live Club.name binding and source tests done. Post-b890 first-parent 36-row ledger classified through 5b8fafe. Earliest incomplete Gate13 remains externally blocked on real Windows --transport-probe-only HWND/DPI FMV receipt plus normal Windows visual/latency acceptance. Continue cloud-safe evidence-backed source work where independent; never infer external acceptance or mark Gate17 complete.",
-  "last_known_main_head": "efa925d812d52e5f2a41ce326961e98e0d805285",
+  "active_task": "Recovery 405: source Club.name header/font integration PR #552 and package identity guard PR #553 merged with exact CI success. First-parent post-#482 audit through 08deb86a now classifies 38 new main entries. Gate 13 next requires safe private Win11 --transport-probe-only WPF parent/child HWND/DPI receipt, source-backed FMV content correction if warranted, and normal Windows menu/Squad visual+latency acceptance. Continue independent cloud-safe source-backed work when possible; overall Gate17 mission remains incomplete.",
+  "last_known_main_head": "8a85e9170a30a1a0c349ca1a29298184d6d2f021",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 405,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Audit counts 9 bounded original-proven, 1 compatibility-equivalent, 1 inconclusive/fail-closed, 25 research-only. PR #552 code exact head 970ea1c full run 37700777348 success; no new CI after verified milestone. Preserve cost-controlled cadence.",
+  "note": "Latest technical merge #553 08deb86a; Windows package run 37701923950 and asset policy 37701923921 passed exact head 8f76847. Main status checkpoint 8a85e91. Last full reconstruction success #552 run 37700777348. No extra workflows dispatched. Runtime working.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
