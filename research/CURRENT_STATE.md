@@ -1,3 +1,23 @@
+# Recovery 384 continuation - direct external link-input package ownership proved; archive-member map next
+
+_Updated 7 October 2026._
+
+Canonical technical merge is `0f1739c2e0d606e398a8e6a350d55a22c78a178e`, merging PR #528 after exact-head validation. **Gate 13 / issue #482 remains the earliest incomplete validation gate**: Daniel's normal Windows 11 acceptance of artifact `11464212544` is still required. No hosted provenance result closes that external acceptance boundary.
+
+Recovery 384 closed the next bounded Gate-17 provenance question without making a legal or full static-contributor claim:
+
+- PR #528 exact head `125018bf9ef5feba3d58e9a73f67603fadd51cc1` passed asset policy `37596223786`, reconstruction `37596223784` (**2,874 tests, 25 skipped**), and minimal FFmpeg proof `37596223802`.
+- Artifact `11471081671` (`gate17-minimal-ffmpeg-build-125018bf9ef5feba3d58e9a73f67603fadd51cc1`, digest `sha256:328d0215658f2789329d9dd680afc782b139f76e7ed0acc13541bdd66bccaa7f`) contains the validated direct ownership evidence.
+- The external-input list SHA-256 is `fa48cc5354cacfaf4c6c828cfb05792baca3108be56b4ec2701c9af10c6eeb56`; the direct owner-row SHA-256 is `7c2c81054bd07cc091c0a0229077ce770c4d4d2bfeef8a6f31c89439471613c5`; the fail-closed ownership receipt SHA-256 is `9f511952e664edc1ed2363f26552eb21d4bd1b9f8763327c64669bf6979ac546`.
+- Every one of the **22** external `.a/.o` inputs resolved for `ffmpeg_g.exe` and all **21** for `ffprobe_g.exe` received direct `pacman -Qo` ownership inside the exact locked UCRT64 environment. No ownership was inferred from filenames.
+- Only four installed packages own those inputs: `mingw-w64-ucrt-x86_64-crt 14.0.0.r426.g4564ee4b5-1`, `mingw-w64-ucrt-x86_64-gcc 16.2.0-4`, `mingw-w64-ucrt-x86_64-winpthreads 14.0.0.r426.g4564ee4b5-1`, and `mingw-w64-ucrt-x86_64-windows-default-manifest 20260815-1`. Each already maps to a verified source-family row in `TOOLCHAIN-CONTRACT.json`.
+
+Direct package ownership is therefore complete for the observed external final-link inputs, but this is still not proof that every traced archive contributed a member to the final binary. `gate17_static_contributor_attribution_complete=false`, `source_material_complete=false`, and `legal_compliance_claimed=false` remain mandatory.
+
+**Exact next cloud-safe Gate-17 task:** capture a deterministic GNU ld link map (or equivalent archive-member evidence) for the same exact minimal-helper link. Require the evidence-only relink command to match the release link after removing only the observation flag(s), and preferably require the relinked unstripped output to be byte-identical to the release unstripped output. Parse actual included members for each external archive plus the direct startup/object files, map them back to the four proven owner packages/source families, and fail closed on coverage drift. Do not promote static contributor attribution until member-level incorporation is proved.
+
+---
+
 # Recovery 382 continuation - resolved minimal-FFmpeg link-input evidence merged; direct ownership next
 
 _Updated 7 October 2026._
