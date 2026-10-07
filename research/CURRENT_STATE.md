@@ -1,3 +1,21 @@
+# Recovery 380 - PR #519 merged; canonical issue-482 package ready; caller tracer rebuild next
+
+_Updated 7 October 2026._
+
+Canonical `main` is `c28c9984bfacbbec410e37b519471526f994d7c5`, merging rebuilt PR #519 on top of the repaired Gate-13 host.
+
+Recovery 380 rebuilt PR #519 in place from repaired `main` after preserving the pre-repair branch as `chatgpt/archive-gate14-host-mode-dispatch-r379`. The rebuilt head `34f8c09a5b0591ca961868eba9ea18d98c06969d` is exactly two files beyond the repaired base: `reconstruction/original_game_host.py` and `reconstruction/test_gate14_fastview_host_surface.py`. It preserves PR #521's Tk/WPF startup-owner pumping and adds only the source-backed post-PPreMatch host seam: modes 0/1 fail closed for the unrecovered native 3D wrappers, mode 2 opens FastView, and mode 3 opens no presentation wrapper. No ordinary management-screen fixture-start trigger is invented.
+
+Exact PR #519 head `34f8c09a5b0591ca961868eba9ea18d98c06969d` passed full reconstruction run `37580530606` (**2,846 tests, 25 skipped**), Gate-13 presentation run `37580530636`, Windows package run `37580530537`, and asset-policy run `37580530517`. Windows artifact `11464212544`, named `FM2001-Windows11-34f8c09a5b0591ca961868eba9ea18d98c06969d`, has digest `sha256:00d34f8311ace797cf9c2b185ab9281a0d012dcb20bb438c95163e18a0ea93a5`. Comparing the packaged PR head to merge commit `c28c9984bfacbbec410e37b519471526f994d7c5` reports **no changed files**, so the artifact is tree-identical to the new canonical main and is the next valid Gate-13 issue-482 external acceptance candidate. The superseded failing artifact `11418314765` must still not be used.
+
+Gate 13 remains open until Daniel's normal Windows 11 acceptance of artifact `11464212544` satisfies the remaining issue-482 criteria. This external acceptance is a deferred blocker only; independent cloud-safe work continues under the roadmap policy.
+
+The canonical private source archive was successfully resolved again at `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip` with the expected 511,121,336-byte Library identity. However, this recovery's execution sandbox still fails with `caas.internal.errors.ClientError` even for a trivial `printf` process after successful materialization. Therefore first-hand executable processing is unavailable in this chat. This is an execution-infrastructure blocker, not source unavailability.
+
+Immediate next action: rebuild PR #520's candidate-only `0x513010` caller tracer on canonical `main` `c28c9984bfacbbec410e37b519471526f994d7c5`, require fresh exact-head verification, and merge only if green. The tracer remains candidate-only and must not be promoted to recovered management semantics. When private process execution recovers, run it against the checksum-verified canonical executable and manually adjudicate direct callers/ownership before assigning any management fixture-start route. Gate 13, Gate 14, and all later gates remain incomplete.
+
+---
+
 # Recovery 379 - Gate 13 issue #482 WPF startup fix merged; fresh current-main package still required
 
 _Updated 7 October 2026._
