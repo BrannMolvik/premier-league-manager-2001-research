@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 373: resume from merged main 9e4d2377fc0484f02befaef0dc219e95970f9902. Continue Gate-14 PPreMatch XI shirt pixel closure: prove and implement goalkeeper/custom/generic shirt resource selection through 0x408320/0x5EF940 and per-player frame selection through 0x41E3F0, reusing existing PMatchInfo shirt code only where source-identical. Then bind the 22 marker controls and continue dynamic text/state.",
+  "active_task": "Recovery 373: PR #516 is open at exact head 08b42c6a458a5b310c690d3ea2e2ddbc84d6017a with reconstruction run 37558062900 and asset-policy run 37558062899 started. Continue source-backed Gate-14 XI shirt work while CI runs: reproduce/verify 0x5E4C60 generic Team%.2d.bmp palette/recolor output, then bind custom/generic/goalkeeper numbered 36x32 frames into the 22 PPreMatch marker controls. Gate 13 #482 remains earliest validation blocker.",
   "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 373,
-  "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Connection-interruption recovery. XI-shirt branch exists at main with no persisted implementation commits yet; do not repeat PR #515 badge work.",
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 373 active. Do not repeat PR #515 badge work. PR #516 source-closes shirt selection; generic recolor trace is the next exact task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
