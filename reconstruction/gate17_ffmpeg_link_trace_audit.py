@@ -35,10 +35,12 @@ def _command_tokens(text: str, target: str) -> list[str]:
     return matches[0]
 
 
-def _archive_inputs(text: str) -> list[str]:
+def _archive_inputs(text: str, target: str) -> list[str]:
     seen: set[str] = set()
     ordered: list[str] = []
     for line in text.splitlines():
+        if target in line and " -o " in f" {line} ":
+            continue
         for match in _ARCHIVE_RE.finditer(line):
             value = match.group(1).replace("\\\\", "/")
             if value not in seen:
@@ -79,7 +81,7 @@ def audit_link_traces(
             raise LinkTraceAuditError(
                 f"{target} traced relink drifted from release link beyond {TRACE_FLAG}"
             )
-        archives = _archive_inputs(traces[target])
+        archives = _archive_inputs(traces[target], target)
         targets[target] = {
             "release_command_token_count": len(release_command),
             "trace_only_flag": TRACE_FLAG,
