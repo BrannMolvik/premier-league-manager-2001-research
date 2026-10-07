@@ -431,6 +431,7 @@ class OriginalGameTkHost:
         self._photos = []
         self._first_screen_photo_cache = {}
         self._generic_photo_cache = {}
+        self._management_pmenu_render_cache = {}
         self.first_screen_animation = OriginalFirstScreenAnimation()
         self.first_screen_frame = None
         self._first_screen_items = {}
@@ -1032,6 +1033,8 @@ class OriginalGameTkHost:
             )
         for name in required:
             setattr(self, name, loaded[name])
+        if family == "squad":
+            self._management_pmenu_render_cache.clear()
         self._management_resource_families_loaded.add(family)
         self._management_resources_loaded = "squad" in self._management_resource_families_loaded
 
@@ -1154,7 +1157,7 @@ class OriginalGameTkHost:
         frame = self.management_header_state.source_frame()
         count = 0
         for overlay in management_header_overlays(resources, frame):
-            png = encode_rgba_png(
+            png = _cached_runtime_png(
                 overlay.width,
                 overlay.height,
                 overlay.rgba,
@@ -1172,7 +1175,7 @@ class OriginalGameTkHost:
             caption.x,
             caption.y,
             image=self._photo(
-                encode_rgba_png(
+                _cached_runtime_png(
                     caption.width,
                     caption.height,
                     caption.rgba,
@@ -1200,7 +1203,7 @@ class OriginalGameTkHost:
             overlay.x,
             overlay.y,
             image=self._photo(
-                encode_rgba_png(
+                _cached_runtime_png(
                     overlay.width,
                     overlay.height,
                     overlay.rgba,
@@ -1235,7 +1238,7 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=self._photo(
-                    encode_rgba_png(
+                    _cached_runtime_png(
                         overlay.width,
                         overlay.height,
                         overlay.rgba,
@@ -1314,7 +1317,7 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=self._photo(
-                    encode_rgba_png(
+                    _cached_runtime_png(
                         overlay.width,
                         overlay.height,
                         overlay.rgba,
@@ -1342,7 +1345,7 @@ class OriginalGameTkHost:
                     overlay.x,
                     overlay.y,
                     image=self._photo(
-                        encode_rgba_png(
+                        _cached_runtime_png(
                             overlay.width,
                             overlay.height,
                             overlay.rgba,
@@ -1373,7 +1376,7 @@ class OriginalGameTkHost:
 
         count = 0
         for placement in art.placements:
-            png = encode_rgba_png(
+            png = _cached_runtime_png(
                 placement.width,
                 placement.height,
                 placement.rgba,
@@ -1406,7 +1409,7 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "League Tables renderer requires verified original header art"
             )
-        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        image = self._photo(_cached_runtime_png(art.width, art.height, art.rgba))
         self._create_native_image(
             art.x,
             art.y,
@@ -1437,7 +1440,7 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=self._photo(
-                    encode_rgba_png(
+                    _cached_runtime_png(
                         overlay.width,
                         overlay.height,
                         overlay.rgba,
@@ -1462,7 +1465,7 @@ class OriginalGameTkHost:
     def _draw_fixtures_pager(self):
         controls = self._fixtures_page_controls()
         for control in controls:
-            image = self._photo(encode_rgba_png(27, 18, self.fixtures_pager_art.pixels(control)))
+            image = self._photo(_cached_runtime_png(27, 18, self.fixtures_pager_art.pixels(control)))
             self._create_native_image(*control.rect[:2], image=image, anchor=self.tk.NW)
         return len(controls)
 
@@ -1518,7 +1521,7 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Active PMatchInfo state must be verified popup art"
             )
-        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        image = self._photo(_cached_runtime_png(art.width, art.height, art.rgba))
         self._create_native_image(
             art.x,
             art.y,
@@ -1595,17 +1598,23 @@ class OriginalGameTkHost:
                 "Management PMenu renderer requires verified original row resources"
             )
 
-        with timed_stage("management.pmenu.render"):
-            menu_render = build_management_pmenu_render(
-                frame,
-                self.management_pmenu_resources,
-            )
+        menu_render = None
+        if self.pmenu_popup_active:
+            menu_key = (id(self.management_pmenu_resources), frame.presentation.menu)
+            menu_render = self._management_pmenu_render_cache.get(menu_key)
+            if menu_render is None:
+                with timed_stage("management.pmenu.render"):
+                    menu_render = build_management_pmenu_render(
+                        frame,
+                        self.management_pmenu_resources,
+                    )
+                self._management_pmenu_render_cache[menu_key] = menu_render
         self.canvas.delete("all")
         self._photos = []
 
         if self.management_background is not None:
             for image in self.management_background.images(frame.presentation.club):
-                photo = self._photo(encode_rgba_png(image.width, image.height, image.rgba))
+                photo = self._photo(_cached_runtime_png(image.width, image.height, image.rgba))
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header()
@@ -1622,7 +1631,7 @@ class OriginalGameTkHost:
         )
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
-        for overlay in (menu_render.overlays if self.pmenu_popup_active else ()):
+        for overlay in (() if menu_render is None else menu_render.overlays):
             art = self._photo(overlay.png)
             self._create_native_image(
                 menu_x + overlay.x,
