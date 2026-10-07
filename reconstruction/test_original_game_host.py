@@ -912,6 +912,15 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.kwargs["height"], 600)
         self.assertTrue(host.canvas.values["pack"]["expand"])
 
+        # Modern fullscreen convenience keys are not part of the recovered
+        # original input contract and must not intercept source-baseline input.
+        bindings = root.values.get("bindings", {})
+        self.assertNotIn("<F11>", bindings)
+        self.assertNotIn("<Alt-Return>", bindings)
+        self.assertNotIn("<Escape>", bindings)
+
+        # Keep the deferred helper methods regression-covered for a future
+        # explicitly authorized modernization path.
         host.leave_fullscreen()
         self.assertFalse(host._fullscreen)
         self.assertFalse(root.values["attributes"]["-fullscreen"])
@@ -1863,10 +1872,6 @@ class OriginalGameHostTests(unittest.TestCase):
             calls["team"] = kwargs
             return object()
 
-        def load_settings(source_root):
-            calls["settings"] = Path(source_root)
-            return object()
-
         fake_session = object()
         with tempfile.TemporaryDirectory() as temp:
             game_dir = Path(temp) / "game"
@@ -1880,9 +1885,6 @@ class OriginalGameHostTests(unittest.TestCase):
                 "original_game_host.load_verified_original_teamselect_inputs",
                 side_effect=load_team,
             ), patch(
-                "original_game_host.load_source_styled_settings_resources",
-                side_effect=load_settings,
-            ), patch(
                 "original_game_host.FrontEndSession.for_canonical_game_dir",
                 return_value=fake_session,
             ):
@@ -1894,7 +1896,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 built._ensure_team_select_resources()
 
         self.assertIs(built.session, fake_session)
-        self.assertEqual(calls["settings"], source_root)
+        self.assertIsNone(built.settings_resources)
         self.assertEqual(
             calls["menu"]["original_executable"],
             game_dir / "FOOTBAL.EXE",

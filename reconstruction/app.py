@@ -9,8 +9,6 @@ from tkinter import ttk, filedialog, messagebox
 from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
-from front_end_settings import SETTINGS_BACK_RECT, SETTINGS_MENU_RECT
-from front_end_state import FrontEndScreen
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from original_game_host import run_original_game_ui
 from original_game_host import (
@@ -718,22 +716,18 @@ def package_smoke_report() -> dict:
             pstartmenu_derivative_root=derivative_root,
         )
         package_snapshot = package_presenter.snapshot()
-        settings_outcome = package_presenter.pointer(
-            SETTINGS_MENU_RECT.x, SETTINGS_MENU_RECT.y
+        source_control_ids = tuple(
+            int(control.event) for control in package_snapshot.controls
         )
-        settings_snapshot = package_presenter.snapshot()
-        if (
-            settings_outcome is None
-            or settings_snapshot.screen is not FrontEndScreen.SETTINGS
-            or not package_presenter.session.settings.original_baseline
-            or not package_presenter.session.settings.fullscreen
-        ):
+        if source_control_ids != (1, 2, 3, 4):
             raise RuntimeError(
-                "Packaged source-styled Settings default baseline is unavailable"
+                "Packaged original-default PStartMenu was contaminated by "
+                "non-source controls"
             )
-        package_presenter.pointer(SETTINGS_BACK_RECT.x, SETTINGS_BACK_RECT.y)
-        if package_presenter.snapshot().screen is not FrontEndScreen.START_MENU:
-            raise RuntimeError("Packaged Settings Back did not restore PStartMenu")
+        if package_presenter.settings_resources is not None:
+            raise RuntimeError(
+                "Packaged deferred Settings surface leaked into original baseline"
+            )
     except PStartMenuDerivativeError as exc:
         raise RuntimeError(
             "Packaged PStartMenu derivative failed exact-byte verification: "
@@ -756,9 +750,9 @@ def package_smoke_report() -> dict:
         ).hexdigest(),
         "pstartmenu_presenter_build_passed": True,
         "pstartmenu_presenter_screen": str(package_snapshot.screen.value),
-        "settings_surface_present": True,
-        "settings_default_profile": package_presenter.session.settings.profile_name,
-        "settings_default_fullscreen": package_presenter.session.settings.fullscreen,
+        "pstartmenu_source_control_ids": list(source_control_ids),
+        "settings_surface_present": False,
+        "deferred_settings_isolated": True,
         "startup_ffmpeg": str(startup_ffmpeg),
         "startup_ffmpeg_relative_path": PACKAGED_FFMPEG_RELATIVE_PATH.as_posix(),
         "external_game_data_required": True,
