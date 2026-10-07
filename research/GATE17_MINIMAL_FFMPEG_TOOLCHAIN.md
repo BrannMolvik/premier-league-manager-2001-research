@@ -7,21 +7,22 @@ dynamic `libwinpthread-1.dll` deployment blocker is closed. Static linkage does
 not erase the provenance of the compiler/CRT/runtime code incorporated at link
 time.
 
-This checkpoint therefore pins the successful build's GitHub Action revisions
-and audits a critical subset of the actual MSYS2/UCRT64 package versions before
-each future minimal-helper build. The complete `pacman -Q` inventory and a
-machine-readable toolchain receipt are retained in the build artifact.
+This checkpoint pins the successful build's GitHub Action revisions and now
+enforces an exact lock of the complete observed MSYS2/UCRT64 package environment
+before each future minimal-helper build. The lock contains 151 package/version
+rows captured by `pacman -Q | LC_ALL=C sort`; any missing, extra, or changed
+package fails the provenance audit.
 
-The successful reference run used MSYS2 installer release
+The successful reference environment used MSYS2 installer release
 `0.0.20260927`, GCC `16.2.0-4`, binutils `2.47-3`, NASM `3.02-1`, and
 MinGW-w64 CRT/headers/winpthreads revision
 `14.0.0.r426.g4564ee4b5-1`.
 
-This remains deliberately incomplete. The contract does not claim that every
-transitive build package is locked, nor that all corresponding source archives,
-license texts, notices, or redistribution obligations have been assembled.
-`source_material_complete=false` and `legal_compliance_claimed=false`
-remain mandatory.
+The package lock is a reproducibility claim only. It does not claim that every
+installed package contributes redistributed code, nor that all corresponding
+source archives, license texts, notices, or redistribution obligations have
+been assembled. `source_material_complete=false` and
+`legal_compliance_claimed=false` remain mandatory.
 
 ## Recovery 380 bounded source-material map
 
@@ -85,4 +86,33 @@ source families. This closes only those two bounded metadata blockers. It does
 whose code is redistributed in the static helper, assemble the final
 source/license/notice bundle, or make a legal-compliance conclusion.
 `complete_package_lock=false`, `source_material_complete=false`, and
+`legal_compliance_claimed=false` remain mandatory.
+
+## Recovery 381 complete build-environment package lock
+
+Three independent successful minimal-FFmpeg build artifacts produced the same
+byte-identical `pacman -Q | LC_ALL=C sort` inventory:
+
+- workflow `37506276513`, artifact `11431743521`, artifact digest
+  `sha256:ec6ce0ab49e7e0b5aa9b4c2b6df5f01dd0f6c62f02c75588c91a67e8d82b0db9`;
+- workflow `37582619057`, artifact `11465166679`, artifact digest
+  `sha256:ba03294e8a8ed8541773e1ceb0db7209690ceb24816df79e57380ae455f63cdc`;
+- workflow `37585092239`, artifact `11465843961`, artifact digest
+  `sha256:0bb3bb84778217b70fa20b4e3996a2e5cac1fcdfbb734d148ad682e06b81d46c`.
+
+Each inventory has 151 package/version rows and SHA-256
+`c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec`.
+The exact rows are now retained as
+`third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock`.
+
+The toolchain audit compares the live build environment against that complete
+map and fails closed on missing packages, extra packages, version drift, lock
+digest drift, or package-count drift. `complete_package_lock=true` therefore
+means only that the successful build environment's package identities are
+completely locked.
+
+This does **not** decide which of those 151 installed packages contribute code
+or data to the statically linked helper. That attribution, the corresponding
+source/license/notice bundle, and the separate legal review remain unresolved.
+Accordingly `source_material_complete=false` and
 `legal_compliance_claimed=false` remain mandatory.
