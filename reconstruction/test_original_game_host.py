@@ -40,6 +40,7 @@ from original_game_host import (
     OriginalGameTkHost,
     build_original_game_presenter,
     play_configured_startup_media,
+    _cached_runtime_png,
     _scaled_rgba,
 )
 from original_management_presenter import OriginalManagementPresenter
@@ -1182,6 +1183,32 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[0][:2], (599, 0))
         self.assertEqual(host.canvas.images[1][:2], (629, 0))
         self.assertEqual(host.canvas.images[2][:2], (681, 62))
+
+    def test_management_header_redraw_reuses_cached_native_pngs(self):
+        _cached_runtime_png.cache_clear()
+        try:
+            host = OriginalGameTkHost(
+                presenter(),
+                FakeRoot(),
+                FakeTk,
+                management_header_resources=fake_management_header_resources(),
+            )
+            host.canvas.delete("all")
+            host._photos = []
+
+            with patch("original_game_host.encode_rgba_png", wraps=encode_rgba_png) as encoder:
+                host._draw_management_header()
+                first_draw_calls = encoder.call_count
+                self.assertGreater(first_draw_calls, 0)
+
+                host.canvas.delete("all")
+                host._photos = []
+                host._draw_management_header()
+
+                self.assertEqual(encoder.call_count, first_draw_calls)
+                self.assertGreaterEqual(_cached_runtime_png.cache_info().hits, 3)
+        finally:
+            _cached_runtime_png.cache_clear()
 
     def test_management_current_date_draws_exact_source_control(self):
         host = OriginalGameTkHost(

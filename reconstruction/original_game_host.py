@@ -1154,7 +1154,7 @@ class OriginalGameTkHost:
         frame = self.management_header_state.source_frame()
         count = 0
         for overlay in management_header_overlays(resources, frame):
-            png = encode_rgba_png(
+            png = _cached_runtime_png(
                 overlay.width,
                 overlay.height,
                 overlay.rgba,
@@ -1172,7 +1172,7 @@ class OriginalGameTkHost:
             caption.x,
             caption.y,
             image=self._photo(
-                encode_rgba_png(
+                _cached_runtime_png(
                     caption.width,
                     caption.height,
                     caption.rgba,
@@ -1200,7 +1200,7 @@ class OriginalGameTkHost:
             overlay.x,
             overlay.y,
             image=self._photo(
-                encode_rgba_png(
+                _cached_runtime_png(
                     overlay.width,
                     overlay.height,
                     overlay.rgba,
@@ -1235,7 +1235,7 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=self._photo(
-                    encode_rgba_png(
+                    _cached_runtime_png(
                         overlay.width,
                         overlay.height,
                         overlay.rgba,
@@ -1314,7 +1314,7 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=self._photo(
-                    encode_rgba_png(
+                    _cached_runtime_png(
                         overlay.width,
                         overlay.height,
                         overlay.rgba,
@@ -1342,7 +1342,7 @@ class OriginalGameTkHost:
                     overlay.x,
                     overlay.y,
                     image=self._photo(
-                        encode_rgba_png(
+                        _cached_runtime_png(
                             overlay.width,
                             overlay.height,
                             overlay.rgba,
@@ -1373,7 +1373,7 @@ class OriginalGameTkHost:
 
         count = 0
         for placement in art.placements:
-            png = encode_rgba_png(
+            png = _cached_runtime_png(
                 placement.width,
                 placement.height,
                 placement.rgba,
@@ -1406,7 +1406,7 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "League Tables renderer requires verified original header art"
             )
-        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        image = self._photo(_cached_runtime_png(art.width, art.height, art.rgba))
         self._create_native_image(
             art.x,
             art.y,
@@ -1437,7 +1437,7 @@ class OriginalGameTkHost:
                 overlay.x,
                 overlay.y,
                 image=self._photo(
-                    encode_rgba_png(
+                    _cached_runtime_png(
                         overlay.width,
                         overlay.height,
                         overlay.rgba,
@@ -1462,7 +1462,7 @@ class OriginalGameTkHost:
     def _draw_fixtures_pager(self):
         controls = self._fixtures_page_controls()
         for control in controls:
-            image = self._photo(encode_rgba_png(27, 18, self.fixtures_pager_art.pixels(control)))
+            image = self._photo(_cached_runtime_png(27, 18, self.fixtures_pager_art.pixels(control)))
             self._create_native_image(*control.rect[:2], image=image, anchor=self.tk.NW)
         return len(controls)
 
@@ -1518,7 +1518,7 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Active PMatchInfo state must be verified popup art"
             )
-        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        image = self._photo(_cached_runtime_png(art.width, art.height, art.rgba))
         self._create_native_image(
             art.x,
             art.y,
@@ -1605,7 +1605,7 @@ class OriginalGameTkHost:
 
         if self.management_background is not None:
             for image in self.management_background.images(frame.presentation.club):
-                photo = self._photo(encode_rgba_png(image.width, image.height, image.rgba))
+                photo = self._photo(_cached_runtime_png(image.width, image.height, image.rgba))
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header()
