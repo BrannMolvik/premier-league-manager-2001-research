@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 384: Gate 13 remains earliest incomplete. It now has two explicit unresolved boundaries: Daniel's external Windows acceptance of artifact 11464212544 and the newly added ROADMAP Settings requirement (source-styled in-game Settings button/surface with untouched Original baseline). Finish near-complete PR #530 exact head 33baf3787712c2ea90c0b577822de56d4846b1e1 first: asset policy 37598558634 and reconstruction 37598558526 are green; minimal FFmpeg link-map proof 37598558531 is the only remaining merge gate. After #530 artifact review/reconciliation, pivot immediately to Gate-13 Settings implementation on current main 21eb5031102f2ab2bd326596cef3c7fe9e673cf3 before further Gate-17 provenance work.",
+  "active_task": "Recovery 384: Gate 13 remains earliest incomplete with external acceptance artifact 11464212544 and the new Settings requirement still open. Near-complete Gate-17 PR #530 is active at fresh exact head 1c68e01738208e633b17353aadf079819358da1e. Prior minimal run 37598558531 proved map generation, trace, and package ownership but failed byte identity because GNU ld PE links insert wall-clock timestamps by default. Workflow now exports SOURCE_DATE_EPOCH from the exact pinned FFmpeg source commit before configure/build, preserving normal timestamp insertion while making release/trace/map relinks deterministic; regression coverage requires this and forbids --no-insert-timestamp. Require fresh exact-head asset, reconstruction, and minimal-FFmpeg success. If green, inspect link-member-proof artifact, reconcile/merge #530, then pivot immediately to Gate-13 Settings implementation before further Gate-17 provenance.",
   "last_known_main_head": "21eb5031102f2ab2bd326596cef3c7fe9e673cf3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 384,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #530 reconstruction and asset checks are green. New Gate-13 Settings roadmap criterion becomes next implementation priority after this in-flight proof.",
+  "note": "PR #530 fresh head pins SOURCE_DATE_EPOCH to the pinned FFmpeg commit after real PE timestamp nondeterminism broke byte identity.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
