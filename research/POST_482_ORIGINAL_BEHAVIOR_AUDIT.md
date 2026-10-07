@@ -432,3 +432,18 @@ After the 36-row first-parent ledger through `5b8fafe123ed601377ff44886f39cd2784
 
 The retrospective main ledger now includes 38 classified first-parent commits after `b890c578` through the last technical main merge `08deb86a1a9ff1b83267f02b9d537029fda8da92` (with mechanical audit-writing commit that appends this addendum excluded). Counts over this extended portion: 9 bounded ORIGINAL-PROVEN; 1 COMPATIBILITY-EQUIVALENT; 1 INCONCLUSIVE / fail-closed; 27 RESEARCH/INFRASTRUCTURE-ONLY. Gate 13 audit **remains open** until its substantive private Windows evidence and normal-play acceptance exit criteria pass.
 
+## Recovery 406 audit continuation (8 October 2026)
+
+After the 38-entry first-parent audit extension through Gate-13 package merge `08deb86a`, two additional first-parent main commits are now source/impact-classified through `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3`:
+
+| Extended entry | Main commit | Scoped contribution | Classification | Evidence/limits |
+| ---: | --- | --- | --- | --- |
+| 39 | `8a85e917` | Recovery-405 package/source integrity status checkpoint | **RESEARCH/INFRASTRUCTURE-ONLY** | Research/status, no live behavior |
+| 40 | `3b9cb028` | PR #554, opt-in WPF HWND/DPI diagnostic receipt integrity | **RESEARCH/INFRASTRUCTURE-ONLY** | Win32 structural assertions and comparison fields only, no normal video/host change. Exact PR head `017d1d550f021e9e9ee39602b2d51cd252c5c8e4`, full test CI `37704161253` 2,926 tests and 25 skips, Gate13 `37704161255`, Windows package `37704161266`, asset policy `37704161379`, all success. The actual private Windows receipt is still missing |
+
+**Classification totals for 40 post-`b890c578` first-parent commits through `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3`:** 9 bounded ORIGINAL-PROVEN, 1 COMPATIBILITY-EQUIVALENT, 1 INCONCLUSIVE/fail-closed, 29 RESEARCH/INFRASTRUCTURE-ONLY. The mechanical documentation commit appending this section is excluded.
+
+Microsoft documents that WPF `HwndSourceParameters.Width` and `Height` use device pixels, while `HwndTarget.TransformToDevice` represents the target layout/device coordinate transform. Thus a guessed extra 1.5× DPI transformation of the HwndSource size is not source-justified. No actual HWND/DPI probe on the owner's Windows system is available, so this does not prove geometry or content equivalence.
+
+**Audit remains open.** The missing private transport receipt, externally incorrect startup-FMV content, and normal Windows Squad/menu responsiveness/visual acceptance remain gating. No source geometry changes are authorized without direct observation; Gate 13 cannot close.
+

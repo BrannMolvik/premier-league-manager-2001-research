@@ -1,3 +1,19 @@
+# Recovery 406 — startup transport receipt integrity verified, actual Windows geometry still unobserved
+
+_8 October 2026 KST. Technical main merge `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3`._
+
+**Active gate remains Gate 13; Gate 17 is NOT complete.** PR #554 source head `017d1d550f021e9e9ee39602b2d51cd252c5c8e4` merged as `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3` after four successful exact-head checks: asset policy `37704161379`, Gate-13 presentation `37704161255`, Windows release-candidate package `37704161266`, and full reconstruction `37704161253` (**2,926 tests; 25 expected skips; no failures**). An initial synthetic test-fixture conflict was corrected before verified merge; the revised production code was unchanged. Original movie pixels, native 640x480/(80,60) geometry, runtime playback behavior and default UI were untouched.
+
+The opt-in `--transport-probe-only` path now rejects internally contradictory Windows RECT edge/dimension fields, nonzero GetClientRect origins, inconsistent child offset derivation, and invalid DPI awareness enums. Coherent measured-versus-requested geometry/DPI differences are preserved as diagnostics rather than misclassified as game defects or discarded. Each receipt carries explicit `transport_comparison` booleans and `visual_equivalence_assessed=false`. Proven Win32 contracts and source-backed limitations are recorded in `research/GATE13_WINDOWS_TRANSPORT_RECEIPT_INTEGRITY.md`.
+
+**New external-contract finding:** Microsoft WPF docs specify that `HwndSourceParameters.Width`/`Height` are *device-pixel* sizes, not WPF device-independent units; `HwndTarget.TransformToDevice` is a separate WPF layout/device transform. Thus do not apply an invented double-DPI conversion to HwndSource size. This does NOT prove actual parent/child positioning, MediaElement inner content or visual equivalence.
+
+**Exact next limiting task:** on a qualifying private Windows 11 client with the authorized installed game, run the existing non-disruptive `--transport-probe-only` command documented in `research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md` and save the actual receipt outside Git. Compare raw requested/observed client+window positions and DPI, then identify the startup-video content distortion cause from that evidence before changing geometry. Recheck normal Windows main-menu/TeamSelect/fresh Squad appearance and multi-second interaction latency. The post-#482 audit remains **OPEN** pending external acceptance; do not relabel a successful probe or hosted package build as user-facing verification.
+
+**Cloud-safe next work while that external path is unavailable:** continue independently source-evidenced Gate-14/15 investigation or deterministic fail-closed tests without touching unknown original behavior; keep the earliest incomplete validation gate at 13 and retain all later gates through 17 as the standing mission. Avoid gratuitous CI or checkpoint commits.
+
+---
+
 # Recovery 405 packaging addendum — original Zurich 36px font fail-closed in Windows release candidate
 
 _8 October 2026 KST. Verified source package guard merged as `08deb86a1a9ff1b83267f02b9d537029fda8da92`._

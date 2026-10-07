@@ -28,3 +28,14 @@ The default startup-media path is unchanged because receipt capture remains expl
 ## Next actual evidence required
 
 Execute the already documented `--transport-probe-only` audit using a qualifying private Windows 11 client with the authorized installed game and save the JSON output outside Git. Review each sequence entry’s `transport_comparison` flags and original raw HWND/client/DPI fields. Even all-true geometry flags cannot prove the movie *contents* are visually equivalent. A separate human visual inspection and actual menu/Squad responsiveness acceptance remain necessary. Do not tune WPF movie geometry by eye or treat hosted CI as that receipt.
+
+## Device pixels versus WPF device-independent units (Recovery 406 follow-up)
+
+Microsoft's documentation explicitly says that `HwndSourceParameters.Width` and `Height` are specified **in device pixels**, unlike the ordinary device-independent dimensions of many WPF controls. The production PowerShell WPF script passes the requested source-backed 640×480 rect into those integer HWND parameters. This rejects the *assumption* that the constructor itself necessarily treats 640 as 640 DIPs and silently creates a second 150%-scaled 960px window. It does not prove actual child position/client rect, since Win32 `GetWindowRect` may be DPI-virtualized or that `MediaElement` renders the intended in-field pixels.
+
+The separate WPF `HwndTarget.TransformToDevice` matrix maps WPF layout coordinates to device coordinates. If real HWND geometry proves correct but content remains wrong, investigate actual MediaElement layout/decoded-frame display treatment independently, without modifying original 2× pixel duplication or (80,60) placement by eye.
+
+Documentation: https://learn.microsoft.com/en-us/dotnet/api/system.windows.interop.hwndsourceparameters.width?view=windowsdesktop-10.0 ; https://learn.microsoft.com/en-us/dotnet/api/system.windows.interop.hwndsourceparameters.height?view=netframework-4.8.1 ; https://learn.microsoft.com/en-us/dotnet/api/system.windows.interop.hwndtarget.transformtodevice?view=windowsdesktop-10.0 .
+
+The production diagnostic merge is `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3`; actual private Windows evidence and human visual/latency acceptance remain absent. No behavioral correction or original visual-fidelity claim was made.
+
