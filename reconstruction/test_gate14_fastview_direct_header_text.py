@@ -67,7 +67,7 @@ class FastViewDirectHeaderTextTests(unittest.TestCase):
         self.assertEqual(TEXT_STYLE_INDEX, 3)
         self.assertEqual(TEXT_STYLE_WRAPPER_VA, 0x87BE30)
         self.assertEqual(TEXT_FONT_OBJECT_GLOBAL_VA, 0x8CAB80)
-        self.assertEqual(TEXT_FONT_PATH, r"Fonts\Zurich_XCn_BT_18pixel.fnt")
+        self.assertEqual(TEXT_FONT_PATH, r"Fonts\Zurich_XCn_BT_16pixel.fnt")
         self.assertEqual(TEXT_NATIVE_COLOR_16, 0xFFFF)
         self.assertEqual(TEXT_RAW_FLAGS, 0x24)
         self.assertEqual(TEXT_RENDER_FLAGS, 0x2C)
