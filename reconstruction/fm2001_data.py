@@ -101,6 +101,14 @@ class Club:
     starting_cash: float = 0.0
     # Master.dat +179 -> DBRClub+0xE0, used by 0x40DA90 for art lookup.
     graphics_basename: str = ''
+    # Master.dat +52/+55 -> expanded DBRClub +0x44/+0x47. These source bytes
+    # drive 0x408320's numbered-shirt template selection.
+    primary_shirt_template_index: int = 0
+    alternate_shirt_template_index: int = 0
+    # Master.dat +58/+70 -> expanded DBRClub +0x4A/+0x56. 0x5EF940 uses
+    # these source color IDs to decide primary/alternate kit context.
+    primary_kit_color_id: int = 0
+    alternate_kit_color_id: int = 0
 
 @dataclass(frozen=True)
 class Player:
@@ -395,6 +403,10 @@ class FM2001Database:
             historical_competition_id = struct.unpack_from('<i', r, 32)[0]
             historical_slot_index = struct.unpack_from('<i', r, 36)[0]
             manager_id = struct.unpack_from('<I', r, 48)[0]
+            primary_shirt_template_index = r[52]
+            alternate_shirt_template_index = r[55]
+            primary_kit_color_id = r[58]
+            alternate_kit_color_id = r[70]
             fan_base_index = struct.unpack_from('<I', r, 94)[0]
             team_category_code = r[98]
             related_club_id_0 = struct.unpack_from('<i', r, 99)[0]
@@ -420,6 +432,10 @@ class FM2001Database:
                 self.english.get(map_file_id),
                 starting_cash,
                 self.english.get(struct.unpack_from('<H', r, 179)[0]),
+                primary_shirt_template_index,
+                alternate_shirt_template_index,
+                primary_kit_color_id,
+                alternate_kit_color_id,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
