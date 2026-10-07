@@ -1,3 +1,21 @@
+# Recovery 378 continuation — PR #517 merged; native PPreMatch compositor ready behind strict Windows receipt
+
+_Updated 7 October 2026._
+
+Canonical `main` is `37b709ef2b949f3996b7633da38132ec688fe963`, merging PR #517. Exact PR head `e5fc70aeb8f4a33fc7784358e770f8c83ebe8d9d` passed full reconstruction run `37572280105` and repository asset-policy run `37572280197` before merge.
+
+PPreMatch child composition is now source-closed through the native packed-16 framebuffer boundary. The merged implementation records the exact keyed-vs-opaque PictureControl split, selector Button@ease frame-then-caption order, existing packed-16 TextControl glyph blend, and native child order 0..181. `gate14_prematch_native16_compositor.py` can flatten one supplied PPreMatch state to an exact 800x600 packed-16 framebuffer for any explicit valid runtime mask triplet. `gate14_prematch_runtime_native16.py` bridges the existing strict original-Windows pixel-format receipt validator directly into that compositor.
+
+The remaining PPreMatch pixel fidelity boundary is now narrow and explicit: the original runtime RGB mask triplet must still be observed from the source-qualified Windows DirectDraw surface, and packed16-to-modern-RGBA display expansion remains a separate compatibility conversion. The code does not guess RGB565/RGB555 and does not promote `complete_prematch_frame` or Gate 14.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. The Windows pixel-format receipt is a separate Gate-14 local/private evidence task and must not be fabricated from static source.
+
+Independent Gate-14 work-ahead continues on branch `chatgpt/gate14-match-detail-route-r378` at checkpoint `e2f53880551d9ffe517e111fd8fdd5b68c1c6d8d`. First-hand canonical-executable tracing source-closes the PPreMatch modal -> selected-mode -> presentation dispatch: mode 0 -> 3D wrapper variant 0, mode 1 -> 3D wrapper variant 1, mode 2 -> FastView wrapper, mode 3 -> Quick Match/no presentation wrapper. The ordinary management-screen UI entry trigger into that match-processing path is still unresolved and remains fail-closed.
+
+Immediate next action: open/verify the Match Detail route branch against current `main`, merge if exact-head CI is green, then trace the ordinary management-screen fixture-start entry into match processing without inventing a click/navigation binding. In parallel, revisit the strict Windows pixel-format receipt whenever real local Windows runtime observation becomes available.
+
+---
+
 # Recovery 376 continuation — PR #516 merged; native PPreMatch compositor is next
 
 _Updated 7 October 2026._
