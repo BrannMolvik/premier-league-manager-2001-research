@@ -1,4 +1,6 @@
 from datetime import date
+from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 
@@ -52,6 +54,7 @@ from original_management_header import (
     format_management_header_matchup,
     management_header_caption_overlay,
     management_header_club_name_overlay,
+    validate_management_header_club_name_font,
     management_header_date_overlay,
     management_header_match_overlays,
     management_header_group_for_flags,
@@ -170,6 +173,37 @@ class OriginalManagementHeaderTests(unittest.TestCase):
             HEADER_DATE_FONT_SOURCE_PATH,
             "Fonts/Zurich_XCn_BT_18pixel.fnt",
         )
+
+    def test_exact_staged_club_name_font_verifies_source_bytes_and_two_clubs(self):
+        source_root = Path(__file__).resolve().parent.parent / "original_assets" / "source"
+        font = validate_management_header_club_name_font(source_root)
+        self.assertEqual((font.atlas_width, font.atlas_height), (2678, 38))
+        for club_name in ("Southport", "Arsenal"):
+            with self.subTest(club=club_name):
+                overlay = management_header_club_name_overlay(font, club_name)
+                self.assertEqual(overlay.text, club_name)
+                self.assertEqual(overlay.native_color_16, 0xFFFF)
+                self.assertEqual(overlay.raw_style, 0x2102)
+                self.assertGreater(overlay.width, 0)
+                self.assertGreater(overlay.height, 0)
+                self.assertGreaterEqual(overlay.x, 172)
+                self.assertGreaterEqual(overlay.y, 1)
+                self.assertLessEqual(overlay.x + overlay.width, 550)
+                self.assertLessEqual(overlay.y + overlay.height, 33)
+                self.assertTrue(any(overlay.rgba[3::4]))
+
+        with tempfile.TemporaryDirectory() as temp:
+            dest = Path(temp) / "Fonts" / "Zurich_BdXCn_BT_36pixel.fnt"
+            dest.parent.mkdir()
+            source = source_root / HEADER_CLUB_NAME_FONT_SOURCE_PATH
+            dest.write_bytes(source.read_bytes()[:-1])
+            with self.assertRaisesRegex(OriginalManagementHeaderError, "byte-size"):
+                validate_management_header_club_name_font(temp)
+            data = bytearray(source.read_bytes())
+            data[-1] ^= 1
+            dest.write_bytes(data)
+            with self.assertRaisesRegex(OriginalManagementHeaderError, "checksum"):
+                validate_management_header_club_name_font(temp)
 
     def test_club_name_overlay_uses_source_rect_right_center_style_and_white_endpoint(self):
         overlay = management_header_club_name_overlay(

@@ -49,6 +49,8 @@ from original_league_tables_presenter import build_league_tables_snapshot
 from original_management_header import (
     HEADER_COMPOUND_RECT,
     OriginalManagementHeaderResources,
+    management_header_club_name_overlay,
+    validate_management_header_club_name_font,
 )
 from original_pmatchinfo_presenter import build_staged_pmatchinfo_snapshot
 from original_pmatchinfo_resources import (
@@ -205,7 +207,7 @@ class FakeHeaderDateFont:
         )
 
 
-def fake_management_header_resources():
+def fake_management_header_resources(*, club_name_font=None):
     return OriginalManagementHeaderResources(
         EA444DecodedImage(
             30,
@@ -223,6 +225,7 @@ def fake_management_header_resources():
         ),
         FakeHeaderFont(),
         FakeHeaderDateFont(),
+        club_name_font,
     )
 
 
@@ -1240,6 +1243,44 @@ class OriginalGameHostTests(unittest.TestCase):
                 self.assertGreaterEqual(_cached_runtime_png.cache_info().hits, 3)
         finally:
             _cached_runtime_png.cache_clear()
+
+    def test_original_club_name_renders_southport_and_another_club_without_special_cases(self):
+        font = validate_management_header_club_name_font(DEFAULT_SOURCE_ROOT)
+        for club_name in ("Southport", "Arsenal"):
+            with self.subTest(club=club_name):
+                host = OriginalGameTkHost(
+                    presenter(),
+                    FakeRoot(),
+                    FakeTk,
+                    management_header_resources=fake_management_header_resources(
+                        club_name_font=font
+                    ),
+                )
+                host.canvas.delete("all")
+                host._photos = []
+                frame = SimpleNamespace(
+                    presentation=SimpleNamespace(
+                        club=ClubHeaderView(12, club_name, club_name, date(2000, 8, 1)),
+                    )
+                )
+                count = host._draw_management_club_name(frame)
+                overlay = management_header_club_name_overlay(font, club_name)
+                self.assertEqual(count, 1)
+                self.assertEqual(len(host.canvas.images), 1)
+                self.assertEqual(host.canvas.images[0][:2], (overlay.x, overlay.y))
+                self.assertEqual(len(host._photos), 1)
+
+    def test_original_club_name_fails_closed_without_exact_font(self):
+        host = OriginalGameTkHost(
+            presenter(), FakeRoot(), FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                club=ClubHeaderView(12, "Southport", "Southport", date(2000, 8, 1)),
+            )
+        )
+        self.assertEqual(host._draw_management_club_name(frame), 0)
 
     def test_management_current_date_draws_exact_source_control(self):
         host = OriginalGameTkHost(
