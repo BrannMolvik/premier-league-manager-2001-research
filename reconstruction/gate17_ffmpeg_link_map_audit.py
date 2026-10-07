@@ -113,14 +113,34 @@ def _ownership_rows(payload: dict, target: str) -> dict[str, dict]:
 
 
 def _map_evidence(text: str) -> tuple[dict[str, set[str]], set[str]]:
+    header = "Archive member included to satisfy reference by file (symbol)"
+    start = text.find(header)
+    if start < 0:
+        raise LinkMapAuditError("link map is missing GNU ld archive-member inclusion section")
+    section = text[start + len(header):]
+    end_positions = [
+        position
+        for marker in (
+            "Allocating common symbols",
+            "Discarded input sections",
+            "Memory Configuration",
+            "Linker script and memory map",
+        )
+        if (position := section.find(marker)) >= 0
+    ]
+    if end_positions:
+        section = section[: min(end_positions)]
+
     archive_members: dict[str, set[str]] = {}
-    for match in _ARCHIVE_MEMBER_RE.finditer(text):
+    for match in _ARCHIVE_MEMBER_RE.finditer(section):
         archive = match.group("archive").replace("\\", "/")
         member = match.group("member").strip()
         if not member:
             continue
         key = _normalize_windows_path(archive)
         archive_members.setdefault(key, set()).add(member)
+    if not archive_members:
+        raise LinkMapAuditError("link map archive-member inclusion section is empty")
 
     direct_objects: set[str] = set()
     for raw_line in text.splitlines():
