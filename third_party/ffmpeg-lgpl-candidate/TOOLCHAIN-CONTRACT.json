@@ -38,10 +38,10 @@
     "mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
     "mingw-w64-windows-default-manifest-20260815-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-windows-default-manifest-20260815-1.src.tar.zst"
   },
-  "complete_package_lock": false,
+  "complete_package_lock": true,
   "source_material_complete": false,
   "legal_compliance_claimed": false,
-  "boundary": "This receipt pins build-tool identity and an audited critical package subset only. It does not assert that every transitive build package, corresponding source archive, license text, redistribution notice, or legal obligation has been collected.",
+  "boundary": "This receipt pins the exact 151-package/version MSYS2/UCRT64 environment observed across three successful minimal-helper builds. It does not assert that every installed package contributes redistributed code, nor that all corresponding source archives, license texts, redistribution notices, or legal obligations have been collected.",
   "critical_package_source_material": {
     "scope": "Source-package family map for the already-pinned critical package subset only. This is not a complete transitive package/source lock.",
     "package_to_source_family": {
@@ -143,7 +143,6 @@
     "verified_source_family_count": 8,
     "total_source_family_count": 8,
     "unresolved": [
-      "Derive and lock the complete transitive package set actually present in the successful build environment.",
       "Map every transitive runtime/build component that contributes redistributed code into the static helper to corresponding source/license/notice material.",
       "Assemble and checksum the final redistribution source/license/notice bundle.",
       "Perform a separate legal/compliance review; this technical plan makes no compliance conclusion."
@@ -151,5 +150,32 @@
     "complete_package_lock": false,
     "source_material_complete": false,
     "legal_compliance_claimed": false
+  },
+  "package_lock": {
+    "path": "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock",
+    "sha256": "c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec",
+    "package_count": 151,
+    "capture_command": "pacman -Q | LC_ALL=C sort",
+    "scope": "Exact package/version snapshot of the successful MSYS2/UCRT64 build environment. This does not classify which installed packages contribute redistributed code or close source/license obligations.",
+    "verification_samples": [
+      {
+        "workflow_run": 37506276513,
+        "artifact_id": 11431743521,
+        "artifact_digest": "sha256:ec6ce0ab49e7e0b5aa9b4c2b6df5f01dd0f6c62f02c75588c91a67e8d82b0db9",
+        "head_sha": "59d99fc7ca35ac8d4a9bd89252df80b156c64efb"
+      },
+      {
+        "workflow_run": 37582619057,
+        "artifact_id": 11465166679,
+        "artifact_digest": "sha256:ba03294e8a8ed8541773e1ceb0db7209690ceb24816df79e57380ae455f63cdc",
+        "head_sha": "2b510252018dd123c868576a7f72e434090da5c8"
+      },
+      {
+        "workflow_run": 37585092239,
+        "artifact_id": 11465843961,
+        "artifact_digest": "sha256:0bb3bb84778217b70fa20b4e3996a2e5cac1fcdfbb734d148ad682e06b81d46c",
+        "head_sha": "de2f904c71a7407b202afa2affc9728fbda0df6b"
+      }
+    ]
   }
 }
