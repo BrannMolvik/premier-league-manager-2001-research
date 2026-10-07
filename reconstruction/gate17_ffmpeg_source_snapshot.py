@@ -26,7 +26,7 @@ def audit_snapshot_contract(repo_root: str|Path) -> dict:
     if s.get("archive_format")!="tar.xz": raise FfmpegSourceSnapshotError("source snapshot archive format drifted")
     for key in ("archive_sha256","license_sha256","build_recipe_manifest_sha256"):
         value=s.get(key)
-        if not isinstance(value,str) or len(value)!=64: raise FfmpegSourceSnapshotError(f"{key} is not pinned")
+        if (not isinstance(value,str) or len(value)!=64 or any(ch not in "0123456789abcdef" for ch in value) or value == "0"*64): raise FfmpegSourceSnapshotError(f"{key} is not pinned")
     for key in ("archive_size_bytes","license_size_bytes","build_recipe_manifest_size_bytes"):
         if not isinstance(s.get(key),int) or s[key]<=0: raise FfmpegSourceSnapshotError(f"{key} is not pinned")
     return {"passed":True,"assembled":True,"hashes_pinned":True,"source_material_complete":False,"legal_compliance_claimed":False}
