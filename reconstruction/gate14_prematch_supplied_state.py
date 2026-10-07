@@ -94,6 +94,22 @@ class BoundPrematchSuppliedState:
             raise PrematchSuppliedStateError(
                 "starting-XI marker supplied state lost native child ownership"
             )
+        visible_by_side = tuple(
+            sum(
+                1
+                for marker in self.starting_xi_markers.markers
+                if marker.side == side and marker.visible
+            )
+            for side in (0, 1)
+        )
+        expected_visible = (
+            min(11, self.player_rows.left_participant_count),
+            min(11, self.player_rows.right_participant_count),
+        )
+        if visible_by_side != expected_visible:
+            raise PrematchSuppliedStateError(
+                "starting-XI marker visibility differs from bound player rows"
+            )
         if self.supplied_state_complete_families != PREMATCH_SUPPLIED_STATE_FAMILIES:
             raise PrematchSuppliedStateError(
                 "supplied-state family coverage no longer matches native child partition"
