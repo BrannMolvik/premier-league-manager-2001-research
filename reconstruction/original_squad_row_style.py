@@ -3,9 +3,9 @@
 This module keeps recovered ordinary Squad row styling separate from viewport
 membership/filtering. The canonical executable proves the player role/name
 controls plus the paired PSCFRow Condition, recent-form and current-role-rating
-numeric controls. Reserve-team selection flags are source-known but are not yet
-represented by the clean-room gameplay model, so callers must supply those
-states explicitly when they need them.
+numeric controls. Reserve-team selection flags are source-closed and represented
+by the clean-room gameplay model; bounded legacy fixtures may still omit them,
+in which case the partial-state helper continues to fail closed.
 """
 from __future__ import annotations
 

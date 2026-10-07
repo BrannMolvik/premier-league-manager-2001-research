@@ -62,6 +62,8 @@ class SquadRowView:
     transfer_listed: bool
     loan_listed: bool
     wanted: bool
+    reserve_active: bool = False
+    reserve_substitute: bool = False
     # Source-qualified PSCF override inputs. The registration cutoff is
     # optional only for bounded/legacy fixtures; live bridge rows resolve it
     # whenever bit 11 is active.
@@ -1005,6 +1007,8 @@ class ManagementSourceDataBridge:
             match_substitute_available = getattr(
                 player, "match_substitute_available", None
             )
+            reserve_active = getattr(player, "reserve_active", None)
+            reserve_substitute = getattr(player, "reserve_substitute", None)
             history_average = getattr(player, "match_performance_average", None)
             current_role_rating = getattr(player, "current_role_rating", None)
             current_position = getattr(player, "current_position", None)
@@ -1017,6 +1021,10 @@ class ManagementSourceDataBridge:
             if type(match_active) is not bool or type(match_substitute_available) is not bool:
                 raise ManagementPresentationError(
                     f"Player {player_id} lacks recovered first-team selection state"
+                )
+            if type(reserve_active) is not bool or type(reserve_substitute) is not bool:
+                raise ManagementPresentationError(
+                    f"Player {player_id} lacks recovered reserve selection state"
                 )
             if (
                 not isinstance(positions, tuple)
@@ -1177,6 +1185,8 @@ class ManagementSourceDataBridge:
                 match_active=match_active,
                 match_substitute_available=match_substitute_available,
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
+                reserve_active=reserve_active,
+                reserve_substitute=reserve_substitute,
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
                 recent_form_average=recent_form_average,

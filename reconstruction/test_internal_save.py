@@ -1541,6 +1541,31 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(restored_player.match_performance_history_write_index, 1)
         self.assertAlmostEqual(restored_player.match_performance_average(), 43 / 6)
 
+    def test_reserve_selection_state_survives_existing_player_flag_roundtrip(self):
+        original = self.build_controller()
+        original.state.players[1000].set_reserve_active()
+        original.state.players[2000].set_reserve_substitute()
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        first = restored.state.players[1000]
+        second = restored.state.players[2000]
+        self.assertEqual(first.match_selection_state_code, 2)
+        self.assertEqual(second.match_selection_state_code, 1)
+        self.assertTrue(first.reserve_active)
+        self.assertFalse(first.reserve_substitute)
+        self.assertFalse(second.reserve_active)
+        self.assertTrue(second.reserve_substitute)
+        self.assertFalse(first.match_active)
+        self.assertFalse(first.match_substitute_available)
+        self.assertFalse(second.match_active)
+        self.assertFalse(second.match_substitute_available)
+
     def test_current_club_join_date_survives_roundtrip(self):
         original = self.build_controller()
         original.state.players[1000].current_club_join_date = date(2000, 5, 1)

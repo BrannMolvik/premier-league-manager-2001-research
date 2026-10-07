@@ -31,6 +31,8 @@ class Row:
     non_eu: bool = False
     non_eu_registration_expired: bool | None = False
     cup_tied_positive: bool = False
+    reserve_active: bool = False
+    reserve_substitute: bool = False
 
 
 class OriginalSquadPresenterTests(unittest.TestCase):
@@ -52,7 +54,7 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         )
 
     def test_exact_native_row_geometry_and_resolved_columns_are_preserved(self):
-        snapshot = build_squad_row_viewport((self.row(), self.row(1)))
+        snapshot = build_squad_row_viewport((self.row(), self.row(1), self.row(2)))
 
         self.assertEqual(snapshot.row_capacity, 20)
         self.assertEqual(snapshot.row_y_origins, tuple(154 + 17 * i for i in range(20)))
@@ -86,9 +88,25 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.rows[0].assigned_role_rgb, (255, 255, 255))
         self.assertEqual(snapshot.rows[0].condition, 88)
         self.assertEqual(snapshot.rows[1].display_name_rgb, (232, 191, 94))
+        self.assertEqual(snapshot.rows[2].display_name_rgb, (217, 210, 62))
         self.assertEqual(snapshot.rows[0].recent_form_average, 7.5)
         self.assertEqual(snapshot.rows[0].current_role_rating, 63)
         self.assertIsNone(snapshot.rows[0].native_status_frame_index)
+
+    def test_reserve_selection_colors_use_source_predicate_order(self):
+        reserve_active = self.row(2)
+        object.__setattr__(reserve_active, "reserve_active", True)
+        self.assertEqual(
+            build_squad_row_viewport((reserve_active,)).rows[0].display_name_rgb,
+            (176, 176, 176),
+        )
+
+        reserve_substitute = self.row(3)
+        object.__setattr__(reserve_substitute, "reserve_substitute", True)
+        self.assertEqual(
+            build_squad_row_viewport((reserve_substitute,)).rows[0].display_name_rgb,
+            (185, 167, 131),
+        )
 
     def test_direct_status_frames_follow_native_priority(self):
         injured = self.row()

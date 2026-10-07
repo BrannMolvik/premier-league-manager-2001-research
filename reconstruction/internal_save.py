@@ -345,6 +345,8 @@ _PLAYER_FLAG_LOAN_LISTED = 1 << 8
 _PLAYER_FLAG_OUT_OF_CONTRACT = 1 << 9
 _PLAYER_FLAG_STATUS_BIT_3 = 1 << 10
 _PLAYER_FLAG_WANTED = 1 << 11
+_PLAYER_FLAG_RESERVE_ACTIVE = 1 << 12
+_PLAYER_FLAG_RESERVE_SUBSTITUTE = 1 << 13
 
 # Schema-2 player records intentionally use positional arrays. With roughly 30k
 # players, repeating descriptive JSON keys for every player dominated the save
@@ -411,6 +413,10 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_MATCH_ACTIVE
     if player.match_substitute_available:
         flags |= _PLAYER_FLAG_SUBSTITUTE
+    if player.reserve_active:
+        flags |= _PLAYER_FLAG_RESERVE_ACTIVE
+    if player.reserve_substitute:
+        flags |= _PLAYER_FLAG_RESERVE_SUBSTITUTE
     if player.injured:
         flags |= _PLAYER_FLAG_INJURED
     if player.suspended:
@@ -541,6 +547,8 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         ),
         match_active=bool(flags & _PLAYER_FLAG_MATCH_ACTIVE),
         match_substitute_available=bool(flags & _PLAYER_FLAG_SUBSTITUTE),
+        reserve_active=bool(flags & _PLAYER_FLAG_RESERVE_ACTIVE),
+        reserve_substitute=bool(flags & _PLAYER_FLAG_RESERVE_SUBSTITUTE),
         condition=int(value[7]),
         form_state=int(value[8]),
         current_position=int(value[9]),
