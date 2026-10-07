@@ -4,6 +4,26 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 373 XI shirt selector checkpoint
+
+After PR #515 merged PPreMatch team badges, fresh canonical-executable tracing
+continued the 22 starting-XI marker path. `0x5EF940/0x5EF9E0` now source-close
+the primary/alternate kit decision, including the 23x6 clash table at
+`0x834AF8`; `0x408320` source-closes the primary custom-atlas attempt and
+dynamic generic `Team%.2d.bmp` fallback; `0x41E3F0 -> 0x41E3D0` closes the
+per-player shirt-number source and exact 32-pixel frame offset.
+
+The clean-room exposes Master.dat +52/+55/+58/+70 on `Club` and has a pure,
+fail-closed selection module with regression coverage. The important negative
+finding is that generic/alternate PPreMatch shirt pixels are generated through
+`0x5E4C60` palette recoloring, so PMatchInfo's imported primary custom atlases
+cannot be used as a universal substitute. Generic recolor pixels, complete XI
+marker raster staging, complete-frame fidelity and Gate 14 remain false.
+
+Exact next task: reproduce/verify `0x5E4C60` generic BMP recoloring, then bind
+custom/generic/goalkeeper 36x32 numbered frames into the already source-closed
+22-marker geometry and visibility contract.
+
 ### 5 October 2026 KST — Recovery 313 resolved FastView surface
 
 Merged #455 as `6ad4416b`. An existing completed-human resolved FastView
