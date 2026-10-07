@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 375: canonical main is 9e4d2377fc0484f02befaef0dc219e95970f9902 with PR #515 merged. Continue open PR #516 (chatgpt/gate14-prematch-xi-shirts-r373) from its existing XI shirt/marker staging. Next exact task: bind dynamic fixture/date/weather/team identity text using source-proven home stadium with N/A/NA -> short-name fallback, then bind rating widths/selector supplied state and attach concrete XI/formation marker binding to the base surface. Merge PR #516 only after exact-head CI is green. Gate 13 #482 remains earliest validation blocker.",
+  "active_task": "Recovery 375: PR #516 head eff0c3c357813e78a1c210c4388f06e0dd316dc9 now adds source-backed PPreMatch dynamic fixture/date/weather/team text, explicit native selector-frame binding, and an aggregate that attaches all 182 native child states to one verified base surface. Complete flattened/pixel frame remains false. Exact-head CI is pending. Next: persist Recovery 375 evidence, inspect CI, then rasterize/bind dynamic text and state-dependent rating/selector/marker layers into a supplied frame without guessing blend behavior. Gate 13 #482 remains earliest validation blocker.",
   "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 375,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 375 resumed from stale watchdog. Badge work is merged; do not repeat it. Continue PR #516 supplied-state PPreMatch frame closure.",
+  "note": "Recovery 375 checkpoint after supplied-state model. PR #516 remains open; no Gate 14 completion claim.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
