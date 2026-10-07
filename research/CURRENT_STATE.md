@@ -1,3 +1,21 @@
+# Recovery 380 continuation - PR #520 merged; Gate-13 acceptance and private caller adjudication remain deferred
+
+_Updated 7 October 2026._
+
+Latest technical merge is `a117df66251926bae1931daa8897dfbdffc5062d`, merging rebuilt PR #520 after the canonical #519 package checkpoint.
+
+PR #520 was rebuilt from current main after preserving its pre-repair branch as `chatgpt/archive-gate14-match-entry-tracer-r379`. Exact head `d5b23dbff3f9223ec718fc0e8121c9108397abe4` changed only the three intended research-tooling surfaces: the candidate-only `0x513010` direct CALL/JMP tracer, its fail-closed tests, and the reconstruction-CI path entries. Reconstruction run `37581218818` passed **2,850 tests with 25 skips**; asset-policy run `37581218783` passed. The merged tracer still explicitly leaves direct callers unadjudicated, does not scan indirect/vtable callers, and does not recover management ownership, fixture-start conditions, UI navigation, or Gate-14 completion.
+
+Gate-13 issue #482 was found incorrectly closed after the WPF repair merge even though its own acceptance contract requires Daniel's external Windows run. Recovery 380 reopened #482 and comment `6032308224` records the canonical acceptance candidate. Artifact `11464212544` remains the next valid Windows build: `FM2001-Windows11-34f8c09a5b0591ca961868eba9ea18d98c06969d`, digest `sha256:00d34f8311ace797cf9c2b185ab9281a0d012dcb20bb438c95163e18a0ea93a5`. It is tree-identical to the repaired runtime merge `c28c9984bfacbbec410e37b519471526f994d7c5`. Do not close Gate 13 or #482 until the normal Windows startup, responsiveness, Southport -> Squad, and ordinary management-navigation criteria pass.
+
+The canonical private source archive still materializes successfully, but this chat's process-execution sandbox fails with `caas.internal.errors.ClientError` even on trivial process startup. Therefore the newly merged tracer cannot yet be run against `FOOTBAL.EXE` here. This is an execution-infrastructure blocker, not source unavailability, and no candidate edge may be promoted to a recovered runtime route until first-hand execution plus manual CFG/ownership adjudication succeeds.
+
+Tracker reconciliation: the ordinary management-to-FastView navigation trigger remains **unrecovered**. The old `project_status.json` boolean claiming it was recovered was stale and is corrected at this checkpoint. The Gate-15 fidelity ledger contains 12 live rows, not the older 11-row status count.
+
+Immediate active validation remains Gate 13. The two direct next evidence actions are deferred: Daniel's external acceptance of artifact `11464212544`, and private execution/adjudication of the `0x513010` tracer when process execution recovers. Under the deferred-blocker policy, continue only independent cloud-safe work without weakening those boundaries or declaring Gate 14+ complete. Gate 16 is already prevalidated as work-ahead; inspect the still-pending Gate-17 packaging/source-provenance branches for a safe resumable task only after preserving Gate-13/14 priority.
+
+---
+
 # Recovery 380 - PR #519 merged; canonical issue-482 package ready; caller tracer rebuild next
 
 _Updated 7 October 2026._
