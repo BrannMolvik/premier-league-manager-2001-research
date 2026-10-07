@@ -345,11 +345,15 @@ class PrimaryScheduleShadowState:
                     )
                 if club_id not in direct_ids:
                     continue
-                if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
+                if entry.wrapper_link_state == WRAPPER_LINK_LINKED:
+                    # Native 0x615C50 rejects an already-linked wrapper and
+                    # continues head-to-tail within the same/later buckets.
+                    continue
+                if entry.wrapper_link_state == WRAPPER_LINK_UNKNOWN:
                     raise PrimaryScheduleHeaderMatchPending(
                         club_id,
                         on_date,
-                        "wrapper +0x08 link state is not source-known clear",
+                        "wrapper +0x08 link state is unresolved",
                     )
                 return on_date, entry
         return None

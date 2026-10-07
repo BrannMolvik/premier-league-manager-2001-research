@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from datetime import date
 
 from competition_startup import CupClubRefDescriptor
@@ -9,6 +10,7 @@ from primary_schedule_shadow import (
     PrimaryScheduleResolutionPending,
     PrimaryScheduleShadowState,
     WRAPPER_LINK_CLEAR,
+    WRAPPER_LINK_LINKED,
     WRAPPER_LINK_UNKNOWN,
 )
 from primary_schedule import (
@@ -494,6 +496,53 @@ class PrimaryScheduleShadowTests(unittest.TestCase):
                 1,
                 date(2000, 7, 1),
             )
+
+
+    def test_management_header_skips_source_known_linked_wrapper(self):
+        linked = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 70),
+        )
+        later = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=2,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(3),
+            node_token=("fixed_league_match", 0, 0, 71),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            ((linked,), (later,)),
+            season_year=2000,
+        )
+        first_date = date(2000, 7, 3)
+        shadow.days[first_date] = (
+            replace(
+                shadow.days[first_date][0],
+                wrapper_link_state=WRAPPER_LINK_LINKED,
+            ),
+        )
+
+        selected_date, entry = shadow.management_header_fixed_league_candidate(
+            1,
+            date(2000, 7, 1),
+        )
+        self.assertEqual(selected_date, date(2000, 7, 4))
+        self.assertEqual(entry.node_token, ("fixed_league_match", 0, 0, 71))
 
     def test_management_header_fails_closed_on_earlier_relevant_symbolic_node(self):
         source_token = ("cup_result", 9, 90, 0)
