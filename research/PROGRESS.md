@@ -12522,3 +12522,14 @@ continues with ordinary Squad row display-name/color helpers.
 - Validation PR #547 exact head `d54184a0767416cb51d756f8edcc45a82d272677` passed Gate-13 run `37679247332`, reconstruction run `37679247185` (**2915 tests, 25 skipped, zero failures**), and asset-policy run `37679247320`.
 - PR #547 merged as `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`.
 - Gate 13 remains open. Exact next repair is the already source-closed primary club-name line using byte-identical `Zurich_BdXCn_BT_36pixel.fnt`; startup-FMV parent/child HWND/DPI transport remains separately blocked on a private Windows receipt.
+
+## 8 October 2026 KST — Recovery 403 management latency and club-name contract checkpoint
+
+- Resumed strictly from canonical GitHub state at `main` `4760e071697cb359f9b70d593e185ec451ee8f3b`; restored `agent-runtime` to generation 403, mode `continuous`, status `working`.
+- Reconfirmed the exact missing primary-header font from the authorized source inventory: `Fonts/Zurich_BdXCn_BT_36pixel.fnt` / disc `ZURICH8.FNT`, ISO extent 170896, 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`.
+- Materialized the canonical private disc archive, but container, private Python, and visible Python all failed process startup with `caas.internal.errors.ClientError`. GitHub, Library, and Dropbox did not expose an independent byte-identical copy, so the font transfer remains precisely infrastructure-blocked; no substitute was introduced.
+- Audited issue-#482 management latency after the earlier world/resource deferrals and found remaining repeated redraw work: management/report RGBA layers bypassed the existing deterministic PNG cache, and the whole PMenu row/font/PNG render was rebuilt even while the popup was closed.
+- PR #549 exact head `46016655e79a5f80ddee1cc65a11a7d8979a06a9` routes twelve management/report encodes through `_cached_runtime_png`, skips hidden closed-PMenu raster work, and memoizes unchanged open-PMenu snapshots. Asset `37691412936`, Gate-13 `37691413034`, Windows package `37691413060`, and full reconstruction `37691412914` all passed. Merged as `c78644a744fb4c734cfa0bb1431f406b79f8f409`.
+- Under the deferred-blocker policy, PR #550 persisted the source-closed club-name raster contract without runtime wiring or fallback font. Rebased exact head `654b9dd696dea4ff766671d02f0e12ce73e49bb5` passed asset `37692292200` and Gate-13 `37692292284`, then merged as `2d82a2b69e57b73ebb1289a4659f9fd732e3bdf2`.
+- Gate 13 and the retrospective audit remain open. Exact next implementation is byte-identical 36px font staging/provenance, live `Club.name` binding, and Southport plus second-club regressions. Startup-FMV parent/child HWND/DPI evidence remains the separate external blocker.
+
