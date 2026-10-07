@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482: PR #519 is rebuilt on repaired main at 34f8c09a5b0591ca961868eba9ea18d98c06969d. Gate-13 presentation and asset-policy checks are green; full reconstruction and Windows package are still running. Do not merge until both complete green and the package artifact exists. Then persist/merge #519, expose the exact artifact for external acceptance, and rebuild #520's candidate-only 0x513010 caller tracer from the new main.",
-  "last_known_main_head": "581a3d2daa7557e50c80a863aefc23b93409202a",
+  "active_task": "Recovery 380: Gate 13 issue #482 is explicitly reopened and artifact 11464212544 is the canonical external Windows acceptance candidate. PR #520 is rebuilt on main at head d5b23dbff3f9223ec718fc0e8121c9108397abe4; asset policy passed and full reconstruction run 37581218818 is still in progress. Merge #520 only after exact-head reconstruction passes, then persist the candidate-only tracer boundary and continue the highest-priority cloud-safe Gate-14 work while private process execution remains blocked.",
+  "last_known_main_head": "3b88bc67ab7d76b6053eb6786c629518a2c8e25f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 380,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 380 rebuilt PR #519 in place after preserving its pre-repair head on chatgpt/archive-gate14-host-mode-dispatch-r379. The branch is exactly two commits ahead / zero behind current main and changes only original_game_host.py plus its focused host-surface test. Exact-head runs: Gate 13 presentation 37580530636 passed; asset policy 37580530517 passed; reconstruction 37580530606 and Windows package 37580530537 remain in progress.",
+  "note": "Recovery 380: PR #519 merged and canonical package artifact 11464212544 is ready for Daniel's external #482 acceptance. Issue #482 had been accidentally/temporarily closed despite its explicit external-acceptance requirement; it was reopened and comment 6032308224 records the candidate. PR #520 was rebuilt exactly three files ahead of current main; asset policy run 37581218783 passed, reconstruction run 37581218818 remains active. Private source archive materializes, but caas ClientError blocks even trivial process startup.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
