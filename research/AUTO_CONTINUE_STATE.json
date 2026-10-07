@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 387: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #535 merged as 513afeffc060fd3e2e9834a9084b651a37947c88 after exact-head CI and independent artifact review confirmed windows-default-manifest/.SRCINFO is present. PR #536 is active at exact head 1194bc206c176305dd566bd6bd83eb192480e82e, adding a deterministic source snapshot for pinned FFmpeg commit 46d8f462eeb87ee1f704d8c44a0ee24fca471ad1. Require exact-head source-snapshot 37610537416 plus reconstruction 37610536939, asset 37610537026, minimal FFmpeg 37610536918, and Windows package 37610539179 success. If green, independently inspect artifact hashes/content, pin them in a follow-up checkpoint, and keep source_material_complete=false/legal_compliance_claimed=false.",
+  "active_task": "Recovery 387: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #535 merged as 513afeffc060fd3e2e9834a9084b651a37947c88 after exact-head CI and independent artifact review confirmed windows-default-manifest/.SRCINFO. PR #536 is active at exact head b9bbd3ecf4c753128feb8574d552929b9581831e. Initial source artifact 11478315953 was independently reviewed: 10,550 FFmpeg tree entries, COPYING.LGPLv2.1 present, archive sha256 5b67f561b8412a4232c45f5a48e9046872bd762c048ef07f725f088352ff3b3d size 11320576, license sha256 246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30 size 26517, recipe sha256 47473f6541ea26b69ea97b89cef8165f4180e16bcc17fc1c6671922efd024c94 size 961. These identities are now pinned and placeholder digests fail closed. Require fresh exact-head source-snapshot 37610811963, reconstruction 37610811929, asset 37610811926, minimal FFmpeg 37610812027, and Windows package 37610812038 success before merge. Keep source_material_complete=false/legal_compliance_claimed=false.",
   "last_known_main_head": "513afeffc060fd3e2e9834a9084b651a37947c88",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 387,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #536 open for exact FFmpeg source snapshot assembly; exact-head CI is queued.",
+  "note": "PR #536 hashes independently reviewed and pinned; fresh exact-head CI is active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
