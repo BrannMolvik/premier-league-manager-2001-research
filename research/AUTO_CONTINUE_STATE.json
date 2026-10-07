@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 388: Gate 13 remains earliest incomplete pending external Windows acceptance of artifact 11473439363. PR #539 advanced to exact head 2df13ba875ba53e86a78d518e07acc1191c369ea after fixing the only full-suite failure on the prior head (candidate API return-value collision: receipt archive filename overwrote archive Path). Verify all fresh exact-head CI, inspect the separate minimal-helper candidate artifact, merge only if green, then reconcile and continue.",
-  "last_known_main_head": "f2772868c48257aa5dc70f41d514f47535261f9b",
+  "active_task": "Original-behavior-first Gate 13 recovery. BEFORE ANY implementation, read research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md and establish the shipped original behavior from original/source evidence. Modernization freeze is active: do not add/expand Settings, upscaling, graphics enhancements, redesigned UX, QoL, or other non-original behavior. Immediate source-first targets are issue #482 external failures: (1) recover exact original TGQ/frame/presentation transform and fix current intro content framing only to match it; (2) recover original startup Escape/input semantics before changing handlers, while preventing modern fullscreen handlers from corrupting playback; (3) profile current packaged/source path and compare with original timing/lifecycle so reconstruction-only latency is removed without changing original semantics; (4) recover/verify original Southport Squad/header/player-row composition and fix missing packaged layers. Existing Settings extension is deferred and must not be expanded or treated as Gate-13 evidence. Before next external candidate, ensure normal/default menu baseline does not depend on modernization-only controls.",
+  "last_known_main_head": "087ea771e1a8720c6ef7d6abc0741cb8ae6bbcca",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 388,
+  "recovery_generation": 389,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #539 repaired after 2915-test run exposed one candidate return-value bug; fresh exact-head verification active.",
+  "note": "Daniel directive: original behavior must be checked/proved before implementation. Modernization frozen except minimum Windows 11 compatibility. Settings/upscaling/visual improvements deferred. Prioritize source-first issue #482 repair.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
