@@ -25,6 +25,10 @@ from gate14_prematch_rating_widths import (
     PrematchTeamRatingWidths,
     source_prematch_team_rating_widths,
 )
+from gate14_prematch_text_binding import (
+    BoundPrematchDynamicText,
+    build_prematch_dynamic_text as build_source_prematch_dynamic_text,
+)
 from original_front_end_layout import OriginalRect
 from original_squad_row_style import format_squad_display_name, format_squad_whole_number
 from original_prematch_panel import (
@@ -745,6 +749,32 @@ def _layer_from_decoded(role, rect, spec, decoded) -> PrematchRasterLayer:
     )
 
 
+def bind_prematch_dynamic_text_state(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    clubs: Mapping[int, object],
+    competition_name: str | None,
+    weather_code: int,
+    temperature_c: int,
+    home_team_name_override: str | None,
+    away_team_name_override: str | None,
+) -> BoundPrematchDynamicText:
+    """Bind exact source dynamic text while leaving rasterization separate."""
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError(
+            "dynamic text binding requires exact PrematchSurfaceBoundary"
+        )
+    return build_source_prematch_dynamic_text(
+        boundary.selection,
+        clubs=clubs,
+        competition_name=competition_name,
+        weather_code=weather_code,
+        temperature_c=temperature_c,
+        home_team_name_override=home_team_name_override,
+        away_team_name_override=away_team_name_override,
+    )
+
+
 def bind_prematch_rating_state(
     boundary: "PrematchSurfaceBoundary",
     *,
@@ -920,6 +950,7 @@ def prematch_surface_contract() -> dict:
         ),
         "text_control_count": len(source_prematch_text_controls()),
         "text_control_roles": tuple(control.role for control in source_prematch_text_controls()),
+        "dynamic_text_state_binding_available": True,
         "dynamic_fixture_and_date_buffers_bound": False,
         "team_identity_text_bound": False,
         "fixed_versus_and_rating_captions_available": True,
