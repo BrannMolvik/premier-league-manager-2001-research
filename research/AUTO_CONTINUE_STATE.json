@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 387,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #536 hashes independently reviewed and pinned; fresh exact-head CI is active.",
+  "recovery_generation": 388,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 388 resumed exact active task: verify fresh exact-head PR #536 CI, then merge/reconcile if green; Gate 13 external Windows acceptance remains earliest incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
