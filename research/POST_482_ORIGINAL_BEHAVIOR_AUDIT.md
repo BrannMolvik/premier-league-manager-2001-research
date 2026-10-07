@@ -221,6 +221,25 @@ The PPreMatch and Match Detail work is intentionally bounded. The selector, many
 
 PR #532 is intentionally **DEFERRED-MODERNIZATION**. Commit `86f7d22b` removed Settings resource loading and package-smoke dependency from the normal original-baseline presenter. Settings work is not a Gate-13 criterion and is frozen until explicitly reauthorized after original reconstruction.
 
+### 8. Fresh-Squad reserve selection producer/state is now source-closed
+
+Recovery 396 re-extracted the canonical executable from the authorized raw disc
+and reverified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The former `DBRPlayer+0x174` producer gap is closed in
+`research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`.
+
+The native five-state reader `0x4218E0` returns 4 first-team active, 3
+first-team substitute, 2 reserve active, 1 reserve substitute, 0 none. Its
+inverse dispatcher `0x421950` maps those codes to the corresponding setters.
+Player initialization zeros `+0x174`, reserve setters `0x4181E0/0x418280`
+set bits 0/1 mutually exclusively, and first-team setters
+`0x4182F0/0x4182C0` clear both reserve bits.
+
+Therefore the existing presenter no longer needs to treat reserve state as
+intrinsically unknown for fresh reachable clean-room players. The remaining
+work is integration, regression coverage, and the separate header binding.
+Fresh-Squad completeness is still false at this checkpoint.
+
 ## External Windows failures reconciled
 
 | External observation | Audit interpretation | Current disposition |
@@ -228,12 +247,12 @@ PR #532 is intentionally **DEFERRED-MODERNIZATION**. Commit `86f7d22b` removed S
 | Intro movie content is offset/cropped inside the 640x480 field | Contradicts any broad claim that PR #487 made the live startup movie presentation equivalent. Outer geometry remains source-proven; frame-content transform is INCONCLUSIVE. | No acceptance build. Recover native decoded-frame content layout/stride/field semantics first. |
 | Escape leaves fullscreen during startup | Compatibility handler leaked into an unrecovered original input boundary. | Corrected by `2d7e9b87`: fail closed during startup. Native skip semantics still open. |
 | Menu transitions remain extremely slow | Prior derivative/lazy-load/lifecycle optimizations removed specific reconstruction overhead only. | Responsiveness criterion remains open. Profile current original-baseline transition after audit corrections; do not invent a timing target from tests. |
-| Fresh Southport Squad has blank/missing header and no names | Row sub-contracts are real, but the name color state is incomplete and header integration has not passed normal Windows acceptance. | Recover reserve +0x174 selection predicates/state and exact header content binding. Do not substitute default/yellow name colors. |
+| Fresh Southport Squad has blank/missing header and no names | Row sub-contracts are real. Recovery 396 source-closed the five-way reserve/first-team selection state and proves native fresh `+0x174` starts at zero; runtime propagation and header integration remain incomplete. | Propagate the source-closed reserve booleans, verify ordinary/default-yellow names, then recover the exact header content binding. |
 
 ## Unsafe or Unproven Active Behavior
 
 1. **Startup FMV frame-content transform — INCONCLUSIVE and externally contradicted.** The game-owned 640x480/(80,60) surface is retained, but exact live frame-content equivalence is not accepted. This blocks another external candidate.
-2. **Fresh Squad ordinary-name completeness — incomplete source state.** Current behavior fails closed by omitting names whose reserve-selection color state is unknown. This is safer than guessing but still blocks Gate-13 recognizability.
+2. **Fresh Squad ordinary-name completeness — source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
 3. **Fresh management header completeness — unresolved.** Verified header chrome exists, but Daniel's normal Southport evidence shows the visible header/content result is incomplete.
 4. **Startup Escape/skip semantics — INCONCLUSIVE but safely isolated.** Fullscreen mutation is blocked during startup; native skip behavior still requires source evidence.
 5. **Cup-Tied negative mode-1 fallback — source semantics unresolved and the disproven model is now isolated.** `0db90b97` removed the date-based gameplay decision and `b890c578` removed the rejected date helper from construction, daily hooks, season reset and save restore. The positive source-proven appeared-player collection remains active; every unresolved collection miss fails closed.

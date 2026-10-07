@@ -1,3 +1,16 @@
+# Recovery 396 continuation — fresh-Squad reserve selection state source-closed
+
+_Updated 8 October 2026._
+
+Canonical investigation baseline is `b8be966db032654fc13eb733b19ae1cfafc39374`. **Gate 13 remains the earliest incomplete validation gate.** The post-#482 retrospective audit is still active; no acceptance build, Settings expansion, or Gate-17 work-ahead is authorized yet.
+
+The startup-FMV transport investigation is now bounded rather than guessed: the recovered original still requires 320x480 coded TGQ pixels, exact 2x horizontal duplication, a 640x480 movie surface, and the final 1:1 blit. The current cross-process Tk -> WPF path supplies host-scaled geometry to `HwndSource`, whose dimensions are device-pixel values, while the packaged parent/child DPI-awareness contexts are not captured by any repository receipt. No geometry was changed. A private Windows receipt of parent/child HWND rectangles and DPI-awareness contexts is required before attributing Daniel's wrong in-field framing to DPI virtualization versus derivative pixel content.
+
+Independent first-hand source work then closed the fresh-Squad reserve-selection producer that had been blocking ordinary name colors. Re-extraction of the canonical executable from the authorized MODE1/2352 disc reverified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md` records the exact five-state selection enum: 0 none, 1 reserve substitute, 2 reserve active, 3 first-team substitute, 4 first-team active. Native player initialization zeros `+0x174`; `0x4181E0` and `0x418280` set reserve active/substitute, and the first-team setters clear both reserve bits.
+
+This proves fresh clean-room reserve state is not inherently unknowable: current reachable fresh players may source-correctly begin reserve-active=false and reserve-substitute=false. The exact next Squad task is to have the implementation worker propagate those two source-closed booleans through `RuntimePlayer -> SquadRowView -> OriginalSquadPresenter`, preserve five-way setter exclusivity, cover save/restore only where current selection state is already persisted, and add regression coverage for default-yellow ordinary names. After that, recover/bind the missing fresh management header content. Fresh Squad completeness remains false until both integration steps are verified.
+
+---
 # Recovery 395 continuation — post-#482 ledger complete; Cup-Tied date model removed
 
 _Updated 8 October 2026._

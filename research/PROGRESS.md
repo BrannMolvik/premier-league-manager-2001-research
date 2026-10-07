@@ -12463,3 +12463,15 @@ continues with ordinary Squad row display-name/color helpers.
 - The startup-FMV source trace itself still supports coded 320x480, exact horizontal pixel duplication to 640x480, and a 1:1 final blit at (80,60) in 800x600 mode. Next investigation is the compatibility derivative/WPF child-HWND transport boundary, with DPI/layout-unit mismatch a hypothesis to prove or reject rather than a basis for a visual guess.
 - Retrospective audit remains **open**. No new acceptance artifact, Settings expansion or Gate-17 work-ahead is authorized before audit exit.
 
+
+
+## 8 October 2026 KST — Recovery 396 fresh-Squad reserve-selection source closure
+
+- Recovered from canonical `main` `b8be966db032654fc13eb733b19ae1cfafc39374` and restored `agent-runtime` to continuous/working generation 396 before investigation.
+- Bounded the startup-FMV transport defect without changing native geometry: the compatibility host passes display-scaled geometry into a cross-process WPF `HwndSource`; repository evidence does not record parent/child DPI-awareness contexts or actual HWND rectangles. A private Windows DPI/rectangle receipt is therefore required before changing the source-proven 640x480/(80,60) field.
+- Materialized the authorized 511,121,336-byte original disc archive from ChatGPT Library, extracted `FOOTBAL.EXE` through the raw MODE1/2352 ISO payload, and independently reverified canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- First-hand disassembly source-closed the missing Squad reserve-selection state. `0x4218E0` returns exact state codes 4 first active, 3 first substitute, 2 reserve active, 1 reserve substitute, 0 none; `0x421950` dispatches the inverse mapping.
+- Native initialization `0x417700` clears `DBRPlayer+0x174`; `0x4181E0` sets reserve-active bit 0, `0x418280` sets reserve-substitute bit 1, and first-team setters `0x4182F0/0x4182C0` clear both reserve bits. All four selection branches are mutually exclusive.
+- This supersedes the earlier assumption that reserve state must remain unknown for fresh clean-room players. No name color is guessed: fresh default reserve bits now have direct source evidence.
+- Detailed evidence is in `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`. Fresh Squad remains incomplete until the runtime worker propagates the two reserve booleans through `RuntimePlayer -> SquadRowView -> OriginalSquadPresenter`, verifies the five-state lifecycle/default-yellow names, and then closes the missing fresh management-header binding.
+- Retrospective audit remains **open**; no new Windows acceptance artifact, Settings work, or Gate-17 work-ahead is authorized.
