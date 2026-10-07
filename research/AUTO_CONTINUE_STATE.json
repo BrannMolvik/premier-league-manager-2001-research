@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #526 is active at exact head 5fdd001a0fea83d793ce20ea0791924d1f5d4e2b. The linker-trace audit now excludes the linker command itself from resolved-archive evidence, so only actual ld --trace output counts. Asset policy 37590762110 passed; reconstruction 37590762141 is running and minimal FFmpeg proof 37590762093 is pending. If exact-head CI passes, inspect link-input-proof/raw traces and map only proven external archive paths to owning locked packages/source families. Keep source_material_complete and legal_compliance_claimed false.",
+  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #526 is active at exact head c920ea93141120d3e6d5316fd35d011d9b299596. Prior reconstruction run 37590762141 failed only because the new raw archive regex was double-escaped; source now contains the intended (?<!\\S)([^\\s]+\\.a)(?!\\S) pattern and single-backslash path normalization. Require fresh exact-head success in reconstruction 37591230329, asset policy 37591230564, and minimal FFmpeg proof 37591230499. If green, inspect link-input-proof/raw traces and map only proven external archive paths to owning locked packages/source families. Keep source_material_complete and legal_compliance_claimed false.",
   "last_known_main_head": "2583ff7394606f47a19f11068916b01663b3d962",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 382,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #526 evidence boundary tightened before merge; asset check is green, remaining exact-head workflows are pending/running.",
+  "note": "PR #526 exact head c920ea9 contains the deterministic parser-literal fix after run 37590762141 exposed the doubled-escape error. No completion claim advanced.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
