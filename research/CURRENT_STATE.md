@@ -4,6 +4,8 @@ _Updated 8 October 2026._
 
 Canonical `main` is now `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`. **Gate 13 remains the earliest incomplete validation gate.**
 
+**Scope correction:** Southport is only the current reproduction fixture for the broken fresh-management/Squad presentation. Treat missing header/player-name/content layers as a likely **shared club-screen path defect** unless evidence proves otherwise. Do not introduce Southport-specific fixes; validate the shared presenter/resource/binding path and confirm behavior on at least one additional club before narrowing scope.
+
 Recovery 402 implemented the source-closed direct fixed-League management-header selector without broadening it into a generic next-fixture search. The primary schedule shadow now carries explicit wrapper-link certainty (`clear / linked / unknown`). Fresh startup wrappers are source-known clear; explicit linked wrappers are skipped; relevant symbolic, unsupported, or unknown states fail closed. Every clean-room GameState day-advance route invalidates previously clear wrapper-link certainty because the original post-start reschedule producers at `0x4A801F` and `0x5E3C34` are not yet modeled.
 
 The management source bridge now binds only an exact clear direct first-season Premier League fixture, verifies schedule token/date/participants against the live fixture state, and carries the result through the original-management presenter. The host renders the recovered conditional central-header controls at y=34/y=51 using the exact staged Zurich 18px font, source style `0x2102`, white endpoint, source competition name, short club names and native two-digit-year date formatting. Unsupported or post-invalidation cases render no invented match line.
