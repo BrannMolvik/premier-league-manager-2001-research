@@ -12430,3 +12430,11 @@ continues with ordinary Squad row display-name/color helpers.
 - Contributing external code/data is attributable to exactly four pinned owner packages/source families: MinGW-w64 CRT, GCC, winpthreads, and windows-default-manifest.
 - Bounded static contributor attribution is therefore complete. Final source/license/notice bundle assembly and legal review remain open; `source_material_complete=false` and `legal_compliance_claimed=false`.
 - Roadmap commit `21eb5031102f2ab2bd326596cef3c7fe9e673cf3` added a Gate-13 Settings requirement. Gate 13 remains earliest incomplete, and Settings implementation now takes priority over further Gate-17 provenance work while external artifact `11464212544` acceptance remains separately pending.
+
+
+## 7 October 2026 KST — Recovery 386 Settings merge and acceptance-candidate refresh
+
+- Verified PR #532 exact head `7b7f5df36ecf12b2cb7a17b63f042182b3be380f`: Gate-13 presentation `37603687802`, reconstruction `37603687671`, asset policy `37603687683`, and Windows package `37603687969` all passed.
+- Merged PR #532 as `2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff`. The new Settings surface is an explicit modernization extension, preserves the recovered original PStartMenu controls/default baseline, and does not touch simulation.
+- Windows artifact `11473439363` (`FM2001-Windows11-7b7f5df36ecf12b2cb7a17b63f042182b3be380f`) has Actions digest `sha256:b6a0da08a1c81fba3c93e4268dcee7c59004c8efcd5ce9f4e8f50c0073584e61` and supersedes the older acceptance candidate for future Gate-13 hands-on testing.
+- Gate 13 remains open until Daniel's external issue-482 acceptance succeeds on the current runtime. Under deferred-blocker policy, resume independent Gate-17 source/license/notice bundle assembly for the four proven static-contributor source families; do not make a legal-compliance claim.
