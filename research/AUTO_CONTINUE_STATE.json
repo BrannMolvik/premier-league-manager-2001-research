@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 404 checkpoint aecef5b0: original 36px Zurich font independently extracted/hash-verified from authorized archive, but GitHub binary staging is blocked by cross-tool transfer (files__manage_library: container_session_unavailable); exact procedure in research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md. Next acquire binary-safe upload, wire live Club.name + Southport/second club tests, and obtain private Windows --transport-probe-only HWND/DPI receipt from merged PR #551, then complete post-#482 audit. Do not use substituted asset or claim Gate 13/Gate 17 complete.",
+  "active_task": "Recovery 405 PR #552 exact head 970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64 imports SHA-verified 36px Zurich font and integrates source Club.name across Southport and Arsenal; 3 PR workflows green, full reconstruction workflow #37700777348 running. Verify last workflow before merging, then update canonical Gate-13 audit/current state. Separately private Windows --transport-probe-only HWND/DPI receipt remains outstanding; do not claim Gate 13 or Gate 17 closure.",
   "last_known_main_head": "aecef5b0c194e6ea951cf2f0dbed1e9f0ab0de90",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 404,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #551 merged to main as 09ee9e7; all four exact-head workflows green (reconstruction 2920, 25 skips). Recovery 404 documentation/status checkpoint aecef5b0. No new CI dispatched. Preserve cost-controlled CI cadence and working status for continuing Gate 17 mission.",
+  "recovery_generation": 405,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Verified Git blob a5127c02be6f6ff20594701e3507afb9e56086b0 for exact 155544-byte font; PR #552 has source/header/host tests, Windows packaging and asset policy green. Avoid extra Actions dispatches; preserve earliest incomplete gate13.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
