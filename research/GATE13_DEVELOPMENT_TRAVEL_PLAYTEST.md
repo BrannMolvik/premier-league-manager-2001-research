@@ -58,3 +58,25 @@ bypassed: this separate entry point has no startup movie path in the first
 place. The normal original-style entry point and its checks remain intact.
 Unsigned frozen-executable distribution acceptance remains separate; Windows
 security settings are unchanged. No main merge or agent-runtime write.
+
+## Pinned local handoff and final regression
+
+The independent source snapshot at
+`C:\Users\Brann\Documents\Codex\FM2001-Train-Playtest` is pinned to a91ad35e.
+Its `Launch development playtest.cmd` uses the installed Python 3.13 runtime,
+not the unsigned frozen executable. The exact launcher opened its labeled
+window successfully. An independent import from that snapshot loaded Daniel's
+supplied save, retained 30 Southport players, and passed a fresh-controller
+disk roundtrip. The Load dialog was opened, but UI automation could not reliably
+target its owned modal; this is not claimed as completed Load-button acceptance.
+The startup source archive SHA-256 is
+`a133bdb9eec6deea3bdf242d13c63d5c677e89d42a231fa740c0f9336b4c1be3`.
+
+Integrated focused validation: 106 tests passed; final targeted validation:
+14 tests passed with one opt-in skip. Full reconstruction with the private
+Capstone dependency available ran 2,953 tests in 341.283 seconds: three failures,
+one error and 24 skips. All four non-passes are the unchanged Gate-17
+FFmpeg toolchain package-lock fixture/digest tests, not new startup/fallback
+failures. This is NOT an all-green full-suite claim. Asset policy and diff
+whitespace checks pass. No proprietary saves, data or private receipts entered
+Git, and no Gate-13 completion claim is made.

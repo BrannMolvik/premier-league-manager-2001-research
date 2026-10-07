@@ -39,6 +39,16 @@ must use the paired first/reserve native mapper, not inferred scrolling or a
 guessed 20/10 membership split. The native context+D8 producer/order lifecycle
 and ordinary source-host gameplay bindings remain real requirements.
 
+Travel handoff: the independent a91ad35e source snapshot and launcher are at
+`C:\Users\Brann\Documents\Codex\FM2001-Train-Playtest`. The exact launcher opens;
+the snapshot loads Daniel's supplied train-playtest.fm2k and passes a fresh
+disk roundtrip with all 30 Southport players. Focused validation passed 106
+tests, then 14 targeted tests / one opt-in skip. Final reconstruction ran 2,953
+tests / 24 skips with the same three failures and one error in Gate-17 package
+lock fixtures. Asset policy passes; no full-suite or original-UI closure claim.
+Use the separate fallback for local acceptance while completing the native
+paired-list producer/order and ordinary original-host gameplay controls.
+
 ---
 
 # Local Gate-13 recovery resumed - 7 October 2026
