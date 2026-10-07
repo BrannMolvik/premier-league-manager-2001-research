@@ -1,3 +1,24 @@
+# Recovery 381 continuation - complete Gate-17 package lock merged; source-audit CI hardening next
+
+_Updated 7 October 2026._
+
+Canonical `main` is `eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5`, merging PR #524 after exact-head validation. **Gate 13 / issue #482 remains the earliest incomplete validation gate**: Daniel's normal Windows 11 acceptance of artifact `11464212544` is still required, and no newer external acceptance evidence has been posted. The private `0x513010` caller adjudication also remains deferred behind the existing process-execution infrastructure blocker.
+
+Recovery 381 advanced independent Gate-17 source/toolchain provenance without closing any later gate:
+
+- PR #522 merged as `073099c79779def832fdd35612f9cf9f2b811bcb`, binding the 14 pinned critical package rows to eight source families while keeping source/legal completeness false.
+- PR #523 merged as `aadaf484754ade2854a2b48e52c853ccf31a7a57`, first-party verifying the remaining MSYS2 source-only tarballs for `msys2-runtime 3.6.10-6` and MinGW-w64 CRT `14.0.0.r426.g4564ee4b5-1`; all eight mapped critical source families now have verified source-tarball metadata.
+- Three independent successful minimal-helper artifacts exposed byte-identical `pacman -Q | LC_ALL=C sort` inventories: 151 package/version rows, 3,274 bytes, SHA-256 `c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec`.
+- PR #524 merged as `eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5`, retaining those exact rows as `TOOLCHAIN-PACKAGES.lock` and failing closed on missing packages, extra packages, version drift, lock-digest drift, or package-count drift. Exact head `7061fe0524203b65e3a2ca44045099736b7c53eb` passed asset policy `37586325795`, Windows package `37586325957`, reconstruction `37586325832` (**2,858 tests, 25 skipped**), and minimal FFmpeg proof `37586326031`.
+
+A separate CI-integrity defect was discovered while reviewing the successful minimal-build logs. The workflow's repo-root import of `reconstruction.gate17_ffmpeg_minimal_source_contract` raised `ModuleNotFoundError: No module named 'startup_fmv_presentation'`, but PowerShell continued to the following native Python command and recorded the step as successful. This means the source-contract audit itself was being masked even though the subsequent configure-argument materialization and the actual build/provenance/roundtrip proofs succeeded.
+
+Current branch `chatgpt/gate17-source-audit-ci-hardening-r381` fixes that defect without changing FFmpeg configuration or runtime code: the source-contract module supports both package and reconstruction-local import modes, the workflow checks `$LASTEXITCODE` after each native Python command, and regression tests enforce both properties. Require fresh exact-head reconstruction, asset-policy, Windows-package, and minimal-FFmpeg proof before merge.
+
+After that hardening lands, the next independent Gate-17 provenance task is **evidence capture for actual static-link contributors**, not another installed-package inventory. Current logs expose only `LD ffmpeg_g.exe` / `LD ffprobe_g.exe`, so they are insufficient to claim which of the 151 installed packages actually contribute redistributed code. Capture resolved linker/archive input evidence first, then map only proven contributors to source/license/notice material. `source_material_complete=false` and `legal_compliance_claimed=false` remain mandatory.
+
+---
+
 # Recovery 380 continuation - PR #520 merged; Gate-13 acceptance and private caller adjudication remain deferred
 
 _Updated 7 October 2026._

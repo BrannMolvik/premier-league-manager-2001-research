@@ -47,7 +47,9 @@ jobs:
         shell: pwsh
         run: |
           python -c "from reconstruction.gate17_ffmpeg_minimal_source_contract import audit_source_contract; import json; print(json.dumps(audit_source_contract('.'), indent=2, sort_keys=True))"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -c "import json,pathlib; p=json.loads(pathlib.Path('third_party/ffmpeg-lgpl-candidate/SOURCE-CONTRACT.json').read_text(encoding='utf-8')); pathlib.Path('_minimal-ffmpeg-configure.args').write_text('\n'.join(p['minimal_helper_target']['configure_args'])+'\n', encoding='utf-8', newline='\n')"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check out pinned FFmpeg source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
