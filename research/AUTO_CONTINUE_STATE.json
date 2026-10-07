@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 380: Gate 13 remains earliest incomplete; artifact 11464212544 awaits external Windows acceptance and canonical-executable tracer adjudication remains blocked by caas ClientError. Independent cloud-safe Gate-17 PR #522 is open at exact head 2b510252018dd123c868576a7f72e434090da5c8, mapping the 14 pinned critical toolchain packages to eight source families while keeping completeness/legal claims false. Require all exact-head checks before merge, then persist the boundary and continue independent work without declaring Gate 17 complete.",
+  "active_task": "Recovery 381: Gate 13 remains earliest incomplete; artifact 11464212544 awaits external Windows acceptance and canonical-executable tracer adjudication remains blocked by caas ClientError. Independent cloud-safe Gate-17 PR #522 is open at exact head 2b510252018dd123c868576a7f72e434090da5c8, mapping the 14 pinned critical toolchain packages to eight source families while keeping completeness/legal claims false. Require all exact-head checks before merge, then persist the boundary and continue independent work without declaring Gate 17 complete.",
   "last_known_main_head": "12544b6f6ff80d520a5d7795f8a7aea2a423685c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 380,
+  "recovery_generation": 381,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #522 checks started: Windows package 37582619012, minimal FFmpeg build 37582619057, asset policy 37582618992, reconstruction 37582619098. Six source-family tarball leads are officially verified; msys2-runtime 3.6.10-6 and MinGW-w64 CRT r426 remain explicit unverified source-tarball rows. Gate13 #482 remains open.",
+  "note": "Recovered from main 12544b6f6ff80d520a5d7795f8a7aea2a423685c and runtime a32bb5c505ed48ca4d08c5aa636816d1ff56e5ef. PR #522 exact-head checks and merge boundary are the immediate cloud-safe task. Gate 13 #482 remains open.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
