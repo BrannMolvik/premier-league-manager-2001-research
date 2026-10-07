@@ -351,3 +351,13 @@ receipt before the transport layer can be corrected without guessing.
 Accordingly, the audit is still open. The remaining material exit blockers are
 the exact club-name asset/render and the startup-FMV transport distinction,
 followed by final focused/full re-verification and Windows acceptance.
+
+
+## Recovery 404 audit continuation (8 October 2026)
+
+- PR #549 / merge `c78644a744fb4c734cfa0bb1431f406b79f8f409` is **COMPATIBILITY-EQUIVALENT** in the audited hot-path scope: reuse deterministic PNG output and skip redundant closed/open PMenu raster work without altering native source pixels/semantics. Passing CI is not proof of acceptable external Windows latency.
+- PR #550 / merge `2d82a2b69e57b73ebb1289a4659f9fd732e3bdf2` is **ORIGINAL-PROVEN** only for the documented primary `Club.name` control, right/vertical-center 0x2102 raster semantics and exact font identity; the 36px source asset is **not yet staged**, and live text is still absent.
+- PR #551 / merge `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0` is **RESEARCH/INFRASTRUCTURE-ONLY** in its default effect: explicit opt-in Windows parent/child HWND + DPI diagnostics and strict no-visual-acceptance probe mode. Source FMV rectangle and default media presentation geometry are unchanged; real external geometry evidence is still outstanding. Exact head `98adacf71e8fed800e351231a32a94a1688f2d92` passed asset-policy, Gate 13, Windows package and full reconstruction workflows (2,920 tests, 25 skips).
+- Original 36px font source bytes were re-extracted and independently SHA-256 verified in Recovery 404, resolving the prior **execution** blocker. Transfer into the Git source tree remains blocked by the container-to-connector path; do not mark manifest or live render complete.
+- The original numbered first-parent inventory/counts at the head of this audit are a **historical bounded ledger through `b890c578`**, not an updated full inventory through Recovery 404. Refresh all subsequent first-parent rows/classifications before marking the overall retrospective inventory complete. Earlier sections describing reserve-state and date/match-line integration as undone are superseded by the Recovery-402 reconciliation and CURRENT_STATE.
+- Remaining exit blockers: byte-identical 36px asset + generic live `Club.name` wiring with cross-club tests, private Windows transport receipt and source-backed FMV correction if indicated, refreshed retrospective classification, and accepted normal Windows playability/latency. **Audit still open; Gate 13 still open.**

@@ -1,3 +1,17 @@
+# Recovery 404 — startup transport probe merged, original club-name font re-extracted
+
+_Updated 8 October 2026 KST. Canonical main entering this checkpoint: `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0`._
+
+**Gate 13 remains the earliest incomplete gate; the mandatory post-#482 audit and external Windows 11 playability acceptance remain open.** PR #551 added an opt-in diagnostic receipt for the real WPF parent/child window and DPI transport. Exact PR head `98adacf71e8fed800e351231a32a94a1688f2d92` passed asset policy run `37693589352`, Gate-13 presentation run `37693589399`, Windows package run `37693589417`, and reconstruction run `37693589455` (**2,920 tests, 25 skipped, no failures**). The PR merged into `main` as `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0`. This is diagnostics-only: normal startup geometry unchanged; no private Windows transport receipt or visual acceptance has yet been obtained.
+
+The container process-execution outage from Recovery 403 is no longer present. The authorized 511,121,336-byte Library ZIP at `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip` was materialized and independently verified as SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`. Streaming raw MODE1/2352 extraction of Joliet ISO extent 170896 (76 sectors, 2048 user-data bytes per sector from offset 16) recovered **the exact** `Fonts/Zurich_BdXCn_BT_36pixel.fnt`: 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. This is independent byte verification, not a staged Git asset. A temporary binary exists only in this execution workspace; **do not treat it as a durable source**.
+
+**Current import blocker:** `files__manage_library` could not upload the generated temporary base64 transfer text from the container (`container_session_unavailable`: "No active container session was found for container_path"). The GitHub connector's `create_blob` requires the entire binary/base64 content inline and has no direct trusted container-file ingest; an unverified, manual, or substituted transfer must not be represented as byte-identical staging. The authorized original ZIP remains durable in Library. Exact reproduction and remaining action are recorded in `research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md`.
+
+**Exact next actionable work:** (1) establish a binary-safe Git transfer for the verified 36px font; stage it at `original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt` with provenance and manifest, then wire the existing explicit club-name font/overlay into the live header and test Southport **and another club**; (2) independently capture a private, non-disruptive Windows 11 `--transport-probe-only` receipt through the merged PR #551 diagnostic, compare actual child/parent HWND rectangles and DPI awareness before changing FMV geometry or pixel treatment; (3) reconcile the post-#482 audit ledger including post-audited commits and retest normal Windows playability/latency. No visual-equivalence or Gate-13 closure claim is authorized yet. Preserve the original-only modernization freeze and avoid CI/commit spam.
+
+---
+
 # Recovery 403 — management redraw hot path reduced; primary club-name raster contract closed
 
 _Updated 8 October 2026._

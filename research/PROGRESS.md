@@ -1,3 +1,11 @@
+### 8 October 2026 KST — Recovery 404 diagnostics merged; 36px original font independently extracted
+
+Recovered canonical `main` at `e05c71c11e50b6f5b42bfee1e9054bd7c4dab7e8` and initialized autonomous runtime generation 404. Reviewed/merged diagnostics-only PR #551 as `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0`; exact-head checks: asset policy `37693589352`, Gate 13 `37693589399`, Windows package `37693589417`, full reconstruction `37693589455` (2,920 tests; 25 skips; zero failures). No additional CI run was dispatched.
+
+Previously failing sandbox process execution recovered. Re-materialized and independently hashed the authorized Library ZIP (511,121,336 bytes, SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`), extracted the original 36px Zurich font from raw MODE1/2352 extent 170896, and verified 155,544 bytes / SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. The remaining obstacle is binary-safe transfer into GitHub, not availability or identification of source bytes: `files__manage_library` returned `container_session_unavailable` when asked to upload an intermediate transport file. No source font or replacement was committed and no live club-name overlay was falsely claimed.
+
+The new diagnostic may capture real parent/child HWND and DPI on a private Windows 11 host via `--transport-probe-only`, but no external receipt has been captured. Exact next step and non-disruptive procedure: `research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md`. Gate 13 and the post-#482 audit remain open.
+
 ### 8 October 2026 KST — Recovery 399 selector trace corrected before implementation
 
 Recovery 399 resumed from `de130503546f3a49db8e6d8a9e7aa133148d13a0`, reverified canonical `footballmanager.exe` as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, and merged the initial management-header selector trace as `671f98492661a43ae07ea60517971cf66d2916dc`. A subsequent instruction-level verification pass caught a material branch-direction error in that trace **before any renderer implementation**.
