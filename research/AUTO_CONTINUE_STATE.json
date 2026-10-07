@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main 0db90b975f1f2bb39797272a00f022ed380bdfb4. Settings is isolated from the original baseline; startup Escape is fail-closed; disproved Cup-Tied transfer-date fallback is now fail-closed. Continue complete first-parent classification and correct any remaining unsupported/inconclusive active behavior, especially FMV frame-content transform, menu latency, fresh Squad name/header completeness, and Gate-14 host reachability. Do not resume Gate-17 work-ahead or produce an acceptance build until audit exits.",
-  "last_known_main_head": "0db90b975f1f2bb39797272a00f022ed380bdfb4",
+  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main b890c578eeebbf8ad4375e58dbd236e3f957b5cb. Complete first-parent ledger is persisted; Settings remains isolated; startup Escape is fail-closed; disproved Cup-Tied date fallback and its live lifecycle were removed. Next: resolve or diagnostically bound the externally wrong startup-FMV frame-content transport, then recover fresh-Squad name/header completeness. No Gate-17 work-ahead or acceptance build until audit exit.",
+  "last_known_main_head": "b890c578eeebbf8ad4375e58dbd236e3f957b5cb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 395,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 395: audit found and corrected active disproved Cup-Tied date fallback at main 0db90b97; implementation freeze remains active.",
+  "note": "Recovery 395 checkpoint: Cup-Tied unsupported date semantics fully removed from live lifecycle at b890c578; audit remains open on FMV frame-content, fresh Squad/header completeness, startup input semantics, responsiveness, and Gate-14 reachability.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
