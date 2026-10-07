@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 402 continues Gate 13 after verified conditional-header integration. Stage exact Zurich_BdXCn_BT_36pixel.fnt through a binary-safe Git path, add asset provenance, render Club.name at (172,1,378,32) with recovered 0x2102/white/right-center clipping, and add fresh Southport regression. If binary transfer remains unavailable, persist the precise blocker and continue another source-backed Gate-13 audit item. Startup-FMV HWND/DPI receipt remains external.",
+  "active_task": "Recovery 402 continues Gate 13 after verified conditional-header integration. Stage exact Zurich_BdXCn_BT_36pixel.fnt through a binary-safe Git path, add asset provenance, render Club.name at (172,1,378,32) with recovered 0x2102/white/right-center clipping, and add fresh Southport regression. If binary transfer remains unavailable, persist the precise blocker and continue another source-backed Gate-13 audit item. Startup-FMV HWND/DPI receipt remains external. Scope correction: Southport is only the canonical reproduction fixture; treat missing header/player-name/content as a likely shared club-screen presenter/resource/binding defect. Do not implement Southport-specific fixes. Verify the generic path and at least one additional club before narrowing scope.",
   "last_known_main_head": "62e3c13f262d10a51e3396797df34671da626b97",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 402,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #547 merged as 97f8ecb3d39addbe3d036016bc52a05a91eb8c83. Exact PR head d54184a passed Gate13 37679247332, reconstruction 37679247185 (2915 tests, 25 skipped, zero failures), asset policy 37679247320. Canonical docs/status reconciled through main 62e3c13f.",
+  "note": "Daniel clarified the broken Southport management screen is probably representative of all club screens. Southport remains the test fixture only; investigate shared club-screen code first.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
