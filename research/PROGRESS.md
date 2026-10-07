@@ -1,3 +1,16 @@
+### 7 October 2026 KST — Recovery 388 integrated Gate-17 redistribution material bundle merged
+
+PR #537 merged as `edf24e7148007768619514c97822185a6dd43942` after exact head `0023d62c381ff5c6150db30cfef472ddc2a292cb` passed integrated-material run `37615747271` and asset-policy run `37615747138`. Artifact `11478824629` has digest `sha256:880a37d379ffa9d0bf5a606a828cfad32827519af00bd02f544119b93b8ed5df`.
+
+The downloaded artifact was independently enumerated and rehashed: 21 ZIP entries, 20 manifest-hashed payload files, four exact MSYS2/UCRT64 source-package archives for the proven static contributors, nine package-recipe license/declaration evidence files, the exact FFmpeg source snapshot, and zero missing/hash/size mismatches. The integrated manifest deliberately keeps `license_notice_material_complete=false`, `source_material_complete=false`, and `legal_compliance_claimed=false`.
+
+Immediately before that, PR #536 merged as `0e1abef659ea067096fce100969515d1a78a2a34`. Exact head `b9bbd3ecf4c753128feb8574d552929b9581831e` passed source-snapshot `37610811963`, reconstruction `37610811929` (2,903 tests, 25 skipped), asset-policy `37610811926`, minimal-FFmpeg `37610812027`, and Windows-package `37610812038`. Source artifact `11477761759` has digest `sha256:fbf85db39113a1c29e734907b02935cb19750dc543d2c7076ed9264e44ab657b`.
+
+PR #535 had already merged as `513afeffc060fd3e2e9834a9084b651a37947c88`, pinning the nine toolchain contributor license/declaration files after its contributor-license, static-source-bundle, reconstruction, minimal-FFmpeg, Windows-package and asset-policy workflows all passed.
+
+Gate 13 remains open pending Daniel's external Windows acceptance of Settings-inclusive artifact `11473439363`. The next independent cloud-safe Gate-17 step is a **separate minimal-helper package candidate**, not production promotion: package the already-proven minimal helper through the Windows release layout and smoke/provenance checks while keeping the current production helper unchanged. Exact original-TGQ conversion and visible/audible playback remain private Windows blockers.
+
+
 ## 2026-10-07 — Recovery 379: Gate 13 issue #482 WPF/Tk repair merged
 
 - Recovered canonical work from GitHub; merged PR #518 first as `f7b17cca6cffb30aca50f920e2d120589e62e911`, source-closing the native PPreMatch Match Detail mode commit and post-modal presentation dispatch while leaving the ordinary management-screen entry into match router `0x513010` unresolved.
@@ -12430,3 +12443,11 @@ continues with ordinary Squad row display-name/color helpers.
 - Contributing external code/data is attributable to exactly four pinned owner packages/source families: MinGW-w64 CRT, GCC, winpthreads, and windows-default-manifest.
 - Bounded static contributor attribution is therefore complete. Final source/license/notice bundle assembly and legal review remain open; `source_material_complete=false` and `legal_compliance_claimed=false`.
 - Roadmap commit `21eb5031102f2ab2bd326596cef3c7fe9e673cf3` added a Gate-13 Settings requirement. Gate 13 remains earliest incomplete, and Settings implementation now takes priority over further Gate-17 provenance work while external artifact `11464212544` acceptance remains separately pending.
+
+
+## 7 October 2026 KST — Recovery 386 Settings merge and acceptance-candidate refresh
+
+- Verified PR #532 exact head `7b7f5df36ecf12b2cb7a17b63f042182b3be380f`: Gate-13 presentation `37603687802`, reconstruction `37603687671`, asset policy `37603687683`, and Windows package `37603687969` all passed.
+- Merged PR #532 as `2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff`. The new Settings surface is an explicit modernization extension, preserves the recovered original PStartMenu controls/default baseline, and does not touch simulation.
+- Windows artifact `11473439363` (`FM2001-Windows11-7b7f5df36ecf12b2cb7a17b63f042182b3be380f`) has Actions digest `sha256:b6a0da08a1c81fba3c93e4268dcee7c59004c8efcd5ce9f4e8f50c0073584e61` and supersedes the older acceptance candidate for future Gate-13 hands-on testing.
+- Gate 13 remains open until Daniel's external issue-482 acceptance succeeds on the current runtime. Under deferred-blocker policy, resume independent Gate-17 source/license/notice bundle assembly for the four proven static-contributor source families; do not make a legal-compliance claim.

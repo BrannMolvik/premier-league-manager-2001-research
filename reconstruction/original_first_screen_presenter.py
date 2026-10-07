@@ -21,6 +21,12 @@ from dataclasses import dataclass, field, replace
 from typing import Callable
 
 from front_end_session import FrontEndSession, FrontEndSessionOutcome
+from front_end_settings import (
+    SourceStyledSettingsResources,
+    candidate_settings_event,
+    settings_surface_actions,
+    start_menu_settings_action,
+)
 from front_end_state import FrontEndScreen
 from original_button_frames import (
     OriginalButtonAtlas, OriginalButtonFrame, OriginalButtonState,
@@ -89,6 +95,7 @@ class OriginalFirstScreenPresenter:
     team_select: OriginalTeamSelectResources | None = None
     team_select_loader: Callable[[], OriginalTeamSelectResources] | None = None
     hierarchy: TeamSelectHierarchyModel | None = None
+    settings_resources: SourceStyledSettingsResources | None = None
     _teamselect_cache_key: tuple | None = field(default=None, init=False, repr=False)
     _teamselect_cache_rows: tuple = field(
         default_factory=lambda: ((), ()), init=False, repr=False
@@ -122,7 +129,7 @@ class OriginalFirstScreenPresenter:
         """Return the source-aligned visual inputs for the active original screen."""
         screen = self.session.navigation.screen
         if screen is FrontEndScreen.START_MENU:
-            controls = tuple(
+            controls = [
                 OriginalActionPresentation(
                     action.event,
                     action.rect,
@@ -138,9 +145,40 @@ class OriginalFirstScreenPresenter:
                 for action, caption in zip(
                     PSTARTMENU_SCREEN_ACTIONS, self.start_menu.captions, strict=True
                 )
+            ]
+            if self.settings_resources is not None:
+                action = start_menu_settings_action()
+                controls.append(
+                    OriginalActionPresentation(
+                        action.event,
+                        action.rect,
+                        self.start_menu.button_atlas,
+                        self.settings_resources.caption(
+                            action.event, action.text, action.rect
+                        ),
+                    )
+                )
+            return OriginalFirstScreenSnapshot(
+                screen, self.start_menu.background_rgba, tuple(controls)
+            )
+        if screen is FrontEndScreen.SETTINGS:
+            if self.settings_resources is None:
+                raise RuntimeError("Settings resources are not configured")
+            controls = tuple(
+                OriginalActionPresentation(
+                    action.event,
+                    action.rect,
+                    self.start_menu.button_atlas,
+                    self.settings_resources.caption(
+                        action.event, action.text, action.rect
+                    ),
+                )
+                for action in settings_surface_actions(self.session.settings)
             )
             return OriginalFirstScreenSnapshot(
-                screen, self.start_menu.background_rgba, controls
+                screen,
+                self.start_menu.background_rgba,
+                controls,
             )
         if screen is FrontEndScreen.TEAM_SELECT:
             team_select = self._ensure_team_select_resources()
@@ -192,7 +230,19 @@ class OriginalFirstScreenPresenter:
     def pointer(
         self, x: int, y: int
     ) -> FrontEndSessionOutcome | OriginalHierarchyInteraction | None:
-        if self.session.navigation.screen is FrontEndScreen.TEAM_SELECT:
+        screen = self.session.navigation.screen
+        if self.settings_resources is not None:
+            modern_event = candidate_settings_event(screen, x, y)
+            if modern_event is not None:
+                outcome = self.session.dispatch(modern_event)
+                if outcome.transition.screen is FrontEndScreen.START_MENU:
+                    self.hierarchy = None
+                    self._teamselect_cache_key = None
+                    self._teamselect_cache_rows = ((), ())
+                return outcome
+        if screen is FrontEndScreen.SETTINGS:
+            return None
+        if screen is FrontEndScreen.TEAM_SELECT:
             model = self._ensure_hierarchy()
             if model is not None:
                 row = row_at_pointer(model.hierarchy_rows(), x, y)

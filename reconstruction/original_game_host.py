@@ -46,6 +46,7 @@ from original_pmatchinfo_script_rows import load_script_row_art
 from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
+from front_end_settings import load_source_styled_settings_resources
 from front_end_state import FrontEndCommand, FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
 from gate14_live_first_screen_audio import (
@@ -338,6 +339,7 @@ def build_original_game_presenter(
             original_executable=executable,
         )
 
+    settings_resources = load_source_styled_settings_resources(root)
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
@@ -345,6 +347,7 @@ def build_original_game_presenter(
             original_art_dir=art_root,
             original_executable=executable,
         ),
+        settings_resources=settings_resources,
     )
 
 
@@ -594,6 +597,7 @@ class OriginalGameTkHost:
             if size[0] >= 320 and size[1] >= 240:
                 self._windowed_size = size
         self._fullscreen = bool(enabled)
+        self.presenter.session.settings.fullscreen = self._fullscreen
         self.root.attributes("-fullscreen", self._fullscreen)
         if not enabled and callable(getattr(self.root, "geometry", None)):
             # Do not restore a monitor-sized requested canvas into a decorated
@@ -604,6 +608,8 @@ class OriginalGameTkHost:
         if getattr(self, "_startup_media_active", False):
             return "break"  # The live WPF child owns the fixed presentation rect.
         self._set_fullscreen(not self._fullscreen)
+        if self.presenter.session.navigation.screen is FrontEndScreen.SETTINGS:
+            self.redraw()
         return "break"
 
     def leave_fullscreen(self, event=None):
@@ -614,6 +620,8 @@ class OriginalGameTkHost:
             return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
+            if self.presenter.session.navigation.screen is FrontEndScreen.SETTINGS:
+                self.redraw()
         return "break"
 
     def _normalize_pointer_event(self, event):
@@ -1005,7 +1013,10 @@ class OriginalGameTkHost:
     def _advance_first_screen(self):
         self._first_screen_idle = None
         if self.presenter.session.navigation.screen not in (
-                FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
+                FrontEndScreen.START_MENU,
+                FrontEndScreen.SETTINGS,
+                FrontEndScreen.TEAM_SELECT,
+        ):
             return
         view = self.presenter.snapshot()
         self.first_screen_animation.observe(view, self._first_screen_pointer)
@@ -1428,7 +1439,10 @@ class OriginalGameTkHost:
         event = self._normalize_pointer_event(event)
         self._first_screen_pointer = (int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
-                FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
+                FrontEndScreen.START_MENU,
+                FrontEndScreen.SETTINGS,
+                FrontEndScreen.TEAM_SELECT,
+        ):
             view = self.presenter.snapshot()
             self.first_screen_animation.observe(view, self._first_screen_pointer)
             self._schedule_first_screen_update(view)
@@ -1617,7 +1631,11 @@ class OriginalGameTkHost:
         if getattr(self, "_startup_media_active", False):
             return  # Keep the black source movie field above the menu.
         screen = self.presenter.session.navigation.screen
-        if screen in (FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
+        if screen in (
+            FrontEndScreen.START_MENU,
+            FrontEndScreen.SETTINGS,
+            FrontEndScreen.TEAM_SELECT,
+        ):
             self._draw_first_screen()
             return
         if screen is FrontEndScreen.MANAGEMENT:
@@ -2036,6 +2054,13 @@ class OriginalGameTkHost:
                 ):
                     self._begin_management_resource_load("squad")
                     return
+            elif result.transition.command is FrontEndCommand.APPLY_SETTINGS:
+                self._set_fullscreen(self.presenter.session.settings.fullscreen)
+                self.last_status = (
+                    "Settings applied: "
+                    f"profile={self.presenter.session.settings.profile_name}; "
+                    f"fullscreen={'on' if self._fullscreen else 'off'}"
+                )
             elif result.transition.command is FrontEndCommand.QUIT_TO_WINDOWS:
                 self.last_status = "QUIT_TO_WINDOWS"
                 if self._first_screen_idle is not None:

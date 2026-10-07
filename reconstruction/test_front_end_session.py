@@ -9,6 +9,8 @@ from match_detail_mode import MatchDetailMode
 from front_end_state import (
     FrontEndCommand,
     FrontEndScreen,
+    ModernStartMenuControl,
+    SettingsControl,
     StartMenuControl,
     TeamSelectControl,
     UnsupportedFrontEndControl,
@@ -72,6 +74,30 @@ class FrontEndSessionTests(unittest.TestCase):
                 self.assertEqual(backends, [])
                 self.assertIsNone(session.gameplay)
                 self.assertFalse(session.started)
+
+    def test_settings_never_constructs_or_mutates_gameplay_backend(self):
+        session, backends = self.new_session()
+        opened = session.dispatch(ModernStartMenuControl.SETTINGS)
+        self.assertIs(opened.transition.screen, FrontEndScreen.SETTINGS)
+        self.assertEqual(backends, [])
+        self.assertTrue(session.settings.original_baseline)
+
+        toggled = session.dispatch(SettingsControl.TOGGLE_FULLSCREEN)
+        self.assertIs(toggled.transition.command, FrontEndCommand.APPLY_SETTINGS)
+        self.assertFalse(session.settings.fullscreen)
+        self.assertEqual(session.settings.profile_name, "Custom")
+        self.assertEqual(backends, [])
+
+        reset = session.dispatch(SettingsControl.RESET_ORIGINAL)
+        self.assertIs(reset.transition.command, FrontEndCommand.APPLY_SETTINGS)
+        self.assertTrue(session.settings.fullscreen)
+        self.assertTrue(session.settings.original_baseline)
+        self.assertEqual(backends, [])
+
+        back = session.dispatch(SettingsControl.BACK)
+        self.assertIs(back.transition.screen, FrontEndScreen.START_MENU)
+        self.assertIsNone(session.gameplay)
+        self.assertFalse(session.started)
 
     def test_choosing_team_does_not_mutate_gameplay_until_start(self):
         session, backends = self.new_session()
