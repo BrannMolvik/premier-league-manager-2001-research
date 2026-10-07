@@ -451,6 +451,86 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
              "Beta City", "Alpha FC", False, None, None),
         )
 
+    def test_management_header_match_uses_bounded_primary_shadow_candidate(self):
+        from competition_schedule import StartupScheduleNode, direct_club_ref
+        from primary_schedule_shadow import PrimaryScheduleShadowState
+
+        controller = FakeController()
+        controller.state.competitions = {
+            0: SimpleNamespace(name="Premier League")
+        }
+        node = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(11),
+            participant_1_ref=direct_club_ref(10),
+            node_token=("fixed_league_match", 0, 0, 3),
+        )
+        buckets = [() for _ in range(55)]
+        buckets[54] = (node,)
+        controller.state.primary_schedule_shadow = (
+            PrimaryScheduleShadowState.from_primary_schedule_buckets(
+                buckets,
+                season_year=2000,
+            )
+        )
+
+        view = ManagementSourceDataBridge(controller).management_header_match()
+
+        self.assertIsNotNone(view)
+        self.assertEqual(view.fixture_id, 3)
+        self.assertEqual(view.competition_name, "Premier League")
+        self.assertEqual(view.home_short_name, "Beta")
+        self.assertEqual(view.away_short_name, "Alpha")
+        self.assertEqual(view.scheduled_date, date(2000, 8, 26))
+
+        controller.state.primary_schedule_shadow.invalidate_unmodelled_wrapper_links()
+        self.assertIsNone(
+            ManagementSourceDataBridge(controller).management_header_match()
+        )
+
+    def test_management_header_match_rejects_schedule_fixture_identity_drift(self):
+        from competition_schedule import StartupScheduleNode, direct_club_ref
+        from primary_schedule_shadow import PrimaryScheduleShadowState
+
+        controller = FakeController()
+        controller.state.competitions = {
+            0: SimpleNamespace(name="Premier League")
+        }
+        node = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(10),
+            participant_1_ref=direct_club_ref(11),
+            node_token=("fixed_league_match", 0, 0, 3),
+        )
+        buckets = [() for _ in range(55)]
+        buckets[54] = (node,)
+        controller.state.primary_schedule_shadow = (
+            PrimaryScheduleShadowState.from_primary_schedule_buckets(
+                buckets,
+                season_year=2000,
+            )
+        )
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "participants disagree",
+        ):
+            ManagementSourceDataBridge(controller).management_header_match()
+
     def test_pending_fixture_uses_same_source_fixture_projection(self):
         controller = FakeController()
         row = ManagementSourceDataBridge(controller).pending_fixture()
