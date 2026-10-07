@@ -18,8 +18,8 @@ from gate14_fastview_surfaced_picture_selection import (
     build_fastview_surfaced_resource_selection,
 )
 from gate14_fastview_surfaced_resource_loader import (
-    VerifiedFastViewSurfacedResource,
-    load_verified_selected_background,
+    VerifiedFastViewSurfacedResourceSet,
+    load_verified_fastview_surfaced_resources,
 )
 from gate14_prematch_rating_widths import (
     PrematchTeamRatingWidths,
@@ -35,6 +35,7 @@ from original_prematch_panel import (
     PREMATCH_LIVE_BACKGROUND_RECT,
     PREMATCH_FIXTURE_HEADER_RECT,
     PREMATCH_DATE_WEATHER_RECT,
+    PREMATCH_BADGE_RECTS,
     PREMATCH_TEAM_IDENTITY_RECTS,
     PREMATCH_HEADER_TEXT_STYLE_WRAPPER_VA,
     PREMATCH_TEAM_TEXT_STYLE_WRAPPER_VAS,
@@ -58,6 +59,7 @@ from original_prematch_panel import (
     PREMATCH_PLAYER_NAME_MODE_BY_SIDE,
     PREMATCH_SELECTOR_INITIAL_FLAGS,
     PREMATCH_SELECTOR_GROUP_LENGTHS,
+    PREMATCH_TEAM_BADGE_SELECTOR_VA,
     prematch_player_row_variant,
     PREMATCH_CHILD_COUNT,
     PREMATCH_CHILD_ORDER_RANGES,
@@ -557,7 +559,7 @@ _PREMATCH_CHILD_COVERAGE = {
     "top_bar": (1, True, None),
     "fixture_header": (1, False, "dynamic fixture-header buffer is not bound"),
     "date_weather_line": (1, False, "dynamic date/weather buffer is not bound"),
-    "team_badges": (0, False, "team badge pixels are not staged in the pre-match surface"),
+    "team_badges": (2, True, None),
     "team_identity_text": (3, False, "left/right dynamic team identity text is not bound"),
     "starting_xi_pitch_markers": (
         0,
@@ -624,6 +626,7 @@ def prematch_child_family_coverage() -> tuple[PrematchChildFamilyCoverage, ...]:
 class PrematchSurfaceBoundary:
     selection: FastViewSurfacedResourceSelection
     background: PrematchRasterLayer
+    team_badges: tuple[PrematchRasterLayer, ...]
     static_layers: tuple[PrematchRasterLayer, ...]
     text_controls: tuple[PrematchTextControlSurface, ...]
     player_text_rows: tuple[PrematchPlayerTextSurface, ...]
@@ -632,6 +635,7 @@ class PrematchSurfaceBoundary:
     rating_rows: tuple[PrematchRatingSurface, ...]
     font: object
     team_backgrounds_contract_reused: bool = True
+    team_badge_selector_contract_reused: bool = True
     source_assets_verified: bool = True
     native_geometry_preserved: bool = True
     rating_dynamic_widths_bound_to_cleanroom_state: bool = False
@@ -654,6 +658,18 @@ class PrematchSurfaceBoundary:
             self.background.rect.height,
         ) != (0, 0, 800, 600):
             raise PrematchSurfaceError("pre-match live background must remain 800x600")
+        if len(self.team_badges) != 2:
+            raise PrematchSurfaceError("pre-match team badge layer set is incomplete")
+        for badge, role, rect in zip(
+            self.team_badges,
+            ("home_badge", "away_badge"),
+            PREMATCH_BADGE_RECTS,
+            strict=True,
+        ):
+            if badge.role != role:
+                raise PrematchSurfaceError("pre-match team badge role identity mismatch")
+            if badge.rect != rect:
+                raise PrematchSurfaceError("pre-match team badge geometry drifted")
         if len(self.static_layers) != len(PREMATCH_STATIC_PLACEMENTS):
             raise PrematchSurfaceError("pre-match static layer set is incomplete")
         if self.text_controls != source_prematch_text_controls():
@@ -680,6 +696,7 @@ class PrematchSurfaceBoundary:
             raise PrematchSurfaceError("pre-match rating row set is incomplete")
         if not (
             self.team_backgrounds_contract_reused
+            and self.team_badge_selector_contract_reused
             and self.source_assets_verified
             and self.native_geometry_preserved
         ):
@@ -763,17 +780,29 @@ def build_verified_prematch_surface_boundary(
         away_club_id=away_club_id,
         background_club_override_id=background_club_override_id,
     )
-    background_resource: VerifiedFastViewSurfacedResource = (
-        load_verified_selected_background(
+    surfaced_resources: VerifiedFastViewSurfacedResourceSet = (
+        load_verified_fastview_surfaced_resources(
             selection,
             source_root=source_root,
             original_executable=original_executable,
         )
     )
+    background_resource = surfaced_resources.background
     if background_resource.role != "background":
         raise PrematchSurfaceError("shared Team_Backgrounds loader returned wrong role")
     if background_resource.geometry != (800, 600):
         raise PrematchSurfaceError("shared Team_Backgrounds resource is not 800x600")
+    badge_resources = (
+        surfaced_resources.home_badge,
+        surfaced_resources.away_badge,
+    )
+    if tuple(resource.role for resource in badge_resources) != (
+        "home_badge",
+        "away_badge",
+    ):
+        raise PrematchSurfaceError("shared club-art loader returned wrong badge roles")
+    if any(resource.geometry != (135, 93) for resource in badge_resources):
+        raise PrematchSurfaceError("shared club-art badge resource is not 135x93")
 
     resources: OriginalPrematchPanelResources = load_verified_original_prematch_resources(
         source_root=source_root,
@@ -785,6 +814,19 @@ def build_verified_prematch_surface_boundary(
         rect=PREMATCH_LIVE_BACKGROUND_RECT,
         source_path=background_resource.source_path,
         rgba=background_resource.rgba,
+    )
+    team_badges = tuple(
+        PrematchRasterLayer(
+            role=resource.role,
+            rect=rect,
+            source_path=resource.source_path,
+            rgba=resource.rgba,
+        )
+        for resource, rect in zip(
+            badge_resources,
+            PREMATCH_BADGE_RECTS,
+            strict=True,
+        )
     )
     static_layers = tuple(
         _layer_from_decoded(
@@ -852,6 +894,7 @@ def build_verified_prematch_surface_boundary(
     return PrematchSurfaceBoundary(
         selection=selection,
         background=background,
+        team_badges=team_badges,
         static_layers=static_layers,
         text_controls=source_prematch_text_controls(),
         player_text_rows=source_prematch_player_text_rows(),
@@ -867,6 +910,11 @@ def prematch_surface_contract() -> dict:
         "native_surface": (800, 600),
         "team_backgrounds_selector_reused": True,
         "team_backgrounds_loader_reused": True,
+        "team_badge_selector_va": PREMATCH_TEAM_BADGE_SELECTOR_VA,
+        "team_badge_selector_reused": True,
+        "team_badge_loader_reused": True,
+        "team_badge_pixels_bound_by_resource_loader": True,
+        "team_badge_control_count": len(PREMATCH_BADGE_RECTS),
         "dedicated_static_asset_roles": tuple(
             placement.role for placement in PREMATCH_STATIC_PLACEMENTS
         ),
