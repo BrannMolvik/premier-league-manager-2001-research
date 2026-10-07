@@ -1,3 +1,25 @@
+# Recovery 395 continuation — post-#482 ledger complete; Cup-Tied date model removed
+
+_Updated 8 October 2026._
+
+Canonical `main` is `b890c578eeebbf8ad4375e58dbd236e3f957b5cb`. **Gate 13 remains the earliest incomplete validation gate.** The mandatory post-#482 retrospective audit is still active and blocks new acceptance builds, Settings work, and Gate-17 work-ahead.
+
+The first-parent audit is now durably classified in `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`. A material gameplay defect was found: the mode-1 Cup-Tied collection-miss fallback had been implemented from an older interpretation of `CPlayerTransferHistory+0x18` as a transfer date, although later canonical-executable evidence proves that field is an **appearance count** and leaves the actual cutoff producer unresolved.
+
+Corrections now on `main`:
+- `0db90b975f1f2bb39797272a00f022ed380bdfb4` removes the disproven date comparison from `is_player_cup_tied_for_status()`; the positive source-proven appeared-player collection remains authoritative and every unresolved collection miss fails closed.
+- `b890c578eeebbf8ad4375e58dbd236e3f957b5cb` removes the rejected `CupTiedTransferWindowState` from live construction, daily hooks, season rebuild and save restore. The old schema slot remains an inert `None` tombstone only.
+- Settings remains DEFERRED-MODERNIZATION and isolated from the original/default presenter.
+- Startup Escape no longer reaches the modern fullscreen-leave behavior while startup media is active; original startup skip/input semantics remain unresolved.
+
+The next audit blocker is the startup movie **content inside the already source-proven 640x480/(80,60) field**. The native trace still supports 320x480 coded TGQ pixels, exact 2x horizontal duplication, and a final 1:1 640x480 blit. Daniel's Windows evidence therefore contradicts the current compatibility integration rather than that outer geometry. Investigate the TGQ derivative/WPF child-HWND transport boundary, including cross-process DPI/layout units, before changing native geometry or margins.
+
+If that distinction cannot be resolved without a private Windows receipt, record the exact external blocker and continue the independent source-backed fresh-Squad work: recover the reserve +0x174 selection predicates/state required for ordinary player-name colors and then the missing fresh management header binding.
+
+Do **not** resume Gate-17 work-ahead or create another acceptance artifact until the retrospective audit exit criteria pass.
+
+---
+
 # Mandatory retrospective audit before further implementation
 
 _Added 7 October 2026._

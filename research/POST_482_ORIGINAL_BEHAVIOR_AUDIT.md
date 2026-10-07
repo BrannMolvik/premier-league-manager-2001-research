@@ -2,21 +2,21 @@
 
 _Status: IN PROGRESS — INVENTORY COMPLETE; AUDIT EXIT BLOCKED BY ACTIVE/UNRESOLVED ORIGINAL-BEHAVIOR BOUNDARIES_
 
-_Last updated: 8 October 2026 KST. Canonical audited head: `0db90b975f1f2bb39797272a00f022ed380bdfb4`._
+_Last updated: 8 October 2026 KST. Canonical audited behavior/correction head: `b890c578eeebbf8ad4375e58dbd236e3f957b5cb`._
 
 ## Scope and counting rule
 
 The audit boundary is commit `e2770be0649853e00d1e849ffd377ea3a115d237`, the durable marker created when issue #482 was promoted back into Gate 13. The table below enumerates every **first-parent main commit after that boundary through the audited head**, including direct-to-main checkpoints and corrections rather than only merge commits.
 
-Current inventory: **131 in-scope first-parent commits** through behavioral/corrective head `0db90b97`. The boundary marker itself is not counted as an audited change. Later commits that only update this audit ledger or handoff/status files are audit bookkeeping and do not alter the classified behavior surface.
+Current main through `b890c578` contains **134 first-parent commits after the audit boundary**. The original table covers the 131 entries through `0db90b97`; post-table entries `41e35626` and `8eae9825` are audit-bookkeeping-only, while `b890c578` is the subsequent corrective behavior entry classified below. The ledger-refresh commit that writes this text is mechanically research-only and is excluded from the behavior count.
 
 Primary-classification counts at this checkpoint:
 - ORIGINAL-PROVEN: 23
 - COMPATIBILITY-EQUIVALENT: 5
-- RESEARCH/INFRASTRUCTURE-ONLY: 95
+- RESEARCH/INFRASTRUCTURE-ONLY: 97
 - DEFERRED-MODERNIZATION: 3
 - UNSUPPORTED: 2
-- INCONCLUSIVE: 3
+- INCONCLUSIVE: 4
 
 A green reconstruction test proves only that the reconstruction is internally consistent. ORIGINAL-PROVEN rows below cite the canonical executable/resource trace family that establishes the original contract. COMPATIBILITY-EQUIVALENT rows change only a modern implementation mechanism and preserve the proven source-visible result.
 
@@ -166,6 +166,14 @@ Where a row is deliberately bounded, its classification applies only to the stat
 | 130 | `2d7e9b87` Audit: fail closed on Escape during startup media | startup Escape input | Suppresses the modern fullscreen-leave handler while startup media is active. | Daniel proved current Escape→fullscreen behavior is wrong; native skip/input semantics are not yet recovered. | **INCONCLUSIVE** / High | Retain as fail-closed guard only. Recover original startup Escape/skip semantics before claiming equivalence. |
 | 131 | `0db90b97` Audit: fail close disproved Cup-Tied date fallback | Cup-Tied audit correction | Removes disproven date-based mode-1 collection-miss gameplay decision; positive source-proven collection hit remains. | Recovery 354 canonical-executable correction proves +0x18 is an appearance count and cutoff producer remains unresolved. | **INCONCLUSIVE** / High | Retain fail-closed guard. Recover appearance-count cutoff producer before implementing negative mode-1 branch. |
 
+## Post-table first-parent entries
+
+| # | Identifier / title | Files / subsystem | Behavioral impact | Original evidence | Classification / confidence | Corrective action |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 132 | `41e35626` Audit: classify post-482 first-parent history | audit ledger only | Writes the retrospective classification ledger; no runtime behavior changed. | Repository bookkeeping only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 133 | `8eae9825` Audit: close inventory classification gaps | audit ledger only | Corrects three classification-table gaps; no runtime behavior changed. | Repository bookkeeping only. | **RESEARCH/INFRASTRUCTURE-ONLY** / High | Retain. |
+| 134 | `b890c578` Audit: remove disproved Cup-Tied date lifecycle | Cup-Tied/GameState/save lifecycle | Deletes the disproved date-window helper, stops constructing/advancing/resetting/restoring it, leaves an inert schema tombstone, and keeps the source-proven positive appeared-player collection path unchanged. | Recovery 354 canonical-executable evidence proves transfer-history +0x18 is an appearance count and the true cutoff producer is unresolved. | **INCONCLUSIVE** / High | Retain as a fail-closed correction. Do not implement the negative mode-1 branch until the original appearance-count producer/rule is recovered. |
+
 ## Major audit findings
 
 ### 1. A disproven Cup-Tied rule remained active
@@ -228,7 +236,7 @@ PR #532 is intentionally **DEFERRED-MODERNIZATION**. Commit `86f7d22b` removed S
 2. **Fresh Squad ordinary-name completeness — incomplete source state.** Current behavior fails closed by omitting names whose reserve-selection color state is unknown. This is safer than guessing but still blocks Gate-13 recognizability.
 3. **Fresh management header completeness — unresolved.** Verified header chrome exists, but Daniel's normal Southport evidence shows the visible header/content result is incomplete.
 4. **Startup Escape/skip semantics — INCONCLUSIVE but safely isolated.** Fullscreen mutation is blocked during startup; native skip behavior still requires source evidence.
-5. **Cup-Tied negative mode-1 fallback — source semantics unresolved but live guess removed.** `0db90b97` prevents the disproven date rule from deciding gameplay. The stale date-window helper remains in internal state and must not be treated as original behavior.
+5. **Cup-Tied negative mode-1 fallback — source semantics unresolved and the disproven model is now isolated.** `0db90b97` removed the date-based gameplay decision and `b890c578` removed the rejected date helper from construction, daily hooks, season reset and save restore. The positive source-proven appeared-player collection remains active; every unresolved collection miss fails closed.
 6. **Ordinary match-entry trigger / 3D presentation — unresolved and fail-closed.** Gate-14 contracts are not reachable-flow proof.
 7. **Issue #482 responsiveness — externally unaccepted.** Specific optimizations are retained, but broad “latency fixed” status is prohibited.
 
@@ -240,7 +248,7 @@ PR #532 is intentionally **DEFERRED-MODERNIZATION**. Commit `86f7d22b` removed S
 - [x] The disproven live Cup-Tied transfer-date fallback is fail-closed.
 - [x] Startup Escape no longer mutates fullscreen while the original startup input contract is unresolved.
 - [x] Historical broad claims contradicted by Daniel's Windows evidence are superseded in this audit.
-- [ ] Remove/requalify the stale Cup-Tied date-window helper from active GameState lifecycle state.
+- [x] Remove/requalify the stale Cup-Tied date-window helper from active GameState lifecycle state (`b890c578`).
 - [ ] Resolve or explicitly fail-close the externally wrong startup FMV frame-content transformation.
 - [ ] Recover enough source state for ordinary fresh-Squad names and header content to be recognizably complete without guessed colors/content.
 - [ ] Re-verify the corrected focused/full suite after the final audit corrective changes.
@@ -252,9 +260,9 @@ PR #532 is intentionally **DEFERRED-MODERNIZATION**. Commit `86f7d22b` removed S
 
 First finish the audit corrections rather than resume feature work:
 
-1. isolate/remove the stale date-based `CupTiedTransferWindowState` from the live GameState lifecycle unless a separate original contract justifies it;
-2. then investigate the startup TGQ/TQI frame-content path against the canonical writer so the 640x480 field contains the same coordinates/content as the original;
-3. after FMV is no longer contradicted, recover the reserve +0x174 Squad name-color predicates/state and the missing fresh-management header binding;
-4. only then return to current-baseline latency measurement and a new Windows acceptance candidate.
+1. investigate the startup TGQ/TQI-to-Windows transport boundary so the proven 640x480 field contains the same coordinates/content as the original; first distinguish source decode/derivative errors from WPF/Win32 DPI or layout-unit mismatch rather than tuning margins by eye;
+2. if the remaining FMV distinction requires a private Windows receipt, persist that exact blocker and continue the independent source-backed Squad work;
+3. recover the reserve +0x174 Squad name-color predicates/state and the missing fresh-management header binding;
+4. only after the retrospective audit exits, return to current-baseline latency measurement and a new Windows acceptance candidate.
 
 Gate 17 work-ahead and Settings remain frozen while these Gate-13 audit blockers exist.

@@ -12451,3 +12451,15 @@ continues with ordinary Squad row display-name/color helpers.
 - Merged PR #532 as `2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff`. The new Settings surface is an explicit modernization extension, preserves the recovered original PStartMenu controls/default baseline, and does not touch simulation.
 - Windows artifact `11473439363` (`FM2001-Windows11-7b7f5df36ecf12b2cb7a17b63f042182b3be380f`) has Actions digest `sha256:b6a0da08a1c81fba3c93e4268dcee7c59004c8efcd5ce9f4e8f50c0073584e61` and supersedes the older acceptance candidate for future Gate-13 hands-on testing.
 - Gate 13 remains open until Daniel's external issue-482 acceptance succeeds on the current runtime. Under deferred-blocker policy, resume independent Gate-17 source/license/notice bundle assembly for the four proven static-contributor source families; do not make a legal-compliance claim.
+
+## 8 October 2026 KST — Recovery 395 post-#482 retrospective audit checkpoint
+
+- Recovered canonical work from `main` `2d7e9b87ff96b12075c85150f989bdb96242a4b3` and the worker-owned `agent-runtime` handoff without relying on the expired chat.
+- Reconstructed the exact first-parent history from audit boundary `e2770be0649853e00d1e849ffd377ea3a115d237` and persisted the complete behavior classification in `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`.
+- Found a real unsupported gameplay rule: the live mode-1 Cup-Tied collection-miss path still interpreted transfer-history `+0x18` as a date, despite later first-hand executable evidence proving it is an appearance count.
+- Commit `0db90b975f1f2bb39797272a00f022ed380bdfb4` removes that date-based gameplay decision. Positive source-proven appeared-player Cup-Tied collections remain active; unresolved collection misses fail closed.
+- Commit `b890c578eeebbf8ad4375e58dbd236e3f957b5cb` removes the rejected date-window helper from live GameState construction, daily advancement, season rebuild and save restoration. Existing internal-save schema shape remains compatible through an inert `None` tombstone.
+- The audit reconciles Daniel's four external #482 failures: startup FMV content remains wrong inside a source-proven outer field; startup Escape is safely fail-closed but native skip semantics are unknown; latency optimizations did not constitute acceptance; and fresh Squad names/header remain incomplete.
+- The startup-FMV source trace itself still supports coded 320x480, exact horizontal pixel duplication to 640x480, and a 1:1 final blit at (80,60) in 800x600 mode. Next investigation is the compatibility derivative/WPF child-HWND transport boundary, with DPI/layout-unit mismatch a hypothesis to prove or reject rather than a basis for a visual guess.
+- Retrospective audit remains **open**. No new acceptance artifact, Settings expansion or Gate-17 work-ahead is authorized before audit exit.
+
