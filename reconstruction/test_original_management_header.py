@@ -13,6 +13,12 @@ from original_management_header import (
     HEADER_COMPOUND_RECT,
     HEADER_CENTRAL_TEXT_NATIVE_COLOR_16,
     HEADER_CENTRAL_TEXT_RAW_STYLE,
+    HEADER_CLUB_NAME_RECT,
+    HEADER_CLUB_NAME_FONT_ATLAS_SIZE,
+    HEADER_CLUB_NAME_FONT_BYTE_SIZE,
+    HEADER_CLUB_NAME_FONT_OBJECT_VA,
+    HEADER_CLUB_NAME_FONT_SHA256,
+    HEADER_CLUB_NAME_FONT_SOURCE_PATH,
     HEADER_DATE_ENGLISH_INDEX,
     HEADER_MATCH_COMPETITION_RECT,
     HEADER_MATCHUP_RECT,
@@ -41,6 +47,7 @@ from original_management_header import (
     format_management_header_fixed_league_competition,
     format_management_header_matchup,
     management_header_caption_overlay,
+    management_header_club_name_overlay,
     management_header_date_overlay,
     management_header_match_overlays,
     management_header_group_for_flags,
@@ -62,6 +69,28 @@ class FakeHeaderFont:
         return SimpleNamespace(width=20, height=5, alpha=bytes([255]) * 100)
 
 
+class FakeClubNameFont:
+    atlas_width = 2678
+    atlas_height = 38
+
+    def measure_text(self, text):
+        if text != "Southport":
+            raise AssertionError(text)
+        return 99
+
+    def native_line_height(self):
+        return 39
+
+    def render_text_alpha(self, text):
+        if text != "Southport":
+            raise AssertionError(text)
+        return SimpleNamespace(
+            width=99,
+            height=38,
+            alpha=bytes([255]) * (99 * 38),
+        )
+
+
 class FakeDateFont:
     atlas_width = 1366
     atlas_height = 19
@@ -76,7 +105,7 @@ class FakeDateFont:
         return SimpleNamespace(width=100, height=10, alpha=bytes([255]) * 1000)
 
 
-def resources(font=None, date_font=None):
+def resources(font=None, date_font=None, club_name_font=None):
     left_rgba = bytearray(30 * 4845 * 4)
     right_rgba = bytearray(70 * 380 * 4)
     return OriginalManagementHeaderResources(
@@ -84,6 +113,7 @@ def resources(font=None, date_font=None):
         EA444DecodedImage(70, 380, bytes(right_rgba), 0, 0),
         FakeHeaderFont() if font is None else font,
         FakeDateFont() if date_font is None else date_font,
+        club_name_font,
     )
 
 
@@ -111,6 +141,18 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(HEADER_CAPTION_GLOBAL_VA, 0x9820F4)
         self.assertEqual(HEADER_CAPTION_ENGLISH_INDEX, 2497)
         self.assertEqual(HEADER_CAPTION_TEXT, "MENU")
+        self.assertEqual(HEADER_CLUB_NAME_RECT, (172, 1, 378, 32))
+        self.assertEqual(HEADER_CLUB_NAME_FONT_OBJECT_VA, 0x8F21B0)
+        self.assertEqual(
+            HEADER_CLUB_NAME_FONT_SOURCE_PATH,
+            "Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+        )
+        self.assertEqual(HEADER_CLUB_NAME_FONT_BYTE_SIZE, 155_544)
+        self.assertEqual(HEADER_CLUB_NAME_FONT_ATLAS_SIZE, (2678, 38))
+        self.assertEqual(
+            HEADER_CLUB_NAME_FONT_SHA256,
+            "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df",
+        )
         self.assertEqual(HEADER_DATE_RECT, (172, 68, 378, 16))
         self.assertEqual(HEADER_CENTRAL_TEXT_RAW_STYLE, 0x2102)
         self.assertEqual(HEADER_CENTRAL_TEXT_NATIVE_COLOR_16, 0xFFFF)
@@ -124,6 +166,30 @@ class OriginalManagementHeaderTests(unittest.TestCase):
             HEADER_DATE_FONT_SOURCE_PATH,
             "Fonts/Zurich_XCn_BT_18pixel.fnt",
         )
+
+    def test_club_name_remains_fail_closed_without_exact_36px_font(self):
+        self.assertIsNone(
+            management_header_club_name_overlay(resources(), "Southport")
+        )
+
+    def test_southport_club_name_uses_source_rect_right_alignment_and_clipping(self):
+        overlay = management_header_club_name_overlay(
+            resources(club_name_font=FakeClubNameFont()),
+            "Southport",
+        )
+        self.assertIsNotNone(overlay)
+        # Source trace: 172 + 378 - 99 = 451. Native line height 39 centers at
+        # y=-2 and the exact y=1..33 control clips it to all 32 visible rows.
+        self.assertEqual((overlay.x, overlay.y), (451, 1))
+        self.assertEqual((overlay.width, overlay.height), (99, 32))
+        self.assertEqual(overlay.control_rect, HEADER_CLUB_NAME_RECT)
+        self.assertEqual(overlay.raw_style, 0x2102)
+        self.assertEqual(overlay.native_color_16, 0xFFFF)
+        self.assertEqual(
+            overlay.font_source_path,
+            "Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+        )
+        self.assertEqual(len(overlay.rgba), 99 * 32 * 4)
 
     def test_recovered_date_formatter_uses_unpadded_day_abbreviated_month_and_full_year(self):
         self.assertEqual(
