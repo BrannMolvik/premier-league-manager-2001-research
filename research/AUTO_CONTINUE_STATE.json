@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 388: Gate 13 remains earliest incomplete pending external Windows acceptance of artifact 11473439363. PR #539 at exact head b422a30acdf50ef9f05a47cbd84f1de3f0d42fdf implements a separate, non-promoting minimal-FFmpeg Windows package candidate: optional hash-bound h264_mf package marker, proof-bound candidate archive, PyInstaller smoke path, and unchanged production package default. Verify exact-head CI, repair if needed, inspect candidate artifact, merge only if green, then reconcile and continue.",
+  "active_task": "Recovery 388: Gate 13 remains earliest incomplete pending external Windows acceptance of artifact 11473439363. PR #539 advanced to exact head 2df13ba875ba53e86a78d518e07acc1191c369ea after fixing the only full-suite failure on the prior head (candidate API return-value collision: receipt archive filename overwrote archive Path). Verify all fresh exact-head CI, inspect the separate minimal-helper candidate artifact, merge only if green, then reconcile and continue.",
   "last_known_main_head": "f2772868c48257aa5dc70f41d514f47535261f9b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 388,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #539 opened; exact-head Windows/minimal/reconstruction verification active.",
+  "note": "PR #539 repaired after 2915-test run exposed one candidate return-value bug; fresh exact-head verification active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
