@@ -19,7 +19,7 @@ from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
 from cup_progression import CupResultRegistry
-from cup_tied_state import CupTiedPlayerCollection, CupTiedTransferWindowState
+from cup_tied_state import CupTiedPlayerCollection
 from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
@@ -1632,19 +1632,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         cup_tied_collections=_restore_cup_tied_collections(
             snapshot.get("cup_tied_collections")
         ),
-        cup_tied_transfer_window=(
-            None
-            if snapshot.get("cup_tied_transfer_window") is None
-            else CupTiedTransferWindowState(
-                selector=int(snapshot["cup_tied_transfer_window"]["selector"]),
-                cutoff_1=date.fromisoformat(
-                    snapshot["cup_tied_transfer_window"]["cutoff_1"]
-                ),
-                cutoff_2=date.fromisoformat(
-                    snapshot["cup_tied_transfer_window"]["cutoff_2"]
-                ),
-            )
-        ),
+        # Legacy schema field is intentionally ignored. Recovery 354
+        # disproved its transfer-date semantics; live state must remain inert.
+        cup_tied_transfer_window=None,
         domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
         european_cups=DomesticCupScheduleState.restore(snapshot.get("european_cups")),
         qualification_cups=DomesticCupScheduleState.restore(
@@ -1966,9 +1956,6 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     state.configure_stadium_source_loader(database)
     validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
                           {} if league is None else league.fixtures)
-    state.calendar.daily_hooks.append(
-        state._run_daily_cup_tied_transfer_window
-    )
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)
     state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
     state.calendar.monthly_hooks.append(state._run_monthly_player_development)

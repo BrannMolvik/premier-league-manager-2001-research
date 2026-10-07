@@ -128,10 +128,9 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
-    def test_cup_tied_transfer_window_survives_roundtrip(self):
+    def test_disproved_cup_tied_date_window_stays_inert_across_roundtrip(self):
         original = self.build_controller()
-        self.assertIsNotNone(original.state.cup_tied_transfer_window)
-        original.state.cup_tied_transfer_window.selector = 1
+        self.assertIsNone(original.state.cup_tied_transfer_window)
 
         restored = loads_human_gameplay(
             Database(),
@@ -140,10 +139,7 @@ class InternalSaveTests(unittest.TestCase):
             dumps_human_gameplay(original),
         )
 
-        self.assertEqual(
-            restored.state.cup_tied_transfer_window,
-            original.state.cup_tied_transfer_window,
-        )
+        self.assertIsNone(restored.state.cup_tied_transfer_window)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),

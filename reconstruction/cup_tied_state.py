@@ -13,7 +13,6 @@ status bits.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, timedelta
 from typing import Mapping, Protocol
 
 
@@ -71,70 +70,6 @@ class CupTiedPlayerCollection:
             recorded_club_id is not None
             and int(recorded_club_id) != int(current_club_id)
         )
-
-
-@dataclass
-class CupTiedTransferWindowState:
-    """Global DBRGame Cup-Tied transfer-date window state.
-
-    Recovery 357 identifies DBRGame+0x9D8/+0x9DC/+0x9E0 as the selector and
-    two date cutoffs consumed only by the Cup runtime +0x34 mode-1 fallback.
-    0x413A20 initializes selector 0 and derives the cutoffs from the current
-    game date as +60 and +207 days. Daily 0x4138E0 changes the selector to 1
-    on August 30 and to 2 on January 30; all other dates preserve its value.
-    """
-
-    selector: int
-    cutoff_1: date
-    cutoff_2: date
-
-    @classmethod
-    def initialize(cls, current_date: date) -> "CupTiedTransferWindowState":
-        if not isinstance(current_date, date):
-            raise TypeError("current_date must be a date")
-        return cls(
-            selector=0,
-            cutoff_1=current_date + timedelta(days=60),
-            cutoff_2=current_date + timedelta(days=207),
-        )
-
-    def advance_day(self, on_date: date) -> int:
-        """Apply the exact daily selector transitions from DBRGame::0x4138E0."""
-        if not isinstance(on_date, date):
-            raise TypeError("on_date must be a date")
-        if (on_date.month, on_date.day) == (8, 30):
-            self.selector = 1
-        elif (on_date.month, on_date.day) == (1, 30):
-            self.selector = 2
-        return int(self.selector)
-
-    def selected_cutoff(self) -> date | None:
-        """Return the cutoff selected by +0x9D8, or None for selector 0/other."""
-        if int(self.selector) == 1:
-            return self.cutoff_1
-        if int(self.selector) == 2:
-            return self.cutoff_2
-        return None
-
-    def transfer_history_is_tied(
-        self,
-        *,
-        history_club_id: int | None,
-        transfer_date: date | None,
-    ) -> bool:
-        """Reproduce the collection-miss date branch of 0x418480.
-
-        Native 0x419350 exposes CPlayerTransferHistory+0x18 only when +0x08
-        is greater than -1. The selected transfer date must be strictly later
-        than the global cutoff. Missing history, selector 0/unknown, equality,
-        and earlier dates all fail closed.
-        """
-        if history_club_id is None or int(history_club_id) < 0:
-            return False
-        if not isinstance(transfer_date, date):
-            return False
-        cutoff = self.selected_cutoff()
-        return bool(cutoff is not None and transfer_date > cutoff)
 
 
 def root_competition_id(

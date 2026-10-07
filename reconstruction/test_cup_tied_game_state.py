@@ -1,10 +1,9 @@
 import unittest
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from types import SimpleNamespace
 
 from game_state import GameState
-from transfer_state import PlayerMovement
 
 
 @dataclass
@@ -85,78 +84,13 @@ class GameStateCupTiedIntegrationTests(unittest.TestCase):
         self.assertTrue(state.is_player_cup_tied(100, 11, 20))
         self.assertEqual(state.cup_tied_collections[100].recorded_club_id(11), 10)
 
-    def test_mode1_collection_miss_does_not_promote_disproved_transfer_date_fallback(self):
-        player = Player(11, 10)
-        state = GameState.from_players((player,), date(2000, 7, 1))
-        state.competitions = {100: Competition(100, 2, cup_restriction_mode=1)}
-        state.cup_tied_transfer_window.advance_day(date(2000, 8, 30))
-        movement_date = state.cup_tied_transfer_window.cutoff_1 + timedelta(days=1)
-        state.transfers.record_movement(
-            PlayerMovement(11, 10, 20, 100, movement_date)
-        )
-        player.club_id = 20
-        state.club_roster_order = {20: [11]}
-
-        # Recovery 354 proves CPlayerTransferHistory+0x18 is an appearance
-        # count, not this movement date. Until the original appearance-count
-        # cutoff producer is recovered, the mode-1 collection miss is closed.
-        self.assertFalse(state.is_player_cup_tied_for_status(100, 11, 20))
-
-    def test_mode1_transfer_date_equality_is_not_tied(self):
+    def test_mode1_collection_miss_keeps_disproved_date_window_inert(self):
         player = Player(11, 20)
         state = GameState.from_players((player,), date(2000, 7, 1))
         state.competitions = {100: Competition(100, 2, cup_restriction_mode=1)}
-        state.cup_tied_transfer_window.advance_day(date(2000, 8, 30))
-        state.transfers.record_movement(
-            PlayerMovement(
-                11, 10, 20, 100, state.cup_tied_transfer_window.cutoff_1
-            )
-        )
-        self.assertFalse(state.is_player_cup_tied_for_status(100, 11, 20))
 
-    def test_non_mode1_collection_miss_does_not_use_transfer_date_fallback(self):
-        player = Player(11, 20)
-        state = GameState.from_players((player,), date(2000, 7, 1))
-        state.competitions = {100: Competition(100, 2, cup_restriction_mode=2)}
-        state.cup_tied_transfer_window.advance_day(date(2000, 8, 30))
-        state.transfers.record_movement(
-            PlayerMovement(
-                11,
-                10,
-                20,
-                100,
-                state.cup_tied_transfer_window.cutoff_1 + timedelta(days=10),
-            )
-        )
+        self.assertIsNone(state.cup_tied_transfer_window)
         self.assertFalse(state.is_player_cup_tied_for_status(100, 11, 20))
-
-    def test_stale_latest_movement_fails_closed(self):
-        player = Player(11, 20)
-        state = GameState.from_players((player,), date(2000, 7, 1))
-        state.competitions = {100: Competition(100, 2, cup_restriction_mode=1)}
-        state.cup_tied_transfer_window.advance_day(date(2000, 8, 30))
-        state.transfers.record_movement(
-            PlayerMovement(
-                11,
-                9,
-                19,
-                100,
-                state.cup_tied_transfer_window.cutoff_1 + timedelta(days=10),
-            )
-        )
-        self.assertFalse(state.is_player_cup_tied_for_status(100, 11, 20))
-
-    def test_daily_hook_moves_selector_on_source_boundaries(self):
-        state = GameState.from_players((), date(2000, 8, 29))
-        self.assertEqual(state.cup_tied_transfer_window.selector, 0)
-        state.calendar.advance_one_day()
-        self.assertEqual(state.cup_tied_transfer_window.selector, 1)
-        days = (
-            date(2001, 1, 30).toordinal()
-            - date(2000, 8, 30).toordinal()
-        )
-        state.calendar.advance(days)
-        self.assertEqual(state.cup_tied_transfer_window.selector, 2)
 
     def test_missing_runtime_kind_metadata_does_not_mutate_state(self):
         player = Player(11, 10)

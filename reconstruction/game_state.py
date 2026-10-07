@@ -18,7 +18,6 @@ from cup_progression import (
 )
 from cup_tied_state import (
     CupTiedPlayerCollection,
-    CupTiedTransferWindowState,
     cup_tied_root_competition_id,
 )
 from domestic_cup_state import DomesticCupScheduleState
@@ -189,9 +188,10 @@ class GameState:
     cup_tied_collections: dict[int, CupTiedPlayerCollection] = field(
         default_factory=dict
     )
-    # DBRGame +0x9D8/+0x9DC/+0x9E0: selector and two source-closed date
-    # cutoffs used only by the root Cup mode-1 collection-miss fallback.
-    cup_tied_transfer_window: CupTiedTransferWindowState | None = None
+    # Schema tombstone only. The former date-window model was disproved by
+    # Recovery 354 and must remain None until the real appearance-count cutoff
+    # producer is source-closed.
+    cup_tied_transfer_window: None = None
     domestic_cups: DomesticCupScheduleState = field(
         default_factory=DomesticCupScheduleState
     )
@@ -444,9 +444,6 @@ class GameState:
             calendar=GameCalendar(start_date),
             players=players,
             premier_league=league,
-            cup_tied_transfer_window=CupTiedTransferWindowState.initialize(
-                start_date
-            ),
             club_roster_order=roster_order,
             clubs=clubs_by_id,
             managers=managers_by_id,
@@ -492,9 +489,6 @@ class GameState:
                 state.native_uncontrolled_capacity_bytes = allocation_producer()
             state.native_club_attendance_counters = {
                 club_id: ClubAttendanceCounter.fresh() for club_id in state.clubs}
-        state.calendar.daily_hooks.append(
-            state._run_daily_cup_tied_transfer_window
-        )
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
@@ -514,9 +508,6 @@ class GameState:
         state = cls(
             calendar=GameCalendar(start_date),
             players={p.index: p for p in player_list},
-            cup_tied_transfer_window=CupTiedTransferWindowState.initialize(
-                start_date
-            ),
             club_roster_order=roster_order,
             team_tactics={
                 club_id: TeamTacticalState()
@@ -534,9 +525,6 @@ class GameState:
                 club_id: 0
                 for club_id in roster_order
             },
-        )
-        state.calendar.daily_hooks.append(
-            state._run_daily_cup_tied_transfer_window
         )
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
@@ -697,12 +685,6 @@ class GameState:
         if club_id not in self.club_roster_order and club_id not in self.clubs:
             raise KeyError(club_id)
         self.team_tactics[club_id] = state
-
-    def _run_daily_cup_tied_transfer_window(self, on_date: date) -> None:
-        """Apply DBRGame::0x4138E0's August/January selector transitions."""
-        window = self.cup_tied_transfer_window
-        if window is not None:
-            window.advance_day(on_date)
 
     def _run_daily_injury_returns(self, on_date: date) -> None:
         """Clear persistent injury state when the scheduled return date arrives."""
@@ -2970,12 +2952,9 @@ class GameState:
         # boundary. Unknown is not the constructor's known-clear bit 9.
         self.native_club_attendance_counters = {}
         self.native_uncontrolled_capacity_bytes = {}
-        # 0x4F7F03 invokes DBRGame::0x413A20 after competition
-        # reconstruction, resetting selector 0 and deriving fresh +60/+207
-        # cutoffs from the current game date.
-        self.cup_tied_transfer_window = CupTiedTransferWindowState.initialize(
-            self.calendar.current_date
-        )
+        # The former date-window Cup-Tied fallback was disproved by Recovery
+        # 354. Keep the compatibility tombstone inert across season rebuilds.
+        self.cup_tied_transfer_window = None
         self.cup_results = new_registry
         self.domestic_cups = new_domestic
         self.european_cups = new_european
