@@ -102,6 +102,13 @@ jobs:
           mapfile -t CONFIGURE_ARGS < <(tr -d '\r' < "$GITHUB_WORKSPACE/_minimal-ffmpeg-configure.args")
           printf 'Pinned configure args:\n'
           printf '  %s\n' "${CONFIGURE_ARGS[@]}"
+          SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+          if ! [[ "$SOURCE_DATE_EPOCH" =~ ^[0-9]+$ ]]; then
+            printf 'Invalid source-derived SOURCE_DATE_EPOCH: %s\n' "$SOURCE_DATE_EPOCH" >&2
+            exit 1
+          fi
+          export SOURCE_DATE_EPOCH
+          printf 'Pinned SOURCE_DATE_EPOCH: %s\n' "$SOURCE_DATE_EPOCH"
           ./configure "${CONFIGURE_ARGS[@]}"
 
           OUT="$GITHUB_WORKSPACE/_minimal-ffmpeg-build"
