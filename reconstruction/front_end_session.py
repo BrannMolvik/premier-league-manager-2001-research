@@ -13,11 +13,13 @@ from pathlib import Path
 from typing import Callable, Protocol
 
 from runtime_diagnostics import timed_stage
+from front_end_settings import FrontEndSettings
 from front_end_state import (
     FrontEndCommand,
     FrontEndScreen,
     FrontEndState,
     FrontEndTransition,
+    SettingsControl,
     StartMenuControl,
     TeamSelectControl,
 )
@@ -74,6 +76,7 @@ class FrontEndSession:
     selected_club_ids: tuple[int, ...] = ()
     started: bool = False
     match_detail_mode: MatchDetailMode | None = None
+    settings: FrontEndSettings = field(default_factory=FrontEndSettings)
 
     @property
     def selected_club_id(self) -> int | None:
@@ -192,6 +195,17 @@ class FrontEndSession:
 
         if self.started and control == int(TeamSelectControl.START_CONTINUE):
             raise FrontEndSessionError("TeamSelect Start has already completed.")
+
+        if screen is FrontEndScreen.SETTINGS:
+            transition = self.navigation.dispatch(control)
+            if transition.command is FrontEndCommand.APPLY_SETTINGS:
+                if control == int(SettingsControl.RESET_ORIGINAL):
+                    self.settings.reset_original()
+                elif control == int(SettingsControl.TOGGLE_FULLSCREEN):
+                    self.settings.toggle_fullscreen()
+                else:
+                    raise RuntimeError("Settings command/control mapping changed.")
+            return FrontEndSessionOutcome(transition)
 
         if screen is FrontEndScreen.START_MENU and control == StartMenuControl.NEW_GAME:
             # Canonical New Game must still fail closed before TeamSelect, but
