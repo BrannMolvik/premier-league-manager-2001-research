@@ -1,3 +1,12 @@
+## 2026-10-07 — Recovery 379: Gate 13 issue #482 WPF/Tk repair merged
+
+- Recovered canonical work from GitHub; merged PR #518 first as `f7b17cca6cffb30aca50f920e2d120589e62e911`, source-closing the native PPreMatch Match Detail mode commit and post-modal presentation dispatch while leaving the ordinary management-screen entry into match router `0x513010` unresolved.
+- Reconciled newer issue #482 evidence that superseded the stale handoff: external artifact `11418314765` timed out on embedded WPF `easp.mp4` and terminated after the error dialog.
+- Audited PR #521's Windows diagnosis/fix. Exact head `076c8beab54a864ea42f6b15620e7a7ff2ca128b` passed reconstruction run `37576911430`, Gate-13 presentation run `37576911437`, Windows package run `37576911424`, and asset-policy run `37576911477`.
+- Merged PR #521 as `bfe95f257cd67c58e05fb65c29864271473f325e`. The fix services the Tk-owned parent HWND while waiting for the same game-owned WPF child, without changing verified media/order/audio, source geometry, the WPF playback script, or the bounded fail-closed timeout.
+- PR #521 package artifact `11463330603`, digest `sha256:d0558d936aee4dc5c6d3e4922b81e3d2fc8c209b50dfbdd92cb238dba344d4b2`, is valid evidence for the repair branch but is **not** tree-identical to merged current `main`, because #521 was merged over the already-present #518 history. A fresh current-main package is therefore required before the next external Gate-13 acceptance.
+- Recovery-379 work-ahead PRs #519 and #520 passed their old exact-head checks but are now stale against the repaired host/workflow and must be rebuilt from current `main`. Private source archive materialization succeeded; executable processing remains blocked by `caas.internal.errors.ClientError`, so management-entry semantics remain fail-closed.
+
 # Premier League Manager 2001 Reverse-Engineering Progress
 
 _Last updated: 26 September 2026_
