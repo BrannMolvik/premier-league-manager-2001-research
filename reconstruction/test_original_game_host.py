@@ -464,12 +464,12 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual((background.width, background.height), (1920, 1440))
         self.assertEqual(getattr(background, "zoom_factor", 1), 1)
         event = SimpleNamespace(
-            x=host._native_to_display(7),
-            y=host._native_to_display(478),
+            x=host._native_to_display(141),
+            y=host._native_to_display(512),
             widget=host.canvas,
         )
         native = host._normalize_pointer_event(event)
-        self.assertEqual((native.x, native.y), (7, 478))
+        self.assertEqual((native.x, native.y), (141, 512))
 
     def test_direct_scaler_never_builds_an_oversized_intermediate_surface(self):
         width, height, rgba = _scaled_rgba(
@@ -617,7 +617,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_resource_loader=None,
             management_thread_factory=thread_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         with patch.object(host, "redraw"):
             host.on_click(SimpleNamespace(x=426, y=301))
@@ -712,7 +712,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_resource_loader=loader,
             management_thread_factory=thread_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
 
         with patch.object(host, "redraw") as redraw:
@@ -769,7 +769,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_thread_factory=thread_factory,
             error_reporter=messages.append,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
 
         with patch.object(host, "redraw") as redraw:
@@ -810,7 +810,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_resource_loader=loader,
             management_thread_factory=thread_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         host.on_click(SimpleNamespace(x=426, y=301))
         self.assertEqual(len(threads), 1)
@@ -864,7 +864,7 @@ class OriginalGameHostTests(unittest.TestCase):
         # later route family. The initial Squad decode is completed under a
         # redraw stub because this test exercises loading/error lifecycle, not
         # bitmap rendering of the deliberately minimal object payload.
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         with patch.object(host, "redraw"):
             host.on_click(SimpleNamespace(x=426, y=301))
@@ -1027,7 +1027,7 @@ class OriginalGameHostTests(unittest.TestCase):
         messages = []
         host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
                                   error_reporter=messages.append)
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.session.choose_club(999)
         def reject(club_id):
             raise ValueError(f"club {club_id} is not in the Premier League")
@@ -1067,7 +1067,7 @@ class OriginalGameHostTests(unittest.TestCase):
                              host.on_script_arrow_release.__func__)
             self.assertEqual(len(host.canvas.images), 9)
 
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             self.assertIs(live.session.navigation.screen, FrontEndScreen.TEAM_SELECT)
             self.assertEqual(len(host.canvas.images), 3)
 
@@ -1363,7 +1363,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.on_click(SimpleNamespace(x=600, y=1))
@@ -1405,7 +1405,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.management_presenter.navigate(0x25C)
@@ -1443,7 +1443,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.management_presenter.navigate(0x25C)
@@ -1461,7 +1461,7 @@ class OriginalGameHostTests(unittest.TestCase):
         # Enter MANAGEMENT through the same source-backed Start route as the
         # application host. Do not fabricate navigation state that violates the
         # completed-TeamSelect invariant enforced by the management canvas.
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         # Start must still run through the real host/session transition, but the
         # test backend intentionally lacks the unrelated management source-data
@@ -1717,7 +1717,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeTk,
             management_presenter_factory=management_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         with self.assertRaisesRegex(
             OriginalGameHostError,

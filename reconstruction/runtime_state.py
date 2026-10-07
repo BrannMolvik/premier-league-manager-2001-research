@@ -173,6 +173,10 @@ class RuntimePlayer:
     training_method_results: list[int] = field(default_factory=lambda: [0] * 7)
     match_active: bool = False
     match_substitute_available: bool = False
+    # DBRPlayer constructor 0x423528 explicitly clears +0x174. The reserve
+    # predicates 0x417EA0/0x417EC0 read bits 0/1 of this independent word.
+    reserve_active: bool = False
+    reserve_substitute_available: bool = False
     condition: int = 80
     form_state: int = 2
     # DBRPlayer +0x79..+0x80: six-entry circular match-performance history.

@@ -69,6 +69,8 @@ class SquadRowView:
     non_eu: bool = False
     non_eu_registration_expired: bool | None = None
     cup_tied_positive: bool = False
+    reserve_active: bool | None = None
+    reserve_substitute_available: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -1176,6 +1178,8 @@ class ManagementSourceDataBridge:
                 assigned_role_abbreviation=abbreviation,
                 match_active=match_active,
                 match_substitute_available=match_substitute_available,
+                reserve_active=getattr(player, "reserve_active", None),
+                reserve_substitute_available=getattr(player, "reserve_substitute_available", None),
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),

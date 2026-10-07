@@ -180,6 +180,26 @@ class InternalSaveTests(unittest.TestCase):
         controller.autofill_lineup(0)
         return controller
 
+    def test_reserve_selection_flags_survive_save_and_feed_name_renderer(self):
+        from original_squad_row_style import squad_name_rgb_from_available_state
+        original = self.build_controller()
+        players = tuple(original.squad())
+        players[0].clear_match_selection()
+        players[0].reserve_active = True
+        players[1].clear_match_selection()
+        players[1].reserve_substitute_available = True
+        restored = loads_human_gameplay(Database(), coefficient_matrix(),
+                                       coefficient_matrix(), dumps_human_gameplay(original))
+        by_id = {player.index: player for player in restored.squad()}
+        for player, expected in ((players[0], (176, 176, 176)),
+                                 (players[1], (185, 167, 131))):
+            saved = by_id[player.index]
+            self.assertEqual(squad_name_rgb_from_available_state(
+                first_team_active=saved.match_active,
+                first_team_substitute=saved.match_substitute_available,
+                reserve_active=saved.reserve_active,
+                reserve_substitute=saved.reserve_substitute_available), expected)
+
     def build_controller_with_playable_scope_policy(self):
         controller = self.build_controller()
         controller.playable_primary_procedural_ids = (2, 14)

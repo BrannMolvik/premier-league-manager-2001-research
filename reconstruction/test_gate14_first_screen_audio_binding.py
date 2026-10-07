@@ -14,7 +14,7 @@ from gate14_first_screen_audio_binding import (
     Gate14FirstScreenAudioBindingError,
     install_first_screen_press_audio,
 )
-from original_front_end_layout import PSTARTMENU_ACTIONS
+from original_front_end_layout import PSTARTMENU_SCREEN_ACTIONS
 
 
 class FakeCanvas:
@@ -69,7 +69,7 @@ class Gate14FirstScreenAudioBindingTests(unittest.TestCase):
         ) as play:
             binding = install_first_screen_press_audio(host, b"bank", object())
             result = host.canvas.bindings["<Button-1>"](
-                center(PSTARTMENU_ACTIONS[0].rect)
+                center(PSTARTMENU_SCREEN_ACTIONS[0].rect)
             )
 
         self.assertEqual(result, "host-result")
@@ -91,7 +91,7 @@ class Gate14FirstScreenAudioBindingTests(unittest.TestCase):
             x=int(event.x) // 2,
             y=int(event.y) // 2,
         )
-        rect = PSTARTMENU_ACTIONS[0].rect
+        rect = PSTARTMENU_SCREEN_ACTIONS[0].rect
         scaled = SimpleNamespace(
             x=2 * (rect.x + rect.width // 2),
             y=2 * (rect.y + rect.height // 2),
@@ -134,7 +134,7 @@ class Gate14FirstScreenAudioBindingTests(unittest.TestCase):
             "gate14_first_screen_audio_binding.play_verified_first_screen_action_press"
         ) as play:
             binding = install_first_screen_press_audio(host, b"bank", object())
-            result = binding.on_click(SimpleNamespace(x=181, y=478))
+            result = binding.on_click(SimpleNamespace(x=315, y=512))
         self.assertEqual(result, "host-result")
         self.assertEqual(order, ["host"])
         play.assert_not_called()
@@ -147,7 +147,7 @@ class Gate14FirstScreenAudioBindingTests(unittest.TestCase):
             side_effect=Gate14MenuPcmPlaybackError("device failed"),
         ):
             binding = install_first_screen_press_audio(host, b"bank", object())
-            result = binding.on_click(center(PSTARTMENU_ACTIONS[0].rect))
+            result = binding.on_click(center(PSTARTMENU_SCREEN_ACTIONS[0].rect))
 
         self.assertEqual(result, "host-result")
         self.assertEqual(order, ["host"])

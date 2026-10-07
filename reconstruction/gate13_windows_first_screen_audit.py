@@ -36,7 +36,7 @@ from original_league_tables_resources import (
     validate_original_league_tables_resources,
 )
 from original_front_end_layout import (
-    PSTARTMENU_ACTIONS,
+    PSTARTMENU_SCREEN_ACTIONS,
     SCREEN_SIZE,
     TEAMSELECT_BACK_RECT,
     TEAMSELECT_HIERARCHY_ROW_ORIGINS,
@@ -161,14 +161,14 @@ def audit_frame_contract(
 
     if snapshot.screen is FrontEndScreen.START_MENU:
         expected_actions = [
-            (item.event, _rect_dict(item.rect)) for item in PSTARTMENU_ACTIONS
+            (item.event, _rect_dict(item.rect)) for item in PSTARTMENU_SCREEN_ACTIONS
         ]
         actual_actions = [(item["event"], item["rect"]) for item in actions]
         if actual_actions != expected_actions:
             raise WindowsFirstScreenAuditError(
                 "PStartMenu action geometry differs from recovered executable layout"
             )
-        if len(captions) != len(PSTARTMENU_ACTIONS):
+        if len(captions) != len(PSTARTMENU_SCREEN_ACTIONS):
             raise WindowsFirstScreenAuditError(
                 "PStartMenu must render all four recovered native captions"
             )
@@ -615,7 +615,7 @@ def run_real_windows_graphical_audit(
         _pump(root)
 
         new_game_rect = next(
-            item.rect for item in PSTARTMENU_ACTIONS if item.event == 2
+            item.rect for item in PSTARTMENU_SCREEN_ACTIONS if item.event == 2
         )
         _click(viewer.canvas, root, new_game_rect)
         if presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
