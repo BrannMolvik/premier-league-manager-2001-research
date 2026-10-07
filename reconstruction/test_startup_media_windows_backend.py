@@ -322,6 +322,7 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
 
         def mutate_client_origin(row):
             row["parent_client_rect"]["top"] = 1
+            row["parent_client_rect"]["height"] -= 1
 
         def mutate_child_offset(row):
             row["child_offset_from_parent_client"]["x"] += 1
