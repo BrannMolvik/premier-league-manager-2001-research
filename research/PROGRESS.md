@@ -4,6 +4,20 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 373 full PPreMatch structural coverage
+
+The XI-shirt continuation now covers native mask-driven 16-bit packing,
+verified primary-custom/generic/goalkeeper source loading, exact numbered-frame
+cropping, and supplied-state binding for all children 10..31. Runtime player
+`+0x76` is proven to initialize from `+0x70` at `0x418E27..0x418E31`.
+The PPreMatch child audit consequently reaches **182/182 structurally
+represented controls** for the first time.
+
+This is intentionally not complete supplied-state frame fidelity. Dynamic
+fixture/date/team identity text, supplied rating widths, selector pointer state
+and attachment of one concrete XI/formation state to the base surface remain
+open. Gate 13 #482 and Gate 14 completion remain false.
+
 ### 7 October 2026 KST — Recovery 373 generic shirt recolor continuation
 
 First-hand `0x5E4C60/0x5E4B10/0x5E4980` tracing closes the source-RGB stage
