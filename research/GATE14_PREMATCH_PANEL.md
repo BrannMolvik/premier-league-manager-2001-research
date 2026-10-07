@@ -823,3 +823,37 @@ Exact next implementation task: reproduce the bounded `0x5E4C60` 8-bit BMP
 palette/recolor transform or otherwise prove a byte-equivalent clean-room
 output, then load custom/generic/goalkeeper sources and bind all 22 marker
 rasters into the existing source-closed visibility/formation geometry.
+
+
+### Recovery 373 continuation — generic TeamNN.bmp source-RGB recolor reproduced
+
+The generic/alternate branch below `0x408320` is now clean-room reproduced
+through the source-RGB stage of `0x5E4C60`.
+
+Fresh first-hand disassembly proves:
+
+- the generic source is an uncompressed 8-bit 36x1280 Windows BMP, i.e. forty
+  36x32 numbered frames;
+- the palette color table is the 23 x 8-byte block at `0x834190`;
+- primary context consumes club color IDs `+0x4A/+0x4B` (Master.dat +58/+59);
+- alternate context consumes `+0x56/+0x57` (Master.dat +70/+71);
+- helper `0x5E4B10` rewrites palette indices 1..31 and 32..63 from the two
+  selected color records using signed integer division with truncation toward
+  zero and writes the exact endpoint explicitly;
+- palette indices 64..79 are rewritten by the same helper from white to black;
+- all other original BMP palette entries remain untouched;
+- `0x5E4980` skips indexed pixel zero, making it transparent/no-write.
+
+`gate14_prematch_generic_shirt.py` now parses the bounded BMP format,
+reproduces those three palette transforms, preserves untouched source palette
+entries and emits an RGBA source-color plane with index zero transparent.
+The remaining native display-format packing inside `0x5E4980` is intentionally
+not promoted yet. It consumes runtime mask/shift globals in the `0x9848xx`
+block and must be source-closed separately before exact legacy packed-pixel
+equivalence is claimed.
+
+The complete 22-marker raster family therefore remains fail-closed despite the
+source-RGB generic atlas being available. Exact next task: recover the
+`0x5E4980` display mask/shift initialization and reproduce its packed-color
+quantization, then combine primary custom, generic/alternate and goalkeeper
+sources into the supplied-state marker binder.
