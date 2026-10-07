@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 375 TextControl alignment and font correction
+
+First-hand `TextStyle::0x64F090` tracing closes the ordinary TextControl alignment bits rather than inferring them from screen geometry: `0x01` left, `0x02` right, `0x04` horizontal center, `0x08` top, `0x10` bottom and `0x20` vertical center. PPreMatch raw flags `0x21/0x22/0x24` are therefore source-closed.
+
+The same trace/source initializer audit corrects the shared style-3 font identity. Wrapper `0x87BE30` / object `0x8CAB80` loads `Fonts\\Zurich_XCn_BT_16pixel.fnt`, not the previously documented 18px font. Exact source size/hash/atlas are 75,217 bytes, `e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`, 1261x17, native line height 18. The old `0x08` “forced render” label is also superseded: it is the top-alignment fallback bit, while `0x20` wins for the centered FastView controls.
+
+PPreMatch now has an explicit four-style font contract covering regular-16 header/date, bold-20 team identities, bold-25 center V, and bold-16 player rows/rating captions. Text pixels remain unpromoted until rasterized with these exact source fonts.
+
 ### 7 October 2026 KST — Recovery 375 complete supplied PPreMatch child-state model
 
 PPreMatch supplied-state closure now covers the remaining dynamic families
