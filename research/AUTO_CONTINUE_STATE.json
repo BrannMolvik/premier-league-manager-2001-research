@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #534 is the active independent Gate-17 task at exact head f6f198038dbad1d318ab2362843c7915cbbde1bf. The four proven static-contributor MSYS2 source packages are assembled and hash/size-pinned; source-bundle run 37606602048 passed and uploaded artifact 11475127433 (digest sha256:5e839c839eb9bdd595c339b43a2165c369e5fa9c765517c491b023067f54ef45). Asset policy 37606602020 passed. Require exact-head reconstruction 37606601881, Windows package 37606602099, and minimal FFmpeg 37606601917 success before merge. After merge, extract and checksum actual license/notice material from the pinned source packages. Keep source_material_complete=false and legal_compliance_claimed=false.",
-  "last_known_main_head": "5cb72c979ac7fb4e1000eb0dc20310b55107b61d",
+  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #534 merged as 85f1534e642bd99cc1e8f2eab6cad062fd5c6256 after exact-head source-bundle 37606602048, asset 37606602020, Windows package 37606602099, reconstruction 37606601881 (2897 tests, 25 skipped), and minimal FFmpeg 37606601917 all passed. Exact four proven toolchain-contributor source packages are hash/size-pinned. Next cloud-safe task: extract and checksum actual package-recipe license/notice material from those pinned source packages, with Public-Domain manifest evidence treated separately. Keep source_material_complete=false and legal_compliance_claimed=false.",
+  "last_known_main_head": "85f1534e642bd99cc1e8f2eab6cad062fd5c6256",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 386,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #534 pinned source-package bundle proof passed; broader exact-head CI remains pending/in progress.",
+  "note": "PR #534 source-package bundle merged; license-material extraction is next.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
