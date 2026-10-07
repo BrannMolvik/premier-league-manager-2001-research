@@ -1,3 +1,4 @@
+# Verification-only PR probe for main 62ba573e11a6f5a1a7bd28d75517790405ab600c.
 from datetime import date
 from types import SimpleNamespace
 import unittest
