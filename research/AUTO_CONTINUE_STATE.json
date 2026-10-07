@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "MANDATORY RETROSPECTIVE AUDIT. Stop new gameplay/presentation implementation and Gate17 work-ahead. Read research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md and research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md. Audit every merged PR/commit from Gate13/#482 reopening through current main. Enumerate all changes, including non-behavioral ones; for each behavior/presentation/simulation-affecting change establish what the shipped original did, cite reproducible original evidence, classify ORIGINAL-PROVEN / COMPATIBILITY-EQUIVALENT / RESEARCH-INFRASTRUCTURE-ONLY / DEFERRED-MODERNIZATION / UNSUPPORTED / INCONCLUSIVE, and specify corrective action. Explicitly reconcile the external Windows contradictions: misframed intro content, wrong Escape/fullscreen behavior during intro, extreme transition latency, and incomplete Southport Squad/header/names. Settings is DEFERRED-MODERNIZATION and must be isolated from the original baseline. Do not create another external acceptance build or resume implementation until the audit exit criteria pass. Unsupported active behavior must be reverted/isolated/fail-closed, not replaced by guesses. Correct current status claims contradicted by evidence. Persist the complete audit and exact next original-proven Gate13 task.",
+  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41. Audit starts at roadmap reopen e2770be0649853e00d1e849ffd377ea3a115d237; first-parent inventory contains 99 in-scope main commits. PR #539 is closed/suspended under the freeze. Enumerate every in-scope main commit/merged PR, classify all behavior-affecting changes against reproducible original evidence, reconcile Daniel's four external contradictions, identify unsupported/deferred active behavior, make only minimal isolation/status corrections required by the audit, and persist exact next original-proven Gate-13 source task. Do not resume Gate-17 work-ahead.",
   "last_known_main_head": "e4a60f0a40ed7bfe9664f899c6f13f8796fdbd41",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 390,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Daniel ordered a full retrospective audit of recent worker work for original-behavior fidelity. Implementation/build generation is blocked until the post-#482 audit passes.",
+  "recovery_generation": 391,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 391: canonical freeze recognized; PR #539 closed; retrospective audit is the only active task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
