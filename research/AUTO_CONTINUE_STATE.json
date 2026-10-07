@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 is active at exact head 125018bf9ef5feba3d58e9a73f67603fadd51cc1. Superseded minimal-FFmpeg run 37593786593 proved ownership capture succeeded but the audit step never launched because its PowerShell continuation lines contained literal backslash-backticks. The workflow now uses a PowerShell argument array plus explicit LASTEXITCODE failure propagation, and a regression test locks that invocation shape. Require fresh exact-head reconstruction, asset-policy, and minimal-FFmpeg success before merge. If green, inspect the ownership receipt/artifact, persist exact owner packages, merge, then strengthen evidence to archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
+  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 exact head 125018bf9ef5feba3d58e9a73f67603fadd51cc1 now has asset-policy run 37596223786 success and reconstruction run 37596223784 success (2,874 tests, 25 skipped). Minimal FFmpeg run 37596223802 is still executing the exact helper build and remains the only merge gate. The previous ownership-audit invocation syntax defect is fixed with a PowerShell argument array and regression coverage. If minimal FFmpeg is green, inspect the uploaded ownership receipt, persist exact owners, merge PR #528, then continue archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
   "last_known_main_head": "c73e07e5c34115a7644bfd1b1a8cd1163a5739ce",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 384,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #528 exact head advanced to 125018bf after fixing the PowerShell-only audit invocation failure and adding regression coverage.",
+  "note": "PR #528 exact head has green asset/reconstruction checks; minimal FFmpeg ownership proof remains active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
