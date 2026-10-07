@@ -12475,3 +12475,17 @@ continues with ordinary Squad row display-name/color helpers.
 - This supersedes the earlier assumption that reserve state must remain unknown for fresh clean-room players. No name color is guessed: fresh default reserve bits now have direct source evidence.
 - Detailed evidence is in `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`. Fresh Squad remains incomplete until the runtime worker propagates the two reserve booleans through `RuntimePlayer -> SquadRowView -> OriginalSquadPresenter`, verifies the five-state lifecycle/default-yellow names, and then closes the missing fresh management-header binding.
 - Retrospective audit remains **open**; no new Windows acceptance artifact, Settings work, or Gate-17 work-ahead is authorized.
+
+
+## 8 October 2026 KST — Recovery 396 central management-header source closure
+
+- Continued the issue-#482 retrospective audit from `b29faef5f37226604b795829f7c857bbd369d472` without changing the source-proven startup-FMV geometry.
+- First-hand canonical-executable analysis separates the existing right-side `MENU` compound from the central `back_2_<variant>.444` header family that Daniel observed as blank.
+- The original central club-name control is source-closed at screen rect `(172,1,378,32)`. Management refresh `0x432A20` supplies current-club accessor `0x40DA50`; the accessor returns the first localized DBRClub name field, matching clean-room `Club.name`. Fresh Southport therefore expects exact source text `Southport`.
+- Font object `0x8F21B0` is source-bound to `Fonts/Zurich_BdXCn_BT_36pixel.fnt`. The authorized source file is 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`; it is not currently staged and must be imported through the normal manifest/provenance path rather than substituted.
+- Supporting source controls are `(172,34,378,16)`, `(172,51,378,16)`, and `(172,68,378,16)`, using the already staged exact `Zurich_XCn_BT_18pixel.fnt`.
+- Canonical English resources resolve the exact templates used by those controls: `%C %Rf{ Round} %Lf{ Leg}`, `%1s Vs %2s %D{%D %M %Y}`, and `Today is %D %M %Yf`. The bottom date line is independently refreshed from the current game date.
+- Current clean host already carries `ClubHeaderView.name/current_date` and draws the central background bitmap, but renders no central dynamic text. The blank central header is therefore a source-proven renderer omission.
+- The two match-line format/layout contracts are closed, but internal selector `0x615D10/0x615DA0` still has an unnamed exclusion/advance predicate. Those lines remain fail-closed until that producer is source-closed or matched to an exact existing clean-room equivalent.
+- Detailed evidence and bounded implementation handoff are persisted in `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
+- Retrospective audit remains **open**. Fresh Squad is not complete until reserve-state runtime propagation, central-header rendering and focused/full verification pass; a new external candidate remains forbidden during the audit.

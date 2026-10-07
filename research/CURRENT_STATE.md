@@ -1,3 +1,22 @@
+# Recovery 396 continuation — central fresh-management header source-closed
+
+_Updated 8 October 2026._
+
+Canonical source-investigation baseline is `b29faef5f37226604b795829f7c857bbd369d472`. **Gate 13 remains the earliest incomplete validation gate.** The mandatory post-#482 retrospective audit remains active; no acceptance build, Settings expansion, or Gate-17 work-ahead is authorized.
+
+Fresh-Squad reserve selection is source-closed in `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`: native fresh `DBRPlayer+0x174` starts at zero and the exact five-state none/reserve-sub/reserve-active/first-sub/first-active transitions are known. Runtime propagation and regression coverage are still required before ordinary default-yellow names can be considered integrated.
+
+Recovery 396 now also source-closes the ordinary **central** management-header text contract in `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`. This is distinct from the already-rendered right-side `MENU` compound. The original constructs the club-name control at `(172,1,378,32)`, fills it from the current club's first localized name field, and uses exact `Fonts/Zurich_BdXCn_BT_36pixel.fnt`. The y=68 control independently formats the current date from exact English template `Today is %D %M %Yf` with the source 18-pixel Zurich font. Thus Daniel's blank central Southport header is explained by a real host omission: the compatibility host draws `back_2_<variant>.444` but no central dynamic text layer.
+
+The two conditional y=34/y=51 match-line layouts and exact English templates are also source-closed, but the `0x615D10/0x615DA0` match-selection filter is not yet semantically closed. Do not replace it with a plausible next-fixture search. The next source task is to close that selector or prove an exact already-reconstructed equivalent. If it remains unresolved, the minimum safe header repair is still club name + current-date line, with match lines fail-closed.
+
+The required 36-pixel bold Zurich source asset is not yet staged. Its authorized canonical identity is recorded in the trace (155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`) so a later implementation worker can import it through the normal asset-policy/provenance path rather than substituting another font.
+
+The startup-FMV source geometry remains unchanged: 320x480 coded TGQ -> exact 2x horizontal expansion -> 640x480 movie surface -> 1:1 blit at (80,60) in the ordinary 800x600 mode. The current packaged parent/child DPI/actual-HWND geometry still requires a private Windows receipt before changing any source geometry.
+
+Fresh Squad completeness remains **false** until reserve-state runtime propagation, central-header rendering, focused/full verification and the remaining audit exit criteria pass.
+
+---
 # Recovery 396 continuation — fresh-Squad reserve selection state source-closed
 
 _Updated 8 October 2026._

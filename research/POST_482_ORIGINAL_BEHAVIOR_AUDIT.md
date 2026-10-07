@@ -240,6 +240,28 @@ intrinsically unknown for fresh reachable clean-room players. The remaining
 work is integration, regression coverage, and the separate header binding.
 Fresh-Squad completeness is still false at this checkpoint.
 
+### 9. Blank Southport central header is a source-proven renderer omission
+
+Recovery 396 distinguishes the already-rendered right-side `MENU` compound
+from the central competition-header bitmap/text family. Canonical-executable
+analysis source-closes a current-club name control at
+`(172,1,378,32)`, populated through club accessor `0x40DA50`, plus an
+independently refreshed current-date control at `(172,68,378,16)`.
+
+The club-name control uses exact original
+`Fonts/Zurich_BdXCn_BT_36pixel.fnt`; the ordinary supporting lines use the
+already staged `Fonts/Zurich_XCn_BT_18pixel.fnt`. Exact language templates
+for the two conditional match lines and bottom date line are recorded in
+`research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
+
+Current host code draws the `back_2_<variant>.444` central bitmap but no
+central dynamic text layer. Daniel's blank Southport header is therefore
+explained by an implementation omission, not by an unknown title string or a
+failure of the separate `MENU` control. Club name and current-date binding
+are source-closed; the internal `0x615D10/0x615DA0` match-selection filter
+still needs source closure before the optional y=34/y=51 match lines may be
+enabled.
+
 ## External Windows failures reconciled
 
 | External observation | Audit interpretation | Current disposition |
@@ -247,13 +269,13 @@ Fresh-Squad completeness is still false at this checkpoint.
 | Intro movie content is offset/cropped inside the 640x480 field | Contradicts any broad claim that PR #487 made the live startup movie presentation equivalent. Outer geometry remains source-proven; frame-content transform is INCONCLUSIVE. | No acceptance build. Recover native decoded-frame content layout/stride/field semantics first. |
 | Escape leaves fullscreen during startup | Compatibility handler leaked into an unrecovered original input boundary. | Corrected by `2d7e9b87`: fail closed during startup. Native skip semantics still open. |
 | Menu transitions remain extremely slow | Prior derivative/lazy-load/lifecycle optimizations removed specific reconstruction overhead only. | Responsiveness criterion remains open. Profile current original-baseline transition after audit corrections; do not invent a timing target from tests. |
-| Fresh Southport Squad has blank/missing header and no names | Row sub-contracts are real. Recovery 396 source-closed the five-way reserve/first-team selection state and proves native fresh `+0x174` starts at zero; runtime propagation and header integration remain incomplete. | Propagate the source-closed reserve booleans, verify ordinary/default-yellow names, then recover the exact header content binding. |
+| Fresh Southport Squad has blank/missing header and no names | Row sub-contracts are real. Recovery 396 source-closed both the five-way reserve/first-team name state and the central club-name/current-date header controls. Runtime propagation/rendering remains incomplete; conditional match-line selection is still source-open. | Propagate reserve booleans and render the source club/date header. Keep the two conditional match lines fail-closed until `0x615D10/0x615DA0` is closed. |
 
 ## Unsafe or Unproven Active Behavior
 
 1. **Startup FMV frame-content transform — INCONCLUSIVE and externally contradicted.** The game-owned 640x480/(80,60) surface is retained, but exact live frame-content equivalence is not accepted. This blocks another external candidate.
 2. **Fresh Squad ordinary-name completeness — source state closed, integration incomplete.** Recovery 396 closes the `+0x174` producer/initialization/state enum. Current behavior still withholds names because those two booleans are not yet propagated through the clean-room row model.
-3. **Fresh management header completeness — unresolved.** Verified header chrome exists, but Daniel's normal Southport evidence shows the visible header/content result is incomplete.
+3. **Fresh management header completeness — source contract recovered, runtime integration incomplete.** Recovery 396 source-closes the central club-name and current-date controls and explains the blank Southport result as an omitted live text layer. The conditional match selector remains source-open, so its two lines stay fail-closed.
 4. **Startup Escape/skip semantics — INCONCLUSIVE but safely isolated.** Fullscreen mutation is blocked during startup; native skip behavior still requires source evidence.
 5. **Cup-Tied negative mode-1 fallback — source semantics unresolved and the disproven model is now isolated.** `0db90b97` removed the date-based gameplay decision and `b890c578` removed the rejected date helper from construction, daily hooks, season reset and save restore. The positive source-proven appeared-player collection remains active; every unresolved collection miss fails closed.
 6. **Ordinary match-entry trigger / 3D presentation — unresolved and fail-closed.** Gate-14 contracts are not reachable-flow proof.
@@ -281,7 +303,7 @@ First finish the audit corrections rather than resume feature work:
 
 1. investigate the startup TGQ/TQI-to-Windows transport boundary so the proven 640x480 field contains the same coordinates/content as the original; first distinguish source decode/derivative errors from WPF/Win32 DPI or layout-unit mismatch rather than tuning margins by eye;
 2. if the remaining FMV distinction requires a private Windows receipt, persist that exact blocker and continue the independent source-backed Squad work;
-3. recover the reserve +0x174 Squad name-color predicates/state and the missing fresh-management header binding;
+3. integrate the source-closed reserve +0x174 Squad name state and central club/date header contract; source-close `0x615D10/0x615DA0` before enabling the two optional match lines;
 4. only after the retrospective audit exits, return to current-baseline latency measurement and a new Windows acceptance candidate.
 
 Gate 17 work-ahead and Settings remain frozen while these Gate-13 audit blockers exist.

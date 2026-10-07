@@ -3280,7 +3280,7 @@
   "gate13_post482_audit_required": true,
   "gate13_post482_audit_first_parent_entry_count": 134,
   "gate13_post482_audit_start": "e2770be0649853e00d1e849ffd377ea3a115d237",
-  "gate13_post482_audit_head": "b8be966db032654fc13eb733b19ae1cfafc39374",
+  "gate13_post482_audit_head": "b29faef5f37226604b795829f7c857bbd369d472",
   "gate13_external_acceptance_candidate_valid": false,
   "gate13_external_acceptance_candidate_invalid_reason": "Previous Settings-inclusive candidate is not the current original-baseline target and Daniel's external evidence still contradicts startup framing/input, latency, and Squad completeness claims.",
   "gate13_post482_audit_complete": false,
@@ -3306,5 +3306,11 @@
     3,
     4
   ],
-  "gate13_post482_squad_reserve_runtime_propagated": false
+  "gate13_post482_squad_reserve_runtime_propagated": false,
+  "gate13_post482_squad_header_primary_source_closed": true,
+  "gate13_post482_squad_header_date_source_closed": true,
+  "gate13_post482_squad_header_match_formats_source_closed": true,
+  "gate13_post482_squad_header_match_resolver_source_closed": false,
+  "gate13_post482_squad_header_required_36px_font_staged": false,
+  "gate13_post482_squad_header_runtime_bound": false
 }
