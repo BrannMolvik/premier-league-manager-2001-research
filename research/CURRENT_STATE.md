@@ -1,3 +1,25 @@
+# Mandatory retrospective audit before further implementation
+
+_Added 7 October 2026._
+
+**STOP implementation work temporarily.** The next canonical task is the retrospective audit defined in `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`.
+
+Audit every merged change from Gate 13 / issue #482 reopening through current `main`. Every behavior/presentation-affecting change must be checked against reproducible original-game evidence under `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
+
+Until the audit exit criteria pass:
+
+- do not implement new gameplay/presentation behavior;
+- do not expand Settings or other modernization;
+- do not resume Gate-17 work-ahead merely because it is cloud-safe;
+- do not create a new external acceptance build;
+- do not preserve a merged behavior solely because tests are green or an older worker called it source-backed;
+- correct/downgrade any historical/current completion claim contradicted by Daniel's Windows evidence;
+- isolate/revert/fail-close unsupported behavior rather than replacing it with a new guess.
+
+After the audit, resume only the highest-priority **original-proven** Gate-13 repair identified by the audit.
+
+---
+
 # Daniel directive - original-behavior-first / modernization freeze
 
 _Updated 7 October 2026._
