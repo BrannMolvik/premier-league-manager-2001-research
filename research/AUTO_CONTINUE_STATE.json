@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. Technical PR #528 merged as 0f1739c2e0d606e398a8e6a350d55a22c78a178e after exact-head asset 37596223786, reconstruction 37596223784 (2,874 tests, 25 skipped), and minimal FFmpeg 37596223802 success. Artifact 11471081671 proves all 22 ffmpeg and 21 ffprobe external .a/.o inputs are directly owned by exactly four already source-mapped packages: CRT, GCC, winpthreads, and windows-default-manifest. Documentation/status PR #529 is open at exact head 6f92bc3ef7f5dc953153bf8ef4f465f51b7a5680 and intentionally changes only project_status.json, CURRENT_STATE.md, and PROGRESS.md to avoid another full FFmpeg build. Merge it after its exact-head checks, then immediately start the next technical archive-member/link-map contribution proof. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false.",
-  "last_known_main_head": "0f1739c2e0d606e398a8e6a350d55a22c78a178e",
+  "active_task": "Recovery 384: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #528 merged as 0f1739c2e0d606e398a8e6a350d55a22c78a178e and documentation/status PR #529 merged as 84437800010cc2b42e68c4ec199bd7d8e77cd259. Direct package ownership is complete for all 22 ffmpeg and 21 ffprobe observed external .a/.o inputs, owned by exactly four verified source-mapped packages. Start the next cloud-safe Gate-17 task now: capture deterministic GNU ld link-map/archive-member evidence for the same release link, require observation-only command equivalence and preferably byte-identical unstripped relink output, then map actual included members/direct objects to those four packages. Keep static contributor attribution, source_material_complete, and legal_compliance_claimed false until member-level proof passes.",
+  "last_known_main_head": "84437800010cc2b42e68c4ec199bd7d8e77cd259",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 384,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #529 is the bounded ownership-evidence reconciliation; next technical task is link-map/archive-member proof.",
+  "note": "Ownership evidence reconciled. Active work is now deterministic archive-member/link-map proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
