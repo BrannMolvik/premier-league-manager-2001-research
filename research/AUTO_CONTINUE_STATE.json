@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 392,
+  "recovery_generation": 393,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 392: fresh-chat fallback resumed the mandatory post-#482 retrospective audit from canonical GitHub state; modernization and Gate-17 work-ahead remain frozen.",
+  "note": "Recovery 393: fresh-chat fallback resumed the mandatory post-#482 retrospective audit from canonical GitHub state at main e4a60f0; modernization and Gate-17 work-ahead remain frozen.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
