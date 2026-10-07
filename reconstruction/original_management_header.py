@@ -101,6 +101,19 @@ HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 # Recovery 396/398 source-closed central management text controls. Recovery
 # 402 integrates y=34/y=51 only for the bounded source-closed clear direct
 # fixed-League selector; symbolic/unknown runtime cases remain fail-closed.
+HEADER_CLUB_NAME_RECT = (172, 1, 378, 32)
+HEADER_CLUB_NAME_RAW_STYLE = 0x2102
+HEADER_CLUB_NAME_NATIVE_COLOR_16 = 0xFFFF
+HEADER_CLUB_NAME_REFRESH_VA = 0x432A20
+HEADER_CLUB_NAME_ACCESSOR_VA = 0x40DA50
+HEADER_CLUB_NAME_FONT_LOADER_VA = 0x6043F2
+HEADER_CLUB_NAME_FONT_OBJECT_VA = 0x8F21B0
+HEADER_CLUB_NAME_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_36pixel.fnt"
+HEADER_CLUB_NAME_FONT_SHA256 = (
+    "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df"
+)
+HEADER_CLUB_NAME_FONT_BYTE_SIZE = 155_544
+
 HEADER_MATCH_COMPETITION_RECT = (172, 34, 378, 16)
 HEADER_MATCHUP_RECT = (172, 51, 378, 16)
 HEADER_DATE_RECT = (172, 68, 378, 16)
@@ -202,6 +215,20 @@ class OriginalManagementHeaderCaptionOverlay:
     height: int
     rgba: bytes
     native_color_16: int = HEADER_CAPTION_NATIVE_COLOR_16
+
+
+@dataclass(frozen=True)
+class OriginalManagementHeaderClubNameOverlay:
+    text: str
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+    control_rect: tuple[int, int, int, int] = HEADER_CLUB_NAME_RECT
+    raw_style: int = HEADER_CLUB_NAME_RAW_STYLE
+    native_color_16: int = HEADER_CLUB_NAME_NATIVE_COLOR_16
+    font_source_path: str = HEADER_CLUB_NAME_FONT_SOURCE_PATH
 
 
 @dataclass(frozen=True)
@@ -618,12 +645,11 @@ def management_header_caption_overlay(
     )
 
 
-def _central_text_rgba(
-    resources: OriginalManagementHeaderResources,
+def _right_centered_text_rgba(
+    font,
     text: str,
     rect: tuple[int, int, int, int],
 ) -> tuple[int, int, int, int, bytes]:
-    font = resources.date_font
     mask = font.render_text_alpha(text)
     x, y, width, height = rect
     line_x = x + width - font.measure_text(text)
@@ -646,6 +672,43 @@ def _central_text_rgba(
         pos = index * 4
         rgba[pos:pos + 4] = bytes((255, 255, 255, value))
     return out_x, out_y, out_width, out_height, bytes(rgba)
+
+
+def _central_text_rgba(
+    resources: OriginalManagementHeaderResources,
+    text: str,
+    rect: tuple[int, int, int, int],
+) -> tuple[int, int, int, int, bytes]:
+    return _right_centered_text_rgba(resources.date_font, text, rect)
+
+
+def management_header_club_name_overlay(
+    font,
+    club_name: str,
+) -> OriginalManagementHeaderClubNameOverlay:
+    """Rasterize the source-bound primary management Club.name control.
+
+    The exact 36px font is intentionally supplied by the caller. Runtime wiring
+    remains fail-closed until the byte-identical original font is provenance-
+    staged; this function never substitutes another font.
+    """
+    if not isinstance(club_name, str) or not club_name:
+        raise OriginalManagementHeaderError(
+            "Management club-name control requires source Club.name"
+        )
+    out_x, out_y, out_width, out_height, rgba = _right_centered_text_rgba(
+        font,
+        club_name,
+        HEADER_CLUB_NAME_RECT,
+    )
+    return OriginalManagementHeaderClubNameOverlay(
+        text=club_name,
+        x=out_x,
+        y=out_y,
+        width=out_width,
+        height=out_height,
+        rgba=rgba,
+    )
 
 
 def format_management_header_fixed_league_competition(competition_name: str) -> str:
