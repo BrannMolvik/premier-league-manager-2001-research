@@ -568,10 +568,14 @@ class OriginalGameTkHost:
         self.root.attributes("-fullscreen", self._fullscreen)
 
     def toggle_fullscreen(self, event=None):
+        if getattr(self, "_startup_media_active", False):
+            return "break"  # The live WPF child owns the fixed presentation rect.
         self._set_fullscreen(not self._fullscreen)
         return "break"
 
     def leave_fullscreen(self, event=None):
+        if getattr(self, "_startup_media_active", False):
+            return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
         return "break"

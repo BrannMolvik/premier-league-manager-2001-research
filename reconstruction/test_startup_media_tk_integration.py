@@ -66,6 +66,22 @@ class StartupMediaTkIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(OriginalGameHostError, 'closed during startup'):
             host.pump_startup_media_events()
 
+    def test_startup_fullscreen_hotkeys_cannot_change_media_geometry(self):
+        host = OriginalGameTkHost.__new__(OriginalGameTkHost)
+        host._startup_media_active = True
+        host._fullscreen = True
+        host.root = SimpleNamespace(attributes=Mock())
+        # F11 and Alt+Return share toggle_fullscreen; Escape uses leave_fullscreen.
+        for callback in (host.toggle_fullscreen, host.toggle_fullscreen,
+                         host.leave_fullscreen):
+            self.assertEqual(callback(), 'break')
+        host.root.attributes.assert_not_called()
+        self.assertTrue(host._fullscreen)
+        host._startup_media_active = False
+        self.assertEqual(host.leave_fullscreen(), 'break')
+        host.root.attributes.assert_called_once_with('-fullscreen', False)
+        self.assertFalse(host._fullscreen)
+
     @unittest.skipUnless(platform.system() == 'Windows' and
         os.environ.get('FM2001_WPF_TEST_CACHE'),
         'opt-in Windows/Tk playback requires a private verified startup-media cache')
