@@ -1081,6 +1081,37 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(live.session.selected_club_ids, (999,))
         self.assertFalse(live.session.started)
 
+    def test_closed_pmenu_skips_render_and_open_snapshot_reuses_render(self):
+        live = presenter()
+        root = FakeRoot()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ) as render:
+            host = OriginalGameTkHost(
+                live,
+                root,
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+                squad_row_text_resources=fake_squad_row_text_resources(),
+            )
+
+            host.on_click(SimpleNamespace(x=7, y=478))
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+
+            self.assertFalse(host.pmenu_popup_active)
+            render.assert_not_called()
+
+            host.on_click(SimpleNamespace(x=600, y=1))
+            self.assertTrue(host.pmenu_popup_active)
+            self.assertEqual(render.call_count, 1)
+
+            host.redraw()
+            self.assertEqual(render.call_count, 1)
+
     def test_clean_host_routes_first_screens_into_fixed_management_without_debug_ui(self):
         live = presenter()
         root = FakeRoot()
