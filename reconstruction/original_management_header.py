@@ -98,9 +98,9 @@ HEADER_CAPTION_ENGLISH_INDEX = 2497
 HEADER_CAPTION_TEXT = "MENU"
 HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 
-# Recovery 396/398 source-closed central management date control.  The two
-# y=34/y=51 match lines remain intentionally absent until 0x615D10/0x615DA0
-# filtering is semantically closed.
+# Recovery 396/398 source-closed central management text controls. Recovery
+# 402 integrates y=34/y=51 only for the bounded source-closed clear direct
+# fixed-League selector; symbolic/unknown runtime cases remain fail-closed.
 HEADER_MATCH_COMPETITION_RECT = (172, 34, 378, 16)
 HEADER_MATCHUP_RECT = (172, 51, 378, 16)
 HEADER_DATE_RECT = (172, 68, 378, 16)
