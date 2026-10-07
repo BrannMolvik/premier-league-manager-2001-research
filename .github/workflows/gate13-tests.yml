@@ -81,6 +81,9 @@ on:
       - "reconstruction/test_original_startup_media.py"
       - "reconstruction/startup_media_runtime_cache.py"
       - "reconstruction/test_startup_media_runtime_cache.py"
+      - "reconstruction/startup_media_windows_backend.py"
+      - "reconstruction/test_startup_media_windows_backend.py"
+      - "reconstruction/test_startup_media_tk_integration.py"
       - "reconstruction/startup_media_derivatives.py"
       - "reconstruction/test_startup_media_derivatives.py"
       - "reconstruction/gate14_startup_media_convert.py"
@@ -226,6 +229,8 @@ jobs:
             test_original_management_header \
             test_original_management_background \
             test_original_game_host \
+            test_startup_media_windows_backend \
+            test_startup_media_tk_integration \
             test_original_front_end_animation \
             test_original_fixtures_pager \
             test_original_pmenu_popup \

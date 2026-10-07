@@ -526,6 +526,7 @@ class OriginalGameTkHost:
 
     def show_startup_media_backdrop(self) -> None:
         """Hide the menu behind the native black startup-movie presentation field."""
+        self._startup_media_active = True
         create = getattr(self.canvas, "create_rectangle", None)
         if not callable(create):
             raise OriginalGameHostError(
@@ -549,11 +550,18 @@ class OriginalGameTkHost:
             self.root.update_idletasks()
 
     def hide_startup_media_backdrop(self) -> None:
+        self._startup_media_active = False
         item = getattr(self, "_startup_media_backdrop", None)
         if item is not None:
             self.canvas.delete(item)
             self._startup_media_backdrop = None
             self.redraw()
+
+    def pump_startup_media_events(self) -> None:
+        """Serve child-window messages before mainloop, without menu actions."""
+        self.root.update()
+        if not self.root.winfo_exists():
+            raise OriginalGameHostError("Game window closed during startup media")
 
     def _set_fullscreen(self, enabled: bool) -> None:
         self._fullscreen = bool(enabled)
@@ -1378,6 +1386,8 @@ class OriginalGameTkHost:
         return len(controls)
 
     def on_fixtures_pager_motion(self, event):
+        if getattr(self, "_startup_media_active", False):
+            return
         event = self._normalize_pointer_event(event)
         self._first_screen_pointer = (int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
@@ -1565,6 +1575,8 @@ class OriginalGameTkHost:
         )
 
     def redraw(self) -> None:
+        if getattr(self, "_startup_media_active", False):
+            return  # Keep the black source movie field above the menu.
         screen = self.presenter.session.navigation.screen
         if screen in (FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
             self._draw_first_screen()
@@ -1750,6 +1762,8 @@ class OriginalGameTkHost:
         self.last_status = "Closed source-accepted PMatchInfo popup"
 
     def on_fixture_report_press(self, event) -> None:
+        if getattr(self, "_startup_media_active", False):
+            return
         event = self._normalize_pointer_event(event)
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
 
@@ -1790,6 +1804,8 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_script_arrow_release(self, event) -> None:
+        if getattr(self, "_startup_media_active", False):
+            return
         event = self._normalize_pointer_event(event)
         pager_changed = any(flags & 0x10 for flags in self.fixtures_pager_flags.values())
         self.fixtures_pager_flags = {direction: flags & ~0x10
@@ -1802,6 +1818,8 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_click(self, event) -> None:
+        if getattr(self, "_startup_media_active", False):
+            return  # Startup skip/menu semantics are not inferred from input.
         event = self._normalize_pointer_event(event)
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self._management_load_thread is not None:
@@ -2182,6 +2200,9 @@ def run_original_game_ui(
     if startup_media_backend is not None:
         host.show_startup_media_backdrop()
         try:
+            bind_pump = getattr(startup_media_backend, "bind_event_pump", None)
+            if callable(bind_pump):
+                bind_pump(host.pump_startup_media_events)
             bind_parent = getattr(
                 startup_media_backend, "bind_parent_window", None
             )

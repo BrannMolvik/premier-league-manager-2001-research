@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import time
 from typing import Callable
 
 from startup_media_derivatives import VerifiedStartupMediaDerivative
@@ -264,7 +265,8 @@ class WindowsWpfStartupMediaBackend:
     native status 277 on the external Windows 11 client. The media path is
     passed through a process environment variable rather than interpolated into
     PowerShell source, and the child process does not return until the
-    full-screen WPF window reaches MediaEnded or MediaFailed.
+    game-owned WPF child reaches MediaEnded or MediaFailed. The Tk owner must
+    service Windows messages while that cross-process child is created/played.
     """
 
     def __init__(
@@ -273,6 +275,7 @@ class WindowsWpfStartupMediaBackend:
         platform_system: str | None = None,
         runner: Callable[..., object] = subprocess.run,
         powershell_executable: str = "powershell.exe",
+        process_factory: Callable[..., object] = subprocess.Popen,
     ):
         system = platform.system() if platform_system is None else platform_system
         if system != "Windows":
@@ -291,6 +294,49 @@ class WindowsWpfStartupMediaBackend:
         self._powershell_executable = powershell_executable
         self._parent_hwnd = None
         self._presentation_rect = None
+        self._event_pump = None
+        if not callable(process_factory):
+            raise WindowsStartupMediaBackendError("Windows player process factory must be callable")
+        self._process_factory = process_factory
+
+    def bind_event_pump(self, event_pump: Callable[[], None]) -> None:
+        """Bind the owning Tk thread's pump; this is not a media/frame timer.
+
+        HwndSource construction sends synchronous messages to its parent. A
+        blocking subprocess.run on that parent thread prevents construction,
+        before any MediaElement event can fire (Gate13 issue482).
+        """
+        if not callable(event_pump):
+            raise WindowsStartupMediaBackendError("startup-media event pump must be callable")
+        self._event_pump = event_pump
+
+    def _run_player(self, command, *, env, timeout):
+        if self._event_pump is None:
+            return self._runner(command, check=False, capture_output=True, text=True,
+                env=env, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                timeout=timeout)
+        process = self._process_factory(command, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, text=True, env=env,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        deadline = time.monotonic() + timeout
+        try:
+            while True:
+                self._event_pump()  # Always on the calling/owning Tk thread.
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(command, timeout)
+                try:
+                    stdout, stderr = process.communicate(timeout=min(0.02, remaining))
+                except subprocess.TimeoutExpired:
+                    continue
+                return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+        except BaseException:
+            # Closing the game/pump failure/timeout must not orphan a player or
+            # leave its game-owned child behind. No other process is touched.
+            if process.poll() is None:
+                process.kill()
+            process.communicate()
+            raise
 
     def bind_parent_window(
         self,
@@ -363,15 +409,8 @@ class WindowsWpfStartupMediaBackend:
             self._encoded_script(),
         )
         try:
-            completed = self._runner(
-                command,
-                check=False,
-                capture_output=True,
-                text=True,
-                env=env,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-                timeout=self._timeout_seconds(item),
-            )
+            completed = self._run_player(command, env=env,
+                timeout=self._timeout_seconds(item))
         except subprocess.TimeoutExpired as exc:
             raise WindowsStartupMediaBackendError(
                 f"Windows WPF startup-media playback timed out: {item.path}"
