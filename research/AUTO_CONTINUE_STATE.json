@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 awaits Daniel's external Windows acceptance. Bounded Gate-17 PR #524 is open at exact head 7061fe0524203b65e3a2ca44045099736b7c53eb. It adds the artifact-backed 151-row complete build-environment package lock and fail-closed validator. Require exact-head asset-policy 37586325795, Windows-package 37586325957, reconstruction 37586325832, and minimal-FFmpeg 37586326031 success before merge. Source-material completeness and legal-compliance claims must remain false.",
-  "last_known_main_head": "aadaf484754ade2854a2b48e52c853ccf31a7a57",
+  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 still awaits Daniel's external Windows acceptance of artifact 11464212544. Gate-17 PR #524 merged as eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5 after exact-head asset 37586325795, Windows package 37586325957, reconstruction 37586325832 (2,858 tests, 25 skipped), and minimal FFmpeg 37586326031 all passed. Immediate cloud-safe task: fix the minimal-FFmpeg workflow's masked source-contract audit failure (package import path plus PowerShell native-command fail-fast), add regression coverage, reconcile CURRENT_STATE/PROGRESS/project_status, then require exact-head CI before merge.",
+  "last_known_main_head": "eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 381,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #524 head 7061fe0524203b65e3a2ca44045099736b7c53eb. Asset policy already passed; remaining exact-head checks in progress. Lock evidence is three byte-identical 151-row inventories, SHA-256 c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec.",
+  "note": "PR #524 merged. Complete package lock is 151 rows, SHA-256 c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec. Newly discovered CI integrity bug: source-contract audit logs ModuleNotFoundError from repo-root package import but PowerShell masks the first native-command failure when the second command succeeds.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
