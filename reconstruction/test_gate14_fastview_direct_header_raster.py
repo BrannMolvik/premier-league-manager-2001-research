@@ -39,7 +39,7 @@ class FastViewDirectHeaderRasterTests(unittest.TestCase):
             / "original_assets"
             / "source"
             / "Fonts"
-            / "Zurich_XCn_BT_18pixel.fnt"
+            / "Zurich_XCn_BT_16pixel.fnt"
         )
         data = path.read_bytes()
         self.assertEqual(len(data), TEXT_FONT_SOURCE_SIZE)
@@ -52,8 +52,8 @@ class FastViewDirectHeaderRasterTests(unittest.TestCase):
             self.font.native_line_height(),
             DIRECT_HEADER_FONT_NATIVE_LINE_HEIGHT,
         )
-        self.assertEqual(DIRECT_HEADER_FONT_ATLAS_SIZE, (1366, 19))
-        self.assertEqual(DIRECT_HEADER_FONT_NATIVE_LINE_HEIGHT, 20)
+        self.assertEqual(DIRECT_HEADER_FONT_ATLAS_SIZE, (1261, 17))
+        self.assertEqual(DIRECT_HEADER_FONT_NATIVE_LINE_HEIGHT, 18)
 
     def test_centering_uses_source_signed_half_and_second_line_clips(self):
         first = direct_header_line_origin(
@@ -62,8 +62,8 @@ class FastViewDirectHeaderRasterTests(unittest.TestCase):
         second = direct_header_line_origin(
             self.font, SECOND_SOURCE_SHAPED_TEXT, SECOND_TEXT_RECT
         )
-        self.assertEqual(first[1], 50)
-        self.assertEqual(second[1], 68)
+        self.assertEqual(first[1], 51)
+        self.assertEqual(second[1], 69)
         self.assertEqual(
             first[0],
             250 + (300 - self.font.measure_text(FIRST_SOURCE_SHAPED_TEXT)) // 2,
@@ -87,8 +87,8 @@ class FastViewDirectHeaderRasterTests(unittest.TestCase):
             tuple(item.control_rect for item in raster.placements),
             (FIRST_TEXT_RECT, SECOND_TEXT_RECT),
         )
-        self.assertEqual(raster.placements[0].line_origin[1], 50)
-        self.assertEqual(raster.placements[1].line_origin[1], 68)
+        self.assertEqual(raster.placements[0].line_origin[1], 51)
+        self.assertEqual(raster.placements[1].line_origin[1], 69)
         self.assertEqual(raster.native_color_16, TEXT_NATIVE_COLOR_16)
         self.assertEqual(sha256(raster.rgba).hexdigest(), raster.rgba_sha256)
 
@@ -97,7 +97,7 @@ class FastViewDirectHeaderRasterTests(unittest.TestCase):
 
         # The second line's native line origin is above its 16px source clip.
         # No pixel may escape the control even though native centering places
-        # the 20px line at y=68.
+        # the 18px line at y=69.
         self.assertTrue(all(alpha_at(x, 69) == 0 for x in range(250, 550)))
         self.assertTrue(
             any(

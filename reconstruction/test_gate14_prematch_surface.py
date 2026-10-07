@@ -12,14 +12,28 @@ from gate14_fastview_surfaced_resource_loader import (
     VerifiedFastViewSurfacedResourceSet,
 )
 from gate14_prematch_rating_widths import PrematchTeamRatingWidths
+from gate14_prematch_marker_binding import (
+    BoundPrematchStartingXIMarker,
+    BoundPrematchStartingXIMarkers,
+)
+from gate14_prematch_supplied_state import (
+    BoundPrematchSuppliedState,
+    PrematchSuppliedStateError,
+    bind_prematch_supplied_state,
+    prematch_supplied_state_contract,
+)
+from original_front_end_layout import OriginalRect
 from gate14_prematch_surface import (
     BoundPrematchPlayerRows,
     BoundPrematchRatingRows,
+    BoundPrematchSelectorFrames,
     PrematchSurfaceBoundary,
     PrematchSurfaceError,
     bind_prematch_player_rows,
+    bind_prematch_dynamic_text_state,
     bind_prematch_rating_state,
     bind_prematch_rating_widths,
+    bind_prematch_selector_frames,
     build_verified_prematch_surface_boundary,
     prematch_surface_contract,
     prematch_child_family_coverage,
@@ -77,6 +91,11 @@ def fake_surfaced_resources(selection):
     )
 
 
+class FakeSelectorAtlas:
+    def frame(self, source_index):
+        return SimpleNamespace(source_index=source_index)
+
+
 class FakePrematchResources:
     def __init__(self):
         self._decoded = {
@@ -87,7 +106,7 @@ class FakePrematchResources:
             )
             for spec in PREMATCH_ALL_EA444_SPECS
         }
-        self.selector_atlas = object()
+        self.selector_atlas = FakeSelectorAtlas()
         self.font = object()
 
     def decoded(self, source_path):
@@ -305,6 +324,90 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(tuple(s.initial_flags for s in boundary.selectors), (0x183,) * 4)
         self.assertEqual(tuple(s.group_lengths for s in boundary.selectors), ((11, 11, 1),) * 4)
 
+    def test_dynamic_text_state_binding_uses_boundary_selection_without_raster_claim(self):
+        text_clubs = {
+            10: SimpleNamespace(
+                country_id=26,
+                graphics_basename="arsenal",
+                fan_base_index=25,
+                short_name="Arsenal",
+                stadium="Highbury",
+            ),
+            11: SimpleNamespace(
+                country_id=26,
+                graphics_basename="chelsea",
+                fan_base_index=14,
+                short_name="Chelsea",
+                stadium="Stamford Bridge",
+            ),
+        }
+        selection = build_fastview_surfaced_resource_selection(
+            match_date=date(2001, 1, 13),
+            clubs=text_clubs,
+            countries=self.countries,
+            home_club_id=10,
+            away_club_id=11,
+            background_club_override_id=None,
+        )
+        surfaced = fake_surfaced_resources(selection)
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=surfaced,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=text_clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        bound = bind_prematch_dynamic_text_state(
+            boundary,
+            clubs=text_clubs,
+            competition_name="F.A. Premier League",
+            weather_code=4,
+            temperature_c=-1,
+            home_team_name_override=None,
+            away_team_name_override="Chelsea Network",
+        )
+        self.assertEqual(
+            bound.fixture_header,
+            "F.A. Premier League MATCH TODAY AT Highbury",
+        )
+        self.assertEqual(
+            bound.date_weather,
+            "13th January 2001 Snowy -1°C",
+        )
+        self.assertEqual(bound.home_team_identity, "Arsenal")
+        self.assertEqual(bound.away_team_identity, "Chelsea Network")
+        self.assertFalse(bound.text_pixels_rasterized)
+        self.assertFalse(bound.complete_prematch_frame)
+
+        with self.assertRaisesRegex(PrematchSurfaceError, "exact PrematchSurfaceBoundary"):
+            bind_prematch_dynamic_text_state(
+                object(),
+                clubs=text_clubs,
+                competition_name="F.A. Premier League",
+                weather_code=0,
+                temperature_c=10,
+                home_team_name_override=None,
+                away_team_name_override=None,
+            )
+
     def test_player_row_binding_uses_source_name_number_and_count_driven_state(self):
         selection = self._selection()
         surfaced = fake_surfaced_resources(selection)
@@ -389,6 +492,67 @@ class PrematchSurfaceTests(unittest.TestCase):
                 right_players=right,
             )
 
+    def test_selector_binding_requires_explicit_native_frame_state(self):
+        selection = self._selection()
+        surfaced = fake_surfaced_resources(selection)
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=surfaced,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=self.clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        bound = bind_prematch_selector_frames(
+            boundary,
+            source_frame_indices=(0, 10, 11, 22),
+        )
+        self.assertIsInstance(bound, BoundPrematchSelectorFrames)
+        self.assertEqual(
+            tuple(item.source.mode for item in bound.selectors),
+            (0, 1, 2, 3),
+        )
+        self.assertEqual(
+            tuple(item.source_frame_index for item in bound.selectors),
+            (0, 10, 11, 22),
+        )
+        self.assertEqual(
+            tuple(item.frame.source_index for item in bound.selectors),
+            (0, 10, 11, 22),
+        )
+        self.assertTrue(bound.supplied_pointer_update_state_bound)
+        self.assertFalse(bound.persistent_selected_visual)
+        self.assertFalse(bound.complete_prematch_frame)
+        self.assertFalse(bound.gate14_complete)
+
+        with self.assertRaisesRegex(PrematchSurfaceError, "one native frame index"):
+            bind_prematch_selector_frames(
+                boundary,
+                source_frame_indices=(0, 1, 2),
+            )
+        with self.assertRaisesRegex(PrematchSurfaceError, "0..22"):
+            bind_prematch_selector_frames(
+                boundary,
+                source_frame_indices=(0, 1, 2, 23),
+            )
+
     def test_rating_rows_expose_geometry_and_pixels_without_inventing_meanings_or_widths(self):
         selection = self._selection()
         surfaced = fake_surfaced_resources(selection)
@@ -449,7 +613,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertFalse(boundary.complete_prematch_frame)
         self.assertFalse(boundary.gate14_complete)
 
-    def test_state_binding_uses_exact_left_growth_and_right_mirroring(self):
+    def test_state_binding_uses_exact_left_overlay_and_right_shrinking_mask(self):
         selection = self._selection()
         surfaced = fake_surfaced_resources(selection)
         with (
@@ -499,19 +663,19 @@ class PrematchSurfaceTests(unittest.TestCase):
                         row.left_dynamic_rect.height,
                     ),
                     (
-                        row.right_dynamic_rect.x,
-                        row.right_dynamic_rect.y,
-                        row.right_dynamic_rect.width,
-                        row.right_dynamic_rect.height,
+                        row.right_mask_rect.x,
+                        row.right_mask_rect.y,
+                        row.right_mask_rect.width,
+                        row.right_mask_rect.height,
                     ),
                 )
                 for row in bound.rows
             ),
             (
-                ("goalkeeper", 169, 17, (65, 497, 169, 16), (718, 497, 17, 16)),
-                ("defence", 120, 34, (65, 515, 120, 16), (701, 515, 34, 16)),
-                ("midfield", 80, 51, (65, 533, 80, 16), (684, 533, 51, 16)),
-                ("attack", 40, 68, (65, 551, 40, 16), (667, 551, 68, 16)),
+                ("goalkeeper", 169, 17, (65, 497, 169, 16), (564, 497, 154, 16)),
+                ("defence", 120, 34, (65, 515, 120, 16), (564, 515, 137, 16)),
+                ("midfield", 80, 51, (65, 533, 80, 16), (564, 533, 120, 16)),
+                ("attack", 40, 68, (65, 551, 40, 16), (564, 551, 103, 16)),
             ),
         )
         self.assertTrue(bound.source_state_bound)
@@ -568,6 +732,180 @@ class PrematchSurfaceTests(unittest.TestCase):
             ("goalkeeper", "defence", "midfield", "attack"),
         )
 
+    def test_complete_supplied_child_state_attaches_every_family_without_pixel_claim(self):
+        text_clubs = {
+            10: SimpleNamespace(
+                country_id=26,
+                graphics_basename="arsenal",
+                fan_base_index=25,
+                short_name="Arsenal",
+                stadium="Highbury",
+            ),
+            11: SimpleNamespace(
+                country_id=26,
+                graphics_basename="chelsea",
+                fan_base_index=14,
+                short_name="Chelsea",
+                stadium="Stamford Bridge",
+            ),
+        }
+        selection = build_fastview_surfaced_resource_selection(
+            match_date=date(2001, 1, 13),
+            clubs=text_clubs,
+            countries=self.countries,
+            home_club_id=10,
+            away_club_id=11,
+            background_club_override_id=None,
+        )
+        surfaced = fake_surfaced_resources(selection)
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=surfaced,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=text_clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        left_players = tuple(
+            SimpleNamespace(
+                shirt_number=index + 1,
+                first_name="Left",
+                surname=f"Player{index}",
+            )
+            for index in range(11)
+        )
+        right_players = tuple(
+            SimpleNamespace(
+                shirt_number=index + 20,
+                first_name="Right",
+                surname=f"Player{index}",
+            )
+            for index in range(11)
+        )
+        player_rows = bind_prematch_player_rows(
+            boundary,
+            left_players=left_players,
+            right_players=right_players,
+        )
+        dynamic_text = bind_prematch_dynamic_text_state(
+            boundary,
+            clubs=text_clubs,
+            competition_name="F.A. Premier League",
+            weather_code=0,
+            temperature_c=12,
+            home_team_name_override=None,
+            away_team_name_override=None,
+        )
+        ratings = bind_prematch_rating_widths(
+            boundary,
+            left_widths=PrematchTeamRatingWidths(100, 101, 102, 103),
+            right_widths=PrematchTeamRatingWidths(104, 105, 106, 107),
+        )
+        selectors = bind_prematch_selector_frames(
+            boundary,
+            source_frame_indices=(0, 0, 0, 0),
+        )
+
+        markers = []
+        for side in (0, 1):
+            for slot in range(11):
+                markers.append(
+                    BoundPrematchStartingXIMarker(
+                        side=side,
+                        slot_index=slot,
+                        child_index=(10 if side == 0 else 21) + slot,
+                        visible=True,
+                        rect=OriginalRect(300 + slot, 200 + side * 40, 36, 32),
+                        source_kind=(
+                            "goalkeeper_original"
+                            if slot == 0
+                            else "custom_original"
+                        ),
+                        source_path=(
+                            "goalkeeper.444"
+                            if slot == 0
+                            else f"team{side}.444"
+                        ),
+                        frame_number=None if slot == 0 else slot,
+                        rgba=bytes(36 * 32 * 4),
+                    )
+                )
+        marker_state = BoundPrematchStartingXIMarkers(markers=tuple(markers))
+
+        supplied = bind_prematch_supplied_state(
+            boundary=boundary,
+            dynamic_text=dynamic_text,
+            player_rows=player_rows,
+            starting_xi_markers=marker_state,
+            rating_rows=ratings,
+            selector_frames=selectors,
+        )
+        self.assertIsInstance(supplied, BoundPrematchSuppliedState)
+        self.assertEqual(supplied.source_child_count, 182)
+        self.assertEqual(
+            supplied.supplied_state_complete_families,
+            tuple(role for role, _start, _end in PREMATCH_CHILD_ORDER_RANGES),
+        )
+        self.assertTrue(supplied.all_native_child_state_bound)
+        self.assertTrue(supplied.full_cross_layer_draw_order_recovered)
+        self.assertFalse(supplied.text_pixels_rasterized)
+        self.assertFalse(supplied.flattened_frame_available)
+        self.assertFalse(supplied.complete_prematch_frame)
+        self.assertFalse(supplied.gate14_complete)
+
+        contract = prematch_supplied_state_contract()
+        self.assertTrue(contract["all_native_child_state_binding_available"])
+        self.assertEqual(contract["source_child_count"], 182)
+        self.assertFalse(contract["flattened_frame_available"])
+        self.assertFalse(contract["complete_prematch_frame"])
+        self.assertFalse(contract["gate14_complete"])
+
+        inconsistent_markers = BoundPrematchStartingXIMarkers(
+            markers=tuple(
+                BoundPrematchStartingXIMarker(
+                    side=marker.side,
+                    slot_index=marker.slot_index,
+                    child_index=marker.child_index,
+                    visible=False,
+                    rect=None,
+                    source_kind=None,
+                    source_path=None,
+                    frame_number=None,
+                    rgba=None,
+                )
+                for marker in markers
+            )
+        )
+        with self.assertRaisesRegex(
+            PrematchSuppliedStateError,
+            "visibility differs",
+        ):
+            bind_prematch_supplied_state(
+                boundary=boundary,
+                dynamic_text=dynamic_text,
+                player_rows=player_rows,
+                starting_xi_markers=inconsistent_markers,
+                rating_rows=ratings,
+                selector_frames=selectors,
+            )
+
     def test_child_family_coverage_partitions_every_native_slot_fail_closed(self):
         coverage = prematch_child_family_coverage()
         self.assertEqual(
@@ -583,7 +921,7 @@ class PrematchSurfaceTests(unittest.TestCase):
             tuple(range(182)),
         )
         self.assertEqual(sum(family.source_control_count for family in coverage), 182)
-        self.assertEqual(sum(family.represented_controls for family in coverage), 160)
+        self.assertEqual(sum(family.represented_controls for family in coverage), 182)
         self.assertEqual(
             tuple(family.role for family in coverage if family.supplied_state_complete),
             ("live_background", "pitch", "top_bar", "team_badges", "rating_captions"),
@@ -601,6 +939,14 @@ class PrematchSurfaceTests(unittest.TestCase):
                 for family in coverage
                 if family.role == "starting_xi_pitch_markers"
             ).supplied_state_complete
+        )
+        self.assertEqual(
+            next(
+                family
+                for family in coverage
+                if family.role == "starting_xi_pitch_markers"
+            ).represented_controls,
+            22,
         )
         badge_family = next(
             family
@@ -640,10 +986,13 @@ class PrematchSurfaceTests(unittest.TestCase):
                 "rating_right_att",
             ),
         )
+        self.assertTrue(contract["dynamic_text_state_binding_available"])
         self.assertFalse(contract["dynamic_fixture_and_date_buffers_bound"])
         self.assertFalse(contract["team_identity_text_bound"])
         self.assertTrue(contract["fixed_versus_and_rating_captions_available"])
         self.assertEqual(contract["player_strip_row_count"], 36)
+        self.assertTrue(contract["starting_xi_marker_resource_binding_available"])
+        self.assertFalse(contract["starting_xi_marker_supplied_state_bound_by_resource_loader"])
         self.assertTrue(contract["player_strip_rows_source_geometry_available"])
         self.assertTrue(contract["reserve_variant_state_source_closed"])
         self.assertEqual(contract["player_text_row_count"], 36)
@@ -652,6 +1001,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(contract["player_row_display_name_reuses_source_formatter"])
         self.assertTrue(contract["player_row_shirt_number_reuses_source_formatter"])
         self.assertTrue(contract["selector_visual_state_source_closed"])
+        self.assertTrue(contract["selector_supplied_frame_binding_available"])
         self.assertFalse(contract["selector_persistent_selected_visual"])
         self.assertEqual(contract["selector_modes"], (0, 1, 2, 3))
         self.assertEqual(contract["selector_events"], (4, 3, 2, 1))
@@ -663,7 +1013,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertEqual(contract["source_child_count"], PREMATCH_CHILD_COUNT)
         self.assertEqual(contract["source_child_count"], 182)
         self.assertEqual(contract["child_order_ranges"], PREMATCH_CHILD_ORDER_RANGES)
-        self.assertEqual(contract["represented_child_controls"], 160)
+        self.assertEqual(contract["represented_child_controls"], 182)
         self.assertEqual(
             contract["complete_child_families"],
             ("live_background", "pitch", "top_bar", "team_badges", "rating_captions"),

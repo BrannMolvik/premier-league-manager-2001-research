@@ -1,3 +1,51 @@
+# Recovery 375 continuation — all 182 PPreMatch child states can now be supplied
+
+_Updated 7 October 2026._
+
+Canonical `main` remains `9e4d2377fc0484f02befaef0dc219e95970f9902` (PR #515 merged). **Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open work-ahead.
+
+PR #516 has advanced beyond Recovery 373's structural XI-shirt work. First-hand/source-reused contracts now support the remaining supplied dynamic state:
+
+- PPreMatch refresh `0x49A610` formats date as exact `%Df %Mf %Yf`; clean-room binding reproduces English ordinal suffixes, full month names and full year.
+- weather code 0..4 and signed temperature bind exact `Clear/Sunny/Raining/Sleet/Snowy` plus `%s %d°C`, then exact `%s %s` date/weather composition.
+- fixture header binds exact `%s MATCH TODAY AT %s`; negative competition state uses exact `Friendly`.
+- stadium display reuses source helper `0x514270`: explicit Match +0x48 club override or home-side fallback, and exact stadium `N/A` / `NA` -> club short-name fallback.
+- left/right team identities use `0x40DA70`; callers must supply any runtime/network override explicitly, otherwise the native DBRClub +0x0C short name is used.
+- Match Detail selector binding now requires an explicit native Button@ease source frame index 0..22 for each of the four controls, so hover/press/pointer state is never guessed.
+- the existing supplied player rows, supplied rating widths, source-pixel XI markers and selector frames can now be attached to one verified `PrematchSurfaceBoundary`.
+
+The resulting aggregate is a **complete 182-child supplied-state model**: every native child family has an explicit state for the supplied match and the already-proven cross-layer order is retained. This is deliberately not a complete pixel-frame claim. Text controls are not yet rasterized/composited into the 800x600 output and the flattened frame remains false. Management-to-match launch, missing 3D Match/Highlights presentation and Gate 14 completion remain false.
+
+Current technical checkpoint is `eff0c3c357813e78a1c210c4388f06e0dd316dc9` plus subsequent supplied-state commits on PR #516. Exact-head PR CI is pending after these new commits.
+
+Recovery 375 has now also source-closed the PPreMatch TextControl style path. TextStyle draw routine `0x64F090` proves ordinary-orientation alignment bits exactly: `0x01` left, `0x02` right, `0x04` horizontal center, `0x08` top, `0x10` bottom, `0x20` vertical center. This source-closes the PPreMatch raw flag families `0x21/0x22/0x24` without geometry-based inference. Four wrapper-to-font mappings are first-hand closed: header/date regular 16px (`0x87BE30`), team identity bold 20px (`0x87BE80`), center V bold 25px (`0x87BE70`), and rows/captions bold 16px (`0x87BEA0`). The older FastView style-3 font claim was corrected: `0x87BE30 -> 0x8CAB80` loads `Zurich_XCn_BT_16pixel.fnt`, not the 18px file, and the old `0x08` “forced render” label is superseded by the source-proven top-alignment fallback meaning.
+
+Current PR #516 technical head is `63582e58328d4b148e8b523c7160a68e9433b677`. Exact-head CI must be green before merge.
+
+Immediate next action: implement source-font PPreMatch text rasterization from the now-proven flag/alignment contract, including dynamic header/date/team text, all visible player number/name controls, fixed V, and rating captions. Then compose those text pixels with the existing supplied marker/rating/selector/static layers in native child order. Do not mark the pre-match frame complete until the full 800x600 supplied-state raster is actually reproducible.
+
+---
+
+# Recovery 373 continuation — PPreMatch XI shirt selector source-closed
+
+_Updated 7 October 2026._
+
+Canonical `main` is `9e4d2377fc0484f02befaef0dc219e95970f9902`, which merges PR #515's PPreMatch team badges. **Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open work-ahead.
+
+Recovery 373 continued first-hand tracing of the 22 starting-XI marker pixels. The source contract is now closed for:
+
+- `0x5EF940 -> 0x5EF9E0` primary/alternate kit-context selection and the 23x6 clash table at `0x834AF8`;
+- Master.dat +52/+55 -> DBRClub +0x44/+0x47 numbered-shirt template bytes and Master.dat +58/+70 -> +0x4A/+0x56 color IDs;
+- `0x408320` primary custom-atlas attempt via club graphics basename, alternate/custom-failure generic `Team%.2d.bmp` fallback, and 0..36 generic template clamp;
+- the critical fact that generic/alternate pixels are dynamically recolored through `0x5E4C60`, not loaded as a static EA444 atlas;
+- `0x41E3F0 -> 0x41E3D0` player number selection (+0x70 when registered club matches team object +0x04, else +0x76) and exact PPreMatch frame offset `(byte & 0xFF) * 32 - 32`.
+
+Branch `chatgpt/gate14-prematch-xi-shirts-r373` exposes those club source fields, implements the exact clash/context and resource-candidate selection, preserves the custom/generic distinction, and adds focused regression coverage. Generic recolor pixels, final 22-marker raster staging, complete-frame fidelity, management-to-match launch and Gate 14 completion remain false.
+
+Immediate next action: validate this exact branch in PR CI. If green, merge the source-selector checkpoint, then continue directly into `0x5E4C60` generic 8-bit BMP palette/recolor reproduction. Once that transform is byte-equivalent, bind custom/generic/goalkeeper 36x32 numbered frames into the already source-closed marker visibility/formation geometry and continue the remaining dynamic fixture/date/team identity supplied-state frame work.
+
+---
+
 # Recovery 372 continuation — PPreMatch team badges integrated and exact-head verified
 
 _Updated 7 October 2026._

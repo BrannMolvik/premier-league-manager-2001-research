@@ -161,3 +161,34 @@ Bind the now source-closed stadium/referee/attendance strings to reconstructed
 match state and rasterize the two direct header controls with the exact staged
 style-3 font.
 Gate 13 remains the earlier active validation gate and is not changed here.
+
+
+## Recovery 375 correction — style-3 font identity
+
+Fresh first-hand tracing of the global font initializer supersedes the earlier
+18px font association in this document.
+
+The style selector still maps index 3 to wrapper `0x87BE30`, and that wrapper
+still points at font object `0x8CAB80`. The corrected initializer dataflow is:
+
+- path literal `0x839E30` is built at `0x6044AC`;
+- `0x657650` loads that path into font object `0x8CAB80` at `0x6044F9`;
+- `0x839E30` is exact `Fonts\\Zurich_XCn_BT_16pixel.fnt`.
+
+The previously associated `0x839E10` / `Zurich_XCn_BT_18pixel.fnt` belongs
+to the next font object `0x8BD970`, not to `0x8CAB80`.
+
+The authorized source file for the corrected style-3 font is:
+
+- size: 75,217 bytes;
+- SHA-256: `e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`;
+- parsed atlas: 1261 x 17;
+- native line height: 18.
+
+Accordingly, the earlier 18px raster checkpoint is superseded. The clean-room
+FastView direct-header contract and tests now use the 16px source font and must
+pass exact-head CI before this correction is promoted to canonical `main`.
+
+This correction also matters to PPreMatch: its fixture-header/date controls use
+the same `0x87BE30` wrapper, so new pre-match text pixels must use the
+corrected 16px source rather than copying the stale FastView label.

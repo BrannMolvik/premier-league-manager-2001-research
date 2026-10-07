@@ -4,6 +4,76 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 375 TextControl alignment and font correction
+
+First-hand `TextStyle::0x64F090` tracing closes the ordinary TextControl alignment bits rather than inferring them from screen geometry: `0x01` left, `0x02` right, `0x04` horizontal center, `0x08` top, `0x10` bottom and `0x20` vertical center. PPreMatch raw flags `0x21/0x22/0x24` are therefore source-closed.
+
+The same trace/source initializer audit corrects the shared style-3 font identity. Wrapper `0x87BE30` / object `0x8CAB80` loads `Fonts\\Zurich_XCn_BT_16pixel.fnt`, not the previously documented 18px font. Exact source size/hash/atlas are 75,217 bytes, `e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`, 1261x17, native line height 18. The old `0x08` “forced render” label is also superseded: it is the top-alignment fallback bit, while `0x20` wins for the centered FastView controls.
+
+PPreMatch now has an explicit four-style font contract covering regular-16 header/date, bold-20 team identities, bold-25 center V, and bold-16 player rows/rating captions. Text pixels remain unpromoted until rasterized with these exact source fonts.
+
+### 7 October 2026 KST — Recovery 375 complete supplied PPreMatch child-state model
+
+PPreMatch supplied-state closure now covers the remaining dynamic families
+without weakening pixel fidelity. Exact source date/weather formatting,
+fixture/stadium display, team identities, rating widths, XI marker pixels and
+four explicit native Button@ease frame indices can be attached to one verified
+base surface.
+
+The aggregate reports all **182 native child states bound** and preserves the
+source-closed 0..181 draw order. This is a state-model milestone, not a complete
+frame: dynamic text has not yet been rasterized/composited into the final
+800x600 output, so flattened-frame, complete-frame and Gate-14 flags remain
+false. Gate 13 #482 remains the earliest validation blocker.
+
+### 7 October 2026 KST — Recovery 373 full PPreMatch structural coverage
+
+The XI-shirt continuation now covers native mask-driven 16-bit packing,
+verified primary-custom/generic/goalkeeper source loading, exact numbered-frame
+cropping, and supplied-state binding for all children 10..31. Runtime player
+`+0x76` is proven to initialize from `+0x70` at `0x418E27..0x418E31`.
+The PPreMatch child audit consequently reaches **182/182 structurally
+represented controls** for the first time.
+
+This is intentionally not complete supplied-state frame fidelity. Dynamic
+fixture/date/team identity text, supplied rating widths, selector pointer state
+and attachment of one concrete XI/formation state to the base surface remain
+open. Gate 13 #482 and Gate 14 completion remain false.
+
+### 7 October 2026 KST — Recovery 373 generic shirt recolor continuation
+
+First-hand `0x5E4C60/0x5E4B10/0x5E4980` tracing closes the source-RGB stage
+of generic/alternate numbered shirts. The clean-room now parses the exact
+36x1280 8-bit TeamNN.bmp source, rewrites native palette ranges 1..31,
+32..63 and 64..79 from canonical executable color data, preserves untouched
+palette entries, and treats source index zero as transparent. Club secondary
+palette IDs at Master.dat +59/+71 are now retained alongside the first IDs.
+
+Exact legacy 16-bit display packing remains separate and false. The next source
+task is the `0x5E4980` mask/shift initialization and quantization rule, then
+all three source families (custom, generic/alternate, goalkeeper) can be bound
+to the 22 source-closed marker controls.
+
+### 7 October 2026 KST — Recovery 373 XI shirt selector checkpoint
+
+After PR #515 merged PPreMatch team badges, fresh canonical-executable tracing
+continued the 22 starting-XI marker path. `0x5EF940/0x5EF9E0` now source-close
+the primary/alternate kit decision, including the 23x6 clash table at
+`0x834AF8`; `0x408320` source-closes the primary custom-atlas attempt and
+dynamic generic `Team%.2d.bmp` fallback; `0x41E3F0 -> 0x41E3D0` closes the
+per-player shirt-number source and exact 32-pixel frame offset.
+
+The clean-room exposes Master.dat +52/+55/+58/+70 on `Club` and has a pure,
+fail-closed selection module with regression coverage. The important negative
+finding is that generic/alternate PPreMatch shirt pixels are generated through
+`0x5E4C60` palette recoloring, so PMatchInfo's imported primary custom atlases
+cannot be used as a universal substitute. Generic recolor pixels, complete XI
+marker raster staging, complete-frame fidelity and Gate 14 remain false.
+
+Exact next task: reproduce/verify `0x5E4C60` generic BMP recoloring, then bind
+custom/generic/goalkeeper 36x32 numbered frames into the already source-closed
+22-marker geometry and visibility contract.
+
 ### 5 October 2026 KST — Recovery 313 resolved FastView surface
 
 Merged #455 as `6ad4416b`. An existing completed-human resolved FastView

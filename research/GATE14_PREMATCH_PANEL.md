@@ -744,3 +744,286 @@ fixture/date buffers, left/right team identity text, supplied-state rating
 widths, player-row content attachment, live Button@ease pointer/update state,
 the management-to-match launch route, and complete-frame/Gate-14 completion
 remain separate boundaries.
+
+
+## Recovery 373 — starting-XI shirt selector and numbered-frame contract
+
+Fresh first-hand disassembly of the same canonical executable narrows the
+remaining 22-marker pixel path without borrowing PMatchInfo assumptions.
+
+### Native kit context: `0x5EF940 -> 0x5EF9E0`
+
+PPreMatch constructor setup calls `0x5EF940` with the two match club records.
+The function compares primary kit color bytes at DBRClub `+0x4A` using the
+23-row, six-byte sentinel table at `0x834AF8`. Its exact decision tree is:
+
+1. if the two primary colors do not clash, both sides use primary context;
+2. on a clash, prefer the away alternate when home-primary differs from
+   away-alternate;
+3. otherwise prefer the home alternate when home-alternate differs from
+   away-primary;
+4. otherwise use both alternates when the two alternate colors differ;
+5. otherwise both context flags remain primary.
+
+The function returns, per side, the context flag plus DBRClub `+0x44` for
+primary or `+0x47` for alternate. Compact club reader `0x4022D0` maps the
+corresponding source bytes from Master.dat +52/+55 and maps the color IDs from
+Master.dat +58/+70 to expanded `+0x4A/+0x56`. Runtime import `0x403660`
+copies these fields unchanged.
+
+### Team shirt ownership: `0x408320`
+
+PPreMatch calls `0x408320` twice, storing resources at panel
+`+0x648/+0x66C` and exposing them through `+0x668/+0x68C`.
+
+For primary context, `0x408320` first asks `0x40DA90` for the club graphics
+basename and attempts the club-specific source beneath:
+
+`fm2001_art\\Generic\\front-end-shirts\\custom\\<basename>.444`
+
+If that custom load succeeds, it returns without entering generic generation.
+
+Alternate context skips the custom attempt. A failed primary custom attempt
+also enters the same generic path. That path uses:
+
+`fm2001_art\\Generic\\front-end-shirts\\generic\\Team%.2d.bmp`
+
+with the source index read directly from DBRClub `+0x47`, clamped to 0..36.
+The selected BMP is 36x1280 (40 numbered 36x32 frames). It is then recolored by
+native `0x5E4C60`, which consumes the selected primary/alternate color block.
+Therefore generic PPreMatch shirts are dynamic generated pixels, not a static
+EA444 atlas. Reusing the PMatchInfo primary-custom atlas path is valid only for
+the source-identical custom branch; substituting it for generic/alternate
+shirts would be a fidelity error.
+
+### Per-player numbered frame: `0x41E3F0 -> 0x41E3D0`
+
+For every one of the 22 marker controls, `0x499820` calls `0x41E3F0`.
+The helper compares runtime player registered club `+0x10` with the supplied
+team object's club id `+0x04`:
+
+- equal -> player byte `+0x70`;
+- different -> player byte `+0x76`.
+
+PPreMatch then applies `(byte & 0xFF) * 32 - 32` as the source-frame vertical
+offset, with no additional clamp in this path.
+
+### Clean-room checkpoint
+
+Branch `chatgpt/gate14-prematch-xi-shirts-r373` now:
+
+- exposes Master.dat +52/+55/+58/+70 on `Club`;
+- reproduces the exact kit-clash/context decision;
+- exposes source-exact custom and generic candidate ownership;
+- reproduces the exact per-player 32-pixel frame transform;
+- keeps `0x5E4C60` generic recolor pixels, final marker raster staging,
+  complete-frame fidelity and Gate 14 completion false.
+
+Exact next implementation task: reproduce the bounded `0x5E4C60` 8-bit BMP
+palette/recolor transform or otherwise prove a byte-equivalent clean-room
+output, then load custom/generic/goalkeeper sources and bind all 22 marker
+rasters into the existing source-closed visibility/formation geometry.
+
+
+### Recovery 373 continuation — generic TeamNN.bmp source-RGB recolor reproduced
+
+The generic/alternate branch below `0x408320` is now clean-room reproduced
+through the source-RGB stage of `0x5E4C60`.
+
+Fresh first-hand disassembly proves:
+
+- the generic source is an uncompressed 8-bit 36x1280 Windows BMP, i.e. forty
+  36x32 numbered frames;
+- the palette color table is the 23 x 8-byte block at `0x834190`;
+- primary context consumes club color IDs `+0x4A/+0x4B` (Master.dat +58/+59);
+- alternate context consumes `+0x56/+0x57` (Master.dat +70/+71);
+- helper `0x5E4B10` rewrites palette indices 1..31 and 32..63 from the two
+  selected color records using signed integer division with truncation toward
+  zero and writes the exact endpoint explicitly;
+- palette indices 64..79 are rewritten by the same helper from white to black;
+- all other original BMP palette entries remain untouched;
+- `0x5E4980` skips indexed pixel zero, making it transparent/no-write.
+
+`gate14_prematch_generic_shirt.py` now parses the bounded BMP format,
+reproduces those three palette transforms, preserves untouched source palette
+entries and emits an RGBA source-color plane with index zero transparent.
+The remaining native display-format packing inside `0x5E4980` is intentionally
+not promoted yet. It consumes runtime mask/shift globals in the `0x9848xx`
+block and must be source-closed separately before exact legacy packed-pixel
+equivalence is claimed.
+
+The complete 22-marker raster family therefore remains fail-closed despite the
+source-RGB generic atlas being available. Exact next task: recover the
+`0x5E4980` display mask/shift initialization and reproduce its packed-color
+quantization, then combine primary custom, generic/alternate and goalkeeper
+sources into the supplied-state marker binder.
+
+
+### Recovery 373 continuation — 22 marker controls structurally represented
+
+The shirt-resource layer now joins all three source families without weakening
+the native selector:
+
+- primary context first attempts the club-specific custom 36x1280 EA444 atlas;
+- if that source is absent, or the side uses alternate context, the exact
+  TeamNN.bmp generic source is loaded and recolored through the recovered
+  `0x5E4C60` source-RGB path;
+- children 10 and 21 use the dedicated original 36x32 goalkeeper EA444;
+- outfield children crop the exact numbered frame selected by
+  `0x41E3F0 -> 0x41E3D0`;
+- runtime player `+0x76` is source-proven to initialize from `+0x70` at
+  `0x418E27..0x418E31`, while later `0x41E400` updates remain explicit
+  supplied runtime state.
+
+`gate14_prematch_marker_binding.py` binds supplied player slots, normalized
+`0x499A50` coordinate outputs, team club IDs, verified team atlases and the
+goalkeeper resource into children 10..31. Unresolved slots remain hidden with
+no substitute pixels, matching the existing `0x417F50` visibility contract.
+
+The fail-closed 182-child audit therefore now has a structural/source-pixel
+representation for every native child: **182/182 represented controls**.
+This is not a complete-frame claim. The marker family still requires supplied
+XI/formation state to be attached to the base surface, and other families still
+retain their own supplied-state blockers (dynamic fixture/date/team text,
+rating widths and selector pointer/update state).
+
+The legacy 16-bit generic-shirt packer is also source-closed generically from
+the runtime DirectDraw masks: `0x653090 -> 0x6530D0 -> 0x653120` derives
+per-channel mask/left-shift/right-truncation descriptors, and `0x5E4980`
+applies them. No fixed RGB565 assumption is made. The original quirk forcing a
+nonblack color that quantizes to zero to packed value `0x0001` is preserved.
+
+
+## Recovery 375 — dynamic text and complete supplied child-state binding
+
+The remaining dynamic PPreMatch text contract is now bound from explicit match
+state rather than left as unnamed panel buffers.
+
+Source-backed behavior retained by `gate14_prematch_text_binding.py`:
+
+- date formatter `0x64D150` with exact `%Df %Mf %Yf`, English ordinal
+  suffix table `th/st/nd/rd`, full month names and full year;
+- weather selector 0..4 -> Clear/Sunny/Raining/Sleet/Snowy, signed temperature,
+  exact `%s %d°C`, and exact `%s %s` date/weather line;
+- fixture header exact `%s MATCH TODAY AT %s`, with Friendly when the source
+  competition state is absent/negative;
+- stadium helper `0x514270`, including exact `N/A` / `NA` fallback to the
+  DBRClub +0x0C short name;
+- team display getter `0x40DA70`: an explicitly supplied runtime/network name
+  may win, otherwise DBRClub +0x0C short name is used.
+
+The selector surface now has a separate supplied-state seam. A caller supplies
+one exact source-frame index 0..22 for each of the four Button@ease controls.
+The canonical decoded atlas returns those pixels directly. This does not infer
+a persistent selected/radio state and does not derive hover state from modern
+UI assumptions.
+
+Finally, `gate14_prematch_supplied_state.py` attaches the dynamic text,
+36 player rows, 22 XI markers, four rating rows and four selector frames to one
+verified `PrematchSurfaceBoundary`. It verifies that marker visibility agrees
+with the populated first 11 row slots and that every bound source object still
+belongs to the same base boundary.
+
+At this point all 182 native child **states** can be supplied for one concrete
+match. The distinction remains important: the final 800x600 pixel frame is not
+yet flattened. In particular, bound text strings still need source-font
+rasterization and all state-dependent layers must be composed in native child
+order. Therefore `complete_prematch_frame` and `gate14_complete` remain
+false.
+
+Exact next task: rasterize the now-bound text and other state-dependent child
+layers against the existing source resources, then compose a supplied frame in
+the proven 0..181 order. Preserve fail-closed behavior for any unresolved blend
+or transparency rule rather than guessing.
+
+
+## Recovery 375 continuation — TextControl alignment and four-font source contract
+
+PPreMatch text rendering is no longer blocked on interpreting the raw
+`0x21/0x22/0x24` constructor flags by appearance.
+
+The exact dispatch chain is:
+
+1. `0x6503F0` stores the supplied TextStyle wrapper at child `+0x28` and
+   the raw flags at child `+0x30`;
+2. generic child draw `0x64F6D0` calls the TextStyle vtable `+0x08`;
+3. the shared TextStyle vtable `0x7D7034` maps that slot to `0x64F090`;
+4. `0x64F090` consumes the alignment bits directly.
+
+For the ordinary, non-rotated text path used by these controls:
+
+- `0x01` = left;
+- `0x02` = right;
+- `0x04` = horizontal center;
+- `0x08` = top;
+- `0x10` = bottom;
+- `0x20` = vertical center.
+
+The horizontal branch prioritizes right, then center, otherwise left. The
+vertical branch prioritizes bottom, then center, otherwise top. Width is
+measured by `0x6574E0`; native line height by `0x6574D0`. Signed half
+arithmetic uses truncation toward zero, matching the existing source-backed
+FastView text rasterizer.
+
+This resolves the PPreMatch placements exactly:
+
+- header/date `0x24`: horizontally and vertically centered;
+- left team identity `0x22`: right-aligned, vertically centered;
+- right team identity `0x21`: left-aligned, vertically centered;
+- center `V`, player numbers and rating captions `0x24`: centered;
+- left player names `0x21`: left-aligned, vertically centered;
+- right player names `0x22`: right-aligned, vertically centered.
+
+The four style wrappers are also source-closed to exact original font objects
+and paths:
+
+| Wrapper | Use | Original font |
+| --- | --- | --- |
+| `0x87BE30` | fixture/date | `Zurich_XCn_BT_16pixel.fnt` |
+| `0x87BE80` | team identities | `Zurich_BdXCn_BT_20pixel.fnt` |
+| `0x87BE70` | center V | `Zurich_BdXCn_BT_25pixel.fnt` |
+| `0x87BEA0` | rows/captions | `Zurich_BdXCn_BT_16pixel.fnt` |
+
+The `0x87BE30` mapping corrects an older FastView header claim: object
+`0x8CAB80` is loaded from the 16px path at `0x839E30`; the 18px path at
+`0x839E10` belongs to the next font object. The old description of wrapper
+added bit `0x08` as a “forced render” flag is likewise superseded by the
+source-proven top-alignment fallback meaning.
+
+No PPreMatch text pixel claim is made by this checkpoint. The exact next task is
+to rasterize the already bound strings with these exact fonts, native white
+`0xFFFF`, source alignment and control clipping, then integrate those child
+pixels into the supplied 0..181 frame order.
+
+
+## Recovery 375 correction — right rating is a shrinking mask, not a mirrored overlay
+
+A direct re-read of the PPreMatch constructor and refresh path supersedes the
+earlier clean-room interpretation of the right-side dynamic rating rectangle.
+
+The native four-layer structure per rating row is:
+
+1. full left base: `rating_bar_right.444` at x=65, width 171;
+2. full right base: `rating_bar_right2.444` at x=564, width 171;
+3. left dynamic overlay: `rating_bar_left.444`, starting x=65, with width
+   equal to the side-0 rating result;
+4. right dynamic **mask**: `rating_bar_right.444`, initially x=564..735.
+
+For the right mask, refresh computes the side-1 rating width and changes only
+the control's right edge from 735 to `735 - rating_width`. The left edge stays
+at x=564. `0x653350`, called immediately afterward with a copy of the old
+rectangle, is an invalidation/redraw helper and does not set the child geometry.
+
+Therefore the final right mask is:
+
+`(564, y, 171 - rating_width, 16)`
+
+and the rating width itself is the rightmost portion of the underlying
+`rating_bar_right2` base that becomes exposed. It is **not** a
+`rating_width`-pixel overlay positioned at `735 - rating_width`.
+
+The clean-room `BoundPrematchRatingSurface` now exposes `right_mask_rect`
+with this exact geometry. Existing source functions and width values remain
+unchanged; only the layer interpretation/rectangle is corrected.
+
+This correction must be used by the upcoming native child-order compositor.

@@ -67,7 +67,7 @@ class FastViewDirectHeaderTextTests(unittest.TestCase):
         self.assertEqual(TEXT_STYLE_INDEX, 3)
         self.assertEqual(TEXT_STYLE_WRAPPER_VA, 0x87BE30)
         self.assertEqual(TEXT_FONT_OBJECT_GLOBAL_VA, 0x8CAB80)
-        self.assertEqual(TEXT_FONT_PATH, r"Fonts\Zurich_XCn_BT_18pixel.fnt")
+        self.assertEqual(TEXT_FONT_PATH, r"Fonts\Zurich_XCn_BT_16pixel.fnt")
         self.assertEqual(TEXT_NATIVE_COLOR_16, 0xFFFF)
         self.assertEqual(TEXT_RAW_FLAGS, 0x24)
         self.assertEqual(TEXT_RENDER_FLAGS, 0x2C)
@@ -155,10 +155,10 @@ class FastViewDirectHeaderTextTests(unittest.TestCase):
         self.assertEqual(
             contract["font_source_archive_sha256"], TEXT_FONT_SOURCE_ARCHIVE_SHA256
         )
-        self.assertEqual(TEXT_FONT_SOURCE_SIZE, 79_734)
+        self.assertEqual(TEXT_FONT_SOURCE_SIZE, 75_217)
         self.assertEqual(
             TEXT_FONT_SOURCE_SHA256,
-            "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a",
+            "e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18",
         )
         self.assertEqual(
             TEXT_FONT_SOURCE_ARCHIVE_SHA256,

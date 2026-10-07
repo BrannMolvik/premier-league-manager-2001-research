@@ -25,6 +25,10 @@ from gate14_prematch_rating_widths import (
     PrematchTeamRatingWidths,
     source_prematch_team_rating_widths,
 )
+from gate14_prematch_text_binding import (
+    BoundPrematchDynamicText,
+    build_prematch_dynamic_text as build_source_prematch_dynamic_text,
+)
 from original_front_end_layout import OriginalRect
 from original_squad_row_style import format_squad_display_name, format_squad_whole_number
 from original_prematch_panel import (
@@ -189,6 +193,84 @@ class PrematchSelectorSurface:
             raise PrematchSurfaceError("pre-match selector frame groups drifted")
         if not self.native_visual_state_source_closed or self.persistent_selected_visual:
             raise PrematchSurfaceError("pre-match selector cannot invent radio selection state")
+
+
+@dataclass(frozen=True)
+class BoundPrematchSelectorFrame:
+    source: PrematchSelectorSurface
+    source_frame_index: int
+    frame: object
+
+    def __post_init__(self) -> None:
+        if type(self.source_frame_index) is not int or not 0 <= self.source_frame_index < 23:
+            raise PrematchSurfaceError(
+                "pre-match selector source frame must be native index 0..22"
+            )
+        if self.frame is None:
+            raise PrematchSurfaceError("pre-match selector frame cannot be absent")
+
+
+@dataclass(frozen=True)
+class BoundPrematchSelectorFrames:
+    selectors: tuple[BoundPrematchSelectorFrame, ...]
+    supplied_pointer_update_state_bound: bool = True
+    persistent_selected_visual: bool = False
+    complete_prematch_frame: bool = False
+    gate14_complete: bool = False
+
+    def __post_init__(self) -> None:
+        if len(self.selectors) != 4:
+            raise PrematchSurfaceError(
+                "bound pre-match selector state must contain four controls"
+            )
+        if tuple(item.source.mode for item in self.selectors) != (0, 1, 2, 3):
+            raise PrematchSurfaceError("pre-match selector mode order drifted")
+        if (
+            not self.supplied_pointer_update_state_bound
+            or self.persistent_selected_visual
+            or self.complete_prematch_frame
+            or self.gate14_complete
+        ):
+            raise PrematchSurfaceError(
+                "selector binding cannot invent selected/frame/gate state"
+            )
+
+
+def bind_prematch_selector_frames(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    source_frame_indices,
+) -> BoundPrematchSelectorFrames:
+    """Bind exact current Button@ease atlas frames supplied by live UI state."""
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError(
+            "selector binding requires exact PrematchSurfaceBoundary"
+        )
+    indices = tuple(source_frame_indices)
+    if len(indices) != 4:
+        raise PrematchSurfaceError(
+            "selector binding requires one native frame index per control"
+        )
+
+    bound = []
+    for source, source_index in zip(boundary.selectors, indices, strict=True):
+        if type(source_index) is not int or not 0 <= source_index < 23:
+            raise PrematchSurfaceError(
+                "selector source frame must be native index 0..22"
+            )
+        frame_getter = getattr(source.atlas, "frame", None)
+        if not callable(frame_getter):
+            raise PrematchSurfaceError(
+                "selector binding requires canonical decoded button atlas"
+            )
+        bound.append(
+            BoundPrematchSelectorFrame(
+                source=source,
+                source_frame_index=source_index,
+                frame=frame_getter(source_index),
+            )
+        )
+    return BoundPrematchSelectorFrames(selectors=tuple(bound))
 
 
 @dataclass(frozen=True)
@@ -401,7 +483,7 @@ class BoundPrematchRatingSurface:
     left_width: int
     right_width: int
     left_dynamic_rect: OriginalRect
-    right_dynamic_rect: OriginalRect
+    right_mask_rect: OriginalRect
 
     def __post_init__(self) -> None:
         if not self.semantic_group:
@@ -422,17 +504,19 @@ class BoundPrematchRatingSurface:
         ):
             raise PrematchSurfaceError("left dynamic rating rectangle is not native")
         if (
-            self.right_dynamic_rect.x,
-            self.right_dynamic_rect.y,
-            self.right_dynamic_rect.width,
-            self.right_dynamic_rect.height,
+            self.right_mask_rect.x,
+            self.right_mask_rect.y,
+            self.right_mask_rect.width,
+            self.right_mask_rect.height,
         ) != (
-            self.source.right_rect.x + self.source.right_rect.width - self.right_width,
+            self.source.right_rect.x,
             self.source.right_rect.y,
-            self.right_width,
+            self.source.right_rect.width - self.right_width,
             self.source.right_rect.height,
         ):
-            raise PrematchSurfaceError("right dynamic rating rectangle is not mirrored")
+            raise PrematchSurfaceError(
+                "right rating mask does not preserve native shrinking right edge"
+            )
 
 
 @dataclass(frozen=True)
@@ -472,8 +556,10 @@ def bind_prematch_rating_widths(
 ) -> BoundPrematchRatingRows:
     """Bind exact native width results without mutating the resource boundary.
 
-    Native side 0 grows rightward from x=65. Side 1 is anchored at its right
-    edge (x=564+171) and therefore grows leftward by subtracting the width.
+    Native side 0 reveals its rating by growing a rating_bar_left overlay
+    rightward from x=65. Side 1 starts with rating_bar_right2 as the full base
+    and a full rating_bar_right mask at x=564; refresh moves only the mask's
+    right edge to 735-width, so the requested width is revealed at the right.
     """
     if type(boundary) is not PrematchSurfaceBoundary:
         raise PrematchSurfaceError("rating binding requires exact PrematchSurfaceBoundary")
@@ -505,10 +591,10 @@ def bind_prematch_rating_widths(
                     left_width,
                     source.left_rect.height,
                 ),
-                right_dynamic_rect=OriginalRect(
-                    source.right_rect.x + source.right_rect.width - right_width,
+                right_mask_rect=OriginalRect(
+                    source.right_rect.x,
                     source.right_rect.y,
-                    right_width,
+                    source.right_rect.width - right_width,
                     source.right_rect.height,
                 ),
             )
@@ -562,9 +648,9 @@ _PREMATCH_CHILD_COVERAGE = {
     "team_badges": (2, True, None),
     "team_identity_text": (3, False, "left/right dynamic team identity text is not bound"),
     "starting_xi_pitch_markers": (
-        0,
+        22,
         False,
-        "marker geometry/state is source-closed but dynamic goalkeeper/team shirt pixels are not staged",
+        "all marker controls and source pixel families are represented but supplied XI players/formation coordinates are not bound to the base surface",
     ),
     "side0_starter_rows": (
         33,
@@ -745,6 +831,32 @@ def _layer_from_decoded(role, rect, spec, decoded) -> PrematchRasterLayer:
     )
 
 
+def bind_prematch_dynamic_text_state(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    clubs: Mapping[int, object],
+    competition_name: str | None,
+    weather_code: int,
+    temperature_c: int,
+    home_team_name_override: str | None,
+    away_team_name_override: str | None,
+) -> BoundPrematchDynamicText:
+    """Bind exact source dynamic text while leaving rasterization separate."""
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError(
+            "dynamic text binding requires exact PrematchSurfaceBoundary"
+        )
+    return build_source_prematch_dynamic_text(
+        boundary.selection,
+        clubs=clubs,
+        competition_name=competition_name,
+        weather_code=weather_code,
+        temperature_c=temperature_c,
+        home_team_name_override=home_team_name_override,
+        away_team_name_override=away_team_name_override,
+    )
+
+
 def bind_prematch_rating_state(
     boundary: "PrematchSurfaceBoundary",
     *,
@@ -920,6 +1032,7 @@ def prematch_surface_contract() -> dict:
         ),
         "text_control_count": len(source_prematch_text_controls()),
         "text_control_roles": tuple(control.role for control in source_prematch_text_controls()),
+        "dynamic_text_state_binding_available": True,
         "dynamic_fixture_and_date_buffers_bound": False,
         "team_identity_text_bound": False,
         "fixed_versus_and_rating_captions_available": True,
@@ -928,10 +1041,13 @@ def prematch_surface_contract() -> dict:
         "player_row_state_binding_available": True,
         "player_row_display_name_reuses_source_formatter": True,
         "player_row_shirt_number_reuses_source_formatter": True,
+        "starting_xi_marker_resource_binding_available": True,
+        "starting_xi_marker_supplied_state_bound_by_resource_loader": False,
         "player_strip_row_count": len(PREMATCH_PLAYER_STRIP_ROWS),
         "player_strip_rows_source_geometry_available": True,
         "reserve_variant_state_source_closed": True,
         "selector_visual_state_source_closed": True,
+        "selector_supplied_frame_binding_available": True,
         "selector_persistent_selected_visual": False,
         "selector_modes": tuple(int(selector.mode) for selector in PREMATCH_SELECTORS),
         "selector_events": tuple(selector.event_id for selector in PREMATCH_SELECTORS),
