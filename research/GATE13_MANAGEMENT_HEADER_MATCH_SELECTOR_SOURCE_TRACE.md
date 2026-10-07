@@ -68,26 +68,35 @@ fixed selector state used by `0x615D10`. Its relevant acceptance boundary is:
    `node+0x08` runtime-side object;
 5. reject native match flag bit 6;
 6. reject native match flag bit 0 for the header's zero fallback argument;
-7. call `0x514520` and require the node to become materializable.
+7. call `0x514520` and accept the current schedule node only if its
+   `node+0x08` link is **still null** afterward.
+
+This seventh branch direction is important. The header path does **not** require
+`0x514520` to populate `node+0x08`; a newly non-null link causes
+`0x615C50` to skip that node and continue down the bucket.
 
 The unused optional context branch in `0x615C50` is not promoted into a
 management-header semantic claim.
 
-## Participant materialization: 0x514520
+## Side-resolution/link boundary: 0x514520
 
-`0x514520` is the lazy participant/materialization boundary used by the
-header search. When `node+0x08` is still null and match flag bit 6 is clear, it
-requires both embedded participant objects to resolve:
+`0x514520` does not allocate the `node+0x08` object itself. When that link is
+still null and native flag bits 5/6 permit the path, it invokes the virtual
+resolver on the first embedded `Side` at match `+0x14`. It then re-reads
+`node+0x08`; only if the link is still null does it invoke the second
+`Side` resolver at match `+0x28`.
 
-- participant 0 is the `Side` / ClubRef at match `+0x14`;
-- participant 1 is the `Side` / ClubRef at match `+0x28`.
+The `Side` resolver is not a pure getter. `Side::+0x00` at `0x510320`
+first resolves the underlying ClubRef and can then search the selected schedule
+collection through `0x615F40`. That path can call `0x510BA0`, which allocates
+and links a new 0x1c schedule object at the original wrapper's `+0x08` and
+inserts it through `0x615A60` at a later schedule position. Consequently,
+"both clubs are direct" is not by itself sufficient evidence that
+`node+0x08` stays null.
 
-Only when both virtual participant resolvers return nonzero does the routine
-allocate the small runtime-side object, store it at `node+0x08`, and register
-it through the schedule collection.
-
-RTTI confirms `Side` derives from `ClubRef`. This matters because the later
-date-dependency test is a ClubRef predicate, not a UI-only fixture filter.
+RTTI confirms `Side` derives from `ClubRef`. The header candidate therefore
+depends on both ClubRef resolution and the native linked-schedule side effects,
+not merely on whether two club identities can be read.
 
 ## Concrete match classes and virtual predicate
 
@@ -119,7 +128,8 @@ additional type-specific branches apply only to unresolved symbolic ClubRef
 types.
 
 Therefore an ordinary fixed LeagueMatch whose two participants are direct club
-references is not excluded by `0x510B20` on this dependency test.
+references is not excluded by `0x510B20` **once it reaches this predicate**.
+This does not supersede the earlier `0x514520` / `node+0x08` link test.
 
 ### Second-leg extension: 0x510B60
 
@@ -163,10 +173,18 @@ first-season League path:
   identities already exist in the live GameState/management bridge.
 
 For this direct fixed-League subset, both participants are concrete from
-construction and the common `+0x64` dependency predicate returns zero. This
-closes the native selection semantics needed to select the first qualifying
-unplayed fixed Premier League match involving the current human club while
-preserving recovered ScheduleContainer date/bucket order.
+construction and the common `+0x64` dependency predicate returns zero.
+However, Recovery 399's first pass over this trace incorrectly treated
+`0x514520` as the allocator of `node+0x08`. The corrected disassembly proves
+the opposite acceptance boundary: `0x615C50` returns a candidate only when
+the link remains null after the Side resolver calls.
+
+The repository's primary schedule shadow already retains source bucket order
+and conservative participant graphs, but it does not currently retain the
+`node+0x08` linked-object state or all `0x510320 -> 0x615F40 -> 0x510BA0`
+side effects. Therefore the direct fixed-League **text producer is not yet safe
+to integrate generically**. The selector control flow is closed; the clean-room
+state mapping for the link test is the remaining implementation prerequisite.
 
 This does **not** authorize a generic selector for:
 
@@ -188,8 +206,11 @@ The text/layout side was already source-closed in
 - both controls use rect width 378 at x=172, 16px height, raw style
   `0x2102`, white endpoint `0xFFFF`, and the exact 18px Zurich font.
 
-This Recovery-399 trace closes the missing selector for the direct fixed-League
-path only. It does **not** claim those two lines are integrated yet.
+This Recovery-399 trace closes the selector's native control flow and the
+common direct-ClubRef `+0x64` predicate, but the corrected `node+0x08`
+acceptance direction leaves one live-state mapping prerequisite before even the
+direct fixed-League producer can be integrated. It does **not** claim those two
+lines are integrated yet.
 
 ## 36px club-name font re-verification
 
