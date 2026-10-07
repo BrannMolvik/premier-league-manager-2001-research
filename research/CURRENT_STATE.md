@@ -1,3 +1,19 @@
+# Recovery 399 continuation — direct fixed-League header selector source-closed
+
+_Updated 8 October 2026._
+
+Canonical `main` baseline is `de130503546f3a49db8e6d8a9e7aa133148d13a0`. **Gate 13 remains the earliest incomplete validation gate.** The mandatory post-#482 retrospective audit remains active; no acceptance build, Settings expansion, or Gate-17 work-ahead is authorized.
+
+Recovery 399 re-materialized the authorized original disc archive and re-extracted canonical `footballmanager.exe`; SHA-256 again matched `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. New first-hand analysis in `research/GATE13_MANAGEMENT_HEADER_MATCH_SELECTOR_SOURCE_TRACE.md` closes the native `0x615D10/0x615DA0` management-header selector for the shipped **direct fixed-League first-season path**. The original scans ScheduleContainer date buckets forward in native linked-list order, filters by current-club membership and native match flags, requires both participant ClubRefs to materialize, and applies the concrete match's virtual dependency predicate. Fixed Premier League nodes already reconstructed by `competition_schedule.py` carry two direct ClubRefs, for which the common `0x510B20` dependency predicate returns zero. Therefore the fresh fixed-League path can be reproduced from recovered schedule order without inventing a generic "next fixture" sort.
+
+Cup/symbolic ClubRefs and SecondLegMatch dependency chains remain deliberately fail-closed. This checkpoint does not claim the y=34/y=51 header lines are rendered yet.
+
+The exact missing club-name font was also re-extracted from disc extent 170896 and independently reverified: 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, EA atlas 2678x38, native line height 39. `Southport` measures 99 source pixels, placing the recovered right-aligned line at x=451 inside `(172,1,378,32)`. The bytes are still **not staged in Git** because the current connector path cannot transfer the private binary from the analysis container; no substitute font is authorized.
+
+**Exact next task:** integrate only the source-closed direct fixed-League header selector using existing live/recovered schedule state and the two already-closed exact templates, while failing closed for unsupported node classes, symbolic ClubRefs, or missing exact order. Separately stage the byte-identical 36px font and club-name renderer when a binary-capable provenance write path is available. Focused/full verification and the private Windows startup-FMV transport receipt remain required before Gate 13 can close.
+
+---
+
 # Recovery 396 continuation — central fresh-management header source-closed
 
 _Updated 8 October 2026._
