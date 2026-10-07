@@ -1,23 +1,18 @@
-# Local Gate-13 issue #482 diagnosis/fix - 7 October 2026
+# Recovery 379 - Gate 13 issue #482 WPF startup fix merged; fresh current-main package still required
 
-Based on actual current-main `bf91dc0338de7c9b31486d1d3ff50c6e5251f743`,
-branch `codex/gate13-wpf-startup-fix` proves the startup timeout is Tk-owner
-message starvation during cross-process WPF HwndSource construction, before
-MediaElement creation. The smallest fix services the Tk owner while waiting
-for the same game-owned WPF player, retaining the existing timeout, verified
-cache/source order, geometry and audio. Both easp and premintro complete in
-the actual source-runtime production host, restoring the menu. Focused
-Windows tests: 88 passed, including unmodified-script real WPF playback.
-Full reconstruction suite: 2,839 run, OK with 23 expected skips; repository
-asset policy and whitespace checks pass.
+_Updated 7 October 2026._
 
-Evidence and bounded regression details:
-`research/GATE13_ISSUE482_WPF_STARTUP_DIAGNOSIS.md`.
-Gate 13 remains open pending a rebuilt-package normal Windows acceptance;
-this branch is not merged and the old frozen artifact is not repaired.
-Disjoint Gate-14 work and agent-runtime are untouched. The Gate-13 next
-action is rebuild the package with this fix and verify normal startup through
-both clips, then continue the existing issue-482 acceptance criteria.
+Canonical `main` is `bfe95f257cd67c58e05fb65c29864271473f325e`, merging PR #521 after PR #518.
+
+PR #521 source-closed the external startup timeout observed on Daniel's prior Windows package: the Tk-owning thread blocked in synchronous process waiting before `root.mainloop()`, while cross-process WPF `HwndSource` creation required that parent HWND to service Windows messages. The merged fix keeps the same verified startup media, order, audio, 640x480 native movie field at (80,60), duration-derived timeout, and game-owned WPF child; it changes the wait to `Popen` plus bounded Tk event pumping and suppresses hidden menu input/redraw while startup media is active. The production WPF script itself is unchanged. See `research/GATE13_ISSUE482_WPF_STARTUP_DIAGNOSIS.md`.
+
+Exact PR #521 head `076c8beab54a864ea42f6b15620e7a7ff2ca128b` passed full reconstruction run `37576911430`, Gate-13 presentation run `37576911437`, Windows package run `37576911424`, and asset-policy run `37576911477`. Local/private evidence on that branch also records 88 focused Windows tests, unmodified-script WPF playback, and the production host completing easp -> premintro -> main menu.
+
+The old external artifact `11418314765` is **superseded and must not be accepted**: it timed out on `easp.mp4` and then terminated the app after the error dialog. PR #521's package artifact `11463330603` (digest `sha256:d0558d936aee4dc5c6d3e4922b81e3d2fc8c209b50dfbdd92cb238dba344d4b2`) validates the repair branch, but its tree is not identical to merged `main` because #521 was merged over the newer #518 history. Therefore it is not the canonical current-main acceptance artifact. Gate 13 remains open until a fresh package built from the reconciled current-main tree passes Daniel's normal Windows launch through both startup clips and the remaining issue-482 acceptance criteria.
+
+PR #518 is already merged and source-closes the native PPreMatch Match Detail commit/dispatch: modes 0/1 -> native 3D wrappers, mode 2 -> FastView, mode 3 -> Quick Match/no presentation wrapper. The ordinary management-screen fixture-start entry into router `0x513010` remains unresolved and fail-closed. Recovery-379 work-ahead PRs #519/#520 were validated against the pre-#521 host and are now stale; rebuild them from repaired `main` before merge. Private canonical-source execution is currently blocked by `caas.internal.errors.ClientError` after successful archive materialization, so #520's candidate-only caller tracer must not be mistaken for recovered management semantics.
+
+Immediate next action: rebuild PR #519's post-match source-mode host seam on current `main`, require fresh exact-head CI/Windows packaging, then use that reconciled package as the next Gate-13 external acceptance candidate. After that, rebuild the candidate-only `0x513010` caller tracer from current `main` and resume first-hand caller adjudication when private executable processing works. Gate 13, Gate 14, and all later gates remain incomplete.
 
 ---
 
