@@ -11,6 +11,7 @@ from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
     LeagueFixturesGridSourceView,
+    ManagementHeaderMatchView,
 )
 from original_league_fixtures_resources import LEAGUE_FIXTURES_RESOURCES
 from original_league_tables_resources import LEAGUE_TABLES_RESOURCES
@@ -119,6 +120,17 @@ class Bridge:
         )
 
 
+class HeaderBridge(Bridge):
+    def management_header_match(self):
+        return ManagementHeaderMatchView(
+            fixture_id=700,
+            competition_name="Premier League",
+            home_short_name="Source",
+            away_short_name="Visitors",
+            scheduled_date=date(2000, 8, 19),
+        )
+
+
 class WideBridge(Bridge):
     def league_fixtures_grid_source(self):
         return LeagueFixturesGridSourceView(
@@ -175,6 +187,23 @@ class OriginalManagementPresenterTests(unittest.TestCase):
             tuple(row.player_id for row in snapshot.squad.rows),
             tuple(range(1000, 1020)),
         )
+
+    def test_management_snapshot_carries_source_header_match_without_requerying_host(self):
+        snapshot = build_fresh_management_snapshot(
+            self.started_session(), bridge_factory=HeaderBridge
+        )
+        self.assertIsNotNone(snapshot.header_match)
+        self.assertEqual(snapshot.header_match.fixture_id, 700)
+        self.assertEqual(snapshot.header_match.competition_name, "Premier League")
+        self.assertEqual(snapshot.header_match.home_short_name, "Source")
+        self.assertEqual(snapshot.header_match.away_short_name, "Visitors")
+        self.assertEqual(snapshot.header_match.scheduled_date, date(2000, 8, 19))
+
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=HeaderBridge,
+        )
+        self.assertEqual(presenter.snapshot().header_match, snapshot.header_match)
 
     def test_management_composition_rejects_pre_start_session(self):
         with self.assertRaisesRegex(
