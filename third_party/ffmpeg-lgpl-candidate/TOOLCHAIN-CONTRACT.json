@@ -212,6 +212,115 @@
       "artifact_id": 11475455530,
       "artifact_digest": "sha256:ffb3be1fd496deb582cd3b71a4a2bc9dc6890e113497f09c5f406808bd4920e1",
       "head_sha": "044bb7459f885b0e7e8368e628fe1687fbf0fe1a"
+    },
+    "license_material": {
+      "scope": "Exact license/declaration evidence extracted from the four pinned proven-contributor MSYS2 source packages according to their package recipes. This is technical evidence, not a legal-compliance conclusion.",
+      "mingw_w64_gcc": {
+        "source_family": "mingw-w64-gcc",
+        "evidence_kind": "installed_license_texts",
+        "package_recipe_basis": [
+          "package_gcc() invokes _install_RLE",
+          "_install_RLE installs COPYING3 and COPYING.RUNTIME"
+        ],
+        "nested_source_archive": "gcc-16.2.0.tar.xz",
+        "files": [
+          {
+            "source_path": "gcc-16.2.0/COPYING3",
+            "output_name": "gcc/COPYING3",
+            "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+            "size_bytes": 35147
+          },
+          {
+            "source_path": "gcc-16.2.0/COPYING.RUNTIME",
+            "output_name": "gcc/COPYING.RUNTIME",
+            "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+            "size_bytes": 3324
+          }
+        ]
+      },
+      "mingw_w64_crt": {
+        "source_family": "mingw-w64-crt",
+        "evidence_kind": "installed_license_texts",
+        "source_git_head": "4564ee4b5063097bf747af3a3f8270a28adff820",
+        "package_recipe_basis": [
+          "package() installs COPYING",
+          "package() installs COPYING.MinGW-w64.txt",
+          "package() installs COPYING.MinGW-w64-runtime.txt"
+        ],
+        "files": [
+          {
+            "source_path": "COPYING",
+            "output_name": "crt/COPYING",
+            "sha256": "99a69660981156c21336fdb5661f89341b013c94e4bf9e1c7467b4745718397f",
+            "size_bytes": 2326
+          },
+          {
+            "source_path": "COPYING.MinGW-w64/COPYING.MinGW-w64.txt",
+            "output_name": "crt/COPYING.MinGW-w64.txt",
+            "sha256": "f38e6194bd3bfa1b654f118e5acefe0aead437bbe669eee43957ccc65a7127f1",
+            "size_bytes": 5905
+          },
+          {
+            "source_path": "COPYING.MinGW-w64-runtime/COPYING.MinGW-w64-runtime.txt",
+            "output_name": "crt/COPYING.MinGW-w64-runtime.txt",
+            "sha256": "1db8da07b436c68833c0673ffee3d9fcb2526047f3820b81661865dfedc79a1f",
+            "size_bytes": 12155
+          }
+        ]
+      },
+      "mingw_w64_winpthreads": {
+        "source_family": "mingw-w64-winpthreads",
+        "evidence_kind": "installed_license_texts",
+        "source_git_head": "4564ee4b5063097bf747af3a3f8270a28adff820",
+        "package_recipe_basis": [
+          "package_winpthreads() invokes _install_licenses",
+          "_install_licenses installs mingw-w64-libraries/winpthreads/COPYING"
+        ],
+        "files": [
+          {
+            "source_path": "mingw-w64-libraries/winpthreads/COPYING",
+            "output_name": "winpthreads/COPYING",
+            "sha256": "63263614cdd29f2f93cba85e992f041b31f9fc7b4033692f31269489a8a1b177",
+            "size_bytes": 2883
+          }
+        ]
+      },
+      "mingw_w64_windows_default_manifest": {
+        "source_family": "mingw-w64-windows-default-manifest",
+        "evidence_kind": "public_domain_declaration_and_source_evidence",
+        "dedicated_license_text_present": false,
+        "package_recipe_basis": [
+          "PKGBUILD declares license=('custom:Public Domain')",
+          ".SRCINFO declares license = custom:Public Domain",
+          "genrc.py is the pinned package source used to generate default-manifest.o"
+        ],
+        "files": [
+          {
+            "source_path": ".SRCINFO",
+            "output_name": "windows-default-manifest/.SRCINFO",
+            "sha256": "48f2cfe1c6c9520fc087b0a793aeb1326400cb9485e9a8ebb4f7d67578dc335f",
+            "size_bytes": 480
+          },
+          {
+            "source_path": "PKGBUILD",
+            "output_name": "windows-default-manifest/PKGBUILD",
+            "sha256": "c01b38f7f32970b42d2c9ab834d35eb69fb71a0f3de30a0340ce30e40cd203e8",
+            "size_bytes": 960
+          },
+          {
+            "source_path": "genrc.py",
+            "output_name": "windows-default-manifest/genrc.py",
+            "sha256": "f2bfbcd92ab28d8671dda5a1485aae150ce5d5faf4395a6a4462cacd2a6fb60a",
+            "size_bytes": 2567
+          }
+        ]
+      },
+      "license_material_assembled": true,
+      "license_material_hashes_pinned": true,
+      "license_notice_material_complete": false,
+      "source_material_complete": false,
+      "legal_compliance_claimed": false,
+      "boundary": "The exact package-recipe license/declaration evidence is hash-pinned and must be reproducibly extracted from the pinned source packages before merge. This does not decide legal sufficiency, additional notice obligations, or complete release source-material compliance."
     }
   }
 }
