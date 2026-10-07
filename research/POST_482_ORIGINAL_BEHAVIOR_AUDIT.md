@@ -307,3 +307,45 @@ First finish the audit corrections rather than resume feature work:
 4. only after the retrospective audit exits, return to current-baseline latency measurement and a new Windows acceptance candidate.
 
 Gate 17 work-ahead and Settings remain frozen while these Gate-13 audit blockers exist.
+
+
+## Recovery 402 audit reconciliation
+
+The retrospective audit has advanced materially since the Recovery-396 text above:
+
+- source-closed reserve-team selection state is now propagated through the live
+  clean-room Squad row/presenter path, so ordinary fresh-player names are no
+  longer withheld solely because `+0x174` reserve state is unavailable;
+- the corrected `0x615D10/0x615DA0` direct fixed-League selector and
+  `wrapper+0x08` lifecycle are source-closed for the bounded fresh path;
+- Recovery 402 integrates the conditional y=34/y=51 header lines only while
+  wrapper-link state is source-known clear, and fails closed after unmodeled
+  post-start reschedule-capable day boundaries;
+- PR #547 exact head `d54184a0767416cb51d756f8edcc45a82d272677`
+  passed Gate-13 source tests `37679247332`, the full reconstruction suite
+  `37679247185` (**2915 tests, 25 skipped, zero failures**), and asset policy
+  `37679247320`;
+- the normal/default original PStartMenu path remains isolated from the
+  DEFERRED-MODERNIZATION Settings extension. Commit `86f7d22b` removed
+  Settings resource loading and package-smoke dependency from that path, and
+  the Recovery-402 full validation confirms the isolated baseline still passes.
+
+The remaining fresh-header omission is narrower than the older audit wording:
+the current-date and bounded conditional match lines are integrated, but the
+primary `Club.name` control at `(172,1,378,32)` is still absent because its
+exact `Zurich_BdXCn_BT_36pixel.fnt` bytes are verified but not yet staged in
+Git. The font is 155,544 bytes with SHA-256
+`92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`.
+The current GitHub connector has no local-file-reference upload path for
+repository blobs. Passing the binary through UTF-8 or manually reassembling a
+large base64 payload would weaken byte-identity assurance, so that transfer is
+kept blocked rather than guessed.
+
+The startup-FMV blocker is unchanged: the native 640x480 movie field and
+(80,60) placement are source-proven, but the externally wrong in-field content
+still requires a private Windows parent/child HWND rectangle and DPI-awareness
+receipt before the transport layer can be corrected without guessing.
+
+Accordingly, the audit is still open. The remaining material exit blockers are
+the exact club-name asset/render and the startup-FMV transport distinction,
+followed by final focused/full re-verification and Windows acceptance.
