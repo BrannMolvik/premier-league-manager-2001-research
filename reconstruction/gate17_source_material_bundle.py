@@ -42,15 +42,17 @@ def audit_source_bundle_contract(repo_root: str | Path) -> dict:
         raise SourceBundleError("contributing_source_families contains duplicates")
     if scope.get("static_contributor_attribution_complete") is not True:
         raise SourceBundleError("static contributor attribution is not complete")
+    if scope.get("source_package_bundle_assembled") is not True:
+        raise SourceBundleError("source_package_bundle_assembled must be true")
+    if scope.get("source_package_hashes_pinned") is not True:
+        raise SourceBundleError("source_package_hashes_pinned must be true")
     for field in (
-        "source_package_bundle_assembled",
-        "source_package_hashes_pinned",
         "license_notice_material_complete",
         "source_material_complete",
         "legal_compliance_claimed",
     ):
         if scope.get(field) is not False:
-            raise SourceBundleError(f"{field} must remain false before materialization")
+            raise SourceBundleError(f"{field} must remain false")
 
     critical = contract.get("critical_package_source_material", {})
     package_to_family = critical.get("package_to_source_family", {})
@@ -94,6 +96,16 @@ def audit_source_bundle_contract(repo_root: str | Path) -> dict:
         licenses = family.get("license_metadata")
         if not isinstance(licenses, list) or not licenses:
             raise SourceBundleError(f"{family_name} license metadata is empty")
+        expected_sha256 = family.get("source_tarball_sha256")
+        expected_size = family.get("source_tarball_size_bytes")
+        if (
+            not isinstance(expected_sha256, str)
+            or len(expected_sha256) != 64
+            or any(ch not in "0123456789abcdef" for ch in expected_sha256)
+        ):
+            raise SourceBundleError(f"{family_name} pinned source SHA-256 is invalid")
+        if not isinstance(expected_size, int) or expected_size <= 0:
+            raise SourceBundleError(f"{family_name} pinned source size is invalid")
         resolved.append(
             {
                 "package": package,
@@ -102,6 +114,8 @@ def audit_source_bundle_contract(repo_root: str | Path) -> dict:
                 "source_url": url,
                 "filename": filename,
                 "license_metadata": list(licenses),
+                "expected_sha256": expected_sha256,
+                "expected_size_bytes": expected_size,
             }
         )
 
@@ -116,8 +130,8 @@ def audit_source_bundle_contract(repo_root: str | Path) -> dict:
         "bundle_scope_count": len(resolved),
         "entries": resolved,
         "static_contributor_attribution_complete": True,
-        "source_package_bundle_assembled": False,
-        "source_package_hashes_pinned": False,
+        "source_package_bundle_assembled": True,
+        "source_package_hashes_pinned": True,
         "license_notice_material_complete": False,
         "source_material_complete": False,
         "legal_compliance_claimed": False,
@@ -167,6 +181,14 @@ def materialize_source_bundle(
         seen_filenames.add(filename)
         destination = packages_dir / filename
         sha256, size = _download(entry["source_url"], destination)
+        if sha256 != entry["expected_sha256"]:
+            raise SourceBundleError(
+                f"{entry['source_family']} source SHA-256 drifted: {sha256}"
+            )
+        if size != entry["expected_size_bytes"]:
+            raise SourceBundleError(
+                f"{entry['source_family']} source size drifted: {size}"
+            )
         manifest_entries.append(
             {
                 **entry,
@@ -183,7 +205,7 @@ def materialize_source_bundle(
         "source_packages": manifest_entries,
         "static_contributor_attribution_complete": True,
         "source_package_bundle_assembled": True,
-        "source_package_hashes_pinned": False,
+        "source_package_hashes_pinned": True,
         "license_notice_material_complete": False,
         "source_material_complete": False,
         "legal_compliance_claimed": False,
