@@ -69,6 +69,8 @@ class FakePlayer:
     current_position: int = 0
     match_active: bool = False
     match_substitute_available: bool = False
+    reserve_active: bool = False
+    reserve_substitute_available: bool = False
     training_modifiers: list[int] = field(
         default_factory=lambda: [0] * 17
     )
@@ -504,6 +506,20 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_squad_projection_carries_source_closed_reserve_selection_state(self):
+        controller = FakeController()
+        controller._squad[0].match_substitute_available = False
+        controller._squad[0].reserve_active = True
+
+        second, first = ManagementSourceDataBridge(controller).squad_rows()
+
+        self.assertTrue(second.reserve_active)
+        self.assertFalse(second.reserve_substitute_available)
+        self.assertFalse(second.match_active)
+        self.assertFalse(second.match_substitute_available)
+        self.assertFalse(first.reserve_active)
+        self.assertFalse(first.reserve_substitute_available)
 
     def test_squad_status_projection_keeps_loan_and_non_eu_priority_inputs_exact(self):
         controller = FakeController()
