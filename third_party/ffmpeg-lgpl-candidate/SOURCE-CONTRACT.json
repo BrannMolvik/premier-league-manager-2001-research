@@ -123,19 +123,26 @@
       "provenance_boundary": "The MinGW-w64/UCRT toolchain runtime is build infrastructure, not an FFmpeg --enable-lib* component. Static linkage removes a separate runtime-DLL deployment dependency, but source_material_complete stays false until required toolchain redistribution/source-license materials are accounted for."
     },
     "source_snapshot": {
-      "assembled": false,
-      "hashes_pinned": false,
+      "assembled": true,
+      "hashes_pinned": true,
       "archive_format": "tar.xz",
       "archive_filename": "ffmpeg-46d8f462eeb87ee1f704d8c44a0ee24fca471ad1-source.tar.xz",
-      "archive_sha256": null,
-      "archive_size_bytes": null,
-      "license_sha256": null,
-      "license_size_bytes": null,
-      "build_recipe_manifest_sha256": null,
-      "build_recipe_manifest_size_bytes": null,
+      "archive_sha256": "5b67f561b8412a4232c45f5a48e9046872bd762c048ef07f725f088352ff3b3d",
+      "archive_size_bytes": 11320576,
+      "license_sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "license_size_bytes": 26517,
+      "build_recipe_manifest_sha256": "47473f6541ea26b69ea97b89cef8165f4180e16bcc17fc1c6671922efd024c94",
+      "build_recipe_manifest_size_bytes": 961,
       "source_material_complete": false,
       "legal_compliance_claimed": false,
-      "boundary": "Exact FFmpeg source snapshot must be deterministically assembled from the pinned source commit and independently hash-pinned before any source-material completeness claim. This is technical provenance only."
+      "boundary": "Exact FFmpeg source snapshot must be deterministically assembled from the pinned source commit and independently hash-pinned before any source-material completeness claim. This is technical provenance only.",
+      "artifact_reference": {
+        "workflow_run": 37610537416,
+        "artifact_id": 11478315953,
+        "artifact_digest": "sha256:6dac7a4eed2209219696b712563f6fb7bf3a78879a2c53a82a15735d8be425fb",
+        "head_sha": "1194bc206c176305dd566bd6bd83eb192480e82e",
+        "archive_entry_count": 10550
+      }
     }
   },
   "legal_boundary": "This contract narrows technical provenance only. It is not legal advice and does not assert redistribution compliance."
