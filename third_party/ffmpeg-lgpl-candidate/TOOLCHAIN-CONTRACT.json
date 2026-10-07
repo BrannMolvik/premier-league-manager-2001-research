@@ -29,9 +29,14 @@
     "mingw-w64-ucrt-x86_64-windows-default-manifest": "20260815-1"
   },
   "source_material_leads": {
+    "msys2-runtime-3.6.10-6": "https://mirror.msys2.org/msys/sources/msys2-runtime-3.6.10-6.src.tar.zst",
     "mingw-w64-gcc-16.2.0-4": "https://mirror.msys2.org/mingw/sources/mingw-w64-gcc-16.2.0-4.src.tar.zst",
     "mingw-w64-binutils-2.47-3": "https://mirror.msys2.org/mingw/sources/mingw-w64-binutils-2.47-3.src.tar.zst",
-    "mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1.src.tar.zst"
+    "mingw-w64-nasm-3.02-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-nasm-3.02-1.src.tar.zst",
+    "mingw-w64-crt-14.0.0.r426.g4564ee4b5-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-crt-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
+    "mingw-w64-headers-14.0.0.r426.g4564ee4b5-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-headers-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
+    "mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
+    "mingw-w64-windows-default-manifest-20260815-1": "https://mirror.msys2.org/mingw/sources/mingw-w64-windows-default-manifest-20260815-1.src.tar.zst"
   },
   "complete_package_lock": false,
   "source_material_complete": false,
@@ -58,13 +63,12 @@
     "source_families": {
       "msys2-runtime": {
         "binary_version": "3.6.10-6",
-        "metadata_url": "https://packages.msys2.org/packages/msys2-runtime",
-        "source_only_tarball": null,
-        "source_tarball_metadata_verified": false,
+        "metadata_url": "https://packages.msys2.org/packages/msys2-runtime?repo=msys&variant=x86_64",
+        "source_only_tarball": "https://mirror.msys2.org/msys/sources/msys2-runtime-3.6.10-6.src.tar.zst",
+        "source_tarball_metadata_verified": true,
         "license_metadata": [
           "GPL-3.0-or-later"
-        ],
-        "note": "Official MSYS2 repo metadata confirms 3.6.10-6 is the pinned runtime version, but this checkpoint has not independently verified the exact -6 source-only tarball URL."
+        ]
       },
       "mingw-w64-gcc": {
         "binary_version": "16.2.0-4",
@@ -99,13 +103,12 @@
       },
       "mingw-w64-crt": {
         "binary_version": "14.0.0.r426.g4564ee4b5-1",
-        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-ucrt-x86_64-crt",
-        "source_only_tarball": null,
-        "source_tarball_metadata_verified": false,
+        "metadata_url": "https://packages.msys2.org/packages/mingw-w64-x86_64-crt",
+        "source_only_tarball": "https://mirror.msys2.org/mingw/sources/mingw-w64-crt-14.0.0.r426.g4564ee4b5-1.src.tar.zst",
+        "source_tarball_metadata_verified": true,
         "license_metadata": [
           "ZPL-2.1"
-        ],
-        "note": "Current MSYS2 package index confirms the pinned r426 binary version, but this checkpoint has not independently verified its exact source-only tarball URL."
+        ]
       },
       "mingw-w64-headers": {
         "binary_version": "14.0.0.r426.g4564ee4b5-1",
@@ -137,11 +140,9 @@
         ]
       }
     },
-    "verified_source_family_count": 6,
+    "verified_source_family_count": 8,
     "total_source_family_count": 8,
     "unresolved": [
-      "Verify the exact MSYS2 source-only tarball metadata for msys2-runtime 3.6.10-6.",
-      "Verify the exact MSYS2 source-only tarball metadata for mingw-w64-crt 14.0.0.r426.g4564ee4b5-1.",
       "Derive and lock the complete transitive package set actually present in the successful build environment.",
       "Map every transitive runtime/build component that contributes redistributed code into the static helper to corresponding source/license/notice material.",
       "Assemble and checksum the final redistribution source/license/notice bundle.",

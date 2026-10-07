@@ -59,11 +59,11 @@ class Gate17MinimalFfmpegToolchainTests(unittest.TestCase):
         )
         self.assertEqual(
             result["critical_source_material"]["verified_source_family_count"],
-            6,
+            8,
         )
         self.assertEqual(
             result["critical_source_material"]["unverified_source_families"],
-            ["mingw-w64-crt", "msys2-runtime"],
+            [],
         )
 
     def test_version_drift_fails_closed(self):
@@ -117,12 +117,11 @@ class Gate17MinimalFfmpegToolchainTests(unittest.TestCase):
 
     def test_unverified_source_family_cannot_publish_guessed_tarball(self):
         payload=canonical_contract()
-        payload["critical_package_source_material"]["source_families"][
+        family=payload["critical_package_source_material"]["source_families"][
             "msys2-runtime"
-        ]["source_only_tarball"]=(
-            "https://mirror.msys2.org/msys/sources/"
-            "msys2-runtime-3.6.10-6.src.tar.zst"
-        )
+        ]
+        family["source_tarball_metadata_verified"]=False
+        family["note"]="Synthetic unresolved family used to exercise fail-closed behavior."
         with self.assertRaisesRegex(
             MinimalFfmpegToolchainError,"must not publish a tarball URL"
         ):
