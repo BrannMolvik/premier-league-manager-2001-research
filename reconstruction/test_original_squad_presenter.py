@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import unittest
 
 from original_squad_presenter import (
@@ -24,6 +24,8 @@ class Row:
     condition: int
     recent_form_average: float
     current_role_rating: int
+    reserve_active: bool = False
+    reserve_substitute_available: bool = False
     injured: bool = False
     suspended: bool = False
     international: bool = False
