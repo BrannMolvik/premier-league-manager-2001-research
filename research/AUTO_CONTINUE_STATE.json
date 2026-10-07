@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 403: PR #549 merged latency repair at main c78644a7. Continue Gate 13 primary club-name closure: verify PR #550 renderer contract, then stage exact Fonts/Zurich_BdXCn_BT_36pixel.fnt when binary execution is available, wire Club.name into the live header, and add Southport plus second-club regressions. Startup-FMV HWND/DPI receipt remains external. Southport remains only a reproduction fixture; fixes must be generic.",
-  "last_known_main_head": "c78644a744fb4c734cfa0bb1431f406b79f8f409",
+  "active_task": "Recovery 403 is checkpointed on main e05c71c1. Gate 13/audit remain open. Primary next implementation is exact 36px Zurich font staging/provenance, live generic Club.name binding, and Southport plus second-club regressions when binary execution recovers. Until then, continue the highest-priority independent cloud-safe post-#482 Gate-13 audit item. Startup-FMV parent/child HWND/DPI receipt remains external; do not change native geometry.",
+  "last_known_main_head": "e05c71c11e50b6f5b42bfee1e9054bd7c4dab7e8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 403,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 403 remains continuous/working. Binary extraction from the authorized Library archive is still blocked by caas.internal.errors.ClientError across container, private Python, and visible Python. No substitute font allowed.",
+  "note": "PR #549 latency repair and PR #550 club-name raster contract are merged and documented. Authorized font archive is materialized but process execution is blocked by caas.internal.errors.ClientError; no substitute font.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
