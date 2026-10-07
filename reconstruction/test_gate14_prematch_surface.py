@@ -18,6 +18,7 @@ from gate14_prematch_surface import (
     PrematchSurfaceBoundary,
     PrematchSurfaceError,
     bind_prematch_player_rows,
+    bind_prematch_dynamic_text_state,
     bind_prematch_rating_state,
     bind_prematch_rating_widths,
     build_verified_prematch_surface_boundary,
@@ -304,6 +305,90 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(all(not s.persistent_selected_visual for s in boundary.selectors))
         self.assertEqual(tuple(s.initial_flags for s in boundary.selectors), (0x183,) * 4)
         self.assertEqual(tuple(s.group_lengths for s in boundary.selectors), ((11, 11, 1),) * 4)
+
+    def test_dynamic_text_state_binding_uses_boundary_selection_without_raster_claim(self):
+        text_clubs = {
+            10: SimpleNamespace(
+                country_id=26,
+                graphics_basename="arsenal",
+                fan_base_index=25,
+                short_name="Arsenal",
+                stadium="Highbury",
+            ),
+            11: SimpleNamespace(
+                country_id=26,
+                graphics_basename="chelsea",
+                fan_base_index=14,
+                short_name="Chelsea",
+                stadium="Stamford Bridge",
+            ),
+        }
+        selection = build_fastview_surfaced_resource_selection(
+            match_date=date(2001, 1, 13),
+            clubs=text_clubs,
+            countries=self.countries,
+            home_club_id=10,
+            away_club_id=11,
+            background_club_override_id=None,
+        )
+        surfaced = fake_surfaced_resources(selection)
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=surfaced,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=text_clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        bound = bind_prematch_dynamic_text_state(
+            boundary,
+            clubs=text_clubs,
+            competition_name="F.A. Premier League",
+            weather_code=4,
+            temperature_c=-1,
+            home_team_name_override=None,
+            away_team_name_override="Chelsea Network",
+        )
+        self.assertEqual(
+            bound.fixture_header,
+            "F.A. Premier League MATCH TODAY AT Highbury",
+        )
+        self.assertEqual(
+            bound.date_weather,
+            "13th January 2001 Snowy -1°C",
+        )
+        self.assertEqual(bound.home_team_identity, "Arsenal")
+        self.assertEqual(bound.away_team_identity, "Chelsea Network")
+        self.assertFalse(bound.text_pixels_rasterized)
+        self.assertFalse(bound.complete_prematch_frame)
+
+        with self.assertRaisesRegex(PrematchSurfaceError, "exact PrematchSurfaceBoundary"):
+            bind_prematch_dynamic_text_state(
+                object(),
+                clubs=text_clubs,
+                competition_name="F.A. Premier League",
+                weather_code=0,
+                temperature_c=10,
+                home_team_name_override=None,
+                away_team_name_override=None,
+            )
 
     def test_player_row_binding_uses_source_name_number_and_count_driven_state(self):
         selection = self._selection()
@@ -648,6 +733,7 @@ class PrematchSurfaceTests(unittest.TestCase):
                 "rating_right_att",
             ),
         )
+        self.assertTrue(contract["dynamic_text_state_binding_available"])
         self.assertFalse(contract["dynamic_fixture_and_date_buffers_bound"])
         self.assertFalse(contract["team_identity_text_bound"])
         self.assertTrue(contract["fixed_versus_and_rating_captions_available"])
