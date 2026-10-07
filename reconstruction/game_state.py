@@ -3424,13 +3424,14 @@ class GameState:
         player_id: int,
         current_club_id: int,
     ) -> bool:
-        """Resolve PSCF's full 0x418480 Cup-Tied predicate for one match.
+        """Resolve only the source-closed positive Cup-Tied status path.
 
-        The root +0x48 collection remains authoritative: a positive hit wins
-        immediately. Only root runtime +0x34 mode 1 continues after a miss.
-        The latest persisted PlayerMovement supplies the source-equivalent
-        transfer-history +0x08 club and +0x18 date for clean-room completed
-        transfers. Missing or stale history remains fail-closed.
+        The root +0x48 collection is source-proven: a positive hit means the
+        player is Cup-Tied for the current club. Recovery 354 disproved the
+        later date-based interpretation of CPlayerTransferHistory+0x18; it is
+        an appearance count, and the producer/meaning of the corresponding
+        selector/cutoffs remains unresolved. Therefore every collection miss,
+        including runtime restriction mode 1, must fail closed here.
         """
         root_id = cup_tied_root_competition_id(
             int(competition_id),
@@ -3440,35 +3441,9 @@ class GameState:
             return False
 
         collection = self.cup_tied_collections.get(int(root_id))
-        if (
+        return bool(
             collection is not None
             and collection.is_cup_tied(int(player_id), int(current_club_id))
-        ):
-            return True
-
-        root = self.competitions.get(int(root_id))
-        restriction_mode = getattr(root, "cup_restriction_mode", None)
-        if restriction_mode is None or int(restriction_mode) != 1:
-            return False
-
-        window = self.cup_tied_transfer_window
-        if window is None:
-            return False
-
-        movement = next(
-            (
-                item
-                for item in reversed(self.transfers.movements)
-                if int(item.player_id) == int(player_id)
-            ),
-            None,
-        )
-        if movement is None or int(movement.to_club_id) != int(current_club_id):
-            return False
-
-        return window.transfer_history_is_tied(
-            history_club_id=int(movement.from_club_id),
-            transfer_date=movement.movement_date,
         )
 
     def _persist_domestic_cup_shared_post_match(

@@ -85,7 +85,7 @@ class GameStateCupTiedIntegrationTests(unittest.TestCase):
         self.assertTrue(state.is_player_cup_tied(100, 11, 20))
         self.assertEqual(state.cup_tied_collections[100].recorded_club_id(11), 10)
 
-    def test_mode1_collection_miss_uses_latest_persisted_transfer_date(self):
+    def test_mode1_collection_miss_does_not_promote_disproved_transfer_date_fallback(self):
         player = Player(11, 10)
         state = GameState.from_players((player,), date(2000, 7, 1))
         state.competitions = {100: Competition(100, 2, cup_restriction_mode=1)}
@@ -97,7 +97,10 @@ class GameStateCupTiedIntegrationTests(unittest.TestCase):
         player.club_id = 20
         state.club_roster_order = {20: [11]}
 
-        self.assertTrue(state.is_player_cup_tied_for_status(100, 11, 20))
+        # Recovery 354 proves CPlayerTransferHistory+0x18 is an appearance
+        # count, not this movement date. Until the original appearance-count
+        # cutoff producer is recovered, the mode-1 collection miss is closed.
+        self.assertFalse(state.is_player_cup_tied_for_status(100, 11, 20))
 
     def test_mode1_transfer_date_equality_is_not_tied(self):
         player = Player(11, 20)
