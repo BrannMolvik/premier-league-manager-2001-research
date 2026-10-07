@@ -82,6 +82,25 @@ class Gate17LinkInputOwnershipAuditTests(unittest.TestCase):
                 toolchain_contract=root / "contract.json",
             )
 
+    def test_workflow_invokes_ownership_audit_with_argument_array(self):
+        repo = Path(__file__).resolve().parent.parent
+        workflow = (
+            repo / ".github" / "workflows" / "gate17-minimal-ffmpeg-build.yml"
+        ).read_text(encoding="utf-8")
+        start = workflow.index(
+            "      - name: Audit direct package ownership for external final-link inputs"
+        )
+        end = workflow.index(
+            "      - name: Audit built helper and write proof receipt", start
+        )
+        step = workflow[start:end]
+        self.assertIn("$ownershipArgs = @(", step)
+        self.assertIn("python @ownershipArgs", step)
+        self.assertIn(
+            "if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }",
+            step,
+        )
+
     def test_complete_direct_ownership_is_recorded_without_contribution_claim(self):
         result = self.run_audit()
         self.assertTrue(result["passed"])
