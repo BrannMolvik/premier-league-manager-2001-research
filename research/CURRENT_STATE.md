@@ -1,3 +1,13 @@
+# Recovery 405 packaging addendum — original Zurich 36px font fail-closed in Windows release candidate
+
+_8 October 2026 KST. Verified source package guard merged as `08deb86a1a9ff1b83267f02b9d537029fda8da92`._
+
+A source-preserving release candidate follow-through is complete: PR #553 requires the original `original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt` in the frozen Windows 11 distribution and rejects altered bytes by checking source SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. Added package-level regressions require the exact font and fail for both a missing file and a same-size tamper. Exact PR head `8f768473eaf8349a3922dc32f94cc13692500d1d` passed repository asset policy run `37701923921` and Windows release candidate package run `37701923950`; merged as `08deb86a1a9ff1b83267f02b9d537029fda8da92`. No new source media geometry or game behavior was altered.
+
+**Gate 13 and post-#482 audit remain open.** The build/package checks are not real-Windows playability acceptance. Exact next external requirement remains a private, safe `--transport-probe-only` WPF parent/child HWND + DPI receipt (#551), diagnosis/correction of the previously wrong startup movie content based on that evidence, then fresh Windows menu/Squad responsiveness and visual acceptance. The current gate cannot be passed without them; Gate 14–17 remain mission objectives. Additional cloud-safe work-ahead must preserve source evidence and all deferred blockers.
+
+---
+
 # Recovery 405 — exact original 36px Zurich font staged and generic Club.name drawn
 
 _Updated 8 October 2026 KST. Canonical main: `08ad7e953a576151467a8103391e5102d4192556`._

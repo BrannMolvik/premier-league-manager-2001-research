@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "08ad7e953a576151467a8103391e5102d4192556",
+  "latest_reverse_engineering_checkpoint": "08deb86a1a9ff1b83267f02b9d537029fda8da92",
   "last_verified_reconstruction_ci_head": "970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64",
   "last_verified_test_count": 2920,
-  "asset_policy_validated_head": "970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64",
+  "asset_policy_validated_head": "8f768473eaf8349a3922dc32f94cc13692500d1d",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 405: post-#482 first-parent main ledger extended/classified through 5b8fafe (36 commits) with caveats. Gate13 next external evidence: private Windows --transport-probe-only HWND/DPI receipt for startup FMV; original frame-content correction if receipt warrants, then real Windows menu/Squad responsiveness/visual acceptance. Cloud-safe source-backed regressions may continue independently; no gate closure.",
+  "active_task": "Recovery 405: original 36px Zurich title font integrated (#552), bundled and verified byte-identical by Windows package CI (#553), and post-#482 first-parent audit classified through 08deb86a. Earliest incomplete Gate13 remains blocked on private Windows --transport-probe-only HWND/DPI receipt, source-backed startup FMV content diagnosis, and accepted real Windows menu/Squad responsiveness/visual completeness. Continue independent cloud-safe source-backed work; do not close Gate13/Gate17.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -3313,5 +3313,7 @@
   "gate13_post482_squad_header_match_resolver_source_closed": true,
   "gate13_post482_squad_header_required_36px_font_staged": true,
   "gate13_post482_squad_header_runtime_bound": true,
-  "last_verified_reconstruction_ci_run_id": 37700777348
+  "last_verified_reconstruction_ci_run_id": 37700777348,
+  "gate13_post482_source_36px_font_windows_package_identity_verified": true,
+  "gate13_post482_source_36px_font_windows_package_ci_run_id": 37701923950
 }

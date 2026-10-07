@@ -421,3 +421,14 @@ This section continues the historical bounded first-parent inventory from `b890c
 
 **Audit exit still blocked.** The ledger classification now reaches Recovery-405 main checkpoint `5b8fafe123ed601377ff44886f39cd27845453da`, but private Windows parent/child HWND and DPI receipt, source-backed reconciliation of the previously wrong in-field startup video content, and a newly observed acceptable normal Windows menu/Squad responsiveness and full presentation remain unverified. The historical old table and earlier hypotheses are bounded/superseded by the dated addenda above. Neither Gate 13 nor the overall Gate 17 Windows release is complete.
 
+## Recovery 405 release package source-identity addendum
+
+After the 36-row first-parent ledger through `5b8fafe123ed601377ff44886f39cd27845453da`, compare+first-parent validation establishes two further first-parent main entries through `08deb86a1a9ff1b83267f02b9d537029fda8da92`:
+
+| Continuing entry | Main commit | Scoped contribution | Primary classification | Evidence and limitation |
+| ---: | --- | --- | --- | --- |
+| 37 | `efa925d812d5` | Checkpoint and classify 36 prior first-parent entries in retrospective audit | **RESEARCH/INFRASTRUCTURE-ONLY** | Research/current-state/progress/status only; zero game behavior change |
+| 38 | `08deb86a1a9f` | Require exact original 36px Zurich font in frozen Windows release candidate | **RESEARCH/INFRASTRUCTURE-ONLY** | Packaging integrity validator + focused tests only, original bytes unchanged. SHA-256 pinned to source. PR #553 exact head `8f768473eaf8349a3922dc32f94cc13692500d1d`; Windows package run `37701923950` and asset-policy run `37701923921` succeeded. Does not prove original Windows appearance or acceptable latency |
+
+The retrospective main ledger now includes 38 classified first-parent commits after `b890c578` through the last technical main merge `08deb86a1a9ff1b83267f02b9d537029fda8da92` (with mechanical audit-writing commit that appends this addendum excluded). Counts over this extended portion: 9 bounded ORIGINAL-PROVEN; 1 COMPATIBILITY-EQUIVALENT; 1 INCONCLUSIVE / fail-closed; 27 RESEARCH/INFRASTRUCTURE-ONLY. Gate 13 audit **remains open** until its substantive private Windows evidence and normal-play acceptance exit criteria pass.
+
