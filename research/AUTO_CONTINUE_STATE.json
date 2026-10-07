@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 372: resumed from canonical main 17f49fa3cdde36d16f00a8e8d02d8b3f929018a8. PR #514 is already merged and verified. Continue Gate-14 complete-frame closure: integrate PPreMatch team badges by proving/reusing native 0x40C850 Team_badge_stills/badge_2 selector and generic fallback already source-closed for FastView; then stage/bind XI shirt pixels and remaining dynamic text/state.",
-  "last_known_main_head": "17f49fa3cdde36d16f00a8e8d02d8b3f929018a8",
+  "active_task": "Recovery 372: PR #515 merged as main 9e4d2377fc0484f02befaef0dc219e95970f9902 with exact-head presentation and asset-policy CI green. Continue Gate-14 complete-frame closure at the canonical next task: source-close and stage PPreMatch starting-XI goalkeeper/team shirt pixels through 0x408320, 0x5EF940 and shirt-number frame selector 0x41E3F0, reusing existing PMatchInfo front-end-shirt work where exact. Then bind remaining dynamic fixture/date/team identity and supplied frame state.",
+  "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 372,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 372 started from fresh chat after no-progress fallback. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance. Gate 14 row and selector state is merged; continuing source-backed badge/frame closure.",
+  "note": "Recovery 372 badge integration is merged. Gate 13 still awaits Daniel Windows artifact 11418314765 acceptance. Source execution is available; continuing XI shirt pixel closure without stopping at PR #515.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
