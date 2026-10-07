@@ -101,6 +101,14 @@ HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 # Recovery 396/398 source-closed central management text controls. Recovery
 # 402 integrates y=34/y=51 only for the bounded source-closed clear direct
 # fixed-League selector; symbolic/unknown runtime cases remain fail-closed.
+HEADER_CLUB_NAME_RECT = (172, 1, 378, 32)
+HEADER_CLUB_NAME_FONT_OBJECT_VA = 0x8F21B0
+HEADER_CLUB_NAME_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_36pixel.fnt"
+HEADER_CLUB_NAME_FONT_SHA256 = (
+    "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df"
+)
+HEADER_CLUB_NAME_FONT_BYTE_SIZE = 155_544
+HEADER_CLUB_NAME_FONT_ATLAS_SIZE = (2678, 38)
 HEADER_MATCH_COMPETITION_RECT = (172, 34, 378, 16)
 HEADER_MATCHUP_RECT = (172, 51, 378, 16)
 HEADER_DATE_RECT = (172, 68, 378, 16)
@@ -140,6 +148,7 @@ class OriginalManagementHeaderResources:
     right_state: EA444DecodedImage
     font: EAFont
     date_font: EAFont
+    club_name_font: EAFont | None = None
 
     def __post_init__(self) -> None:
         if (self.left_anim.width, self.left_anim.height) != HEADER_LEFT_RESOURCE.size:
@@ -148,6 +157,11 @@ class OriginalManagementHeaderResources:
             raise OriginalManagementHeaderError("back_4 decoded geometry mismatch")
         if (self.date_font.atlas_width, self.date_font.atlas_height) != HEADER_DATE_FONT_ATLAS_SIZE:
             raise OriginalManagementHeaderError("Central date font atlas geometry mismatch")
+        if self.club_name_font is not None and (
+            self.club_name_font.atlas_width,
+            self.club_name_font.atlas_height,
+        ) != HEADER_CLUB_NAME_FONT_ATLAS_SIZE:
+            raise OriginalManagementHeaderError("Central club-name font atlas geometry mismatch")
 
 
 @dataclass(frozen=True)
@@ -202,6 +216,20 @@ class OriginalManagementHeaderCaptionOverlay:
     height: int
     rgba: bytes
     native_color_16: int = HEADER_CAPTION_NATIVE_COLOR_16
+
+
+@dataclass(frozen=True)
+class OriginalManagementHeaderClubNameOverlay:
+    text: str
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+    control_rect: tuple[int, int, int, int] = HEADER_CLUB_NAME_RECT
+    raw_style: int = HEADER_CENTRAL_TEXT_RAW_STYLE
+    native_color_16: int = HEADER_CENTRAL_TEXT_NATIVE_COLOR_16
+    font_source_path: str = HEADER_CLUB_NAME_FONT_SOURCE_PATH
 
 
 @dataclass(frozen=True)
@@ -292,6 +320,29 @@ def validate_management_header_date_font(source_root: str | Path) -> EAFont:
     return font
 
 
+def load_management_header_club_name_font_if_staged(
+    source_root: str | Path,
+) -> EAFont | None:
+    """Load only the exact source font; absent bytes remain fail-closed.
+
+    The canonical font is source-verified but may be absent from Git while the
+    binary-transfer boundary is unresolved. Presence never authorizes a
+    substitute: any size/hash/atlas mismatch is a hard failure.
+    """
+    path = Path(source_root) / HEADER_CLUB_NAME_FONT_SOURCE_PATH
+    if not path.exists():
+        return None
+    raw = path.read_bytes()
+    if len(raw) != HEADER_CLUB_NAME_FONT_BYTE_SIZE:
+        raise OriginalManagementHeaderError("Central club-name font byte-size mismatch")
+    if sha256(raw).hexdigest() != HEADER_CLUB_NAME_FONT_SHA256:
+        raise OriginalManagementHeaderError("Central club-name font checksum mismatch")
+    font = EAFont.from_bytes(raw)
+    if (font.atlas_width, font.atlas_height) != HEADER_CLUB_NAME_FONT_ATLAS_SIZE:
+        raise OriginalManagementHeaderError("Central club-name font atlas geometry mismatch")
+    return font
+
+
 def load_verified_management_header_resources(
     source_root: str | Path,
     original_executable: str | Path,
@@ -302,13 +353,16 @@ def load_verified_management_header_resources(
     right_raw = _validate_source_file(root, HEADER_RIGHT_RESOURCE)
     font = validate_management_header_font(root)
     date_font = validate_management_header_date_font(root)
+    club_name_font = load_management_header_club_name_font_if_staged(root)
 
     executable = Path(original_executable).read_bytes()
     tables = tables_from_original_executable(executable)
     quant = quantization_from_verified_executable(executable)
     left = decode_ea444(left_raw, tables=tables, quant=quant)
     right = decode_ea444(right_raw, tables=tables, quant=quant)
-    return OriginalManagementHeaderResources(left, right, font, date_font)
+    return OriginalManagementHeaderResources(
+        left, right, font, date_font, club_name_font
+    )
 
 
 def _crop_frame(image: EA444DecodedImage, source_row: int) -> bytes:
@@ -622,8 +676,10 @@ def _central_text_rgba(
     resources: OriginalManagementHeaderResources,
     text: str,
     rect: tuple[int, int, int, int],
+    *,
+    font: EAFont | None = None,
 ) -> tuple[int, int, int, int, bytes]:
-    font = resources.date_font
+    font = resources.date_font if font is None else font
     mask = font.render_text_alpha(text)
     x, y, width, height = rect
     line_x = x + width - font.measure_text(text)
@@ -646,6 +702,38 @@ def _central_text_rgba(
         pos = index * 4
         rgba[pos:pos + 4] = bytes((255, 255, 255, value))
     return out_x, out_y, out_width, out_height, bytes(rgba)
+
+
+def management_header_club_name_overlay(
+    resources: OriginalManagementHeaderResources,
+    club_name: str,
+) -> OriginalManagementHeaderClubNameOverlay | None:
+    """Rasterize Club.name only when the exact 36px source font is staged."""
+    if not isinstance(resources, OriginalManagementHeaderResources):
+        raise OriginalManagementHeaderError(
+            "Club-name rendering requires verified management-header resources"
+        )
+    if not isinstance(club_name, str) or not club_name:
+        raise OriginalManagementHeaderError(
+            "Management header club name requires a source club name"
+        )
+    font = resources.club_name_font
+    if font is None:
+        return None
+    out_x, out_y, out_width, out_height, rgba = _central_text_rgba(
+        resources,
+        club_name,
+        HEADER_CLUB_NAME_RECT,
+        font=font,
+    )
+    return OriginalManagementHeaderClubNameOverlay(
+        text=club_name,
+        x=out_x,
+        y=out_y,
+        width=out_width,
+        height=out_height,
+        rgba=rgba,
+    )
 
 
 def format_management_header_fixed_league_competition(competition_name: str) -> str:
