@@ -156,64 +156,7 @@ jobs:
 
           test -s "$INPUTS"
           : > "$OWNERS.tmp"
-          while IFS=      - name: Audit built helper and write proof receipt
-        shell: pwsh
-        run: |
-          python reconstruction/gate17_ffmpeg_minimal_build_audit.py `
-            --repo-root "." `
-            --ffmpeg "_minimal-ffmpeg-build/ffmpeg.exe" `
-            --ffprobe "_minimal-ffmpeg-build/ffprobe.exe" `
-            --source-commit-file "_minimal-ffmpeg-build/source-commit.txt" `
-            --source-license-file "_minimal-ffmpeg-build/COPYING.LGPLv2.1" `
-            --ffmpeg-imports "_minimal-ffmpeg-build/ffmpeg-objdump.txt" `
-            --ffprobe-imports "_minimal-ffmpeg-build/ffprobe-objdump.txt" `
-            --output-receipt "_minimal-ffmpeg-build/build-proof.json"
-
-      - name: Prove synthetic canonical startup roundtrip
-        shell: pwsh
-        run: |
-          $url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-10-03-18-14/ffmpeg-n9.0.2-22-g46d8f462ee-win64-lgpl-9.0.zip"
-          $archive = Join-Path "${{ runner.temp }}" "ffmpeg-lgpl-fixture.zip"
-          Invoke-WebRequest -Uri $url -OutFile $archive
-          $roundtripArgs = @(
-            "reconstruction/gate17_ffmpeg_minimal_roundtrip.py",
-            "--repo-root", ".",
-            "--ffmpeg", "_minimal-ffmpeg-build/ffmpeg.exe",
-            "--ffprobe", "_minimal-ffmpeg-build/ffprobe.exe",
-            "--build-proof", "_minimal-ffmpeg-build/build-proof.json",
-            "--fixture-archive", $archive,
-            "--output-receipt", "_minimal-ffmpeg-build/roundtrip-proof.json"
-          )
-          python @roundtripArgs
-
-      - name: Upload exact minimal build proof
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: gate17-minimal-ffmpeg-build-${{ github.event.pull_request.head.sha || github.sha }}
-          path: |
-            _minimal-ffmpeg-build/ffmpeg.exe
-            _minimal-ffmpeg-build/ffprobe.exe
-            _minimal-ffmpeg-build/COPYING.LGPLv2.1
-            _minimal-ffmpeg-build/source-commit.txt
-            _minimal-ffmpeg-build/ffmpeg-objdump.txt
-            _minimal-ffmpeg-build/ffprobe-objdump.txt
-            _minimal-ffmpeg-build/config.mak
-            _minimal-ffmpeg-build/config.log
-            _minimal-ffmpeg-build/config.mak.release
-            _minimal-ffmpeg-build/release-build.log
-            _minimal-ffmpeg-build/ffmpeg-link-trace.log
-            _minimal-ffmpeg-build/ffprobe-link-trace.log
-            _minimal-ffmpeg-build/link-input-proof.json
-            _minimal-ffmpeg-build/external-link-inputs.tsv
-            _minimal-ffmpeg-build/link-input-owners.tsv
-            _minimal-ffmpeg-build/link-input-ownership-proof.json
-            _minimal-ffmpeg-build/toolchain-packages.txt
-            _minimal-ffmpeg-build/toolchain-proof.json
-            _minimal-ffmpeg-build/build-proof.json
-            _minimal-ffmpeg-build/roundtrip-proof.json
-          if-no-files-found: error
-          retention-days: 14
-\t' read -r target trace_path; do
+          while IFS="$(printf '\t')" read -r target trace_path; do
             test -n "$target"
             test -n "$trace_path"
             posix_path="$(cygpath -u "$trace_path")"
@@ -234,12 +177,12 @@ jobs:
       - name: Audit direct package ownership for external final-link inputs
         shell: pwsh
         run: |
-          python reconstruction/gate17_ffmpeg_link_input_ownership_audit.py `
-            --ffmpeg-trace-log "_minimal-ffmpeg-build/ffmpeg-link-trace.log" `
-            --ffprobe-trace-log "_minimal-ffmpeg-build/ffprobe-link-trace.log" `
-            --owner-rows "_minimal-ffmpeg-build/link-input-owners.tsv" `
-            --package-lock "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock" `
-            --toolchain-contract "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json" `
+          python reconstruction/gate17_ffmpeg_link_input_ownership_audit.py \`
+            --ffmpeg-trace-log "_minimal-ffmpeg-build/ffmpeg-link-trace.log" \`
+            --ffprobe-trace-log "_minimal-ffmpeg-build/ffprobe-link-trace.log" \`
+            --owner-rows "_minimal-ffmpeg-build/link-input-owners.tsv" \`
+            --package-lock "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock" \`
+            --toolchain-contract "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json" \`
             --output-receipt "_minimal-ffmpeg-build/link-input-ownership-proof.json"
 
       - name: Audit built helper and write proof receipt
@@ -290,6 +233,9 @@ jobs:
             _minimal-ffmpeg-build/ffmpeg-link-trace.log
             _minimal-ffmpeg-build/ffprobe-link-trace.log
             _minimal-ffmpeg-build/link-input-proof.json
+            _minimal-ffmpeg-build/external-link-inputs.tsv
+            _minimal-ffmpeg-build/link-input-owners.tsv
+            _minimal-ffmpeg-build/link-input-ownership-proof.json
             _minimal-ffmpeg-build/toolchain-packages.txt
             _minimal-ffmpeg-build/toolchain-proof.json
             _minimal-ffmpeg-build/build-proof.json
