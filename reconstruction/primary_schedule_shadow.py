@@ -7,7 +7,7 @@ shared 0x615D10 next-team-match lookup used by 0x5127A0.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from typing import Callable, Iterable
 
@@ -28,6 +28,27 @@ class PrimaryScheduleResolutionPending(RuntimeError):
         )
 
 
+WRAPPER_LINK_CLEAR = "clear"
+WRAPPER_LINK_LINKED = "linked"
+WRAPPER_LINK_UNKNOWN = "unknown"
+WRAPPER_LINK_STATES = frozenset(
+    (WRAPPER_LINK_CLEAR, WRAPPER_LINK_LINKED, WRAPPER_LINK_UNKNOWN)
+)
+
+
+class PrimaryScheduleHeaderMatchPending(RuntimeError):
+    """The native header selector could be affected by unresolved schedule state."""
+
+    def __init__(self, club_id: int, on_date: date, reason: str):
+        self.club_id = int(club_id)
+        self.on_date = on_date
+        self.reason = str(reason)
+        super().__init__(
+            f"management-header match lookup for club {self.club_id} is unresolved "
+            f"on {self.on_date.isoformat()}: {self.reason}"
+        )
+
+
 @dataclass(frozen=True)
 class PrimaryScheduleShadowEntry:
     node_kind: str
@@ -38,6 +59,11 @@ class PrimaryScheduleShadowEntry:
     participant_1_ref: CupClubRefDescriptor
     participant_0_candidates: frozenset[int]
     participant_1_candidates: frozenset[int]
+    wrapper_link_state: str = WRAPPER_LINK_UNKNOWN
+
+    def __post_init__(self) -> None:
+        if self.wrapper_link_state not in WRAPPER_LINK_STATES:
+            raise ValueError("invalid primary schedule wrapper link state")
 
     @property
     def refs(self) -> tuple[CupClubRefDescriptor, CupClubRefDescriptor]:
@@ -161,6 +187,7 @@ class PrimaryScheduleShadowState:
                     participant_1_candidates=current_ref_candidates(
                         node.participant_1_ref
                     ),
+                    wrapper_link_state=WRAPPER_LINK_CLEAR,
                 )
                 for node in bucket
             )
@@ -247,9 +274,103 @@ class PrimaryScheduleShadowState:
             participant_1_ref=node.participant_1_ref,
             participant_0_candidates=candidates(node.participant_0_ref),
             participant_1_candidates=candidates(node.participant_1_ref),
+            wrapper_link_state=WRAPPER_LINK_UNKNOWN,
         )
         self.days[on_date] = (entry,) + tuple(self.days.get(on_date, ()))
         return entry
+
+    def invalidate_wrapper_link_state(self) -> int:
+        """Forget startup-clear +0x08 claims after unmodelled reschedule work.
+
+        The original can relink schedule wrappers through post-start 0x510BA0
+        producers that the clean-room does not yet model. Once time advances,
+        retaining "clear" would be a stronger claim than the runtime can prove.
+        """
+
+        changed = 0
+        for on_date, entries in tuple(self.days.items()):
+            updated = []
+            for entry in entries:
+                if entry.wrapper_link_state == WRAPPER_LINK_CLEAR:
+                    entry = replace(
+                        entry,
+                        wrapper_link_state=WRAPPER_LINK_UNKNOWN,
+                    )
+                    changed += 1
+                updated.append(entry)
+            self.days[on_date] = tuple(updated)
+        return changed
+
+    def management_header_fixed_league_candidate(
+        self,
+        club_id: int,
+        on_or_after: date,
+    ) -> tuple[date, PrimaryScheduleShadowEntry] | None:
+        """Return only the source-known direct fixed-League header candidate.
+
+        Native 0x615D10 scans date buckets in ascending order and each bucket
+        head-to-tail. Unsupported relevant nodes are not silently skipped: if
+        their participant graph could contain the human club, or if a direct
+        fixed-League wrapper's +0x08 state is no longer source-known clear, the
+        clean-room cannot prove which candidate native 0x615DA0 would return.
+        """
+
+        club_id = int(club_id)
+        start = date.fromisoformat(on_or_after.isoformat())
+        for on_date in sorted(value for value in self.days if value >= start):
+            for entry in self.days[on_date]:
+                possible = (
+                    entry.participant_0_candidates
+                    | entry.participant_1_candidates
+                )
+                direct_ids = tuple(
+                    ref.direct_club_id
+                    for ref in entry.refs
+                    if ref.direct_club_id is not None
+                )
+                relevant = club_id in possible or club_id in direct_ids
+                if not relevant:
+                    continue
+
+                direct_fixed = (
+                    entry.node_kind == "fixed_league_match"
+                    and all(ref.direct_club_id is not None for ref in entry.refs)
+                )
+                if not direct_fixed:
+                    raise PrimaryScheduleHeaderMatchPending(
+                        club_id,
+                        on_date,
+                        "earlier relevant node is outside the source-closed "
+                        "direct fixed-League subset",
+                    )
+                if club_id not in direct_ids:
+                    continue
+                if entry.wrapper_link_state == WRAPPER_LINK_LINKED:
+                    # Native 0x615C50 rejects an already-linked wrapper and
+                    # continues head-to-tail within the same/later buckets.
+                    continue
+                if entry.wrapper_link_state == WRAPPER_LINK_UNKNOWN:
+                    raise PrimaryScheduleHeaderMatchPending(
+                        club_id,
+                        on_date,
+                        "wrapper +0x08 link state is unresolved",
+                    )
+                return on_date, entry
+        return None
+
+    def source_known_management_header_fixed_league_candidate(
+        self,
+        club_id: int,
+        on_or_after: date,
+    ) -> tuple[date, PrimaryScheduleShadowEntry] | None:
+        """Presentation-safe fail-closed form of the bounded header lookup."""
+        try:
+            return self.management_header_fixed_league_candidate(
+                club_id,
+                on_or_after,
+            )
+        except PrimaryScheduleHeaderMatchPending:
+            return None
 
     def next_match_date(
         self,
@@ -311,6 +432,7 @@ class PrimaryScheduleShadowState:
                     "participant_1_ref": snap_ref(entry.participant_1_ref),
                     "participant_0_candidates": sorted(entry.participant_0_candidates),
                     "participant_1_candidates": sorted(entry.participant_1_candidates),
+                    "wrapper_link_state": entry.wrapper_link_state,
                 }
                 for entry in entries
             ]
@@ -361,6 +483,9 @@ class PrimaryScheduleShadowState:
                         ),
                         participant_1_candidates=frozenset(
                             int(v) for v in raw["participant_1_candidates"]
+                        ),
+                        wrapper_link_state=str(
+                            raw.get("wrapper_link_state", WRAPPER_LINK_UNKNOWN)
                         ),
                     )
                     for raw in entries

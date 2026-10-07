@@ -25,6 +25,16 @@ from original_management_header import (
     HEADER_FONT_OBJECT_VA,
     HEADER_FONT_SOURCE_PATH,
     HEADER_LEFT_GROUP_LENGTHS,
+    HEADER_MATCH_LINE_1_ENGLISH_INDEX,
+    HEADER_MATCH_LINE_1_RECT,
+    HEADER_MATCH_LINE_1_TEMPLATE,
+    HEADER_MATCH_LINE_1_TEMPLATE_GLOBAL_VA,
+    HEADER_MATCH_LINE_2_ENGLISH_INDEX,
+    HEADER_MATCH_LINE_2_RECT,
+    HEADER_MATCH_LINE_2_TEMPLATE,
+    HEADER_MATCH_LINE_2_TEMPLATE_GLOBAL_VA,
+    HEADER_MATCH_REFRESH_VA,
+    HEADER_MATCH_SELECTOR_VA,
     HEADER_LEFT_RECT,
     HEADER_LEFT_RESOURCE,
     HEADER_RIGHT_GROUP_LENGTHS,
@@ -36,8 +46,11 @@ from original_management_header import (
     OriginalManagementHeaderResources,
     OriginalManagementHeaderState,
     format_management_header_date,
+    format_management_header_fixed_league_lines,
+    format_management_header_match_date,
     management_header_caption_overlay,
     management_header_date_overlay,
+    management_header_fixed_league_match_overlays,
     management_header_group_for_flags,
     management_header_left_source_row,
     management_header_overlays,
@@ -62,7 +75,7 @@ class FakeDateFont:
     atlas_height = 19
 
     def measure_text(self, text):
-        if not text.startswith("Today is "):
+        if not isinstance(text, str) or not text:
             raise AssertionError(text)
         return 100
 
@@ -70,7 +83,7 @@ class FakeDateFont:
         return 18
 
     def render_text_alpha(self, text):
-        if not text.startswith("Today is "):
+        if not isinstance(text, str) or not text:
             raise AssertionError(text)
         return SimpleNamespace(width=100, height=10, alpha=bytes([255]) * 1000)
 
@@ -110,6 +123,22 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(HEADER_CAPTION_GLOBAL_VA, 0x9820F4)
         self.assertEqual(HEADER_CAPTION_ENGLISH_INDEX, 2497)
         self.assertEqual(HEADER_CAPTION_TEXT, "MENU")
+        self.assertEqual(HEADER_MATCH_LINE_1_RECT, (172, 34, 378, 16))
+        self.assertEqual(HEADER_MATCH_LINE_2_RECT, (172, 51, 378, 16))
+        self.assertEqual(HEADER_MATCH_REFRESH_VA, 0x432760)
+        self.assertEqual(HEADER_MATCH_SELECTOR_VA, 0x615DA0)
+        self.assertEqual(HEADER_MATCH_LINE_1_TEMPLATE_GLOBAL_VA, 0x982AE8)
+        self.assertEqual(HEADER_MATCH_LINE_1_ENGLISH_INDEX, 1860)
+        self.assertEqual(
+            HEADER_MATCH_LINE_1_TEMPLATE,
+            "%C %Rf{ Round} %Lf{ Leg}",
+        )
+        self.assertEqual(HEADER_MATCH_LINE_2_TEMPLATE_GLOBAL_VA, 0x981EE0)
+        self.assertEqual(HEADER_MATCH_LINE_2_ENGLISH_INDEX, 2630)
+        self.assertEqual(
+            HEADER_MATCH_LINE_2_TEMPLATE,
+            "%1s Vs %2s %D{%D %M %Y}",
+        )
         self.assertEqual(HEADER_DATE_RECT, (172, 68, 378, 16))
         self.assertEqual(HEADER_CENTRAL_TEXT_RAW_STYLE, 0x2102)
         self.assertEqual(HEADER_CENTRAL_TEXT_NATIVE_COLOR_16, 0xFFFF)
@@ -123,6 +152,52 @@ class OriginalManagementHeaderTests(unittest.TestCase):
             HEADER_DATE_FONT_SOURCE_PATH,
             "Fonts/Zurich_XCn_BT_18pixel.fnt",
         )
+
+
+    def test_fixed_league_match_formatter_uses_source_short_names_and_two_digit_year(self):
+        self.assertEqual(
+            format_management_header_match_date(date(2000, 8, 19)),
+            "19 Aug 00",
+        )
+        self.assertEqual(
+            format_management_header_match_date(date(2001, 1, 2)),
+            "2 Jan 01",
+        )
+        self.assertEqual(
+            format_management_header_fixed_league_lines(
+                "FA Premier League",
+                "Alpha",
+                "Beta",
+                date(2000, 8, 19),
+            ),
+            (
+                "FA Premier League",
+                "Alpha Vs Beta 19 Aug 00",
+            ),
+        )
+
+    def test_fixed_league_match_overlays_use_exact_two_source_controls(self):
+        overlays = management_header_fixed_league_match_overlays(
+            resources(),
+            competition_name="FA Premier League",
+            home_short_name="Alpha",
+            away_short_name="Beta",
+            scheduled_date=date(2000, 8, 19),
+        )
+        self.assertEqual(
+            [(item.role, item.text, item.control_rect) for item in overlays],
+            [
+                ("competition", "FA Premier League", HEADER_MATCH_LINE_1_RECT),
+                ("matchup", "Alpha Vs Beta 19 Aug 00", HEADER_MATCH_LINE_2_RECT),
+            ],
+        )
+        self.assertEqual(
+            [(item.x, item.y, item.width, item.height) for item in overlays],
+            [(450, 34, 100, 9), (450, 51, 100, 9)],
+        )
+        self.assertTrue(all(item.raw_style == 0x2102 for item in overlays))
+        self.assertTrue(all(item.native_color_16 == 0xFFFF for item in overlays))
+        self.assertTrue(all(item.rgba[:4] == b"\xff\xff\xff\xff" for item in overlays))
 
     def test_recovered_date_formatter_uses_unpadded_day_abbreviated_month_and_full_year(self):
         self.assertEqual(

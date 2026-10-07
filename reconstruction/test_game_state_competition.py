@@ -14,7 +14,10 @@ from match_events import BoundaryRecord, BoundaryType
 from match_preparation import prepare_ai_match_selection
 from match_simulation import NormalMatchResult, PreparedMatchPlayer, PreparedMatchSide
 from match_strength import TeamStrengthContext
-from primary_schedule_shadow import PrimaryScheduleResolutionPending
+from primary_schedule_shadow import (
+    PrimaryScheduleHeaderMatchPending,
+    PrimaryScheduleResolutionPending,
+)
 
 
 @dataclass(frozen=True)
@@ -412,6 +415,43 @@ class DomesticCupPostMatchPreflightTests(unittest.TestCase):
 
 
 class IntegratedGameStateTests(unittest.TestCase):
+
+    def test_day_advance_invalidates_fresh_wrapper_link_claims(self):
+        state = GameState.from_database(
+            FakeDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        target = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 0),
+        )
+        state.install_primary_schedule_shadow(((target,),), season_year=2000)
+        self.assertIsNotNone(
+            state.primary_schedule_shadow.management_header_fixed_league_candidate(
+                1,
+                date(2000, 7, 1),
+            )
+        )
+
+        state.advance_one_day()
+
+        with self.assertRaises(PrimaryScheduleHeaderMatchPending):
+            state.primary_schedule_shadow.management_header_fixed_league_candidate(
+                1,
+                date(2000, 7, 1),
+            )
+
     def test_database_load_creates_player_and_league_state(self):
         state = GameState.from_database(FakeDatabase(), date(2000, 7, 1), seed=1)
         self.assertEqual(set(state.players), {1, 2})

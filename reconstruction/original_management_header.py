@@ -98,9 +98,18 @@ HEADER_CAPTION_ENGLISH_INDEX = 2497
 HEADER_CAPTION_TEXT = "MENU"
 HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 
-# Recovery 396/398 source-closed central management date control.  The two
-# y=34/y=51 match lines remain intentionally absent until 0x615D10/0x615DA0
-# filtering is semantically closed.
+# Recovery 396/398 source-closed central management controls, with Recovery
+# 401 closing the direct fixed-League selector/link-state subset for y=34/y=51.
+HEADER_MATCH_LINE_1_RECT = (172, 34, 378, 16)
+HEADER_MATCH_LINE_2_RECT = (172, 51, 378, 16)
+HEADER_MATCH_REFRESH_VA = 0x432760
+HEADER_MATCH_SELECTOR_VA = 0x615DA0
+HEADER_MATCH_LINE_1_TEMPLATE_GLOBAL_VA = 0x982AE8
+HEADER_MATCH_LINE_1_ENGLISH_INDEX = 1860
+HEADER_MATCH_LINE_1_TEMPLATE = "%C %Rf{ Round} %Lf{ Leg}"
+HEADER_MATCH_LINE_2_TEMPLATE_GLOBAL_VA = 0x981EE0
+HEADER_MATCH_LINE_2_ENGLISH_INDEX = 2630
+HEADER_MATCH_LINE_2_TEMPLATE = "%1s Vs %2s %D{%D %M %Y}"
 HEADER_DATE_RECT = (172, 68, 378, 16)
 HEADER_CENTRAL_TEXT_RAW_STYLE = 0x2102
 HEADER_CENTRAL_TEXT_NATIVE_COLOR_16 = 0xFFFF
@@ -211,6 +220,21 @@ class OriginalManagementHeaderDateOverlay:
     height: int
     rgba: bytes
     control_rect: tuple[int, int, int, int] = HEADER_DATE_RECT
+    raw_style: int = HEADER_CENTRAL_TEXT_RAW_STYLE
+    native_color_16: int = HEADER_CENTRAL_TEXT_NATIVE_COLOR_16
+    font_source_path: str = HEADER_DATE_FONT_SOURCE_PATH
+
+
+@dataclass(frozen=True)
+class OriginalManagementHeaderMatchOverlay:
+    role: str
+    text: str
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+    control_rect: tuple[int, int, int, int]
     raw_style: int = HEADER_CENTRAL_TEXT_RAW_STYLE
     native_color_16: int = HEADER_CENTRAL_TEXT_NATIVE_COLOR_16
     font_source_path: str = HEADER_DATE_FONT_SOURCE_PATH
@@ -598,6 +622,124 @@ def management_header_caption_overlay(
         width=out_width,
         height=out_height,
         rgba=bytes(rgba),
+    )
+
+
+def format_management_header_match_date(value: date) -> str:
+    """Apply the nested header-match %D %M %Y date expansion.
+
+    Unlike the independent y=68 %Yf template, the match formatter's plain %Y
+    emits a zero-padded two-digit year.
+    """
+    if not isinstance(value, date):
+        raise OriginalManagementHeaderError("Management match date must be a calendar date")
+    month = HEADER_DATE_MONTH_NAMES[value.month - 1][:3]
+    return f"{value.day} {month} {value.year % 100:02d}"
+
+
+def format_management_header_fixed_league_lines(
+    competition_name: str,
+    home_short_name: str,
+    away_short_name: str,
+    scheduled_date: date,
+) -> tuple[str, str]:
+    """Format only the source-closed ordinary direct LeagueMatch subset.
+
+    Ordinary League's competition +0x18 returns zero, so %Rf contributes no
+    round suffix. LeagueMatch +0x28 returns 1, outside the first/second-leg
+    cases, so %Lf contributes no leg suffix. The first template therefore
+    collapses to the exact competition name; the second uses source short names
+    plus the nested two-digit-year date expansion.
+    """
+    for label, value in (
+        ("competition", competition_name),
+        ("home short club", home_short_name),
+        ("away short club", away_short_name),
+    ):
+        if not isinstance(value, str) or not value:
+            raise OriginalManagementHeaderError(
+                f"Management header {label} text must be non-empty"
+            )
+    return (
+        competition_name,
+        f"{home_short_name} Vs {away_short_name} "
+        f"{format_management_header_match_date(scheduled_date)}",
+    )
+
+
+def _central_text_overlay(
+    resources: OriginalManagementHeaderResources,
+    *,
+    role: str,
+    text: str,
+    rect: tuple[int, int, int, int],
+) -> OriginalManagementHeaderMatchOverlay:
+    if not isinstance(resources, OriginalManagementHeaderResources):
+        raise OriginalManagementHeaderError(
+            "Central header text rendering requires verified management-header resources"
+        )
+    font = resources.date_font
+    mask = font.render_text_alpha(text)
+    x, y, width, height = rect
+    line_x = x + width - font.measure_text(text)
+    line_y = y + height // 2 - font.native_line_height() // 2
+    clipped = _clip_alpha(
+        mask.alpha,
+        mask.width,
+        mask.height,
+        line_x=line_x,
+        line_y=line_y,
+        rect=rect,
+    )
+    if clipped is None:
+        raise OriginalManagementHeaderError(
+            f"Central management {role} clips to no source pixels"
+        )
+    out_x, out_y, out_width, out_height, alpha = clipped
+    rgba = bytearray(len(alpha) * 4)
+    for index, value in enumerate(alpha):
+        pos = index * 4
+        rgba[pos:pos + 4] = bytes((255, 255, 255, value))
+    return OriginalManagementHeaderMatchOverlay(
+        role=role,
+        text=text,
+        x=out_x,
+        y=out_y,
+        width=out_width,
+        height=out_height,
+        rgba=bytes(rgba),
+        control_rect=rect,
+    )
+
+
+def management_header_fixed_league_match_overlays(
+    resources: OriginalManagementHeaderResources,
+    *,
+    competition_name: str,
+    home_short_name: str,
+    away_short_name: str,
+    scheduled_date: date,
+) -> tuple[OriginalManagementHeaderMatchOverlay, ...]:
+    """Rasterize the exact y=34/y=51 controls for the bounded League subset."""
+    line_1, line_2 = format_management_header_fixed_league_lines(
+        competition_name,
+        home_short_name,
+        away_short_name,
+        scheduled_date,
+    )
+    return (
+        _central_text_overlay(
+            resources,
+            role="competition",
+            text=line_1,
+            rect=HEADER_MATCH_LINE_1_RECT,
+        ),
+        _central_text_overlay(
+            resources,
+            role="matchup",
+            text=line_2,
+            rect=HEADER_MATCH_LINE_2_RECT,
+        ),
     )
 
 

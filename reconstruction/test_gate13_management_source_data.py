@@ -3,6 +3,8 @@ from datetime import date
 from types import SimpleNamespace
 import unittest
 
+from competition_schedule import StartupScheduleNode, direct_club_ref
+from primary_schedule_shadow import PrimaryScheduleShadowState
 from gate13_management_source_data import (
     FINANCE_OVERVIEW_PRESENTATION_CONTRACT,
     FIXTURES_PRESENTATION_CONTRACT,
@@ -390,6 +392,64 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertEqual(snapshot.tactics.corner_priority, (202,))
         self.assertEqual(snapshot.tactics.free_kick_priority, (101, 202))
         self.assertEqual(controller.squad_calls, 1)
+
+
+    def test_management_header_match_uses_only_known_clear_fixed_league_shadow(self):
+        controller = FakeController()
+        controller.state.calendar.current_date = date(2000, 7, 1)
+        controller.state.competitions = {
+            0: SimpleNamespace(name="FA Premier League")
+        }
+        target = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(10),
+            participant_1_ref=direct_club_ref(11),
+            node_token=("fixed_league_match", 0, 0, 17),
+        )
+        controller.state.primary_schedule_shadow = (
+            PrimaryScheduleShadowState.from_primary_schedule_buckets(
+                ((target,),),
+                season_year=2000,
+            )
+        )
+
+        match = ManagementSourceDataBridge(controller).management_header_match()
+
+        self.assertIsNotNone(match)
+        self.assertEqual(match.node_token, ("fixed_league_match", 0, 0, 17))
+        self.assertEqual(match.scheduled_date, date(2000, 7, 3))
+        self.assertEqual(match.competition_name, "FA Premier League")
+        self.assertEqual(
+            (
+                match.home_club_id,
+                match.home_short_name,
+                match.away_club_id,
+                match.away_short_name,
+            ),
+            (10, "Alpha", 11, "Beta"),
+        )
+
+        controller.state.primary_schedule_shadow.invalidate_wrapper_link_state()
+        self.assertIsNone(
+            ManagementSourceDataBridge(controller).management_header_match()
+        )
+
+
+    def test_management_header_match_accepts_backend_fail_closed_none_without_type_dependency(self):
+        controller = FakeController()
+        controller.state.primary_schedule_shadow = SimpleNamespace(
+            source_known_management_header_fixed_league_candidate=lambda *_args: None
+        )
+        self.assertIsNone(
+            ManagementSourceDataBridge(controller).management_header_match()
+        )
 
     def test_fixtures_presentation_contract_preserves_fixed_real_fixture_path(self):
         contract = ManagementSourceDataBridge.fixtures_presentation_contract()
