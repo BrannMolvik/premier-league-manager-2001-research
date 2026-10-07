@@ -146,6 +146,8 @@ on:
       - "reconstruction/test_gate14_prematch_child_rasters.py"
       - "reconstruction/gate14_prematch_compositor_source.py"
       - "reconstruction/test_gate14_prematch_compositor_source.py"
+      - "reconstruction/gate14_prematch_native16_compositor.py"
+      - "reconstruction/test_gate14_prematch_native16_compositor.py"
       - "reconstruction/gate14_prematch_surface.py"
       - "reconstruction/test_gate14_prematch_surface.py"
       - "reconstruction/gate14_prematch_supplied_state.py"
