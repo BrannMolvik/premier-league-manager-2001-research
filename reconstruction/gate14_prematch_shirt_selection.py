@@ -52,7 +52,9 @@ class PrematchClubShirtState:
     primary_template_index: int
     alternate_template_index: int
     primary_color_id: int
+    primary_secondary_color_id: int
     alternate_color_id: int
+    alternate_secondary_color_id: int
 
     def __post_init__(self) -> None:
         if type(self.club_id) is not int or self.club_id < 0:
@@ -63,7 +65,9 @@ class PrematchClubShirtState:
             ("primary_template_index", self.primary_template_index),
             ("alternate_template_index", self.alternate_template_index),
             ("primary_color_id", self.primary_color_id),
+            ("primary_secondary_color_id", self.primary_secondary_color_id),
             ("alternate_color_id", self.alternate_color_id),
+            ("alternate_secondary_color_id", self.alternate_secondary_color_id),
         ):
             if type(value) is not int or not 0 <= value <= 255:
                 raise PrematchShirtSelectionError(f"{name} must preserve one source byte")
@@ -114,7 +118,9 @@ def club_shirt_state(club) -> PrematchClubShirtState:
             primary_template_index=club.primary_shirt_template_index,
             alternate_template_index=club.alternate_shirt_template_index,
             primary_color_id=club.primary_kit_color_id,
+            primary_secondary_color_id=club.primary_kit_secondary_color_id,
             alternate_color_id=club.alternate_kit_color_id,
+            alternate_secondary_color_id=club.alternate_kit_secondary_color_id,
         )
     except AttributeError as exc:
         raise PrematchShirtSelectionError(
