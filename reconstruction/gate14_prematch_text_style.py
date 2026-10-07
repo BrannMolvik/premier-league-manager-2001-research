@@ -136,8 +136,9 @@ PREMATCH_TEXT_STYLES = (
 
 
 # Raw flags passed directly to 0x6503F0 by PPreMatchPanel::0x4967F0.
-# Names deliberately describe owning controls only. Horizontal/vertical
-# semantics remain unpromoted until the render path is source-closed.
+# TextStyle draw routine 0x64F090 source-closes the ordinary orientation:
+# 0x01 left, 0x02 right, 0x04 horizontal center;
+# 0x08 top, 0x10 bottom, 0x20 vertical center.
 PREMATCH_FIXTURE_HEADER_FLAGS = 0x24
 PREMATCH_DATE_WEATHER_FLAGS = 0x24
 PREMATCH_LEFT_TEAM_IDENTITY_FLAGS = 0x22
@@ -147,6 +148,17 @@ PREMATCH_LEFT_PLAYER_NAME_FLAGS = 0x21
 PREMATCH_RIGHT_PLAYER_NAME_FLAGS = 0x22
 PREMATCH_PLAYER_NUMBER_FLAGS = 0x24
 PREMATCH_RATING_CAPTION_FLAGS = 0x24
+
+TEXT_ALIGN_LEFT = 0x01
+TEXT_ALIGN_RIGHT = 0x02
+TEXT_ALIGN_HCENTER = 0x04
+TEXT_ALIGN_TOP = 0x08
+TEXT_ALIGN_BOTTOM = 0x10
+TEXT_ALIGN_VCENTER = 0x20
+TEXT_ROTATED_ORIENTATION = 0x40
+TEXT_ALIGNMENT_DRAW_VA = 0x64F090
+TEXT_MEASURE_WIDTH_VA = 0x6574E0
+TEXT_LINE_HEIGHT_VA = 0x6574D0
 
 
 @dataclass(frozen=True)
@@ -224,7 +236,21 @@ def prematch_text_style_contract() -> dict:
         "native_color_16": TEXT_NATIVE_COLOR_16,
         "font_identity_source_closed": True,
         "raw_control_flags_source_closed": True,
-        "alignment_bit_semantics_source_closed": False,
+        "alignment_draw_va": TEXT_ALIGNMENT_DRAW_VA,
+        "measure_width_va": TEXT_MEASURE_WIDTH_VA,
+        "line_height_va": TEXT_LINE_HEIGHT_VA,
+        "horizontal_alignment_bits": {
+            "left": TEXT_ALIGN_LEFT,
+            "right": TEXT_ALIGN_RIGHT,
+            "center": TEXT_ALIGN_HCENTER,
+        },
+        "vertical_alignment_bits": {
+            "top": TEXT_ALIGN_TOP,
+            "bottom": TEXT_ALIGN_BOTTOM,
+            "center": TEXT_ALIGN_VCENTER,
+        },
+        "rotated_orientation_bit": TEXT_ROTATED_ORIENTATION,
+        "alignment_bit_semantics_source_closed": True,
         "text_pixels_rasterized": False,
         "complete_prematch_frame": False,
         "gate14_complete": False,
