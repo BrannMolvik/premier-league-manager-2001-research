@@ -1,3 +1,27 @@
+# Recovery 375 continuation — all 182 PPreMatch child states can now be supplied
+
+_Updated 7 October 2026._
+
+Canonical `main` remains `9e4d2377fc0484f02befaef0dc219e95970f9902` (PR #515 merged). **Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open work-ahead.
+
+PR #516 has advanced beyond Recovery 373's structural XI-shirt work. First-hand/source-reused contracts now support the remaining supplied dynamic state:
+
+- PPreMatch refresh `0x49A610` formats date as exact `%Df %Mf %Yf`; clean-room binding reproduces English ordinal suffixes, full month names and full year.
+- weather code 0..4 and signed temperature bind exact `Clear/Sunny/Raining/Sleet/Snowy` plus `%s %d°C`, then exact `%s %s` date/weather composition.
+- fixture header binds exact `%s MATCH TODAY AT %s`; negative competition state uses exact `Friendly`.
+- stadium display reuses source helper `0x514270`: explicit Match +0x48 club override or home-side fallback, and exact stadium `N/A` / `NA` -> club short-name fallback.
+- left/right team identities use `0x40DA70`; callers must supply any runtime/network override explicitly, otherwise the native DBRClub +0x0C short name is used.
+- Match Detail selector binding now requires an explicit native Button@ease source frame index 0..22 for each of the four controls, so hover/press/pointer state is never guessed.
+- the existing supplied player rows, supplied rating widths, source-pixel XI markers and selector frames can now be attached to one verified `PrematchSurfaceBoundary`.
+
+The resulting aggregate is a **complete 182-child supplied-state model**: every native child family has an explicit state for the supplied match and the already-proven cross-layer order is retained. This is deliberately not a complete pixel-frame claim. Text controls are not yet rasterized/composited into the 800x600 output and the flattened frame remains false. Management-to-match launch, missing 3D Match/Highlights presentation and Gate 14 completion remain false.
+
+Current technical checkpoint is `eff0c3c357813e78a1c210c4388f06e0dd316dc9` plus subsequent supplied-state commits on PR #516. Exact-head PR CI is pending after these new commits.
+
+Immediate next action: verify the exact PR head in presentation/full reconstruction/asset-policy CI. Then continue pixel-frame closure by rasterizing the source-bound PPreMatch text and state-dependent layers with the existing verified font/atlas/resource pixels while preserving native child order. Do not mark the pre-match frame complete until the full 800x600 supplied-state raster is actually reproducible.
+
+---
+
 # Recovery 373 continuation — PPreMatch XI shirt selector source-closed
 
 _Updated 7 October 2026._
