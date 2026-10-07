@@ -232,6 +232,7 @@ class OriginalManagementHeaderTests(unittest.TestCase):
             EA444DecodedImage(30, 4845, bytes(left_rgba), 0, 0),
             EA444DecodedImage(70, 380, bytes(right_rgba), 0, 0),
             FakeHeaderFont(),
+            FakeDateFont(),
         )
         overlays = management_header_overlays(
             staged,

@@ -387,6 +387,14 @@ class FakeCanvas(FakeWidget):
         self.images.append((x, y, kwargs))
         return len(self.images)
 
+    def create_rectangle(self, x0, y0, x1, y1, **kwargs):
+        rectangles = self.values.setdefault("rectangles", [])
+        rectangles.append((x0, y0, x1, y1, kwargs))
+        return ("rectangle", len(rectangles))
+
+    def tag_raise(self, item_id):
+        self.values["tag_raise"] = item_id
+
     def itemconfigure(self, item_id, **kwargs):
         self.itemconfigure_count += 1
         x, y, current = self.images[item_id - 1]
