@@ -12245,3 +12245,24 @@ continues with ordinary Squad row display-name/color helpers.
 - Updated frame coverage from 86 to 158 structurally represented native
   controls while retaining all remaining supplied-state/pixel blockers.
 
+
+
+## 7 October 2026 KST — Recovery 372 PPreMatch badge integration
+
+- Re-materialized the authorized 511,121,336-byte source archive, extracted the
+  canonical `FOOTBAL.EXE`, and re-verified SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- First-hand disassembly of PPreMatch refresh `0x49A610` proved both badge
+  paths call the same canonical club-art selector `0x40C850`, at callsites
+  `0x49A792` and `0x49A7D6`.
+- Verified the exact family/variant/fallback literal VAs and strings:
+  `0x81D4F8` Team_badge_stills, `0x81D1A8` `badge_2`, and
+  `0x81D4C4` generic.444 through fallback loader `0x64D870`.
+- Reused the existing FastView clean-room club-art selection and verified
+  surfaced-resource loader instead of introducing a second badge resolver.
+- PPreMatch now stages both native 135x93 badge controls in their exact child
+  rectangles, promoting the team-badge child family to supplied-state complete
+  and raising represented native controls from 158 to 160 of 182.
+- Complete-frame and Gate-14 claims remain false. The next frame-critical task
+  is starting-XI goalkeeper/team shirt pixel staging and binding, followed by
+  the remaining dynamic text/state bindings.
