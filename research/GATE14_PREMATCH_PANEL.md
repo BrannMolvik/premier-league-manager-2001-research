@@ -744,3 +744,82 @@ fixture/date buffers, left/right team identity text, supplied-state rating
 widths, player-row content attachment, live Button@ease pointer/update state,
 the management-to-match launch route, and complete-frame/Gate-14 completion
 remain separate boundaries.
+
+
+## Recovery 373 — starting-XI shirt selector and numbered-frame contract
+
+Fresh first-hand disassembly of the same canonical executable narrows the
+remaining 22-marker pixel path without borrowing PMatchInfo assumptions.
+
+### Native kit context: `0x5EF940 -> 0x5EF9E0`
+
+PPreMatch constructor setup calls `0x5EF940` with the two match club records.
+The function compares primary kit color bytes at DBRClub `+0x4A` using the
+23-row, six-byte sentinel table at `0x834AF8`. Its exact decision tree is:
+
+1. if the two primary colors do not clash, both sides use primary context;
+2. on a clash, prefer the away alternate when home-primary differs from
+   away-alternate;
+3. otherwise prefer the home alternate when home-alternate differs from
+   away-primary;
+4. otherwise use both alternates when the two alternate colors differ;
+5. otherwise both context flags remain primary.
+
+The function returns, per side, the context flag plus DBRClub `+0x44` for
+primary or `+0x47` for alternate. Compact club reader `0x4022D0` maps the
+corresponding source bytes from Master.dat +52/+55 and maps the color IDs from
+Master.dat +58/+70 to expanded `+0x4A/+0x56`. Runtime import `0x403660`
+copies these fields unchanged.
+
+### Team shirt ownership: `0x408320`
+
+PPreMatch calls `0x408320` twice, storing resources at panel
+`+0x648/+0x66C` and exposing them through `+0x668/+0x68C`.
+
+For primary context, `0x408320` first asks `0x40DA90` for the club graphics
+basename and attempts the club-specific source beneath:
+
+`fm2001_art\\Generic\\front-end-shirts\\custom\\<basename>.444`
+
+If that custom load succeeds, it returns without entering generic generation.
+
+Alternate context skips the custom attempt. A failed primary custom attempt
+also enters the same generic path. That path uses:
+
+`fm2001_art\\Generic\\front-end-shirts\\generic\\Team%.2d.bmp`
+
+with the source index read directly from DBRClub `+0x47`, clamped to 0..36.
+The selected BMP is 36x1280 (40 numbered 36x32 frames). It is then recolored by
+native `0x5E4C60`, which consumes the selected primary/alternate color block.
+Therefore generic PPreMatch shirts are dynamic generated pixels, not a static
+EA444 atlas. Reusing the PMatchInfo primary-custom atlas path is valid only for
+the source-identical custom branch; substituting it for generic/alternate
+shirts would be a fidelity error.
+
+### Per-player numbered frame: `0x41E3F0 -> 0x41E3D0`
+
+For every one of the 22 marker controls, `0x499820` calls `0x41E3F0`.
+The helper compares runtime player registered club `+0x10` with the supplied
+team object's club id `+0x04`:
+
+- equal -> player byte `+0x70`;
+- different -> player byte `+0x76`.
+
+PPreMatch then applies `(byte & 0xFF) * 32 - 32` as the source-frame vertical
+offset, with no additional clamp in this path.
+
+### Clean-room checkpoint
+
+Branch `chatgpt/gate14-prematch-xi-shirts-r373` now:
+
+- exposes Master.dat +52/+55/+58/+70 on `Club`;
+- reproduces the exact kit-clash/context decision;
+- exposes source-exact custom and generic candidate ownership;
+- reproduces the exact per-player 32-pixel frame transform;
+- keeps `0x5E4C60` generic recolor pixels, final marker raster staging,
+  complete-frame fidelity and Gate 14 completion false.
+
+Exact next implementation task: reproduce the bounded `0x5E4C60` 8-bit BMP
+palette/recolor transform or otherwise prove a byte-equivalent clean-room
+output, then load custom/generic/goalkeeper sources and bind all 22 marker
+rasters into the existing source-closed visibility/formation geometry.
