@@ -22,6 +22,13 @@ on:
       - "reconstruction/gate17_ffmpeg_minimal_roundtrip.py"
       - "reconstruction/test_gate17_ffmpeg_minimal_roundtrip.py"
       - "research/GATE17_MINIMAL_FFMPEG_ROUNDTRIP.md"
+      - "reconstruction/startup_media_profile_marker.py"
+      - "reconstruction/test_startup_media_profile_marker.py"
+      - "reconstruction/gate17_minimal_package_candidate.py"
+      - "reconstruction/test_gate17_minimal_package_candidate.py"
+      - "reconstruction/app.py"
+      - "reconstruction/test_app_package_smoke.py"
+      - "reconstruction/test_app_presentation_boundary.py"
   workflow_dispatch:
 
 concurrency:
@@ -265,6 +272,79 @@ jobs:
             "--output-receipt", "_minimal-ffmpeg-build/roundtrip-proof.json"
           )
           python @roundtripArgs
+
+      - name: Run candidate package profile tests
+        working-directory: reconstruction
+        run: python -m unittest -v test_startup_media_profile_marker test_gate17_minimal_package_candidate test_app_package_smoke test_app_presentation_boundary
+
+      - name: Stage hash-bound minimal helper candidate profile
+        shell: pwsh
+        run: |
+          $tools = "reconstruction/_minimal-package-tools"
+          New-Item -ItemType Directory -Force -Path $tools | Out-Null
+          Copy-Item "_minimal-ffmpeg-build/ffmpeg.exe" "$tools/ffmpeg.exe"
+          Copy-Item "_minimal-ffmpeg-build/build-proof.json" "$tools/minimal-ffmpeg-build-proof.json"
+          Copy-Item "_minimal-ffmpeg-build/roundtrip-proof.json" "$tools/minimal-ffmpeg-roundtrip-proof.json"
+          Copy-Item "_minimal-ffmpeg-build/COPYING.LGPLv2.1" "$tools/COPYING.LGPLv2.1"
+          python reconstruction/gate17_minimal_package_candidate.py marker `
+            --ffmpeg "$tools/ffmpeg.exe" `
+            --build-proof "$tools/minimal-ffmpeg-build-proof.json" `
+            --roundtrip-proof "$tools/minimal-ffmpeg-roundtrip-proof.json" `
+            --output "$tools/startup-media-profile.json"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Install candidate package builder
+        run: python -m pip install "pyinstaller>=6,<7"
+
+      - name: Freeze separate minimal-helper Windows candidate
+        working-directory: reconstruction
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean --onedir `
+            --name FM2001-Windows11-MinimalFFmpegCandidate `
+            --add-data "../original_assets;original_assets" `
+            --add-data "_minimal-package-tools/startup-media-profile.json;runtime_tools" `
+            --add-data "_minimal-package-tools/minimal-ffmpeg-build-proof.json;runtime_tools" `
+            --add-data "_minimal-package-tools/minimal-ffmpeg-roundtrip-proof.json;runtime_tools" `
+            --add-data "_minimal-package-tools/COPYING.LGPLv2.1;runtime_tools" `
+            --add-data "original_management_background_assets.json;." `
+            --add-binary "_minimal-package-tools/ffmpeg.exe;runtime_tools" `
+            app.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Smoke candidate profile from frozen executable
+        working-directory: reconstruction
+        shell: pwsh
+        run: |
+          $smoke = & .\dist\FM2001-Windows11-MinimalFFmpegCandidate\FM2001-Windows11-MinimalFFmpegCandidate.exe --package-smoke
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $smoke | Set-Content -Path "_minimal-package-tools/candidate-package-smoke.json" -Encoding utf8NoBOM
+          python -c "import json,pathlib; p=json.loads(pathlib.Path('_minimal-package-tools/candidate-package-smoke.json').read_text(encoding='utf-8')); assert p['passed'] is True; assert p['startup_media_video_encoder']=='h264_mf'; assert p['startup_media_profile_marker_present'] is True; assert p['startup_media_candidate_only'] is True; assert p['startup_media_production_runtime_switched'] is False"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build deterministic minimal-helper package candidate
+        shell: pwsh
+        run: |
+          $commit = "${{ github.event.pull_request.head.sha || github.sha }}"
+          $out = Join-Path "${{ runner.temp }}" "fm2001-minimal-helper-candidate"
+          python reconstruction/gate17_minimal_package_candidate.py package `
+            --dist-root "reconstruction/dist/FM2001-Windows11-MinimalFFmpegCandidate" `
+            --output-dir "$out" `
+            --repo-root "." `
+            --release-version "candidate-$commit" `
+            --repository-commit "$commit"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem -Path "$out" | Format-Table Name,Length
+
+      - name: Upload minimal-helper package candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gate17-minimal-ffmpeg-package-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/fm2001-minimal-helper-candidate/*
+            reconstruction/_minimal-package-tools/candidate-package-smoke.json
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Upload exact minimal build proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
