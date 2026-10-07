@@ -177,13 +177,17 @@ jobs:
       - name: Audit direct package ownership for external final-link inputs
         shell: pwsh
         run: |
-          python reconstruction/gate17_ffmpeg_link_input_ownership_audit.py \`
-            --ffmpeg-trace-log "_minimal-ffmpeg-build/ffmpeg-link-trace.log" \`
-            --ffprobe-trace-log "_minimal-ffmpeg-build/ffprobe-link-trace.log" \`
-            --owner-rows "_minimal-ffmpeg-build/link-input-owners.tsv" \`
-            --package-lock "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock" \`
-            --toolchain-contract "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json" \`
-            --output-receipt "_minimal-ffmpeg-build/link-input-ownership-proof.json"
+          $ownershipArgs = @(
+            "reconstruction/gate17_ffmpeg_link_input_ownership_audit.py",
+            "--ffmpeg-trace-log", "_minimal-ffmpeg-build/ffmpeg-link-trace.log",
+            "--ffprobe-trace-log", "_minimal-ffmpeg-build/ffprobe-link-trace.log",
+            "--owner-rows", "_minimal-ffmpeg-build/link-input-owners.tsv",
+            "--package-lock", "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock",
+            "--toolchain-contract", "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json",
+            "--output-receipt", "_minimal-ffmpeg-build/link-input-ownership-proof.json"
+          )
+          python @ownershipArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Audit built helper and write proof receipt
         shell: pwsh
