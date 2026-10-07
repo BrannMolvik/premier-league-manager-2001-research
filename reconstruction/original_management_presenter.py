@@ -25,6 +25,7 @@ from original_fixture_match_info_link import (
 from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
+    ManagementHeaderMatchView,
     ManagementSourceDataBridge,
 )
 from original_league_fixtures_presenter import (
@@ -68,6 +69,7 @@ class OriginalManagementPresentationError(ValueError):
 class OriginalFreshManagementSnapshot:
     club: ClubHeaderView
     menu: OriginalPMenuSnapshot
+    header_match: ManagementHeaderMatchView | None
     squad: OriginalSquadViewportSnapshot
     squad_view_transition: OriginalSquadViewTransition
     source_squad_count: int
@@ -80,6 +82,7 @@ class OriginalManagementPanelSnapshot:
 
     club: ClubHeaderView
     menu: OriginalPMenuSnapshot
+    header_match: ManagementHeaderMatchView | None
     panel_code: int
     panel_class: str
     squad: OriginalSquadViewportSnapshot | None = None
@@ -169,6 +172,10 @@ def build_management_panel_snapshot(
 
     bridge = _bridge(session, bridge_factory)
     club = bridge.club_header()
+    header_match_resolver = getattr(bridge, "management_header_match", None)
+    header_match = (
+        header_match_resolver() if callable(header_match_resolver) else None
+    )
     menu = build_pmenu_snapshot(
         selected_child_id,
         expanded_root_id=expanded_root_id,
@@ -184,6 +191,7 @@ def build_management_panel_snapshot(
         return OriginalManagementPanelSnapshot(
             club=club,
             menu=menu,
+            header_match=header_match,
             panel_code=SQUAD_PANEL_CODE,
             panel_class=SQUAD_PANEL_CLASS,
             squad=build_squad_row_viewport(visible_rows),
@@ -202,6 +210,7 @@ def build_management_panel_snapshot(
         return OriginalManagementPanelSnapshot(
             club=club,
             menu=menu,
+            header_match=header_match,
             panel_code=LEAGUE_FIXTURES_PANEL.menu_id,
             panel_class=LEAGUE_FIXTURES_PANEL.panel_class,
             fixtures_in_source_order=tuple(source.fixtures_in_source_order),
@@ -216,6 +225,7 @@ def build_management_panel_snapshot(
         return OriginalManagementPanelSnapshot(
             club=club,
             menu=menu,
+            header_match=header_match,
             panel_code=LEAGUE_TABLES_PANEL.menu_id,
             panel_class=LEAGUE_TABLES_PANEL.panel_class,
             league_tables=table,
@@ -245,6 +255,7 @@ def build_fresh_management_snapshot(
     return OriginalFreshManagementSnapshot(
         club=snapshot.club,
         menu=snapshot.menu,
+        header_match=snapshot.header_match,
         squad=snapshot.squad,
         squad_view_transition=snapshot.squad_view_transition,
         source_squad_count=snapshot.source_squad_count,
