@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 381: Gate 13 remains earliest incomplete; issue #482 still awaits Daniel's external Windows acceptance of artifact 11464212544. PR #525 is open on source-audit CI hardening. Initial head 5b43ef92e53306fd761511f663dd29455cf7efb7 exposed a test-context error in Windows package run 37587446525: the new package-import regression was executed from reconstruction/ rather than the repo-root workflow context. Fixed by running the exact import in a subprocess with cwd at repository root. Current exact head e8cfa685139f3e67df681fb150c58e500e847c55 requires fresh reconstruction, asset, Windows-package, and minimal-FFmpeg success before merge.",
+  "active_task": "Recovery 382: Gate 13 remains earliest incomplete; issue #482 still awaits Daniel's external Windows acceptance of artifact 11464212544. PR #525 is open on source-audit CI hardening. Initial head 5b43ef92e53306fd761511f663dd29455cf7efb7 exposed a test-context error in Windows package run 37587446525: the new package-import regression was executed from reconstruction/ rather than the repo-root workflow context. Fixed by running the exact import in a subprocess with cwd at repository root. Current exact head e8cfa685139f3e67df681fb150c58e500e847c55 requires fresh reconstruction, asset, Windows-package, and minimal-FFmpeg success before merge.",
   "last_known_main_head": "eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 381,
+  "recovery_generation": 382,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #525 source-audit hardening remains bounded. First Windows failure was regression-test setup only; the actual Windows package source-contract audit itself succeeded. Current head e8cfa685139f3e67df681fb150c58e500e847c55 mimics the repo-root workflow import context exactly.",
+  "note": "Recovery 382 resumed from canonical GitHub state. PR #525 source-audit hardening remains bounded; exact head e8cfa685139f3e67df681fb150c58e500e847c55 still requires fresh required workflow success before merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
