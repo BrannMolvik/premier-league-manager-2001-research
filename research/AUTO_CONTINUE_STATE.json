@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 382: Gate 13 remains earliest incomplete; issue #482 still awaits Daniel's external Windows acceptance of artifact 11464212544. PR #525 is open on source-audit CI hardening. Initial head 5b43ef92e53306fd761511f663dd29455cf7efb7 exposed a test-context error in Windows package run 37587446525: the new package-import regression was executed from reconstruction/ rather than the repo-root workflow context. Fixed by running the exact import in a subprocess with cwd at repository root. Current exact head e8cfa685139f3e67df681fb150c58e500e847c55 requires fresh reconstruction, asset, Windows-package, and minimal-FFmpeg success before merge.",
-  "last_known_main_head": "eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5",
+  "active_task": "Recovery 382: PR #525 merged as 2583ff7394606f47a19f11068916b01663b3d962 after exact-head success in reconstruction 37587574621, asset policy 37587574628, Windows package 37587574641, and minimal FFmpeg proof 37587574679. Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. Continue the independent Gate-17 provenance task: capture resolved final-link/archive inputs for the minimal FFmpeg helper, validate them fail-closed, and only then attribute proven redistributed contributors; keep source_material_complete and legal_compliance_claimed false.",
+  "last_known_main_head": "2583ff7394606f47a19f11068916b01663b3d962",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 382,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 382 resumed from canonical GitHub state. PR #525 source-audit hardening remains bounded; exact head e8cfa685139f3e67df681fb150c58e500e847c55 still requires fresh required workflow success before merge.",
+  "note": "PR #525 merged and runtime advanced to the canonical linker-input evidence task. No Gate 13 closure claim was made.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
