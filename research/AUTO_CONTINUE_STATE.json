@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Post-#482 Gate-13 audit: reserve-selection propagation is integrated at 0c8d9a717c15d870961c6c93f89754fe8c010dca and the source-exact y=68 management current-date line is integrated at 62ba573e11a6f5a1a7bd28d75517790405ab600c with fixture repair at de130503546f3a49db8e6d8a9e7aa133148d13a0. Continue the exact next source-backed central-header step: verify whether the exact 36px bold Zurich club-name font has been staged/provenance-tracked; if available integrate the source-closed club-name control, otherwise preserve that blocker and continue closing the 0x615D10/0x615DA0 match-line selector without guessing.",
-  "last_known_main_head": "de130503546f3a49db8e6d8a9e7aa133148d13a0",
+  "active_task": "Recovery 399 selector trace merged at 671f98492661a43ae07ea60517971cf66d2916dc. Continue Gate-13 post-#482 audit by integrating only the source-closed direct fixed-League y=34/y=51 management-header selector from exact recovered schedule/runtime order; fail closed for symbolic ClubRefs, unsupported node classes, or missing exact order. The exact 36px club-name font remains verified but unstaged due the current binary-transfer connector boundary.",
+  "last_known_main_head": "671f98492661a43ae07ea60517971cf66d2916dc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 399,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 399 resumed from main de130503546f3a49db8e6d8a9e7aa133148d13a0. The prior runtime handoff was stale at 0c8d9a7; current-date header rendering and its verification-fixture repair are already on main. Continuing only the next source-backed Gate-13 header/audit step; no Settings, acceptance build, or Gate-17 work-ahead is authorized while the retrospective audit remains active.",
+  "note": "Recovery 399 source-closure checkpoint merged as 671f98492661a43ae07ea60517971cf66d2916dc via PR #544. Main had no PR workflow/status for the research-only head. Continue bounded fixed-League header integration; do not create an acceptance build or resume Gate-17 work-ahead.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
