@@ -145,6 +145,28 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_reserve_selection_flags_survive_existing_player_flag_roundtrip(self):
+        original = self.build_controller()
+        player = original.squad()[0]
+        player.set_reserve_active()
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+        restored_player = restored.state.players[player.index]
+
+        self.assertTrue(restored_player.reserve_active)
+        self.assertFalse(restored_player.reserve_substitute_available)
+        self.assertFalse(restored_player.match_active)
+        self.assertFalse(restored_player.match_substitute_available)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_duplicate_saved_cup_tied_player_fails_closed(self):
         from internal_save import _restore_cup_tied_collections
 
