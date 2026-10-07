@@ -32,6 +32,7 @@ from original_management_header import (
     load_verified_management_header_resources,
     management_header_caption_overlay,
     management_header_date_overlay,
+    management_header_match_overlays,
     management_header_overlays,
 )
 from original_fixtures_pager import (
@@ -1209,6 +1210,42 @@ class OriginalGameTkHost:
         )
         return 1
 
+    def _draw_management_match_lines(self, frame) -> int:
+        """Draw only the bounded direct fixed-League conditional header lines."""
+        resources = self.management_header_resources
+        if resources is None:
+            return 0
+        if not isinstance(resources, OriginalManagementHeaderResources):
+            raise OriginalGameHostError(
+                "Management match-line renderer requires verified header resources"
+            )
+        match = getattr(frame.presentation, "header_match", None)
+        if match is None:
+            return 0
+        overlays = management_header_match_overlays(
+            resources,
+            competition_name=match.competition_name,
+            home_short_name=match.home_short_name,
+            away_short_name=match.away_short_name,
+            scheduled_date=match.scheduled_date,
+        )
+        count = 0
+        for overlay in overlays:
+            self._create_native_image(
+                overlay.x,
+                overlay.y,
+                image=self._photo(
+                    encode_rgba_png(
+                        overlay.width,
+                        overlay.height,
+                        overlay.rgba,
+                    )
+                ),
+                anchor=self.tk.NW,
+            )
+            count += 1
+        return count
+
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
         if frame.presentation.panel_class != "PSquadScreen":
@@ -1572,6 +1609,7 @@ class OriginalGameTkHost:
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header()
+        header_image_count += self._draw_management_match_lines(frame)
         header_image_count += self._draw_management_current_date(frame)
         squad_image_count = self._draw_squad_top_controls(frame)
         squad_image_count += self._draw_squad_rows(frame)
