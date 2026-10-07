@@ -116,3 +116,36 @@ or data to the statically linked helper. That attribution, the corresponding
 source/license/notice bundle, and the separate legal review remain unresolved.
 Accordingly `source_material_complete=false` and
 `legal_compliance_claimed=false` remain mandatory.
+
+
+## Recovery 384 direct final-link input ownership
+
+The validated GNU ld trace has now been reduced to direct package ownership
+inside the same exact locked MSYS2/UCRT64 build environment. Exact head
+`125018bf9ef5feba3d58e9a73f67603fadd51cc1` passed reconstruction run
+`37596223784` (2,874 tests, 25 skipped), asset-policy run `37596223786`,
+and minimal FFmpeg proof `37596223802`. Artifact `11471081671` has digest
+`sha256:328d0215658f2789329d9dd680afc782b139f76e7ed0acc13541bdd66bccaa7f`.
+
+For every absolute external `.a/.o` input emitted by the validated trace, the
+workflow normalizes the actual path and queries the live pinned package database
+with `pacman -Qo`. Coverage is exact for all 22 external inputs observed for
+`ffmpeg_g.exe` and all 21 observed for `ffprobe_g.exe`. The owner rows are
+`sha256:7c2c81054bd07cc091c0a0229077ce770c4d4d2bfeef8a6f31c89439471613c5`,
+and the fail-closed ownership receipt is
+`sha256:9f511952e664edc1ed2363f26552eb21d4bd1b9f8763327c64669bf6979ac546`.
+
+Only four locked packages own the observed external final-link inputs:
+
+- `mingw-w64-ucrt-x86_64-crt 14.0.0.r426.g4564ee4b5-1` -> `mingw-w64-crt`;
+- `mingw-w64-ucrt-x86_64-gcc 16.2.0-4` -> `mingw-w64-gcc`;
+- `mingw-w64-ucrt-x86_64-winpthreads 14.0.0.r426.g4564ee4b5-1` -> `mingw-w64-winpthreads`;
+- `mingw-w64-ucrt-x86_64-windows-default-manifest 20260815-1` -> `mingw-w64-windows-default-manifest`.
+
+Each source family already has independently verified source-tarball metadata in
+the critical source-material contract. This proves direct package ownership of
+files presented to the final linker. It does not prove that every traced archive
+actually contributed a member to the executable. The next evidence boundary is
+a deterministic GNU ld link-map/archive-member proof tied to an observation-only
+relink of the same release command. `source_material_complete=false` and
+`legal_compliance_claimed=false` remain mandatory.
