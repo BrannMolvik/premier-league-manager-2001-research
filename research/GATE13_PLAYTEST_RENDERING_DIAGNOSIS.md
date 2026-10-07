@@ -105,3 +105,63 @@ Conference/Southport selection. Private logs: `work/dpi-final-focused.log`,
 `work/dpi-ownership-final.log`, `work/dpi-final-full.log`, and
 `work/issue482-dpi-build-smoke.log`. These results do not certify missing normal
 management interaction, subjective audio, or final release acceptance.
+
+## Follow-on: restored first-roster title and row picture strips
+
+Canonical static source rehash remained
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+`PSquadList::4B4FE0` supplies First Team global `984560` when discriminator
+`+98C` is zero (Reserves global `984558` otherwise). The sequential language
+reader maps those globals to English.idx 166/168, resolving exactly to
+`First Team` / `Reserves`; the existing 982110 -> index 2490 mapping was the
+calibration. The current fresh first-roster slice uses First Team only.
+
+`4B506D -> 5D6050 -> 5D5EB0 -> 651E30/651BA0` qualifies title wrapper 946B70,
+font 9197E0 (existing verified Zurich BdXCn 18pixel), raw flags 2001, white,
+six-pixel X inset and zero Y inset. Its original file is title_bar_7.444:
+`5F3754` path literal 8354B0 -> raw 946B90; `5F37A0` constructs wrapper
+946B70 with source origin (0,0), 226x20. Native 651F80/6520C0 supply default
+vertical centering and owner clipping. The live title rectangle is (37,205,226,20).
+
+The twenty picture controls at 4B520F..4B5670 use wrapper 942FD0 at
+list-local (0,154+17*i), i=0..19. `5FBEF4` loads stats_grid_disabled.444
+into raw 942FF0; 5FBF40 constructs its wrapper at source (0,0), 328x16.
+The original image is 729x16: the runtime must crop its first 328 columns,
+not shrink/stretch the entire image. The screen rectangles are (37,233+17*i,328,16).
+They render before player/SCF text. Both asset identities and byte sizes were
+independently extracted using existing inventory tooling from the canonical
+ZIP hash and now appear in original_assets/MANIFEST.md. Masked source pixels
+retain the existing EA444 decoder's color-key alpha behavior.
+
+Private evidence: `work/squad-required-chrome-trace.txt`,
+`work/squad-required-chrome-inventory.json`, `work/squad-chrome-loader-check.json`.
+The production-loader check decodes actual originals entirely offline and
+returns 28 overlays (title/caption, 20 strips, six existing button layers).
+83 focused Squad/host/style/presenter tests passed (20.292s). No new Windows
+visual acceptance is claimed. This is not full roster selection, reserves,
+column-title/sort interaction, management-header text or match-start integration.
+
+Final offline regression: 2,861 tests passed, 24 expected skips, in 359.642s
+(`work/squad-chrome-full.log`). The subsequent atlas-validation guard passed
+all five focused Squad-control tests. Asset policy and staged whitespace checks
+passed. Daniel requested a pause for usage reserve; no further executable
+launch or native investigation is scheduled by this checkpoint.
+
+## New extracted-package Windows policy blocker
+
+The local-2dc760e1 release ZIP was generated through the normal release tool;
+all 1,205 extracted payload hashes match PACKAGE-MANIFEST.json. Its relocated
+executable nevertheless cannot start: Windows Code Integrity events 3033/3077
+at 16:33:35..37 KST on 7 October 2026 state that it fails Enterprise signing
+requirements under policy `{0283ac0f-fff1-49ae-ada1-8a933130cad6}`.
+Read-only Authenticode inspection reports NotSigned. Executable SHA-256:
+`8359b9a74729b6959648cd09e6294b4d3b6ed3a6e657466367443926040d4a42`.
+
+This is an operating-system trust failure, not a package-manifest failure or
+another WPF timeout. The earlier normal frozen run succeeded before extraction;
+that does not qualify the blocked redistributed copy. No retry through a
+different execution route, unblock operation, signing infrastructure, security
+setting, certificate or App Control modification is attempted. Subsequent
+work is offline source/rendering tests only. An approved executable trust /
+distribution route is required before further packaged Windows acceptance;
+Daniel's rejection of paid signing infrastructure remains respected.
