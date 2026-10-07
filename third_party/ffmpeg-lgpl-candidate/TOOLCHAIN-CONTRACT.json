@@ -177,5 +177,27 @@
         "head_sha": "de2f904c71a7407b202afa2affc9728fbda0df6b"
       }
     ]
+  },
+  "static_contributor_source_material": {
+    "scope": "Exact source-package bundle inputs for the four packages/source families proven by the Recovery 385 link-map/member evidence to contribute to the minimal static helper.",
+    "contributing_packages": [
+      "mingw-w64-ucrt-x86_64-crt",
+      "mingw-w64-ucrt-x86_64-gcc",
+      "mingw-w64-ucrt-x86_64-winpthreads",
+      "mingw-w64-ucrt-x86_64-windows-default-manifest"
+    ],
+    "contributing_source_families": [
+      "mingw-w64-crt",
+      "mingw-w64-gcc",
+      "mingw-w64-winpthreads",
+      "mingw-w64-windows-default-manifest"
+    ],
+    "static_contributor_attribution_complete": true,
+    "source_package_bundle_assembled": false,
+    "source_package_hashes_pinned": false,
+    "license_notice_material_complete": false,
+    "source_material_complete": false,
+    "legal_compliance_claimed": false,
+    "boundary": "This section narrows source-bundle work to the exact packages proven to contribute members/direct objects to the static helper. Source archives must be downloaded and checksummed before any bundle-assembly claim; actual license/notice texts and a separate legal review remain later boundaries."
   }
 }
