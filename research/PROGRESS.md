@@ -12408,3 +12408,14 @@ continues with ordinary Squad row display-name/color helpers.
 - The external trace set includes startup objects `crt2.o`, `crtbegin.o`, `default-manifest.o`, `crtend.o`; archives include `libm.a`, `libatomic.a`, Windows import libraries, `libmingw32.a`, `libgcc.a`, `libgcc_eh.a`, `libmingwex.a`, `libmsvcrt.a`, `libpthread.a`, and others.
 - This does not prove archive-member incorporation. Static contributor attribution, source-material completeness, and legal-compliance claims remain false.
 - Exact next cloud-safe task: capture direct package-owner/version evidence for every observed external `.a/.o` input from the same pinned environment and validate against `TOOLCHAIN-PACKAGES.lock`; then strengthen evidence to archive-member/link-map level before claiming actual redistributed static contributors.
+
+
+## 2026-10-07 - Recovery 384: direct package ownership for all external final-link inputs
+
+- Resumed PR #528 from exact head `f6143d9a912629b100442e9512a5d4c5f5e2952a`; its first minimal-build run `37593786593` proved the `pacman -Qo` capture itself succeeded but exposed a PowerShell parser error because the audit invocation contained literal backslash-backticks.
+- Replaced that fragile continuation form with a PowerShell argument array, explicit `$LASTEXITCODE` propagation, and regression coverage. Fresh exact head `125018bf9ef5feba3d58e9a73f67603fadd51cc1` passed asset policy `37596223786`, reconstruction `37596223784` (2,874 tests, 25 skipped), and minimal FFmpeg proof `37596223802`.
+- Successful artifact `11471081671` has Actions digest `sha256:328d0215658f2789329d9dd680afc782b139f76e7ed0acc13541bdd66bccaa7f`.
+- Direct ownership evidence hashes: external-input list `fa48cc5354cacfaf4c6c828cfb05792baca3108be56b4ec2701c9af10c6eeb56`; owner rows `7c2c81054bd07cc091c0a0229077ce770c4d4d2bfeef8a6f31c89439471613c5`; ownership receipt `9f511952e664edc1ed2363f26552eb21d4bd1b9f8763327c64669bf6979ac546`.
+- All 22 `ffmpeg_g.exe` and 21 `ffprobe_g.exe` absolute external `.a/.o` inputs are directly owned by exactly four locked packages: MinGW-w64 CRT, GCC, winpthreads, and windows-default-manifest. Their exact pinned versions already map to verified source-family metadata.
+- PR #528 merged as `0f1739c2e0d606e398a8e6a350d55a22c78a178e`.
+- This closes direct package ownership only. Archive-member incorporation, final static contributor attribution, source-material completeness, and legal-compliance review remain open. Next cloud-safe task is deterministic link-map/member evidence tied to the byte-identical release link.
