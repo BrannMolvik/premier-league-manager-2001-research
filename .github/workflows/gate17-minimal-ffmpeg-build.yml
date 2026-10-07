@@ -10,6 +10,10 @@ on:
       - "reconstruction/test_gate17_ffmpeg_minimal_build_audit.py"
       - "reconstruction/gate17_ffmpeg_toolchain_provenance.py"
       - "reconstruction/test_gate17_ffmpeg_toolchain_provenance.py"
+      - "reconstruction/gate17_ffmpeg_link_trace_audit.py"
+      - "reconstruction/test_gate17_ffmpeg_link_trace_audit.py"
+      - "reconstruction/gate17_ffmpeg_link_input_ownership_audit.py"
+      - "reconstruction/test_gate17_ffmpeg_link_input_ownership_audit.py"
       - "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json"
       - "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock"
       - "research/GATE17_MINIMAL_FFMPEG_TOOLCHAIN.md"
@@ -129,6 +133,62 @@ jobs:
             --ffprobe-trace-log "_minimal-ffmpeg-build/ffprobe-link-trace.log" `
             --output-receipt "_minimal-ffmpeg-build/link-input-proof.json"
 
+      - name: Capture direct package ownership for external final-link inputs
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          OUT="$GITHUB_WORKSPACE/_minimal-ffmpeg-build"
+          INPUTS="$OUT/external-link-inputs.tsv"
+          OWNERS="$OUT/link-input-owners.tsv"
+          : > "$INPUTS"
+
+          extract_external_inputs() {
+            local target="$1"
+            local trace_log="$2"
+            sed 's#\\#/#g' "$trace_log" |
+              awk -v target="$target" '/^[A-Za-z]:\/.*\.(a|o)$/ { print target "\t" $0 }'
+          }
+
+          {
+            extract_external_inputs "ffmpeg_g.exe" "$OUT/ffmpeg-link-trace.log"
+            extract_external_inputs "ffprobe_g.exe" "$OUT/ffprobe-link-trace.log"
+          } | LC_ALL=C sort -u > "$INPUTS"
+
+          test -s "$INPUTS"
+          : > "$OWNERS.tmp"
+          while IFS="$(printf '\t')" read -r target trace_path; do
+            test -n "$target"
+            test -n "$trace_path"
+            posix_path="$(cygpath -u "$trace_path")"
+            normalized_path="$(readlink -f "$posix_path")"
+            test -f "$normalized_path"
+            owner_package="$(pacman -Qqo "$normalized_path")"
+            read -r owner_name owner_version <<< "$(pacman -Q "$owner_package")"
+            test "$owner_name" = "$owner_package"
+            test -n "$owner_version"
+            printf '%s\t%s\t%s\t%s\t%s\n' \
+              "$target" "$trace_path" "$normalized_path" "$owner_name" "$owner_version" \
+              >> "$OWNERS.tmp"
+          done < "$INPUTS"
+          LC_ALL=C sort "$OWNERS.tmp" > "$OWNERS"
+          rm -f "$OWNERS.tmp"
+          test -s "$OWNERS"
+
+      - name: Audit direct package ownership for external final-link inputs
+        shell: pwsh
+        run: |
+          $ownershipArgs = @(
+            "reconstruction/gate17_ffmpeg_link_input_ownership_audit.py",
+            "--ffmpeg-trace-log", "_minimal-ffmpeg-build/ffmpeg-link-trace.log",
+            "--ffprobe-trace-log", "_minimal-ffmpeg-build/ffprobe-link-trace.log",
+            "--owner-rows", "_minimal-ffmpeg-build/link-input-owners.tsv",
+            "--package-lock", "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock",
+            "--toolchain-contract", "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json",
+            "--output-receipt", "_minimal-ffmpeg-build/link-input-ownership-proof.json"
+          )
+          python @ownershipArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Audit built helper and write proof receipt
         shell: pwsh
         run: |
@@ -177,6 +237,9 @@ jobs:
             _minimal-ffmpeg-build/ffmpeg-link-trace.log
             _minimal-ffmpeg-build/ffprobe-link-trace.log
             _minimal-ffmpeg-build/link-input-proof.json
+            _minimal-ffmpeg-build/external-link-inputs.tsv
+            _minimal-ffmpeg-build/link-input-owners.tsv
+            _minimal-ffmpeg-build/link-input-ownership-proof.json
             _minimal-ffmpeg-build/toolchain-packages.txt
             _minimal-ffmpeg-build/toolchain-proof.json
             _minimal-ffmpeg-build/build-proof.json
