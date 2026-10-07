@@ -26,14 +26,25 @@ def clash_table(*pairs):
     return b"".join(bytes(row) for row in rows)
 
 
-def club(club_id, basename, primary_template, alternate_template, primary_color, alternate_color):
+def club(
+    club_id,
+    basename,
+    primary_template,
+    alternate_template,
+    primary_color,
+    alternate_color,
+    primary_secondary=5,
+    alternate_secondary=6,
+):
     return PrematchClubShirtState(
         club_id=club_id,
         graphics_basename=basename,
         primary_template_index=primary_template,
         alternate_template_index=alternate_template,
         primary_color_id=primary_color,
+        primary_secondary_color_id=primary_secondary,
         alternate_color_id=alternate_color,
+        alternate_secondary_color_id=alternate_secondary,
     )
 
 
@@ -134,7 +145,9 @@ class PrematchShirtSelectionTests(unittest.TestCase):
             primary_shirt_template_index=1,
             alternate_shirt_template_index=2,
             primary_kit_color_id=3,
+            primary_kit_secondary_color_id=5,
             alternate_kit_color_id=4,
+            alternate_kit_secondary_color_id=6,
         )
         state = club_shirt_state(source)
         self.assertEqual(
@@ -143,9 +156,11 @@ class PrematchShirtSelectionTests(unittest.TestCase):
                 state.primary_template_index,
                 state.alternate_template_index,
                 state.primary_color_id,
+                state.primary_secondary_color_id,
                 state.alternate_color_id,
+                state.alternate_secondary_color_id,
             ),
-            (10, 1, 2, 3, 4),
+            (10, 1, 2, 3, 5, 4, 6),
         )
         with self.assertRaisesRegex(PrematchShirtSelectionError, "lacks source-backed"):
             club_shirt_state(SimpleNamespace(index=10, graphics_basename="Arsenal"))
