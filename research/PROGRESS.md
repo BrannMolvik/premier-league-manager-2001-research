@@ -12511,3 +12511,21 @@ continues with ordinary Squad row display-name/color helpers.
 - Exhaustive static direct-call enumeration still finds later reschedule producers at `0x4A801F` and `0x5E3C34`; season-long link immutability is therefore not claimed.
 - Authorized next implementation is a bounded clear/linked/unknown shadow contract with fail-closed invalidation after unmodelled post-start reschedule processing.
 
+## 2026-10-08 — Local original-style recovery reconciliation and Squad translation
+
+- Recovery branch reconciles main `36335b97` without merging to main or changing
+  agent-runtime. Preserve the continuous worker's Cup-Tied correction, reserve
+  state and source current-date line.
+- Direct canonical loader bytes disprove the 36px club-caption ownership claim:
+  `6043AA -> 839E94` is the 32px font path; `6043F2` binds `8F21B0`, passed
+  to the control at `430651`. Retain the already verified 32px font/geometry.
+- 165 focused integration tests pass, including an opt-in canonical-byte test.
+  New paired-Squad ordering/slot primitives pass six regressions and 100 offline
+  native preparation cases / 4,000 slot comparisons. No original game launch.
+- Native reserve/overflow preparation and live paired row owners still need
+  integration; this is not a completed Squad screen or an acceptance build.
+- Broad run has 6 failures/43 errors without Capstone; failed-module rerun with
+  the existing dependency narrows to the known four Gate-17 package-lock checks.
+  Full-suite success is not claimed. Asset policy passes; no proprietary dump,
+  emulation library, archive or executable is committed.
+

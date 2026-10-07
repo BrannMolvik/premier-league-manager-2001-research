@@ -21,6 +21,24 @@ Continue that source-backed producer integration and the private startup-FMV
 transport receipt; do not duplicate the parallel header-link task below.
 Gate 13 and the retrospective audit exit remain open. Integration verification:
 165 focused tests pass, including the opt-in canonical font-loader byte check.
+The subsequent bounded Squad ordering/slot module passes six more regressions
+and offline comparison of 100 canonical-function preparation cases / 4,000
+slots. It deliberately remains disconnected until the preceding reserve/overflow
+producer supplies source-qualified live state. See the paired-producer receipt.
+
+Broad integration run: 2,954 tests, 6 failures / 43 errors / 34 skips with
+Capstone absent from that subprocess environment. Rerunning all failed modules
+with the existing private Capstone path yielded 104 tests and only the known
+unchanged Gate-17 package-lock failures (3 failures / 1 error / 1 skip).
+The full suite is **not green**; this reconciliation does not claim otherwise.
+No later-gate production code is changed.
+
+A later 171-test focused run hit seven tool-sandbox temporary-directory write/
+cleanup denials. Those are recorded separately from application failures. The
+same tests now **pass: 171 tests / 69.269 seconds / zero skips**, using an
+explicitly authorized workspace-local temporary directory. Receipt:
+`work/recovery-membership-integration-focused-qualified-temp.log` outside Git.
+Do not count the earlier denied run as a successful validation.
 
 ---
 

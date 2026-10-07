@@ -34,9 +34,10 @@ ID, skill or database order. `407C00` is validation, not this sort producer.
 
 `4B785C` writes quota+11 to the output, then `4B79B3..4B79C3` conditionally
 adds the bounded remainder computed at `4B7870..4B78A9`. This value is an
-actual produced list boundary, not a universal literal 20. The exact ordered
-normalization/sorting branch sequence still needs executable-to-port tests
-before live membership integration; this note does not certify that mapping.
+actual produced list boundary, not a universal literal 20. The ordering/slot
+translation is now compared to bounded canonical instructions as recorded below;
+preceding reserve normalization still needs integration. This note does not
+certify live membership integration.
 
 Native predicate identity is explicit and club-qualified:
 
@@ -143,6 +144,75 @@ ordered branch translation and source state binding with tests, then perform
 the actual paired-list correction after the retrospective audit prerequisite.
 
 ## Reproduction
+
+### Offline executable comparison receipt — 8 October
+
+`original_squad_membership.py` implements the bounded `4B7500` preparation
+and `4B6FE0` slot translation without attaching them to the live host. Six
+regressions cover the three different ordering phases, stable equal roles,
+excess-selection clear/current-role restoration, paired slot placement,
+intentional XI/bench holes and refusal of guessed inputs.
+
+Private offline x86 comparison used Unicorn 2.1.4, canonical instruction
+bytes for only those two bounded functions, and explicit source-qualified leaf
+counter/predicate/quota/role/clear contracts. It completed **100** prepared
+roster cases and **4,000** first/reserve slot comparisons with exact matching
+ordered IDs, retained selection/current roles, D8 output and slot return values.
+Cases use quota 3/5 and roster counts 0..40: the inline +244 word-ID array
+ends at +294, where the native count resides. Inputs beyond 40 are rejected,
+not treated as native. Test-case generation uses a separate deterministic
+test seed; no game RNG, process, Windows API or original startup is invoked.
+
+Private `work/qualify-squad-membership.py` SHA-256:
+`f3ef3be3af2b7e1fb6fcef832ede1bbce25e71c9e6101c9563e24bc18206b7dc`.
+Receipt `work/squad-membership-native-comparison.log` SHA-256:
+`a813c31b5f6cf8fc42fa1f521f7d1c3b5d4cc3702ea2a56395c8a553b49a1d74`.
+Raw executable/instruction reports and the emulation dependency remain outside
+Git. This proves the bounded translation under those retained leaf contracts,
+not a complete native game execution or the preceding reserve producer.
+The mapper returns its raw native result; a caller must still resolve it through
+the qualified row factory/player lookup, not index Python tuples unchecked.
+
+**Exact remaining integration:** implement `4B7BD0 -> 40AB40/4067B0` source
+selection/role-byte changes in the ordinary owner, retain ordered roster mutation
+and output boundary, then feed both original row/empty-row owners. Do not call
+this module with database-first-20, guessed fresh selection or generic AI autofill.
+
+### Bounded ordered-membership implementation evidence — 8 October
+
+`4B7500` can be translated independently of the preceding native reserve
+autoselection, but it must never be run on an invented prepared roster.
+The input retains ordered word IDs, club-qualified exclusive selection enum,
+actual current role and preferred role (the latter is restored by `4181B0 ->
+4EA370` when excess selection is cleared). The function removes earliest
+excess members above XI=11, first bench=quota, reserve XI=11/reserve bench=3.
+It then recounts selections and repeatedly applies adjacent swaps:
+
+- `4B76E7..4B7831`: first-XI before first-bench before other members; within
+  either first-selected group swap only when the right role is **smaller**.
+- `4B78CB..4B799D`: only if the bounded unassigned addition is positive,
+  from the first-selected count onward, promote unassigned right members
+  ahead of reserve-selected left members; among unassigned members swap only
+  when the right role is **greater** (`4B7943 -> 4B7970`). Equal roles stay
+  stable. This is not a single ascending role sort.
+- `4B79F3..4B7BAC`: from first-selected count plus the addition onward,
+  reserve-XI precedes reserve-bench; each selected group has ascending role
+  with stable equality. Unselected tail entries are not otherwise sorted.
+
+The first-list D8 output is `11 + quota` plus a positive
+`min(unassigned_count, 20 - (11 + quota))`. Counts are recomputed after clears.
+The separate mapper `4B6FE0..4B7164` uses the actual virtual +C0 roster count,
+not 20, and subtracts missing XI/bench slots while preserving empty-row owners.
+The reserve mapper offsets its visible index by 20, then uses D8 and its own
+missing-selection corrections; its full-reserve-hole branch requires
+`roster_count >= quota + 25` exactly.
+
+Defect being fixed: the current host slices the first twenty database rows,
+which loses native ordering, hole placement and reserve-list ownership.
+Minimum adaptation: test this bounded producer and mapper with explicit source
+inputs; do not connect them live until `4B7BD0/40AB40/4067B0` supplies the actual
+prepared state. No scrolling, guessed split, runtime selection/RNG mutation,
+or fallback capacity is introduced. Unknown preparation remains a live blocker.
 
 Run the repository's existing hash-gated `gate13_squad_source_trace.py` with
 the canonical private executable, `--disassemble`, and `--output` outside Git.
