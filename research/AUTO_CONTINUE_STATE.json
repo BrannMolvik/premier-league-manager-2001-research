@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 405: PR #552 merged verified original Zurich 36px font + live generic Club.name at main 08ad7e9; canonical status/docs checkpoint 5b8fafe. Next cloud-safe Gate-13 task is per-first-parent classification of post-#482 main commits after b890c578 while awaiting private Windows --transport-probe-only HWND/DPI receipt and external visual/latency acceptance. Audit remains open; continue Gate 17 mission.",
-  "last_known_main_head": "5b8fafe123ed601377ff44886f39cd27845453da",
+  "active_task": "Recovery 405 canonical main efa925d: PR #552 merged with four green workflows; exact Zurich 36px font live Club.name binding and source tests done. Post-b890 first-parent 36-row ledger classified through 5b8fafe. Earliest incomplete Gate13 remains externally blocked on real Windows --transport-probe-only HWND/DPI FMV receipt plus normal Windows visual/latency acceptance. Continue cloud-safe evidence-backed source work where independent; never infer external acceptance or mark Gate17 complete.",
+  "last_known_main_head": "efa925d812d52e5f2a41ce326961e98e0d805285",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 405,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Four PR #552 workflows success, exact head 970ea1c (asset 37700777454, gate13 37700777378, package 37700777327, full 37700777348). Runtime working; no further CI without milestone.",
+  "note": "Audit counts 9 bounded original-proven, 1 compatibility-equivalent, 1 inconclusive/fail-closed, 25 research-only. PR #552 code exact head 970ea1c full run 37700777348 success; no new CI after verified milestone. Preserve cost-controlled cadence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
