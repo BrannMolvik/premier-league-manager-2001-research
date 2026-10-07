@@ -1,0 +1,62 @@
+name: Gate 17 static contributor source bundle
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/gate17-source-material-bundle.yml"
+      - "third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json"
+      - "reconstruction/gate17_source_material_bundle.py"
+      - "reconstruction/test_gate17_source_material_bundle.py"
+  workflow_dispatch:
+
+concurrency:
+  group: gate17-source-bundle-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  source-bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Run focused source-bundle contract tests
+        working-directory: reconstruction
+        run: python -m unittest -v test_gate17_source_material_bundle
+
+      - name: Audit source-bundle scope
+        run: |
+          python reconstruction/gate17_source_material_bundle.py \
+            --repo-root "." \
+            --output-dir "_gate17-source-material" \
+            --preflight-only
+
+      - name: Materialize exact contributor source packages
+        run: |
+          python reconstruction/gate17_source_material_bundle.py \
+            --repo-root "." \
+            --output-dir "_gate17-source-material"
+
+      - name: Verify artifact contains exactly four source packages
+        run: |
+          test "$(find _gate17-source-material/source-packages -maxdepth 1 -type f -name '*.src.tar.zst' | wc -l)" -eq 4
+          test -s _gate17-source-material/source-package-manifest.json
+
+      - name: Upload exact source-material checkpoint
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gate17-static-contributor-source-bundle-${{ github.event.pull_request.head.sha || github.sha }}
+          path: _gate17-source-material/
+          if-no-files-found: error
+          retention-days: 14
