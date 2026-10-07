@@ -15,12 +15,14 @@ from gate14_prematch_rating_widths import PrematchTeamRatingWidths
 from gate14_prematch_surface import (
     BoundPrematchPlayerRows,
     BoundPrematchRatingRows,
+    BoundPrematchSelectorFrames,
     PrematchSurfaceBoundary,
     PrematchSurfaceError,
     bind_prematch_player_rows,
     bind_prematch_dynamic_text_state,
     bind_prematch_rating_state,
     bind_prematch_rating_widths,
+    bind_prematch_selector_frames,
     build_verified_prematch_surface_boundary,
     prematch_surface_contract,
     prematch_child_family_coverage,
@@ -78,6 +80,11 @@ def fake_surfaced_resources(selection):
     )
 
 
+class FakeSelectorAtlas:
+    def frame(self, source_index):
+        return SimpleNamespace(source_index=source_index)
+
+
 class FakePrematchResources:
     def __init__(self):
         self._decoded = {
@@ -88,7 +95,7 @@ class FakePrematchResources:
             )
             for spec in PREMATCH_ALL_EA444_SPECS
         }
-        self.selector_atlas = object()
+        self.selector_atlas = FakeSelectorAtlas()
         self.font = object()
 
     def decoded(self, source_path):
@@ -474,6 +481,67 @@ class PrematchSurfaceTests(unittest.TestCase):
                 right_players=right,
             )
 
+    def test_selector_binding_requires_explicit_native_frame_state(self):
+        selection = self._selection()
+        surfaced = fake_surfaced_resources(selection)
+        with (
+            patch(
+                "gate14_prematch_surface.build_fastview_surfaced_resource_selection",
+                return_value=selection,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_fastview_surfaced_resources",
+                return_value=surfaced,
+            ),
+            patch(
+                "gate14_prematch_surface.load_verified_original_prematch_resources",
+                return_value=FakePrematchResources(),
+            ),
+        ):
+            boundary = build_verified_prematch_surface_boundary(
+                match_date=date(2001, 1, 13),
+                clubs=self.clubs,
+                countries=self.countries,
+                home_club_id=10,
+                away_club_id=11,
+                background_club_override_id=None,
+                source_root="/source",
+                original_executable="/source/FOOTBAL.EXE",
+            )
+
+        bound = bind_prematch_selector_frames(
+            boundary,
+            source_frame_indices=(0, 10, 11, 22),
+        )
+        self.assertIsInstance(bound, BoundPrematchSelectorFrames)
+        self.assertEqual(
+            tuple(item.source.mode for item in bound.selectors),
+            (0, 1, 2, 3),
+        )
+        self.assertEqual(
+            tuple(item.source_frame_index for item in bound.selectors),
+            (0, 10, 11, 22),
+        )
+        self.assertEqual(
+            tuple(item.frame.source_index for item in bound.selectors),
+            (0, 10, 11, 22),
+        )
+        self.assertTrue(bound.supplied_pointer_update_state_bound)
+        self.assertFalse(bound.persistent_selected_visual)
+        self.assertFalse(bound.complete_prematch_frame)
+        self.assertFalse(bound.gate14_complete)
+
+        with self.assertRaisesRegex(PrematchSurfaceError, "one native frame index"):
+            bind_prematch_selector_frames(
+                boundary,
+                source_frame_indices=(0, 1, 2),
+            )
+        with self.assertRaisesRegex(PrematchSurfaceError, "0..22"):
+            bind_prematch_selector_frames(
+                boundary,
+                source_frame_indices=(0, 1, 2, 23),
+            )
+
     def test_rating_rows_expose_geometry_and_pixels_without_inventing_meanings_or_widths(self):
         selection = self._selection()
         surfaced = fake_surfaced_resources(selection)
@@ -748,6 +816,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertTrue(contract["player_row_display_name_reuses_source_formatter"])
         self.assertTrue(contract["player_row_shirt_number_reuses_source_formatter"])
         self.assertTrue(contract["selector_visual_state_source_closed"])
+        self.assertTrue(contract["selector_supplied_frame_binding_available"])
         self.assertFalse(contract["selector_persistent_selected_visual"])
         self.assertEqual(contract["selector_modes"], (0, 1, 2, 3))
         self.assertEqual(contract["selector_events"], (4, 3, 2, 1))
