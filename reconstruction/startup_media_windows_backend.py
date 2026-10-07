@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import base64
 import ctypes
+import json
 import os
 from pathlib import Path
 import platform
@@ -153,6 +154,9 @@ class WindowsMciStartupMediaBackend:
                     pass
 
 
+_TRANSPORT_RECEIPT_PREFIX = "FM2001_TRANSPORT_RECEIPT:"
+
+
 _WPF_PLAYBACK_SCRIPT = r"""
 Add-Type -AssemblyName PresentationFramework
 
@@ -168,6 +172,10 @@ $xText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_X', 'Proces
 $yText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_Y', 'Process')
 $widthText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_WIDTH', 'Process')
 $heightText = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_MEDIA_HEIGHT', 'Process')
+$captureTransport = [Environment]::GetEnvironmentVariable(
+    'FM2001_STARTUP_CAPTURE_TRANSPORT',
+    'Process'
+)
 
 if ([string]::IsNullOrWhiteSpace($path) -or -not [IO.File]::Exists($path)) {
     exit 2
@@ -246,6 +254,164 @@ $media.Add_Loaded({
 
 [void]$grid.Children.Add($media)
 $source.RootVisual = $grid
+
+if ($captureTransport -eq '1') {
+    try {
+        Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+
+public static class FM2001TransportProbe {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RECT {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT {
+        public int X;
+        public int Y;
+    }
+
+    [DllImport("user32.dll", SetLastError=true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+
+    [DllImport("user32.dll", SetLastError=true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetClientRect(IntPtr hWnd, out RECT rect);
+
+    [DllImport("user32.dll", SetLastError=true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool ClientToScreen(IntPtr hWnd, ref POINT point);
+
+    [DllImport("user32.dll")]
+    public static extern uint GetDpiForWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetWindowDpiAwarenessContext(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetThreadDpiAwarenessContext();
+
+    [DllImport("user32.dll")]
+    public static extern int GetAwarenessFromDpiAwarenessContext(IntPtr value);
+}
+"@
+
+        $parentHwnd = [IntPtr]::new($parentValue)
+        $childHwnd = $source.Handle
+        if ($childHwnd -eq [IntPtr]::Zero) {
+            throw "HwndSource did not expose a child HWND"
+        }
+
+        $parentWindowRect = New-Object FM2001TransportProbe+RECT
+        $childWindowRect = New-Object FM2001TransportProbe+RECT
+        $parentClientRect = New-Object FM2001TransportProbe+RECT
+        $childClientRect = New-Object FM2001TransportProbe+RECT
+        $parentClientOrigin = New-Object FM2001TransportProbe+POINT
+        $childClientOrigin = New-Object FM2001TransportProbe+POINT
+
+        if (-not [FM2001TransportProbe]::GetWindowRect($parentHwnd, [ref]$parentWindowRect)) {
+            throw "GetWindowRect(parent) failed"
+        }
+        if (-not [FM2001TransportProbe]::GetWindowRect($childHwnd, [ref]$childWindowRect)) {
+            throw "GetWindowRect(child) failed"
+        }
+        if (-not [FM2001TransportProbe]::GetClientRect($parentHwnd, [ref]$parentClientRect)) {
+            throw "GetClientRect(parent) failed"
+        }
+        if (-not [FM2001TransportProbe]::GetClientRect($childHwnd, [ref]$childClientRect)) {
+            throw "GetClientRect(child) failed"
+        }
+        if (-not [FM2001TransportProbe]::ClientToScreen($parentHwnd, [ref]$parentClientOrigin)) {
+            throw "ClientToScreen(parent) failed"
+        }
+        if (-not [FM2001TransportProbe]::ClientToScreen($childHwnd, [ref]$childClientOrigin)) {
+            throw "ClientToScreen(child) failed"
+        }
+
+        $parentContext = [FM2001TransportProbe]::GetWindowDpiAwarenessContext($parentHwnd)
+        $childContext = [FM2001TransportProbe]::GetWindowDpiAwarenessContext($childHwnd)
+        $threadContext = [FM2001TransportProbe]::GetThreadDpiAwarenessContext()
+
+        $receipt = [ordered]@{
+            parent_hwnd = $parentValue
+            child_hwnd = $childHwnd.ToInt64()
+            requested_child_rect = [ordered]@{
+                x = $x
+                y = $y
+                width = $width
+                height = $height
+            }
+            parent_window_rect = [ordered]@{
+                left = $parentWindowRect.Left
+                top = $parentWindowRect.Top
+                right = $parentWindowRect.Right
+                bottom = $parentWindowRect.Bottom
+                width = $parentWindowRect.Right - $parentWindowRect.Left
+                height = $parentWindowRect.Bottom - $parentWindowRect.Top
+            }
+            parent_client_rect = [ordered]@{
+                left = $parentClientRect.Left
+                top = $parentClientRect.Top
+                right = $parentClientRect.Right
+                bottom = $parentClientRect.Bottom
+                width = $parentClientRect.Right - $parentClientRect.Left
+                height = $parentClientRect.Bottom - $parentClientRect.Top
+            }
+            parent_client_origin_screen = [ordered]@{
+                x = $parentClientOrigin.X
+                y = $parentClientOrigin.Y
+            }
+            child_window_rect = [ordered]@{
+                left = $childWindowRect.Left
+                top = $childWindowRect.Top
+                right = $childWindowRect.Right
+                bottom = $childWindowRect.Bottom
+                width = $childWindowRect.Right - $childWindowRect.Left
+                height = $childWindowRect.Bottom - $childWindowRect.Top
+            }
+            child_client_rect = [ordered]@{
+                left = $childClientRect.Left
+                top = $childClientRect.Top
+                right = $childClientRect.Right
+                bottom = $childClientRect.Bottom
+                width = $childClientRect.Right - $childClientRect.Left
+                height = $childClientRect.Bottom - $childClientRect.Top
+            }
+            child_client_origin_screen = [ordered]@{
+                x = $childClientOrigin.X
+                y = $childClientOrigin.Y
+            }
+            child_offset_from_parent_client = [ordered]@{
+                x = $childWindowRect.Left - $parentClientOrigin.X
+                y = $childWindowRect.Top - $parentClientOrigin.Y
+            }
+            parent_dpi = [int][FM2001TransportProbe]::GetDpiForWindow($parentHwnd)
+            child_dpi = [int][FM2001TransportProbe]::GetDpiForWindow($childHwnd)
+            parent_dpi_awareness_context = $parentContext.ToInt64()
+            child_dpi_awareness_context = $childContext.ToInt64()
+            probe_thread_dpi_awareness_context = $threadContext.ToInt64()
+            parent_dpi_awareness = [int][FM2001TransportProbe]::GetAwarenessFromDpiAwarenessContext($parentContext)
+            child_dpi_awareness = [int][FM2001TransportProbe]::GetAwarenessFromDpiAwarenessContext($childContext)
+            probe_thread_dpi_awareness = [int][FM2001TransportProbe]::GetAwarenessFromDpiAwarenessContext($threadContext)
+        }
+        $json = $receipt | ConvertTo-Json -Compress -Depth 5
+        [Console]::Out.WriteLine('FM2001_TRANSPORT_RECEIPT:' + $json)
+    } catch {
+        [Console]::Error.WriteLine(
+            'FM2001 startup transport probe failed: ' + $_.Exception.Message
+        )
+        $source.RootVisual = $null
+        $source.Dispose()
+        exit 4
+    }
+}
+
 [Windows.Threading.Dispatcher]::PushFrame($script:frame)
 
 try { $media.Stop() } catch {}
@@ -276,6 +442,7 @@ class WindowsWpfStartupMediaBackend:
         runner: Callable[..., object] = subprocess.run,
         powershell_executable: str = "powershell.exe",
         process_factory: Callable[..., object] = subprocess.Popen,
+        capture_transport_receipts: bool = False,
     ):
         system = platform.system() if platform_system is None else platform_system
         if system != "Windows":
@@ -295,6 +462,12 @@ class WindowsWpfStartupMediaBackend:
         self._parent_hwnd = None
         self._presentation_rect = None
         self._event_pump = None
+        if type(capture_transport_receipts) is not bool:
+            raise WindowsStartupMediaBackendError(
+                "transport-receipt capture flag must be boolean"
+            )
+        self._capture_transport_receipts = capture_transport_receipts
+        self._transport_receipts = []
         if not callable(process_factory):
             raise WindowsStartupMediaBackendError("Windows player process factory must be callable")
         self._process_factory = process_factory
@@ -359,6 +532,117 @@ class WindowsWpfStartupMediaBackend:
         self._parent_hwnd = parent_hwnd
         self._presentation_rect = (x, y, width, height)
 
+    def enable_transport_receipt_capture(self) -> None:
+        """Enable diagnostic-only HWND/DPI capture for subsequent playback."""
+        self._capture_transport_receipts = True
+        self._transport_receipts.clear()
+
+    @property
+    def transport_receipts(self) -> tuple[dict, ...]:
+        """Return detached copies of diagnostic transport evidence."""
+        return tuple(json.loads(json.dumps(row)) for row in self._transport_receipts)
+
+    @staticmethod
+    def _require_int_mapping(payload: dict, key: str, fields: tuple[str, ...]) -> dict:
+        value = payload.get(key)
+        if type(value) is not dict or any(type(value.get(field)) is not int for field in fields):
+            raise WindowsStartupMediaBackendError(
+                f"startup-media transport receipt has invalid {key}"
+            )
+        return value
+
+    def _record_transport_receipt(
+        self,
+        completed,
+        item: VerifiedStartupMediaDerivative,
+    ) -> None:
+        if not self._capture_transport_receipts:
+            return
+        stdout = str(getattr(completed, "stdout", "") or "")
+        lines = [
+            line[len(_TRANSPORT_RECEIPT_PREFIX):]
+            for line in stdout.splitlines()
+            if line.startswith(_TRANSPORT_RECEIPT_PREFIX)
+        ]
+        if len(lines) != 1:
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport probe did not return exactly one receipt"
+            )
+        try:
+            payload = json.loads(lines[0])
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport receipt is not valid JSON"
+            ) from exc
+        if type(payload) is not dict:
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport receipt must be a JSON object"
+            )
+
+        for key in (
+            "parent_hwnd",
+            "child_hwnd",
+            "parent_dpi",
+            "child_dpi",
+            "parent_dpi_awareness_context",
+            "child_dpi_awareness_context",
+            "probe_thread_dpi_awareness_context",
+            "parent_dpi_awareness",
+            "child_dpi_awareness",
+            "probe_thread_dpi_awareness",
+        ):
+            if type(payload.get(key)) is not int:
+                raise WindowsStartupMediaBackendError(
+                    f"startup-media transport receipt has invalid {key}"
+                )
+        if payload["parent_hwnd"] <= 0 or payload["child_hwnd"] <= 0:
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport receipt has invalid HWND"
+            )
+        if payload["parent_dpi"] <= 0 or payload["child_dpi"] <= 0:
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport receipt has invalid window DPI"
+            )
+
+        requested = self._require_int_mapping(
+            payload, "requested_child_rect", ("x", "y", "width", "height")
+        )
+        if (
+            requested["x"] < 0
+            or requested["y"] < 0
+            or requested["width"] <= 0
+            or requested["height"] <= 0
+        ):
+            raise WindowsStartupMediaBackendError(
+                "startup-media transport receipt has invalid requested child geometry"
+            )
+
+        for key in (
+            "parent_window_rect",
+            "parent_client_rect",
+            "child_window_rect",
+            "child_client_rect",
+        ):
+            rect = self._require_int_mapping(
+                payload,
+                key,
+                ("left", "top", "right", "bottom", "width", "height"),
+            )
+            if rect["width"] <= 0 or rect["height"] <= 0:
+                raise WindowsStartupMediaBackendError(
+                    f"startup-media transport receipt has invalid {key} dimensions"
+                )
+        for key in (
+            "parent_client_origin_screen",
+            "child_client_origin_screen",
+            "child_offset_from_parent_client",
+        ):
+            self._require_int_mapping(payload, key, ("x", "y"))
+
+        payload["sequence"] = int(item.sequence)
+        payload["source_path"] = str(item.spec.source_path)
+        self._transport_receipts.append(payload)
+
     @staticmethod
     def _encoded_script() -> str:
         return base64.b64encode(
@@ -396,6 +680,8 @@ class WindowsWpfStartupMediaBackend:
         env["FM2001_STARTUP_MEDIA_Y"] = str(y)
         env["FM2001_STARTUP_MEDIA_WIDTH"] = str(width)
         env["FM2001_STARTUP_MEDIA_HEIGHT"] = str(height)
+        if self._capture_transport_receipts:
+            env["FM2001_STARTUP_CAPTURE_TRANSPORT"] = "1"
         command = (
             self._powershell_executable,
             "-NoProfile",
@@ -432,4 +718,5 @@ class WindowsWpfStartupMediaBackend:
                 f"Windows WPF startup-media playback failed with exit code "
                 f"{returncode}{detail}"
             )
+        self._record_transport_receipt(completed, item)
         return True
