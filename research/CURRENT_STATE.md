@@ -1,3 +1,26 @@
+# Recovery 402 — bounded direct fixed-League management header integrated and verified
+
+_Updated 8 October 2026._
+
+Canonical `main` is now `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`. **Gate 13 remains the earliest incomplete validation gate.**
+
+Recovery 402 implemented the source-closed direct fixed-League management-header selector without broadening it into a generic next-fixture search. The primary schedule shadow now carries explicit wrapper-link certainty (`clear / linked / unknown`). Fresh startup wrappers are source-known clear; explicit linked wrappers are skipped; relevant symbolic, unsupported, or unknown states fail closed. Every clean-room GameState day-advance route invalidates previously clear wrapper-link certainty because the original post-start reschedule producers at `0x4A801F` and `0x5E3C34` are not yet modeled.
+
+The management source bridge now binds only an exact clear direct first-season Premier League fixture, verifies schedule token/date/participants against the live fixture state, and carries the result through the original-management presenter. The host renders the recovered conditional central-header controls at y=34/y=51 using the exact staged Zurich 18px font, source style `0x2102`, white endpoint, source competition name, short club names and native two-digit-year date formatting. Unsupported or post-invalidation cases render no invented match line.
+
+Validation PR #547 head `d54184a0767416cb51d756f8edcc45a82d272677` passed:
+- Gate 13 presentation source tests: run `37679247332`;
+- full reconstruction suite: run `37679247185`, **2,915 tests, 25 skipped, zero failures**;
+- repository asset policy: run `37679247320`.
+
+PR #547 merged as `97f8ecb3d39addbe3d036016bc52a05a91eb8c83`.
+
+The remaining ordinary central-header omission is the primary club-name line at `(172,1,378,32)`. Its behavior is already source-closed: `Club.name`, raw style `0x2102`, native white endpoint and exact `Fonts/Zurich_BdXCn_BT_36pixel.fnt`. The authorized bytes have been re-extracted again and verified at 155,544 bytes / SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, but the binary is not yet staged in Git. Do not substitute another font.
+
+**Exact next task:** stage the byte-identical 36px Zurich font through a binary-safe Git path, add provenance, render the club-name control using the already recovered alignment/clipping semantics, and add a fresh Southport regression. Then continue the Gate-13 retrospective audit. The private Windows startup-FMV parent/child HWND/DPI transport receipt remains a separate external blocker; do not change source movie geometry without that receipt. No new external acceptance build or Gate-17 work-ahead is authorized before the audit exit criteria pass.
+
+---
+
 # Recovery 401 — fresh direct wrapper-link state closed; bounded integration authorized
 
 _Updated 8 October 2026._
