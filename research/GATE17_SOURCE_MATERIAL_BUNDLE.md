@@ -17,8 +17,4 @@ each downloaded source package and uploads the four tarballs plus a deterministi
 JSON manifest as a CI artifact. Third-party source archives remain outside Git.
 
 This checkpoint deliberately does **not** promote
-`source_material_complete` or `legal_compliance_claimed`. The first
-successful artifact must be reviewed and its hashes pinned before the bundle is
-reproducible against mirror drift. Actual license/notice texts must then be
-identified and assembled from the relevant source/package material, and a
-separate legal/compliance review remains required.
+`source_material_complete` or `legal_compliance_claimed`. The first successful artifact was reviewed and the four source-package hashes and byte sizes are now pinned in `TOOLCHAIN-CONTRACT.json`; future materialization fails closed on mirror drift. Actual license/notice texts must still be identified and assembled from the relevant source/package material, and a separate legal/compliance review remains required.
