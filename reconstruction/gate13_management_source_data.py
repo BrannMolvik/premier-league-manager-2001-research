@@ -49,6 +49,8 @@ class SquadRowView:
     assigned_role_abbreviation: str
     match_active: bool
     match_substitute_available: bool
+    reserve_active: bool
+    reserve_substitute_available: bool
     match_unavailable: bool
     condition: int
     form_state: int
@@ -1005,6 +1007,10 @@ class ManagementSourceDataBridge:
             match_substitute_available = getattr(
                 player, "match_substitute_available", None
             )
+            reserve_active = getattr(player, "reserve_active", None)
+            reserve_substitute_available = getattr(
+                player, "reserve_substitute_available", None
+            )
             history_average = getattr(player, "match_performance_average", None)
             current_role_rating = getattr(player, "current_role_rating", None)
             current_position = getattr(player, "current_position", None)
@@ -1014,9 +1020,14 @@ class ManagementSourceDataBridge:
                 raise ManagementPresentationError(
                     f"Player {player_id} lacks recovered source name fields"
                 )
-            if type(match_active) is not bool or type(match_substitute_available) is not bool:
+            if (
+                type(match_active) is not bool
+                or type(match_substitute_available) is not bool
+                or type(reserve_active) is not bool
+                or type(reserve_substitute_available) is not bool
+            ):
                 raise ManagementPresentationError(
-                    f"Player {player_id} lacks recovered first-team selection state"
+                    f"Player {player_id} lacks recovered five-state selection state"
                 )
             if (
                 not isinstance(positions, tuple)
@@ -1176,6 +1187,8 @@ class ManagementSourceDataBridge:
                 assigned_role_abbreviation=abbreviation,
                 match_active=match_active,
                 match_substitute_available=match_substitute_available,
+                reserve_active=reserve_active,
+                reserve_substitute_available=reserve_substitute_available,
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
