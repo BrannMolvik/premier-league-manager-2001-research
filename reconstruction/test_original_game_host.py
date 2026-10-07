@@ -1194,6 +1194,21 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[1][:2], (629, 0))
         self.assertEqual(host.canvas.images[2][:2], (681, 62))
 
+    def test_management_header_binds_fresh_club_caption_to_native_control(self):
+        from dataclasses import replace
+        from original_management_club_caption import load_verified_management_club_font
+        source = Path(__file__).resolve().parents[1] / 'original_assets/source'
+        resources = replace(fake_management_header_resources(),
+                            club_font=load_verified_management_club_font(source))
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk,
+                                  management_header_resources=resources)
+        host.canvas.delete('all')
+        club = ClubHeaderView(1, 'Southport', 'Southport', date(2000, 7, 1),
+                              native_user_club_caption='')
+        self.assertEqual(host._draw_management_header(club), 4)
+        self.assertEqual(host.canvas.images[-1][:2], (460, 1))
+        self.assertEqual(host._draw_management_header(replace(club, native_user_club_caption=None)), 3)
+
     def test_management_header_hover_uses_one_idle_update_per_pass(self):
         live = presenter()
         root = FakeRoot()

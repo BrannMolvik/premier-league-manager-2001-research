@@ -34,6 +34,7 @@ class ClubHeaderView:
     graphics_directory: str = ''
     fan_base_index: int = 0
     competition_id: int = -1
+    native_user_club_caption: str | None = None
 
 
 @dataclass(frozen=True)
@@ -985,6 +986,11 @@ class ManagementSourceDataBridge:
             ),
             fan_base_index=getattr(club, 'fan_base_index', 0),
             competition_id=getattr(club, 'competition_id', -1),
+            # Native fresh-user constructor 424F3F writes byte +D0 = 0;
+            # setup 4258D0 and registration 426090 preserve that buffer.
+            # The ordinary reconstructed host has no user-club rename/import
+            # producer. Do not infer this for arbitrary legacy view fixtures.
+            native_user_club_caption='',
         )
 
     @staticmethod

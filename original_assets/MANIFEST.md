@@ -225,6 +225,7 @@ Forms:
 | original_assets/source/FM2001_Art/Coaching/stats/stats_grid_disabled.444 | FM2001_Art/Coaching/stats/stats_grid_disabled.444 | 4fe16ef35b5ee5da748c9de81a14897e162d2d15e73cd143190dfb97a23822a7 | original | Gate-13 PSquadList's 20 row pictures, native 4B520F..4B5670, raw 942FF0 / wrapper 942FD0; full source 729x16, runtime crop 328x16, 12324 bytes. Byte-identical authorized source ZIP 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
 
 - **original** - byte-identical extracted source asset;
+| original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt | Fonts/Zurich_BdXCn_BT_32pixel.fnt | 27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36 | original | Byte-identical authorized ZIP 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4; 136128 bytes, atlas 2422x34, native line height 37. Canonical executable loader 6043AA..6043F7 loads font object 8F21B0; application+2A4 setup 43062D and refresh 432B44 bind the management club title. |
 - **converted** - derived from the original solely for modern compatibility;
 - **adapted** - original content incorporated into a modern container/representation.
 

@@ -85,6 +85,7 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_club_caption import management_club_caption_pixels
 from original_management_text import (
     OriginalManagementTextResources,
     league_tables_row_text_overlays,
@@ -1165,7 +1166,7 @@ class OriginalGameTkHost:
         if self.management_header_state.update():
             self.redraw()
 
-    def _draw_management_header(self) -> int:
+    def _draw_management_header(self, club=None) -> int:
         resources = self.management_header_resources
         if resources is None:
             return 0
@@ -1194,6 +1195,16 @@ class OriginalGameTkHost:
             anchor=self.tk.NW,
         )
         count += 1
+        if club is not None and resources.club_font is not None:
+            pixels = management_club_caption_pixels(
+                resources.club_font, club.name, club.native_user_club_caption
+            )
+            if pixels is not None:
+                x, y, width, height, rgba = pixels
+                self._create_native_image(
+                    x, y, image=self._rgba_photo(width, height, rgba), anchor=self.tk.NW
+                )
+                count += 1
         self._schedule_management_header_update()
         return count
 
@@ -1546,7 +1557,7 @@ class OriginalGameTkHost:
                 photo = self._rgba_photo(image.width, image.height, image.rgba)
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
-        header_image_count = self._draw_management_header()
+        header_image_count = self._draw_management_header(frame.presentation.club)
         squad_image_count = self._draw_squad_top_controls(frame)
         squad_image_count += self._draw_squad_rows(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)

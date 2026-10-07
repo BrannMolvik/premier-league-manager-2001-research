@@ -55,6 +55,19 @@ class StagedRasterTests(unittest.TestCase):
             self.assertEqual(first, EA444DecodedImage(2, 1, self.rgba, 123, 1))
             self.assertIs(first, self.decode())
 
+    def test_identical_source_alias_requires_identical_pixels_and_decode_metadata(self):
+        payload = lzma.compress(self.rgba * 2)
+        self.manifest['payload_size'] = len(self.rgba) * 2
+        self.manifest['payload_xz_sha256'] = sha256(payload).hexdigest()
+        self.manifest['images'].append(dict(self.manifest['images'][0], offset=8))
+        (self.root / 'payload.bin.xz').write_bytes(payload)
+        self.pin_manifest()
+        self.assertEqual(self.decode(), EA444DecodedImage(2, 1, self.rgba, 123, 1))
+        self.manifest['images'][1]['consumed_bits'] = 124
+        self.pin_manifest()
+        with self.assertRaisesRegex(staged.StagedRasterError, 'alias'):
+            self.decode()
+
     def test_unknown_sources_use_original_decoder_not_another_cached_image(self):
         expected = object()
         with patch.object(staged, 'decode_ea444', return_value=expected) as decoder:

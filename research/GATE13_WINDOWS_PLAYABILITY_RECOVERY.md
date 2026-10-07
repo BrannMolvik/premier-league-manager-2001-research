@@ -61,7 +61,40 @@ text/art changes do not reuse stale pixels. The closed popup is not rasterized.
 
 Private evidence: `work/playability-{before,final-staged}.{json,profile.txt,log}`,
 `work/gate13-rasters-expanded.log`, `work/playability-staged-focused.log`.
-The full reconstruction regression and final build checks are still pending.
+The full reconstruction regression and final build checks are recorded below
+when complete; offline profiling does not qualify Windows acceptance.
+
+## Missing management club title: bounded producer and presentation repair
+
+The host omitted application-owned TextControl+2A4, despite drawing the MENU
+compound. Canonical executable SHA-256 is
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+Setup `43062D..430668` binds font object `8F21B0`, rect `(172,1,378,32)`,
+flags `2102`, color `FFFF`. Loader `6043AA..6043F7` names the original
+`Fonts/Zurich_BdXCn_BT_32pixel.fnt`, not a modern substitute. Its authorized
+archive extraction is 136128 bytes, SHA-256
+`27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36`,
+atlas 2422x34, native line height 37.
+
+Refresh `432B44..432B66` reads current user+5B4 -> `40DA50`. That getter
+prefers `403600`'s nonempty user+D0 caption, otherwise DBRClub+8 source name.
+TeamSelect `4D8EEC -> 413BB0` creates the user through `424CA0`; `424F3F`
+explicitly writes byte+D0=0. The traced setup `4258D0..425F8C`, registration
+`426090..42621D` and directly relevant `42C400` / `42C6B0` retain it, rather
+than assuming allocator bytes. The current ordinary reconstructed host has
+no renamed/imported-user-caption producer. The live bridge explicitly retains
+the proven fresh empty caption; unknown legacy view contexts remain withheld.
+
+`6522A4..6522BB` right-aligns by measured source-font width. `65230B..65232A`
+uses half control height minus half native line height, giving y=-1 before
+control clipping, not visual centering by glyph bounds. Southport is 90px wide;
+the clipped layer is `(460,1,90,32)`. Production loads the hash-qualified font,
+and draws this layer through the ordinary management host's existing scaled
+RGBA cache. No guessed date/header statistic, roster selector or advance/play
+control is introduced. Unit tests cover explicit custom-caption precedence,
+unknown-context withholding, exact alignment/clipping, packaged font identity
+and live host binding. Private trace receipts remain outside Git:
+`work/management-title-{fresh-user,setup-qualified,final}.txt`.
 
 ## Regression comparison / acceptance limit
 

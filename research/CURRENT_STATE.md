@@ -7,6 +7,16 @@ assignment is playability recovery only; the worker's Settings and later-gate
 work remains preserved but outside this local task. The previously denied
 unsigned extracted executable is not retried through another launch route.
 
+Checkpoint `723d189b` fixes measured synchronous cold EA444 decode and repeated
+PNG encoding before cache lookup using a hash-pinned, lossless 33-resource
+derivative. Inert-widget production-path profiling: New Game 19.027 -> 0.844s,
+first Squad draw 15.881 -> 0.076s, redraw 0.139–0.193 -> 0.017–0.018s.
+These are not frozen/Tk acceptance timings. The follow-on source-qualified
+application+2A4 club title binds the exact original 32px Zurich font and
+fresh-user+D0 constructor state. Unknown imported/custom context stays closed.
+See `GATE13_WINDOWS_PLAYABILITY_RECOVERY.md` for proof, validation and remaining
+ordinary management interaction/Windows trust blockers. Gate 13 remains open.
+
 ---
 
 # Local Gate-13 play-test follow-up - 7 October 2026

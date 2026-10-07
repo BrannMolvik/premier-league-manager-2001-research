@@ -22,6 +22,7 @@ from ea444_header import parse_ea444_header
 from ea444_quantization import quantization_from_verified_executable
 from ea444_tables import tables_from_original_executable
 from ea_font import EAFont
+from original_management_club_caption import load_verified_management_club_font
 
 
 class OriginalManagementHeaderError(ValueError):
@@ -104,6 +105,7 @@ class OriginalManagementHeaderResources:
     left_anim: EA444DecodedImage
     right_state: EA444DecodedImage
     font: EAFont
+    club_font: EAFont | None = None
 
     def __post_init__(self) -> None:
         if (self.left_anim.width, self.left_anim.height) != HEADER_LEFT_RESOURCE.size:
@@ -221,7 +223,9 @@ def load_verified_management_header_resources(
     quant = quantization_from_verified_executable(executable)
     left = decode_ea444(left_raw, tables=tables, quant=quant)
     right = decode_ea444(right_raw, tables=tables, quant=quant)
-    return OriginalManagementHeaderResources(left, right, font)
+    return OriginalManagementHeaderResources(
+        left, right, font, load_verified_management_club_font(root)
+    )
 
 
 def _crop_frame(image: EA444DecodedImage, source_row: int) -> bytes:
