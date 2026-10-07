@@ -994,3 +994,36 @@ No PPreMatch text pixel claim is made by this checkpoint. The exact next task is
 to rasterize the already bound strings with these exact fonts, native white
 `0xFFFF`, source alignment and control clipping, then integrate those child
 pixels into the supplied 0..181 frame order.
+
+
+## Recovery 375 correction — right rating is a shrinking mask, not a mirrored overlay
+
+A direct re-read of the PPreMatch constructor and refresh path supersedes the
+earlier clean-room interpretation of the right-side dynamic rating rectangle.
+
+The native four-layer structure per rating row is:
+
+1. full left base: `rating_bar_right.444` at x=65, width 171;
+2. full right base: `rating_bar_right2.444` at x=564, width 171;
+3. left dynamic overlay: `rating_bar_left.444`, starting x=65, with width
+   equal to the side-0 rating result;
+4. right dynamic **mask**: `rating_bar_right.444`, initially x=564..735.
+
+For the right mask, refresh computes the side-1 rating width and changes only
+the control's right edge from 735 to `735 - rating_width`. The left edge stays
+at x=564. `0x653350`, called immediately afterward with a copy of the old
+rectangle, is an invalidation/redraw helper and does not set the child geometry.
+
+Therefore the final right mask is:
+
+`(564, y, 171 - rating_width, 16)`
+
+and the rating width itself is the rightmost portion of the underlying
+`rating_bar_right2` base that becomes exposed. It is **not** a
+`rating_width`-pixel overlay positioned at `735 - rating_width`.
+
+The clean-room `BoundPrematchRatingSurface` now exposes `right_mask_rect`
+with this exact geometry. Existing source functions and width values remain
+unchanged; only the layer interpretation/rectangle is corrected.
+
+This correction must be used by the upcoming native child-order compositor.
