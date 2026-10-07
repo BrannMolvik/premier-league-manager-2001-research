@@ -101,6 +101,8 @@ HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 # Recovery 396/398 source-closed central management date control.  The two
 # y=34/y=51 match lines remain intentionally absent until 0x615D10/0x615DA0
 # filtering is semantically closed.
+HEADER_MATCH_COMPETITION_RECT = (172, 34, 378, 16)
+HEADER_MATCHUP_RECT = (172, 51, 378, 16)
 HEADER_DATE_RECT = (172, 68, 378, 16)
 HEADER_CENTRAL_TEXT_RAW_STYLE = 0x2102
 HEADER_CENTRAL_TEXT_NATIVE_COLOR_16 = 0xFFFF
@@ -211,6 +213,21 @@ class OriginalManagementHeaderDateOverlay:
     height: int
     rgba: bytes
     control_rect: tuple[int, int, int, int] = HEADER_DATE_RECT
+    raw_style: int = HEADER_CENTRAL_TEXT_RAW_STYLE
+    native_color_16: int = HEADER_CENTRAL_TEXT_NATIVE_COLOR_16
+    font_source_path: str = HEADER_DATE_FONT_SOURCE_PATH
+
+
+@dataclass(frozen=True)
+class OriginalManagementHeaderMatchOverlay:
+    role: str
+    text: str
+    x: int
+    y: int
+    width: int
+    height: int
+    rgba: bytes
+    control_rect: tuple[int, int, int, int]
     raw_style: int = HEADER_CENTRAL_TEXT_RAW_STYLE
     native_color_16: int = HEADER_CENTRAL_TEXT_NATIVE_COLOR_16
     font_source_path: str = HEADER_DATE_FONT_SOURCE_PATH
@@ -601,6 +618,123 @@ def management_header_caption_overlay(
     )
 
 
+def _central_text_rgba(
+    resources: OriginalManagementHeaderResources,
+    text: str,
+    rect: tuple[int, int, int, int],
+) -> tuple[int, int, int, int, bytes]:
+    font = resources.date_font
+    mask = font.render_text_alpha(text)
+    x, y, width, height = rect
+    line_x = x + width - font.measure_text(text)
+    line_y = y + height // 2 - font.native_line_height() // 2
+    clipped = _clip_alpha(
+        mask.alpha,
+        mask.width,
+        mask.height,
+        line_x=line_x,
+        line_y=line_y,
+        rect=rect,
+    )
+    if clipped is None:
+        raise OriginalManagementHeaderError(
+            "Central management text clips to no source pixels"
+        )
+    out_x, out_y, out_width, out_height, alpha = clipped
+    rgba = bytearray(len(alpha) * 4)
+    for index, value in enumerate(alpha):
+        pos = index * 4
+        rgba[pos:pos + 4] = bytes((255, 255, 255, value))
+    return out_x, out_y, out_width, out_height, bytes(rgba)
+
+
+def format_management_header_fixed_league_competition(competition_name: str) -> str:
+    """Resolve %C %Rf{ Round} %Lf{ Leg} for ordinary fixed LeagueMatch.
+
+    Recovery 402 closes the ordinary League virtual branches used by the
+    formatter: %Rf contributes no suffix and LeagueMatch leg code is outside
+    the first/second-leg cases, so the exact line is the competition name.
+    """
+    if not isinstance(competition_name, str) or not competition_name:
+        raise OriginalManagementHeaderError(
+            "Management header competition requires a source name"
+        )
+    return competition_name
+
+
+def format_management_header_matchup(
+    home_short_name: str,
+    away_short_name: str,
+    scheduled_date: date,
+) -> str:
+    """Apply the fixed-League %1s Vs %2s %D{%D %M %Y} expansion."""
+    if (
+        not isinstance(home_short_name, str)
+        or not isinstance(away_short_name, str)
+        or not home_short_name
+        or not away_short_name
+    ):
+        raise OriginalManagementHeaderError(
+            "Management header matchup requires source short club names"
+        )
+    if not isinstance(scheduled_date, date):
+        raise OriginalManagementHeaderError(
+            "Management header matchup requires a calendar date"
+        )
+    month = HEADER_DATE_MONTH_NAMES[scheduled_date.month - 1][:3]
+    return (
+        f"{home_short_name} Vs {away_short_name} "
+        f"{scheduled_date.day} {month} {scheduled_date.year % 100:02d}"
+    )
+
+
+def management_header_match_overlays(
+    resources: OriginalManagementHeaderResources,
+    *,
+    competition_name: str,
+    home_short_name: str,
+    away_short_name: str,
+    scheduled_date: date,
+) -> tuple[OriginalManagementHeaderMatchOverlay, OriginalManagementHeaderMatchOverlay]:
+    """Rasterize the two source-closed conditional management match lines."""
+    if not isinstance(resources, OriginalManagementHeaderResources):
+        raise OriginalManagementHeaderError(
+            "Match-line rendering requires verified management-header resources"
+        )
+    lines = (
+        (
+            "competition",
+            format_management_header_fixed_league_competition(competition_name),
+            HEADER_MATCH_COMPETITION_RECT,
+        ),
+        (
+            "matchup",
+            format_management_header_matchup(
+                home_short_name,
+                away_short_name,
+                scheduled_date,
+            ),
+            HEADER_MATCHUP_RECT,
+        ),
+    )
+    overlays = []
+    for role, text, rect in lines:
+        out_x, out_y, out_width, out_height, rgba = _central_text_rgba(
+            resources, text, rect
+        )
+        overlays.append(OriginalManagementHeaderMatchOverlay(
+            role=role,
+            text=text,
+            x=out_x,
+            y=out_y,
+            width=out_width,
+            height=out_height,
+            rgba=rgba,
+            control_rect=rect,
+        ))
+    return tuple(overlays)
+
+
 def format_management_header_date(value: date) -> str:
     """Apply the recovered English 0x64D150 %D %M %Yf expansion.
 
@@ -623,37 +757,16 @@ def management_header_date_overlay(
             "Central date rendering requires verified management-header resources"
         )
     text = format_management_header_date(current_date)
-    font = resources.date_font
-    mask = font.render_text_alpha(text)
-    x, y, width, height = HEADER_DATE_RECT
-
-    # Native 0x2102 setup resolves to right alignment plus vertical centering
-    # for this TextControl.  Use the source font line-height and clip to the
-    # exact half-open control rectangle just like the other recovered text.
-    line_x = x + width - font.measure_text(text)
-    line_y = y + height // 2 - font.native_line_height() // 2
-    clipped = _clip_alpha(
-        mask.alpha,
-        mask.width,
-        mask.height,
-        line_x=line_x,
-        line_y=line_y,
-        rect=HEADER_DATE_RECT,
+    out_x, out_y, out_width, out_height, rgba = _central_text_rgba(
+        resources,
+        text,
+        HEADER_DATE_RECT,
     )
-    if clipped is None:
-        raise OriginalManagementHeaderError(
-            "Central management date clips to no source pixels"
-        )
-    out_x, out_y, out_width, out_height, alpha = clipped
-    rgba = bytearray(len(alpha) * 4)
-    for index, value in enumerate(alpha):
-        pos = index * 4
-        rgba[pos:pos + 4] = bytes((255, 255, 255, value))
     return OriginalManagementHeaderDateOverlay(
         text=text,
         x=out_x,
         y=out_y,
         width=out_width,
         height=out_height,
-        rgba=bytes(rgba),
+        rgba=rgba,
     )
