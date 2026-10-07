@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 403,
+  "recovery_generation": 404,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #551 is diagnostics-only: opt-in WPF probe captures actual parent/child HWND/window/client geometry, DPI, and awareness contexts; normal playback geometry is unchanged. Do not claim FMV equivalence until a private Windows receipt is captured and interpreted.",
+  "note": "Recovery 404: resumed from canonical main HEAD; evaluating PR #551 diagnostics-only probe and exact-head CI. Retain Gate 13 validation gate and unresolved font/local Windows receipts; batch future checkpoints to limit CI usage.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
