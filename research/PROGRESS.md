@@ -12385,3 +12385,13 @@ continues with ordinary Squad row display-name/color helpers.
 - Reconciled two stale status fields: the ordinary management-to-FastView trigger remains unrecovered, and the live Gate-15 fidelity ledger contains 12 rows rather than the older 11-row count.
 - Private Library source availability is intact, but process execution remains blocked by `caas.internal.errors.ClientError`; caller adjudication is deferred without guessing.
 
+## 2026-10-07 - Recovery 381: Gate-17 package-lock closure and source-audit CI defect
+
+- Recovered from canonical `main` `12544b6f6ff80d520a5d7795f8a7aea2a423685c` with Gate 13 still earliest incomplete and issue #482 awaiting external Windows acceptance.
+- Verified and merged PR #522 at `073099c79779def832fdd35612f9cf9f2b811bcb` after reconstruction `37582619098`, asset policy `37582618992`, Windows package `37582619012`, and minimal FFmpeg proof `37582619057`.
+- First-party MSYS2 metadata closed the two intentionally unresolved critical source-family tarballs; PR #523 merged at `aadaf484754ade2854a2b48e52c853ccf31a7a57` after asset `37585092177`, Windows package `37585092245`, reconstruction `37585092251`, and minimal FFmpeg `37585092239`.
+- Successful minimal-build artifacts `11431743521`, `11465166679`, and `11465843961` independently contained the same 151-row, 3,274-byte package inventory with SHA-256 `c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec`.
+- PR #524 merged at `eb5fe6a4b2de1dd205d8d59b569a801513d1b4c5`. The live package environment is now exactly locked by `TOOLCHAIN-PACKAGES.lock`; missing, extra, changed-version, digest-drifted, and count-drifted environments fail closed. Exact head `7061fe0524203b65e3a2ca44045099736b7c53eb` passed asset `37586325795`, Windows package `37586325957`, reconstruction `37586325832` (2,858 tests, 25 skipped), and minimal FFmpeg `37586326031`.
+- Log review found that the minimal-build workflow's source-contract audit had been silently masked: repo-root package import raised `ModuleNotFoundError` for `startup_fmv_presentation`, then a succeeding second native Python command caused the PowerShell step to finish green.
+- Branch `chatgpt/gate17-source-audit-ci-hardening-r381` now repairs package import compatibility and explicitly exits on nonzero `$LASTEXITCODE` after each source-step Python command, with regression coverage. This must receive fresh exact-head CI before merge.
+- The complete environment lock is not a redistributed-code contributor map. Existing build output does not expose resolved final-link inputs, so contributor attribution remains evidence-blocked rather than guessed. Source-material completeness and legal-compliance claims remain false.
