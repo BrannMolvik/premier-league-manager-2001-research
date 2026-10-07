@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #535 is active at exact head 8b88af102cfbe504289ca825adfe24b10e75a475. The initial license-material workflow passed extraction but artifact review found actions/upload-artifact omitted hidden windows-default-manifest/.SRCINFO; workflow now sets include-hidden-files=true. Require fresh exact-head license artifact and verify .SRCINFO is physically present, plus reconstruction, Windows package, minimal FFmpeg, source-bundle and asset-policy success before merge. Keep license_notice_material_complete=false, source_material_complete=false, legal_compliance_claimed=false.",
-  "last_known_main_head": "85f1534e642bd99cc1e8f2eab6cad062fd5c6256",
+  "active_task": "Recovery 387: Gate 13 remains earliest incomplete pending Daniel's external Windows acceptance of Settings-inclusive artifact 11473439363. PR #535 merged as 513afeffc060fd3e2e9834a9084b651a37947c88 after exact-head CI and independent artifact review confirmed windows-default-manifest/.SRCINFO is present. Active cloud-safe task is branch chatgpt/gate17-ffmpeg-source-snapshot-r387: assemble a deterministic exact-source FFmpeg snapshot for commit 46d8f462eeb87ee1f704d8c44a0ee24fca471ad1, preserve COPYING.LGPLv2.1 and the exact configure recipe, then review/pin artifact hashes. Keep source_material_complete=false and legal_compliance_claimed=false.",
+  "last_known_main_head": "513afeffc060fd3e2e9834a9084b651a37947c88",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 386,
+  "recovery_generation": 387,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #535 artifact-hidden-file defect fixed; fresh exact-head validation is required.",
+  "note": "PR #535 merged and its hidden .SRCINFO artifact defect is independently closed. Exact FFmpeg source snapshot assembly is now the active work-ahead task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
