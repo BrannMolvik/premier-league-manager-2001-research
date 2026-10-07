@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 382: PR #525 merged as 2583ff7394606f47a19f11068916b01663b3d962 after exact-head success in reconstruction 37587574621, asset policy 37587574628, Windows package 37587574641, and minimal FFmpeg proof 37587574679. Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. Continue the independent Gate-17 provenance task: capture resolved final-link/archive inputs for the minimal FFmpeg helper, validate them fail-closed, and only then attribute proven redistributed contributors; keep source_material_complete and legal_compliance_claimed false.",
+  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #525 merged as 2583ff7394606f47a19f11068916b01663b3d962. Current cloud-safe task is PR #526, head e2b6a9557528e6172003735a13c8dca707056eec, which captures resolved minimal-FFmpeg final-link/archive inputs via an evidence-only GNU ld --trace relink and fail-closed command-equivalence audit. Reconstruction 37590594633, asset policy 37590594746, and minimal FFmpeg proof 37590594794 are queued; require exact-head success before merge, then inspect the trace artifact and map only proven archive contributors. Keep source_material_complete and legal_compliance_claimed false.",
   "last_known_main_head": "2583ff7394606f47a19f11068916b01663b3d962",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 382,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #525 merged and runtime advanced to the canonical linker-input evidence task. No Gate 13 closure claim was made.",
+  "note": "PR #526 created as bounded observation tooling. It does not alter the packaged helper and cannot close source/legal completeness.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
