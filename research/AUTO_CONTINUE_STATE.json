@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 374: PR #516 remains open from canonical main 9e4d2377fc0484f02befaef0dc219e95970f9902. Shirt/pixel/22-marker work is staged on PR #516; continue exact PPreMatch supplied-state frame closure. Next: bind dynamic fixture/date/weather/team identity text using source-proven home stadium with N/A/NA -> short-name fallback, then rating widths/selector supplied state and attach concrete XI/formation marker binding to the base surface. Merge PR #516 only after exact-head CI is green. Gate 13 #482 remains earliest validation blocker.",
+  "active_task": "Recovery 375: canonical main is 9e4d2377fc0484f02befaef0dc219e95970f9902 with PR #515 merged. Continue open PR #516 (chatgpt/gate14-prematch-xi-shirts-r373) from its existing XI shirt/marker staging. Next exact task: bind dynamic fixture/date/weather/team identity text using source-proven home stadium with N/A/NA -> short-name fallback, then bind rating widths/selector supplied state and attach concrete XI/formation marker binding to the base surface. Merge PR #516 only after exact-head CI is green. Gate 13 #482 remains earliest validation blocker.",
   "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 374,
+  "recovery_generation": 375,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 374 resumed after stale interruption. Do not repeat PR #515 badge work or Recovery 373 XI-shirt tracing; PR #516 contains that work.",
+  "note": "Recovery 375 resumed from stale watchdog. Badge work is merged; do not repeat it. Continue PR #516 supplied-state PPreMatch frame closure.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
