@@ -196,6 +196,84 @@ class PrematchSelectorSurface:
 
 
 @dataclass(frozen=True)
+class BoundPrematchSelectorFrame:
+    source: PrematchSelectorSurface
+    source_frame_index: int
+    frame: object
+
+    def __post_init__(self) -> None:
+        if type(self.source_frame_index) is not int or not 0 <= self.source_frame_index < 23:
+            raise PrematchSurfaceError(
+                "pre-match selector source frame must be native index 0..22"
+            )
+        if self.frame is None:
+            raise PrematchSurfaceError("pre-match selector frame cannot be absent")
+
+
+@dataclass(frozen=True)
+class BoundPrematchSelectorFrames:
+    selectors: tuple[BoundPrematchSelectorFrame, ...]
+    supplied_pointer_update_state_bound: bool = True
+    persistent_selected_visual: bool = False
+    complete_prematch_frame: bool = False
+    gate14_complete: bool = False
+
+    def __post_init__(self) -> None:
+        if len(self.selectors) != 4:
+            raise PrematchSurfaceError(
+                "bound pre-match selector state must contain four controls"
+            )
+        if tuple(item.source.mode for item in self.selectors) != (0, 1, 2, 3):
+            raise PrematchSurfaceError("pre-match selector mode order drifted")
+        if (
+            not self.supplied_pointer_update_state_bound
+            or self.persistent_selected_visual
+            or self.complete_prematch_frame
+            or self.gate14_complete
+        ):
+            raise PrematchSurfaceError(
+                "selector binding cannot invent selected/frame/gate state"
+            )
+
+
+def bind_prematch_selector_frames(
+    boundary: "PrematchSurfaceBoundary",
+    *,
+    source_frame_indices,
+) -> BoundPrematchSelectorFrames:
+    """Bind exact current Button@ease atlas frames supplied by live UI state."""
+    if type(boundary) is not PrematchSurfaceBoundary:
+        raise PrematchSurfaceError(
+            "selector binding requires exact PrematchSurfaceBoundary"
+        )
+    indices = tuple(source_frame_indices)
+    if len(indices) != 4:
+        raise PrematchSurfaceError(
+            "selector binding requires one native frame index per control"
+        )
+
+    bound = []
+    for source, source_index in zip(boundary.selectors, indices, strict=True):
+        if type(source_index) is not int or not 0 <= source_index < 23:
+            raise PrematchSurfaceError(
+                "selector source frame must be native index 0..22"
+            )
+        frame_getter = getattr(source.atlas, "frame", None)
+        if not callable(frame_getter):
+            raise PrematchSurfaceError(
+                "selector binding requires canonical decoded button atlas"
+            )
+        bound.append(
+            BoundPrematchSelectorFrame(
+                source=source,
+                source_frame_index=source_index,
+                frame=frame_getter(source_index),
+            )
+        )
+    return BoundPrematchSelectorFrames(selectors=tuple(bound))
+
+
+@dataclass(frozen=True)
 class PrematchPlayerTextSurface:
     side: str
     slot_index: int
@@ -965,6 +1043,7 @@ def prematch_surface_contract() -> dict:
         "player_strip_rows_source_geometry_available": True,
         "reserve_variant_state_source_closed": True,
         "selector_visual_state_source_closed": True,
+        "selector_supplied_frame_binding_available": True,
         "selector_persistent_selected_visual": False,
         "selector_modes": tuple(int(selector.mode) for selector in PREMATCH_SELECTORS),
         "selector_events": tuple(selector.event_id for selector in PREMATCH_SELECTORS),
