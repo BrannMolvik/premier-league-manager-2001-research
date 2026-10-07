@@ -12,6 +12,7 @@ class MinimalFfmpegToolchainError(RuntimeError):
 
 
 CONTRACT_PATH = Path("third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-CONTRACT.json")
+PACKAGE_LOCK_PATH = Path("third_party/ffmpeg-lgpl-candidate/TOOLCHAIN-PACKAGES.lock")
 
 
 def _sha256_file(path: Path) -> str:
@@ -51,6 +52,91 @@ def parse_package_list(text: str) -> dict[str, str]:
     if not packages:
         raise MinimalFfmpegToolchainError("pacman package list is empty")
     return packages
+
+
+def audit_complete_package_lock(
+    *,
+    repo_root: str | Path,
+    contract: dict,
+    packages: dict[str, str],
+) -> dict:
+    """Validate the exact successful MSYS2/UCRT64 package environment."""
+
+    if contract.get("complete_package_lock") is not True:
+        raise MinimalFfmpegToolchainError(
+            "toolchain contract must require the complete package lock"
+        )
+    metadata = contract.get("package_lock")
+    if not isinstance(metadata, dict):
+        raise MinimalFfmpegToolchainError("complete package-lock metadata is missing")
+    if metadata.get("path") != PACKAGE_LOCK_PATH.as_posix():
+        raise MinimalFfmpegToolchainError("complete package-lock path drifted")
+
+    lock_path = Path(repo_root).resolve() / PACKAGE_LOCK_PATH
+    if not lock_path.is_file() or lock_path.stat().st_size <= 0:
+        raise MinimalFfmpegToolchainError("complete package lock is missing or empty")
+    try:
+        lock_text = lock_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise MinimalFfmpegToolchainError("complete package lock is unreadable") from exc
+
+    lock_sha256 = _sha256_file(lock_path)
+    if metadata.get("sha256") != lock_sha256:
+        raise MinimalFfmpegToolchainError("complete package-lock digest drifted")
+    locked = parse_package_list(lock_text)
+    if metadata.get("package_count") != len(locked):
+        raise MinimalFfmpegToolchainError("complete package-lock count drifted")
+
+    missing = sorted(set(locked) - set(packages))
+    extra = sorted(set(packages) - set(locked))
+    version_mismatches = [
+        {
+            "package": name,
+            "expected": locked[name],
+            "actual": packages[name],
+        }
+        for name in sorted(set(locked) & set(packages))
+        if locked[name] != packages[name]
+    ]
+    if missing or extra or version_mismatches:
+        raise MinimalFfmpegToolchainError(
+            "complete UCRT64 package lock drifted: "
+            + json.dumps(
+                {
+                    "missing": missing,
+                    "extra": extra,
+                    "version_mismatches": version_mismatches,
+                },
+                sort_keys=True,
+            )
+        )
+
+    samples = metadata.get("verification_samples")
+    if (
+        not isinstance(samples, list)
+        or len(samples) < 2
+        or any(
+            not isinstance(sample, dict)
+            or not isinstance(sample.get("workflow_run"), int)
+            or not isinstance(sample.get("artifact_id"), int)
+            or not isinstance(sample.get("head_sha"), str)
+            or len(sample["head_sha"]) != 40
+            or not isinstance(sample.get("artifact_digest"), str)
+            or not sample["artifact_digest"].startswith("sha256:")
+            for sample in samples
+        )
+    ):
+        raise MinimalFfmpegToolchainError(
+            "complete package-lock verification samples are invalid"
+        )
+
+    return {
+        "path": PACKAGE_LOCK_PATH.as_posix(),
+        "sha256": lock_sha256,
+        "package_count": len(locked),
+        "verification_sample_count": len(samples),
+        "complete_package_lock": True,
+    }
 
 
 def audit_critical_source_material(contract: dict) -> dict:
@@ -188,11 +274,6 @@ def audit_toolchain(
         raise MinimalFfmpegToolchainError(
             "toolchain provenance checkpoint cannot claim legal compliance"
         )
-    if contract.get("complete_package_lock") is not False:
-        raise MinimalFfmpegToolchainError(
-            "critical-package audit must not masquerade as a complete package lock"
-        )
-
     package_path = Path(package_list).resolve()
     if not package_path.is_file() or package_path.stat().st_size <= 0:
         raise MinimalFfmpegToolchainError("pacman package list is missing or empty")
@@ -212,6 +293,11 @@ def audit_toolchain(
             + json.dumps(mismatches, sort_keys=True)
         )
 
+    package_lock = audit_complete_package_lock(
+        repo_root=repo_root,
+        contract=contract,
+        packages=packages,
+    )
     source_material = audit_critical_source_material(contract)
 
     actions = contract.get("pinned_actions")
@@ -229,8 +315,9 @@ def audit_toolchain(
         "package_list_sha256": _sha256_file(package_path),
         "required_package_versions": dict(sorted(required.items())),
         "pinned_actions": dict(sorted(actions.items())),
+        "package_lock": package_lock,
         "critical_source_material": source_material,
-        "complete_package_lock": False,
+        "complete_package_lock": True,
         "source_material_complete": False,
         "legal_compliance_claimed": False,
     }
