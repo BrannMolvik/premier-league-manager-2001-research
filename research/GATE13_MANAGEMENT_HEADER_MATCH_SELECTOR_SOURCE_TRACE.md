@@ -248,3 +248,98 @@ binary-capable Git/provenance path is available.
 Neither this trace nor those follow-up integrations close Gate 13. The
 post-#482 audit, focused/full verification, and the separate private Windows
 startup-FMV transport receipt remain required.
+
+
+## Recovery 401: direct wrapper-link lifecycle source-closed
+
+Recovery 401 re-opened the authorized private executable workspace and reverified
+the canonical executable SHA-256 before continuing. Direct disassembly now closes
+the remaining startup/direct-Side ambiguity that blocked the bounded fixed-League
+header path.
+
+### Wrapper construction starts with no linked object
+
+Base schedule-wrapper constructor `0x510380` explicitly writes zero to
+`wrapper+0x08`. Ordinary `LeagueMatch` construction at `0x5104F0` reaches
+that base through `0x5103D0`; the common match constructor also initializes
+match flags at `match+0x44` to zero. Therefore a newly materialized shipped
+fixed-League wrapper starts with:
+
+- `wrapper+0x08 == null`;
+- native match bits 0, 5 and 6 clear.
+
+This is direct executable evidence, not a clean-room default assumption.
+
+### Direct Side resolution cannot create the link
+
+`Side::0x510320` begins by reading its inherited ClubRef concrete-club slot
+at `Side+0x04`. If that slot is already non-null it returns immediately at
+`0x510379`. The `0x615F40` schedule search is reachable only after the
+normal ClubRef resolver path for a Side whose concrete slot was initially null.
+
+The shipped fixed-League builder constructs both participants as direct
+ClubRefs, so both embedded Sides already have their concrete club slots.
+Consequently the `0x514520` header materialization call invokes two Side
+resolvers that return the concrete clubs without reaching `0x615F40` or
+`0x510BA0`. For a fresh fixed-League wrapper, `wrapper+0x08` therefore
+remains null across the exact acceptance test in `0x615C50`.
+
+### The current-day schedule pass also leaves direct/direct LeagueMatch clear
+
+The current-day bucket pass `0x615C10` calls wrapper virtual `+0x0C` before
+it will invoke `0x510BA0`. Ordinary match implementation `0x510AD0` returns
+true when bit 5 is clear and both Side resolvers return concrete clubs. A fresh
+direct/direct fixed-League match satisfies that condition, so `0x615C10`
+does not create a linked object for it.
+
+Likewise, the `0x615DA0` continuation path invokes `0x510BA0` only after
+the match virtual `+0x64` predicate returns nonzero. Recovery 399 already
+proved common direct ClubRefs make `0x510B20` return zero, so this path also
+does not link a direct fixed-League header candidate.
+
+### Remaining external reschedule producers are post-start mutation boundaries
+
+Static direct-call enumeration finds the remaining non-selector
+`0x510BA0` callers at `0x4A801F` and `0x5E3C34`.
+
+The `0x4A801F` path scans a date window, resolves match Sides and can move a
+matching club's schedule wrapper. It is reached from the date-driven runtime
+work around `0x4A7B30`, not from fixed-League construction. The
+`0x5E3C34` path likewise searches live schedule state and can relink a match
+during later runtime event processing. Those producers prove that
+`wrapper+0x08` is not globally immutable for an entire season.
+
+The clean-room currently does not model either producer's linked-wrapper
+side effect. Therefore the safe representation is not a permanent boolean
+"direct matches never link." It is an explicit three-state runtime contract:
+
+- **clear**: source-proven fresh wrapper state;
+- **linked**: only when a source-backed producer is later implemented and
+  explicitly records the link;
+- **unknown**: after the clean-room crosses a runtime boundary where an
+  unmodelled original reschedule producer could have acted.
+
+Header selection may consume only **clear** direct fixed-League entries.
+`linked` entries are skipped exactly like native `0x615C50`; `unknown`
+entries that could contain the human club must fail closed instead of being
+silently skipped.
+
+### Bounded implementation consequence
+
+This closes the corrected Recovery-399 prerequisite far enough for a bounded
+implementation:
+
+1. the primary-schedule shadow may mark startup-materialized wrappers
+   `clear`;
+2. direct fixed-League Sides preserve `clear` through the header's own
+   `0x514520` resolution;
+3. the shadow must be invalidated to `unknown` when unmodelled post-start
+   reschedule processing can occur;
+4. the management-header selector may scan exact bucket/head-to-tail order and
+   return a direct fixed-League candidate only while every relevant earlier
+   participant/link state is source-known;
+5. unsupported symbolic participants or unknown link state remain fail-closed.
+
+This is intentionally narrower than claiming season-long reschedule fidelity.
+It is sufficient to repair the fresh ordinary-management header without
+inventing postponed-fixture behavior.

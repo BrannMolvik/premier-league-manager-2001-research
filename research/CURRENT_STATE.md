@@ -1,3 +1,40 @@
+# Recovery 401 — fresh direct wrapper-link state closed; bounded integration authorized
+
+_Updated 8 October 2026._
+
+Canonical `main` entering this recovery is `dd767a485d9cf16cc53881b1339ca112feae2a30`. **Gate 13 remains the earliest incomplete validation gate.**
+
+Canonical-executable verification now closes the missing direct fixed-League
+`wrapper+0x08` startup boundary. `0x510380` zeros the link, `0x5103D0`
+routes ordinary LeagueMatch construction through it, and the common match
+constructor zeros `match+0x44`. A direct Side reaches `0x510320` with its
+concrete club pointer already present and returns before `0x615F40`, so the
+header's `0x514520` Side-resolution pass cannot create the link for a fresh
+direct/direct fixed-League wrapper. `0x615C10 -> 0x510AD0` also leaves that
+case unlinked, and the `0x615DA0` continuation does not run because the
+common direct `+0x64` predicate is zero.
+
+The important limit is also source-proven: external post-start callers at
+`0x4A801F` and `0x5E3C34` can invoke `0x510BA0` later. The clean-room
+does not model those reschedule side effects. Therefore link state must be
+explicitly **clear / linked / unknown**, with startup wrappers clear and later
+unmodelled mutation boundaries invalidating clear state to unknown. The header
+may use only clear direct fixed-League candidates; a relevant unknown entry
+must fail closed.
+
+**Exact next task:** implement that bounded link-state contract in
+`primary_schedule_shadow.py`, invalidate source-known-clear state once
+unmodelled post-start reschedule processing could have occurred, and expose the
+exact bucket/head-to-tail direct fixed-League header candidate through the
+management source bridge. Then render y=34/y=51 using only the already recovered
+templates/font/layout. Do not broaden this to symbolic Cup refs or season-long
+postponement semantics.
+
+The exact 36px club-name font is still verified but unstaged. The private
+Windows startup-FMV transport receipt remains a separate Gate-13 blocker.
+
+---
+
 # Recovery 399 correction — selector control flow closed; +0x08 link mapping remains
 
 _Updated 8 October 2026._

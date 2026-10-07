@@ -12501,3 +12501,13 @@ continues with ordinary Squad row display-name/color helpers.
 - The two match-line format/layout contracts are closed, but internal selector `0x615D10/0x615DA0` still has an unnamed exclusion/advance predicate. Those lines remain fail-closed until that producer is source-closed or matched to an exact existing clean-room equivalent.
 - Detailed evidence and bounded implementation handoff are persisted in `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
 - Retrospective audit remains **open**. Fresh Squad is not complete until reserve-state runtime propagation, central-header rendering and focused/full verification pass; a new external candidate remains forbidden during the audit.
+
+## 2026-10-08 — Recovery 401 source-closes fresh direct wrapper-link state
+
+- Reverified canonical private executable SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- `0x510380` explicitly zeros wrapper `+0x08`; ordinary LeagueMatch construction reaches it through `0x5103D0/0x5104F0`, and common match flags start at zero.
+- Direct `Side::0x510320` returns its already-populated concrete club before the `0x615F40 -> 0x510BA0` reschedule path, closing the header's own Side-resolution effect for fresh direct/direct fixed-League matches.
+- `0x615C10 -> 0x510AD0` also does not link fresh direct/direct matches; the direct `+0x64` predicate keeps `0x615DA0` out of its continuation/link path.
+- Exhaustive static direct-call enumeration still finds later reschedule producers at `0x4A801F` and `0x5E3C34`; season-long link immutability is therefore not claimed.
+- Authorized next implementation is a bounded clear/linked/unknown shadow contract with fail-closed invalidation after unmodelled post-start reschedule processing.
+
