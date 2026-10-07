@@ -69,6 +69,8 @@ class RecordingRunner:
             returncode=self.returncode,
             stderr=self.stderr,
             stdout="",
+        )
+
 
 def transport_receipt_json(
     *,
@@ -113,9 +115,6 @@ def transport_receipt_json(
         "probe_thread_dpi_awareness": 2,
     }
     return "FM2001_TRANSPORT_RECEIPT:" + json.dumps(payload, separators=(",", ":"))
-
-
-        )
 
 
 class WindowsWpfStartupMediaBackendTests(unittest.TestCase):

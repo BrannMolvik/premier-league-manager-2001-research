@@ -406,6 +406,14 @@ def run_windows_startup_media_audit(
             "horizontal_repeat": presentation.horizontal_repeat,
             "ffmpeg_filter": presentation.ffmpeg_filter,
         },
+        "default_runtime_components_replayed": True,
+        "source_display_geometry_integrated": True,
+        "exact_horizontal_repeat_integrated": True,
+        "normal_application_launch_invoked": False,
+        "skip_input_recovered": False,
+        "transition_timing_recovered": False,
+        "exact_display_treatment_recovered": False,
+        "gate14_complete": False,
     }
 
     if transport_probe_only:
@@ -440,14 +448,6 @@ def run_windows_startup_media_audit(
         "human_game_owned_window_confirmation": True,
         "startup_media_real_windows_verified": True,
         "visual_acceptance_claimed": True,
-        "default_runtime_components_replayed": True,
-        "source_display_geometry_integrated": True,
-        "exact_horizontal_repeat_integrated": True,
-        "normal_application_launch_invoked": False,
-        "skip_input_recovered": False,
-        "transition_timing_recovered": False,
-        "exact_display_treatment_recovered": False,
-        "gate14_complete": False,
         "evidence_limit": (
             "This receipt proves the canonical startup derivatives completed through "
             "the production run_original_game_ui host, the exact WPF backend was "
