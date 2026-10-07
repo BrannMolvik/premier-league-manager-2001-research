@@ -61,6 +61,7 @@ PREMATCH_MONTH_NAMES = (
 
 @dataclass(frozen=True)
 class BoundPrematchDynamicText:
+    selection: FastViewSurfacedResourceSelection
     fixture_header: str
     date_weather: str
     home_team_identity: str
@@ -75,6 +76,10 @@ class BoundPrematchDynamicText:
     gate14_complete: bool = False
 
     def __post_init__(self) -> None:
+        if type(self.selection) is not FastViewSurfacedResourceSelection:
+            raise PrematchTextBindingError(
+                "dynamic text must retain exact surfaced-resource selection"
+            )
         for field_name in (
             "fixture_header",
             "date_weather",
@@ -220,6 +225,7 @@ def build_prematch_dynamic_text(
     )
 
     return BoundPrematchDynamicText(
+        selection=selection,
         fixture_header=fixture_header,
         date_weather=date_weather,
         home_team_identity=source_prematch_team_display_name(
