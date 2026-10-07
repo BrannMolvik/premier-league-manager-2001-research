@@ -1,3 +1,23 @@
+# Recovery 373 continuation — PPreMatch XI shirt selector source-closed
+
+_Updated 7 October 2026._
+
+Canonical `main` is `9e4d2377fc0484f02befaef0dc219e95970f9902`, which merges PR #515's PPreMatch team badges. **Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains open work-ahead.
+
+Recovery 373 continued first-hand tracing of the 22 starting-XI marker pixels. The source contract is now closed for:
+
+- `0x5EF940 -> 0x5EF9E0` primary/alternate kit-context selection and the 23x6 clash table at `0x834AF8`;
+- Master.dat +52/+55 -> DBRClub +0x44/+0x47 numbered-shirt template bytes and Master.dat +58/+70 -> +0x4A/+0x56 color IDs;
+- `0x408320` primary custom-atlas attempt via club graphics basename, alternate/custom-failure generic `Team%.2d.bmp` fallback, and 0..36 generic template clamp;
+- the critical fact that generic/alternate pixels are dynamically recolored through `0x5E4C60`, not loaded as a static EA444 atlas;
+- `0x41E3F0 -> 0x41E3D0` player number selection (+0x70 when registered club matches team object +0x04, else +0x76) and exact PPreMatch frame offset `(byte & 0xFF) * 32 - 32`.
+
+Branch `chatgpt/gate14-prematch-xi-shirts-r373` exposes those club source fields, implements the exact clash/context and resource-candidate selection, preserves the custom/generic distinction, and adds focused regression coverage. Generic recolor pixels, final 22-marker raster staging, complete-frame fidelity, management-to-match launch and Gate 14 completion remain false.
+
+Immediate next action: validate this exact branch in PR CI. If green, merge the source-selector checkpoint, then continue directly into `0x5E4C60` generic 8-bit BMP palette/recolor reproduction. Once that transform is byte-equivalent, bind custom/generic/goalkeeper 36x32 numbered frames into the already source-closed marker visibility/formation geometry and continue the remaining dynamic fixture/date/team identity supplied-state frame work.
+
+---
+
 # Recovery 372 continuation — PPreMatch team badges integrated and exact-head verified
 
 _Updated 7 October 2026._
