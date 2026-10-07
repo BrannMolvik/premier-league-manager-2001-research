@@ -9,6 +9,7 @@ import unittest
 from gate17_ffmpeg_toolchain_provenance import (
     CONTRACT_PATH,
     MinimalFfmpegToolchainError,
+    audit_critical_source_material,
     audit_toolchain,
     parse_package_list,
 )
@@ -48,6 +49,22 @@ class Gate17MinimalFfmpegToolchainTests(unittest.TestCase):
             result["required_package_versions"],
             dict(sorted(payload["required_package_versions"].items())),
         )
+        self.assertEqual(
+            result["critical_source_material"]["critical_package_count"],
+            len(payload["required_package_versions"]),
+        )
+        self.assertEqual(
+            result["critical_source_material"]["source_family_count"],
+            8,
+        )
+        self.assertEqual(
+            result["critical_source_material"]["verified_source_family_count"],
+            6,
+        )
+        self.assertEqual(
+            result["critical_source_material"]["unverified_source_families"],
+            ["mingw-w64-crt", "msys2-runtime"],
+        )
 
     def test_version_drift_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -77,6 +94,47 @@ class Gate17MinimalFfmpegToolchainTests(unittest.TestCase):
                 MinimalFfmpegToolchainError,"package versions drifted"
             ):
                 audit_toolchain(repo_root=repo,package_list=packages)
+
+    def test_source_material_plan_covers_every_required_package(self):
+        payload=canonical_contract()
+        del payload["critical_package_source_material"]["package_to_source_family"][
+            "mingw-w64-ucrt-x86_64-crt"
+        ]
+        with self.assertRaisesRegex(
+            MinimalFfmpegToolchainError,"package coverage drifted"
+        ):
+            audit_critical_source_material(payload)
+
+    def test_source_material_family_version_must_match_binary_package(self):
+        payload=canonical_contract()
+        payload["critical_package_source_material"]["source_families"][
+            "mingw-w64-gcc"
+        ]["binary_version"]="16.2.0-5"
+        with self.assertRaisesRegex(
+            MinimalFfmpegToolchainError,"family version drifted"
+        ):
+            audit_critical_source_material(payload)
+
+    def test_unverified_source_family_cannot_publish_guessed_tarball(self):
+        payload=canonical_contract()
+        payload["critical_package_source_material"]["source_families"][
+            "msys2-runtime"
+        ]["source_only_tarball"]=(
+            "https://mirror.msys2.org/msys/sources/"
+            "msys2-runtime-3.6.10-6.src.tar.zst"
+        )
+        with self.assertRaisesRegex(
+            MinimalFfmpegToolchainError,"must not publish a tarball URL"
+        ):
+            audit_critical_source_material(payload)
+
+    def test_source_material_plan_cannot_claim_completeness(self):
+        payload=canonical_contract()
+        payload["critical_package_source_material"]["source_material_complete"]=True
+        with self.assertRaisesRegex(
+            MinimalFfmpegToolchainError,"source_material_complete=false"
+        ):
+            audit_critical_source_material(payload)
 
     def test_package_parser_rejects_duplicates(self):
         with self.assertRaisesRegex(MinimalFfmpegToolchainError,"duplicate"):
