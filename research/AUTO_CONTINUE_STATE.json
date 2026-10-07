@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #526 is active at exact head c920ea93141120d3e6d5316fd35d011d9b299596. Prior reconstruction run 37590762141 failed only because the new raw archive regex was double-escaped; source now contains the intended (?<!\\S)([^\\s]+\\.a)(?!\\S) pattern and single-backslash path normalization. Require fresh exact-head success in reconstruction 37591230329, asset policy 37591230564, and minimal FFmpeg proof 37591230499. If green, inspect link-input-proof/raw traces and map only proven external archive paths to owning locked packages/source families. Keep source_material_complete and legal_compliance_claimed false.",
+  "active_task": "Recovery 383: external Windows acceptance of artifact 11464212544 FAILED. Prioritize issue #482 over Gate 17. The WPF fatal timeout is fixed, but four playability blockers remain: (1) startup FMV content is visibly offset/cropped inside the embedded movie field despite outer child geometry; recover exact TGQ->derivative/content transform and add deterministic frame-content geometry tests, not visual tuning; (2) Escape during startup currently triggers the root leave-fullscreen binding because Tk pumping services root events—guard startup so Escape cannot mutate fullscreen, and only implement skip if source-backed semantics are recovered; (3) Start Menu -> TeamSelect and other menu transitions remain extremely slow in the frozen build—instrument/profile the exact packaged path and remove unnecessary synchronous work; (4) fresh Southport management remains materially incomplete: blank header and missing player names, with only role/numeric columns visible—trace packaged host composition/binding, clipping/z-order/scale, and reconcile against merged source-backed row/header work. Keep #482/Gate13 open. Supersede artifact 11464212544; do not continue Gate17 work until a coherent next Gate13 candidate is exact-head green.",
   "last_known_main_head": "2583ff7394606f47a19f11068916b01663b3d962",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 382,
+  "recovery_generation": 383,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #526 exact head c920ea9 contains the deterministic parser-literal fix after run 37590762141 exposed the doubled-escape error. No completion claim advanced.",
+  "note": "Daniel's 7 Oct external test: intros now run (fatal WPF timeout fixed), but intro content is offset/cropped; Escape exits fullscreen instead of skipping; menu transitions remain extremely slow; Southport management is incomplete with blank header/missing player names. Redirected autoworker to Gate13.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
