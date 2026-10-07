@@ -115,11 +115,21 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         )
         derivatives = (object(), object())
         backend = object()
+        ffmpeg = Path("/package/runtime_tools/ffmpeg.exe")
+        selected_profile = object()
         with patch.object(
             app_module,
             "prepare_runtime_startup_media",
             return_value=derivatives,
         ) as prepare, patch.object(
+            app_module,
+            "resolve_startup_ffmpeg",
+            return_value=ffmpeg,
+        ) as resolve_ffmpeg, patch.object(
+            app_module,
+            "resolve_packaged_startup_media_profile",
+            return_value=(selected_profile, None),
+        ) as resolve_profile, patch.object(
             app_module,
             "WindowsWpfStartupMediaBackend",
             return_value=backend,
@@ -136,9 +146,13 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIsNone(receipt)
         self.assertIs(selected_backend, backend)
         self.assertIs(selected_derivatives, derivatives)
+        resolve_ffmpeg.assert_called_once_with(Path("/package").resolve())
+        resolve_profile.assert_called_once_with(Path("/package").resolve(), ffmpeg)
         prepare.assert_called_once_with(
             Path("/game"),
             Path("/package").resolve(),
+            ffmpeg_executable=ffmpeg,
+            profile=selected_profile,
         )
         make_backend.assert_called_once_with(platform_system="Windows")
 
