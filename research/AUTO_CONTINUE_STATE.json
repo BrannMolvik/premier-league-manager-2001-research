@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482: validate and merge PR #521 WPF/Tk owner-pump repair after exact-head reconstruction CI; then reconcile Gate 14 PRs #519/#520 onto the repaired main. External acceptance must use replacement artifact 11463330603, not failed artifact 11418314765.",
-  "last_known_main_head": "f7b17cca6cffb30aca50f920e2d120589e62e911",
+  "active_task": "Gate 13 issue #482: rebuild PR #519's post-match source-mode host seam on repaired current main, require fresh exact-head verification and Windows packaging, then use that reconciled package as the next external acceptance candidate. Afterward rebuild the candidate-only 0x513010 caller tracer from current main and resume first-hand caller adjudication when private executable processing works.",
+  "last_known_main_head": "581a3d2daa7557e50c80a863aefc23b93409202a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 379,
-  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery 379 reconciled newer issue #482 evidence: artifact 11418314765 fatally times out on embedded WPF easp playback. PR #521 isolates Tk-owner message starvation and has green Gate13/Windows-package/asset checks; full reconstruction run 37576911430 remains in progress. Keep Gate 13 open. Gate 14 management->0x513010 private caller trace remains deferred by process ClientError; candidate-only tracer is PR #520.",
+  "recovery_generation": 380,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 380 reloaded GitHub canonical state. PR #521 is merged and source-closes the Tk/WPF startup timeout. Old artifact 11418314765 is superseded; PR-branch artifact 11463330603 is not the canonical merged-main acceptance build. Gate 13 remains open pending a fresh current-main package and external Windows acceptance. Immediate cloud-safe task is to rebuild stale PR #519 on repaired main; candidate-only caller tracer #520 follows. Private executable processing remains a deferred blocker if caas ClientError persists.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
