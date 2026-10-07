@@ -47,7 +47,6 @@ from original_pmatchinfo_script_rows import load_script_row_art
 from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
-from front_end_settings import load_source_styled_settings_resources
 from front_end_state import FrontEndCommand, FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
 from gate14_live_first_screen_audio import (
@@ -336,7 +335,9 @@ def build_original_game_presenter(
             original_executable=executable,
         )
 
-    settings_resources = load_source_styled_settings_resources(root)
+    # The Settings surface is a preserved deferred-modernization module, not
+    # shipped FM2001 behavior. Keep the normal/default presenter on the four
+    # recovered original PStartMenu controls during the original-first freeze.
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
@@ -344,7 +345,6 @@ def build_original_game_presenter(
             original_art_dir=art_root,
             original_executable=executable,
         ),
-        settings_resources=settings_resources,
     )
 
 
@@ -496,9 +496,13 @@ class OriginalGameTkHost:
         # canvas is centered rather than stretched, avoiding interpolation and
         # preserving every recovered pointer rectangle exactly.
         self.canvas.pack(expand=True)
-        self.root.bind("<F11>", self.toggle_fullscreen)
-        self.root.bind("<Alt-Return>", self.toggle_fullscreen)
-        self.root.bind("<Escape>", self.leave_fullscreen)
+        # The compatibility host still starts in its established fullscreen
+        # presentation, but the F11/Alt+Enter/Escape toggles were a modern
+        # convenience added before issue #482, not recovered original input.
+        # Do not intercept those keys on the original-default path. In
+        # particular, Escape during startup must remain fail-closed until the
+        # shipped movie skip/input semantics are recovered from original
+        # evidence.
         self._set_fullscreen(True)
         self.canvas.bind("<Button-3>", self.on_fixture_report_press)
         self.canvas.bind("<Button-1>", self.on_click)
