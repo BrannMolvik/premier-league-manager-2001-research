@@ -47,7 +47,6 @@ from original_pmatchinfo_script_rows import load_script_row_art
 from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
-from front_end_settings import load_source_styled_settings_resources
 from front_end_state import FrontEndCommand, FrontEndScreen
 from gate13_original_pixel_preview import encode_rgba_png
 from gate14_live_first_screen_audio import (
@@ -336,7 +335,6 @@ def build_original_game_presenter(
             original_executable=executable,
         )
 
-    settings_resources = load_source_styled_settings_resources(root)
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
@@ -344,7 +342,6 @@ def build_original_game_presenter(
             original_art_dir=art_root,
             original_executable=executable,
         ),
-        settings_resources=settings_resources,
     )
 
 

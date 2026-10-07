@@ -50,9 +50,6 @@ class AppPackageSmokeTests(unittest.TestCase):
             )
             self.assertTrue(report["pstartmenu_presenter_build_passed"])
             self.assertEqual(report["pstartmenu_presenter_screen"], "pstartmenu")
-            self.assertTrue(report["settings_surface_present"])
-            self.assertEqual(report["settings_default_profile"], "Original")
-            self.assertTrue(report["settings_default_fullscreen"])
             self.assertTrue(report["external_game_data_required"])
 
     def test_package_smoke_rejects_crlf_pstartmenu_manifest(self):
