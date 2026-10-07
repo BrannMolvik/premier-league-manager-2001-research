@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 
 import original_game_host
-from original_game_host import OriginalGameTkHost
+from original_game_host import OriginalGameHostError, OriginalGameTkHost
 
 
 class Gate14FastViewHostSurfaceTests(unittest.TestCase):
@@ -35,24 +35,88 @@ class Gate14FastViewHostSurfaceTests(unittest.TestCase):
             host.root,
         )
 
+    def test_source_mode_dispatch_opens_fastview_only_for_native_mode_2(self):
+        host = OriginalGameTkHost.__new__(OriginalGameTkHost)
+        host.last_status = "before"
+        presentation = object()
+        opened = object()
+
+        with patch.object(
+            host,
+            "present_completed_match_fastview",
+            return_value=opened,
+        ) as open_fastview:
+            result = host.present_completed_match_by_source_mode(
+                presentation,
+                2,
+            )
+
+        self.assertIs(result, opened)
+        open_fastview.assert_called_once_with(presentation)
+
+    def test_source_mode_dispatch_keeps_quick_match_wrapper_free(self):
+        host = OriginalGameTkHost.__new__(OriginalGameTkHost)
+        host.last_status = "before"
+        presentation = object()
+
+        with patch.object(host, "present_completed_match_fastview") as open_fastview:
+            result = host.present_completed_match_by_source_mode(
+                presentation,
+                3,
+            )
+
+        self.assertIsNone(result)
+        self.assertIn("no presentation wrapper", host.last_status)
+        open_fastview.assert_not_called()
+
+    def test_source_mode_dispatch_refuses_fastview_substitution_for_3d_modes(self):
+        presentation = object()
+        for mode in (0, 1):
+            with self.subTest(mode=mode):
+                host = OriginalGameTkHost.__new__(OriginalGameTkHost)
+                host.last_status = "before"
+                with patch.object(
+                    host,
+                    "present_completed_match_fastview",
+                ) as open_fastview:
+                    with self.assertRaisesRegex(
+                        OriginalGameHostError,
+                        "3D presentation wrapper",
+                    ):
+                        host.present_completed_match_by_source_mode(
+                            presentation,
+                            mode,
+                        )
+                open_fastview.assert_not_called()
+
     def test_host_method_has_no_hidden_gameplay_or_navigation_trigger(self):
-        source = inspect.getsource(
-            OriginalGameTkHost.present_completed_match_fastview
+        methods = (
+            inspect.getsource(
+                OriginalGameTkHost.present_completed_match_fastview
+            ),
+            inspect.getsource(
+                OriginalGameTkHost.present_completed_match_by_source_mode
+            ),
         )
-        for forbidden in (
-            "play_user_fixture",
-            "match_simulation",
-            "match_calculator",
-            "self.presenter",
-            "self.on_click",
-            "source_accepted_pmenu_action(",
-        ):
-            self.assertNotIn(forbidden, source)
+        for source in methods:
+            for forbidden in (
+                "play_user_fixture",
+                "match_simulation",
+                "match_calculator",
+                "self.presenter",
+                "self.on_click",
+                "source_accepted_pmenu_action(",
+            ):
+                self.assertNotIn(forbidden, source)
 
         host_source = Path(original_game_host.__file__).read_text(encoding="utf-8")
         self.assertEqual(
-            host_source.count("present_completed_match_fastview("),
+            host_source.count("present_completed_match_by_source_mode("),
             1,
+        )
+        self.assertEqual(
+            host_source.count("present_completed_match_fastview("),
+            2,
         )
 
 
