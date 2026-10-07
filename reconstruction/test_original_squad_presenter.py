@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import unittest
 
 from original_squad_presenter import (
@@ -24,6 +24,8 @@ class Row:
     condition: int
     recent_form_average: float
     current_role_rating: int
+    reserve_active: bool = False
+    reserve_substitute_available: bool = False
     injured: bool = False
     suspended: bool = False
     international: bool = False
@@ -89,6 +91,22 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.rows[0].recent_form_average, 7.5)
         self.assertEqual(snapshot.rows[0].current_role_rating, 63)
         self.assertIsNone(snapshot.rows[0].native_status_frame_index)
+
+    def test_five_state_name_colors_include_fresh_default_and_reserves(self):
+        default = self.row(2)
+        snapshot = build_squad_row_viewport((default,))
+        self.assertEqual(snapshot.rows[0].display_name_rgb, (217, 210, 62))
+
+        reserve_active = replace(default, reserve_active=True)
+        snapshot = build_squad_row_viewport((reserve_active,))
+        self.assertEqual(snapshot.rows[0].display_name_rgb, (176, 176, 176))
+
+        reserve_substitute = replace(
+            default,
+            reserve_substitute_available=True,
+        )
+        snapshot = build_squad_row_viewport((reserve_substitute,))
+        self.assertEqual(snapshot.rows[0].display_name_rgb, (185, 167, 131))
 
     def test_direct_status_frames_follow_native_priority(self):
         injured = self.row()

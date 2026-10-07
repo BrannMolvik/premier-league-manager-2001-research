@@ -173,6 +173,10 @@ class RuntimePlayer:
     training_method_results: list[int] = field(default_factory=lambda: [0] * 7)
     match_active: bool = False
     match_substitute_available: bool = False
+    # DBRPlayer+0x174 bits 0/1. Recovery 396 source-closes both fresh
+    # initialization (zero) and the reserve active/substitute setters.
+    reserve_active: bool = False
+    reserve_substitute_available: bool = False
     condition: int = 80
     form_state: int = 2
     # DBRPlayer +0x79..+0x80: six-entry circular match-performance history.
@@ -456,21 +460,40 @@ class RuntimePlayer:
         """Mirror DBRPlayer +0x14 bit-4 setter 0x4182F0."""
         self.match_active = True
         self.match_substitute_available = False
+        self.reserve_active = False
+        self.reserve_substitute_available = False
 
     def set_match_substitute_available(self) -> None:
         """Mirror DBRPlayer +0x14 bit-5 setter 0x4182C0."""
         self.match_substitute_available = True
         self.match_active = False
+        self.reserve_active = False
+        self.reserve_substitute_available = False
+
+    def set_reserve_active(self) -> None:
+        """Mirror DBRPlayer +0x174 bit-0 setter 0x4181E0."""
+        self.match_active = False
+        self.match_substitute_available = False
+        self.reserve_active = True
+        self.reserve_substitute_available = False
+
+    def set_reserve_substitute_available(self) -> None:
+        """Mirror DBRPlayer +0x174 bit-1 setter 0x418280."""
+        self.match_active = False
+        self.match_substitute_available = False
+        self.reserve_active = False
+        self.reserve_substitute_available = True
 
     def clear_match_selection(self, *, reset_position: bool = False) -> None:
-        """Clear the two proven first-team match-selection flags.
+        """Mirror 0x4181B0 by clearing all four selection branches.
 
-        The standalone flag clear is useful while reconstructing status
-        transitions. Callers reproducing removal helper 0x4181B0 should pass
+        Callers reproducing the complete removal helper should pass
         reset_position=True so the assigned role/auxiliary state is reset too.
         """
         self.match_active = False
         self.match_substitute_available = False
+        self.reserve_active = False
+        self.reserve_substitute_available = False
         if reset_position:
             self.reset_match_position()
 

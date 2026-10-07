@@ -3,9 +3,9 @@
 This module keeps recovered ordinary Squad row styling separate from viewport
 membership/filtering. The canonical executable proves the player role/name
 controls plus the paired PSCFRow Condition, recent-form and current-role-rating
-numeric controls. Reserve-team selection flags are source-known but are not yet
-represented by the clean-room gameplay model, so callers must supply those
-states explicitly when they need them.
+numeric controls. Reserve-team selection flags are source-closed and represented
+by the live clean-room gameplay model; bounded legacy callers may still omit
+them, in which case name-color resolution remains fail-closed.
 """
 from __future__ import annotations
 
@@ -429,8 +429,8 @@ def build_first_roster_name_overlays(
                 "Squad row display name must be source-resolved"
             )
         if rgb is None:
-            # The clean-room runtime does not currently model native reserve
-            # selection flags. Do not render a guessed default/reserve color.
+            # Bounded legacy rows may still lack reserve-selection state.
+            # Do not render a guessed default/reserve color.
             continue
         rect = (
             panel_x + roster.x + name_x,

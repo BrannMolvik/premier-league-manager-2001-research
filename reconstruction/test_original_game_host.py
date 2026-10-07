@@ -93,6 +93,8 @@ class Row:
     assigned_role_abbreviation: str = "FC"
     match_active: bool = True
     match_substitute_available: bool = False
+    reserve_active: bool = False
+    reserve_substitute_available: bool = False
     condition: int = 90
     recent_form_average: float = 7.0
     current_role_rating: int = 61
@@ -363,6 +365,14 @@ class FakeCanvas(FakeWidget):
     def create_image(self, x, y, **kwargs):
         self.images.append((x, y, kwargs))
         return len(self.images)
+
+    def create_rectangle(self, x1, y1, x2, y2, **kwargs):
+        rectangles = self.values.setdefault("rectangles", [])
+        rectangles.append((x1, y1, x2, y2, kwargs))
+        return len(rectangles)
+
+    def tag_raise(self, item_id):
+        self.values["raised_item"] = item_id
 
     def itemconfigure(self, item_id, **kwargs):
         self.itemconfigure_count += 1
