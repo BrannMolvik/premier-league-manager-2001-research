@@ -1,4 +1,27 @@
-# Recovery 378 continuation — PR #517 merged; native PPreMatch compositor ready behind strict Windows receipt
+# Local Gate-13 issue #482 diagnosis/fix - 7 October 2026
+
+Based on actual current-main `bf91dc0338de7c9b31486d1d3ff50c6e5251f743`,
+branch `codex/gate13-wpf-startup-fix` proves the startup timeout is Tk-owner
+message starvation during cross-process WPF HwndSource construction, before
+MediaElement creation. The smallest fix services the Tk owner while waiting
+for the same game-owned WPF player, retaining the existing timeout, verified
+cache/source order, geometry and audio. Both easp and premintro complete in
+the actual source-runtime production host, restoring the menu. Focused
+Windows tests: 88 passed, including unmodified-script real WPF playback.
+Full reconstruction suite: 2,839 run, OK with 23 expected skips; repository
+asset policy and whitespace checks pass.
+
+Evidence and bounded regression details:
+`research/GATE13_ISSUE482_WPF_STARTUP_DIAGNOSIS.md`.
+Gate 13 remains open pending a rebuilt-package normal Windows acceptance;
+this branch is not merged and the old frozen artifact is not repaired.
+Disjoint Gate-14 work and agent-runtime are untouched. The Gate-13 next
+action is rebuild the package with this fix and verify normal startup through
+both clips, then continue the existing issue-482 acceptance criteria.
+
+---
+
+# Recovery 378 continuation - PR #517 merged; native PPreMatch compositor ready behind strict Windows receipt
 
 _Updated 7 October 2026._
 

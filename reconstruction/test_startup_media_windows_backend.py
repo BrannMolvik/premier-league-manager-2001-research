@@ -7,6 +7,7 @@ import base64
 import platform
 import subprocess
 import unittest
+from unittest.mock import patch
 
 from original_startup_media import OriginalStartupMediaSpec
 from startup_media_derivatives import VerifiedStartupMediaDerivative
@@ -71,6 +72,72 @@ class RecordingRunner:
 
 
 class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
+    def test_game_owned_child_creation_requires_parent_pump_before_completion(self):
+        # Model the real HwndSource constructor's cross-process parent request.
+        # A blocking runner cannot service it; communicate must yield to Tk.
+        requests = []
+        process = SimpleNamespace(returncode=0, poll=lambda: None)
+        waits = []
+        def communicate(timeout=None):
+            waits.append(timeout)
+            if len(requests) < 2:
+                raise subprocess.TimeoutExpired('child awaits parent', timeout)
+            return '', ''
+        process.communicate = communicate
+        process.kill = lambda: self.fail('completed player must not be killed')
+        launches = []
+        def factory(command, **kwargs):
+            launches.append((command, kwargs))
+            return process
+        backend = WindowsWpfStartupMediaBackend(platform_system='Windows',
+            runner=lambda *a, **k: self.fail('blocking subprocess.run recreates issue482'),
+            process_factory=factory)
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
+        backend.bind_event_pump(lambda: requests.append('parent message serviced'))
+        self.assertTrue(backend.play(derivative(Path('easp.mp4'))))
+        self.assertEqual(len(requests), 2)
+        self.assertTrue(all(0 < interval <= .02 for interval in waits))
+        self.assertEqual(launches[0][1]['env']['FM2001_STARTUP_PARENT_HWND'], '123')
+        self.assertEqual(launches[0][1]['env']['FM2001_STARTUP_MEDIA_WIDTH'], '640')
+        self.assertEqual(launches[0][1]['stdout'], subprocess.PIPE)
+
+    def test_pumped_timeout_stays_bounded_and_kills_drains_only_owned_player(self):
+        process = unittest.mock.Mock()
+        process.poll.return_value = None
+        process.communicate.return_value = ('', '')
+        backend = WindowsWpfStartupMediaBackend(platform_system='Windows',
+            process_factory=lambda *a, **k: process)
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
+        backend.bind_event_pump(lambda: None)
+        with patch('startup_media_windows_backend.time.monotonic', side_effect=(0, 34)):
+            with self.assertRaisesRegex(WindowsStartupMediaBackendError, 'timed out'):
+                backend.play(derivative(Path('easp.mp4')))
+        process.kill.assert_called_once_with()
+        process.communicate.assert_called_once_with()
+
+    def test_parent_close_and_media_failure_remain_fail_closed(self):
+        process = unittest.mock.Mock()
+        process.poll.return_value = None
+        process.communicate.return_value = ('', '')
+        backend = WindowsWpfStartupMediaBackend(platform_system='Windows',
+            process_factory=lambda *a, **k: process)
+        backend.bind_parent_window(123, x=80, y=60, width=640, height=480)
+        def closed():
+            raise RuntimeError('Tk owner destroyed')
+        backend.bind_event_pump(closed)
+        with self.assertRaises(WindowsStartupMediaBackendError):
+            backend.play(derivative(Path('easp.mp4')))
+        process.kill.assert_called_once_with()
+        process.communicate.assert_called_once_with()
+
+        process.returncode = 3
+        process.communicate.return_value = ('', 'MediaFailed: codec error')
+        backend.bind_event_pump(lambda: None)
+        with self.assertRaisesRegex(WindowsStartupMediaBackendError, 'exit code 3.*codec error'):
+            backend.play(derivative(Path('easp.mp4')))
+        with self.assertRaises(WindowsStartupMediaBackendError):
+            backend.bind_event_pump(None)
+
     @unittest.skipUnless(platform.system() == "Windows", "requires stock Windows WPF")
     def test_stock_windows_runtime_loads_wpf_mediaelement(self):
         completed = subprocess.run(
