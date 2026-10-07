@@ -38,6 +38,10 @@ class PStartMenuCaption:
     native_style: int = 0x2000
     normal_color_16: int = 0xFFFF
     alternate_group_color_16: int = 0x0000
+    # True only for intentional modernization labels rendered with the same
+    # verified source font/button visual language. Original English.idx-bound
+    # captions keep the default False.
+    modern_extension: bool = False
 
     def native_color_for_group(self, group: int) -> int:
         """Mirror Button vtable slot 41 at 0x653020."""

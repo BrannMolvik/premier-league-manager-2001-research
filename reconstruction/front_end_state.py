@@ -10,6 +10,9 @@ ORIGINAL_PSTARTMENU_SCREEN_ID = 0x323
 
 class FrontEndScreen(Enum):
     START_MENU = "pstartmenu"
+    # Intentional modernization extension. It is not a recovered original
+    # screen ID and is kept separate from the shipped PStartMenu facts.
+    SETTINGS = "settings"
     TEAM_SELECT = "team_select"
     # TeamSelect Start constructs the source-proven PMenu management shell.
     # Content-panel identity is tracked separately by OriginalManagementPresenter.
@@ -24,6 +27,17 @@ class StartMenuControl(IntEnum):
     QUIT_TO_WINDOWS = 4
 
 
+class ModernStartMenuControl(IntEnum):
+    # Reserved outside the recovered original event IDs 1..7.
+    SETTINGS = 0x1000
+
+
+class SettingsControl(IntEnum):
+    RESET_ORIGINAL = 0x1001
+    TOGGLE_FULLSCREEN = 0x1002
+    BACK = 0x1003
+
+
 class TeamSelectControl(IntEnum):
     # Confirmed PMain@TeamSelect event/control IDs.
     BACK = 0x29
@@ -34,6 +48,7 @@ class FrontEndCommand(Enum):
     CONTINUE_GAME = "continue_game"
     LOAD_GAME = "load_game"
     QUIT_TO_WINDOWS = "quit_to_windows"
+    APPLY_SETTINGS = "apply_settings"
     TEAMSELECT_START_CONTINUE = "teamselect_start_continue"
 
 
@@ -62,6 +77,8 @@ class FrontEndState:
     def dispatch(self, control_id: int) -> FrontEndTransition:
         if self.screen is FrontEndScreen.START_MENU:
             return self._dispatch_start_menu(control_id)
+        if self.screen is FrontEndScreen.SETTINGS:
+            return self._dispatch_settings(control_id)
         if self.screen is FrontEndScreen.TEAM_SELECT:
             return self._dispatch_team_select(control_id)
         raise RuntimeError(f"Unsupported front-end screen: {self.screen!r}")
@@ -86,8 +103,28 @@ class FrontEndState:
                 screen=self.screen,
                 command=FrontEndCommand.QUIT_TO_WINDOWS,
             )
+        if control_id == int(ModernStartMenuControl.SETTINGS):
+            self.screen = FrontEndScreen.SETTINGS
+            return FrontEndTransition(screen=self.screen)
         raise UnsupportedFrontEndControl(
             f"Unrecovered PStartMenu control ID: {control_id:#x}"
+        )
+
+    def _dispatch_settings(self, control_id: int) -> FrontEndTransition:
+        control_id = int(control_id)
+        if control_id in (
+            int(SettingsControl.RESET_ORIGINAL),
+            int(SettingsControl.TOGGLE_FULLSCREEN),
+        ):
+            return FrontEndTransition(
+                screen=self.screen,
+                command=FrontEndCommand.APPLY_SETTINGS,
+            )
+        if control_id == int(SettingsControl.BACK):
+            self.screen = FrontEndScreen.START_MENU
+            return FrontEndTransition(screen=self.screen)
+        raise UnsupportedFrontEndControl(
+            f"Unsupported modernization Settings control ID: {control_id:#x}"
         )
 
     def _dispatch_team_select(self, control_id: int) -> FrontEndTransition:

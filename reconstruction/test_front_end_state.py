@@ -5,6 +5,8 @@ from front_end_state import (
     FrontEndScreen,
     FrontEndState,
     ORIGINAL_PSTARTMENU_SCREEN_ID,
+    ModernStartMenuControl,
+    SettingsControl,
     StartMenuControl,
     TeamSelectControl,
     UnsupportedFrontEndControl,
@@ -18,6 +20,10 @@ class FrontEndStateTests(unittest.TestCase):
         self.assertEqual(int(StartMenuControl.NEW_GAME), 2)
         self.assertEqual(int(StartMenuControl.LOAD_GAME), 3)
         self.assertEqual(int(StartMenuControl.QUIT_TO_WINDOWS), 4)
+        self.assertEqual(int(ModernStartMenuControl.SETTINGS), 0x1000)
+        self.assertEqual(int(SettingsControl.RESET_ORIGINAL), 0x1001)
+        self.assertEqual(int(SettingsControl.TOGGLE_FULLSCREEN), 0x1002)
+        self.assertEqual(int(SettingsControl.BACK), 0x1003)
         self.assertEqual(int(TeamSelectControl.BACK), 0x29)
         self.assertEqual(int(TeamSelectControl.START_CONTINUE), 0x2A)
 
@@ -42,6 +48,26 @@ class FrontEndStateTests(unittest.TestCase):
         self.assertIs(state.screen, FrontEndScreen.TEAM_SELECT)
         self.assertIs(transition.screen, FrontEndScreen.TEAM_SELECT)
         self.assertIsNone(transition.command)
+
+    def test_modern_settings_navigation_is_separate_from_original_ids(self):
+        state = FrontEndState()
+        opened = state.dispatch(ModernStartMenuControl.SETTINGS)
+        self.assertIs(state.screen, FrontEndScreen.SETTINGS)
+        self.assertIs(opened.screen, FrontEndScreen.SETTINGS)
+        self.assertIsNone(opened.command)
+
+        for control in (
+            SettingsControl.RESET_ORIGINAL,
+            SettingsControl.TOGGLE_FULLSCREEN,
+        ):
+            applied = state.dispatch(control)
+            self.assertIs(applied.screen, FrontEndScreen.SETTINGS)
+            self.assertIs(applied.command, FrontEndCommand.APPLY_SETTINGS)
+
+        back = state.dispatch(SettingsControl.BACK)
+        self.assertIs(state.screen, FrontEndScreen.START_MENU)
+        self.assertIs(back.screen, FrontEndScreen.START_MENU)
+        self.assertIsNone(back.command)
 
     def test_team_select_back_returns_to_start_menu(self):
         state = FrontEndState(screen=FrontEndScreen.TEAM_SELECT)

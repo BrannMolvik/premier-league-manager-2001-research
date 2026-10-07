@@ -58,6 +58,7 @@ class OriginalDebugOverlay:
 class OriginalDebugCaptionOverlay:
     event: int
     original_text: str
+    modern_extension: bool
     line_origin_x: int
     line_origin_y: int
     clip_rect: OriginalRect
@@ -140,7 +141,10 @@ def build_original_debug_frame(
                 # Legacy field name retained for callers while the label now
                 # also has a separately positioned source-backed overlay.
                 source_label_not_positioned=(
-                    control.caption.original_text if control.caption else None
+                    control.caption.original_text
+                    if control.caption is not None
+                    and not getattr(control.caption, "modern_extension", False)
+                    else None
                 ),
             )
         )
@@ -167,6 +171,7 @@ def build_original_debug_frame(
                 OriginalDebugCaptionOverlay(
                     event=control.event,
                     original_text=caption.original_text,
+                    modern_extension=getattr(caption, "modern_extension", False),
                     line_origin_x=caption.line_origin_x,
                     line_origin_y=caption.line_origin_y,
                     clip_rect=caption.clip_rect,
