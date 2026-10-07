@@ -18,6 +18,7 @@ from datetime import date
 from original_fixture_match_info_link import (
     SourceFixtureMatchInfoContext, resolve_source_match_info_link,
 )
+from primary_schedule_shadow import PrimaryScheduleHeaderMatchPending
 
 
 class ManagementPresentationError(ValueError):
@@ -34,6 +35,20 @@ class ClubHeaderView:
     graphics_directory: str = ''
     fan_base_index: int = 0
     competition_id: int = -1
+
+
+@dataclass(frozen=True)
+class ManagementHeaderMatchView:
+    """Source-known direct fixed-League match selected by the native header path."""
+
+    node_token: tuple
+    scheduled_date: date
+    competition_id: int
+    competition_name: str
+    home_club_id: int
+    home_short_name: str
+    away_club_id: int
+    away_short_name: str
 
 
 @dataclass(frozen=True)
@@ -985,6 +1000,62 @@ class ManagementSourceDataBridge:
             ),
             fan_base_index=getattr(club, 'fan_base_index', 0),
             competition_id=getattr(club, 'competition_id', -1),
+        )
+
+    def management_header_match(self) -> ManagementHeaderMatchView | None:
+        """Project only the Recovery-401 source-closed header-match subset.
+
+        The native selector scans the primary schedule bucket/head order. The
+        shadow raises when a relevant symbolic node or wrapper link state is
+        unresolved; the presentation seam converts that unresolved state into
+        no conditional header text rather than inventing a fallback fixture.
+        """
+
+        club_id = self._human_club_id()
+        calendar = getattr(self.state, "calendar", None)
+        current_date = getattr(calendar, "current_date", None)
+        if not isinstance(current_date, date):
+            raise ManagementPresentationError("Game calendar date is unavailable")
+
+        shadow = getattr(self.state, "primary_schedule_shadow", None)
+        selector = getattr(shadow, "management_header_fixed_league_candidate", None)
+        if not callable(selector):
+            return None
+        try:
+            selected = selector(club_id, current_date)
+        except PrimaryScheduleHeaderMatchPending:
+            return None
+        if selected is None:
+            return None
+
+        scheduled_date, entry = selected
+        refs = tuple(getattr(entry, "refs", ()))
+        if len(refs) != 2:
+            return None
+        home_id = getattr(refs[0], "direct_club_id", None)
+        away_id = getattr(refs[1], "direct_club_id", None)
+        if home_id is None or away_id is None:
+            return None
+
+        competitions = getattr(self.state, "competitions", None)
+        if not hasattr(competitions, "get"):
+            return None
+        competition = competitions.get(int(entry.competition_id))
+        competition_name = getattr(competition, "name", None)
+        if not isinstance(competition_name, str) or not competition_name:
+            return None
+
+        home = self._source_club(int(home_id))
+        away = self._source_club(int(away_id))
+        return ManagementHeaderMatchView(
+            node_token=tuple(entry.node_token),
+            scheduled_date=scheduled_date,
+            competition_id=int(entry.competition_id),
+            competition_name=competition_name,
+            home_club_id=int(home_id),
+            home_short_name=home.short_name,
+            away_club_id=int(away_id),
+            away_short_name=away.short_name,
         )
 
     @staticmethod

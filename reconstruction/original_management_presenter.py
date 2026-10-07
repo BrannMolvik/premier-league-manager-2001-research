@@ -25,6 +25,7 @@ from original_fixture_match_info_link import (
 from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
+    ManagementHeaderMatchView,
     ManagementSourceDataBridge,
 )
 from original_league_fixtures_presenter import (
@@ -72,6 +73,7 @@ class OriginalFreshManagementSnapshot:
     squad_view_transition: OriginalSquadViewTransition
     source_squad_count: int
     rows_beyond_initial_viewport: int
+    header_match: ManagementHeaderMatchView | None = None
 
 
 @dataclass(frozen=True)
@@ -89,6 +91,7 @@ class OriginalManagementPanelSnapshot:
     fixtures_in_source_order: tuple[FixtureRowView, ...] = ()
     league_fixtures: OriginalLeagueFixturesSnapshot | None = None
     league_tables: OriginalLeagueTablesSnapshot | None = None
+    header_match: ManagementHeaderMatchView | None = None
 
 
 @dataclass(frozen=True)
@@ -169,6 +172,12 @@ def build_management_panel_snapshot(
 
     bridge = _bridge(session, bridge_factory)
     club = bridge.club_header()
+    header_match_source = getattr(bridge, "management_header_match", None)
+    header_match = (
+        header_match_source()
+        if callable(header_match_source)
+        else None
+    )
     menu = build_pmenu_snapshot(
         selected_child_id,
         expanded_root_id=expanded_root_id,
@@ -186,6 +195,7 @@ def build_management_panel_snapshot(
             menu=menu,
             panel_code=SQUAD_PANEL_CODE,
             panel_class=SQUAD_PANEL_CLASS,
+            header_match=header_match,
             squad=build_squad_row_viewport(visible_rows),
             squad_view_transition=view_transition,
             source_squad_count=len(source_rows),
@@ -204,6 +214,7 @@ def build_management_panel_snapshot(
             menu=menu,
             panel_code=LEAGUE_FIXTURES_PANEL.menu_id,
             panel_class=LEAGUE_FIXTURES_PANEL.panel_class,
+            header_match=header_match,
             fixtures_in_source_order=tuple(source.fixtures_in_source_order),
             league_fixtures=fixtures,
         )
@@ -218,6 +229,7 @@ def build_management_panel_snapshot(
             menu=menu,
             panel_code=LEAGUE_TABLES_PANEL.menu_id,
             panel_class=LEAGUE_TABLES_PANEL.panel_class,
+            header_match=header_match,
             league_tables=table,
         )
 
@@ -249,6 +261,7 @@ def build_fresh_management_snapshot(
         squad_view_transition=snapshot.squad_view_transition,
         source_squad_count=snapshot.source_squad_count,
         rows_beyond_initial_viewport=snapshot.rows_beyond_initial_viewport,
+        header_match=snapshot.header_match,
     )
 
 

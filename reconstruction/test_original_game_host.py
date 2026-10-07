@@ -16,6 +16,7 @@ from front_end_state import FrontEndScreen
 from gate13_management_source_data import (
     ClubHeaderView,
     LeagueFixturesGridSourceView,
+    ManagementHeaderMatchView,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
 from original_league_fixtures_art import build_league_fixtures_grid_art
@@ -191,7 +192,7 @@ class FakeHeaderDateFont:
     atlas_height = 19
 
     def measure_text(self, text):
-        if not text.startswith("Today is "):
+        if not isinstance(text, str) or not text:
             raise AssertionError(text)
         return 100
 
@@ -199,7 +200,7 @@ class FakeHeaderDateFont:
         return 18
 
     def render_text_alpha(self, text):
-        if not text.startswith("Today is "):
+        if not isinstance(text, str) or not text:
             raise AssertionError(text)
         return SimpleNamespace(
             width=100,
@@ -1186,6 +1187,51 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[0][:2], (599, 0))
         self.assertEqual(host.canvas.images[1][:2], (629, 0))
         self.assertEqual(host.canvas.images[2][:2], (681, 62))
+
+
+    def test_management_match_lines_draw_exact_source_controls_when_projection_is_known(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                header_match=ManagementHeaderMatchView(
+                    node_token=("fixed_league_match", 0, 0, 700),
+                    scheduled_date=date(2000, 8, 19),
+                    competition_id=0,
+                    competition_name="FA Premier League",
+                    home_club_id=12,
+                    home_short_name="Source",
+                    away_club_id=13,
+                    away_short_name="Visitors",
+                )
+            )
+        )
+
+        count = host._draw_management_match_lines(frame)
+
+        self.assertEqual(count, 2)
+        self.assertEqual(len(host.canvas.images), 2)
+        self.assertEqual(host.canvas.images[0][:2], (450, 34))
+        self.assertEqual(host.canvas.images[1][:2], (450, 51))
+        self.assertEqual(len(host._photos), 2)
+
+    def test_management_match_lines_remain_blank_without_source_known_projection(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(header_match=None)
+        )
+        self.assertEqual(host._draw_management_match_lines(frame), 0)
 
     def test_management_current_date_draws_exact_source_control(self):
         host = OriginalGameTkHost(
