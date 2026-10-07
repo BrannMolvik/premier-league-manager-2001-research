@@ -88,7 +88,7 @@ jobs:
             --package-list "_minimal-ffmpeg-build/toolchain-packages.txt" `
             --output-receipt "_minimal-ffmpeg-build/toolchain-proof.json"
 
-      - name: Build exact minimal FFmpeg helper
+      - name: Build exact minimal FFmpeg helper and capture resolved link inputs
         shell: msys2 {0}
         run: |
           set -euo pipefail
@@ -97,15 +97,37 @@ jobs:
           printf 'Pinned configure args:\n'
           printf '  %s\n' "${CONFIGURE_ARGS[@]}"
           ./configure "${CONFIGURE_ARGS[@]}"
-          make -j2 ffmpeg.exe ffprobe.exe
 
           OUT="$GITHUB_WORKSPACE/_minimal-ffmpeg-build"
           mkdir -p "$OUT"
+          make V=1 -j2 ffmpeg.exe ffprobe.exe 2>&1 | tee "$OUT/release-build.log"
+
           cp ffmpeg.exe ffprobe.exe COPYING.LGPLv2.1 "$OUT/"
+          cp ffbuild/config.mak "$OUT/config.mak.release"
           git rev-parse HEAD | tr -d '\r' > "$OUT/source-commit.txt"
           objdump -p ffmpeg.exe > "$OUT/ffmpeg-objdump.txt"
           objdump -p ffprobe.exe > "$OUT/ffprobe-objdump.txt"
+
+          # Evidence-only relink. GNU ld --trace prints each resolved input while
+          # leaving the link graph unchanged. The audit below requires the
+          # traced command to equal the release command after removing only
+          # -Wl,--trace. These unstripped traced targets are never packaged.
+          printf '\nLDEXEFLAGS += -Wl,--trace\n' >> ffbuild/config.mak
+          rm -f ffmpeg_g.exe
+          make V=1 ffmpeg_g.exe 2>&1 | tee "$OUT/ffmpeg-link-trace.log"
+          rm -f ffprobe_g.exe
+          make V=1 ffprobe_g.exe 2>&1 | tee "$OUT/ffprobe-link-trace.log"
+          cp "$OUT/config.mak.release" ffbuild/config.mak
           cp ffbuild/config.mak ffbuild/config.log "$OUT/"
+
+      - name: Audit resolved final-link inputs
+        shell: pwsh
+        run: |
+          python reconstruction/gate17_ffmpeg_link_trace_audit.py `
+            --release-build-log "_minimal-ffmpeg-build/release-build.log" `
+            --ffmpeg-trace-log "_minimal-ffmpeg-build/ffmpeg-link-trace.log" `
+            --ffprobe-trace-log "_minimal-ffmpeg-build/ffprobe-link-trace.log" `
+            --output-receipt "_minimal-ffmpeg-build/link-input-proof.json"
 
       - name: Audit built helper and write proof receipt
         shell: pwsh
@@ -150,6 +172,11 @@ jobs:
             _minimal-ffmpeg-build/ffprobe-objdump.txt
             _minimal-ffmpeg-build/config.mak
             _minimal-ffmpeg-build/config.log
+            _minimal-ffmpeg-build/config.mak.release
+            _minimal-ffmpeg-build/release-build.log
+            _minimal-ffmpeg-build/ffmpeg-link-trace.log
+            _minimal-ffmpeg-build/ffprobe-link-trace.log
+            _minimal-ffmpeg-build/link-input-proof.json
             _minimal-ffmpeg-build/toolchain-packages.txt
             _minimal-ffmpeg-build/toolchain-proof.json
             _minimal-ffmpeg-build/build-proof.json
