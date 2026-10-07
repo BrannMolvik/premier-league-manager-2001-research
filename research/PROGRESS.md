@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 376 PR #516 merged; PPreMatch compositor boundary isolated
+
+PR #516 merged as `77120385ec8563bc760cdb4398859cf7e9424eb0`. Exact head `c2b662e0ee52236a8f87782557d8f485a0aa48e9` passed presentation source run `37567629313`, full reconstruction run `37567629340`, and asset-policy run `37567629367`. The prior full-suite failure was a single stale FastView regression still asserting the superseded 18px style-3 font; it was corrected to the first-hand proven 16px font before the green exact-head run.
+
+PPreMatch now has supplied source pixels/state for all 182 native children, including exact source-font text rasters, and a native-order child raster ledger. The ledger remains intentionally unflattened because the cross-control Picture/Text/Button destination-write/blend semantics are not fully source-closed. Final 800x600 frame and Gate-14 completion therefore remain false.
+
+The canonical original executable was recovered again from the authorized Library archive and SHA-256 reverified as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Although the ordinary container shell returned `ClientError`, the Python analysis environment could read the recovered MODE1/2352 image and source executable. Next source task is the native child compositor: prove PictureControl and Button@ease destination-write/transparency rules, reuse the already recovered TextControl packed-16 blend where applicable, and only then flatten child order 0..181.
+
 ### 7 October 2026 KST — Recovery 375 TextControl alignment and font correction
 
 First-hand `TextStyle::0x64F090` tracing closes the ordinary TextControl alignment bits rather than inferring them from screen geometry: `0x01` left, `0x02` right, `0x04` horizontal center, `0x08` top, `0x10` bottom and `0x20` vertical center. PPreMatch raw flags `0x21/0x22/0x24` are therefore source-closed.
