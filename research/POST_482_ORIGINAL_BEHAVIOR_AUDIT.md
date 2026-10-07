@@ -372,3 +372,52 @@ PR #552 exact branch head `970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64` merged as `
 
 **Inventory status:** 34 first-parent main commits follow historical audit head `b890c578` through Recovery-404 checkpoint `aecef5b0`; PR #552 adds one first-parent merge. The old numbered ledger at this document's top is historical and does **not** yet classify every subsequent entry. Complete that per-commit source/impact classification before treating the retrospective audit inventory as current. All unresolved original-behavior and external acceptance criteria remain open. **Gate 13 audit exit not authorized; Gate 17 release not authorized.**
 
+## Recovery 405: extended audited first-parent main ledger (8 October 2026 KST)
+
+This section continues the historical bounded first-parent inventory from `b890c578eeebbf8ad4375e58dbd236e3f957b5cb` through `5b8fafe123ed601377ff44886f39cd27845453da`. GitHub's compare commit graph was filtered by repeatedly following each main commit's **first parent**, not by treating all pull-request internal commits as first-parent entries. Each resulting commit was then independently checked for its changed-file scope. The 36 rows below correspond to that exact linear chain; the commit that appends this table is mechanical audit documentation and is excluded.
+
+**Primary-classification counts in this extension:** 9 ORIGINAL-PROVEN (bounded), 1 COMPATIBILITY-EQUIVALENT, 1 INCONCLUSIVE/fail-closed, 25 RESEARCH/INFRASTRUCTURE-ONLY. The names here describe each commit's *particular scoped behavior*, not a blanket original-game equivalence or a full UI fidelity claim. Research-only includes source trace, tests, status, and documentation where no new production behavior is introduced. Source-backed behavior is traced in `research/GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md`, `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md` and `research/GATE13_MANAGEMENT_HEADER_MATCH_SELECTOR_SOURCE_TRACE.md`.
+
+| # | Main commit | Scoped contribution | Primary classification | Evidence, limits, and corrective disposition |
+| ---: | --- | --- | --- | --- |
+| 01 | `b8be966d` | Cup-Tied audit/status reconciliation | **RESEARCH/INFRASTRUCTURE-ONLY** | Documentation/status only; no executable change |
+| 02 | `b29faef` | Reserve +0x174 original-state source trace | **RESEARCH/INFRASTRUCTURE-ONLY** | Executable-source research only; no runtime mutation |
+| 03 | `57eb5786` | Central header text control source trace | **RESEARCH/INFRASTRUCTURE-ONLY** | Source research/documentation only |
+| 04 | `0c8d9a71` | Propagate five-state reserve selection through Squad bridge and save | **ORIGINAL-PROVEN (bounded)** | GATE13_SQUAD_RESERVE_SELECTION_SOURCE_TRACE.md, bounded native +0x174 setters/readers |
+| 05 | `62ba573e` | Draw source-proven y=68 date control and formatter | **ORIGINAL-PROVEN (bounded)** | GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md, eCText control/style/native template |
+| 06 | `de130503` | Date-header test fixture correction | **RESEARCH/INFRASTRUCTURE-ONLY** | Test-only source and host fixture repair |
+| 07 | `671f9849` | Initial match-selector trace | **RESEARCH/INFRASTRUCTURE-ONLY** | Research-only; later correction supersedes erroneous branch reading |
+| 08 | `dd767a48` | Correct source selector branch direction | **RESEARCH/INFRASTRUCTURE-ONLY** | Research correction and explicit unresolved +0x08 boundary |
+| 09 | `36335b97` | Close fresh wrapper +0x08 source link boundary | **RESEARCH/INFRASTRUCTURE-ONLY** | Canonical constructor/Side trace; no runtime code change |
+| 10 | `0d638a39` | Model clear/linked/unknown wrapper certainty | **ORIGINAL-PROVEN (bounded)** | Source constructor evidence for fresh clear, explicit linked state; unknown fails closed |
+| 11 | `e017e8fc` | Invalidate certainty after day-advance reschedule boundary | **INCONCLUSIVE / fail-closed** | Original post-start mutation producers unmodeled; intentionally unknown/fail-closed, not exact later-game display claim |
+| 12 | `1ecbbb5e` | Expose fresh direct fixed-League candidate to data bridge | **ORIGINAL-PROVEN (bounded)** | 0x615D10/0x615DA0 and wrapper+0x08 selector, direct/clear boundary only |
+| 13 | `9f42fd35` | Carry source-bounded match into management presenter | **ORIGINAL-PROVEN (bounded)** | Immutable presentation seam for recovered direct fixed-League match |
+| 14 | `66a15338` | Rasterize conditional y=34/y=51 match text | **ORIGINAL-PROVEN (bounded)** | Recovered English templates, Zurich 18px source font, eCText 0x2102 |
+| 15 | `9dd3291d` | Draw bounded conditional match header in host | **ORIGINAL-PROVEN (bounded)** | Source-bound selector/raster only; unknown and symbolic cases suppressed |
+| 16 | `c1815cc1` | Regression: wrapper-link certainty | **RESEARCH/INFRASTRUCTURE-ONLY** | Test-only assertions of source/fail-closed boundary |
+| 17 | `361de4d2` | Regression: match selector candidate | **RESEARCH/INFRASTRUCTURE-ONLY** | Test-only cases |
+| 18 | `52496352` | Regression: match header raster | **RESEARCH/INFRASTRUCTURE-ONLY** | Test-only cases |
+| 19 | `5704ed8f` | Regression: live conditional header draw | **RESEARCH/INFRASTRUCTURE-ONLY** | Test-only cases |
+| 20 | `97f8ecb3` | Regression: presenter carries match view | **RESEARCH/INFRASTRUCTURE-ONLY** | Test-only addition; full integration verification milestone |
+| 21 | `82785ebe` | Header integration state checkpoint | **RESEARCH/INFRASTRUCTURE-ONLY** | Research/CURRENT_STATE.md only |
+| 22 | `ed53b1f9` | Header integration research update | **RESEARCH/INFRASTRUCTURE-ONLY** | Research trace only |
+| 23 | `b3ffe9e5` | Header integration progress log | **RESEARCH/INFRASTRUCTURE-ONLY** | Chronological documentation only |
+| 24 | `b78c3496` | Header integration status mirror | **RESEARCH/INFRASTRUCTURE-ONLY** | project_status.json only |
+| 25 | `62e3c13f` | Source comment reconciliation | **RESEARCH/INFRASTRUCTURE-ONLY** | Comment-only module edit, no executable behavior |
+| 26 | `ef1dbbde` | Original main-menu criterion roadmap check | **RESEARCH/INFRASTRUCTURE-ONLY** | ROADMAP.md only; acceptance scope remains bounded |
+| 27 | `8b314483` | Recovery 402 retrospective reconciliation | **RESEARCH/INFRASTRUCTURE-ONLY** | Audit document only |
+| 28 | `bd2355bb` | Expand shared club-screen scope beyond Southport | **RESEARCH/INFRASTRUCTURE-ONLY** | CURRENT_STATE wording only |
+| 29 | `4760e071` | Scope correction in retrospective audit | **RESEARCH/INFRASTRUCTURE-ONLY** | Audit wording only |
+| 30 | `c78644a7` | Deterministic management PNG/PMenu redraw reuse | **COMPATIBILITY-EQUIVALENT** | Compatibility-equivalent output cache/suppression of hidden raster work; no source-pixel change; external latency not accepted |
+| 31 | `2d82a2b6` | Close primary Club.name raster/control contract | **ORIGINAL-PROVEN (bounded)** | Exact 0x2102 style/rect/font identity; caller-supplied font, no runtime wiring at this commit |
+| 32 | `e05c71c1` | Recovery 403 status checkpoint | **RESEARCH/INFRASTRUCTURE-ONLY** | Research/current progress only |
+| 33 | `09ee9e7d` | Opt-in WPF HWND/DPI transport receipt probe | **RESEARCH/INFRASTRUCTURE-ONLY** | Diagnostics-only; normal playback geometry unchanged, no visual acceptance claim |
+| 34 | `aecef5b0` | Recovery 404 transfer/extraction checkpoint | **RESEARCH/INFRASTRUCTURE-ONLY** | Research/status only; original font not yet Git staged |
+| 35 | `08ad7e95` | Import byte-identical Zurich 36px and render shared Club.name | **ORIGINAL-PROVEN (bounded)** | Archive hash + exact Git blob + manifest; source eCText semantics and generic Southport/Arsenal tests |
+| 36 | `5b8fafe1` | Recovery 405 verified integration status checkpoint | **RESEARCH/INFRASTRUCTURE-ONLY** | Research/status only; Gate 13 remains open |
+
+**Review limits that must not be erased by green tests:** the day-advance certainty invalidation `e017e8fc` is intentional conservative fail-closed behavior until unmodeled original post-start reschedule effects are recovered; it is **not proof** that the shipped game suppresses those lines later. Similarly `0d638a39` and the direct match sequence are ORIGINAL-PROVEN **only in their documented fresh direct fixed-League slice**. `c78644a7` is a compatibility optimization without external Windows responsiveness evidence. `2d82a2b6` was a raster contract, not a live title; the exact asset/live generic binding arrived only at `08ad7e95`. `09ee9e7d` is a diagnostic capability, not an FMV correction. Default original menu remains isolated from deferred Settings.
+
+**Audit exit still blocked.** The ledger classification now reaches Recovery-405 main checkpoint `5b8fafe123ed601377ff44886f39cd27845453da`, but private Windows parent/child HWND and DPI receipt, source-backed reconciliation of the previously wrong in-field startup video content, and a newly observed acceptable normal Windows menu/Squad responsiveness and full presentation remain unverified. The historical old table and earlier hypotheses are bounded/superseded by the dated addenda above. Neither Gate 13 nor the overall Gate 17 Windows release is complete.
+

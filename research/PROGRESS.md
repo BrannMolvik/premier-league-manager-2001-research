@@ -1,3 +1,7 @@
+### 8 October 2026 KST — Recovery 405 post-#482 first-parent audit ledger extended
+
+The GitHub comparison from `b890c578` through `5b8fafe123ed601377ff44886f39cd27845453da` was filtered by first-parent ancestry and individual changed-file scopes were checked. The 36 mainline commits were classified and appended to `research/POST_482_ORIGINAL_BEHAVIOR_AUDIT.md`: 9 bounded ORIGINAL-PROVEN, 1 COMPATIBILITY-EQUIVALENT, 1 INCONCLUSIVE/fail-closed and 25 RESEARCH/INFRASTRUCTURE-ONLY. The modelled day-advance header certainty is expressly not claimed as later-season original behavior. No source display geometry was guessed or changed. External Windows #482 responsiveness/visual completeness and private WPF child HWND/DPI observation remain decisive blockers, so Gate 13 remains active and Gate 17 completion is prohibited.
+
 ### 8 October 2026 KST — Recovery 405: exact 36px source font integrated and CI-verified
 
 - Overcame Recovery-404 cross-tool binary-transfer failure by uploading a 102-chunk base64 transfer text from the current working container into private ChatGPT Library, reading it directly through the Files connector, and passing the concatenated bytes to the GitHub blob API without manual reconstruction. Git blob SHA-1 `a5127c02be6f6ff20594701e3507afb9e56086b0` equals the independently calculated Git hash of the 155,544-byte font; source SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. The source is now committed and manifest-tracked under `original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt`.

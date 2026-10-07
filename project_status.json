@@ -14,7 +14,7 @@
   "last_verified_test_count": 2920,
   "asset_policy_validated_head": "970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 405 PR #552 merged; source-verified original Zurich 36px Club.name header now integrated and tested for Southport + Arsenal. Next privately capture Win11 --transport-probe-only HWND/DPI receipt (#551) to diagnose incorrect FMV content; refresh post-#482 audit first-parent inventory, and verify real menu/Squad latency/visual completeness before Gate 13 closure. See research/CURRENT_STATE.md.",
+  "active_task": "Recovery 405: post-#482 first-parent main ledger extended/classified through 5b8fafe (36 commits) with caveats. Gate13 next external evidence: private Windows --transport-probe-only HWND/DPI receipt for startup FMV; original frame-content correction if receipt warrants, then real Windows menu/Squad responsiveness/visual acceptance. Cloud-safe source-backed regressions may continue independently; no gate closure.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
