@@ -113,3 +113,56 @@ launch route, security changes, exceptions, Azure or paid signing are attempted.
 Building and inspecting a candidate remains possible, but personal execution
 of the new frozen candidate and external readiness cannot be claimed until
 an approved executable trust/distribution route is available. Gate 13 stays open.
+
+## Final local validation and delivery checkpoint
+
+Implementation/build checkpoint:
+`dd6bf304acd70911990c0f4a85bed7f75c70504b`, on
+`codex/gate13-windows-playability-recovery`. The subsequent validation receipt
+commit changes documentation only; neither main nor agent-runtime is modified.
+
+- Focused startup/viewport/Squad/header/host/cache/package regression:
+  **172 tests passed**, 23.297s (`work/playability-final-focused.log`).
+- Full reconstruction regression: **2,915 tests run**, 24 expected skips,
+  **3 failures and 1 error**, 363.043s (`work/playability-full-suite.log`).
+  All four are unchanged `test_gate17_ffmpeg_toolchain_provenance` tests:
+  Windows fixture newline translation trips the raw package-lock digest gate.
+  Read-only execution of the exact canonical-main test source reproduces the
+  same four failures; production module, test, contract and lock have no diff
+  from main `1a580ea7`. This is not presented as a passing full suite. No
+  unrelated Gate-17 implementation or verification gate is changed.
+- Asset policy and staged whitespace checks passed.
+- Final inert-widget production route reached Conference/Southport, with
+  **20 source names, 20 source colors, the real club caption and 134 layers**.
+  New Game 0.882s; Start/backend 1.432s; resource wait 0.053s; first Squad draw
+  0.077s; three redraws 0.018–0.019s. These remain offline code-path timings,
+  not real Tk/frozen/Windows acceptance (`work/playability-final-caption.json`).
+- PyInstaller 6.22.3 built the normal one-directory Windows package successfully.
+  The standard release tool succeeded with a short output directory after the
+  deep work-directory output exceeded Windows path limits. No OS setting was
+  changed. Static inspection verified **all 1,210 release payload hashes**, the
+  extracted folder, new font, 33 pinned raster paths / 32 unique source hashes,
+  and inclusion of the changed runtime modules in the build analysis.
+- Executable SHA-256:
+  `e30db8b5dda356c847b476701546d50a1c48529ab30766c0f8b619d98c34243c`.
+  Archive SHA-256:
+  `3819dfef0514ba14432d94b0ff054d88ae9c3949a2a9c64d7b534174c48e6bb8`.
+  Private static receipt: `work/gate13-recovery-package-verification.json`.
+
+Prepared executable (not launched or acceptance-qualified):
+`C:\Users\Brann\Documents\Codex\FM2001-Recovery-dd6bf304\FM2001-Windows11-local-dd6bf304\FM2001-Windows11.exe`.
+ZIP and release manifest are in its parent output folder. Authenticode remains
+`NotSigned`. No --package-smoke or normal frozen executable execution is
+claimed after the existing Code Integrity denial. No audio claim is made.
+
+Remaining actual Gate-13 boundaries: an approved executable trust/distribution
+route for real acceptance, the still-unbound ordinary management advance/play
+and required Squad selector/header content, and Conference-specific ordinary
+Fixtures/Tables context (the existing bridge still specializes those panels
+to Premier League). Startup Escape's normal fullscreen-leave action is blocked,
+but exact native skip semantics remain unresolved. The earlier frozen run
+proved both clips/menu/Southport name rows before the trust failure, not this
+new candidate or a complete ordinary playable management loop. **Not ready for
+an unqualified external acceptance pass; Gate 13 stays open.** Next work must
+retain the integrated fixes, bind only source-qualified ordinary controls,
+and obtain authorized frozen-executable acceptance without security bypasses.

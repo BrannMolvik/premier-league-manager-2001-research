@@ -17,6 +17,18 @@ fresh-user+D0 constructor state. Unknown imported/custom context stays closed.
 See `GATE13_WINDOWS_PLAYABILITY_RECOVERY.md` for proof, validation and remaining
 ordinary management interaction/Windows trust blockers. Gate 13 remains open.
 
+Final implementation/build checkpoint `dd6bf304acd70911990c0f4a85bed7f75c70504b`:
+172 focused tests pass; full reconstruction runs 2,915 tests / 24 skips with
+four unchanged Gate-17 Windows package-lock fixture failures, reproduced from
+the exact main baseline. Asset policy passes. The actual frozen package is
+built and all 1,210 release payload hashes verified, but is not executed after
+the Windows trust denial. Prepared folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Recovery-dd6bf304\FM2001-Windows11-local-dd6bf304`.
+No passing full-suite/frozen acceptance or Gate-13 closure is claimed. Next:
+source-qualified ordinary management controls/Conference panel contexts and an
+approved trust/distribution route for real executable acceptance. No signing,
+security exception, source-GUI bypass or Gate-14/17 implementation is attempted.
+
 ---
 
 # Local Gate-13 play-test follow-up - 7 October 2026
