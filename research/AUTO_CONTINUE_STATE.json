@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 awaits Daniel's external Windows acceptance. Bounded Gate-17 PR #523 is open at exact head de2f904c71a7407b202afa2affc9728fbda0df6b after first-party MSYS2 metadata closed the two source-family tarball blockers from PR #522. Require all exact-head checks before merge; completeness/legal flags must remain false. After merge, persist the boundary and continue the next independent cloud-safe task.",
-  "last_known_main_head": "073099c79779def832fdd35612f9cf9f2b811bcb",
+  "active_task": "Recovery 381: Gate 13 remains earliest incomplete and issue #482 awaits Daniel's external Windows acceptance. PR #523 merged as aadaf484754ade2854a2b48e52c853ccf31a7a57 after all four exact-head checks passed. Three independent successful minimal-build artifacts (Recovery 356, PR #522, PR #523) produced the same 151-row pacman inventory, SHA-256 c1e79ae6500dd48a206fa786f9f863f37cdc788e6f2dbfba0c926e999077abec. Next cloud-safe task: add a fail-closed complete build-environment package/version lock from that inventory while keeping source-material completeness and legal-compliance claims false.",
+  "last_known_main_head": "aadaf484754ade2854a2b48e52c853ccf31a7a57",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 381,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #522 merged at 073099c79779def832fdd35612f9cf9f2b811bcb after all four required workflows passed. PR #523 exact-head workflows queued: asset policy 37585092177, minimal FFmpeg 37585092239, Windows package 37585092245, reconstruction 37585092251.",
+  "note": "PR #523 merged. Exact-head checks: asset 37585092177, Windows package 37585092245, reconstruction 37585092251, minimal FFmpeg 37585092239. Fresh artifact 11465843961 digest sha256:0bb3bb84778217b70fa20b4e3996a2e5cac1fcdfbb734d148ad682e06b81d46c; package inventory is byte-identical to artifacts 11431743521 and 11465166679.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
