@@ -7,6 +7,9 @@ from match_schedule import MsvcCrtRng
 from primary_schedule_shadow import (
     PrimaryScheduleResolutionPending,
     PrimaryScheduleShadowState,
+    WRAPPER_LINK_CLEAR,
+    WRAPPER_LINK_LINKED,
+    WRAPPER_LINK_UNKNOWN,
 )
 from primary_schedule import (
     fixed_league_fixture_order_by_round,
@@ -222,6 +225,133 @@ class PrimaryScheduleExecutionOrderTests(unittest.TestCase):
 
 
 class PrimaryScheduleShadowTests(unittest.TestCase):
+    def test_header_selector_uses_exact_bucket_order_and_clear_link_state(self):
+        first = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 10),
+        )
+        second = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=1,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(3),
+            node_token=("fixed_league_match", 0, 0, 11),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(second, first)],
+            season_year=2000,
+        )
+        on_date, entry = shadow.direct_fixed_league_header_candidate(
+            1,
+            date(2000, 7, 3),
+        )
+        self.assertEqual(on_date, date(2000, 7, 3))
+        self.assertEqual(entry.node_token[-1], 11)
+        self.assertEqual(entry.wrapper_link_state, WRAPPER_LINK_CLEAR)
+
+        on_date, entry = shadow.direct_fixed_league_header_candidate(
+            1,
+            date(2000, 7, 3),
+            played_fixture_ids=(11,),
+        )
+        self.assertEqual(entry.node_token[-1], 10)
+
+    def test_header_selector_skips_linked_but_fails_closed_on_unknown(self):
+        candidate = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 10),
+        )
+        later = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=2,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(3),
+            node_token=("fixed_league_match", 0, 0, 11),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(candidate,), (later,)],
+            season_year=2000,
+        )
+        shadow.days[date(2000, 7, 3)] = tuple(
+            __import__("dataclasses").replace(
+                entry, wrapper_link_state=WRAPPER_LINK_LINKED
+            )
+            for entry in shadow.days[date(2000, 7, 3)]
+        )
+        on_date, entry = shadow.direct_fixed_league_header_candidate(
+            1,
+            date(2000, 7, 3),
+        )
+        self.assertEqual((on_date, entry.node_token[-1]), (date(2000, 7, 4), 11))
+
+        shadow.invalidate_unmodelled_wrapper_links()
+        self.assertEqual(
+            shadow.days[date(2000, 7, 4)][0].wrapper_link_state,
+            WRAPPER_LINK_UNKNOWN,
+        )
+        self.assertIsNone(
+            shadow.direct_fixed_league_header_candidate(1, date(2000, 7, 3))
+        )
+
+    def test_legacy_shadow_restore_does_not_invent_clear_link_state(self):
+        node = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 10),
+        )
+        fresh = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(node,)],
+            season_year=2000,
+        )
+        raw = fresh.snapshot()
+        del raw["2000-07-03"][0]["wrapper_link_state"]
+        restored = PrimaryScheduleShadowState.restore(raw)
+        self.assertEqual(
+            restored.days[date(2000, 7, 3)][0].wrapper_link_state,
+            WRAPPER_LINK_UNKNOWN,
+        )
+        self.assertIsNone(
+            restored.direct_fixed_league_header_candidate(1, date(2000, 7, 3))
+        )
+
     def test_next_match_scan_ignores_unrelated_symbolic_candidate(self):
         source = StartupScheduleNode(
             node_kind="cup_match",
