@@ -613,7 +613,7 @@ class PrematchSurfaceTests(unittest.TestCase):
         self.assertFalse(boundary.complete_prematch_frame)
         self.assertFalse(boundary.gate14_complete)
 
-    def test_state_binding_uses_exact_left_growth_and_right_mirroring(self):
+    def test_state_binding_uses_exact_left_overlay_and_right_shrinking_mask(self):
         selection = self._selection()
         surfaced = fake_surfaced_resources(selection)
         with (
@@ -663,19 +663,19 @@ class PrematchSurfaceTests(unittest.TestCase):
                         row.left_dynamic_rect.height,
                     ),
                     (
-                        row.right_dynamic_rect.x,
-                        row.right_dynamic_rect.y,
-                        row.right_dynamic_rect.width,
-                        row.right_dynamic_rect.height,
+                        row.right_mask_rect.x,
+                        row.right_mask_rect.y,
+                        row.right_mask_rect.width,
+                        row.right_mask_rect.height,
                     ),
                 )
                 for row in bound.rows
             ),
             (
-                ("goalkeeper", 169, 17, (65, 497, 169, 16), (718, 497, 17, 16)),
-                ("defence", 120, 34, (65, 515, 120, 16), (701, 515, 34, 16)),
-                ("midfield", 80, 51, (65, 533, 80, 16), (684, 533, 51, 16)),
-                ("attack", 40, 68, (65, 551, 40, 16), (667, 551, 68, 16)),
+                ("goalkeeper", 169, 17, (65, 497, 169, 16), (564, 497, 154, 16)),
+                ("defence", 120, 34, (65, 515, 120, 16), (564, 515, 137, 16)),
+                ("midfield", 80, 51, (65, 533, 80, 16), (564, 533, 120, 16)),
+                ("attack", 40, 68, (65, 551, 40, 16), (564, 551, 103, 16)),
             ),
         )
         self.assertTrue(bound.source_state_bound)
