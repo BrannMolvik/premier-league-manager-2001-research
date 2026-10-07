@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main b890c578eeebbf8ad4375e58dbd236e3f957b5cb. Complete first-parent ledger is persisted; Settings remains isolated; startup Escape is fail-closed; disproved Cup-Tied date fallback and its live lifecycle were removed. Next: resolve or diagnostically bound the externally wrong startup-FMV frame-content transport, then recover fresh-Squad name/header completeness. No Gate-17 work-ahead or acceptance build until audit exit.",
-  "last_known_main_head": "b890c578eeebbf8ad4375e58dbd236e3f957b5cb",
+  "last_known_main_head": "b8be966db032654fc13eb733b19ae1cfafc39374",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 395,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 395 checkpoint: Cup-Tied unsupported date semantics fully removed from live lifecycle at b890c578; audit remains open on FMV frame-content, fresh Squad/header completeness, startup input semantics, responsiveness, and Gate-14 reachability.",
+  "recovery_generation": 396,
+  "last_recovery_reason": "Analysis errored / sandbox",
+  "note": "Recovery 396: resumed from canonical main b8be966d after sandbox failure. Mandatory post-#482 audit remains active. Immediate task: bound startup-FMV TGQ derivative/WPF child-HWND transport mismatch; if cloud evidence cannot resolve it, continue source-backed fresh-Squad reserve +0x174 name-color predicates/state and header binding. Gate 17 work-ahead remains frozen.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
