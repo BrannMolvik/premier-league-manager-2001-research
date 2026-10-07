@@ -1883,6 +1883,9 @@ class OriginalGameHostTests(unittest.TestCase):
                 "original_game_host.load_verified_original_teamselect_inputs",
                 side_effect=load_team,
             ), patch(
+                "original_game_host.load_source_styled_settings_resources",
+                side_effect=load_settings,
+            ), patch(
                 "original_game_host.FrontEndSession.for_canonical_game_dir",
                 return_value=fake_session,
             ):
