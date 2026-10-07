@@ -1,3 +1,15 @@
+# Daniel directive - original-behavior-first / modernization freeze
+
+_Updated 7 October 2026._
+
+Effective immediately, the active project objective is **restore the shipped original FM2001 experience on Windows 11**, not modernize it. Every implementation must first establish how the original game behaved from original/source evidence and use the minimum compatibility adaptation necessary. Unknown behavior must remain unresolved/fail-closed rather than be filled with plausible modern behavior. See `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
+
+The previously merged Settings extension is **deferred modernization**, not an active Gate-13 requirement and not evidence of original behavior. Do not expand it. Before the next external acceptance candidate, ensure the normal/default tested path restores the original menu baseline and does not depend on modernization-only controls.
+
+**Immediate priority remains issue #482:** source-first diagnosis and repair of the externally demonstrated Gate-13 failures (startup-video content transform/framing, startup input semantics, menu-transition latency, and incomplete Southport management/Squad presentation). For each fix, recover/confirm the original behavior first, then implement only the minimum Windows-11-compatible equivalent.
+
+---
+
 # Recovery 388 continuation - integrated third-party material bundle merged; minimal package candidate next
 
 _Updated 7 October 2026._
