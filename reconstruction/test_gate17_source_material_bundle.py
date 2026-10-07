@@ -87,12 +87,18 @@ class Gate17SourceMaterialBundleTests(unittest.TestCase):
             root = self.write_contract(temp, payload)
             output = Path(temp) / "out"
 
+            expected = {
+                item["source_url"]: (
+                    item["expected_sha256"],
+                    item["expected_size_bytes"],
+                )
+                for item in audit_source_bundle_contract(root)["entries"]
+            }
+
             def fake_download(url, destination):
-                data = ("payload:" + Path(url).name).encode("utf-8")
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                destination.write_bytes(data)
-                import hashlib
-                return hashlib.sha256(data).hexdigest(), len(data)
+                destination.write_bytes(b"synthetic")
+                return expected[url]
 
             with patch(
                 "gate17_source_material_bundle._download",
@@ -114,6 +120,22 @@ class Gate17SourceMaterialBundleTests(unittest.TestCase):
                 len(list((output / "source-packages").glob("*.src.tar.zst"))),
                 4,
             )
+
+
+    def test_download_hash_drift_fails_closed(self):
+        payload = self.real_contract()
+        with tempfile.TemporaryDirectory() as temp:
+            root = self.write_contract(temp, payload)
+            output = Path(temp) / "out"
+            with patch(
+                "gate17_source_material_bundle._download",
+                return_value=("0" * 64, 1),
+            ):
+                with self.assertRaisesRegex(SourceBundleError, "SHA-256 drifted"):
+                    materialize_source_bundle(
+                        repo_root=root,
+                        output_dir=output,
+                    )
 
 
 if __name__ == "__main__":
