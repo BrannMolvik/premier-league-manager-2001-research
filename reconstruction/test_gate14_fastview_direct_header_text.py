@@ -155,10 +155,10 @@ class FastViewDirectHeaderTextTests(unittest.TestCase):
         self.assertEqual(
             contract["font_source_archive_sha256"], TEXT_FONT_SOURCE_ARCHIVE_SHA256
         )
-        self.assertEqual(TEXT_FONT_SOURCE_SIZE, 79_734)
+        self.assertEqual(TEXT_FONT_SOURCE_SIZE, 75_217)
         self.assertEqual(
             TEXT_FONT_SOURCE_SHA256,
-            "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a",
+            "e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18",
         )
         self.assertEqual(
             TEXT_FONT_SOURCE_ARCHIVE_SHA256,
