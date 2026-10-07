@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Post-#482 Gate-13 audit: trace exact fresh management-header content binding from canonical executable; reserve +0x174 state source closure is complete and runtime propagation is bounded for the implementation worker.",
-  "last_known_main_head": "b29faef5f37226604b795829f7c857bbd369d472",
+  "active_task": "Post-#482 Gate-13 audit: source-close 0x615D10/0x615DA0 central-header match selector, then hand off only original-proven fresh-Squad reserve-name + central club/date integration. Startup FMV DPI/HWND receipt remains deferred and Gate-17 work-ahead remains frozen.",
+  "last_known_main_head": "57eb578630742a02e07797de13ed155335a566af",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 396,
   "last_recovery_reason": "Analysis errored / sandbox",
-  "note": "Recovery 396 heartbeat: main b29faef5 source-closes the five-way Squad reserve/first-team selection state. Startup FMV outer geometry remains unchanged; private Windows HWND/DPI receipt is deferred. Continue first-hand source recovery for missing fresh management-header binding. Gate-17 work-ahead and new acceptance builds remain frozen until retrospective audit exit.",
+  "note": "Recovery 396 heartbeat: main 57eb5786 source-closes the central management club-name/current-date header controls and exact conditional match-line templates. Required 36px original font identity is pinned but not staged. Continue first-hand match-selector trace; no acceptance build.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
