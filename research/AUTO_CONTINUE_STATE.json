@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 373: PR #516 is open at exact head 08b42c6a458a5b310c690d3ea2e2ddbc84d6017a with reconstruction run 37558062900 and asset-policy run 37558062899 started. Continue source-backed Gate-14 XI shirt work while CI runs: reproduce/verify 0x5E4C60 generic Team%.2d.bmp palette/recolor output, then bind custom/generic/goalkeeper numbered 36x32 frames into the 22 PPreMatch marker controls. Gate 13 #482 remains earliest validation blocker.",
+  "active_task": "Recovery 374: PR #516 remains open from canonical main 9e4d2377fc0484f02befaef0dc219e95970f9902. Shirt/pixel/22-marker work is staged on PR #516; continue exact PPreMatch supplied-state frame closure. Next: bind dynamic fixture/date/weather/team identity text using source-proven home stadium with N/A/NA -> short-name fallback, then rating widths/selector supplied state and attach concrete XI/formation marker binding to the base surface. Merge PR #516 only after exact-head CI is green. Gate 13 #482 remains earliest validation blocker.",
   "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 373,
+  "recovery_generation": 374,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 373 active. Do not repeat PR #515 badge work. PR #516 source-closes shirt selection; generic recolor trace is the next exact task.",
+  "note": "Recovery 374 resumed after stale interruption. Do not repeat PR #515 badge work or Recovery 373 XI-shirt tracing; PR #516 contains that work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
