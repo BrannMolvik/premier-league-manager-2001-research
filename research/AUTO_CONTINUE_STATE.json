@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #526 active exact head 85f2012bf97500dc6e8f85ee023ed8d0d27d449b. Exact head c920ea93141120d3e6d5316fd35d011d9b299596 passed reconstruction 37591230329 (2,865 tests, 25 skipped) and asset 37591230564; minimal build 37591230499 built/relinked successfully but audit failed because release-build.log also contains strip -o ffmpeg.exe ffmpeg_g.exe and the parser matched ffmpeg_g.exe as an input. Current fix requires the token immediately after -o to equal the unstripped target and regression-tests the real strip line. Fresh exact-head asset 37592150512 passed; reconstruction 37592150397 and minimal FFmpeg 37592150430 are pending. If green, inspect link-input-proof/raw traces, persist evidence, merge, then capture direct package ownership for observed external archives. Keep source_material_complete and legal_compliance_claimed false.",
-  "last_known_main_head": "2583ff7394606f47a19f11068916b01663b3d962",
+  "active_task": "Recovery 382: Gate 13/#482 remains earliest incomplete pending Daniel's external Windows acceptance of artifact 11464212544. PR #526 merged as 1bdbb2d9c8102a639f5b9391e3c99e0eba4bae43 after exact-head asset 37592150512, reconstruction 37592150397 (2,866 tests, 25 skipped), and minimal FFmpeg proof 37592150430; state reconciliation PR #527 merged as c73e07e5c34115a7644bfd1b1a8cd1163a5739ce. Active cloud-safe Gate-17 task: capture direct package owner/version evidence for every observed external .a/.o final-link input from the same pinned MSYS2/UCRT64 environment, validate exact owner versions against TOOLCHAIN-PACKAGES.lock and critical source-family mappings, and keep source_material_complete/legal_compliance_claimed/static contributor attribution false. After ownership, strengthen archive-member/link-map contribution evidence.",
+  "last_known_main_head": "c73e07e5c34115a7644bfd1b1a8cd1163a5739ce",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 383,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #526 advanced to exact head 85f2012 after real Windows trace revealed a release-log strip-command parser ambiguity. Fresh exact-head CI required.",
+  "note": "Recovery 382 link-input capture is merged and canonical state reconciled. Proceeding to direct package ownership evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
