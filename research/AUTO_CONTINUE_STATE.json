@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 issue #482: rebuild PR #519's post-match source-mode host seam on repaired current main, require fresh exact-head verification and Windows packaging, then use that reconciled package as the next external acceptance candidate. Afterward rebuild the candidate-only 0x513010 caller tracer from current main and resume first-hand caller adjudication when private executable processing works.",
+  "active_task": "Gate 13 issue #482: PR #519 is rebuilt on repaired main at 34f8c09a5b0591ca961868eba9ea18d98c06969d. Gate-13 presentation and asset-policy checks are green; full reconstruction and Windows package are still running. Do not merge until both complete green and the package artifact exists. Then persist/merge #519, expose the exact artifact for external acceptance, and rebuild #520's candidate-only 0x513010 caller tracer from the new main.",
   "last_known_main_head": "581a3d2daa7557e50c80a863aefc23b93409202a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 380,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 380 reloaded GitHub canonical state. PR #521 is merged and source-closes the Tk/WPF startup timeout. Old artifact 11418314765 is superseded; PR-branch artifact 11463330603 is not the canonical merged-main acceptance build. Gate 13 remains open pending a fresh current-main package and external Windows acceptance. Immediate cloud-safe task is to rebuild stale PR #519 on repaired main; candidate-only caller tracer #520 follows. Private executable processing remains a deferred blocker if caas ClientError persists.",
+  "note": "Recovery 380 rebuilt PR #519 in place after preserving its pre-repair head on chatgpt/archive-gate14-host-mode-dispatch-r379. The branch is exactly two commits ahead / zero behind current main and changes only original_game_host.py plus its focused host-surface test. Exact-head runs: Gate 13 presentation 37580530636 passed; asset policy 37580530517 passed; reconstruction 37580530606 and Windows package 37580530537 remain in progress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
