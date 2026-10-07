@@ -1835,9 +1835,6 @@ class OriginalGameHostTests(unittest.TestCase):
                 "original_game_host.load_verified_english_pstartmenu_inputs",
                 side_effect=reject_source,
             ), patch(
-                "original_game_host.load_source_styled_settings_resources",
-                side_effect=load_settings,
-            ), patch(
                 "original_game_host.FrontEndSession.for_canonical_game_dir",
                 return_value=fake_session,
             ):
