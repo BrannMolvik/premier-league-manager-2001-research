@@ -130,6 +130,8 @@ on:
       - "reconstruction/test_gate14_prematch_shirt_selection.py"
       - "reconstruction/gate14_prematch_generic_shirt.py"
       - "reconstruction/test_gate14_prematch_generic_shirt.py"
+      - "reconstruction/gate14_prematch_pixel_format.py"
+      - "reconstruction/test_gate14_prematch_pixel_format.py"
       - "reconstruction/gate14_fastview_surfaced_resource_raster.py"
       - "reconstruction/gate14_fastview_component_rasters.py"
       - "reconstruction/test_gate14_fastview_component_rasters.py"
