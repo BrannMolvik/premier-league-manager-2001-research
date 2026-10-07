@@ -68,4 +68,5 @@ jobs:
             _gate17-license-material/evidence/
             _gate17-license-material/source-input/source-package-manifest.json
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
