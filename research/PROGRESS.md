@@ -4,6 +4,20 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 373 generic shirt recolor continuation
+
+First-hand `0x5E4C60/0x5E4B10/0x5E4980` tracing closes the source-RGB stage
+of generic/alternate numbered shirts. The clean-room now parses the exact
+36x1280 8-bit TeamNN.bmp source, rewrites native palette ranges 1..31,
+32..63 and 64..79 from canonical executable color data, preserves untouched
+palette entries, and treats source index zero as transparent. Club secondary
+palette IDs at Master.dat +59/+71 are now retained alongside the first IDs.
+
+Exact legacy 16-bit display packing remains separate and false. The next source
+task is the `0x5E4980` mask/shift initialization and quantization rule, then
+all three source families (custom, generic/alternate, goalkeeper) can be bound
+to the 22 source-closed marker controls.
+
 ### 7 October 2026 KST — Recovery 373 XI shirt selector checkpoint
 
 After PR #515 merged PPreMatch team badges, fresh canonical-executable tracing
