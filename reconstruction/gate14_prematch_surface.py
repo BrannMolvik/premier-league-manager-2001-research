@@ -483,7 +483,7 @@ class BoundPrematchRatingSurface:
     left_width: int
     right_width: int
     left_dynamic_rect: OriginalRect
-    right_dynamic_rect: OriginalRect
+    right_mask_rect: OriginalRect
 
     def __post_init__(self) -> None:
         if not self.semantic_group:
@@ -504,17 +504,19 @@ class BoundPrematchRatingSurface:
         ):
             raise PrematchSurfaceError("left dynamic rating rectangle is not native")
         if (
-            self.right_dynamic_rect.x,
-            self.right_dynamic_rect.y,
-            self.right_dynamic_rect.width,
-            self.right_dynamic_rect.height,
+            self.right_mask_rect.x,
+            self.right_mask_rect.y,
+            self.right_mask_rect.width,
+            self.right_mask_rect.height,
         ) != (
-            self.source.right_rect.x + self.source.right_rect.width - self.right_width,
+            self.source.right_rect.x,
             self.source.right_rect.y,
-            self.right_width,
+            self.source.right_rect.width - self.right_width,
             self.source.right_rect.height,
         ):
-            raise PrematchSurfaceError("right dynamic rating rectangle is not mirrored")
+            raise PrematchSurfaceError(
+                "right rating mask does not preserve native shrinking right edge"
+            )
 
 
 @dataclass(frozen=True)
@@ -554,8 +556,10 @@ def bind_prematch_rating_widths(
 ) -> BoundPrematchRatingRows:
     """Bind exact native width results without mutating the resource boundary.
 
-    Native side 0 grows rightward from x=65. Side 1 is anchored at its right
-    edge (x=564+171) and therefore grows leftward by subtracting the width.
+    Native side 0 reveals its rating by growing a rating_bar_left overlay
+    rightward from x=65. Side 1 starts with rating_bar_right2 as the full base
+    and a full rating_bar_right mask at x=564; refresh moves only the mask's
+    right edge to 735-width, so the requested width is revealed at the right.
     """
     if type(boundary) is not PrematchSurfaceBoundary:
         raise PrematchSurfaceError("rating binding requires exact PrematchSurfaceBoundary")
@@ -587,10 +591,10 @@ def bind_prematch_rating_widths(
                     left_width,
                     source.left_rect.height,
                 ),
-                right_dynamic_rect=OriginalRect(
-                    source.right_rect.x + source.right_rect.width - right_width,
+                right_mask_rect=OriginalRect(
+                    source.right_rect.x,
                     source.right_rect.y,
-                    right_width,
+                    source.right_rect.width - right_width,
                     source.right_rect.height,
                 ),
             )
