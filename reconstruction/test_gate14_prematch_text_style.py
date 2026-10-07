@@ -17,7 +17,17 @@ from gate14_prematch_text_style import (
     PREMATCH_TEXT_STYLES,
     PREMATCH_VERSUS_FLAGS,
     PREMATCH_VERSUS_STYLE,
+    TEXT_ALIGN_BOTTOM,
+    TEXT_ALIGN_HCENTER,
+    TEXT_ALIGN_LEFT,
+    TEXT_ALIGN_RIGHT,
+    TEXT_ALIGN_TOP,
+    TEXT_ALIGN_VCENTER,
+    TEXT_ALIGNMENT_DRAW_VA,
+    TEXT_LINE_HEIGHT_VA,
+    TEXT_MEASURE_WIDTH_VA,
     TEXT_NATIVE_COLOR_16,
+    TEXT_ROTATED_ORIENTATION,
     TEXT_STYLE_OBJECT_VTABLE_VA,
     prematch_text_style_contract,
 )
@@ -142,7 +152,19 @@ class PrematchTextStyleTests(unittest.TestCase):
         contract = prematch_text_style_contract()
         self.assertTrue(contract["font_identity_source_closed"])
         self.assertTrue(contract["raw_control_flags_source_closed"])
-        self.assertFalse(contract["alignment_bit_semantics_source_closed"])
+        self.assertTrue(contract["alignment_bit_semantics_source_closed"])
+        self.assertEqual(TEXT_ALIGNMENT_DRAW_VA, 0x64F090)
+        self.assertEqual(TEXT_MEASURE_WIDTH_VA, 0x6574E0)
+        self.assertEqual(TEXT_LINE_HEIGHT_VA, 0x6574D0)
+        self.assertEqual(
+            (TEXT_ALIGN_LEFT, TEXT_ALIGN_RIGHT, TEXT_ALIGN_HCENTER),
+            (0x01, 0x02, 0x04),
+        )
+        self.assertEqual(
+            (TEXT_ALIGN_TOP, TEXT_ALIGN_BOTTOM, TEXT_ALIGN_VCENTER),
+            (0x08, 0x10, 0x20),
+        )
+        self.assertEqual(TEXT_ROTATED_ORIENTATION, 0x40)
         self.assertFalse(contract["text_pixels_rasterized"])
         self.assertFalse(contract["complete_prematch_frame"])
         self.assertFalse(contract["gate14_complete"])
