@@ -7,6 +7,7 @@ from pathlib import Path
 from gate17_package_candidate import (
     PackageCandidateError,
     REQUIRED_BUNDLED_FILES,
+    REQUIRED_EXACT_BUNDLED_SHA256,
     build_release_candidate,
     validate_distribution,
 )
@@ -23,7 +24,13 @@ class Gate17PackageCandidateTests(unittest.TestCase):
         for relative in REQUIRED_BUNDLED_FILES:
             path = dist / relative
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(("asset:" + relative).encode("utf-8"))
+            # Bundle the real source font so distribution tests exercise the
+            # same exact-byte guard used in an actual packaged build.
+            if relative in REQUIRED_EXACT_BUNDLED_SHA256:
+                original = Path(__file__).resolve().parent.parent / relative
+                path.write_bytes(original.read_bytes())
+            else:
+                path.write_bytes(("asset:" + relative).encode("utf-8"))
         (dist / "runtime.bin").write_bytes(b"runtime")
         return dist
 
@@ -41,6 +48,30 @@ class Gate17PackageCandidateTests(unittest.TestCase):
             self.assertTrue(
                 (internal / "original_assets" / "MANIFEST.md").is_file()
             )
+
+    def test_source_club_name_font_must_be_present_and_byte_identical(self):
+        relative = "original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt"
+        self.assertIn(relative, REQUIRED_BUNDLED_FILES)
+        self.assertEqual(
+            REQUIRED_EXACT_BUNDLED_SHA256[relative],
+            "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df",
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            dist = self._distribution(Path(temp))
+            staged = dist / relative
+            self.assertEqual(len(staged.read_bytes()), 155_544)
+            self.assertTrue(validate_distribution(dist, "FM2001-Windows11.exe"))
+
+            original = staged.read_bytes()
+            staged.unlink()
+            with self.assertRaisesRegex(PackageCandidateError, "must resolve exactly once"):
+                validate_distribution(dist, "FM2001-Windows11.exe")
+
+            changed = bytearray(original)
+            changed[-1] ^= 1
+            staged.write_bytes(changed)
+            with self.assertRaisesRegex(PackageCandidateError, "checksum mismatch"):
+                validate_distribution(dist, "FM2001-Windows11.exe")
 
     def test_distribution_rejects_user_owned_game_data(self):
         with tempfile.TemporaryDirectory() as temp:
