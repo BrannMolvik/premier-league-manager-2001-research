@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "MANDATORY POST-#482 RETROSPECTIVE AUDIT. Main b890c578eeebbf8ad4375e58dbd236e3f957b5cb. Complete first-parent ledger is persisted; Settings remains isolated; startup Escape is fail-closed; disproved Cup-Tied date fallback and its live lifecycle were removed. Next: resolve or diagnostically bound the externally wrong startup-FMV frame-content transport, then recover fresh-Squad name/header completeness. No Gate-17 work-ahead or acceptance build until audit exit.",
-  "last_known_main_head": "b8be966db032654fc13eb733b19ae1cfafc39374",
+  "active_task": "Post-#482 Gate-13 audit: trace exact fresh management-header content binding from canonical executable; reserve +0x174 state source closure is complete and runtime propagation is bounded for the implementation worker.",
+  "last_known_main_head": "b29faef5f37226604b795829f7c857bbd369d472",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 396,
   "last_recovery_reason": "Analysis errored / sandbox",
-  "note": "Recovery 396: resumed from canonical main b8be966d after sandbox failure. Mandatory post-#482 audit remains active. Immediate task: bound startup-FMV TGQ derivative/WPF child-HWND transport mismatch; if cloud evidence cannot resolve it, continue source-backed fresh-Squad reserve +0x174 name-color predicates/state and header binding. Gate 17 work-ahead remains frozen.",
+  "note": "Recovery 396 heartbeat: main b29faef5 source-closes the five-way Squad reserve/first-team selection state. Startup FMV outer geometry remains unchanged; private Windows HWND/DPI receipt is deferred. Continue first-hand source recovery for missing fresh management-header binding. Gate-17 work-ahead and new acceptance builds remain frozen until retrospective audit exit.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
