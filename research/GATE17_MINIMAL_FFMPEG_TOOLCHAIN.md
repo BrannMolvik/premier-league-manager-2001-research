@@ -68,3 +68,21 @@ source/license/notice obligation must then be assembled and checksummed.
 Accordingly `complete_package_lock=false`,
 `source_material_complete=false`, and `legal_compliance_claimed=false`
 remain mandatory. This is technical provenance work, not a legal conclusion.
+
+## Recovery 381 critical source-family closure
+
+The two source-family identities left unresolved in Recovery 380 are now
+independently verified from first-party MSYS2 package metadata:
+
+- `msys2-runtime 3.6.10-6` publishes
+  `https://mirror.msys2.org/msys/sources/msys2-runtime-3.6.10-6.src.tar.zst`;
+- MinGW-w64 CRT `14.0.0.r426.g4564ee4b5-1` publishes
+  `https://mirror.msys2.org/mingw/sources/mingw-w64-crt-14.0.0.r426.g4564ee4b5-1.src.tar.zst`.
+
+The critical subset therefore has source-tarball metadata for all eight mapped
+source families. This closes only those two bounded metadata blockers. It does
+**not** establish the complete transitive package lock, identify every package
+whose code is redistributed in the static helper, assemble the final
+source/license/notice bundle, or make a legal-compliance conclusion.
+`complete_package_lock=false`, `source_material_complete=false`, and
+`legal_compliance_claimed=false` remain mandatory.
