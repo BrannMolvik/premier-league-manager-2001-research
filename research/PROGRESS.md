@@ -4,6 +4,20 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 375 complete supplied PPreMatch child-state model
+
+PPreMatch supplied-state closure now covers the remaining dynamic families
+without weakening pixel fidelity. Exact source date/weather formatting,
+fixture/stadium display, team identities, rating widths, XI marker pixels and
+four explicit native Button@ease frame indices can be attached to one verified
+base surface.
+
+The aggregate reports all **182 native child states bound** and preserves the
+source-closed 0..181 draw order. This is a state-model milestone, not a complete
+frame: dynamic text has not yet been rasterized/composited into the final
+800x600 output, so flattened-frame, complete-frame and Gate-14 flags remain
+false. Gate 13 #482 remains the earliest validation blocker.
+
 ### 7 October 2026 KST — Recovery 373 full PPreMatch structural coverage
 
 The XI-shirt continuation now covers native mask-driven 16-bit packing,
