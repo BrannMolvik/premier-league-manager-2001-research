@@ -8,6 +8,8 @@ for the same game-owned WPF player, retaining the existing timeout, verified
 cache/source order, geometry and audio. Both easp and premintro complete in
 the actual source-runtime production host, restoring the menu. Focused
 Windows tests: 88 passed, including unmodified-script real WPF playback.
+Full reconstruction suite: 2,839 run, OK with 23 expected skips; repository
+asset policy and whitespace checks pass.
 
 Evidence and bounded regression details:
 `research/GATE13_ISSUE482_WPF_STARTUP_DIAGNOSIS.md`.

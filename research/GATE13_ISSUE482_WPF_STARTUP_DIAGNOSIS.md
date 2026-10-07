@@ -109,7 +109,9 @@ unchanged bounded timeout, owned-process cleanup, MediaFailed, parent close
 and hidden-menu input/redraw suppression. Existing verification/order tests
 remain in the run. Asset policy and `git diff --check` pass.
 
-Full reconstruction results will be recorded after the running suite ends.
+Full reconstruction suite: **2,839 tests run, OK (23 expected skips)**,
+198.193 s, using the existing private Capstone runtime. The opt-in real-media
+test is separately included in the 88-test focused Windows pass above.
 The previously downloaded frozen artifact is unchanged: a newly built
 package and Daniel's normal packaged-launch acceptance remain unverified.
 The successful production-host source run does not replace that acceptance,
