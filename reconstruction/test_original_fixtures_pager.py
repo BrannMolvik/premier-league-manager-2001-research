@@ -73,7 +73,7 @@ class FixturesPagerTests(unittest.TestCase):
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources())
-            host.on_click(SimpleNamespace(x=7,y=478)); live.choose_club(12)
+            host.on_click(SimpleNamespace(x=141,y=512)); live.choose_club(12)
             host.on_click(SimpleNamespace(x=426,y=301))
             host.management_presenter.navigate(0x25C)
             # Synthetic source bridge has four clubs; qualify only this test's

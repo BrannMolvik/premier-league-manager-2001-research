@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from base64 import b64encode
 from functools import lru_cache
-from math import gcd
 from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
@@ -127,6 +126,7 @@ from original_squad_row_style import (
     load_verified_squad_row_text_resources,
 )
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+from original_window_viewport import window_fit_scale
 from startup_media_playback import (
     load_and_play_verified_startup_sequence,
     play_verified_startup_sequence,
@@ -438,7 +438,12 @@ class OriginalGameTkHost:
         self.last_fastview_window = None
 
         self.root.title("Premier League Manager 2001")
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
+        if callable(getattr(self.root, "minsize", None)):
+            self.root.minsize(320, 240)
+        self._viewport_resize_idle = None
+        self._pending_viewport_size = None
+        self._windowed_size = SCREEN_SIZE
         self._fullscreen = False
         screen_width = (
             int(self.root.winfo_screenwidth())
@@ -450,29 +455,9 @@ class OriginalGameTkHost:
             if hasattr(self.root, "winfo_screenheight")
             else SCREEN_SIZE[1]
         )
-        # Fill the available display height as closely as practical while
-        # preserving FM2001's native 4:3 aspect ratio. A small rational scale
-        # keeps Tk's nearest-neighbour zoom/subsample path deterministic without
-        # falling all the way back to 1x on 16:9 displays such as 1920x1080.
-        fit_scale = max(
-            1.0,
-            min(
-                screen_width / SCREEN_SIZE[0],
-                screen_height / SCREEN_SIZE[1],
-            ),
+        self.display_scale_num, self.display_scale_den = window_fit_scale(
+            screen_width, screen_height
         )
-        # Choose the largest small rational that never exceeds the physical
-        # display. Direct final-size scaling means we can represent common
-        # ratios such as 9/5 exactly without creating a large Tk intermediate.
-        candidates = []
-        for denominator in range(1, 17):
-            numerator = max(1, int(fit_scale * denominator))
-            if numerator / denominator <= fit_scale:
-                candidates.append((numerator / denominator, numerator, denominator))
-        _ratio, numerator, denominator = max(candidates)
-        divisor = gcd(int(numerator), int(denominator))
-        self.display_scale_num = int(numerator) // divisor
-        self.display_scale_den = int(denominator) // divisor
         self.display_scale = self.display_scale_num / self.display_scale_den
         self.display_width = (
             SCREEN_SIZE[0] * self.display_scale_num + self.display_scale_den - 1
@@ -493,6 +478,7 @@ class OriginalGameTkHost:
         # canvas is centered rather than stretched, avoiding interpolation and
         # preserving every recovered pointer rectangle exactly.
         self.canvas.pack(expand=True)
+        self.root.bind("<Configure>", self.on_window_configure)
         self.root.bind("<F11>", self.toggle_fullscreen)
         self.root.bind("<Alt-Return>", self.toggle_fullscreen)
         self.root.bind("<Escape>", self.leave_fullscreen)
@@ -503,6 +489,38 @@ class OriginalGameTkHost:
         self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
         self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
+
+    def on_window_configure(self, event) -> None:
+        if getattr(event, "widget", None) is not self.root:
+            return  # Child/configure events are not the available game client.
+        width, height = int(event.width), int(event.height)
+        if width < 320 or height < 240:
+            return  # Ignore construction/minimization, not a usable viewport.
+        self._pending_viewport_size = (width, height)
+        if self._viewport_resize_idle is None:
+            self._viewport_resize_idle = self.root.after(50, self._resize_viewport)
+
+    def _resize_viewport(self) -> None:
+        self._viewport_resize_idle = None
+        width, height = self._pending_viewport_size
+        numerator, denominator = window_fit_scale(width, height)
+        if (numerator, denominator) == (self.display_scale_num, self.display_scale_den):
+            return
+        self.display_scale_num, self.display_scale_den = numerator, denominator
+        self.display_scale = numerator / denominator
+        self.display_width = self._native_to_display(SCREEN_SIZE[0])
+        self.display_height = self._native_to_display(SCREEN_SIZE[1])
+        self.canvas.configure(width=self.display_width, height=self.display_height)
+        # All cached PhotoImages carry the previous viewport scale. Retaining
+        # them would mix sizes and break both visuals and pointer rectangles.
+        self._first_screen_photo_cache.clear()
+        self._generic_photo_cache.clear()
+        self._photos = []
+        if getattr(self, "_startup_media_active", False):
+            self.canvas.coords(self._startup_media_backdrop, 0, 0,
+                               self.display_width, self.display_height)
+        else:
+            self.redraw()
 
     def startup_media_child_binding(self) -> dict[str, int]:
         """Return the game-owned child-HWND rectangle for source-faithful FMVs."""
@@ -568,14 +586,26 @@ class OriginalGameTkHost:
             raise OriginalGameHostError("Game window closed during startup media")
 
     def _set_fullscreen(self, enabled: bool) -> None:
+        if enabled and not self._fullscreen and callable(getattr(self.root, "winfo_width", None)):
+            size = (self.root.winfo_width(), self.root.winfo_height())
+            if size[0] >= 320 and size[1] >= 240:
+                self._windowed_size = size
         self._fullscreen = bool(enabled)
         self.root.attributes("-fullscreen", self._fullscreen)
+        if not enabled and callable(getattr(self.root, "geometry", None)):
+            # Do not restore a monitor-sized requested canvas into a decorated
+            # window; preserve the last actual windowed client instead.
+            self.root.geometry(f"{self._windowed_size[0]}x{self._windowed_size[1]}")
 
     def toggle_fullscreen(self, event=None):
+        if getattr(self, "_startup_media_active", False):
+            return "break"  # The live WPF child owns the fixed presentation rect.
         self._set_fullscreen(not self._fullscreen)
         return "break"
 
     def leave_fullscreen(self, event=None):
+        if getattr(self, "_startup_media_active", False):
+            return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
         return "break"
@@ -2212,6 +2242,9 @@ def run_original_game_ui(
 
     import tkinter as tk
 
+    from windows_display_context import initialize_windows_display_context
+    initialize_windows_display_context()
+
     with timed_stage("startup.tk_root"):
         root = tk.Tk()
     host = OriginalGameTkHost(
@@ -2247,6 +2280,9 @@ def run_original_game_ui(
                     width=binding["width"],
                     height=binding["height"],
                 )
+            bind_geometry = getattr(startup_media_backend, "bind_presentation_geometry", None)
+            if callable(bind_geometry):
+                bind_geometry(host.startup_media_child_binding)
             with timed_stage("startup.media"):
                 play_configured_startup_media(
                     receipt_path=startup_media_receipt,

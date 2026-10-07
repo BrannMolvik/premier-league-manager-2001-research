@@ -1,3 +1,48 @@
+# Local Gate-13 recovery resumed - 7 October 2026
+
+Dedicated branch `codex/gate13-windows-playability-recovery` integrates current
+main `1a580ea7f38a0fba608237b21dd9e21d9f5661e3` with the verified local
+startup/DPI/menu/Squad checkpoints through `01f866bf`. Daniel's current
+assignment is playability recovery only; the worker's Settings and later-gate
+work remains preserved but outside this local task. The previously denied
+unsigned extracted executable is not retried through another launch route.
+
+---
+
+# Local Gate-13 play-test follow-up - 7 October 2026
+
+Integration branch `codex/gate13-working-windows-build` preserves the newer
+disjoint main work; no main merge or agent-runtime modification was performed.
+Checkpoint `2dc760e172b2383535f33f721fab550caa0799ac` fixes the demonstrated
+mixed-DPI intro cropping and makes the owned 800x600 viewport follow window
+size while preserving the startup hotkey guard, media order/audio/verification
+and original timeout. Normal frozen startup completed both clips and reached
+the centered menu, then ordinary Conference/Southport selection and populated
+name rows. Full regression: 2,859 tests, 24 expected skips, passed.
+
+The follow-on native Squad trace restores the exact First Team title and twenty
+cropped row-picture strips, with original asset provenance and focused tests.
+Final regression: 2,861 tests passed, with 24 expected skips (359.642s).
+The final atlas-validation change also passed its five focused tests.
+It does not claim a complete Squad screen or normal advance/play binding.
+Evidence and the exact remaining UI boundary are recorded in
+`research/GATE13_PLAYTEST_RENDERING_DIAGNOSIS.md`.
+
+New local acceptance blocker: the extracted unsigned local-2dc760e1 package
+fails Windows Code Integrity policy `{0283ac0f-fff1-49ae-ada1-8a933130cad6}`
+(3033/3077), despite all 1,205 package-file hashes passing. No bypass, alternate
+execution route, security/policy change or paid signing work is attempted.
+Further packaged Windows acceptance requires an approved trust/distribution
+route. Offline source/rendering tests remain available. Gate 13 remains open;
+the missing ordinary management presentation/interaction is not documented away.
+
+Local work is paused at Daniel's explicit usage-reserve request. No further
+launches or investigations are running. Resume with the remaining ordinary
+Squad presentation/interaction, preserving the proven startup fix; packaged
+acceptance remains blocked by the recorded Windows trust-policy denial.
+
+---
+
 # Recovery 385 continuation - archive-member attribution proved; Gate-13 Settings now active
 
 _Updated 7 October 2026._

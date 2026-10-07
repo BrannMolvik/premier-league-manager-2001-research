@@ -8,7 +8,7 @@ from original_front_end_input import (
     dispatch_original_pointer,
 )
 from original_front_end_layout import (
-    PSTARTMENU_ACTIONS,
+    PSTARTMENU_SCREEN_ACTIONS,
     TEAMSELECT_BACK_EVENT,
     TEAMSELECT_BACK_RECT,
     TEAMSELECT_START_EVENT,
@@ -27,8 +27,8 @@ class DummyBackend:
 
 class OriginalFrontEndPointerTests(unittest.TestCase):
     def test_all_original_menu_control_rectangles_and_half_open_edges(self):
-        self.assertEqual([action.event for action in PSTARTMENU_ACTIONS], [1, 2, 3, 4])
-        for action in PSTARTMENU_ACTIONS:
+        self.assertEqual([action.event for action in PSTARTMENU_SCREEN_ACTIONS], [1, 2, 3, 4])
+        for action in PSTARTMENU_SCREEN_ACTIONS:
             rect = action.rect
             with self.subTest(event=action.event):
                 for x, y in (
@@ -84,7 +84,7 @@ class OriginalFrontEndPointerTests(unittest.TestCase):
         self.assertIsNone(
             candidate_original_event(FrontEndScreen.TEAM_SELECT, 20, 78)
         )
-        for x, y in ((1.2, 478), (181, 478.5), (True, 478), (181, False)):
+        for x, y in ((1.2, 478), (315, 512.5), (True, 478), (181, False)):
             with self.subTest(x=x, y=y):
                 with self.assertRaises(TypeError):
                     candidate_original_event(FrontEndScreen.START_MENU, x, y)
@@ -100,16 +100,16 @@ class OriginalFrontEndPointerTests(unittest.TestCase):
         session = FrontEndSession(factory)
         self.assertIsNone(dispatch_original_pointer(session, 0, 0))
         for x, y, command in (
-            (181, 478, FrontEndCommand.CONTINUE_GAME),
-            (355, 478, FrontEndCommand.LOAD_GAME),
-            (181, 508, FrontEndCommand.QUIT_TO_WINDOWS),
+            (315, 512, FrontEndCommand.CONTINUE_GAME),
+            (489, 512, FrontEndCommand.LOAD_GAME),
+            (315, 542, FrontEndCommand.QUIT_TO_WINDOWS),
         ):
             result = dispatch_original_pointer(session, x, y)
             self.assertEqual(result.transition.command, command)
             self.assertIs(session.navigation.screen, FrontEndScreen.START_MENU)
         self.assertEqual(built, [])
 
-        result = dispatch_original_pointer(session, 7, 478)
+        result = dispatch_original_pointer(session, 141, 512)
         self.assertIs(result.transition.screen, FrontEndScreen.TEAM_SELECT)
         self.assertIsNone(result.transition.command)
         self.assertEqual(len(built), 1)
@@ -123,7 +123,7 @@ class OriginalFrontEndPointerTests(unittest.TestCase):
 
     def test_teamselect_back_restores_menu_without_hidden_simulation_reset(self):
         session = FrontEndSession(DummyBackend)
-        dispatch_original_pointer(session, 7, 478)
+        dispatch_original_pointer(session, 141, 512)
         current_backend = session.gameplay
         session.choose_club(12)
         result = dispatch_original_pointer(session, 225, 301)

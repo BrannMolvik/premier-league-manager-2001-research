@@ -219,6 +219,9 @@ This manifest will be populated as authorized FM2001 resources are intentionally
 
 Forms:
 
+| original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/title_bar_7.444 | FM2001_Art/Generic/GenericButtonsAndBars/title_bar_7.444 | 2b08a35ab9eed1093a95a7db96fade138fc2bef9212c106463ef755d4201cecf | original | Gate-13 fresh PSquadList title, native 4B506D -> 5D6050 -> 5D5EB0, raw 946B90 / wrapper 946B70; 226x20, 2872 bytes. Byte-identical authorized source ZIP 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
+| original_assets/source/FM2001_Art/Coaching/stats/stats_grid_disabled.444 | FM2001_Art/Coaching/stats/stats_grid_disabled.444 | 4fe16ef35b5ee5da748c9de81a14897e162d2d15e73cd143190dfb97a23822a7 | original | Gate-13 PSquadList's 20 row pictures, native 4B520F..4B5670, raw 942FF0 / wrapper 942FD0; full source 729x16, runtime crop 328x16, 12324 bytes. Byte-identical authorized source ZIP 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
+
 - **original** - byte-identical extracted source asset;
 - **converted** - derived from the original solely for modern compatibility;
 - **adapted** - original content incorporated into a modern container/representation.

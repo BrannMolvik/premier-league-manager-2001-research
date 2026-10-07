@@ -121,6 +121,8 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
             display_name_rgb = squad_name_rgb_from_available_state(
                 first_team_active=match_active,
                 first_team_substitute=match_substitute_available,
+                reserve_active=getattr(row, "reserve_active", None),
+                reserve_substitute=getattr(row, "reserve_substitute_available", None),
             )
         except ValueError as exc:
             raise OriginalSquadPresentationError(str(exc)) from exc

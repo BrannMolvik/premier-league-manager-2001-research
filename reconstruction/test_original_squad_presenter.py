@@ -34,6 +34,23 @@ class Row:
 
 
 class OriginalSquadPresenterTests(unittest.TestCase):
+    def test_retained_reserve_flags_render_unselected_names_without_guesses(self):
+        from types import SimpleNamespace
+        from dataclasses import asdict
+        row = SimpleNamespace(**asdict(self.row(2)), reserve_active=False,
+                              reserve_substitute_available=False)
+        self.assertEqual(build_squad_row_viewport((row,)).rows[0].display_name_rgb,
+                         (217, 210, 62))
+        row.reserve_active = True
+        self.assertEqual(build_squad_row_viewport((row,)).rows[0].display_name_rgb,
+                         (176, 176, 176))
+        row.reserve_active = False
+        row.reserve_substitute_available = True
+        self.assertEqual(build_squad_row_viewport((row,)).rows[0].display_name_rgb,
+                         (185, 167, 131))
+        row.reserve_substitute_available = None
+        self.assertIsNone(build_squad_row_viewport((row,)).rows[0].display_name_rgb)
+
     def row(self, index=0):
         return Row(
             index,

@@ -9,6 +9,7 @@ from ea444_decoder import EA444DecodedImage, decode_ea444
 from ea444_quantization import quantization_from_verified_executable
 from ea444_tables import tables_from_original_executable
 from ea_font import EAFont
+from ea_language_strings import parse_language_pair
 from gate13_original_pixel_preview import encode_rgba_png
 from original_live_debug_view import endpoint_text_rgba
 from original_pmenu_chrome import (
@@ -23,6 +24,10 @@ from original_squad_resources import (
     SQUAD_PANEL_RECT,
     SQUAD_RESOURCES,
     validate_imported_original_squad_resources,
+    SQUAD_VISIBLE_ROW_Y_ORIGINS,
+)
+from original_squad_row_style import (
+    load_verified_squad_row_text_resources, _clip_mask, SQUAD_ROW_FONT_ATLAS_SIZE,
 )
 
 
@@ -45,11 +50,19 @@ SQUAD_BUTTON_SELECTED_COLOR_16 = 0x0000
 SQUAD_BUTTON_INITIAL_GROUPS = (1, 0, 0)
 SQUAD_BUTTON_INITIAL_SOURCE_FRAMES = (11, 0, 0)
 
+SQUAD_FIRST_TITLE_PATH = 'FM2001_Art/Generic/GenericButtonsAndBars/title_bar_7.444'
+SQUAD_FIRST_TITLE_SHA256 = '2b08a35ab9eed1093a95a7db96fade138fc2bef9212c106463ef755d4201cecf'
+SQUAD_FIRST_GRID_PATH = 'FM2001_Art/Coaching/stats/stats_grid_disabled.444'
+SQUAD_FIRST_GRID_SHA256 = '4fe16ef35b5ee5da748c9de81a14897e162d2d15e73cd143190dfb97a23822a7'
+
 
 @dataclass(frozen=True)
 class OriginalSquadTopResources:
     atlas: EA444DecodedImage
     font: EAFont
+    first_roster_title: EA444DecodedImage | None = None
+    first_roster_grid: EA444DecodedImage | None = None
+    first_roster_title_font: EAFont | None = None
 
     def __post_init__(self) -> None:
         if (self.atlas.width, self.atlas.height) != (
@@ -61,6 +74,17 @@ class OriginalSquadTopResources:
             raise OriginalSquadTopControlsError("Squad button font geometry mismatch")
         if self.font.native_line_height() != PMENU_FONT_NATIVE_LINE_HEIGHT:
             raise OriginalSquadTopControlsError("Squad button font metrics mismatch")
+        chrome = (self.first_roster_title, self.first_roster_grid, self.first_roster_title_font)
+        if any(item is not None for item in chrome):
+            if any(item is None for item in chrome):
+                raise OriginalSquadTopControlsError('Incomplete first-roster chrome resources')
+            if (self.first_roster_title.width, self.first_roster_title.height) != (226, 20):
+                raise OriginalSquadTopControlsError('First-roster title geometry mismatch')
+            if (self.first_roster_grid.width, self.first_roster_grid.height) != (729, 16):
+                raise OriginalSquadTopControlsError('First-roster grid geometry mismatch')
+            font = self.first_roster_title_font
+            if (font.atlas_width, font.atlas_height) != SQUAD_ROW_FONT_ATLAS_SIZE:
+                raise OriginalSquadTopControlsError('First-roster title font mismatch')
 
 
 @dataclass(frozen=True)
@@ -117,13 +141,26 @@ def load_verified_squad_top_resources(
     root = Path(source_root)
     validate_imported_original_squad_resources(root)
     resource = _button_resource()
+    strings, indices = parse_language_pair((root / 'English.str').read_bytes(),
+                                           (root / 'English.idx').read_bytes())
+    if indices.resolve(strings, 166) != 'First Team':
+        raise OriginalSquadTopControlsError('First-roster original language binding mismatch')
     executable = Path(original_executable).read_bytes()
     atlas = decode_ea444(
         (root / resource.source_path).read_bytes(),
         tables=tables_from_original_executable(executable),
         quant=quantization_from_verified_executable(executable),
     )
-    return OriginalSquadTopResources(atlas=atlas, font=_validate_font(root))
+    def chrome(path, expected_hash, expected_size):
+        raw = (root / path).read_bytes()
+        if len(raw) != expected_size or sha256(raw).hexdigest() != expected_hash:
+            raise OriginalSquadTopControlsError('Original Squad chrome identity mismatch')
+        return decode_ea444(raw, tables=tables_from_original_executable(executable),
+                           quant=quantization_from_verified_executable(executable))
+    return OriginalSquadTopResources(atlas=atlas, font=_validate_font(root),
+        first_roster_title=chrome(SQUAD_FIRST_TITLE_PATH, SQUAD_FIRST_TITLE_SHA256, 2872),
+        first_roster_grid=chrome(SQUAD_FIRST_GRID_PATH, SQUAD_FIRST_GRID_SHA256, 12324),
+        first_roster_title_font=load_verified_squad_row_text_resources(root).font)
 
 
 def _crop_frame(atlas: EA444DecodedImage, source_index: int) -> bytes:
@@ -150,6 +187,35 @@ def build_fresh_squad_top_render(
     width, height = SQUAD_BUTTON_FRAME_SIZE
     line_height = resources.font.native_line_height()
     overlays: list[OriginalSquadTopOverlay] = []
+
+    if resources.first_roster_title is not None:
+        # PSquadList 4B506D -> 5D6050 -> 5D5EB0: title_bar_7 at local
+        # (0,126), wrapper 946B70 (226x20), First Team / English.idx[166].
+        title = resources.first_roster_title
+        overlays.append(OriginalSquadTopOverlay('roster_title', 0, 'First Team',
+            37, panel_y + 126, 226, 20, encode_rgba_png(226, 20, title.rgba),
+            SQUAD_FIRST_TITLE_PATH, 0))
+        font = resources.first_roster_title_font
+        mask = font.render_text_alpha('First Team')
+        rect = (37, panel_y + 126, 226, 20)
+        # 5D5EB0 sets font 9197E0, flags 2001, white and inset (6,0).
+        # 651F80 supplies default vertical centering; 6520C0 clips to owner.
+        clipped = _clip_mask(mask, line_x=rect[0] + 6,
+            line_y=rect[1] + 10 - font.native_line_height() // 2, rect=rect)
+        if clipped is not None:
+            x, y, w, h, alpha = clipped
+            overlays.append(OriginalSquadTopOverlay('roster_title_text', 0, 'First Team',
+                x, y, w, h, encode_rgba_png(w, h, endpoint_text_rgba(alpha, 0xffff)),
+                'Fonts/Zurich_BdXCn_BT_18pixel.fnt', None, 0xffff))
+        # 4B520F..4B5670 installs 20 pictures at y=154+17*i, with
+        # wrapper 942FD0 cropping the first 328x16 of the 729x16 original.
+        grid = resources.first_roster_grid
+        cropped_grid = b''.join(grid.rgba[y * 729 * 4:y * 729 * 4 + 328 * 4]
+                                for y in range(16))
+        png = encode_rgba_png(328, 16, cropped_grid)
+        for y in SQUAD_VISIBLE_ROW_Y_ORIGINS:
+            overlays.append(OriginalSquadTopOverlay('roster_grid', 0, '',
+                37, panel_y + y, 328, 16, png, SQUAD_FIRST_GRID_PATH, 0))
 
     for button, group, source_index in zip(
         SQUAD_BUTTONS,

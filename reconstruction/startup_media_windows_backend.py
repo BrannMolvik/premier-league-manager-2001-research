@@ -26,6 +26,62 @@ class WindowsStartupMediaBackendError(RuntimeError):
     pass
 
 
+class _GameOwnedChildViewport:
+    """Resize only this player's child of the bound game HWND, never its owner.
+
+    The WPF child processes WM_SIZE itself, including its physical-pixel to DIP
+    conversion. No media restart, desktop/display change, activation or z-order
+    change is performed. Discovery is qualified by both parent and owned PID.
+    """
+    def __init__(self, parent_hwnd: int, player_pid: int):
+        from ctypes import wintypes
+        if type(player_pid) is not int or player_pid <= 0:
+            raise WindowsStartupMediaBackendError('Invalid owned media-player PID')
+        self.parent_hwnd = parent_hwnd
+        self.player_pid = player_pid
+        self.last_rect = None
+        self.child_hwnd = None
+        self.user32 = ctypes.WinDLL('user32', use_last_error=True)
+        self.callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        self.user32.EnumChildWindows.argtypes = (wintypes.HWND, self.callback_type, wintypes.LPARAM)
+        self.user32.EnumChildWindows.restype = wintypes.BOOL
+        self.user32.GetWindowThreadProcessId.argtypes = (wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
+        self.user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+        self.user32.GetParent.argtypes = (wintypes.HWND,)
+        self.user32.GetParent.restype = wintypes.HWND
+        self.user32.SetWindowPos.argtypes = (wintypes.HWND, wintypes.HWND,
+                                           ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                           wintypes.UINT)
+        self.user32.SetWindowPos.restype = wintypes.BOOL
+        self.pid_type = wintypes.DWORD
+
+    def __call__(self, rect: tuple[int, int, int, int]) -> None:
+        if self.child_hwnd is None:
+            candidates = []
+            def capture(hwnd, _parameter):
+                pid = self.pid_type()
+                self.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+                if pid.value == self.player_pid and self.user32.GetParent(hwnd) == self.parent_hwnd:
+                    candidates.append(hwnd)
+                return True
+            self.user32.EnumChildWindows(self.parent_hwnd, self.callback_type(capture), 0)
+            if not candidates:
+                return  # HwndSource has not been constructed yet.
+            if len(candidates) != 1:
+                raise WindowsStartupMediaBackendError('Ambiguous game-owned media child')
+            self.child_hwnd = candidates[0]
+        pid = self.pid_type()
+        self.user32.GetWindowThreadProcessId(self.child_hwnd, ctypes.byref(pid))
+        if pid.value != self.player_pid or self.user32.GetParent(self.child_hwnd) != self.parent_hwnd:
+            raise WindowsStartupMediaBackendError('Media child ownership changed')
+        if rect == self.last_rect:
+            return
+        # SWP_NOZORDER | SWP_NOACTIVATE: this transport cannot take focus.
+        if not self.user32.SetWindowPos(self.child_hwnd, None, *rect, 0x0014):
+            raise ctypes.WinError(ctypes.get_last_error())
+        self.last_rect = rect
+
+
 def _default_mci_sender() -> tuple[Callable[[str], int], Callable[[int], str]]:
     try:
         winmm = ctypes.WinDLL("winmm")
@@ -276,6 +332,7 @@ class WindowsWpfStartupMediaBackend:
         runner: Callable[..., object] = subprocess.run,
         powershell_executable: str = "powershell.exe",
         process_factory: Callable[..., object] = subprocess.Popen,
+        viewport_factory: Callable[..., object] = _GameOwnedChildViewport,
     ):
         system = platform.system() if platform_system is None else platform_system
         if system != "Windows":
@@ -295,6 +352,10 @@ class WindowsWpfStartupMediaBackend:
         self._parent_hwnd = None
         self._presentation_rect = None
         self._event_pump = None
+        self._presentation_geometry = None
+        if not callable(viewport_factory):
+            raise WindowsStartupMediaBackendError('Media viewport factory must be callable')
+        self._viewport_factory = viewport_factory
         if not callable(process_factory):
             raise WindowsStartupMediaBackendError("Windows player process factory must be callable")
         self._process_factory = process_factory
@@ -310,6 +371,12 @@ class WindowsWpfStartupMediaBackend:
             raise WindowsStartupMediaBackendError("startup-media event pump must be callable")
         self._event_pump = event_pump
 
+    def bind_presentation_geometry(self, provider: Callable[[], dict]) -> None:
+        """Bind the owner's realized viewport, sampled after servicing Tk events."""
+        if not callable(provider):
+            raise WindowsStartupMediaBackendError('Media geometry provider must be callable')
+        self._presentation_geometry = provider
+
     def _run_player(self, command, *, env, timeout):
         if self._event_pump is None:
             return self._runner(command, check=False, capture_output=True, text=True,
@@ -319,9 +386,21 @@ class WindowsWpfStartupMediaBackend:
             stderr=subprocess.PIPE, text=True, env=env,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         deadline = time.monotonic() + timeout
+        viewport = None
         try:
+            if self._presentation_geometry is not None:
+                viewport = self._viewport_factory(self._parent_hwnd, process.pid)
             while True:
                 self._event_pump()  # Always on the calling/owning Tk thread.
+                if viewport is not None and process.poll() is None:
+                    binding = self._presentation_geometry()
+                    if binding.get('parent_hwnd') != self._parent_hwnd:
+                        raise WindowsStartupMediaBackendError('Media parent changed during playback')
+                    rect = tuple(binding.get(key) for key in ('x', 'y', 'width', 'height'))
+                    if (any(type(value) is not int for value in rect)
+                            or min(rect[:2]) < 0 or min(rect[2:]) <= 0):
+                        raise WindowsStartupMediaBackendError('Invalid live media viewport')
+                    viewport(rect)
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
                     raise subprocess.TimeoutExpired(command, timeout)
