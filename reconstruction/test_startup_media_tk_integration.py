@@ -77,16 +77,23 @@ class StartupMediaTkIntegrationTests(unittest.TestCase):
         host._startup_media_active = True
         host._fullscreen = True
         host.root = SimpleNamespace(attributes=Mock())
+        host.presenter = SimpleNamespace(session=SimpleNamespace(
+            settings=SimpleNamespace(fullscreen=True),
+            navigation=SimpleNamespace(screen=None)))
+        host._startup_native_input = Mock(return_value=True)
         # F11 and Alt+Return share toggle_fullscreen; Escape uses leave_fullscreen.
         for callback in (host.toggle_fullscreen, host.toggle_fullscreen,
                          host.leave_fullscreen):
             self.assertEqual(callback(), 'break')
         host.root.attributes.assert_not_called()
         self.assertTrue(host._fullscreen)
+        self.assertTrue(host.presenter.session.settings.fullscreen)
+        host._startup_native_input.assert_called_once_with(0x100, 27)
         host._startup_media_active = False
         self.assertEqual(host.leave_fullscreen(), 'break')
         host.root.attributes.assert_called_once_with('-fullscreen', False)
         self.assertFalse(host._fullscreen)
+        self.assertFalse(host.presenter.session.settings.fullscreen)
 
     @unittest.skipUnless(platform.system() == 'Windows' and
         os.environ.get('FM2001_WPF_TEST_CACHE'),

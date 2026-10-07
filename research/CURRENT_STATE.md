@@ -29,6 +29,16 @@ interaction remains unfinished. Next: verify that fallback's full roster,
 calculation and save/reload; integrate newer disjoint Settings work without
 merging main; retain original-host defects as actual acceptance blockers.
 
+Follow-on: canonical main f2772868 is integrated on the recovery branch at
+e0e3ef59, preserving Settings and all disjoint worker changes. The separate
+development fallback passed actual Take Control/Auto Fill/Advance/Play buttons,
+Southport's 30-player roster and Conference table, and fresh-controller reload
+of Daniel's supplied save followed by two further calculated/save/reload
+fixtures. See GATE13_DEVELOPMENT_TRAVEL_PLAYTEST.md. Original roster repair
+must use the paired first/reserve native mapper, not inferred scrolling or a
+guessed 20/10 membership split. The native context+D8 producer/order lifecycle
+and ordinary source-host gameplay bindings remain real requirements.
+
 ---
 
 # Local Gate-13 recovery resumed - 7 October 2026
