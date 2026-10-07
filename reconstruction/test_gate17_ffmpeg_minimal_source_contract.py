@@ -1,6 +1,7 @@
 """Tests for the Gate-17 minimal FFmpeg source/provenance contract."""
 from __future__ import annotations
 
+import importlib
 import json
 from pathlib import Path
 import tempfile
@@ -14,6 +15,31 @@ from gate17_ffmpeg_minimal_source_contract import (
 
 
 class Gate17MinimalFfmpegSourceContractTests(unittest.TestCase):
+    def test_module_is_importable_through_reconstruction_package(self):
+        repo = Path(__file__).resolve().parent.parent
+        module = importlib.import_module(
+            "reconstruction.gate17_ffmpeg_minimal_source_contract"
+        )
+        result = module.audit_source_contract(repo)
+        self.assertTrue(result["broad_candidate_pinned"])
+
+    def test_minimal_build_workflow_fails_fast_after_each_source_step_command(self):
+        repo = Path(__file__).resolve().parent.parent
+        workflow = (
+            repo / ".github" / "workflows" / "gate17-minimal-ffmpeg-build.yml"
+        ).read_text(encoding="utf-8")
+        start = workflow.index(
+            "      - name: Audit source contract and materialize configure args"
+        )
+        end = workflow.index("      - name: Check out pinned FFmpeg source", start)
+        source_step = workflow[start:end]
+        self.assertEqual(
+            source_step.count(
+                "if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }"
+            ),
+            2,
+        )
+
     def canonical(self):
         repo = Path(__file__).resolve().parent.parent
         return json.loads((repo / CONTRACT_PATH).read_text(encoding="utf-8"))
