@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 375: PR #516 now source-closes all 182 supplied PPreMatch child states plus TextControl alignment/font ownership. First-hand 0x64F090 proves 0x01 left, 0x02 right, 0x04 horizontal center, 0x08 top, 0x10 bottom, 0x20 vertical center. Shared style-3 font corrected to Zurich_XCn_BT_16pixel.fnt. Current branch work is at/after f836c9a2ca545538e657bc553dc1c06c8c7a7466; exact branch HEAD must be rechecked before merge. Next: rasterize supplied PPreMatch text with the four exact source fonts, then compose state-dependent child pixels in native 0..181 order. Complete frame/Gate14 remain false. Gate13 #482 remains earliest validation blocker.",
+  "active_task": "Recovery 376: continue PR #516 from the persisted Recovery 375 checkpoint. PR #516 source-closes all 182 supplied PPreMatch child states plus TextControl alignment/font ownership. First-hand 0x64F090 proves 0x01 left, 0x02 right, 0x04 horizontal center, 0x08 top, 0x10 bottom, 0x20 vertical center. Shared style-3 font is Zurich_XCn_BT_16pixel.fnt. Recheck exact PR head and CI, then rasterize supplied PPreMatch text with the four exact source fonts and compose state-dependent child pixels in native 0..181 order. Complete frame/Gate14 remain false. Gate13 #482 remains earliest validation blocker.",
   "last_known_main_head": "9e4d2377fc0484f02befaef0dc219e95970f9902",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 375,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 375 heartbeat after TextControl alignment and four-font source closure. Continue PR #516; do not merge until exact-head CI green.",
+  "recovery_generation": 376,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 376 resumed after same-chat no-progress fallback. Continue PR #516 from its exact current head; do not merge until exact-head CI is green.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
