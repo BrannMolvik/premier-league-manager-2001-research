@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0",
-  "last_verified_reconstruction_ci_head": "98adacf71e8fed800e351231a32a94a1688f2d92",
+  "latest_reverse_engineering_checkpoint": "08ad7e953a576151467a8103391e5102d4192556",
+  "last_verified_reconstruction_ci_head": "970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64",
   "last_verified_test_count": 2920,
-  "asset_policy_validated_head": "98adacf71e8fed800e351231a32a94a1688f2d92",
+  "asset_policy_validated_head": "970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64",
   "asset_policy_status": "passed",
-  "active_task": "Stage the independently extracted/hash-verified original 36px Zurich font through a binary-safe Git upload, wire exact Club.name renderer, and test Southport plus a second club. Independently acquire private Windows --transport-probe-only HWND/DPI receipt from merged PR #551; then reconcile post-#482 audit and Windows latency. Research: research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md.",
+  "active_task": "Recovery 405 PR #552 merged; source-verified original Zurich 36px Club.name header now integrated and tested for Southport + Arsenal. Next privately capture Win11 --transport-probe-only HWND/DPI receipt (#551) to diagnose incorrect FMV content; refresh post-#482 audit first-parent inventory, and verify real menu/Squad latency/visual completeness before Gate 13 closure. See research/CURRENT_STATE.md.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",
@@ -3311,7 +3311,7 @@
   "gate13_post482_squad_header_date_source_closed": true,
   "gate13_post482_squad_header_match_formats_source_closed": true,
   "gate13_post482_squad_header_match_resolver_source_closed": true,
-  "gate13_post482_squad_header_required_36px_font_staged": false,
-  "gate13_post482_squad_header_runtime_bound": false,
-  "last_verified_reconstruction_ci_run_id": 37693589455
+  "gate13_post482_squad_header_required_36px_font_staged": true,
+  "gate13_post482_squad_header_runtime_bound": true,
+  "last_verified_reconstruction_ci_run_id": 37700777348
 }

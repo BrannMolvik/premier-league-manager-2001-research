@@ -1,3 +1,21 @@
+# Recovery 405 — exact original 36px Zurich font staged and generic Club.name drawn
+
+_Updated 8 October 2026 KST. Canonical main: `08ad7e953a576151467a8103391e5102d4192556`._
+
+**Gate 13 remains the earliest incomplete validation gate. The post-#482 retrospective audit and actual Windows 11 responsiveness/visual acceptance are still open.**
+
+PR #552 exact source head `970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64` merged to `main` as `08ad7e953a576151467a8103391e5102d4192556` after four successful exact-head checks: repository asset policy `37700777454`, Gate 13 presentation source tests `37700777378`, Windows package `37700777327`, and full reconstruction `37700777348`. These are repository/CI assertions, **not** a fresh external Windows playability receipt.
+
+The authorized original `Fonts/Zurich_BdXCn_BT_36pixel.fnt` is now in `original_assets/source/Fonts/` with manifest provenance. Source bytes are exactly 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, Git blob SHA-1 `a5127c02be6f6ff20594701e3507afb9e56086b0`. The final Git tree records that exact object; no font substitute was introduced.
+
+The live shared original-management header resource loader now checks that font's source byte count/hash and 2678x38 atlas before loading it. The host renders `frame.presentation.club.name` through the source-closed text overlay at `(172,1,378,32)`, style `0x2102`, white `0xFFFF`. Focused regressions exercise source font, Southport **and Arsenal**, and corrupted-font rejection. Synthetic missing-font harnesses remain fail-closed. Generic source binding is integrated, but there is **no new external human visual acceptance** that fresh Squad is fully recognizable.
+
+**Immediate Gate-13 evidence blocker:** obtain the non-disruptive private Windows 11 `--transport-probe-only` receipt from merged PR #551, capturing real game-parent and WPF child HWNDs, client/window rects, screen origins, and per-window/thread DPI-awareness. Compare actual vs source-proven native movie geometry *before* modifying display content or layout. No actual receipt is present in GitHub; do not infer original frame-content equivalence. Actual normal Windows menu/Squad latency and visual completeness must still be accepted.
+
+**Independent cloud-safe continuation:** refresh/classify the post-#482 first-parent ledger after `b890c578`, then continue other source-backed audits/regressions without bypassing the external evidence blocker. The compare chain identifies 34 additional first-parent commits through Recovery-404 `aecef5b0`, plus the PR #552 merge, requiring explicit bounded classification before retrospective exit. Continue Gate 13; do not mark it or Gate 17 complete. Avoid needless CI/commit churn and preserve the original-only modernization freeze.
+
+---
+
 # Recovery 404 — startup transport probe merged, original club-name font re-extracted
 
 _Updated 8 October 2026 KST. Canonical main entering this checkpoint: `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0`._
