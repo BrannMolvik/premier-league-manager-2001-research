@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 380: Gate 13 remains the earliest incomplete validation gate. Issue #482 is reopened; artifact 11464212544 awaits Daniel's external Windows acceptance. PR #520 is merged as a117df66251926bae1931daa8897dfbdffc5062d, but canonical-executable tracer execution is deferred because process startup still fails with caas ClientError. Tracker flags now correctly keep the management-to-FastView trigger unresolved. Continue the highest-priority independent cloud-safe work; inspect pending Gate-17 packaging/source-provenance branches without declaring later gates complete.",
+  "active_task": "Recovery 380: Gate 13 remains earliest incomplete; artifact 11464212544 awaits external Windows acceptance and canonical-executable tracer adjudication remains blocked by caas ClientError. Independent cloud-safe Gate-17 PR #522 is open at exact head 2b510252018dd123c868576a7f72e434090da5c8, mapping the 14 pinned critical toolchain packages to eight source families while keeping completeness/legal claims false. Require all exact-head checks before merge, then persist the boundary and continue independent work without declaring Gate 17 complete.",
   "last_known_main_head": "12544b6f6ff80d520a5d7795f8a7aea2a423685c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 380,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 380 canonical main now includes state/progress/status checkpoint 12544b6. #519 package candidate is ready, #520 candidate-only tracer merged and exact-head green (2850 tests, 25 skipped; asset policy green), issue #482 reopened, stale source_fastview_navigation_trigger_recovered flag corrected false, Gate-15 live gap count corrected to 12. Private process execution remains blocked.",
+  "note": "PR #522 checks started: Windows package 37582619012, minimal FFmpeg build 37582619057, asset policy 37582618992, reconstruction 37582619098. Six source-family tarball leads are officially verified; msys2-runtime 3.6.10-6 and MinGW-w64 CRT r426 remain explicit unverified source-tarball rows. Gate13 #482 remains open.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
