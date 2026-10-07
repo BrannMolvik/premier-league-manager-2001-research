@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 385: Gate 13 remains earliest incomplete. PR #532 exact head is now 7b7f5df36ecf12b2cb7a17b63f042182b3be380f after correcting only the custom-source test fixture; production Settings code is unchanged from the head where all new Settings-specific focused tests passed. Require fresh exact-head Gate-13 presentation, reconstruction, asset-policy, and Windows-package success before merge. External Windows acceptance of artifact 11464212544 remains separately pending.",
-  "last_known_main_head": "1a580ea7f38a0fba608237b21dd9e21d9f5661e3",
+  "active_task": "Recovery 386: Gate 13 remains earliest incomplete pending external Windows acceptance. PR #532 merged as 2ccec2ce2a0cb94e8cd6ff50db04fb8ba8d399ff; Settings is complete. Current acceptance candidate is artifact 11473439363 from exact head 7b7f5df36ecf12b2cb7a17b63f042182b3be380f. PR #533 reconciled canonical state. Under deferred-blocker policy, next cloud-safe task is Gate-17 source-material bundle assembly for the four proven static contributor source families: download exact first-party MSYS2 source packages, checksum and manifest them fail-closed, then inspect/extract license/notice material. Keep source_material_complete=false and legal_compliance_claimed=false.",
+  "last_known_main_head": "5cb72c979ac7fb4e1000eb0dc20310b55107b61d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 385,
+  "recovery_generation": 386,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #532 fixture-only correction complete; exact-head CI must rerun before merge.",
+  "note": "Settings merged and current acceptance candidate refreshed; source-bundle assembly is the active independent task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
