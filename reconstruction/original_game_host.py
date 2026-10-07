@@ -31,6 +31,7 @@ from original_management_header import (
     OriginalManagementHeaderState,
     load_verified_management_header_resources,
     management_header_caption_overlay,
+    management_header_club_name_overlay,
     management_header_date_overlay,
     management_header_match_overlays,
     management_header_overlays,
@@ -1184,6 +1185,34 @@ class OriginalGameTkHost:
         self._schedule_management_header_update()
         return count
 
+    def _draw_management_club_name(self, frame) -> int:
+        """Draw source Club.name only when the exact 36px Zurich font is staged."""
+        resources = self.management_header_resources
+        if resources is None:
+            return 0
+        if not isinstance(resources, OriginalManagementHeaderResources):
+            raise OriginalGameHostError(
+                "Management club-name renderer requires verified header resources"
+            )
+        club = getattr(frame.presentation, "club", None)
+        name = getattr(club, "name", None)
+        overlay = management_header_club_name_overlay(resources, name)
+        if overlay is None:
+            return 0
+        self._create_native_image(
+            overlay.x,
+            overlay.y,
+            image=self._photo(
+                encode_rgba_png(
+                    overlay.width,
+                    overlay.height,
+                    overlay.rgba,
+                )
+            ),
+            anchor=self.tk.NW,
+        )
+        return 1
+
     def _draw_management_current_date(self, frame) -> int:
         """Draw the independently refreshed source y=68 management date line."""
         resources = self.management_header_resources
@@ -1609,6 +1638,7 @@ class OriginalGameTkHost:
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header()
+        header_image_count += self._draw_management_club_name(frame)
         header_image_count += self._draw_management_match_lines(frame)
         header_image_count += self._draw_management_current_date(frame)
         squad_image_count = self._draw_squad_top_controls(frame)

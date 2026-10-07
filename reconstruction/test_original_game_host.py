@@ -186,6 +186,28 @@ class FakeHeaderFont:
         )
 
 
+class FakeHeaderClubNameFont:
+    atlas_width = 2678
+    atlas_height = 38
+
+    def measure_text(self, text):
+        if text != "Source Club" and text != "Southport":
+            raise AssertionError(text)
+        return 99
+
+    def native_line_height(self):
+        return 39
+
+    def render_text_alpha(self, text):
+        if text != "Source Club" and text != "Southport":
+            raise AssertionError(text)
+        return SimpleNamespace(
+            width=99,
+            height=38,
+            alpha=bytes([255]) * (99 * 38),
+        )
+
+
 class FakeHeaderDateFont:
     atlas_width = 1366
     atlas_height = 19
@@ -204,7 +226,7 @@ class FakeHeaderDateFont:
         )
 
 
-def fake_management_header_resources():
+def fake_management_header_resources(*, club_name_font=None):
     return OriginalManagementHeaderResources(
         EA444DecodedImage(
             30,
@@ -222,6 +244,7 @@ def fake_management_header_resources():
         ),
         FakeHeaderFont(),
         FakeHeaderDateFont(),
+        club_name_font,
     )
 
 
@@ -1182,6 +1205,57 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[0][:2], (599, 0))
         self.assertEqual(host.canvas.images[1][:2], (629, 0))
         self.assertEqual(host.canvas.images[2][:2], (681, 62))
+
+    def test_management_club_name_is_fail_closed_without_staged_font(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(),
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                club=ClubHeaderView(
+                    12,
+                    "Southport",
+                    "Southport",
+                    date(2000, 7, 1),
+                ),
+            )
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        self.assertEqual(host._draw_management_club_name(frame), 0)
+        self.assertEqual(host.canvas.images, [])
+
+    def test_fresh_southport_club_name_draws_at_source_x451_y1_with_exact_font(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            management_header_resources=fake_management_header_resources(
+                club_name_font=FakeHeaderClubNameFont()
+            ),
+        )
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                club=ClubHeaderView(
+                    12,
+                    "Southport",
+                    "Southport",
+                    date(2000, 7, 1),
+                ),
+            )
+        )
+        host.canvas.delete("all")
+        host._photos = []
+
+        count = host._draw_management_club_name(frame)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(host.canvas.images), 1)
+        self.assertEqual(host.canvas.images[0][:2], (451, 1))
+        self.assertEqual(len(host._photos), 1)
 
     def test_management_current_date_draws_exact_source_control(self):
         host = OriginalGameTkHost(
