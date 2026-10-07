@@ -4,6 +4,16 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 7 October 2026 KST — Recovery 378 PPreMatch native compositor merged
+
+PR #517 merged as `37b709ef2b949f3996b7633da38132ec688fe963`. Exact head `e5fc70aeb8f4a33fc7784358e770f8c83ebe8d9d` passed full reconstruction run `37572280105` and asset-policy run `37572280197`.
+
+The PPreMatch child ledger now has source-closed write semantics through a native packed-16 framebuffer: 72 keyed PictureControls, 21 opaque PictureControls, 85 TextControls, and four Button@ease selectors with separately retained centered Zurich caption alpha planes. The compositor preserves native child order 0..181 and reuses the recovered packed-16 font blend. A strict bridge consumes only the existing validated original-Windows pixel-format receipt before treating runtime masks as observed.
+
+This checkpoint does not guess RGB565/RGB555, does not claim packed16-to-modern-RGBA recovery, and keeps complete PPreMatch frame/Gate 14 false. The remaining pixel boundary is the actual original Windows runtime mask observation plus modern display conversion.
+
+A disjoint follow-on branch, `chatgpt/gate14-match-detail-route-r378`, source-closes the PPreMatch modal and exact mode dispatch: 0/1 -> 3D wrapper variants 0/1, 2 -> FastView, 3 -> Quick Match with no presentation-wrapper call. Ordinary management-screen entry into match processing remains unresolved.
+
 ### 7 October 2026 KST — Recovery 376 PR #516 merged; PPreMatch compositor boundary isolated
 
 PR #516 merged as `77120385ec8563bc760cdb4398859cf7e9424eb0`. Exact head `c2b662e0ee52236a8f87782557d8f485a0aa48e9` passed presentation source run `37567629313`, full reconstruction run `37567629340`, and asset-policy run `37567629367`. The prior full-suite failure was a single stale FastView regression still asserting the superseded 18px style-3 font; it was corrected to the first-hand proven 16px font before the green exact-head run.
