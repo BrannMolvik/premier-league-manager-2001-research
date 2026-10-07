@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Post-#482 Gate-13 audit: 0x615D10 is reconciled to the proven same-club ScheduleContainer forward scan; 0x615DA0 wrapper filtering remains fail-closed. Continue source-closed fresh-Squad reserve-state propagation; then current-date header integration. Exact 36px club-name font extraction remains blocked by process startup.",
-  "last_known_main_head": "57eb578630742a02e07797de13ed155335a566af",
+  "active_task": "Post-#482 Gate-13 audit: fresh-Squad reserve-selection propagation is integrated on main at 0c8d9a717c15d870961c6c93f89754fe8c010dca. Continue the source-exact central management header with the independently source-closed current-date line using the staged 18px Zurich font. Keep the club-name line blocked until exact 36px font staging is available, and keep y=34/y=51 match lines fail-closed until 0x615DA0 filtering is closed.",
+  "last_known_main_head": "0c8d9a717c15d870961c6c93f89754fe8c010dca",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 398,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 398: re-established canonical main 57eb578630742a02e07797de13ed155335a566af and Gate-13 post-#482 active task from repository. Continuing fresh-Squad reserve-state propagation first; then source-closed current-date/club-name header integration. Unresolved 0x615DA0 filtering and exact 36px font staging remain fail-closed/external-blocked unless new source evidence resolves them.",
+  "note": "Recovery 398 progress: reserve-state runtime/save/bridge/presenter propagation committed on main as 0c8d9a717c15d870961c6c93f89754fe8c010dca. GitHub reports no workflow run/status for that head, so no remote CI claim is made. Continuing central current-date header integration; exact 36px club font and 0x615DA0 match-line selector remain unresolved blockers.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
