@@ -1,3 +1,20 @@
+# Recovery 372 continuation — PPreMatch team badges integrated and exact-head verified
+
+_Updated 7 October 2026._
+
+Canonical `main` baseline for this work is `17f49fa3cdde36d16f00a8e8d02d8b3f929018a8`, which already includes PR #514's row/selector source closure.
+
+Recovery 372 re-extracted the authorized canonical `FOOTBAL.EXE` and re-verified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. First-hand PPreMatch refresh disassembly proves native callsites `0x49A792/0x49A7D6` both invoke canonical club-art selector `0x40C850` with the exact Team_badge_stills / `badge_2` contract and native generic fallback through `0x64D870`.
+
+PR #515 stages the bounded clean-room integration. It reuses the existing FastView club-art state selector and verified surfaced-resource EA444 loader, then places the two selected 135x93 badge rasters into exact PPreMatch child rectangles `(38,1,135,93)` and `(627,1,135,93)`. The fail-closed 182-child audit now represents 160 controls and marks `team_badges` supplied-state complete. Complete-frame and Gate-14 claims remain false.
+
+Exact technical head `fad52fe428db61b8288c2e18e715d3afb91db9d1` passed Gate-13 presentation source run `37553140143` and repository asset-policy run `37553140154`. The documentation/state commits that follow do not alter reconstruction behavior and remain subject to the PR's final exact-head checks before merge.
+
+**Gate 13 / issue #482 remains the earliest incomplete validation gate** pending Daniel's normal Windows 11 acceptance of artifact `11418314765`. Gate 14 remains work-ahead and open.
+
+Immediate next Gate-14 task after PR #515 merges: stage and bind the 22 starting-XI marker shirt pixels using the already source-proven `0x408320` front-end-shirt ownership, goalkeeper resource, and formation/visibility contract. Reuse existing PMatchInfo front-end-shirt loading where it is source-identical rather than creating a second approximation. Then bind remaining dynamic fixture/date/team identity text and supplied state into the full native frame. Management-to-match launch and missing 3D Match/Highlights presentation remain fail-closed.
+
+---
 # Recovery 371 continuation — PPreMatch row/selector source closure staged
 
 _Updated 7 October 2026._

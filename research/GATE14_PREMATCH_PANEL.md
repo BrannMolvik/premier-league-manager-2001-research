@@ -698,3 +698,49 @@ the row-binding seam, marker shirt pixels and team badge pixels are not yet
 staged, dynamic header/team text remains unbound, rating widths require supplied
 state, and live selector pointer state must still be supplied.
 
+
+
+## Recovery 372 — PPreMatch team badges reuse canonical club-art selector
+
+Recovery 372 re-extracted the authorized canonical `FOOTBAL.EXE` from the
+511,121,336-byte source archive and re-verified SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+No executable or disassembly bytes are committed.
+
+First-hand disassembly of the already-identified PPreMatch refresh routine
+`0x49A610` closes the remaining selector-identity boundary for native child
+slots 5 and 6:
+
+- callsite `0x49A792` invokes club-art selector `0x40C850` for the first
+  match side;
+- callsite `0x49A7D6` invokes the same `0x40C850` selector for the second
+  match side;
+- both calls pass family literal VA `0x81D4F8`,
+  `FM2001_art\\generic\\team_badge_stills`;
+- both pass variant literal VA `0x81D1A8`, exact key `badge_2`;
+- when the selector does not resolve a club-specific resource, native loader
+  `0x64D870` receives fallback literal VA `0x81D4C4`,
+  `fm2001_art\\generic\\team_badge_stills\\generic.444`;
+- the two resource members remain panel offsets `+0x600/+0x624`, while their
+  active controls are retained at `+0x840/+0x890`.
+
+This proves that PPreMatch and FastView share the already source-closed club-art
+selection contract rather than merely having similar path strings. The
+clean-room therefore reuses the existing state binding based on
+`Club.graphics_basename` and `CountryDefinition.graphics_directory`, and
+the verified surfaced-resource loader now stages the selected home/away
+135x93 EA444 badge pixels directly into PPreMatch's exact native rectangles:
+
+- child 5: `(38,1,135,93)`;
+- child 6: `(627,1,135,93)`.
+
+The fail-closed 182-child frame audit consequently promotes the `team_badges`
+family from zero represented controls to both source controls and marks that
+family supplied-state complete. Total represented controls rise from 158 to
+160.
+
+This does **not** promote complete PPreMatch fidelity. Starting-XI shirt pixels,
+fixture/date buffers, left/right team identity text, supplied-state rating
+widths, player-row content attachment, live Button@ease pointer/update state,
+the management-to-match launch route, and complete-frame/Gate-14 completion
+remain separate boundaries.

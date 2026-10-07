@@ -44,6 +44,12 @@ from original_prematch_panel import (
     PREMATCH_GENERIC_FORWARD_TRAVERSAL_VA,
     PREMATCH_CHILD_ORDER_RANGES,
     PREMATCH_SELECTOR_CHILD_MODES,
+    PREMATCH_TEAM_BADGE_SELECTOR_VA,
+    PREMATCH_TEAM_BADGE_SELECTOR_CALLSITES,
+    PREMATCH_TEAM_BADGE_FALLBACK_LOADER_VA,
+    PREMATCH_TEAM_BADGE_ROOT_VA,
+    PREMATCH_TEAM_BADGE_VARIANT_KEY_VA,
+    PREMATCH_TEAM_BADGE_FALLBACK_VA,
     PREMATCH_TEAM_BADGE_ROOT,
     PREMATCH_TEAM_BADGE_VARIANT_KEY,
     PREMATCH_TEAM_BADGE_FALLBACK,
@@ -560,6 +566,15 @@ class OriginalPrematchPanelTests(unittest.TestCase):
             PREMATCH_RATING_LANGUAGE_GLOBALS,
             (0x983BE4, 0x983B70, 0x983B6C, 0x983B68),
         )
+        self.assertEqual(PREMATCH_TEAM_BADGE_SELECTOR_VA, 0x40C850)
+        self.assertEqual(
+            PREMATCH_TEAM_BADGE_SELECTOR_CALLSITES,
+            (0x49A792, 0x49A7D6),
+        )
+        self.assertEqual(PREMATCH_TEAM_BADGE_FALLBACK_LOADER_VA, 0x64D870)
+        self.assertEqual(PREMATCH_TEAM_BADGE_ROOT_VA, 0x81D4F8)
+        self.assertEqual(PREMATCH_TEAM_BADGE_VARIANT_KEY_VA, 0x81D1A8)
+        self.assertEqual(PREMATCH_TEAM_BADGE_FALLBACK_VA, 0x81D4C4)
         self.assertEqual(
             (
                 PREMATCH_TEAM_BADGE_ROOT,
@@ -596,6 +611,15 @@ class OriginalPrematchPanelTests(unittest.TestCase):
         self.assertEqual(contract["versus_label"], "V")
         self.assertEqual(contract["weather_labels"], PREMATCH_WEATHER_LABELS)
         self.assertEqual(contract["rating_labels"], PREMATCH_RATING_LABELS)
+        self.assertEqual(contract["team_badge_selector_va"], 0x40C850)
+        self.assertEqual(
+            contract["team_badge_selector_callsites"],
+            (0x49A792, 0x49A7D6),
+        )
+        self.assertEqual(contract["team_badge_fallback_loader_va"], 0x64D870)
+        self.assertEqual(contract["team_badge_root_va"], 0x81D4F8)
+        self.assertEqual(contract["team_badge_variant_key_va"], 0x81D1A8)
+        self.assertEqual(contract["team_badge_fallback_va"], 0x81D4C4)
         self.assertEqual(contract["player_slots_per_side"], 18)
         self.assertEqual(contract["starters_per_side"], 11)
         self.assertTrue(contract["identity_controls_source_closed"])

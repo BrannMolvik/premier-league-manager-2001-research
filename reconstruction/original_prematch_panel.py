@@ -314,6 +314,13 @@ PREMATCH_SELECTOR_CLOSE_VA = 0x6539F0
 PREMATCH_SELECTOR_INITIAL_FLAGS = BUTTON_INITIAL_FLAGS
 PREMATCH_SELECTOR_GROUP_LENGTHS = BUTTON_GROUP_LENGTHS
 
+PREMATCH_TEAM_BADGE_SELECTOR_VA = 0x40C850
+PREMATCH_TEAM_BADGE_SELECTOR_CALLSITES = (0x49A792, 0x49A7D6)
+PREMATCH_TEAM_BADGE_FALLBACK_LOADER_VA = 0x64D870
+PREMATCH_TEAM_BADGE_ROOT_VA = 0x81D4F8
+PREMATCH_TEAM_BADGE_VARIANT_KEY_VA = 0x81D1A8
+PREMATCH_TEAM_BADGE_FALLBACK_VA = 0x81D4C4
+
 PREMATCH_TEAM_BADGE_ROOT = r"FM2001_art\generic\team_badge_stills"
 PREMATCH_TEAM_BADGE_VARIANT_KEY = "badge_2"
 PREMATCH_TEAM_BADGE_FALLBACK = (
@@ -900,6 +907,12 @@ def prematch_panel_contract() -> dict:
         "child_order_ranges": PREMATCH_CHILD_ORDER_RANGES,
         "selector_child_modes": tuple(int(mode) for mode in PREMATCH_SELECTOR_CHILD_MODES),
         "child_draw_order_source_closed": True,
+        "team_badge_selector_va": PREMATCH_TEAM_BADGE_SELECTOR_VA,
+        "team_badge_selector_callsites": PREMATCH_TEAM_BADGE_SELECTOR_CALLSITES,
+        "team_badge_fallback_loader_va": PREMATCH_TEAM_BADGE_FALLBACK_LOADER_VA,
+        "team_badge_root_va": PREMATCH_TEAM_BADGE_ROOT_VA,
+        "team_badge_variant_key_va": PREMATCH_TEAM_BADGE_VARIANT_KEY_VA,
+        "team_badge_fallback_va": PREMATCH_TEAM_BADGE_FALLBACK_VA,
         "team_badge_root": PREMATCH_TEAM_BADGE_ROOT,
         "team_badge_variant_key": PREMATCH_TEAM_BADGE_VARIANT_KEY,
         "team_badge_fallback": PREMATCH_TEAM_BADGE_FALLBACK,
