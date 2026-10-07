@@ -144,6 +144,8 @@ on:
       - "reconstruction/test_gate14_prematch_text_raster.py"
       - "reconstruction/gate14_prematch_surface.py"
       - "reconstruction/test_gate14_prematch_surface.py"
+      - "reconstruction/gate14_match_detail_route_source.py"
+      - "reconstruction/test_gate14_match_detail_route_source.py"
       - "reconstruction/gate14_prematch_supplied_state.py"
       - "reconstruction/gate14_fastview_surfaced_resource_raster.py"
       - "reconstruction/gate14_fastview_component_rasters.py"
