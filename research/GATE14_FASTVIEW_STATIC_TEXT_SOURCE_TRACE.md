@@ -34,11 +34,20 @@ manual adjudication. Those instructions are explicitly not labeled function
 arguments. Stack/register values near a call cannot become style, color, text or
 semantic evidence without control-flow and calling-convention analysis.
 
-## What remains false
+## Recovered constructor ABI versus unresolved presentation
 
-The emitted private report keeps all of these false:
+The canonical original executable source trace in
+`research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md`
+now independently proves `0x527960` takes `ecx` plus five 32-bit stack
+arguments (constructor cleanup `ret 0x14`), in order: base configuration,
+rectangle pointer, raw flags, source string object, and font selector index.
+The LeagueTable row and heading each pass selector **0**, dispatching through
+wrapper `0x87BEA0`. The report now exposes these as separately documented,
+previously verified source facts. It does **not** infer them from unaligned
+linear candidate instruction windows.
 
-- constructor argument positions recovered;
+The emitted private report still keeps all of these false:
+
 - user-facing text semantics recovered;
 - final text values recovered;
 - font/style/color recovered;
@@ -54,7 +63,7 @@ On a healthy canonical-executable path:
 
 1. run this trace with `--disassemble`;
 2. verify the direct TextControl callsites in each owner constructor;
-3. establish the generic TextControl calling convention/parameter ownership;
+3. reuse the already verified five-argument constructor ABI; do not re-derive it from candidate context;
 4. trace only source-supported style/color/font/value producers backward;
 5. persist semantic/value conclusions only where that data-flow is unambiguous;
 6. rasterize the controls only after the relevant source font, style and values

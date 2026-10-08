@@ -98,7 +98,20 @@ class Gate14FastViewStaticTextSourceTraceTests(unittest.TestCase):
         self.assertEqual(len(report["direct_textcontrol_calls_not_argument_proof"]), 1)
         self.assertTrue(report["static_text_control_geometry_recovered"])
         self.assertTrue(report["static_text_source_order_recovered"])
-        self.assertFalse(report["argument_positions_recovered"])
+        self.assertTrue(report["argument_positions_recovered"])
+        self.assertEqual(report["verified_constructor_this_register"], "ecx")
+        self.assertEqual(report["verified_constructor_stack_cleanup_bytes"], 0x14)
+        self.assertEqual(
+            report["verified_constructor_five_argument_roles"],
+            (
+                "base_control_configuration",
+                "rectangle_pointer",
+                "native_control_flags",
+                "source_string_object",
+                "font_selector_index",
+            ),
+        )
+        self.assertEqual(report["verified_league_table_row_heading_font_selector"], 0)
         self.assertFalse(report["user_facing_semantics_recovered"])
         self.assertFalse(report["final_text_values_recovered"])
         self.assertFalse(report["font_style_color_recovered"])
@@ -174,7 +187,7 @@ class Gate14FastViewStaticTextSourceTraceTests(unittest.TestCase):
                 self.assertEqual(tracer_main(), 0)
 
             emitted = json.loads(output.read_text(encoding="utf-8"))
-            self.assertFalse(emitted["argument_positions_recovered"])
+            self.assertTrue(emitted["argument_positions_recovered"])
             self.assertFalse(emitted["font_style_color_recovered"])
             self.assertFalse(emitted["pixels_rasterized"])
             self.assertNotIn("semantic_columns", emitted)
