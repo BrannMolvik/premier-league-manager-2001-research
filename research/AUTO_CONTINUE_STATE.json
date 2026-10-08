@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 410 resumed from main 8be624d. Gate13 OPEN on private Windows11 --transport-probe-only HWND/DPI receipt, movie geometry and menu/TeamSelect/fresh Squad real visual/latency acceptance. Independent source task: verified original PE hash and exact font0 0x87BEA0 initializer/load path, LeagueTable arg4 source and ScoreComposite selector. Gates13-17 and Windows release remain incomplete; avoid redundant CI.",
+  "active_task": "Recovery 410: Gate13 external Windows --transport-probe-only receipt/visual acceptance remains open. Independent Gate14 PE/font0/text-producer source trace deferred by confirmed sandbox ClientError after ZIP materialization. Retest trivial shell; privately hash original executable and trace source, then proceed after verified result. Gates13-17 still incomplete.",
   "last_known_main_head": "8be624df35c449fd3d3d766eec2d1dd93061a8e5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 410,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Last full CI succeeded on PR head 2a65a87 run 37724541991: 2929 tests, 25 skips. Earlier 37722819830 failed 2 pre-existing Gate15 ledger label drift tests, corrected by PR #558. Runtime source sandbox genuinely blocked; source archive accessible in Library. No new visual acceptance or font0 source proof; do not invent.",
+  "note": "Recovery 410 verified main 8be624df35c449fd3d3d766eec2d1dd93061a8e5, GitHub full reconstruction run 37724541991 completed success on 2a65a87 (2929 tests, 25 expected skips per canonical log). Found canonical authorized ZIP in Library and materialized 511121336 bytes at /mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip, but size was returned by Files metadata, not independently hashed this recovery. Initial container echo/objdump/Python check succeeded; then container file inspection and repeated trivial 'echo probe', '/bin/echo ok', 'true' plus python.exec print all failed caas.internal.errors.ClientError. No new original PE hash, disassembly, tests, Windows receipt, main research commit, or release claim. Exact next action: first confirm local process execution works; then hash ZIP and extract original footballmanager.exe privately per ORIGINAL_SOURCE_LOCATOR and Gate14 source instructions, verify PE SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3; run gate14_fastview_font_global_source_trace.py privately and source-decode index0 0x87BEA0 initializer to exact .fnt, LeagueTable arg4 producers 0x51D8FB/0x51DDF3 and ScoreComposite variable selectors. Gate13 still requires original-only private Win11 --transport-probe-only HWND/DPI receipt and menu/TeamSelect/fresh Squad latency/visual acceptance; Gates14-17 and final Win11 original full-scope release remain incomplete. Do not rerun CI or create arbitrary main commits merely as heartbeat.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
