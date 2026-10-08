@@ -17,8 +17,8 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "AUDIT ONLY. Evidence checkpoints research/GATE13_ORIGINAL_SELECTION_EAMAIL_PMENU_AUDIT_RECOVERY424.md and research/GATE13_AUDIT_FOLLOWUP_RECOVERY425.md now cover uniform disabled Squad strip and 226x17 input-vs-328x16 art, native final vft 7C57BC source trace prerequisite, EAMail missing presenter and candidate low jump-table byte at 47CA04 (derived unverified), bounded PMenu pointer support with unverified outside click vs motion, and conflicting older font global 87BEA0 source reports. EXACT NEXT: when private source execution is healthy, SHA-verify original PE and decode final Squad row 7C57BC draw/update/selection and child +2C texture wrapper; then read EAMail 47AEC0/47CA04 actual target/RTTI; compare PMenu pointer/timing with original. NO implementation or Gate14+ coding or Codex branch modifications until Daniel lifts audit-only restriction. Keep Gates13-17 mission incomplete.",
-  "last_known_main_head": "e39831930156ec19cf1f764176d92662809a8cc8",
+  "active_task": "AUDIT ONLY (Codex remains implementation owner). New Recovery426 evidence checkpoint: research/GATE13_AUDIT_PMENU_FRAME_COVERAGE_RECOVERY426.md confirms original PMenu multi-frame source animation exists but live canvas _row_art always fixes frame=0; static menu has 9 roots/28 children, only Squad, League Fixtures, League Tables 3 integrated, EAMail and 24 others missing. Exact next original-source audit when execution recovers: canonical PE SHA guard, final PSquadPlayerRow 7C57BC virtual draw/update/selection mapping and 443E70 +2C wrapper; then verify EAMail low factory candidate 47CA04, original PMenu arrow tick and popup event semantics. No implementation, no Codex branch modification, no Gate14+ coding or Gate closure until Daniel lifts audit-only restriction. Gates13-17 release remain unfinished.",
+  "last_known_main_head": "26af5b6ae3f9c2f885d5b877185b5f400d71bde3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 425,
+  "recovery_generation": 426,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 425 2026-10-09 KST: independently read main+Codex source/docs; committed isolated audit follow-up e39831930156ec19cf1f764176d92662809a8cc8. Prior original Game source Library ZIP materialized successfully, but subsequent container shell and private Python even trivial commands failed with caas.internal.errors.ClientError; no new disassembly/tests/Windows GUI. Confirmed uniform disabled 328x16 Squad grid and missing EAMail presenter, derived unverified 47CA04 low-range EAMail factory candidate, detected historical 87BEA0 Zurich16 mapping inconsistent with newer Gate14 unresolved statement, and noted PMenu dismiss click-vs-motion source equivalence unresolved. Codex remains implementation owner, audit-only true. Runtime continuous/working; no gate closures.",
+  "note": "Recovery 426 2026-10-09 KST: main 26af5b6ae3f9c2f885d5b877185b5f400d71bde3; isolated audit-only checkpoint research/GATE13_AUDIT_PMENU_FRAME_COVERAGE_RECOVERY426.md created after direct source-code review. Confirmed live PMenu renderer passes literal frame0 for title/child, does not integrate native update; 9 roots, 28 static children, only 3 source-backed integrated panel selectors (25 unsupported). Exact native animation trigger/timing still unresolved, no source-valid GUI acceptance. Container /bin/bash and private Python process startup returned caas.internal.errors.ClientError even for trivial operations; original authorized archive is not considered missing. No tests or original disassembly executed; no implementation/assets/save/schema/Codex edits, CI or Gate closure. Continue audit-only and preserve state working.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
