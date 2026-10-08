@@ -1,3 +1,15 @@
+# Recovery 408 continuation: original TextControl constructor ABI reported consistently
+
+_8 October 2026 KST. Gate 13 remains earliest incomplete; independent Gate-14 source evidence hygiene._
+
+PR #557 source head `d4a6f942d3e7e621ad61c6aef803b41331a3f051` merged on `main` as `ace8fb49c9207b904485476da3fbdae70b64338e`. It reconciles the original-source-backed five-argument `0x527960` TextControl constructor ABI and index-0 LeagueTable selector with `reconstruction/gate14_fastview_static_text_source_trace.py`, which previously reported constructor argument recovery falsely as incomplete. The tool's raw caller windows remain non-proof on their own. Focused source-trace test run `37722819843` and asset-policy run `37722819842` **passed** on the exact revised head after fixing a missing Capstone CI prerequisite. The automatic full reconstruction run `37722819830` was still in progress at checkpoint time; do not claim it passed until checked. No gameplay code/pixels changed.
+
+**Next original-source task unchanged:** the authorized ZIP is stored in Library but both shell and Python in the current container fail with `caas.internal.errors.ClientError`, even for trivial commands. When a working private source environment is available, hash-verify `footballmanager.exe`, run the new font-wrapper candidate tracer outside Git, source-confirm writes to index-0 `0x87BEA0` to establish exact font object and filename, then LeagueTable arg4 string/value producers and ScoreComposite variable selector parameters. Do not create guessed score/table raster pixels.
+
+**Mandatory Gate 13 external blocker:** real private Windows 11 `--transport-probe-only` HWND/DPI receipt, correct startup-video content diagnosis, and normal menu/TeamSelect/fresh Squad visual and latency acceptance. Gate 13 and Gates 14-17 remain incomplete; Gate 17 full original-scope release NOT verified. Continue work-ahead only on independently source-evidenced changes without gratuitous CI, test-claim inflation or commit spam.
+
+---
+
 # Recovery 408 — private font-global candidate tracing merged and synthetic-tested
 
 _8 October 2026 KST. Latest verified work-ahead merge: `65fc487a76a67a6e563683f060dfae90dd7e2fbd` (PR #556). Active validation Gate 13 remains OPEN._
