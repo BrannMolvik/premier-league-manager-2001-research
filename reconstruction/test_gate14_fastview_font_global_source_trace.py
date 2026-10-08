@@ -40,15 +40,15 @@ def _synthetic_pe() -> OriginalPE32:
 def _synthetic_instruction_pe() -> OriginalPE32:
     """Aligned NOP-coded section with literal and indexed pointer decoys."""
     blob = bytearray(_synthetic_pe().data)
-    blob[0x200:0x500] = b"\\x90" * 0x300
+    blob[0x200:0x500] = b"\x90" * 0x300
     # mov eax,[0x87BEA0] => literal absolute memory operand.
-    blob[0x230:0x235] = b"\\xA1" + struct.pack("<I", 0x87BEA0)
+    blob[0x230:0x235] = b"\xA1" + struct.pack("<I", 0x87BEA0)
     # push 0x87BE90 => immediate pointer operand.
-    blob[0x250:0x255] = b"\\x68" + struct.pack("<I", 0x87BE90)
+    blob[0x250:0x255] = b"\x68" + struct.pack("<I", 0x87BE90)
     # mov eax,[eax+0x87BEA0] => displacement is NOT absolute.
-    blob[0x270:0x276] = b"\\x8B\\x80" + struct.pack("<I", 0x87BEA0)
+    blob[0x270:0x276] = b"\x8B\x80" + struct.pack("<I", 0x87BEA0)
     # A second valid absolute reference, to test explicit truncation.
-    blob[0x290:0x295] = b"\\xA1" + struct.pack("<I", 0x87BEA0)
+    blob[0x290:0x295] = b"\xA1" + struct.pack("<I", 0x87BEA0)
     # Existing .data literal at 0x402010 remains a raw-only decoy.
     return OriginalPE32.parse(
         bytes(blob), expected_sha256=sha256(blob).hexdigest()
