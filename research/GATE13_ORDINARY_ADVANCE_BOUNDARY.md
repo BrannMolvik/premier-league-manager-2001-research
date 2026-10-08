@@ -7,6 +7,78 @@ Canonical executable SHA-256:
 `PBg` vtable `7BEE8C`. These are manually correlated to construction and
 dispatch, not promoted from RTTI candidates alone.
 
+## 9 October local day-owner checkpoint
+
+`HumanGameplayController.advance_original_management_turn` now executes the
+already-proven bounded target rather than prototype skip-until-match. Its
+selector/date/container inputs must be explicitly source-qualified. The
+tomorrow-only input guard is direct `432219..277` evidence: the native wrapper
+date is compared with current+1 before `407FE0`. A distant fixture-free turn
+does not acquire an invented XI check.
+
+Canonical `6168C0` has **two walks**, not one split at the human fixture:
+
+- first walk `6168DE..92F`: reject non-null wrapper+8, bit0/bit6; skip human
+  ownership (`616990`) and selected secondary-category contexts (`510C90`);
+- ordinary primary category1 sides make `4037C0` false, so all accepted AI
+  League matches run in bucket/head order before the human modal;
+- League +3C=`5132E0` calls `511370`, whose `511381` instruction sets bit0;
+- second walk `616946..983` therefore skips those completed AI nodes and
+  reaches the human entry; its modal remains **before** human calculation.
+
+320 bounded executions of the actual `6168C0`, `616990` and `510C90` code
+matched the two-pass order across direct-primary ownership, flag0/40 and
+wrapper-link cases. Direct-Side, user lookup, primary-category and calculator
+leaves were explicit supplied inputs; completion used the actual `511381`
+instruction. This is bounded source execution, not original-process playtest.
+Private harness SHA-256:
+`dab8c206fab696efefb10bf21ab31095eb9366f9d37e79f2501dcb3027b172b3`.
+
+The new day path retains all first-pass AI results before a pending human
+entry and leaves human calculation/post-day maintenance pending. The existing
+codec preserves that owner through disk save/reload; a synthetic real-backend
+regression finishes the human match without AI replay. Prototype skip's old
+split remains separate. Human day advances now also invalidate wrapper
+certainty, fixing the previously omitted invalidation in that controller path.
+
+**Do not turn these bounded inputs into a live default.** Current-day wrapper
+identity, explicit clear link and direct Side ownership are required before
+the new ordinary day path consumes AI RNG. Unknown/missing owners fail closed.
+Production invalidation is not disabled by the codec regression's explicitly
+supplied synthetic phase boundary. Cups/secondary-side dispatcher contexts
+remain outside this bounded integration.
+
+A canonical fresh Southport first turn advanced 4 -> 11 July, with the actual
+fresh direct League selector date 19 August. XI11/bench2/role bytes were
+unchanged; save and separate-process reload passed. Future wrapper certainty
+remained unknown, not invented clear. Private probe SHA-256:
+`f9ee59ae3ca08c8e4d0dc92911a387fb2cf74de85964a45f806211c2ba9fbaed`.
+No native original or foreground UI was launched.
+
+375 final focused tests passed /23.425s/no skips; asset policy passed. Earlier
+integrated full run: 3,062 /167.631s/18 skips, with only the recorded three
+failures and one error in disjoint Gate17 FFmpeg package-lock provenance.
+It precedes the final current-day-wrapper guards/codec regression and is not
+a claim that final-code full-suite or normal Windows acceptance is green.
+
+### Exact live binding boundary
+
+Normal host NEXT remains unbound until current-day runtime wrapper state and
+the live `62ABD0 -> Match+34 -> PPreMatchPanel` input/choice owner are retained.
+Do not use score/completion, a generic nearest-fixture sort, prototype skip,
+or calculation-before-choice as substitutes.
+
+Further exact source triage: `4A7280` calls `4A7B30` at `4A7312` before the
+day's `615C10` walk. `4A7B30` traverses the secondary container at current+14
+and current+3, then invokes `4A7F50` over current+1..3. `4A7F50` walks the
+supplied roster, gates on player+14 bit2, reads signed primary club index+10,
+and can call `510BA0(0)` at `4A801F` for a matching uncompleted primary wrapper.
+The other known producer is the `5E3B20` branch (direct caller `5E3A2E`):
+`5E3CC0` gates its search, home-side identity and current+5 guard precede
+`510BA0(2)` at `5E3C34`. Their source state/event producers still require
+semantic integration. These findings do not justify keeping links clear after
+an arbitrary day or naming an unqualified event by appearance.
+
 ## Original owner and action
 
 `PBg` setup `4304B0`, at `430992..9C4`, registers embedded `+524` in child

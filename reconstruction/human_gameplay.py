@@ -14,6 +14,11 @@ from time import time
 from typing import Callable, Iterable
 
 from game_state import GameState
+from original_management_advance import (
+    NATIVE_DEFAULT_TURN_LENGTH,
+    OriginalManagementAdvanceTarget,
+    original_management_advance_target,
+)
 from match_engine_rng import MatchEngineRng
 from match_lineup import AI_FORMATIONS, AiLineupCoreResult, StarterAssignment
 from match_orders import TeamOrderPriorities
@@ -92,6 +97,15 @@ class HumanMatchdayOutcome:
     user_result: object
     matchday_results: tuple[tuple[int, object], ...]
     table: tuple[object, ...]
+
+
+@dataclass(frozen=True)
+class OriginalManagementTurnOutcome:
+    """Bounded NEXT day walk; a pending entry still needs native modal choice."""
+
+    target: OriginalManagementAdvanceTarget
+    processed_dates: tuple[date, ...]
+    pending_primary_entry: tuple | None
 
 
 class HumanGameplayController:
@@ -1465,6 +1479,127 @@ class HumanGameplayController:
         if self.state.finalize_single_user_sacking_control() is not None:
             self.human = None
 
+    def _process_current_primary_day(self, *, native_primary_order=False):
+        """Walk the retained primary order, suspending before human calculation.
+
+        4A8260 -> 6168C0 -> LeagueMatch::513010 enters the pre-match modal
+        inside this walk. Human calculation and post-fixture maintenance wait
+        for its accepted choice; do not calculate then prompt. The native
+        primary-League option finishes the first pass's AI entries beforehand.
+        This reuses the existing bounded day-maintenance/calculator subset,
+        not a claim that all original reschedule/event producers are integrated.
+        """
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        if self.pending_primary_entry is not None:
+            return self.pending_primary_entry
+        due_order = self.state.primary_entries_due_today()
+        if native_primary_order and due_order:
+            # 6168EA/952 also gate on wrapper+8. A date/score search is NOT
+            # proof that the native wrapper stayed unlinked after 4A7280.
+            shadow = self.state.primary_schedule_shadow
+            owners = shadow.days.get(self.state.calendar.current_date, ())
+            for entry in due_order:
+                matches = tuple(owner for owner in owners if (
+                    owner.node_kind == 'fixed_league_match' and entry[0] == 'premier_league'
+                    and owner.competition_id == 0 and owner.competition_context == 0
+                    and len(owner.node_token) == 4 and owner.node_token[-1] == entry[1]
+                ) or (
+                    owner.node_kind == 'league_match' and entry[0] == 'procedural_league'
+                    and owner.node_token == tuple(entry[1])
+                ))
+                if len(matches) != 1 or matches[0].wrapper_link_state != 'clear':
+                    raise RuntimeError('Original NEXT current-day wrapper lifecycle is unresolved')
+                direct = tuple(ref.direct_club_id for ref in matches[0].refs)
+                if None in direct or direct != self._primary_entry_clubs(entry):
+                    raise RuntimeError('Original NEXT current-day Side ownership is unresolved')
+        human_due = []
+        for entry in due_order:
+            pair = self._primary_entry_clubs(entry)
+            if pair is None:
+                raise RuntimeError(f"Primary participant ownership is unresolved: {entry!r}")
+            if native_primary_order:
+                if entry[0] not in ('premier_league', 'procedural_league'):
+                    raise RuntimeError('Original NEXT non-League day owner is not integrated')
+                if any(getattr(self.state.clubs.get(club_id), 'team_category_code', None) != 1
+                       for club_id in pair):
+                    raise RuntimeError('Original NEXT requires source-qualified primary club sides')
+            if self.human.club_id in pair:
+                human_due.append(entry)
+        if len(human_due) > 1:
+            raise RuntimeError(
+                f"expected at most one human primary match on "
+                f"{self.state.calendar.current_date}, got {human_due}"
+            )
+        if not human_due:
+            results = self.state.simulate_due_primary_ai_entries(
+                self.attack_matrix, self.defence_matrix, self.match_rng,
+                match_engine_rng=self.match_engine_rng,
+            )
+            self._finish_shared_primary_day(bool(results))
+            return None
+
+        human_entry = human_due[0]
+        split = due_order.index(human_entry)
+        # 6168C0 is TWO walks. For primary League sides 4037C0 is false;
+        # 616990 skips human clubs on the first walk, so ALL ordinary AI
+        # entries finish in source order before the second walk's human modal.
+        # League +3C -> 5132E0 -> 511370 sets bit0, preventing AI replay.
+        # Keep prototype skip-to-match's historical split separate.
+        ai_entries = (tuple(entry for entry in due_order if entry != human_entry)
+                      if native_primary_order else due_order[:split])
+        prior = tuple(
+            (entry, self.state.simulate_primary_ai_entry(
+                entry, self.attack_matrix, self.defence_matrix, self.match_rng,
+                match_engine_rng=self.match_engine_rng,
+            ))
+            for entry in ai_entries
+        )
+        self.pending_primary_entry = human_entry
+        self._pending_prior_primary_results = prior
+        self._pending_after_primary_entries = (() if native_primary_order
+                                               else tuple(due_order[split + 1:]))
+        return human_entry
+
+    def advance_original_management_turn(
+        self, *, next_match_date: date | None, selector_source_qualified: bool,
+        container_end_date: date, turn_length: int = NATIVE_DEFAULT_TURN_LENGTH,
+    ) -> OriginalManagementTurnOutcome:
+        """Execute the native bounded NEXT target, not prototype skip-to-match.
+
+        The caller must retain a real 615D10 selector/context; a missing
+        header/fixture projection is not qualified null. No mode is selected
+        here, no human match is calculated, and no future wrapper is declared
+        clear after an unmodelled original runtime reschedule boundary.
+        """
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        target = original_management_advance_target(
+            self.state.calendar.current_date, next_match_date=next_match_date,
+            selector_source_qualified=selector_source_qualified,
+            container_end_date=container_end_date, turn_length=turn_length,
+        )
+        if self.pending_primary_entry is not None:
+            return OriginalManagementTurnOutcome(target, (), self.pending_primary_entry)
+        # PBg's proven pre-match input guard is for tomorrow's fixture, not
+        # permission to block a distant fixture-free turn on its current XI.
+        # Warning acceptance remains separate; a rejection consumes no RNG.
+        if next_match_date == self.state.calendar.current_date + timedelta(days=1):
+            self.current_selection()
+        processed = []
+        for on_date in target.processing_dates:
+            self.state.calendar.increment_one_day()
+            self.state.invalidate_primary_schedule_wrapper_links()
+            if self.state.calendar.current_date != on_date:
+                raise RuntimeError("Original NEXT day owner diverged from its retained target")
+            pending = self._process_current_primary_day(native_primary_order=True)
+            processed.append(on_date)
+            if pending is not None or self.human is None:
+                break
+        return OriginalManagementTurnOutcome(
+            target, tuple(processed), self.pending_primary_entry,
+        )
+
     def advance_to_next_user_primary_match(self):
         """Advance until a tagged PL/Cup match involving the human is pending."""
         if self.human is None:
@@ -1501,50 +1636,10 @@ class HumanGameplayController:
                 return None
 
             self.state.calendar.increment_one_day()
-            due_order = self.state.primary_entries_due_today()
-            human_due = []
-            for entry in due_order:
-                pair = self._primary_entry_clubs(entry)
-                if pair is not None and self.human.club_id in pair:
-                    human_due.append(entry)
-
-            if len(human_due) > 1:
-                raise RuntimeError(
-                    f"expected at most one human primary match on "
-                    f"{self.state.calendar.current_date}, got {human_due}"
-                )
-
-            if not human_due:
-                results = self.state.simulate_due_primary_ai_entries(
-                    self.attack_matrix,
-                    self.defence_matrix,
-                    self.match_rng,
-                match_engine_rng=self.match_engine_rng,
-                )
-                self._finish_shared_primary_day(bool(results))
-                if self.human is None:
-                    return None
-                continue
-
-            human_entry = human_due[0]
-            split = due_order.index(human_entry)
-            prior = tuple(
-                (
-                    entry,
-                    self.state.simulate_primary_ai_entry(
-                        entry,
-                        self.attack_matrix,
-                        self.defence_matrix,
-                        self.match_rng,
-                    match_engine_rng=self.match_engine_rng,
-                    ),
-                )
-                for entry in due_order[:split]
-            )
-            self.pending_primary_entry = human_entry
-            self._pending_prior_primary_results = prior
-            self._pending_after_primary_entries = tuple(due_order[split + 1 :])
-            return human_entry
+            self.state.invalidate_primary_schedule_wrapper_links()
+            pending = self._process_current_primary_day()
+            if pending is not None or self.human is None:
+                return pending
 
     def play_user_primary_match(self) -> HumanPrimaryMatchdayOutcome:
         """Play the pending tagged PL/Cup/procedural-League match and finish its day."""
