@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 408 GitHub checkpoint e7c89e9: Gate14 read-only font-global candidate tracer PR #556 (focused success), and original-source ABI report reconciliation PR #557 exact head d4a6f94 (source focused success 37722819843; asset policy success 37722819842), merged ace8fb49. Automatic full suite 37722819830 was in progress at checkpoint, NOT claimed passed; check it before further claims. Private source execution still caas.internal.errors.ClientError on trivial commands. Next exact source work when healthy: 0x87BEA0 font object/loader/path then LeagueTable arg4 at 0x51D8FB/0x51DDF3 and ScoreComposite selector owner variables. Gate13 needs actual private Windows11 HWND/DPI transport and menu/Squad visual+latency acceptance. Continue Gates13-17 through release; no close claim.",
+  "active_task": "Recovery 409: Full reconstruction CI 37722819830 has completed FAILURE at exact PR #557 head d4a6f94, despite targeted Gate14 and asset policy SUCCESS. Diagnose failure logs first; do not claim full pass. External Gate13 private Win11 HWND/DPI and menu/Squad responsiveness acceptance still missing. Current container shell ClientError confirmed. Then continue independent source-backed work and full Gates 13–17 mission.",
   "last_known_main_head": "e7c89e9d34ac4db7c92aca51f9971d7218b2de6e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 408,
+  "recovery_generation": 409,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "No new presentation pixels or gameplay changes. Source pointer leads remain raw candidates. Last confirmed full suite was 37704161253 (2926,25 skips). New full run 37722819830 is in progress, not verified complete. Runtime remains continuous/working.",
+  "note": "Verified main e7c89e9. Previous full CI outcome is failure, not pending. Investigate failing tests and identify whether caused by Gate14 report update or preexisting failure. Container execution ClientError persists.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
