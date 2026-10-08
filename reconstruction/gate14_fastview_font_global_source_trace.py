@@ -59,6 +59,103 @@ def _bounded_private_context(pe: OriginalPE32, va: int, before: int, after: int)
     }
 
 
+
+def linear_font_wrapper_instruction_candidates(
+    pe: OriginalPE32,
+    *,
+    targets=FONT_WRAPPER_TARGETS,
+    max_candidates_per_target: int = 64,
+) -> tuple[dict, ...]:
+    """Opt-in decoded .text leads, never validated xrefs or initializer proof.
+
+    Linear decoding from a section start may cross inline data or false
+    instruction boundaries. Only literal immediates and register-free absolute
+    memory operands are considered; indexed/register-relative displacements
+    are not mistaken for addresses of global font wrappers.
+    """
+    if (
+        type(max_candidates_per_target) is not int
+        or not 1 <= max_candidates_per_target <= 1024
+    ):
+        raise Gate14FontGlobalTraceError("linear candidate limit must be 1..1024")
+    targets = tuple(targets)
+    by_address: dict[int, int] = {}
+    seen_indices: set[int] = set()
+    for index, address in targets:
+        if type(index) is not int or not 0 <= index <= 4:
+            raise Gate14FontGlobalTraceError("font selector index must be 0..4")
+        if type(address) is not int or not 0 <= address < (1 << 32):
+            raise Gate14FontGlobalTraceError("font wrapper address must be uint32")
+        if index in seen_indices or address in by_address:
+            raise Gate14FontGlobalTraceError("duplicate selector or wrapper address")
+        seen_indices.add(index)
+        by_address[address] = index
+
+    try:
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        from capstone.x86_const import (
+            X86_OP_IMM,
+            X86_OP_MEM,
+            X86_REG_INVALID,
+        )
+    except ImportError as exc:
+        raise Gate14FontGlobalTraceError(
+            'Linear candidate scan requires pip install "capstone>=5,<6"'
+        ) from exc
+
+    engine = Cs(CS_ARCH_X86, CS_MODE_32)
+    engine.detail = True
+    engine.skipdata = True
+    collected = {index: [] for index, _ in targets}
+    counts = {index: 0 for index, _ in targets}
+    for section in pe.sections:
+        if section.name != ".text":
+            continue
+        start = section.raw_offset
+        blob = pe.data[start:start + section.file_backed_size]
+        va = pe.image_base + section.virtual_address
+        for insn in engine.disasm(blob, va):
+            # Capstone skipdata records are not decoded x86 instructions.
+            if insn.id == 0:
+                continue
+            matched: dict[int, str] = {}
+            for operand in insn.operands:
+                address = None
+                kind = None
+                if operand.type == X86_OP_IMM:
+                    address = int(operand.imm) & 0xFFFFFFFF
+                    kind = "literal_immediate"
+                elif (
+                    operand.type == X86_OP_MEM
+                    and operand.mem.base == X86_REG_INVALID
+                    and operand.mem.index == X86_REG_INVALID
+                ):
+                    address = int(operand.mem.disp) & 0xFFFFFFFF
+                    kind = "register_free_absolute_memory"
+                if address in by_address:
+                    matched[by_address[address]] = kind
+            for index, kind in matched.items():
+                counts[index] += 1
+                if counts[index] <= max_candidates_per_target:
+                    collected[index].append({
+                        "candidate_instruction_va": int(insn.address),
+                        "candidate_mnemonic": insn.mnemonic,
+                        "candidate_operands": insn.op_str,
+                        "candidate_bytes": bytes(insn.bytes).hex(),
+                        "operand_kind": kind,
+                        "classification": (
+                            "linear_decoded_candidate_not_verified_xref_or_write"
+                        ),
+                    })
+    return tuple({
+        "selector_index": index,
+        "wrapper_target_va": address,
+        "candidates": tuple(collected[index]),
+        "candidate_limit_reached": counts[index] > max_candidates_per_target,
+        "verified_xref_or_initializer": False,
+    } for index, address in targets)
+
+
 def font_global_candidate_report(
     pe: OriginalPE32,
     *,
@@ -66,12 +163,15 @@ def font_global_candidate_report(
     callsites=OWNER_CALLSITES,
     max_candidates_per_target: int = 64,
     context_radius: int = 40,
+    scan_linear_wrapper_candidates: bool = False,
 ) -> dict:
     """Prepare private evidence leads; intentionally make no font/value claim."""
     if type(max_candidates_per_target) is not int or not 1 <= max_candidates_per_target <= 1024:
         raise Gate14FontGlobalTraceError("max_candidates_per_target must be 1..1024")
     if type(context_radius) is not int or not 0 <= context_radius <= 256:
         raise Gate14FontGlobalTraceError("context_radius must be 0..256")
+    if type(scan_linear_wrapper_candidates) is not bool:
+        raise Gate14FontGlobalTraceError("linear candidate scan switch must be boolean")
 
     targets = tuple(targets)
     callsites = tuple(callsites)
@@ -129,6 +229,11 @@ def font_global_candidate_report(
     return {
         "source_sha256": pe.sha256,
         "dispatcher_source_va": 0x527BA0,
+        "linear_font_wrapper_candidates_not_xrefs": (
+            linear_font_wrapper_instruction_candidates(
+                pe, targets=targets, max_candidates_per_target=max_candidates_per_target
+            ) if scan_linear_wrapper_candidates else None
+        ),
         "font_wrapper_raw_candidates": tuple(wrapper_records),
         "text_constructor_caller_contexts": tuple(caller_records),
         "league_table_selector_zero_from_prior_verified_disassembly": True,
@@ -153,6 +258,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--max-candidates-per-target", type=int, default=64)
     parser.add_argument("--context-radius", type=int, default=40)
+    parser.add_argument("--scan-linear-wrapper-candidates", action="store_true")
     args = parser.parse_args()
     require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
@@ -160,6 +266,7 @@ def main() -> int:
         pe,
         max_candidates_per_target=args.max_candidates_per_target,
         context_radius=args.context_radius,
+        scan_linear_wrapper_candidates=args.scan_linear_wrapper_candidates,
     )
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Private FastView font-global candidate report saved to {args.output}")
