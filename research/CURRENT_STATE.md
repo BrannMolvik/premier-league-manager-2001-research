@@ -1,3 +1,15 @@
+# Recovery 407: reduce Gate-14 TextControl font tracing to genuinely unresolved selectors
+
+_8 October 2026 KST. Active validation Gate 13 remains open; independent Gate-14 evidence reconciliation only._
+
+From original-source evidence already in `GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md` and corrected `GATE14_FASTVIEW_DIRECT_HEADER_TEXT.md`, generic TextControl selector index **1** (`0x87BE90`) loads bold Zurich 18px from object `0x9197E0`, and index **3** (`0x87BE30`) loads Zurich 16px from object `0x8CAB80`. The Recovery-406 LeagueTable callers use **index 0** (`0x87BEA0`), which remains unbound to an exact original font file; indices 2 and 4 and the ScoreComposite variable selector values also remain unresolved. This is cross-referenced prior disassembly, **not new original-source execution**. Full provenance and disambiguation are appended to `research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md`.
+
+**Execution blocker:** private authorized disc ZIP was successfully found and materialized to the execution workspace, but the sandbox subsequently returned `caas.internal.errors.ClientError` even for trivial shell/Python commands. Do not describe the original source as missing or claim new disassembly/tests. **Next independent task when execution is healthy:** hash-verify the recovered PE32, source-trace index-0 global `0x87BEA0` initialization to its exact font object/file, then trace LeagueTable arg-4 string/value producer; independently bound ScoreComposite owner-relative selector variables. Do not render guessed text.
+
+**Gate 13 external blocker unchanged:** private non-disruptive Win11 `--transport-probe-only` HWND/DPI receipt, startup-movie geometry diagnosis, and normal menu/TeamSelect/fresh Squad latency/visual acceptance; Gates 14-17 remain incomplete and full-scope Windows 11 release is unverified. No CI runs requested for research-only evidence reconciliation, respecting reduced Actions use.
+
+---
+
 # Recovery 406 independent Gate-14 source trace — original FastView TextControl arguments
 
 _8 October 2026 KST; research-only cloud-safe work-ahead at Gate 14, with Gate 13 still the earliest incomplete validation gate._

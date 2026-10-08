@@ -67,3 +67,22 @@ These arguments are determined by the five immediately preceding `push` instruct
 This source pass does **not** prove any resulting visible row/heading captions, text producer updates, font file names, 16-bit color/style alpha rules, exact draw pixel outputs, global FastView z-order, audio, 3D choreography or original match presentation acceptance. No reconstruction code or pixels were changed.
 
 Next source-backed task: examine the canonical initializer/loaders for the five selector-global pointers `0x87BEA0, 0x87BE90, 0x87BE80, 0x87BE30, 0x87BDF0` and the row/heading arg-4 string construction/refresh producer. Prove exact font object identity and text values before enabling the static score/table controls in the port. Use the existing private tracer and preserve bounded source windows outside Git. Keep Gate 13 open until actual private Windows 11 startup-HWND/DPI receipt and menu/Squad visual/latency acceptance. This Gate-14 research is authorized independent work-ahead only, not a gate close.
+
+## Recovery 407: reconcile earlier source-verified font-selector identities
+
+_8 October 2026 KST. Cross-document original-source evidence reconciliation, **not** new original-executable disassembly._
+
+The Recovery-406 five-index dispatcher is now cross-checked against two previously verified global-initializer/source-font traces. The mapping below is limited to selectors whose object loaders were already independently source-closed:
+
+| Generic selector index | Dispatcher wrapper VA | Verified font object | Original file | Existing source evidence |
+| ---: | --- | --- | --- | --- |
+| 1 | `0x87BE90` | `0x9197E0` | `Fonts/Zurich_BdXCn_BT_18pixel.fnt` | `research/GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md` Recovery 200: `0x603670` initializes wrapper; `0x6042A8..0x6042F5` loads object from literal `0x839F00`; SHA-256 `4c5d5d33cb1fb2345c93a0e133863cc3e9e25d4297d0a6d15df762fb710eaccd` |
+| 3 | `0x87BE30` | `0x8CAB80` | `Fonts/Zurich_XCn_BT_16pixel.fnt` | `research/GATE14_FASTVIEW_DIRECT_HEADER_TEXT.md` Recovery 375 correction: literal `0x839E30` at `0x6044AC`, `0x657650` loader call `0x6044F9`; SHA-256 `e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18` |
+
+The earlier preliminary style-3 association with 18-pixel *regular* Zurich in `GATE14_FASTVIEW_DIRECT_HEADER_TEXT.md` was explicitly superseded by its Recovery-375 correction; do not reintroduce that stale mapping.
+
+**Source limits:** selector **0** (`0x87BEA0`), **2** (`0x87BE80`) and **4** (`0x87BDF0`) have no independently source-closed font object/file mapping in this reconciliation. In particular, the LeagueTable row and heading both pass selector **0**, so neither font choice nor text pixels can be inferred from the proven 1/3 cases. ScoreComposite's four variable selector inputs from `[ebp+8]`/`[ebp+0xC]` likewise cannot be presumed to equal index 1 or 3 without owner-value tracing. Text/string producers remain unresolved for both owners.
+
+**Execution infrastructure boundary:** private original archive still resolved and materialized from the documented Library identity, but subsequent container and Python process invocations failed with `caas.internal.errors.ClientError`, including a trivial command. Therefore no fresh executable tracing, font0 mapping, or renderer verification is claimed from Recovery 407. This is a *runtime tool failure*, not evidence that the authorized source archive is inaccessible.
+
+**Exact next executable research:** on a healthy source execution sandbox, verify canonical PE32 SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, inspect writes/initialization for **`0x87BEA0`**, resolve its pointed font object and literal loader/path first, then source-trace LeagueTable arg-4 string initialization/refresh. Separately trace the ScoreComposite owner-relative selector inputs before choosing any source font. Avoid duplicating the already-proven index-1/3 loader traces. Until these identities and values are closed, do not enable new score/table text pixels or alter Gate-13/14 acceptance claims.
