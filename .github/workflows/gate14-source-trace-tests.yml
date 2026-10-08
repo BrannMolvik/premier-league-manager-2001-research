@@ -3,6 +3,8 @@ name: Gate 14 private-source tracer regression
 on:
   pull_request:
     paths:
+      - "reconstruction/gate14_fastview_static_text_source_trace.py"
+      - "reconstruction/test_gate14_fastview_static_text_source_trace.py"
       - "reconstruction/gate14_fastview_font_global_source_trace.py"
       - "reconstruction/test_gate14_fastview_font_global_source_trace.py"
       - ".github/workflows/gate14-source-trace-tests.yml"
@@ -26,4 +28,4 @@ jobs:
           python-version: "3.12"
       - name: Verify asset-free source-trace tests
         working-directory: reconstruction
-        run: python -m unittest -v test_gate14_fastview_font_global_source_trace
+        run: python -m unittest -v test_gate14_fastview_font_global_source_trace test_gate14_fastview_static_text_source_trace
