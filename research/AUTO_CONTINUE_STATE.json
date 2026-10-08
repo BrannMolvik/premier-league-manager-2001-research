@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 408 verified main 94a27ad. Gate13 real private Win11 --transport-probe-only HWND/DPI startup-video and menu/Squad responsiveness/visual acceptance OPEN. Gate14 independent source investigation: on healthy private PE environment run new gate14_fastview_font_global_source_trace.py outside Git on hash-verified footballmanager.exe, decode aligned initialization for selector0 0x87BEA0 to exact font object/loader/path, backtrace LeagueTable text arg4 at 0x51D8FB/0x51DDF3 and ScoreComposite owner font indices. Current source sandbox even trivial shell/Python ClientError; no new original source identities claimed. Continue through Gate17 full-scope release.",
+  "active_task": "Recovery 408: main 94a27ad checkpointed Gate14 source-tracer PR #556. Follow-on PR #557 head d4a6f94 corrects outdated constructor argument-report fields using prior original source proof; source-tracer regression 37722819843 SUCCESS, asset-policy 37722819842 SUCCESS; full reconstruction 37722819830 pending (automatic triggered, not intentionally dispatched). Merge only after validation appropriate. External Gate13 Win11 GUI acceptance remains OPEN; private PE process execution ClientError, next real source task selector0 0x87BEA0 original font initializer and LeagueTable arg4 text. Mission Gates13-17 incomplete.",
   "last_known_main_head": "94a27ada49786a442a3b6fb4496e8d86f824cf46",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 408,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #556 head c0a45dd source-trace run 37722466640 success, asset policy 37722466708 success; merge 65fc487, status docs commit 94a27ad; no full CI (last full run 37704161253, 2926 tests 25 expected skips). Tools fail caas.internal.errors.ClientError for trivial shell/Python; authorized Library original still exists. Do not repeat completed tracer or spam CI.",
+  "note": "Meaningful verified in-flight PR #557, CI focused green and full-suite pending. Do not restart completed work or repeatedly launch Actions. No new original source identities/pixels recovered.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
