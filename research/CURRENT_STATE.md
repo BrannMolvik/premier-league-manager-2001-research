@@ -1,3 +1,15 @@
+# Recovery 406 independent Gate-14 source trace — original FastView TextControl arguments
+
+_8 October 2026 KST; research-only cloud-safe work-ahead at Gate 14, with Gate 13 still the earliest incomplete validation gate._
+
+The authorized and hash-verified original `footballmanager.exe` (SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`) was extracted privately from the authorized raw MODE1/2352 disc archive; **no original executable/disc bytes were staged in Git**. GNU objdump disassembly provided direct original source evidence that generic TextControl constructor `0x527960` takes `ecx` plus exactly **five stack arguments** (`ret 0x14`). Backtraced arguments are base configuration, rectangle, raw flags, source text/string object, and a five-way font-global selector. The selector `0x527BA0` maps indices 0..4 to five documented original pointers, with invalid index returning null. Six direct score/table caller addresses are recorded. LeagueTable row and heading callers both pass selector index **0**; the exact `.fnt` identity and user-facing string values remain unresolved.
+
+Detailed evidence and reproducible original disassembly procedure: `research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md`.
+
+**Active gate unchanged:** Gate 13 remains externally blocked on a genuine private Windows 11 startup-FMV HWND/DPI receipt and normal menu/Squad responsiveness/visual acceptance. No FastView rendering, guessed text, original window geometry, roadmap gate status, or full-scope release claim changed. **Next independent source-backed work:** trace initialization of score/table selector globals and their string/value producers in the verified original executable; do not rasterize until complete source-backed font and text identities are established.
+
+---
+
 # Recovery 406 — startup transport receipt integrity verified, actual Windows geometry still unobserved
 
 _8 October 2026 KST. Technical main merge `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3`._

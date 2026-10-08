@@ -14,7 +14,7 @@
   "last_verified_test_count": 2926,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 406 merged opt-in HWND/DPI receipt integrity PR #554 with full 2926-test pass; default FMV geometry unchanged. Earliest incomplete Gate 13 requires private real-Windows --transport-probe-only receipt, source-backed diagnosis of cropped/misaligned in-field movie, and external normal menu/Squad visual/latency acceptance. Post-#482 first-parent ledger is classified through 3b9cb028 (40 entries). Continue independent source-backed cloud-safe tasks without closing Gate13 or Gate17.",
+  "active_task": "Recovery 406: Gate13 remains blocked by actual private Windows HWND/DPI startup-media probe and human menu/Squad visual+latency acceptance. Source-backed Gate14 work-ahead now recovered five-argument FastView TextControl ABI and 5-entry font selector from canonical PE, see research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md. Next trace selector font-global initialization and actual row/heading string producers; no pixels/behavior guessed and Gate17 remains incomplete.",
   "last_local_focused_test_count": 38,
   "gate13_hover_focused_expected_skips": 1,
   "gate13_hover_implementation_code_head": "857a1806",

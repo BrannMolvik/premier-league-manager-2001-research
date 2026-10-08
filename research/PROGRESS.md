@@ -1,3 +1,9 @@
+### 8 October 2026 KST — Recovery 406: FastView static TextControl ABI and font selector original source evidence
+
+Worked ahead independently of still-blocked private Windows Gate-13 acceptance. Re-extracted the real PE32 `footballmanager.exe` from the authorized original Joliet raw disc outside Git and verified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. With Capstone unavailable, source instructions were verified using GNU objdump, including six direct FastView score/table TextControl constructor calls.
+
+The original generic `0x527960` constructor ends `ret 0x14` and expects `ecx` plus five 32-bit args. Source stack accounting (including 6845E1 ret4, 4834D0 plain ret, style 527BA0 plain ret, and 64F3C0 ret8) identifies arg2 rectangle, arg3 native flags, arg4 text/string object, and arg5 five-way font selector; row and heading use literal arg5=0. Exact selector returns original global resource pointer VAs 0x87BEA0/0x87BE90/0x87BE80/0x87BE30/0x87BDF0. Saved full bounded evidence in `research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md`. Does not invent original `.fnt` names, text strings, color/rendering or claim Gate14/13 completion.
+
 ### 8 October 2026 KST — Recovery 406: exact-head Windows transport diagnostic hardening and source contract review
 
 Recovery began from main `8a85e9170a30a1a0c349ca1a29298184d6d2f021`; runtime generation 406 set continuous/working. Source-backed Win32 diagnostic review found the opt-in startup parent/child transport parser accepted internally inconsistent rectangle origins/edges. PR #554 first CI attempt found one invalid multi-fault synthetic fixture (client top nonzero also changed measured height); the fixture was corrected without changing production logic.
