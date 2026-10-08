@@ -23,6 +23,15 @@ hands-on candidate. Do not call the current read-only paired display playable.
 Controls 4/5 and unrelated source boundaries remain explicitly fail-closed.
 This supersedes the older "not connected" resume notes below.
 
+Full reconstruction run at code checkpoint `479ffe44`: **3,003 tests /
+220.842 seconds / 18 skips**, with the same pre-existing Gate-17 FFmpeg
+package-lock digest drift producing **3 failures + 1 error**; no additional
+failures. Do not report the full suite green or alter the disjoint Gate-17
+toolchain to hide that result. Private log `paired-live-full-suite.log`, SHA-256
+`13c86c74e82c7c7003a4a9749651ba8f443a0d5e183e18a278e91c7ca01a92b7`.
+Asset policy and whitespace checks pass. No normal FMV acceptance or frozen
+package/real match acceptance was performed at this checkpoint.
+
 **Latest startup correction:** `404110(1)` does produce the primary first XI
 before human setup. Primary `616620(1)` precedes secondary scheduling; its
 temporary-category-2 lookup therefore sees source-initialized empty secondary
