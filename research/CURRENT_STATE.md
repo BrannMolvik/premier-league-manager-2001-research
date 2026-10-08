@@ -1,3 +1,17 @@
+# Recovery 415 — decoded font-wrapper reference triage merged; private source execution still blocked
+
+_8 October 2026 KST. Canonical technical main commit `93cdb977fe1b90f0afa0d1b06de5f17f631eac4f`, PR #559. Gate 13 remains earliest incomplete validation gate; Gates 14–17 and the Windows 11 release are incomplete._
+
+Independent Gate-14 work-ahead now provides an **optional** Capstone linear-decoding candidate scanner for already source-verified FastView TextControl font-wrapper addresses. It restricts candidate reports to .text literal immediates and register-free absolute memory operands, excludes register-relative displacements, retains explicit truncation and is deliberately labelled **UNCONFIRMED**, not an aligned/CFG-verified xref or initializer. The original raw-byte candidate report is still the default. Synthetic decoy/limit/fail-closed tests and documentation are included. This does not identify index-0 font, prove text values, change game behavior, or render new pixels.
+
+PR #559 exact head `000f27826072de612b353bb6062274c1a0ccde3e` passed focused Gate-14 source-trace CI `37745860509` and repository asset policy `37745860494`; merged as `93cdb977fe1b90f0afa0d1b06de5f17f631eac4f`. No full reconstruction CI was dispatched for this isolated research tool. Earlier exact-head full reconstruction suite `37724541991` passed 2,929 tests with 25 expected skips on the earlier PR #558 head; that run does not validate new executable work, nor real Windows playability.
+
+**Exact original-source next task:** local container and Python process launch continue to return `caas.internal.errors.ClientError`, even for trivial commands. The authorized original disc ZIP remains in Library as documented by `research/ORIGINAL_SOURCE_LOCATOR.md`; source availability has not been confused with process access. Once a private sandbox works, extract and SHA-256 verify canonical `footballmanager.exe` (`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`); run `reconstruction/gate14_fastview_font_global_source_trace.py` with `--scan-linear-wrapper-candidates` and output **outside Git**. Independently inspect actual aligned `.text` writes/initialization of index-0 wrapper `0x87BEA0` to recover font object/filename, then LeagueTable arg-4 string producers at `0x51D8FB`/`0x51DDF3` and ScoreComposite owner-relative selector values. Do not promote candidates to proof or invent missing font/text pixels.
+
+**Gate 13 external blocker unchanged:** real private Windows 11 `--transport-probe-only` parent/child HWND and DPI receipt, source-qualified startup-movie display diagnosis, and responsive recognizable main menu/TeamSelect/fresh Squad acceptance. This cannot be replaced with Linux CI. Gate 17 still requires the full originally shipped playable-country/league/management scope, not a Premier-League-only release.
+
+---
+
 # Recovery 409 — full reconstruction suite restored after exact fidelity-ledger label correction
 
 _8 October 2026 KST. Canonical technical merge `5109086c1e089f99a6443a9ed8c3df8b166e0baf`, PR #558. Gate 13 remains earliest incomplete validation gate._
