@@ -55,11 +55,10 @@ remained unknown, not invented clear. Private probe SHA-256:
 `f9ee59ae3ca08c8e4d0dc92911a387fb2cf74de85964a45f806211c2ba9fbaed`.
 No native original or foreground UI was launched.
 
-375 final focused tests passed /23.425s/no skips; asset policy passed. Earlier
-integrated full run: 3,062 /167.631s/18 skips, with only the recorded three
-failures and one error in disjoint Gate17 FFmpeg package-lock provenance.
-It precedes the final current-day-wrapper guards/codec regression and is not
-a claim that final-code full-suite or normal Windows acceptance is green.
+375 final focused tests passed /23.425s/no skips; asset policy passed. Final
+committed-code full run at `f2121146`: 3,064 /206.311s/18 skips, with only the
+recorded three failures and one error in disjoint Gate17 FFmpeg package-lock
+provenance. The full suite is not green; normal Windows acceptance remains open.
 
 ### Exact live binding boundary
 
@@ -78,6 +77,24 @@ The other known producer is the `5E3B20` branch (direct caller `5E3A2E`):
 `510BA0(2)` at `5E3C34`. Their source state/event producers still require
 semantic integration. These findings do not justify keeping links clear after
 an arbitrary day or naming an unqualified event by appearance.
+
+The weather/pitch dependency is now semantically identified, not guessed:
+constructor `5D9E20` writes vft `7D73A8`; COL `7F8C28` / TD `833B18`
+identifies `AogPitchWaterLogged`. Its +4 action `5D9E60` obtains the current
+DBRUser+6A8 pitch-installation object and calls `5E3A10` only when byte+7 is
+zero or byte+F is FF. The paired `AogFailedDrainageSystem` vft `7D7404`
+(COL `7F9298`, TD `834088`, action `5D9FA0`) takes the complementary
+nonzero/+F-not-FF gate. `AogFailedHeatingSystem` vft `7D73BC`
+(COL `7F8C78`, TD `833B40`, action `5DA100`) uses byte+5 nonzero and
+byte+D not FF. `5E3A10` calls its object's +C virtual; comparison with the
+actual double zero at `7BD5F8` selects `5E3B20` on equality, otherwise
+`5E3A40`. All three identified vft+C slots are `42CB70`, whose actual
+`FLD qword[7BD5F8]; RET` returns that zero. Thus the equality branch is proven
+for these three classes, not inferred from an absent virtual implementation.
+These are concrete caller/RTTI/CFG correlations; the event producer,
+pitch-installation lifecycle and `5E3CC0` seasonal guard still require
+retention before integrating their reschedule effect. No absence/default is
+inferred.
 
 ## Original owner and action
 

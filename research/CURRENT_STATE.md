@@ -6,9 +6,10 @@ human modal second). 320 bounded canonical executions matched. Canonical
 fresh Southport 4 -> 11 July retained XI11/bench2/roles through disk save and
 separate-process reload. Ten day-owner regressions include pending-owner disk
 roundtrip/no AI replay and unknown current-day wrapper rejection. 375 final
-focused tests passed /23.425s/no skips; asset policy passed. Integrated full
-run 3,062 /18 skips has only the previously recorded Gate17 package-lock
-three failures/one error; it predates the final guards, not final full green.
+focused tests passed /23.425s/no skips; asset policy passed. Final full run at
+`f2121146b94e18e5d6161b98b5115adab53dbd69`: 3,064 /206.311s/18 skips,
+with only the previously recorded Gate17 package-lock three failures/one error.
+The final full suite is not green.
 NEXT remains unbound in normal UI pending current-day wrapper/Side producer
 qualification and live pre-match calculator/input/modal binding. Exact next
 source points: `4A7280 -> 4A7B30 -> 4A7F50/4A801F`, and `5E3A2E ->
@@ -16,6 +17,12 @@ source points: `4A7280 -> 4A7B30 -> 4A7F50/4A801F`, and `5E3A2E ->
 See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md`. No playable build or Gate13 closure
 claimed; no native launch, main merge, agent-runtime or Gate14 implementation
 change. Unknown wrapper state is not promoted from date/score/completion.
+Follow-up trace identifies `5E3B20` as the double-zero branch reached by
+`AogPitchWaterLogged` and drainage/heating failure actions, guarded by the
+DBRUser+6A8 pitch-installation state. Exact vft/COL/TD and input byte gates are
+recorded in the advance-boundary note. All three +C virtual slots return the
+source double zero via `42CB70`; event/state producers remain unresolved,
+not presumed absent. No additional production behavior was guessed.
 
 **Current-main integration:** recovery branch integrates canonical
 `95c9609f388f23729bb7e5302db88c6b32f23d4c`, preserving independent worker
