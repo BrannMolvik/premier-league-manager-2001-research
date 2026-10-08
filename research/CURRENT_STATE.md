@@ -1,3 +1,17 @@
+# Recovery 409 — full reconstruction suite restored after exact fidelity-ledger label correction
+
+_8 October 2026 KST. Canonical technical merge `5109086c1e089f99a6443a9ed8c3df8b166e0baf`, PR #558. Gate 13 remains earliest incomplete validation gate._
+
+PR #557's automatic full-suite run `37722819830` had completed with **2,929 tests, 25 expected skips and two failures** in `test_gate15_fidelity_ledger`. Both failures were caused by one preexisting literal-label mismatch: `research/FIDELITY_GAPS.md` planned Gate for **Original front-end / management presentation fidelity** is `13, then 15 for secondary refinements`, while the JSON ledger had `13, then 15 for true secondary refinements`. This was not evidence of a new gameplay regression.
+
+PR #558 exact head `2a65a872e6cbf5f0dda10e7a176c3f1f05738995` corrected **only** the ledger's planned-gate string without changing owner gate, pending acceptance, policy, simulation or presentation. An independent read-only comparison found all **12** active gap rows matched the **12** ledger entries with zero missing, extra or inconsistent planned gates; declared Gate-15 completion remained false. **Exact-head full reconstruction CI run `37724541991` PASSED: 2,929 tests, 25 expected skips, no failures**. PR #558 merged as `5109086c1e089f99a6443a9ed8c3df8b166e0baf`. This is repository verification, NOT user-facing Windows 11 acceptance or Gate 13/14/15 closure.
+
+**Original source blocker:** sandbox shell and Python both still return `caas.internal.errors.ClientError` even for trivial commands. The authorized private disc archive remains in ChatGPT Library and was previously materialized successfully; the source is not presumed missing. Exact next Gate-14 independent task when execution is healthy: privately hash-verify canonical `footballmanager.exe`, run `reconstruction/gate14_fastview_font_global_source_trace.py` with output outside Git, decode the actual initializer of selector-index-0 wrapper `0x87BEA0` to its font object/load path, then independently trace LeagueTable TextControl string arg 4 at `0x51D8FB` and `0x51DDF3`, followed by ScoreComposite owner-relative font selector inputs. No guessed font/text pixels or original behavior changes.
+
+**Gate 13 blocker unchanged:** obtain a genuine, safe private Windows 11 `--transport-probe-only` startup-FMV parent/child HWND and DPI receipt, diagnose observed video geometry from that evidence, and then verify responsive, recognizably original menu/TeamSelect/fresh Squad normal play. Post-#482 user-facing acceptance is still OPEN. Gate 14 and Gate 15 remain incomplete, and Gate 16/17 are not released; Gate 17 demands full functional scope across all shipped playable countries, leagues and management systems. Do not claim full release completion or substitute hosted CI for real Windows evidence.
+
+---
+
 # Recovery 408 continuation: original TextControl constructor ABI reported consistently
 
 _8 October 2026 KST. Gate 13 remains earliest incomplete; independent Gate-14 source evidence hygiene._
