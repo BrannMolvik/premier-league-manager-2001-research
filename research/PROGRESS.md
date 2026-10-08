@@ -12550,3 +12550,18 @@ continues with ordinary Squad row display-name/color helpers.
 - Under the deferred-blocker policy, PR #550 persisted the source-closed club-name raster contract without runtime wiring or fallback font. Rebased exact head `654b9dd696dea4ff766671d02f0e12ce73e49bb5` passed asset `37692292200` and Gate-13 `37692292284`, then merged as `2d82a2b69e57b73ebb1289a4659f9fd732e3bdf2`.
 - Gate 13 and the retrospective audit remain open. Exact next implementation is byte-identical 36px font staging/provenance, live `Club.name` binding, and Southport plus second-club regressions. Startup-FMV parent/child HWND/DPI evidence remains the separate external blocker.
 
+# 8 October 2026 — original Squad row interaction recovery
+
+Integrated primary row-name `4B9350` state producer, source row-owner pointer
+mapping, transactional GameState commit/`4B7500` refresh and paired host
+press/release. 400 bounded canonical comparisons match actual setter/role
+swaps and roster-word writes. The native human match-input branch now reads
+`510CD0` live selection/role bytes rather than reassigning AI formation slots.
+323 focused integration tests passed, plus the new save regression. Canonical
+Southport/Liverpool public callback bench fill survives fresh-process disk
+reload, all player identities and withdrawn Windows/Tk rendering. Southport
+reload calculates its first Conference fixture (2000-08-19), then saves.
+No original launch, main merge, agent-runtime write, signing/security change,
+playable-package acceptance or Gate13 closure. Next: source drag cursor and
+ordinary advance/pre-match control integration, then actual hands-on acceptance.
+

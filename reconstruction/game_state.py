@@ -671,6 +671,44 @@ class GameState:
         self.prepare_original_primary_squad(club_id, substitute_quota=quota)
         return self.original_primary_squad_membership(club_id, substitute_quota=quota)
 
+    def drop_original_primary_squad_row(self, club_id: int, *, source_index: int,
+                                        target_index: int, empty_row_index=None,
+                                        substitute_quota: int):
+        """Transactional primary 4B9350 -> 4B7500, without constructor replay."""
+        from original_squad_preparation import PreparedSquadPlayer
+        from original_squad_row_drop import drop_original_squad_row
+        from original_squad_membership import NativeSquadMember, prepare_ordered_squad_membership
+        roster = self.ordered_club_roster(club_id)
+        if any(int(p.club_id) != int(club_id) or p.loan_club_id is not None for p in roster):
+            raise RuntimeError('Secondary-club Squad drop is not source-integrated')
+        inputs = tuple(PreparedSquadPlayer(p.index, p.match_selection_state_code,
+            p.current_position, p.position_aux_code, p.saved_reserve_role_152,
+            p.saved_reserve_aux_153, tuple(p.positions), tuple(p.skills),
+            p.form_state, bool(p.base_match_unavailable)) for p in roster)
+        result = drop_original_squad_row(inputs, source_index=source_index,
+            target_index=target_index, empty_row_index=empty_row_index,
+            substitute_quota=substitute_quota)
+        if not result.accepted:
+            return None
+        if any(self.players[pid].loan_listed for pid in result.first_active_player_ids):
+            raise RuntimeError('Native Squad loan-list counter side effect is not integrated')
+        # Validate ordering before any mutation, then commit retained producer bytes.
+        membership = prepare_ordered_squad_membership(tuple(NativeSquadMember(
+            p.player_id, p.selection, p.current_role, p.preferred_roles[0])
+            for p in result.players), substitute_quota=substitute_quota)
+        for member in result.players:
+            p = self.players[member.player_id]
+            p.match_active = member.selection == 4
+            p.match_substitute_available = member.selection == 3
+            p.reserve_active = member.selection == 2
+            p.reserve_substitute = member.selection == 1
+            p.current_position, p.position_aux_code = member.current_role, member.current_aux
+            p.saved_reserve_role_152, p.saved_reserve_aux_153 = member.reserve_role, member.reserve_aux
+        for pid in membership.cleared_player_ids:
+            self.players[pid].clear_match_selection(reset_position=True)
+        self.club_roster_order[int(club_id)] = [m.player_id for m in membership.members]
+        return membership
+
     def original_primary_squad_membership(self, club_id: int, *, substitute_quota: int):
         """Apply the native 4B7500 refresh/order producer to retained live state."""
         from original_squad_membership import NativeSquadMember, prepare_ordered_squad_membership

@@ -430,6 +430,7 @@ class OriginalGameTkHost:
         self._management_header_idle = None
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
+        self._squad_drag_source = None
         self.last_league_fixtures_grid_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_context = None
@@ -1994,6 +1995,8 @@ class OriginalGameTkHost:
         if getattr(self, "_startup_media_active", False):
             return
         event = self._normalize_pointer_event(event)
+        if self._release_original_squad_row(event):
+            return
         pager_changed = any(flags & 0x10 for flags in self.fixtures_pager_flags.values())
         self.fixtures_pager_flags = {direction: flags & ~0x10
                                     for direction, flags in self.fixtures_pager_flags.items()}
@@ -2003,6 +2006,68 @@ class OriginalGameTkHost:
         if self.pmatchinfo_script_pressed is not None:
             self.pmatchinfo_script_pressed = None
             self.redraw()
+
+    def _ordinary_squad_drag_owner(self):
+        if (self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
+                or self.active_pmatchinfo_art is not None or self.pmenu_popup_active
+                or self.management_presenter is None):
+            return None
+        snapshot = self.management_presenter.snapshot()
+        if (snapshot.panel_class != 'PSquadScreen' or snapshot.paired_squad is None
+                or self.management_presenter.squad_view_control_id != 3):
+            return None
+        gameplay = self.presenter.session.gameplay
+        if getattr(gameplay, 'original_squad_membership', None) is None:
+            return None
+        return gameplay
+
+    def _press_original_squad_row(self, event) -> bool:
+        from original_squad_pointer import original_squad_row_at_point
+        self._squad_drag_source = None
+        gameplay = self._ordinary_squad_drag_owner()
+        if gameplay is None:
+            return False
+        hit = original_squad_row_at_point(gameplay.original_squad_membership,
+                                          int(event.x), int(event.y), press=True)
+        if hit is None:
+            return False
+        if hit.shirt_number:
+            self.last_status = 'Native shirt-number drag remains source-rendering bounded'
+            return True
+        # Preserve the owner's retained index and identity until release.
+        self._squad_drag_source = (hit.ordered_index,
+            gameplay.original_squad_membership.members[hit.ordered_index].player_id,
+            gameplay.original_squad_membership)
+        self.last_status = 'Native Squad row-name drag retained'
+        return True
+
+    def _release_original_squad_row(self, event) -> bool:
+        from original_squad_pointer import original_squad_row_at_point
+        source = getattr(self, '_squad_drag_source', None)
+        self._squad_drag_source = None
+        if source is None:
+            return False
+        gameplay = self._ordinary_squad_drag_owner()
+        if gameplay is None or gameplay.original_squad_membership is not source[2]:
+            self.last_status = 'Squad drag cancelled: original owner changed'
+            return True
+        hit = original_squad_row_at_point(gameplay.original_squad_membership,
+                                          int(event.x), int(event.y))
+        if hit is None:
+            self.last_status = 'Squad drag cancelled outside an original row owner'
+            return True
+        try:
+            accepted = gameplay.drop_original_squad_row(source[0], hit.ordered_index,
+                empty_row_index=hit.visible_index if hit.empty_owner else None)
+        except Exception as exc:
+            self.last_status = f'{type(exc).__name__}: {exc}'
+            self.error_reporter(self.last_status)
+            return True
+        if accepted:
+            self.redraw()
+        self.last_status = ('Native Squad row drop applied' if accepted else
+                            'Native Squad role-capacity guard rejected drop')
+        return True
 
     def on_click(self, event) -> None:
         if getattr(self, "_startup_media_active", False):
@@ -2056,6 +2121,8 @@ class OriginalGameTkHost:
                 self.pmenu_popup_active = True
                 self.redraw()
                 self.last_status += '; native application event 2: PMenu popup opened'
+                return
+            if self._press_original_squad_row(event):
                 return
             page = (None if self.pmenu_popup_active else fixtures_page_press(
                 self._fixtures_page_controls(), int(event.x), int(event.y)))

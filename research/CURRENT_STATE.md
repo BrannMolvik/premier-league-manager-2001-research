@@ -1,5 +1,36 @@
 # Local recovery integration — 8 October 2026
 
+**Latest row-interaction checkpoint:** default paired Squad row-name press/drop
+now runs the canonical `4B9350` producer and `4B7500` refresh, rather than a
+toggle/dropdown or autofill. Four hundred bounded native state comparisons
+match selection/current/reserve bytes, roster-word swaps and acceptance.
+The host uses original 226x17 row-owner hits, parent y79 / x37,418, native holes
+and strict role-column boundaries. Loan side effects remain fail-closed.
+The native human match-input branch reads actual live flags/role/aux in +244
+order (`510CD0`); it no longer clears these and zips players to AI slots.
+
+Real canonical Southport/Liverpool owner gestures filled the three initial
+bench holes, yielding retained XI11/bench5 through disk save and separate
+reload. Withdrawn real Windows/Tk public press/release callbacks and production
+draw methods passed both clubs, all 30/35 players and image bounds. A fresh
+Southport reload advanced to and calculated its first Conference fixture on
+2000-08-19, then saved. These are background widget/backend checks, **not a
+normal launched-game/audio/on-screen match or playable-package acceptance**.
+See `GATE13_SQUAD_ROW_DROP.md`; 323 integrated focused tests passed in 17.966s,
+plus the new disk-roundtrip regression (24 row-drop tests / 0.436s).
+Full regression: 3,026 tests / 291.933s / 18 expected skips; the same three
+failures and one error remain confined to the previously recorded Gate17
+FFmpeg complete-package-lock digest drift. No Gate13 test failed; the full
+suite is not green. The subsequently added disk-roundtrip test passes.
+
+**Next:** qualify/render the native name-drag cursor and ordinary management
+advance/pre-match input, then verify actual original-look startup, user-driven
+lineup/advance/match/save/load and build the hands-on candidate. Shirt-number
+drag and controls 4/5 remain explicitly bounded; do not label this checkpoint
+a playable build or Gate13 completion. Incoming `origin/main` was inspected at
+`8be624df35c449fd3d3d766eec2d1dd93061a8e5`; no main or agent-runtime writes.
+The older read-only/drag-unconnected notes below are superseded.
+
 **Latest live binding:** canonical fresh backend creation now runs the proven
 primary startup selector. Selecting an ordinary club runs `408500`'s bounded
 exact next-match quota, constructor preparation and native ordering. The

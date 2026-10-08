@@ -1338,9 +1338,72 @@ class HumanGameplayController:
             substitute_ids,
         )
 
+    def drop_original_squad_row(self, source_index: int, target_index: int,
+                                *, empty_row_index=None) -> bool:
+        """Apply original row-name drop and retain the refreshed paired owner."""
+        if self.human is None or self.original_squad_membership is None:
+            raise RuntimeError('Original paired Squad owner is not retained')
+        membership = self.original_squad_membership
+        live_ids = tuple(p.index for p in self.state.ordered_club_roster(self.human.club_id))
+        if (live_ids != tuple(p.player_id for p in membership.members)
+                or any(self.state.players[m.player_id].match_selection_state_code != m.selection
+                       or self.state.players[m.player_id].current_position != m.current_role
+                       for m in membership.members)):
+            raise RuntimeError('Original Squad drag owner is stale')
+        refreshed = self.state.drop_original_primary_squad_row(self.human.club_id,
+            source_index=source_index, target_index=target_index,
+            empty_row_index=empty_row_index, substitute_quota=membership.substitute_quota)
+        if refreshed is None:
+            return False
+        self.original_squad_membership = refreshed
+        self._retain_original_squad_selected_ids()
+        return True
+
+    def _retain_original_squad_selected_ids(self):
+        """Retain 510CD0's ordered live flags, never zip to AI formation slots."""
+        if self.human is None:
+            raise RuntimeError('Select a human club first')
+        roster = self.state.ordered_club_roster(self.human.club_id)
+        self.human.starter_ids = tuple(p.index for p in roster if p.match_active)
+        self.human.substitute_ids = tuple(p.index for p in roster if p.match_substitute_available)
+
+    def original_squad_match_selection(self) -> PreparedAiMatchSelection:
+        """Read retained native human assignments without selection/role writes.
+
+        Complete-input guards remain fail-closed. This is not prototype autofill
+        and does not claim all original pre-match warning acceptance semantics.
+        """
+        if self.human is None or self.human.club_id not in self.state.native_squad_first_formations:
+            raise RuntimeError('Native first-team formation has not been retained')
+        roster = self.state.ordered_club_roster(self.human.club_id)
+        if any(int(p.club_id) != self.human.club_id or p.loan_club_id is not None for p in roster):
+            raise RuntimeError('Secondary-club native human selection is not integrated')
+        starters = tuple(p for p in roster if p.match_active)
+        substitutes = tuple(p for p in roster if p.match_substitute_available)
+        competition = self._human_selection_competition()
+        quota = resolved_substitute_quota(int(competition.substitute_quota))
+        if len(starters) != 11 or len(substitutes) != quota:
+            raise ValueError(f'Native human selection requires 11 starters and {quota} substitutes; '
+                             f'retained {len(starters)} and {len(substitutes)}')
+        participants = collect_match_participants(self.human.club_id, roster)
+        if len(participants) != 11 + quota or len({p.index for p in participants}) != len(participants):
+            raise RuntimeError('Native human participant ownership is incomplete')
+        if any(p.base_match_unavailable for p in participants):
+            raise ValueError('Native human selected player is unavailable')
+        if sum(bool(p.non_eu) for p in participants) > int(competition.max_non_eu_players):
+            raise ValueError('Native human selection exceeds the competition Non-EU limit')
+        assignments = tuple(StarterAssignment(p.index, p.current_position, p.position_aux_code)
+                            for p in starters)
+        self._retain_original_squad_selected_ids()
+        return PreparedAiMatchSelection(
+            lineup=AiLineupCoreResult(assignments, tuple(p.index for p in substitutes), ()),
+            participants=participants, non_eu_restriction_relaxed=False)
+
     def current_selection(self) -> PreparedAiMatchSelection:
         if self.human is None:
             raise RuntimeError("select a human club first")
+        if self.human.club_id in self.state.native_squad_first_formations:
+            return self.original_squad_match_selection()
         if not self.human.starter_ids:
             raise RuntimeError("set a human lineup first")
         return self._prepare_human_selection(
