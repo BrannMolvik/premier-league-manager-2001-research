@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 414: active Gate13 external private Win11 --transport-probe-only HWND/DPI/menu Squad acceptance; independent Gate14 source-first index0 font 0x87BEA0 LeagueTable arg4 and ScoreComposite selectors pending process restoration. Sandbox /bin/echo fails caas.internal.errors.ClientError on preflight. Do not invent source evidence, pixels, tests or gate completion.",
+  "active_task": "Recovery 415: Gate14 source-independent Capstone linear font wrapper triage PR #559 head 000f27826072de612b353bb6062274c1a0ccde3e pending focused CI 37745860509 and asset policy 37745860494. Verify exact head, fix failures, merge if green, then resume index0 original private source trace when process execution returns. Gate13 external Win11 --transport-probe-only HWND/DPI and menu/TeamSelect/Squad visual-latency acceptance required. Gates13-17/Win11 release remain incomplete.",
   "last_known_main_head": "9093e55e6480565c34b2e8bd96cea0cbaf758570",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 414,
+  "recovery_generation": 415,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 413 checked canonical main HEAD 9093e55e6480565c34b2e8bd96cea0cbaf758570 and CURRENT_STATE, CONTINUATION_INSTRUCTIONS, AUTO_CONTINUE, WORK_OWNERSHIP (Gate13 lock released), ROADMAP, active source-trace code/tests, readiness and score/table static source contracts. Current shell /bin/echo and bash+python, and Python tool each fail caas.internal.errors.ClientError; this is before any original PE extraction, so no original-source tracing/hashing or local tests performed. Library /FM2001/Original Source confirms original 511121336-byte authorized disc ZIP remains present; availability != byte accessibility. GitHub main source-trace tool explicitly stops raw pointer candidates from being classified as proven xrefs. Open issue #482 persists, multiple older open PRs overlap Gate13, so no speculative code changes. CI 37724541991 historically passed 2929 tests/25 skips on older head; no current-run claim. No game implementation or main commits, no CI dispatch. Resume via preflight trivial process first; only if healthy, materialize authorized archive and extract/verify exact PE SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3, execute gate14_fastview_font_global_source_trace.py with output outside repo and aligned disassemble 0x87BEA0 initializer, LeagueTable arg4 at 0x51D8FB/0x51DDF3, ScoreComposite [ebp+8]/[ebp+0xC]; preserve original-only provenance. External private Win11 probe mandatory and release NOT complete.",
+  "note": "Recovery 415 checked main 9093e55 and CURRENT_STATE/CONTINUATION/ROADMAP/ownership/source-first. Both /bin/echo and Python process startup fail caas.internal.errors.ClientError, blocking original-disc ZIP processing; source is present in Library and cannot be falsely declared missing. Independent Gate14 research tool enhancement PR #559 adds opt-in decoded .text literal/absolute-memory candidate leads, excludes register-relative/data, labels results unverified, and synthetic tests/docs; does not render pixels or claim recovered font identities. PR head 000f27826072de612b353bb6062274c1a0ccde3e; workflows Gate14 37745860509, asset 37745860494 started. Before merge, check exact-head results and fix; no full suite because tooling-only. Main untouched until validated. Then privately hash-verify canonical PE 833bf95e... and source-close index0 wrapper 0x87BEA0, LeagueTable arg4 0x51D8FB/0x51DDF3 and ScoreComposite [ebp+8]/[ebp+0xC]. Gate13 still missing private external Win11 receipt and playability acceptance, Gate17 incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
