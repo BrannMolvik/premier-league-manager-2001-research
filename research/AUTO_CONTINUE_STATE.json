@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 410: Gate13 external Windows --transport-probe-only receipt/visual acceptance remains open. Independent Gate14 PE/font0/text-producer source trace deferred by confirmed sandbox ClientError after ZIP materialization. Retest trivial shell; privately hash original executable and trace source, then proceed after verified result. Gates13-17 still incomplete.",
-  "last_known_main_head": "8be624df35c449fd3d3d766eec2d1dd93061a8e5",
+  "active_task": "Recovery 411: verified main 9093e55 documentation reconciliation (stale style-3 header 18pixel -> original-source verified Zurich_XCn_BT_16pixel, corrected y=51/y=69). Gate13 external private Win11 HWND/DPI transport probe and menu/TeamSelect/Squad playability acceptance remain open. Gate14 source-first next: working private sandbox, verify original PE hash, decode index0 0x87BEA0 font initializer/object/file, LeagueTable arg4 string producers at 0x51D8FB / 0x51DDF3, and ScoreComposite owner-relative selector values. Source ZIP Library is present; Python/container/process-exec return caas.internal.errors.ClientError. Gates13-17 and full Win11 release incomplete. Avoid CI/commit spam.",
+  "last_known_main_head": "9093e55e6480565c34b2e8bd96cea0cbaf758570",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 410,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 410 verified main 8be624df35c449fd3d3d766eec2d1dd93061a8e5, GitHub full reconstruction run 37724541991 completed success on 2a65a87 (2929 tests, 25 expected skips per canonical log). Found canonical authorized ZIP in Library and materialized 511121336 bytes at /mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip, but size was returned by Files metadata, not independently hashed this recovery. Initial container echo/objdump/Python check succeeded; then container file inspection and repeated trivial 'echo probe', '/bin/echo ok', 'true' plus python.exec print all failed caas.internal.errors.ClientError. No new original PE hash, disassembly, tests, Windows receipt, main research commit, or release claim. Exact next action: first confirm local process execution works; then hash ZIP and extract original footballmanager.exe privately per ORIGINAL_SOURCE_LOCATOR and Gate14 source instructions, verify PE SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3; run gate14_fastview_font_global_source_trace.py privately and source-decode index0 0x87BEA0 initializer to exact .fnt, LeagueTable arg4 producers 0x51D8FB/0x51DDF3 and ScoreComposite variable selectors. Gate13 still requires original-only private Win11 --transport-probe-only HWND/DPI receipt and menu/TeamSelect/fresh Squad latency/visual acceptance; Gates14-17 and final Win11 original full-scope release remain incomplete. Do not rerun CI or create arbitrary main commits merely as heartbeat.",
+  "recovery_generation": 411,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 411 committed source-backed documentation-only reconciliation at main 9093e55 (three changed files: GATE14_FASTVIEW_DIRECT_HEADER_RASTER.md, gate14_fastview_direct_header_text.py module docstring, PROGRESS.md). Read-back verification: 1 commit, preserved historical claims, appended explicit supersession and corrected docstring; did not alter executable logic, original assets, behavior, tests or gate status. Test executions NOT performed in current session. Canonical PE font index0 and text producers unresolved. Prior full-suite CI run 37724541991 success 2929 tests 25 skips on PR558; does NOT validate newer docs commit, but docs-only. Original archive exists Library /FM2001/Original Source and materialized in prior Recovery410, yet fresh container/bash/python and python_user_visible failed ClientError on trivial commands. No private Win11 receipt or GUI acceptance; remaining mission all gates 13-17. Exact next: retest process, hash original PE SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3, privately run candidate tracer, resolve index0 and LeagueTable arg4 and ScoreComposite selectors; if process remains unavailable, continue independent already-evidenced repo audit, no guessed pixels.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
