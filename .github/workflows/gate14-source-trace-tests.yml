@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install legacy source-tracer decoder for synthetic tests
+        run: python -m pip install "capstone>=5,<6"
       - name: Verify asset-free source-trace tests
         working-directory: reconstruction
         run: python -m unittest -v test_gate14_fastview_font_global_source_trace test_gate14_fastview_static_text_source_trace
