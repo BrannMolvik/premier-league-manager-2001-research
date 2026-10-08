@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 408: main 94a27ad checkpointed Gate14 source-tracer PR #556. Follow-on PR #557 head d4a6f94 corrects outdated constructor argument-report fields using prior original source proof; source-tracer regression 37722819843 SUCCESS, asset-policy 37722819842 SUCCESS; full reconstruction 37722819830 pending (automatic triggered, not intentionally dispatched). Merge only after validation appropriate. External Gate13 Win11 GUI acceptance remains OPEN; private PE process execution ClientError, next real source task selector0 0x87BEA0 original font initializer and LeagueTable arg4 text. Mission Gates13-17 incomplete.",
-  "last_known_main_head": "94a27ada49786a442a3b6fb4496e8d86f824cf46",
+  "active_task": "Recovery 408 GitHub checkpoint e7c89e9: Gate14 read-only font-global candidate tracer PR #556 (focused success), and original-source ABI report reconciliation PR #557 exact head d4a6f94 (source focused success 37722819843; asset policy success 37722819842), merged ace8fb49. Automatic full suite 37722819830 was in progress at checkpoint, NOT claimed passed; check it before further claims. Private source execution still caas.internal.errors.ClientError on trivial commands. Next exact source work when healthy: 0x87BEA0 font object/loader/path then LeagueTable arg4 at 0x51D8FB/0x51DDF3 and ScoreComposite selector owner variables. Gate13 needs actual private Windows11 HWND/DPI transport and menu/Squad visual+latency acceptance. Continue Gates13-17 through release; no close claim.",
+  "last_known_main_head": "e7c89e9d34ac4db7c92aca51f9971d7218b2de6e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 408,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Meaningful verified in-flight PR #557, CI focused green and full-suite pending. Do not restart completed work or repeatedly launch Actions. No new original source identities/pixels recovered.",
+  "note": "No new presentation pixels or gameplay changes. Source pointer leads remain raw candidates. Last confirmed full suite was 37704161253 (2926,25 skips). New full run 37722819830 is in progress, not verified complete. Runtime remains continuous/working.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
