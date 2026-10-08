@@ -1,5 +1,43 @@
 # Local recovery integration — 8 October 2026
 
+Latest recovery checkpoint now reconciles `origin/main`
+`e05c71c11e50b6f5b42bfee1e9054bd7c4dab7e8` (integration commit
+`79d441a33703fd28cebc9996e2184f92b62079e4`), preserving the worker's header
+link/cache work. The incoming erroneous 36px club-caption claim remains
+superseded by the canonical 32px correction below. No main merge or runtime
+ownership change is made.
+
+The primary `4B7BD0 -> 40AB40/4067B0` Squad preparation is implemented and
+matches 100 bounded canonical-function comparisons. GameState adapters retain
+reserve formation and role-byte swaps; schema 47 persists these through disk
+save/reload. The explicit paired presenter preserves native slot holes and
+identity, and its complete-selection regression displays all 30 members across
+the two original owners. Native `First Team` / `Reserves` title/grid/text
+rendering is recovered at the exact 381-pixel parent translation. **These
+adapters are not yet connected to the normal host, and no new playable build
+has been delivered.** Daniel correctly requires original first/reserve setup
+and actual lineup interaction, not a read-only database-first-20 display.
+
+**Exact next work:** bind `408500`'s actual source-qualified next-match quota
+and constructor preparation to the live paired host; complete the required
+empty-row resource chain and source-qualified human row-selection controls.
+The real Southport/Liverpool offline state check still has incomplete first-XI
+state after this bounded preparation. Trace the startup/manual-selection
+lifecycle; do not infer an original startup auto-XI producer from that symptom,
+use prototype autofill, silently hide unmapped IDs or invent a scrolling split.
+Then prove ordinary paired management interaction and match/save/load before
+handing Daniel a build labeled playable. See
+`GATE13_SQUAD_PREPARATION_PRODUCER.md`.
+
+Latest focused verification: **287 tests / 34.568 seconds / zero failures or
+skips**, including live state adapters, schema-47 disk roundtrip, paired
+presentation contracts and integrated management/startup tests. Asset policy
+and whitespace checks pass. No original process was launched. No new live
+Windows acceptance, package release or Gate-13 completion is claimed. The
+earlier full-suite limitation below remains recorded rather than overwritten.
+
+---
+
 Recovery branch `codex/gate13-windows-playability-recovery` reconciles canonical
 main `36335b97fa7e395d685624c212f89663ffe7d5a2`, preserving the worker's
 Cup-Tied date-model removal, source reserve state and central date header.

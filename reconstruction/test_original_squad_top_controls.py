@@ -37,6 +37,23 @@ def fixture_resources() -> OriginalSquadTopResources:
 
 
 class OriginalSquadTopControlsTests(unittest.TestCase):
+    def test_native_reserve_owner_reuses_setup_at_its_exact_translation(self):
+        render = build_fresh_squad_top_render(self.chrome_resources(), include_reserve=True)
+        titles = [o for o in render.overlays if o.role == 'roster_title']
+        self.assertEqual([(o.original_text, o.x, o.y) for o in titles],
+                         [('First Team', 37, 205), ('Reserves', 418, 205)])
+        reserve_text = next(o for o in render.overlays
+                            if o.role == 'roster_title_text' and o.control_id == 1)
+        self.assertEqual(reserve_text.original_text, 'Reserves')
+        self.assertEqual(reserve_text.x, 424)
+        first = [o for o in render.overlays if o.role == 'roster_grid' and o.control_id == 0]
+        reserve = [o for o in render.overlays if o.role == 'roster_grid' and o.control_id == 1]
+        self.assertEqual(len(reserve), 20)
+        self.assertEqual([(o.x, o.y) for o in reserve], [(o.x + 381, o.y) for o in first])
+        self.assertEqual([o.png for o in reserve], [o.png for o in first])
+        with self.assertRaisesRegex(OriginalSquadTopControlsError, 'visibility'):
+            build_fresh_squad_top_render(self.chrome_resources(), include_reserve=None)
+
     def chrome_resources(self):
         root = Path(__file__).resolve().parents[1] / 'original_assets/source'
         title = EA444DecodedImage(226, 20, bytes((1, 2, 3, 255)) * (226*20), 0, 0)

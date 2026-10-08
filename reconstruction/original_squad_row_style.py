@@ -9,14 +9,16 @@ those states still withhold an unproven color rather than inventing one.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from hashlib import sha256
 from math import ceil, floor, isfinite
 from pathlib import Path
 
 from ea_font import EAFont, EATextMask
 from ea_language_strings import parse_language_pair
-from original_squad_resources import SQUAD_FIRST_ROSTER_RECT, SQUAD_PANEL_RECT
+from original_squad_resources import (
+    SQUAD_FIRST_ROSTER_RECT, SQUAD_RESERVE_ROSTER_RECT, SQUAD_PANEL_RECT,
+)
 
 
 class OriginalSquadRowStyleError(ValueError):
@@ -395,6 +397,29 @@ def build_first_roster_column_heading_overlays(
         overlays.append(OriginalSquadRowTextOverlay(text, x, y, width, height,
             _rgb_rgba(alpha, (255, 255, 255)), (255, 255, 255), SQUAD_SCF_FONT_SOURCE_PATH))
     return tuple(overlays)
+
+
+def build_paired_roster_text_overlays(paired, resources):
+    """Render both explicitly mapped owners through their shared child setup.
+
+    4B8240 constructs identical PSquadList objects at +130/+1030;
+    the original parent transforms are x=37/x=418, y=0. This adds no
+    selection semantics, empty-row artwork or arbitrary player-list split.
+    """
+    from original_squad_paired_presenter import OriginalPairedSquadSnapshot
+    if not isinstance(paired, OriginalPairedSquadSnapshot):
+        raise OriginalSquadRowStyleError('Native paired Squad snapshot is required')
+    def local(snapshot):
+        return (
+            *build_first_roster_column_heading_overlays(resources),
+            *build_first_roster_role_overlays(snapshot.rows, resources),
+            *build_first_roster_name_overlays(snapshot.rows, resources),
+            *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
+        )
+    dx = SQUAD_RESERVE_ROSTER_RECT.x - SQUAD_FIRST_ROSTER_RECT.x
+    dy = SQUAD_RESERVE_ROSTER_RECT.y - SQUAD_FIRST_ROSTER_RECT.y
+    return (*local(paired.first), *(replace(o, x=o.x + dx, y=o.y + dy)
+                                   for o in local(paired.reserve)))
 
 
 def build_first_roster_role_overlays(

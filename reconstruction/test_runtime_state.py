@@ -57,6 +57,24 @@ class JoinDateNormalizationTests(unittest.TestCase):
 
 
 class RuntimePlayerTests(unittest.TestCase):
+    def test_reserve_position_swap_is_retained_when_returning_to_first_team(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(positions=(12, 18, 0)), date(2000, 7, 1), MsvcCrtRng(1))
+        self.assertEqual((player.saved_reserve_role_152, player.saved_reserve_aux_153), (0, 0))
+        player.assign_match_position(12, 2)
+        player.set_reserve_active()
+        self.assertEqual((player.current_position, player.position_aux_code), (0, 0))
+        self.assertEqual((player.saved_reserve_role_152, player.saved_reserve_aux_153), (12, 2))
+        player.assign_match_position(19, 1)
+        player.set_match_active()
+        self.assertEqual((player.current_position, player.position_aux_code), (12, 2))
+        self.assertEqual((player.saved_reserve_role_152, player.saved_reserve_aux_153), (19, 1))
+        player.set_reserve_active()
+        self.assertEqual((player.current_position, player.position_aux_code), (19, 1))
+        player.set_match_substitute_available()
+        self.assertEqual((player.current_position, player.position_aux_code), (12, 0))
+        self.assertEqual((player.saved_reserve_role_152, player.saved_reserve_aux_153), (19, 1))
+
     def test_age_on_birthday_boundary(self):
         dob = date(1980, 6, 15)
         self.assertEqual(age_on(dob, date(2000, 6, 14)), 19)

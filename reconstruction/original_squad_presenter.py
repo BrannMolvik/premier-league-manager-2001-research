@@ -104,6 +104,10 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
 
     projected = []
     for visible_index, row in enumerate(source_rows):
+        # The native mapper can return its explicit empty-row owner. Preserve
+        # the slot's vertical origin; never compact the following player rows.
+        if row is None:
+            continue
         source_roster_index = _require_int(
             getattr(row, "source_roster_index", None),
             label="source_roster_index",

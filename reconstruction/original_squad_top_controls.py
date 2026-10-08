@@ -26,6 +26,7 @@ from original_squad_resources import (
     SQUAD_RESOURCES,
     validate_imported_original_squad_resources,
     SQUAD_VISIBLE_ROW_Y_ORIGINS,
+    SQUAD_FIRST_ROSTER_RECT, SQUAD_RESERVE_ROSTER_RECT,
 )
 from original_squad_row_style import (
     load_verified_squad_row_text_resources, _clip_mask, SQUAD_ROW_FONT_ATLAS_SIZE,
@@ -144,7 +145,8 @@ def load_verified_squad_top_resources(
     resource = _button_resource()
     strings, indices = parse_language_pair((root / 'English.str').read_bytes(),
                                            (root / 'English.idx').read_bytes())
-    if indices.resolve(strings, 166) != 'First Team':
+    if (indices.resolve(strings, 166) != 'First Team'
+            or indices.resolve(strings, 168) != 'Reserves'):
         raise OriginalSquadTopControlsError('First-roster original language binding mismatch')
     executable = Path(original_executable).read_bytes()
     atlas = decode_ea444(
@@ -178,12 +180,15 @@ def _crop_frame(atlas: EA444DecodedImage, source_index: int) -> bytes:
 
 def build_fresh_squad_top_render(
     resources: OriginalSquadTopResources,
+    *, include_reserve: bool = False,
 ) -> OriginalSquadTopRender:
     """Compose the native initial state: control 3 selected, controls 4/5 normal."""
     if not isinstance(resources, OriginalSquadTopResources):
         raise OriginalSquadTopControlsError(
             "Squad top rendering requires verified original resources"
         )
+    if type(include_reserve) is not bool:
+        raise OriginalSquadTopControlsError('Explicit native paired-list visibility is required')
     panel_x, panel_y, _panel_w, _panel_h = SQUAD_PANEL_RECT
     width, height = SQUAD_BUTTON_FRAME_SIZE
     line_height = resources.font.native_line_height()
@@ -193,30 +198,35 @@ def build_fresh_squad_top_render(
         # PSquadList 4B506D -> 5D6050 -> 5D5EB0: title_bar_7 at local
         # (0,126), wrapper 946B70 (226x20), First Team / English.idx[166].
         title = resources.first_roster_title
-        overlays.append(OriginalSquadTopOverlay('roster_title', 0, 'First Team',
-            37, panel_y + 126, 226, 20, encode_rgba_png(226, 20, title.rgba),
-            SQUAD_FIRST_TITLE_PATH, 0))
         font = resources.first_roster_title_font
-        mask = font.render_text_alpha('First Team')
-        rect = (37, panel_y + 126, 226, 20)
-        # 5D5EB0 sets font 9197E0, flags 2001, white and inset (6,0).
-        # 651F80 supplies default vertical centering; 6520C0 clips to owner.
-        clipped = _clip_mask(mask, line_x=rect[0] + 6,
-            line_y=rect[1] + 10 - font.native_line_height() // 2, rect=rect)
-        if clipped is not None:
-            x, y, w, h, alpha = clipped
-            overlays.append(OriginalSquadTopOverlay('roster_title_text', 0, 'First Team',
-                x, y, w, h, encode_rgba_png(w, h, endpoint_text_rgba(alpha, 0xffff)),
-                'Fonts/Zurich_BdXCn_BT_18pixel.fnt', None, 0xffff))
         # 4B520F..4B5670 installs 20 pictures at y=154+17*i, with
         # wrapper 942FD0 cropping the first 328x16 of the 729x16 original.
         grid = resources.first_roster_grid
         cropped_grid = b''.join(grid.rgba[y * 729 * 4:y * 729 * 4 + 328 * 4]
                                 for y in range(16))
         png = encode_rgba_png(328, 16, cropped_grid)
-        for y in SQUAD_VISIBLE_ROW_Y_ORIGINS:
-            overlays.append(OriginalSquadTopOverlay('roster_grid', 0, '',
-                37, panel_y + y, 328, 16, png, SQUAD_FIRST_GRID_PATH, 0))
+        owners = [(0, SQUAD_FIRST_ROSTER_RECT, 'First Team')]
+        if include_reserve:
+            # Both owners execute the SAME 4B4FE0 setup. The constructor's
+            # discriminator +98C selects 984560/984558 at 4B5052..4B506D;
+            # source language loader 637574/6375B6 binds idx166/idx168.
+            owners.append((1, SQUAD_RESERVE_ROSTER_RECT, 'Reserves'))
+        for control_id, owner, caption in owners:
+            rect = (panel_x + owner.x, panel_y + owner.y + 126, 226, 20)
+            overlays.append(OriginalSquadTopOverlay('roster_title', control_id, caption,
+                *rect, encode_rgba_png(226, 20, title.rgba), SQUAD_FIRST_TITLE_PATH, 0))
+            mask = font.render_text_alpha(caption)
+            # 5D5EB0: font 9197E0, flags 2001, white, inset (6,0).
+            clipped = _clip_mask(mask, line_x=rect[0] + 6,
+                line_y=rect[1] + 10 - font.native_line_height() // 2, rect=rect)
+            if clipped is not None:
+                x, y, w, h, alpha = clipped
+                overlays.append(OriginalSquadTopOverlay('roster_title_text', control_id, caption,
+                    x, y, w, h, encode_rgba_png(w, h, endpoint_text_rgba(alpha, 0xffff)),
+                    'Fonts/Zurich_BdXCn_BT_18pixel.fnt', None, 0xffff))
+            for y in SQUAD_VISIBLE_ROW_Y_ORIGINS:
+                overlays.append(OriginalSquadTopOverlay('roster_grid', control_id, '',
+                    rect[0], panel_y + owner.y + y, 328, 16, png, SQUAD_FIRST_GRID_PATH, 0))
 
     for button, group, source_index in zip(
         SQUAD_BUTTONS,

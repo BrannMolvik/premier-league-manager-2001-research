@@ -87,6 +87,23 @@ class CupDatabase(Database):
 
 
 class InternalSaveTests(unittest.TestCase):
+    def test_native_reserve_formation_and_swap_bytes_survive_disk_reload(self):
+        original = self.build_controller()
+        club_id = original.human.club_id
+        player = original.squad()[0]
+        player.saved_reserve_role_152 = 19
+        player.saved_reserve_aux_153 = 2
+        original.state.native_squad_reserve_formations[club_id] = 22
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'paired.fm2k'
+            save_human_gameplay(original, path)
+            restored = load_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), path)
+        loaded = restored.state.players[player.index]
+        self.assertEqual((loaded.saved_reserve_role_152, loaded.saved_reserve_aux_153), (19, 2))
+        self.assertEqual(restored.state.native_squad_reserve_formations[club_id], 22)
+        self.assertEqual(snapshot_human_gameplay(original), snapshot_human_gameplay(restored))
+
     def test_explicit_capacity_allocation_bytes_and_provenance_survive_reload(self):
         from native_club_capacity_state import RetainedClubAllocationCapacities
         controller = self.build_controller()

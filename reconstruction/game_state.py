@@ -223,6 +223,9 @@ class GameState:
     access_fan_bases: tuple[object, ...] = ()
     access_skill_financial_values: tuple[object, ...] = ()
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
+    # DBRClub import 403660 explicitly initializes +1DC to zero (403764).
+    # This is persistent reserve-formation state, not an allocator default.
+    native_squad_reserve_formations: dict[int, int] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     # Completion inputs only, NOT captured reports or fixture links. These
@@ -474,6 +477,7 @@ class GameState:
             access_fan_bases=fan_bases,
             access_skill_financial_values=financial_values,
             team_tactics=team_tactics,
+            native_squad_reserve_formations={club_id: 0 for club_id in known_club_ids},
             pitch_wear=pitch_wear,
             ai_transfer_startup_roster_count=ai_transfer_startup_roster_count,
             ai_transfer_buy_counter=ai_transfer_buy_counter,
@@ -530,6 +534,65 @@ class GameState:
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
+
+    def prepare_original_primary_squad(self, club_id: int, *, substitute_quota: int):
+        """Apply the source-proven primary-club 4B7BD0 constructor producer.
+
+        Secondary/loan and loan-list side effects are deliberately not invented.
+        All validation occurs on retained copies before committing live state.
+        """
+        from original_squad_preparation import PreparedSquadPlayer, prepare_primary_squad
+        club_id = int(club_id)
+        roster = self.ordered_club_roster(club_id)
+        if club_id not in self.native_squad_reserve_formations:
+            raise RuntimeError('Native Squad reserve formation has not been retained')
+        inputs = []
+        for player in roster:
+            if int(player.club_id) != club_id or player.loan_club_id is not None:
+                raise RuntimeError('Secondary-club Squad preparation is not source-integrated')
+            unavailable = player.base_match_unavailable
+            if player.non_eu:
+                if player.contract_expiry_date is None:
+                    raise RuntimeError('Native Squad Non-EU cutoff has not been retained')
+                unavailable |= self.calendar.current_date > player.contract_expiry_date
+            inputs.append(PreparedSquadPlayer(
+                player.index, player.match_selection_state_code,
+                player.current_position, player.position_aux_code,
+                player.saved_reserve_role_152, player.saved_reserve_aux_153,
+                tuple(player.positions), tuple(player.skills), player.form_state,
+                bool(unavailable)))
+        def qualify_first_active(member):
+            if self.players[member.player_id].loan_listed:
+                raise RuntimeError('Native Squad loan-list counter side effect is not integrated')
+        result = prepare_primary_squad(inputs, substitute_quota=substitute_quota,
+            reserve_formation=self.native_squad_reserve_formations[club_id],
+            on_first_active=qualify_first_active)
+        for member in result.players:
+            player = self.players[member.player_id]
+            player.match_active = member.selection == 4
+            player.match_substitute_available = member.selection == 3
+            player.reserve_active = member.selection == 2
+            player.reserve_substitute = member.selection == 1
+            player.current_position = member.current_role
+            player.position_aux_code = member.current_aux
+            player.saved_reserve_role_152 = member.reserve_role
+            player.saved_reserve_aux_153 = member.reserve_aux
+        self.native_squad_reserve_formations[club_id] = result.reserve_formation
+        return result
+
+    def original_primary_squad_membership(self, club_id: int, *, substitute_quota: int):
+        """Apply the native 4B7500 refresh/order producer to retained live state."""
+        from original_squad_membership import NativeSquadMember, prepare_ordered_squad_membership
+        roster = self.ordered_club_roster(club_id)
+        if any(int(p.club_id) != int(club_id) or p.loan_club_id is not None for p in roster):
+            raise RuntimeError('Secondary-club Squad ordering is not source-integrated')
+        result = prepare_ordered_squad_membership(tuple(NativeSquadMember(
+            p.index, p.match_selection_state_code, p.current_position, p.positions[0])
+            for p in roster), substitute_quota=substitute_quota)
+        for player_id in result.cleared_player_ids:
+            self.players[player_id].clear_match_selection(reset_position=True)
+        self.club_roster_order[int(club_id)] = [m.player_id for m in result.members]
+        return result
 
     def ordered_club_roster(self, club_id: int) -> tuple[RuntimePlayer, ...]:
         """Return live team-roster order matching DBRTeam +0x244 semantics."""

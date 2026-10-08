@@ -78,7 +78,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 46
+SAVE_SCHEMA_VERSION = 47
 
 
 def _snapshot_playable_country_allocation_plan(plan):
@@ -404,6 +404,8 @@ PLAYER_RECORD_FIELDS = (
     "live_surname",
     "live_nationality_id",
     "live_date_of_birth",
+    "saved_reserve_role_152",
+    "saved_reserve_aux_153",
 )
 
 
@@ -506,6 +508,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         str(player.surname),
         int(player.nationality_id),
         _iso(player.date_of_birth),
+        int(player.saved_reserve_role_152),
+        int(player.saved_reserve_aux_153),
     ]
 
 
@@ -527,6 +531,8 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         club_id=int(value[1]),
         nationality_id=int(value[48]),
         date_of_birth=_date(value[49]),
+        saved_reserve_role_152=int(value[50]),
+        saved_reserve_aux_153=int(value[51]),
         shirt_number=int(value[2]),
         height_cm=int(source.height_cm),
         weight_kg=int(source.weight_kg),
@@ -1315,6 +1321,10 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(int(club_id)): [int(v) for v in values]
             for club_id, values in sorted(state.club_roster_order.items())
         },
+        "native_squad_reserve_formations": {
+            str(club_id): value
+            for club_id, value in sorted(state.native_squad_reserve_formations.items())
+        },
         "club_competition_membership": {
             str(int(club_id)): int(competition_id)
             for club_id, competition_id
@@ -1658,6 +1668,10 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         club_roster_order={
             int(club_id): [int(v) for v in values]
             for club_id, values in snapshot["club_roster_order"].items()
+        },
+        native_squad_reserve_formations={
+            int(club_id): int(value)
+            for club_id, value in snapshot.get("native_squad_reserve_formations", {}).items()
         },
         clubs=clubs,
         managers=managers,
