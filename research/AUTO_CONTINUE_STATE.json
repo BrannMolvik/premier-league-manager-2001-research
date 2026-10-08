@@ -17,7 +17,7 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "AUDIT ONLY, per Daniel's 2026-10-09 instruction. Prioritize the original-look Southport Squad and ordinary NEXT/pre-match path on codex/gate13-windows-playability-recovery (implementation checkpoint f2121146; delivered immutable playtest 170970e5; handoff checkpoint 605f65f4). Triple-check claims against canonical original bytes, exact producer/owner/CFG, and original visible/input/timing behavior. Review earlier working playtests as regression references, not original proof. Identify unsupported defaults, transforms/font/asset ownership, first/reserve selection, normal navigation and RNG ordering. Produce concise confirmed/probable/unresolved findings with exact evidence and impact; recommend but DO NOT IMPLEMENT corrections. Do not continue Gate14+ reconstruction, modify Codex branch/status/closure files, merge main, or launch the original without new applicable approval. If private execution remains blocked, continue cloud-safe audit review and accurately retain the limitation. Gates13-17/release remain incomplete.",
+  "active_task": "AUDIT ONLY per Daniel 2026-10-09 restriction. Prioritize original selection-dependent blue Squad row backgrounds (final populated row vft is7C57BC / 4B6ECC, not only intermediate is7C457C), inbox EAMail child 65 integration/presenter, and overall PMenu behavior. Verify original owners/callers/CFG/resources and visible/input/timing semantics against codex/gate13-windows-playability-recovery and playtest references. Classify confirmed/probable/unresolved; report minimum corrections; no implementation, branch changes, asset/save/runtime ownership changes, Gate closure or merges. Preserve Gates 13-17 mission and external Win11 verification blocker.",
   "last_known_main_head": "95c9609f388f23729bb7e5302db88c6b32f23d4c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 423,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 423 2026-10-09 KST: Main ref and CURRENT_STATE verified unchanged; ownership lock is released. Container /bin/echo and pwd, Python print failed before process startup with caas.internal.errors.ClientError; cannot hash/extract/trace original private source or execute tests. The source Library archive is present per Recovery422 but not hash-verified this session; no new original source evidence or presentation pixels. Independent Gate16 work-ahead review verified research/GATE16_READINESS_AUDIT.md already prevalidates multiple seasons, deterministic seeds, destructive stress, regressions and explicitly requires Gates13-15 closure and current suite re-run before Gate16 audit. Avoid duplicate work/CI spending, synthetic guess or artificial main commits. Exact next technical action is restoring private process execution, source hash guard and selector0 initializer/dataflow. Runtime stays continuous/working for recovery, no waiting_for_user or completed claim.",
+  "recovery_generation": 424,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 424 (2026-10-09 KST): verified main HEAD 95c9609f388f23729bb7e5302db88c6b32f23d4c; continued audit-only role and existing Codex implementation ownership preserved. Audit priority set to original Squad selected-row colors, EAMail inbox and PMenu. No fidelity results or CI claims yet. Runtime continuous/working; Gates13-17 remain incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
