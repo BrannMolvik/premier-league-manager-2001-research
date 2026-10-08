@@ -41,6 +41,7 @@ REQUIRED_BUNDLED_FILES = (
     "original_assets/source/Fonts/Zurich_XCn_BT_16pixel.fnt",
     "original_assets/source/Fonts/Zurich_BdXCn_BT_20pixel.fnt",
     "original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+    "original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt",
     "runtime_tools/ffmpeg.exe",
     "runtime_tools/ffmpeg.provenance.json",
     "third_party/ffmpeg/PROVENANCE.json",
@@ -51,6 +52,7 @@ REQUIRED_BUNDLED_FILES = (
 # not merely as a non-empty path. Preserve its canonical original identity.
 REQUIRED_EXACT_BUNDLED_SHA256 = {
     "original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt": "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df",
+    "original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt": "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36",
 }
 
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
