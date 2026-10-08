@@ -18,7 +18,7 @@
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
   "active_task": "AUDIT ONLY per Daniel 2026-10-09 restriction. Prioritize original selection-dependent blue Squad row backgrounds (final populated row vft is7C57BC / 4B6ECC, not only intermediate is7C457C), inbox EAMail child 65 integration/presenter, and overall PMenu behavior. Verify original owners/callers/CFG/resources and visible/input/timing semantics against codex/gate13-windows-playability-recovery and playtest references. Classify confirmed/probable/unresolved; report minimum corrections; no implementation, branch changes, asset/save/runtime ownership changes, Gate closure or merges. Preserve Gates 13-17 mission and external Win11 verification blocker.",
-  "last_known_main_head": "95c9609f388f23729bb7e5302db88c6b32f23d4c",
+  "last_known_main_head": "32388ff7d6f29162699490cc76c8a7dceed77d36",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -29,7 +29,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 424,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 424 (2026-10-09 KST): verified main HEAD 95c9609f388f23729bb7e5302db88c6b32f23d4c; continued audit-only role and existing Codex implementation ownership preserved. Audit priority set to original Squad selected-row colors, EAMail inbox and PMenu. No fidelity results or CI claims yet. Runtime continuous/working; Gates13-17 remain incomplete.",
+  "note": "Recovery 424 2026-10-09 KST. Audit-only original Squad/EAMail/PMenu evidence checkpoint committed on main 32388ff7d6f29162699490cc76c8a7dceed77d36, research/GATE13_ORIGINAL_SELECTION_EAMAIL_PMENU_AUDIT_RECOVERY424.md. Uniform disabled 328x16 grid row strip and unsupported EAMail panel confirmed from Codex sources, final populated-row 7C57BC draw/selection/frame mapping and original mail ordering unresolved, bounded native PMenu mouse press partly recovered; no original runtime tests this recovery. No code/assets/schema/Codex branch or gate status edited; Codex remains implementation owner. Exact next audit: final 7C57BC virtual slots, 443E70 child +2C, source resource/selection flags; then EAMail factory and PMenu action/timing comparisons. Gate13 OPEN; Gates14-17/release incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
