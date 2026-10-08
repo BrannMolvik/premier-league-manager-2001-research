@@ -72,3 +72,37 @@ execution sandbox rejects trivial shell/Python processes with
 `caas.internal.errors.ClientError`; no original font was identified
 by these synthetic regressions. Full runtime CI and a private Windows 11
 GUI acceptance run were not performed for this source-tracer checkpoint.
+
+## Recovery 415 optional decoded-reference triage (8 October 2026 KST)
+
+The raw-byte candidate report remains the default, unchanged evidence floor.
+When the verified original PE is available in a functioning private sandbox,
+an **optional** Capstone-based linear .text decode may prioritize literal
+immediates and register-free absolute-memory operands mentioning the five
+already-verified wrapper addresses. Example:
+
+```powershell
+python reconstruction/gate14_fastview_font_global_source_trace.py `
+  C:\private\footballmanager.exe `
+  --output C:\private\gate14-font-global-linear-candidates.json `
+  --scan-linear-wrapper-candidates
+```
+
+This supplemental result appears under
+`linear_font_wrapper_candidates_not_xrefs`. It deliberately excludes
+register/index-relative displacements, non-code sections and Capstone
+skipdata records. Each hit is classified
+`linear_decoded_candidate_not_verified_xref_or_write`; the result
+`verified_xref_or_initializer` remains false. Whole-section **linear**
+decoding is not a control-flow graph and may cross inline bytes, so no
+hit proves a real xref, an initializer, the font object, or its filename.
+Candidate truncation is explicit. The flag defaults to off, and decoding
+is never a condition for the canonical raw candidate report.
+
+Source-independent synthetic tests exercise absolute-memory and literal
+immediates, register-relative and data decoys, limits and invalid inputs.
+These tests do not resolve the original font or render any score/table
+text. Until execution can read the checksum-verified source, the index-0
+font `0x87BEA0`, LeagueTable arg-4 producers and ScoreComposite variable
+indices stay unresolved. This is independent Gate-14 tooling only; Gate
+13 remains open for external Windows 11 acceptance.
