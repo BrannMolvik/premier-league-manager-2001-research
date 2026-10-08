@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 411: verified main 9093e55 documentation reconciliation (stale style-3 header 18pixel -> original-source verified Zurich_XCn_BT_16pixel, corrected y=51/y=69). Gate13 external private Win11 HWND/DPI transport probe and menu/TeamSelect/Squad playability acceptance remain open. Gate14 source-first next: working private sandbox, verify original PE hash, decode index0 0x87BEA0 font initializer/object/file, LeagueTable arg4 string producers at 0x51D8FB / 0x51DDF3, and ScoreComposite owner-relative selector values. Source ZIP Library is present; Python/container/process-exec return caas.internal.errors.ClientError. Gates13-17 and full Win11 release incomplete. Avoid CI/commit spam.",
+  "active_task": "Recovery 412: private sandbox execution stalled after successful Library source ZIP materialization. Continue source-first Gate14 font0 0x87BEA0/LeagueTable arg4/ScoreComposite selector trace only after healthy execution, or independently verified cloud-safe work. Gate13 private Windows transport/DPI and normal-play acceptance still open. Gates13-17 and final Windows11 release incomplete.",
   "last_known_main_head": "9093e55e6480565c34b2e8bd96cea0cbaf758570",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 412,
   "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery 412 resumed at main 9093e55, preserve Gate 13 validation blocker and source-first Gate 14 work-ahead; environment/ownership checks in progress. Follow reduced CI/commit cadence; no Gate 17 completion claim.",
+  "note": "Recovery 412: verified main 9093e55e6480565c34b2e8bd96cea0cbaf758570 and active Gate13/independent Gate14; ownership lock released; runtime generation 412 working. Confirmed canonical 511121336-byte ZIP exists in Library /FM2001/Original Source, materialized to /mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip. An initial trivial shell command succeeded before materialization, but subsequent shell, Python, and visible Python all failed caas.internal.errors.ClientError even for echo/print; cannot access archive bytes or hash/disassemble canonical PE this session. Re-read original-source font candidate tracer, tests, TextControl ABI and FastView docs directly from main; selectors 1/3 closed previously, selector0 0x87BEA0, LeagueTable arg4, ScoreComposite variable selectors unresolved. No new source findings, game changes, or tests; do not create fake main commits or trigger CI. Gate13 private real-Windows 11 --transport-probe-only HWND/DPI receipt and visual/latency acceptance still missing. Exact next after sandbox recovery: test trivial process; privately extract/verify footballmanager.exe SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3; run reconstruction/gate14_fastview_font_global_source_trace.py with output outside Git; aligned decode 0x87BEA0 initializer, exact object/path; then LeagueTable strings at 0x51D8FB/0x51DDF3 and ScoreComposite [ebp+8]/[ebp+0xC] selectors. Preserve source first, no guessed glyphs. Overall mission through Gate17 and Windows11 release INCOMPLETE.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
