@@ -124,6 +124,7 @@ class HumanGameplayController:
         )
         self.playable_country_allocation_plan = playable_country_allocation_plan
         self.human: HumanManagerState | None = None
+        self.original_squad_membership = None
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
         self._pending_after_fixture_ids: tuple[int, ...] = ()
@@ -299,6 +300,13 @@ class HumanGameplayController:
             season_year=2000,
         )
         state.refresh_primary_procedural_leagues(live_procedural_league_ids)
+        # This canonical fresh-world factory represents the original primary
+        # pass before secondary scheduling. 404110(1) produces a first XI;
+        # do not use prototype autofill or run this during save restoration.
+        for club_id, club in state.clubs.items():
+            if club.team_category_code == 1 and not club.name.startswith('!'):
+                state.initialize_original_primary_first_season_squad(
+                    club_id, primary_pass_before_secondary=True)
         return cls(
             state,
             matrices.attack,
@@ -589,7 +597,13 @@ class HumanGameplayController:
                     f"club {club_id} has no materialized primary League owner"
                 )
 
+        membership = None
+        if club_id in self.state.native_squad_first_formations:
+            membership = self.state.construct_original_primary_squad_membership(club_id)
         self.human = HumanManagerState(club_id=club_id)
+        self.original_squad_membership = membership
+        if membership is not None:
+            self.human.formation_id = self.state.native_squad_first_formations[club_id]
         club = self.state.clubs.get(club_id)
         if club is not None and hasattr(club, "starting_cash"):
             self.state.initialize_controlled_club_balance(club_id)

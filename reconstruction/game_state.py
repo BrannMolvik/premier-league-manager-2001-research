@@ -629,6 +629,48 @@ class GameState:
         self.native_squad_reserve_formations[club_id] = result.reserve_formation
         return result
 
+    def original_primary_squad_constructor_quota(self, club_id: int) -> int:
+        """Bounded fresh 408500 -> 615D10 -> Competition+1C lookup.
+
+        Current-day-inclusive, source bucket/head order, primary direct League
+        only. Absence in this semantic shadow is not a proven native null, so
+        even the real native fallback five is deliberately not inferred here.
+        """
+        club_id = int(club_id)
+        club = self.clubs.get(club_id)
+        if club is None or getattr(club, 'team_category_code', None) != 1:
+            raise RuntimeError('Squad quota requires a qualified primary club')
+        for on_date in sorted(d for d in self.primary_schedule_shadow.days
+                              if d >= self.calendar.current_date):
+            for entry in self.primary_schedule_shadow.days[on_date]:
+                direct = tuple(ref.direct_club_id for ref in entry.refs)
+                if any(value is None for value in direct):
+                    if any(club_id in values for values in entry.candidate_sets):
+                        raise RuntimeError('Squad quota has unresolved prior symbolic ownership')
+                    continue
+                if club_id not in direct:
+                    continue
+                if entry.wrapper_link_state == 'linked':
+                    continue
+                if entry.wrapper_link_state != 'clear':
+                    raise RuntimeError('Squad quota wrapper lifecycle is unresolved')
+                if entry.node_kind not in ('league_match', 'fixed_league_match'):
+                    raise RuntimeError('Squad quota match owner is not source-qualified')
+                competition = self.competitions.get(entry.competition_id)
+                quota = getattr(competition, 'substitute_quota', None)
+                if type(quota) is not int or not 0 <= quota <= 9:
+                    raise RuntimeError('Squad quota Competition+1C is missing')
+                return quota
+        raise RuntimeError('Squad quota has no proven original match/null context')
+
+    def construct_original_primary_squad_membership(self, club_id: int):
+        """Exact primary constructor sequence, after retained startup selection."""
+        if int(club_id) not in self.native_squad_first_formations:
+            raise RuntimeError('Original Squad startup selection has not been retained')
+        quota = self.original_primary_squad_constructor_quota(club_id)
+        self.prepare_original_primary_squad(club_id, substitute_quota=quota)
+        return self.original_primary_squad_membership(club_id, substitute_quota=quota)
+
     def original_primary_squad_membership(self, club_id: int, *, substitute_quota: int):
         """Apply the native 4B7500 refresh/order producer to retained live state."""
         from original_squad_membership import NativeSquadMember, prepare_ordered_squad_membership

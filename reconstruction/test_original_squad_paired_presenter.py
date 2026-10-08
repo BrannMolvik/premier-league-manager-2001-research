@@ -6,6 +6,31 @@ import test_original_squad_presenter as fixtures
 
 
 class PairedSquadTests(unittest.TestCase):
+    def test_host_renders_both_source_owners_without_dropping_players(self):
+        from types import SimpleNamespace
+        from original_game_host import OriginalGameTkHost
+        from original_squad_resources import squad_view_transition
+        from test_original_game_host import (
+            FakeRoot, FakeTk, presenter, fake_squad_row_text_resources,
+        )
+        rows = self.rows(30)
+        members = tuple(NativeSquadMember(row.player_id,
+            4 if i < 11 else 3 if i < 16 else 2 if i < 27 else 1,
+            i % 20, i % 20) for i, row in enumerate(rows))
+        paired = build_paired_squad_snapshot(
+            prepare_ordered_squad_membership(members, substitute_quota=5), rows)
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk,
+            squad_row_text_resources=fake_squad_row_text_resources())
+        host.canvas.delete('all')
+        frame = SimpleNamespace(presentation=SimpleNamespace(panel_class='PSquadScreen',
+            squad_view_transition=squad_view_transition(3), squad=paired.first,
+            paired_squad=paired))
+        count = host._draw_squad_rows(frame)
+        self.assertEqual(count, 4 * 2 + 5 * 30)
+        self.assertEqual(len(host.canvas.images), count)
+        # The reserve source-font name starts at the recovered +381 offset.
+        self.assertTrue(any(image[:2] == (113 + 381, 234) for image in host.canvas.images))
+
     def test_paired_text_uses_exact_shared_child_transform_and_pixels(self):
         from pathlib import Path
         from original_squad_row_style import (

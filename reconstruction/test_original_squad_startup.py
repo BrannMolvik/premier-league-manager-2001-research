@@ -164,6 +164,38 @@ class FirstSeasonStateProducerTests(unittest.TestCase):
         self.assertEqual([p.match_selection_state_code for p in restored.ordered_club_roster(17)],
                          [p.match_selection_state_code for p in state.ordered_club_roster(17)])
 
+    def entry(self, *, kind='league_match', linked='clear', competition=5):
+        from primary_schedule_shadow import PrimaryScheduleShadowEntry
+        from competition_schedule import direct_club_ref
+        return PrimaryScheduleShadowEntry(kind, competition, 0, ('qualified', 1),
+            direct_club_ref(17), direct_club_ref(18), frozenset((17,)), frozenset((18,)), linked)
+
+    def test_constructor_quota_uses_current_day_first_exact_owner_not_displayed_league(self):
+        from types import SimpleNamespace
+        from datetime import timedelta
+        state = self.state()
+        day = state.calendar.current_date
+        state.competitions[5] = SimpleNamespace(substitute_quota=3)
+        state.competitions[6] = SimpleNamespace(substitute_quota=7)
+        state.primary_schedule_shadow.days = {
+            day: (self.entry(competition=5),),
+            day + timedelta(days=1): (self.entry(competition=6),)}
+        self.assertEqual(state.original_primary_squad_constructor_quota(17), 3)
+        state.primary_schedule_shadow.days[day] = (self.entry(linked='linked'),)
+        self.assertEqual(state.original_primary_squad_constructor_quota(17), 7)
+
+    def test_constructor_quota_unknown_is_not_five(self):
+        from types import SimpleNamespace
+        state = self.state()
+        state.competitions[5] = SimpleNamespace(substitute_quota=5)
+        with self.assertRaisesRegex(RuntimeError, 'no proven'):
+            state.original_primary_squad_constructor_quota(17)
+        for e in (self.entry(linked='unknown'), self.entry(kind='unsupported'),
+                  replace(self.entry(), participant_0_ref=SimpleNamespace(direct_club_id=None))):
+            state.primary_schedule_shadow.days = {state.calendar.current_date: (e,)}
+            with self.assertRaises(RuntimeError):
+                state.original_primary_squad_constructor_quota(17)
+
 
 if __name__ == '__main__':
     unittest.main()

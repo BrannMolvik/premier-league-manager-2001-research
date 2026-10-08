@@ -127,6 +127,7 @@ from original_squad_row_style import (
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
     build_first_roster_scf_numeric_overlays,
+    build_paired_roster_text_overlays,
     load_verified_squad_row_text_resources,
 )
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
@@ -1322,7 +1323,8 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Squad landing renderer requires verified original top-control resources"
             )
-        rendered = build_fresh_squad_top_render(resources)
+        rendered = build_fresh_squad_top_render(
+            resources, include_reserve=getattr(frame.presentation, 'paired_squad', None) is not None)
         count = 0
         for overlay in rendered.overlays:
             image = self._photo(overlay.png)
@@ -1360,7 +1362,8 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Squad landing renderer requires verified original row font resources"
             )
-        overlays = (
+        paired = getattr(frame.presentation, 'paired_squad', None)
+        overlays = build_paired_roster_text_overlays(paired, resources) if paired is not None else (
             *build_first_roster_column_heading_overlays(resources),
             *build_first_roster_role_overlays(snapshot.rows, resources),
             *build_first_roster_name_overlays(snapshot.rows, resources),
@@ -1386,29 +1389,31 @@ class OriginalGameTkHost:
             row for row in snapshot.rows
             if getattr(row, "native_status_frame_index", None) is not None
         )
-        if source_qualified_status_rows:
+        status_groups = [(0, source_qualified_status_rows)]
+        if paired is not None:
+            status_groups.append((381, tuple(r for r in paired.reserve.rows
+                if getattr(r, 'native_status_frame_index', None) is not None)))
+        if any(rows for _, rows in status_groups):
             status_resources = self.squad_status_resources
             if not isinstance(status_resources, OriginalSquadStatusResources):
                 raise OriginalGameHostError(
                     "Squad source-qualified status renderer requires verified original status resources"
                 )
-            for overlay in build_first_roster_direct_status_overlays(
-                source_qualified_status_rows,
-                status_resources,
-            ):
-                self._create_native_image(
-                    overlay.x,
-                    overlay.y,
-                    image=self._photo(
-                        _cached_runtime_png(
-                            overlay.width,
-                            overlay.height,
-                            overlay.rgba,
-                        )
-                    ),
-                    anchor=self.tk.NW,
-                )
-                count += 1
+            for dx, rows in status_groups:
+                for overlay in build_first_roster_direct_status_overlays(rows, status_resources):
+                    self._create_native_image(
+                        overlay.x + dx,
+                        overlay.y,
+                        image=self._photo(
+                            _cached_runtime_png(
+                                overlay.width,
+                                overlay.height,
+                                overlay.rgba,
+                            )
+                        ),
+                        anchor=self.tk.NW,
+                    )
+                    count += 1
         return count
 
     def _draw_league_fixtures_grid_art(self, frame) -> int:

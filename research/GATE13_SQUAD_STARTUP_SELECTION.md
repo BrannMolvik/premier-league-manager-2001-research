@@ -64,6 +64,27 @@ side effects and secondary-club contexts remain fail-closed.
 
 ## Human interaction correction
 
+The following constructor quota is independent of startup's literal two:
+`408500` selects the team's current container, calls `615D10` starting at the
+current day (inclusive), then reads the selected match's Competition+1C.
+Only a source-proven null node reaches fallback five (`408527`). For the
+fresh primary shadow, bind the first exact direct clear League match in
+native bucket order. Relevant symbolic ownership, unknown wrapper state,
+unsupported match kinds, or missing context fail closed; do not use a
+displayed/default League quota or claim that an incomplete shadow proves null.
+Canonical fresh Southport and Liverpool both resolve exact quota five.
+Applying startup selection, constructor preparation and ordering maps all 30
+Southport and all 35 Liverpool players across the native owners, without
+scrolling or dropping IDs. This is an offline state check, not GUI acceptance.
+
+Live binding is confined to verified canonical fresh backend creation and the
+first primary Squad constructor after club selection. It does not reseed RNG,
+fill the three initially empty bench slots, or call prototype autofill. Legacy
+synthetic controllers without retained native state keep their explicit older
+read-only contract. The paired host reuses the exact recovered top/text pixels
+and +381 translation; native human drag/drop and fresh Windows acceptance are
+still required before calling the build playable.
+
 `PSquadScreen` vtable 7C5CA4 binds `4B8E70` at +10 and `4B9350` at +14.
 The null-child branch of `4B8E70` maps the accepted row and retains a drag
 source. The small assignment-cell branch uses a shirt-number cursor, **not a
@@ -80,6 +101,28 @@ with source `(239,0,89,16)` from that object; `48A510` installs it on
 `PSCFEmptyRow`. The nearby highlight-grid object `943F70` is not its backing.
 
 ## Remaining boundary
+
+The startup/constructor/paired host is now connected to the normal canonical
+fresh backend; UI reconstruction after save/load restores membership rather
+than rerunning selection. Three hundred focused tests passed in 19.243 seconds.
+Separate processes verified native Southport 16+14 and Liverpool 17+18 rows
+through disk save/reload, keeping all IDs and the exact initial 11+2 selection.
+Withdrawn real Windows/Tk using the production draw methods and verified
+source resources passed both clubs: 50 top overlays each, 158 Southport and
+183 Liverpool row overlays, all bounding boxes inside 800x600. This diagnostic
+never entered fullscreen, interacted with other apps, played audio, or launched
+the original executable; it is not a normal startup/playability claim.
+
+Private diagnostic script identities:
+- `verify-native-paired-save.py`: SHA-256
+  `f11a9aa45bf33438cac2ea901127f8f5b63319b84f7d58ef10ea069a7101a726`;
+- `verify-native-paired-tk.py`: SHA-256
+  `0e21a28d6cb238ab7160ff0f0c4d1620b1720f79692698184a738ecce836b9eb`.
+
+Native human row drag/drop, retained match-lineup inputs and ordinary match
+acceptance remain required. Do not fabricate three extra substitutes or label
+the read-only paired screen playable. The older unconnected status below is
+historical and superseded by this live binding.
 
 Local producer/state/lineup regression: 161 tests / 10.400 seconds, zero
 failures/skips. First-formation state is persisted by internal schema 48;

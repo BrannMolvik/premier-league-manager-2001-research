@@ -1085,6 +1085,14 @@ class ManagementSourceDataBridge:
         """Return proven ordered-roster/selection backend metadata only."""
         return SQUAD_PRESENTATION_CONTRACT
 
+    def original_paired_squad(self, rows):
+        """Read retained constructor output; never choose or mutate a lineup."""
+        membership = getattr(self.controller, 'original_squad_membership', None)
+        if membership is None:
+            return None
+        from original_squad_paired_presenter import build_paired_squad_snapshot
+        return build_paired_squad_snapshot(membership, rows)
+
     def squad_rows(self) -> tuple[SquadRowView, ...]:
         self._human_club_id()
         squad = getattr(self.controller, "squad", None)

@@ -1,5 +1,28 @@
 # Local recovery integration — 8 October 2026
 
+**Latest live binding:** canonical fresh backend creation now runs the proven
+primary startup selector. Selecting an ordinary club runs `408500`'s bounded
+exact next-match quota, constructor preparation and native ordering. The
+normal management presenter/host now draws both original list owners with
+the recovered +381 translation, not database-first20. Recreated UI after
+save/load rebuilds constructor membership without rerunning startup selection.
+Southport's 30 and Liverpool's 35 players all survive separate-process disk
+reload and map exactly once; no scrolling or fabricated bench fill is added.
+Real withdrawn Windows/Tk draw checks passed source top/text resources and
+all image bounds in native 800x600 for both clubs. This was background widget
+validation, **not a normal launched-game or playable-build acceptance**.
+
+Focused integration: **300 tests / 19.243 seconds / zero failures or skips**.
+Private log: `paired-live-binding-focused.log`, SHA-256
+`5ed0c49fdb79d26e0129bd5ae977bd2512e20de1b9b30cc79728319d10fcb772`.
+Exact next required work: bind the native `4B8E70 -> 4B9350` human row drag/drop
+and retained human match-lineup inputs, including filling the three initially
+empty first-bench slots through real accepted interaction. Then verify
+normal original-look startup, lineup/advance/match/save/load and build a
+hands-on candidate. Do not call the current read-only paired display playable.
+Controls 4/5 and unrelated source boundaries remain explicitly fail-closed.
+This supersedes the older "not connected" resume notes below.
+
 **Latest startup correction:** `404110(1)` does produce the primary first XI
 before human setup. Primary `616620(1)` precedes secondary scheduling; its
 temporary-category-2 lookup therefore sees source-initialized empty secondary
