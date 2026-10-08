@@ -17,8 +17,8 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "AUDIT ONLY per Daniel 2026-10-09 restriction. Prioritize original selection-dependent blue Squad row backgrounds (final populated row vft is7C57BC / 4B6ECC, not only intermediate is7C457C), inbox EAMail child 65 integration/presenter, and overall PMenu behavior. Verify original owners/callers/CFG/resources and visible/input/timing semantics against codex/gate13-windows-playability-recovery and playtest references. Classify confirmed/probable/unresolved; report minimum corrections; no implementation, branch changes, asset/save/runtime ownership changes, Gate closure or merges. Preserve Gates 13-17 mission and external Win11 verification blocker.",
-  "last_known_main_head": "32388ff7d6f29162699490cc76c8a7dceed77d36",
+  "active_task": "AUDIT ONLY. Evidence checkpoints research/GATE13_ORIGINAL_SELECTION_EAMAIL_PMENU_AUDIT_RECOVERY424.md and research/GATE13_AUDIT_FOLLOWUP_RECOVERY425.md now cover uniform disabled Squad strip and 226x17 input-vs-328x16 art, native final vft 7C57BC source trace prerequisite, EAMail missing presenter and candidate low jump-table byte at 47CA04 (derived unverified), bounded PMenu pointer support with unverified outside click vs motion, and conflicting older font global 87BEA0 source reports. EXACT NEXT: when private source execution is healthy, SHA-verify original PE and decode final Squad row 7C57BC draw/update/selection and child +2C texture wrapper; then read EAMail 47AEC0/47CA04 actual target/RTTI; compare PMenu pointer/timing with original. NO implementation or Gate14+ coding or Codex branch modifications until Daniel lifts audit-only restriction. Keep Gates13-17 mission incomplete.",
+  "last_known_main_head": "e39831930156ec19cf1f764176d92662809a8cc8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 424,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 424 2026-10-09 KST. Audit-only original Squad/EAMail/PMenu evidence checkpoint committed on main 32388ff7d6f29162699490cc76c8a7dceed77d36, research/GATE13_ORIGINAL_SELECTION_EAMAIL_PMENU_AUDIT_RECOVERY424.md. Uniform disabled 328x16 grid row strip and unsupported EAMail panel confirmed from Codex sources, final populated-row 7C57BC draw/selection/frame mapping and original mail ordering unresolved, bounded native PMenu mouse press partly recovered; no original runtime tests this recovery. No code/assets/schema/Codex branch or gate status edited; Codex remains implementation owner. Exact next audit: final 7C57BC virtual slots, 443E70 child +2C, source resource/selection flags; then EAMail factory and PMenu action/timing comparisons. Gate13 OPEN; Gates14-17/release incomplete.",
+  "recovery_generation": 425,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 425 2026-10-09 KST: independently read main+Codex source/docs; committed isolated audit follow-up e39831930156ec19cf1f764176d92662809a8cc8. Prior original Game source Library ZIP materialized successfully, but subsequent container shell and private Python even trivial commands failed with caas.internal.errors.ClientError; no new disassembly/tests/Windows GUI. Confirmed uniform disabled 328x16 Squad grid and missing EAMail presenter, derived unverified 47CA04 low-range EAMail factory candidate, detected historical 87BEA0 Zurich16 mapping inconsistent with newer Gate14 unresolved statement, and noted PMenu dismiss click-vs-motion source equivalence unresolved. Codex remains implementation owner, audit-only true. Runtime continuous/working; no gate closures.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
