@@ -78,7 +78,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 47
+SAVE_SCHEMA_VERSION = 48
 
 
 def _snapshot_playable_country_allocation_plan(plan):
@@ -1325,6 +1325,10 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(club_id): value
             for club_id, value in sorted(state.native_squad_reserve_formations.items())
         },
+        "native_squad_first_formations": {
+            str(club_id): value
+            for club_id, value in sorted(state.native_squad_first_formations.items())
+        },
         "club_competition_membership": {
             str(int(club_id)): int(competition_id)
             for club_id, competition_id
@@ -1672,6 +1676,10 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         native_squad_reserve_formations={
             int(club_id): int(value)
             for club_id, value in snapshot.get("native_squad_reserve_formations", {}).items()
+        },
+        native_squad_first_formations={
+            int(club_id): int(value)
+            for club_id, value in snapshot.get("native_squad_first_formations", {}).items()
         },
         clubs=clubs,
         managers=managers,

@@ -226,6 +226,9 @@ class GameState:
     # DBRClub import 403660 explicitly initializes +1DC to zero (403764).
     # This is persistent reserve-formation state, not an allocator default.
     native_squad_reserve_formations: dict[int, int] = field(default_factory=dict)
+    # 409BD0 first-season selection output. Empty means not yet produced;
+    # loaded/advanced state must never be silently reinitialized.
+    native_squad_first_formations: dict[int, int] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     # Completion inputs only, NOT captured reports or fixture links. These
@@ -534,6 +537,52 @@ class GameState:
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
+
+    def initialize_original_primary_first_season_squad(
+        self, club_id: int, *, primary_pass_before_secondary: bool = False,
+    ):
+        """Bounded 404110(1) primary pass, before secondary scheduling/human setup.
+
+        Source ordering proves empty secondary lookup -> class 0 / limit 11.
+        This explicit fresh-only producer is not an ordinary-match fallback.
+        All candidate inputs/side effects are qualified before state mutation.
+        """
+        from original_squad_startup import select_first_season_primary_squad
+        club_id = int(club_id)
+        if club_id in self.native_squad_first_formations:
+            raise RuntimeError('Native first-season Squad selection already produced')
+        if primary_pass_before_secondary is not True:
+            raise RuntimeError('Native first-season Squad requires its qualified startup phase')
+        club = self.clubs.get(club_id)
+        if club is None or getattr(club, 'team_category_code', None) != 1:
+            raise RuntimeError('Native startup Squad requires an ordinary primary club')
+        if not isinstance(club.name, str) or club.name.startswith('!'):
+            raise RuntimeError('Native startup Squad excludes dummy team names')
+        roster = self.ordered_club_roster(club_id)
+        if any(p.loan_club_id is not None or int(p.club_id) != club_id or
+               p.loan_listed or p.match_selection_state_code != 0 for p in roster):
+            raise RuntimeError('Native startup Squad requires retained fresh own-club state')
+        manager = self.managers.get(int(club.manager_id))
+        # 403E10 rejects -1 manager or manager +24 == -1. It does not
+        # compare that club field to the selected team.
+        valid_manager = manager is not None and manager.club_id not in (None, -1)
+        formation = manager.formation_default if valid_manager else 0
+        result = select_first_season_primary_squad(
+            roster, formation_id=formation, non_eu_limit=11)
+        if result.complete:
+            for player in roster:
+                player.clear_match_selection()
+            for assignment in result.lineup.starters:
+                player = self.players[assignment.player_index]
+                player.assign_match_position(assignment.role, assignment.auxiliary_code)
+                player.match_active = True
+            for player_id in result.lineup.substitutes:
+                player = self.players[player_id]
+                player.match_substitute_available = True
+                player.reset_match_position()
+        # 409BD0 writes the formation even if 409C90 returns without a XI.
+        self.native_squad_first_formations[club_id] = formation
+        return result
 
     def prepare_original_primary_squad(self, club_id: int, *, substitute_quota: int):
         """Apply the source-proven primary-club 4B7BD0 constructor producer.

@@ -1,5 +1,23 @@
 # Local recovery integration — 8 October 2026
 
+**Latest startup correction:** `404110(1)` does produce the primary first XI
+before human setup. Primary `616620(1)` precedes secondary scheduling; its
+temporary-category-2 lookup therefore sees source-initialized empty secondary
+buckets, yielding class 0 and guarded restriction limit 11. Sixty bounded
+canonical selector comparisons and twelve native context cases pass. The
+isolated startup adapter also corrects the retained-last-XI-pointer bench
+behavior; it does not alter the later-gate shared selector. An explicit
+GameState producer retains exact selection/role outputs and first formation;
+schema 48 persists that formation without reselection. **Not yet connected to
+normal startup/host; no new playable build.** Latest producer/state/lineup
+verification: 161 tests / 10.400 seconds / zero failures or skips.
+
+Continue by binding this proven producer at fresh backend creation (not save
+load/advanced state), source-close `408500`'s ordinary constructor quota, then
+connect paired rendering and native drag/drop. See
+`GATE13_SQUAD_STARTUP_SELECTION.md`. This supersedes the older statement below
+that the startup auto-XI producer was merely a hypothesis.
+
 Latest recovery checkpoint now reconciles `origin/main`
 `e05c71c11e50b6f5b42bfee1e9054bd7c4dab7e8` (integration commit
 `79d441a33703fd28cebc9996e2184f92b62079e4`), preserving the worker's header
