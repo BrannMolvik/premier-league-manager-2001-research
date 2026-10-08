@@ -1,5 +1,16 @@
 ### 8 October 2026 KST — Recovery 399 selector trace corrected before implementation
 
+NEXT presentation milestone: exact `back_5` original imported/provenance-pinned,
+normal management loader/host bitmap/caption/hover joined. 768 actual native
+source-row comparisons and withdrawn real Windows/Tk geometry passed. 338
+integrated focused tests / 41.606s / one missing-executable skip; five caption
+tests then passed with the canonical source. Asset policy passed. The real
+ordinary pre-match entry is PBg event3 -> bounded date walk -> LeagueMatch
+`513010 -> 533120 -> 499C30` modal. Corrected potential misidentification:
+`4C3280` constructs PStartMenu on persistent user exit, not pre-match; DBRUser
++10D8 is not a fixture queue. Continue live day/calculator/modal binding.
+No normal-play/build acceptance, native launch or Gate14/main/runtime change.
+
 Local NEXT target checkpoint: source-closed `4A83F0` bounded day target and
 `5155B0` explicit seven-day default, original TURNLENGTH/choices 1/2/3/7/14.
 Existing machine setting inspected read-only: seven. 105 bounded canonical

@@ -1,5 +1,21 @@
 # Local recovery integration — 8 October 2026
 
+**NEXT presentation/entry milestone:** exact `back_5` bitmap and original
+NEXT/MATCH caption now draw in the normal management loader/host, including
+native hover state. 768 canonical frame-selector comparisons and real
+withdrawn Windows/Tk four-row/caption geometry passed. 338 integrated tests
+passed / 41.606s / one absent-executable skip; the five caption tests then
+passed separately with canonical executable supplied. Asset policy passed.
+The exact ordinary entry now joins PBg event3 -> bounded date processing ->
+LeagueMatch `513010 -> 533120 -> PPreMatchPanel(499C30)` modal, before
+calculation and Match Detail dispatch. `4C3280` is PStartMenu after persistent
+user exit/sacking, **not pre-match**. Do not treat DBRUser+10D8 as a fixture.
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md`. Next: connect the single-user day
+owner and live retained calculator/primary fixture inputs to the existing
+source-qualified modal, then ordinary calculation/save/reload and a real
+original-look acceptance build. Button presentation and target alone do not
+make this branch hands-on playable. No Gate14 code/main/runtime writes.
+
 **NEXT target checkpoint:** `original_management_advance.py` now preserves the
 canonical `4A83F0` pre-match stop, explicit `5155B0` seven-day default and
 ordered increment-before-processing dates. 105 bounded canonical native

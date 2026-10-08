@@ -62,8 +62,8 @@ provides the exact choices 1,2,3,7,14 at +6C..+7C. Event callbacks
 
 The small compatibility replacement preserves this target calculation only
 with explicit source-qualified selector inputs. An unavailable/unresolved
-selector is not converted into a native null. UI warnings, queued user state
-and `4C3280` pre-match entry remain separate mandatory binding work. A native
+selector is not converted into a native null. UI warnings and the actual
+`533120` pre-match entry remain separate mandatory binding work. A native
 target calculation alone is not a playable NEXT/MATCH workflow.
 
 Verification: 105 bounded canonical `4A83F0..4A8513` comparisons matched the
@@ -72,6 +72,54 @@ explicit supplied inputs, not semantic discoveries. Six focused regressions
 passed, including unknown-selector rejection, current/tomorrow/distant dates,
 native null, zero/custom turn lengths and separate annual-boundary rejection.
 Private `qualify-native-advance-target.py` remains outside Git.
+
+## Ordinary pre-match entry: exact caller chain, not a UI guess
+
+The canonical chain is now manually joined:
+PBg event3 `432690 -> 432190 -> 431F70 -> 4A83F0`, incremented-date dispatch
+`4A83D0 -> 4A8260 -> 6168C0`, LeagueMatch vtable `7C4C24` +10=`513010`.
+At `5130F4..3104`, native match +44 must have human/presentation bit10 set
+and completed bit20 clear. The source human ownership checks at
+`513074..30A1` can set bit10, but this is not permission to infer it from a
+score, a report fragment or a generic fixture placeholder.
+
+`51310A..312C` opens `533120` if `875680` is null **or** native settings
+`877530` remains sentinel5. Otherwise it preserves the existing selected mode.
+`533120 -> 499C30` constructs the already-recovered PPreMatchPanel, places it
+at(0,0,800,600), registers it with PApp and executes the modal at `532650`.
+After accepted selection it writes mode to MatchCalculator+ D3C and destroys
+the panel. It does not calculate before collecting the Match Detail choice.
+The subsequent calculator/presentation dispatch is already documented in the
+existing Gate14 evidence; no Gate14 implementation was modified here.
+
+**Adjudication correction:** `4C3280` in PBg's later user-exit branch is NOT
+pre-match. Its vtable `7C64E0` / COL `7E64F8` / TypeDescriptor `81E108` is
+`PStartMenu`. `42C6C0` writes DBRUser+10D8 (persistent exit/sacking reason);
+`42C6B0` writes the distinct +10E8. Do not model +10D8 or the return-to-start
+branch as a pending human fixture. The real modal entry is inside `513010`
+during the date's match walk, not an invented ordinary MATCH button shortcut.
+
+## Integrated presentation verification
+
+The normal production management loader now verifies/imports exact `back_5`
+and draws its state row plus the original NEXT/MATCH caption. Hover changes
+only its native source row; no timer or prototype skip callback is installed.
+768 bounded canonical `5D3AC0` comparisons passed (256 flag combinations for
+each discriminator0/1/40). Decoded RGBA SHA-256:
+`2e8645697787cd550e4ea047c3b30dd9ed656ad0b71d1b1a58f48c881db8c597`.
+All four source rows/captions passed real withdrawn Windows/Tk geometry checks
+within800x600. This is background test-owned widget transport, not manual
+launch or ordinary-gameplay acceptance. 338 integrated focused tests passed
+with one absent-executable skip; the five caption tests subsequently passed
+with the actual canonical executable supplied. Asset policy passed.
+
+Private harness SHA-256: advance target
+`02f52c8d3bf421133847dac0ea194bbcb7143025f45b7bedb629e7fc9c85481b`;
+NEXT art/state/Tk
+`98faf7d726ce8992bc830a135e7e524b8f07342fb0e15817f8872351912366cc`.
+The remaining normal-play implementation is the live single-user modal/input
+binding, using the proven day target and retained primary match/calculator
+inputs, not automatic calculation/presentation before native choice.
 
 ## NEXT bitmap, caption and pointer phase
 

@@ -379,6 +379,7 @@ class OriginalGameTkHost:
         error_reporter=None,
         management_background=None,
         management_header_resources=None,
+        management_next_art=None,
         management_text_resources=None,
         management_resource_loader=None,
         management_thread_factory=Thread,
@@ -408,6 +409,8 @@ class OriginalGameTkHost:
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.management_header_resources = management_header_resources
+        self.management_next_art = management_next_art
+        self.management_next_flags = 2
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
         if not callable(management_thread_factory):
@@ -1079,6 +1082,8 @@ class OriginalGameTkHost:
             )
         for name in required:
             setattr(self, name, loaded[name])
+        if "management_next_art" in loaded:
+            self.management_next_art = loaded["management_next_art"]
         if family == "squad":
             self._management_pmenu_render_cache.clear()
         self._management_resource_families_loaded.add(family)
@@ -1304,6 +1309,32 @@ class OriginalGameTkHost:
             )
             count += 1
         return count
+
+    def _draw_management_next_control(self, frame) -> int:
+        """Draw PBg +524/574 from exact source rows and retained caption date.
+
+        This is presentation, not acceptance of the still-bounded day/user
+        callback. A supplied-resource test host may intentionally omit the art.
+        The normal production resource loader requires and verifies it.
+        """
+        from original_management_next import native_next_bitmap_pixels, native_next_caption_pixels
+        art = getattr(self, 'management_next_art', None)
+        if art is None:
+            return 0
+        resources = self.management_header_resources
+        if not isinstance(resources, OriginalManagementHeaderResources):
+            raise OriginalGameHostError('NEXT caption lost its verified source font')
+        x,y,w,h,rgba = native_next_bitmap_pixels(art, self.management_next_flags)
+        self._create_native_image(x,y,image=self._rgba_photo(w,h,rgba),anchor=self.tk.NW)
+        controller = self.presenter.session.gameplay
+        if controller is None:
+            raise OriginalGameHostError('NEXT caption lost its ordinary calendar owner')
+        match = getattr(frame.presentation, 'header_match', None)
+        x,y,w,h,rgba = native_next_caption_pixels(resources.font,
+            controller.state.calendar.current_date,
+            None if match is None else match.scheduled_date)
+        self._create_native_image(x,y,image=self._rgba_photo(w,h,rgba),anchor=self.tk.NW)
+        return 2
 
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
@@ -1555,6 +1586,13 @@ class OriginalGameTkHost:
             self._schedule_management_header_update()
         changed = False
         if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+                and getattr(self, 'management_next_art', None) is not None):
+            from original_management_next import native_next_at_point
+            old = self.management_next_flags
+            inside = native_next_at_point(int(event.x), int(event.y))
+            self.management_next_flags = old | 8 if inside else old & ~8
+            changed |= old != self.management_next_flags
+        if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
                 and self.active_pmatchinfo_art is None and self.pmenu_popup_active
                 and pmenu_app_pointer_dismiss(int(event.x), int(event.y))):
             self.pmenu_popup_active = False
@@ -1679,6 +1717,7 @@ class OriginalGameTkHost:
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header(frame.presentation.club)
+        header_image_count += self._draw_management_next_control(frame)
         header_image_count += self._draw_management_match_lines(frame)
         header_image_count += self._draw_management_current_date(frame)
         squad_image_count = self._draw_squad_top_controls(frame)
@@ -2357,6 +2396,10 @@ def run_original_game_ui(
                     resolved_source_root,
                     original_executable,
                 )
+            with timed_stage("management.resources.next"):
+                from original_management_next import load_verified_management_next_art
+                management_next_art = load_verified_management_next_art(
+                    resolved_source_root, original_executable)
             return {
                 "management_pmenu_resources": pmenu_resources,
                 "squad_top_resources": squad_top_resources,
@@ -2364,6 +2407,7 @@ def run_original_game_ui(
                 "squad_status_resources": squad_status_resources,
                 "management_background": management_background,
                 "management_header_resources": management_header_resources,
+                "management_next_art": management_next_art,
             }
 
         if family == "fixtures":
