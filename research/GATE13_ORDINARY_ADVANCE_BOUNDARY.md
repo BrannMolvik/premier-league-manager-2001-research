@@ -96,6 +96,36 @@ pitch-installation lifecycle and `5E3CC0` seasonal guard still require
 retention before integrating their reschedule effect. No absence/default is
 inferred.
 
+### Source-qualified pitch-event season predicate
+
+Manual canonical `5E3CC0..5E3E40` CFG/argument flow closes only this predicate:
+`5E3B29..3B` zero-extends the event's byte+8 and passes it as a cdecl mask.
+The global current serial is split by the existing `64CCD0` into native
+year-offset/month/day, with **1-based** month/day. `64D060` is lexicographic
+greater-or-equal; `64D0E0` is strict less-than. The predicate's intervals are
+February22 inclusive -> May22 exclusive (bit2), May22 -> August22 (bit4),
+August22 -> November22 (bit8), November22 -> next-year February22 (bit16).
+However, each interval is built from the **current tuple's year**, so January1
+through February21 does not enter the last interval. At `5E3D29`, ESI retains
+the supplied mask; `5E3E2D..40` therefore accepts **any nonzero mask** during
+that early-year range. Do not replace this shipped behavior with a synthetic
+winter16 or four equal/calendar-quarter seasons. Zero rejects on every date.
+
+What remains unknown: actual event mask production/scheduling and the
+DBRUser+6A8 installation lifecycle. Minimum compatible implementation is a
+pure predicate accepting the explicit native tuple and byte, not a live
+event/default or schedule mutation. This does not close ordinary NEXT,
+qualify clear wrapper links after a day, or authorize RNG/event suppression.
+
+20,480 comparisons of the **actual** season/date-split/signed-division/date
+comparator instructions against the pure retained-tuple predicate passed.
+All256 mask bytes on80 boundary/leap-calendar inputs were covered, including
+native year200 February29. No call leaves were substituted; callee-saved
+registers and cdecl/thiscall stack cleanup were checked. Eleven advance/season
+regressions passed. Private harness SHA-256:
+`6f96abfd018766aea64def72acab3f946472693e14c592ff1254c4204264226b`.
+No original process, registry, RNG, schedule-link or desktop interaction.
+
 ## Original owner and action
 
 `PBg` setup `4304B0`, at `430992..9C4`, registers embedded `+524` in child

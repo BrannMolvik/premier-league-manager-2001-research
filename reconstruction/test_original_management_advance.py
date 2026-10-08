@@ -3,7 +3,7 @@ import unittest
 
 from original_management_advance import (
     NATIVE_DEFAULT_TURN_LENGTH, NATIVE_TURN_LENGTH_CHOICES,
-    original_management_advance_target,
+    original_management_advance_target, original_pitch_event_season_matches,
 )
 
 
@@ -57,6 +57,50 @@ class NativeAdvanceTargetTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'annual'):
             original_management_advance_target(self.today, next_match_date=None,
                 selector_source_qualified=True, container_end_date=self.today)
+
+
+class NativePitchEventSeasonTests(unittest.TestCase):
+    def test_exact_lower_inclusive_upper_exclusive_intervals(self):
+        for month, day, selected in (
+            (2,22,2), (5,21,2), (5,22,4), (8,21,4),
+            (8,22,8), (11,21,8), (11,22,16), (12,31,16),
+        ):
+            for mask in range(256):
+                with self.subTest(month=month, day=day, mask=mask):
+                    self.assertEqual(
+                        original_pitch_event_season_matches((100,month,day), mask),
+                        bool(selected & mask))
+
+    def test_early_year_retains_mask_not_synthetic_winter(self):
+        for calendar in ((100,1,1), (100,1,31), (100,2,21)):
+            for mask in range(256):
+                with self.subTest(calendar=calendar, mask=mask):
+                    self.assertEqual(original_pitch_event_season_matches(calendar, mask),
+                                     bool(mask))
+        # Source bit1/bit128 are accepted early, but not in the late-year16 arm.
+        self.assertTrue(original_pitch_event_season_matches((100,2,21), 128))
+        self.assertFalse(original_pitch_event_season_matches((100,12,31), 128))
+
+    def test_native_leap_century_tuple_not_host_gregorian(self):
+        self.assertTrue(original_pitch_event_season_matches((200,2,29), 2))
+        self.assertFalse(original_pitch_event_season_matches((200,2,29), 16))
+        for year in (0,1,2,3,101,201):
+            with self.subTest(year=year), self.assertRaises(ValueError):
+                original_pitch_event_season_matches((year,2,29), 255)
+
+    def test_zero_mask_never_creates_an_event(self):
+        for month in range(1,13):
+            self.assertFalse(original_pitch_event_season_matches((100,month,1), 0))
+
+    def test_missing_or_malformed_source_inputs_reject(self):
+        for calendar in (None, date(2000,7,4), [100,7,4], (100,7),
+                         (True,7,4), (-1,7,4), (8100,7,4), (100,0,4),
+                         (100,13,4), (100,7,0), (100,4,31)):
+            with self.subTest(calendar=calendar), self.assertRaises(ValueError):
+                original_pitch_event_season_matches(calendar, 255)
+        for mask in (None, True, -1, 256, '2', 2.0):
+            with self.subTest(mask=mask), self.assertRaises(ValueError):
+                original_pitch_event_season_matches((100,7,4), mask)
 
 
 if __name__ == '__main__':

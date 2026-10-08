@@ -12,6 +12,41 @@ NATIVE_DEFAULT_TURN_LENGTH = 7
 NATIVE_TURN_LENGTH_CHOICES = (1, 2, 3, 7, 14)
 
 
+def original_pitch_event_season_matches(
+    native_calendar: tuple[int, int, int], event_mask: int,
+) -> bool:
+    """Exact 5E3CC0 predicate; not a pitch-event or wrapper-link producer.
+
+    5E3B20 supplies zero-extended event byte+8. The explicit tuple comes from
+    64CCD0 (year offset, 1-based month/day), not inferred weather or Gregorian
+    quarters. In January/early February the original retains the input mask,
+    accepting ANY nonzero mask; it does not select winter bit16 there.
+    """
+    if (type(native_calendar) is not tuple or len(native_calendar) != 3
+            or any(type(value) is not int for value in native_calendar)):
+        raise ValueError('Pitch-event season requires the explicit native calendar tuple')
+    year, month, day = native_calendar
+    if not 0 <= year <= 8099:
+        raise ValueError('Pitch-event native year is outside the supported range')
+    # Preserve the native four-year cycle, including its post-1900 leap
+    # centuries; host Gregorian validation would reject valid source tuples.
+    month_lengths = (31, 29 if year >= 4 and year % 4 == 0 else 28,
+                     31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+    if not 1 <= month <= 12 or not 1 <= day <= month_lengths[month - 1]:
+        raise ValueError('Pitch-event native month/day is invalid')
+    if type(event_mask) is not int or not 0 <= event_mask <= 255:
+        raise ValueError('Pitch-event mask must be an explicit source byte')
+    selected_mask = event_mask  # 5E3D29, not an invented winter/default bit.
+    for lower_month, upper_month, bit in (
+        (2, 5, 2), (5, 8, 4), (8, 11, 8), (11, 2, 16),
+    ):
+        upper_year = year + int(upper_month < lower_month)
+        if ((year, lower_month, 22) <= native_calendar
+                < (upper_year, upper_month, 22)):
+            selected_mask = bit
+    return bool(selected_mask & event_mask)
+
+
 @dataclass(frozen=True)
 class OriginalManagementAdvanceTarget:
     current_date: date

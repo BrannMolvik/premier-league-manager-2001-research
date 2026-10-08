@@ -1,5 +1,19 @@
 # Local recovery integration — 9 October 2026
 
+**4% reserve handoff:** Daniel's latest priority is the missing original
+selection-dependent blue row backgrounds and incomplete inbox/menu, not merely
+shirt numbers. Current host repeats disabled strips across every slot; actual
+populated row background ownership/selection must be traced via final vft7C57BC
+and4B56B9/4B7FD0, not guessed RGB. EAMail child65 has no integrated presenter.
+No additional specific overall-menu cause or worker-caused regression is proven.
+See `GATE13_LOCAL_PLAYTEST_HANDOFF_2026-10-09.md` for exact next actions.
+New immutable f48238da test folder passed all30 numbers and fresh-process reload;
+old170970e5 folder unchanged. NEXT remains unfinished; Gate13 OPEN.
+Before Daniel's reprioritization, isolated5E3CC0 season guard was source-closed
+and passed20,480 canonical comparisons/11 regressions. It does not produce live
+events, qualify wrapper-link absence or bind NEXT. New source investigation is
+paused for reserve/handoff; no native launch or main merge.
+
 **Latest Squad correction:** original populated number control+1E8 now renders
 in both native list owners.41E3F0/41E3D0 primary/alternate context, signed club
 ID, 18px font, `(1,1,22,14)`, flags24, `%N`, whiteFFFF are source-qualified.

@@ -1,5 +1,16 @@
 # Fidelity Gaps
 
+## 9 October local original-look acceptance priority
+
+Daniel reports selection-dependent blue Squad backgrounds and inbox/menu are
+still incorrect. Current top renderer repeats disabled row strips for every
+slot; original populated background/update ownership is not yet integrated.
+Do not replace missing state with guessed RGB or name-text selection colors.
+EAMail menu child65 exists but has no integrated original content presenter.
+No further exact overall-menu root cause or worker-caused regression is proven.
+Shirt-number correction alone does not fix these defects. Gate13 stays open;
+see `GATE13_LOCAL_PLAYTEST_HANDOFF_2026-10-09.md` for the bounded next trace.
+
 This file tracks **known differences or unresolved fidelity boundaries** between the clean-room reconstruction and the analyzed FM2001 release.
 
 Historical uncertainty that has since been resolved should be moved to the resolved section rather than left as a live gap.
