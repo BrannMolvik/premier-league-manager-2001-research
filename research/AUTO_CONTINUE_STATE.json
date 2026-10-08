@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 411,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 411 committed source-backed documentation-only reconciliation at main 9093e55 (three changed files: GATE14_FASTVIEW_DIRECT_HEADER_RASTER.md, gate14_fastview_direct_header_text.py module docstring, PROGRESS.md). Read-back verification: 1 commit, preserved historical claims, appended explicit supersession and corrected docstring; did not alter executable logic, original assets, behavior, tests or gate status. Test executions NOT performed in current session. Canonical PE font index0 and text producers unresolved. Prior full-suite CI run 37724541991 success 2929 tests 25 skips on PR558; does NOT validate newer docs commit, but docs-only. Original archive exists Library /FM2001/Original Source and materialized in prior Recovery410, yet fresh container/bash/python and python_user_visible failed ClientError on trivial commands. No private Win11 receipt or GUI acceptance; remaining mission all gates 13-17. Exact next: retest process, hash original PE SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3, privately run candidate tracer, resolve index0 and LeagueTable arg4 and ScoreComposite selectors; if process remains unavailable, continue independent already-evidenced repo audit, no guessed pixels.",
+  "recovery_generation": 412,
+  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
+  "note": "Recovery 412 resumed at main 9093e55, preserve Gate 13 validation blocker and source-first Gate 14 work-ahead; environment/ownership checks in progress. Follow reduced CI/commit cadence; no Gate 17 completion claim.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
