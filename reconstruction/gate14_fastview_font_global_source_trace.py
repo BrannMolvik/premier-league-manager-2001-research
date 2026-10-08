@@ -3,6 +3,7 @@
 A raw little-endian pointer occurrence is NOT an instruction-aligned xref,
 write, initializer, pointed font object, or resolved .fnt filename. This tool
 preserves bounded original-source bytes for private manual adjudication only.
+An opt-in linear x86 decode prioritizes candidates, not proven xrefs or writes.
 Never commit its private output or any original executable/disc bytes.
 """
 from __future__ import annotations
