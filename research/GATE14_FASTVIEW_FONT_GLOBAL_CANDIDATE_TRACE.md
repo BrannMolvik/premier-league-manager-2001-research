@@ -60,3 +60,15 @@ Synthetic, proprietary-asset-free tests are in
 They check candidate placement across executable sections, explicit
 truncation, argument validation, and fail-closed claims. A passing synthetic
 test does not prove which font the original selected.
+
+## Recovery 408 verification and limits
+
+PR #556 exact head `c0a45dd79e7da7d233c3d926319b82d155e36332` passed
+the focused synthetic source-tracer CI (`37722466640`) and repository
+asset policy (`37722466708`), then merged on main as
+`65fc487a76a67a6e563683f060dfae90dd7e2fbd`.
+The original private executable could not be run because the current
+execution sandbox rejects trivial shell/Python processes with
+`caas.internal.errors.ClientError`; no original font was identified
+by these synthetic regressions. Full runtime CI and a private Windows 11
+GUI acceptance run were not performed for this source-tracer checkpoint.

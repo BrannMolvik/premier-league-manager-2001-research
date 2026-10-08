@@ -1,3 +1,17 @@
+# Recovery 408 — private font-global candidate tracing merged and synthetic-tested
+
+_8 October 2026 KST. Latest verified work-ahead merge: `65fc487a76a67a6e563683f060dfae90dd7e2fbd` (PR #556). Active validation Gate 13 remains OPEN._
+
+Source-bounded work-ahead now provides `reconstruction/gate14_fastview_font_global_source_trace.py`, a private-source, checksum-gated raw global-pointer candidate report for generic FastView TextControl selectors 0–4, with bounded contexts at six independently verified callsites. It **does not** treat raw byte occurrences as xrefs, resolve font0 `0x87BEA0`, infer ScoreComposite index inputs, recover LeagueTable text values, or rasterize any pixels. The recovered loader identities for indices 1 and 3 remain unchanged.
+
+PR #556 exact head `c0a45dd79e7da7d233c3d926319b82d155e36332` passed focused synthetic source-tracer regression run `37722466640` and repository asset-policy run `37722466708`, then merged as `65fc487a76a67a6e563683f060dfae90dd7e2fbd`. Full reconstruction CI was intentionally not dispatched for private-trace-only work, respecting reduced Actions usage; the last verified full suite is still Recovery-406 run `37704161253` (2,926 tests, 25 skips).
+
+**Actual next Gate-14 source investigation:** on a functioning private source sandbox, recover and hash-verify original `footballmanager.exe`, run the new tool outside Git to find candidate references to `0x87BEA0`, decode aligned original initialization/writes and bind font object and filename. Then independently backtrace arg 4 text producers from row `0x51D8FB` and heading `0x51DDF3`, and the variable ScoreComposite selector inputs. The original archive is saved in Library, but private shell and Python execution have again failed with `caas.internal.errors.ClientError`, including a trivial command. Do not misreport missing source or successful new disassembly.
+
+**Gate-13 acceptance blocker unchanged:** obtain real private non-disruptive Win11 `--transport-probe-only` parent/child HWND/DPI receipt, diagnose actual FMV content geometry without assumed conversion, and verify normal menu/TeamSelect/Squad responsiveness and recognizability. Gates 14–17 stay incomplete; original-full-scope Windows 11 release remains unverified.
+
+---
+
 # Recovery 407: reduce Gate-14 TextControl font tracing to genuinely unresolved selectors
 
 _8 October 2026 KST. Active validation Gate 13 remains open; independent Gate-14 evidence reconciliation only._
