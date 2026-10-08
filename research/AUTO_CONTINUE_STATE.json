@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 412,
-  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery 412: verified main 9093e55e6480565c34b2e8bd96cea0cbaf758570 and active Gate13/independent Gate14; ownership lock released; runtime generation 412 working. Confirmed canonical 511121336-byte ZIP exists in Library /FM2001/Original Source, materialized to /mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip. An initial trivial shell command succeeded before materialization, but subsequent shell, Python, and visible Python all failed caas.internal.errors.ClientError even for echo/print; cannot access archive bytes or hash/disassemble canonical PE this session. Re-read original-source font candidate tracer, tests, TextControl ABI and FastView docs directly from main; selectors 1/3 closed previously, selector0 0x87BEA0, LeagueTable arg4, ScoreComposite variable selectors unresolved. No new source findings, game changes, or tests; do not create fake main commits or trigger CI. Gate13 private real-Windows 11 --transport-probe-only HWND/DPI receipt and visual/latency acceptance still missing. Exact next after sandbox recovery: test trivial process; privately extract/verify footballmanager.exe SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3; run reconstruction/gate14_fastview_font_global_source_trace.py with output outside Git; aligned decode 0x87BEA0 initializer, exact object/path; then LeagueTable strings at 0x51D8FB/0x51DDF3 and ScoreComposite [ebp+8]/[ebp+0xC] selectors. Preserve source first, no guessed glyphs. Overall mission through Gate17 and Windows11 release INCOMPLETE.",
+  "recovery_generation": 413,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 413 resumed at canonical main 9093e55; confirmed sandbox command and private Python process fail caas.internal.errors.ClientError before private source trace. Inspecting independently verifiable repo-only Gate14 tasks without violating source-first or cost limits; external Gate13 Win11 acceptance remains open. Latest verified full-suite CI 37724541991 (2929 tests, 25 skips) is older than docs-only main HEAD. Continue Gates13-17 mission; no completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
