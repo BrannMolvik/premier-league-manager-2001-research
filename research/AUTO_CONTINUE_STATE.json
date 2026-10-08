@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 408: GitHub main a34db9f; Gate13 still blocked on external Win11 transport/visual/latency acceptance. Canonical private PE execution remains blocked by sandbox ClientError. Work on independent Gate14 read-only index0 font-global reference/source trace tooling, with synthetic CI verification before source claims; then return to original executable source tracing when healthy. Scope Gate17 full release unchanged.",
-  "last_known_main_head": "a34db9f4786b9c5636af6fdd31c0fb8bda46f0fb",
+  "active_task": "Recovery 408 verified main 94a27ad. Gate13 real private Win11 --transport-probe-only HWND/DPI startup-video and menu/Squad responsiveness/visual acceptance OPEN. Gate14 independent source investigation: on healthy private PE environment run new gate14_fastview_font_global_source_trace.py outside Git on hash-verified footballmanager.exe, decode aligned initialization for selector0 0x87BEA0 to exact font object/loader/path, backtrace LeagueTable text arg4 at 0x51D8FB/0x51DDF3 and ScoreComposite owner font indices. Current source sandbox even trivial shell/Python ClientError; no new original source identities claimed. Continue through Gate17 full-scope release.",
+  "last_known_main_head": "94a27ada49786a442a3b6fb4496e8d86f824cf46",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 408,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Verified research-only main a34db9f persisted trace/CURRENT_STATE/PROGRESS atomically; no CI launched. Private original ZIP 511121336 bytes materialized; shell/Python process ClientError. Avoid redoing verified selector1/3; source-only work remains fail-closed and Windows visual receipt outstanding.",
+  "note": "PR #556 head c0a45dd source-trace run 37722466640 success, asset policy 37722466708 success; merge 65fc487, status docs commit 94a27ad; no full CI (last full run 37704161253, 2926 tests 25 expected skips). Tools fail caas.internal.errors.ClientError for trivial shell/Python; authorized Library original still exists. Do not repeat completed tracer or spam CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
