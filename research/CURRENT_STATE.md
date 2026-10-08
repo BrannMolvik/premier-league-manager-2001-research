@@ -1,5 +1,14 @@
 # Local recovery integration — 8 October 2026
 
+**Current-main integration:** recovery branch integrates canonical
+`95c9609f388f23729bb7e5302db88c6b32f23d4c`, preserving independent worker
+changes and opt-in WPF transport receipts together with the live viewport
+fix. Native club-caption ownership remains verified 32px; incoming 36px
+resource bytes are preserved, not promoted to this owner. 372 focused tests
+passed /39.421s/no skips (seven repeated Squad presenter tests).
+No main merge or runtime ownership change. Ordinary day/modal binding and
+hands-on original-look build acceptance remain open.
+
 **NEXT presentation/entry milestone:** exact `back_5` bitmap and original
 NEXT/MATCH caption now draw in the normal management loader/host, including
 native hover state. 768 canonical frame-selector comparisons and real
@@ -203,6 +212,147 @@ Do not count the earlier denied run as a successful validation.
 
 Historical incoming main checkpoint (its 36px font claim is superseded by
 the canonical-byte correction above):
+---
+
+The following current-main worker checkpoints are retained verbatim as
+disjoint history. The local recovery boundary above takes precedence for this
+branch's Gate13 work; no worker Gate14 implementation or agent-runtime change.
+
+# Recovery 415 — decoded font-wrapper reference triage merged; private source execution still blocked
+
+_8 October 2026 KST. Canonical technical main commit `93cdb977fe1b90f0afa0d1b06de5f17f631eac4f`, PR #559. Gate 13 remains earliest incomplete validation gate; Gates 14–17 and the Windows 11 release are incomplete._
+
+Independent Gate-14 work-ahead now provides an **optional** Capstone linear-decoding candidate scanner for already source-verified FastView TextControl font-wrapper addresses. It restricts candidate reports to .text literal immediates and register-free absolute memory operands, excludes register-relative displacements, retains explicit truncation and is deliberately labelled **UNCONFIRMED**, not an aligned/CFG-verified xref or initializer. The original raw-byte candidate report is still the default. Synthetic decoy/limit/fail-closed tests and documentation are included. This does not identify index-0 font, prove text values, change game behavior, or render new pixels.
+
+PR #559 exact head `000f27826072de612b353bb6062274c1a0ccde3e` passed focused Gate-14 source-trace CI `37745860509` and repository asset policy `37745860494`; merged as `93cdb977fe1b90f0afa0d1b06de5f17f631eac4f`. No full reconstruction CI was dispatched for this isolated research tool. Earlier exact-head full reconstruction suite `37724541991` passed 2,929 tests with 25 expected skips on the earlier PR #558 head; that run does not validate new executable work, nor real Windows playability.
+
+**Exact original-source next task:** local container and Python process launch continue to return `caas.internal.errors.ClientError`, even for trivial commands. The authorized original disc ZIP remains in Library as documented by `research/ORIGINAL_SOURCE_LOCATOR.md`; source availability has not been confused with process access. Once a private sandbox works, extract and SHA-256 verify canonical `footballmanager.exe` (`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`); run `reconstruction/gate14_fastview_font_global_source_trace.py` with `--scan-linear-wrapper-candidates` and output **outside Git**. Independently inspect actual aligned `.text` writes/initialization of index-0 wrapper `0x87BEA0` to recover font object/filename, then LeagueTable arg-4 string producers at `0x51D8FB`/`0x51DDF3` and ScoreComposite owner-relative selector values. Do not promote candidates to proof or invent missing font/text pixels.
+
+**Gate 13 external blocker unchanged:** real private Windows 11 `--transport-probe-only` parent/child HWND and DPI receipt, source-qualified startup-movie display diagnosis, and responsive recognizable main menu/TeamSelect/fresh Squad acceptance. This cannot be replaced with Linux CI. Gate 17 still requires the full originally shipped playable-country/league/management scope, not a Premier-League-only release.
+
+---
+
+# Recovery 409 — full reconstruction suite restored after exact fidelity-ledger label correction
+
+_8 October 2026 KST. Canonical technical merge `5109086c1e089f99a6443a9ed8c3df8b166e0baf`, PR #558. Gate 13 remains earliest incomplete validation gate._
+
+PR #557's automatic full-suite run `37722819830` had completed with **2,929 tests, 25 expected skips and two failures** in `test_gate15_fidelity_ledger`. Both failures were caused by one preexisting literal-label mismatch: `research/FIDELITY_GAPS.md` planned Gate for **Original front-end / management presentation fidelity** is `13, then 15 for secondary refinements`, while the JSON ledger had `13, then 15 for true secondary refinements`. This was not evidence of a new gameplay regression.
+
+PR #558 exact head `2a65a872e6cbf5f0dda10e7a176c3f1f05738995` corrected **only** the ledger's planned-gate string without changing owner gate, pending acceptance, policy, simulation or presentation. An independent read-only comparison found all **12** active gap rows matched the **12** ledger entries with zero missing, extra or inconsistent planned gates; declared Gate-15 completion remained false. **Exact-head full reconstruction CI run `37724541991` PASSED: 2,929 tests, 25 expected skips, no failures**. PR #558 merged as `5109086c1e089f99a6443a9ed8c3df8b166e0baf`. This is repository verification, NOT user-facing Windows 11 acceptance or Gate 13/14/15 closure.
+
+**Original source blocker:** sandbox shell and Python both still return `caas.internal.errors.ClientError` even for trivial commands. The authorized private disc archive remains in ChatGPT Library and was previously materialized successfully; the source is not presumed missing. Exact next Gate-14 independent task when execution is healthy: privately hash-verify canonical `footballmanager.exe`, run `reconstruction/gate14_fastview_font_global_source_trace.py` with output outside Git, decode the actual initializer of selector-index-0 wrapper `0x87BEA0` to its font object/load path, then independently trace LeagueTable TextControl string arg 4 at `0x51D8FB` and `0x51DDF3`, followed by ScoreComposite owner-relative font selector inputs. No guessed font/text pixels or original behavior changes.
+
+**Gate 13 blocker unchanged:** obtain a genuine, safe private Windows 11 `--transport-probe-only` startup-FMV parent/child HWND and DPI receipt, diagnose observed video geometry from that evidence, and then verify responsive, recognizably original menu/TeamSelect/fresh Squad normal play. Post-#482 user-facing acceptance is still OPEN. Gate 14 and Gate 15 remain incomplete, and Gate 16/17 are not released; Gate 17 demands full functional scope across all shipped playable countries, leagues and management systems. Do not claim full release completion or substitute hosted CI for real Windows evidence.
+
+---
+
+# Recovery 408 continuation: original TextControl constructor ABI reported consistently
+
+_8 October 2026 KST. Gate 13 remains earliest incomplete; independent Gate-14 source evidence hygiene._
+
+PR #557 source head `d4a6f942d3e7e621ad61c6aef803b41331a3f051` merged on `main` as `ace8fb49c9207b904485476da3fbdae70b64338e`. It reconciles the original-source-backed five-argument `0x527960` TextControl constructor ABI and index-0 LeagueTable selector with `reconstruction/gate14_fastview_static_text_source_trace.py`, which previously reported constructor argument recovery falsely as incomplete. The tool's raw caller windows remain non-proof on their own. Focused source-trace test run `37722819843` and asset-policy run `37722819842` **passed** on the exact revised head after fixing a missing Capstone CI prerequisite. The automatic full reconstruction run `37722819830` was still in progress at checkpoint time; do not claim it passed until checked. No gameplay code/pixels changed.
+
+**Next original-source task unchanged:** the authorized ZIP is stored in Library but both shell and Python in the current container fail with `caas.internal.errors.ClientError`, even for trivial commands. When a working private source environment is available, hash-verify `footballmanager.exe`, run the new font-wrapper candidate tracer outside Git, source-confirm writes to index-0 `0x87BEA0` to establish exact font object and filename, then LeagueTable arg4 string/value producers and ScoreComposite variable selector parameters. Do not create guessed score/table raster pixels.
+
+**Mandatory Gate 13 external blocker:** real private Windows 11 `--transport-probe-only` HWND/DPI receipt, correct startup-video content diagnosis, and normal menu/TeamSelect/fresh Squad visual and latency acceptance. Gate 13 and Gates 14-17 remain incomplete; Gate 17 full original-scope release NOT verified. Continue work-ahead only on independently source-evidenced changes without gratuitous CI, test-claim inflation or commit spam.
+
+---
+
+# Recovery 408 — private font-global candidate tracing merged and synthetic-tested
+
+_8 October 2026 KST. Latest verified work-ahead merge: `65fc487a76a67a6e563683f060dfae90dd7e2fbd` (PR #556). Active validation Gate 13 remains OPEN._
+
+Source-bounded work-ahead now provides `reconstruction/gate14_fastview_font_global_source_trace.py`, a private-source, checksum-gated raw global-pointer candidate report for generic FastView TextControl selectors 0–4, with bounded contexts at six independently verified callsites. It **does not** treat raw byte occurrences as xrefs, resolve font0 `0x87BEA0`, infer ScoreComposite index inputs, recover LeagueTable text values, or rasterize any pixels. The recovered loader identities for indices 1 and 3 remain unchanged.
+
+PR #556 exact head `c0a45dd79e7da7d233c3d926319b82d155e36332` passed focused synthetic source-tracer regression run `37722466640` and repository asset-policy run `37722466708`, then merged as `65fc487a76a67a6e563683f060dfae90dd7e2fbd`. Full reconstruction CI was intentionally not dispatched for private-trace-only work, respecting reduced Actions usage; the last verified full suite is still Recovery-406 run `37704161253` (2,926 tests, 25 skips).
+
+**Actual next Gate-14 source investigation:** on a functioning private source sandbox, recover and hash-verify original `footballmanager.exe`, run the new tool outside Git to find candidate references to `0x87BEA0`, decode aligned original initialization/writes and bind font object and filename. Then independently backtrace arg 4 text producers from row `0x51D8FB` and heading `0x51DDF3`, and the variable ScoreComposite selector inputs. The original archive is saved in Library, but private shell and Python execution have again failed with `caas.internal.errors.ClientError`, including a trivial command. Do not misreport missing source or successful new disassembly.
+
+**Gate-13 acceptance blocker unchanged:** obtain real private non-disruptive Win11 `--transport-probe-only` parent/child HWND/DPI receipt, diagnose actual FMV content geometry without assumed conversion, and verify normal menu/TeamSelect/Squad responsiveness and recognizability. Gates 14–17 stay incomplete; original-full-scope Windows 11 release remains unverified.
+
+---
+
+# Recovery 407: reduce Gate-14 TextControl font tracing to genuinely unresolved selectors
+
+_8 October 2026 KST. Active validation Gate 13 remains open; independent Gate-14 evidence reconciliation only._
+
+From original-source evidence already in `GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md` and corrected `GATE14_FASTVIEW_DIRECT_HEADER_TEXT.md`, generic TextControl selector index **1** (`0x87BE90`) loads bold Zurich 18px from object `0x9197E0`, and index **3** (`0x87BE30`) loads Zurich 16px from object `0x8CAB80`. The Recovery-406 LeagueTable callers use **index 0** (`0x87BEA0`), which remains unbound to an exact original font file; indices 2 and 4 and the ScoreComposite variable selector values also remain unresolved. This is cross-referenced prior disassembly, **not new original-source execution**. Full provenance and disambiguation are appended to `research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md`.
+
+**Execution blocker:** private authorized disc ZIP was successfully found and materialized to the execution workspace, but the sandbox subsequently returned `caas.internal.errors.ClientError` even for trivial shell/Python commands. Do not describe the original source as missing or claim new disassembly/tests. **Next independent task when execution is healthy:** hash-verify the recovered PE32, source-trace index-0 global `0x87BEA0` initialization to its exact font object/file, then trace LeagueTable arg-4 string/value producer; independently bound ScoreComposite owner-relative selector variables. Do not render guessed text.
+
+**Gate 13 external blocker unchanged:** private non-disruptive Win11 `--transport-probe-only` HWND/DPI receipt, startup-movie geometry diagnosis, and normal menu/TeamSelect/fresh Squad latency/visual acceptance; Gates 14-17 remain incomplete and full-scope Windows 11 release is unverified. No CI runs requested for research-only evidence reconciliation, respecting reduced Actions use.
+
+---
+
+# Recovery 406 independent Gate-14 source trace — original FastView TextControl arguments
+
+_8 October 2026 KST; research-only cloud-safe work-ahead at Gate 14, with Gate 13 still the earliest incomplete validation gate._
+
+The authorized and hash-verified original `footballmanager.exe` (SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`) was extracted privately from the authorized raw MODE1/2352 disc archive; **no original executable/disc bytes were staged in Git**. GNU objdump disassembly provided direct original source evidence that generic TextControl constructor `0x527960` takes `ecx` plus exactly **five stack arguments** (`ret 0x14`). Backtraced arguments are base configuration, rectangle, raw flags, source text/string object, and a five-way font-global selector. The selector `0x527BA0` maps indices 0..4 to five documented original pointers, with invalid index returning null. Six direct score/table caller addresses are recorded. LeagueTable row and heading callers both pass selector index **0**; the exact `.fnt` identity and user-facing string values remain unresolved.
+
+Detailed evidence and reproducible original disassembly procedure: `research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md`.
+
+**Active gate unchanged:** Gate 13 remains externally blocked on a genuine private Windows 11 startup-FMV HWND/DPI receipt and normal menu/Squad responsiveness/visual acceptance. No FastView rendering, guessed text, original window geometry, roadmap gate status, or full-scope release claim changed. **Next independent source-backed work:** trace initialization of score/table selector globals and their string/value producers in the verified original executable; do not rasterize until complete source-backed font and text identities are established.
+
+---
+
+# Recovery 406 — startup transport receipt integrity verified, actual Windows geometry still unobserved
+
+_8 October 2026 KST. Technical main merge `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3`._
+
+**Active gate remains Gate 13; Gate 17 is NOT complete.** PR #554 source head `017d1d550f021e9e9ee39602b2d51cd252c5c8e4` merged as `3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3` after four successful exact-head checks: asset policy `37704161379`, Gate-13 presentation `37704161255`, Windows release-candidate package `37704161266`, and full reconstruction `37704161253` (**2,926 tests; 25 expected skips; no failures**). An initial synthetic test-fixture conflict was corrected before verified merge; the revised production code was unchanged. Original movie pixels, native 640x480/(80,60) geometry, runtime playback behavior and default UI were untouched.
+
+The opt-in `--transport-probe-only` path now rejects internally contradictory Windows RECT edge/dimension fields, nonzero GetClientRect origins, inconsistent child offset derivation, and invalid DPI awareness enums. Coherent measured-versus-requested geometry/DPI differences are preserved as diagnostics rather than misclassified as game defects or discarded. Each receipt carries explicit `transport_comparison` booleans and `visual_equivalence_assessed=false`. Proven Win32 contracts and source-backed limitations are recorded in `research/GATE13_WINDOWS_TRANSPORT_RECEIPT_INTEGRITY.md`.
+
+**New external-contract finding:** Microsoft WPF docs specify that `HwndSourceParameters.Width`/`Height` are *device-pixel* sizes, not WPF device-independent units; `HwndTarget.TransformToDevice` is a separate WPF layout/device transform. Thus do not apply an invented double-DPI conversion to HwndSource size. This does NOT prove actual parent/child positioning, MediaElement inner content or visual equivalence.
+
+**Exact next limiting task:** on a qualifying private Windows 11 client with the authorized installed game, run the existing non-disruptive `--transport-probe-only` command documented in `research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md` and save the actual receipt outside Git. Compare raw requested/observed client+window positions and DPI, then identify the startup-video content distortion cause from that evidence before changing geometry. Recheck normal Windows main-menu/TeamSelect/fresh Squad appearance and multi-second interaction latency. The post-#482 audit remains **OPEN** pending external acceptance; do not relabel a successful probe or hosted package build as user-facing verification.
+
+**Cloud-safe next work while that external path is unavailable:** continue independently source-evidenced Gate-14/15 investigation or deterministic fail-closed tests without touching unknown original behavior; keep the earliest incomplete validation gate at 13 and retain all later gates through 17 as the standing mission. Avoid gratuitous CI or checkpoint commits.
+
+---
+
+# Recovery 405 packaging addendum — original Zurich 36px font fail-closed in Windows release candidate
+
+_8 October 2026 KST. Verified source package guard merged as `08deb86a1a9ff1b83267f02b9d537029fda8da92`._
+
+A source-preserving release candidate follow-through is complete: PR #553 requires the original `original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt` in the frozen Windows 11 distribution and rejects altered bytes by checking source SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. Added package-level regressions require the exact font and fail for both a missing file and a same-size tamper. Exact PR head `8f768473eaf8349a3922dc32f94cc13692500d1d` passed repository asset policy run `37701923921` and Windows release candidate package run `37701923950`; merged as `08deb86a1a9ff1b83267f02b9d537029fda8da92`. No new source media geometry or game behavior was altered.
+
+**Gate 13 and post-#482 audit remain open.** The build/package checks are not real-Windows playability acceptance. Exact next external requirement remains a private, safe `--transport-probe-only` WPF parent/child HWND + DPI receipt (#551), diagnosis/correction of the previously wrong startup movie content based on that evidence, then fresh Windows menu/Squad responsiveness and visual acceptance. The current gate cannot be passed without them; Gate 14–17 remain mission objectives. Additional cloud-safe work-ahead must preserve source evidence and all deferred blockers.
+
+---
+
+# Recovery 405 — exact original 36px Zurich font staged and generic Club.name drawn
+
+_Updated 8 October 2026 KST. Canonical main: `08ad7e953a576151467a8103391e5102d4192556`._
+
+**Gate 13 remains the earliest incomplete validation gate. The post-#482 retrospective audit and actual Windows 11 responsiveness/visual acceptance are still open.**
+
+PR #552 exact source head `970ea1c2334685ae7a60e92fc5f2b1e7b04d2c64` merged to `main` as `08ad7e953a576151467a8103391e5102d4192556` after four successful exact-head checks: repository asset policy `37700777454`, Gate 13 presentation source tests `37700777378`, Windows package `37700777327`, and full reconstruction `37700777348`. These are repository/CI assertions, **not** a fresh external Windows playability receipt.
+
+The authorized original `Fonts/Zurich_BdXCn_BT_36pixel.fnt` is now in `original_assets/source/Fonts/` with manifest provenance. Source bytes are exactly 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`, Git blob SHA-1 `a5127c02be6f6ff20594701e3507afb9e56086b0`. The final Git tree records that exact object; no font substitute was introduced.
+
+The live shared original-management header resource loader now checks that font's source byte count/hash and 2678x38 atlas before loading it. The host renders `frame.presentation.club.name` through the source-closed text overlay at `(172,1,378,32)`, style `0x2102`, white `0xFFFF`. Focused regressions exercise source font, Southport **and Arsenal**, and corrupted-font rejection. Synthetic missing-font harnesses remain fail-closed. Generic source binding is integrated, but there is **no new external human visual acceptance** that fresh Squad is fully recognizable.
+
+**Immediate Gate-13 evidence blocker:** obtain the non-disruptive private Windows 11 `--transport-probe-only` receipt from merged PR #551, capturing real game-parent and WPF child HWNDs, client/window rects, screen origins, and per-window/thread DPI-awareness. Compare actual vs source-proven native movie geometry *before* modifying display content or layout. No actual receipt is present in GitHub; do not infer original frame-content equivalence. Actual normal Windows menu/Squad latency and visual completeness must still be accepted.
+
+**Independent cloud-safe continuation:** the 36 first-parent commits following `b890c578` through Recovery-405 status head `5b8fafe` have been enumerated and classified by exact changed-file scope in the appended retrospective ledger, with unmodeled later-day selector behavior explicitly INCONCLUSIVE/fail-closed. The next limiting source task is the private Windows HWND/DPI transport receipt and external visual/latency acceptance. If this private route is unavailable, preserve the precise blocker and continue only independent evidence-backed audit/regression work, without pretending external acceptance. Gate 13 and Gate 17 stay open; preserve the original-only freeze and cost-controlled CI.
+
+---
+
+# Recovery 404 — startup transport probe merged, original club-name font re-extracted
+
+_Updated 8 October 2026 KST. Canonical main entering this checkpoint: `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0`._
+
+**Gate 13 remains the earliest incomplete gate; the mandatory post-#482 audit and external Windows 11 playability acceptance remain open.** PR #551 added an opt-in diagnostic receipt for the real WPF parent/child window and DPI transport. Exact PR head `98adacf71e8fed800e351231a32a94a1688f2d92` passed asset policy run `37693589352`, Gate-13 presentation run `37693589399`, Windows package run `37693589417`, and reconstruction run `37693589455` (**2,920 tests, 25 skipped, no failures**). The PR merged into `main` as `09ee9e7d6d11b0f8b36b9fd86a3717eee9a3e9a0`. This is diagnostics-only: normal startup geometry unchanged; no private Windows transport receipt or visual acceptance has yet been obtained.
+
+The container process-execution outage from Recovery 403 is no longer present. The authorized 511,121,336-byte Library ZIP at `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip` was materialized and independently verified as SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`. Streaming raw MODE1/2352 extraction of Joliet ISO extent 170896 (76 sectors, 2048 user-data bytes per sector from offset 16) recovered **the exact** `Fonts/Zurich_BdXCn_BT_36pixel.fnt`: 155,544 bytes, SHA-256 `92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df`. This is independent byte verification, not a staged Git asset. A temporary binary exists only in this execution workspace; **do not treat it as a durable source**.
+
+**Current import blocker:** `files__manage_library` could not upload the generated temporary base64 transfer text from the container (`container_session_unavailable`: "No active container session was found for container_path"). The GitHub connector's `create_blob` requires the entire binary/base64 content inline and has no direct trusted container-file ingest; an unverified, manual, or substituted transfer must not be represented as byte-identical staging. The authorized original ZIP remains durable in Library. Exact reproduction and remaining action are recorded in `research/GATE13_RECOVERY404_FONT_AND_TRANSPORT.md`.
+
+**Exact next actionable work:** (1) establish a binary-safe Git transfer for the verified 36px font; stage it at `original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt` with provenance and manifest, then wire the existing explicit club-name font/overlay into the live header and test Southport **and another club**; (2) independently capture a private, non-disruptive Windows 11 `--transport-probe-only` receipt through the merged PR #551 diagnostic, compare actual child/parent HWND rectangles and DPI awareness before changing FMV geometry or pixel treatment; (3) reconcile the post-#482 audit ledger including post-audited commits and retest normal Windows playability/latency. No visual-equivalence or Gate-13 closure claim is authorized yet. Preserve the original-only modernization freeze and avoid CI/commit spam.
+
+---
 
 # Recovery 403 — management redraw hot path reduced; primary club-name raster contract closed
 

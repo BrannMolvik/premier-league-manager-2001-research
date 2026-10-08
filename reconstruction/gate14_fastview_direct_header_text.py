@@ -2,9 +2,10 @@
 
 The outer FastViewPanel constructor creates two direct TextControls immediately
 after PossessionFigures and before the FastViewScores wrapper. Their runtime
-string semantics are now source-closed. Pixels remain fail-closed because the
-exact source font bytes have been verified but are not yet provenance-staged in
-the repository.
+string semantics are source-closed. The corrected original style-3
+Zurich_XCn_BT_16pixel.fnt is provenance-staged and supports a separately
+verified two-line header raster; automatic match-metadata binding and
+complete FastView presentation remain unresolved.
 """
 from __future__ import annotations
 

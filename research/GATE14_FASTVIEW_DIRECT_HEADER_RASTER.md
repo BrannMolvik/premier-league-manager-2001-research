@@ -70,3 +70,41 @@ existing FastView component raster set immediately after PossessionFigures and
 before the FastViewScores subpanel family, following the already source-closed
 outer draw order. Preserve unresolved cross-component overlaps rather than
 choosing winners.
+
+
+---
+
+## Recovery 411 source-evidence supersession (8 October 2026 KST)
+
+**The 18-pixel font attribution and its y=50/y=68 placement calculations above
+are historical, superseded claims. Do not use them to implement or validate
+the direct FastView header.** Recovery 375 independently followed the
+canonical original executable's selector-3 initializer: dispatcher selector
+3 returns wrapper 0x87BE30, associated with font object 0x8CAB80; path
+literal 0x839E30 is built at 0x6044AC and loaded at 0x6044F9
+through 0x657650. That source path is
+Fonts\Zurich_XCn_BT_16pixel.fnt, **not** the earlier 18-pixel file.
+The 18-pixel literal at 0x839E10 belongs to a different font object,
+0x8BD970. See the dated Recovery 375 correction in
+research/GATE14_FASTVIEW_DIRECT_HEADER_TEXT.md.
+
+The corrected, provenance-staged style-3 font is **75,217 bytes**,
+SHA-256 e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18,
+with **1261 x 17** atlas and **18-pixel** native line height. Thus the
+original (250,45)-(550,75) header line centers at **y=51**, and the
+(250,70)-(550,86) line at **y=69** before clipping to y=70..85.
+The current implementation and corresponding tests in
+reconstruction/gate14_fastview_direct_header_raster.py and
+reconstruction/test_gate14_fastview_direct_header_raster.py use this
+corrected font contract. The independent header plane was integrated
+into the FastView component set as documented in
+research/GATE14_FASTVIEW_DIRECT_HEADER_COMPONENT.md, after possession
+figures and before score planes, without guessing cross-component overlap.
+
+This is a **static reconciliation of previously verified executable/source
+evidence and currently committed code/tests**, not fresh source
+disassembly, new test execution, Windows GUI acceptance, or a newly
+complete FastView frame. Runtime metadata binding, overlap fidelity,
+and complete FastView presentation remain unresolved; Gate 13 still
+requires genuine Windows 11 transport/DPI and normal-play acceptance;
+Gates 14-17 and the Windows 11 release remain incomplete.

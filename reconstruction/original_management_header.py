@@ -156,6 +156,7 @@ class OriginalManagementHeaderResources:
     font: EAFont
     date_font: EAFont
     club_font: EAFont | None = None
+    club_name_font: EAFont | None = None
 
     def __post_init__(self) -> None:
         if (self.left_anim.width, self.left_anim.height) != HEADER_LEFT_RESOURCE.size:
@@ -164,6 +165,10 @@ class OriginalManagementHeaderResources:
             raise OriginalManagementHeaderError("back_4 decoded geometry mismatch")
         if (self.date_font.atlas_width, self.date_font.atlas_height) != HEADER_DATE_FONT_ATLAS_SIZE:
             raise OriginalManagementHeaderError("Central date font atlas geometry mismatch")
+        if self.club_name_font is not None and (
+            self.club_name_font.atlas_width, self.club_name_font.atlas_height
+        ) != (2422, 34):
+            raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
 
 
 @dataclass(frozen=True)
@@ -319,6 +324,25 @@ def validate_management_header_date_font(source_root: str | Path) -> EAFont:
     font = EAFont.from_bytes(raw)
     if (font.atlas_width, font.atlas_height) != HEADER_DATE_FONT_ATLAS_SIZE:
         raise OriginalManagementHeaderError("Central-date font atlas geometry mismatch")
+    return font
+
+
+def validate_management_header_club_name_font(source_root: str | Path) -> EAFont:
+    """Load the byte-identical 32px font used by the native club caption owner."""
+    path = Path(source_root) / HEADER_CLUB_NAME_FONT_SOURCE_PATH
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError as exc:
+        raise OriginalManagementHeaderError(
+            f"Missing exact original central club-name font: {HEADER_CLUB_NAME_FONT_SOURCE_PATH}"
+        ) from exc
+    if len(raw) != HEADER_CLUB_NAME_FONT_BYTE_SIZE:
+        raise OriginalManagementHeaderError("Club-name font byte-size mismatch")
+    if sha256(raw).hexdigest() != HEADER_CLUB_NAME_FONT_SHA256:
+        raise OriginalManagementHeaderError("Club-name font checksum mismatch")
+    font = EAFont.from_bytes(raw)
+    if (font.atlas_width, font.atlas_height) != (2422, 34):
+        raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
     return font
 
 

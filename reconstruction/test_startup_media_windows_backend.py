@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import base64
 import ctypes
+import json
 import platform
 import subprocess
 import unittest
@@ -71,6 +72,51 @@ class RecordingRunner:
             stderr=self.stderr,
             stdout="",
         )
+
+
+def transport_receipt_json(
+    *,
+    parent_hwnd=12345,
+    child_hwnd=54321,
+    x=80,
+    y=60,
+    width=640,
+    height=480,
+):
+    payload = {
+        "parent_hwnd": parent_hwnd,
+        "child_hwnd": child_hwnd,
+        "requested_child_rect": {"x": x, "y": y, "width": width, "height": height},
+        "parent_window_rect": {
+            "left": 90, "top": 70, "right": 910, "bottom": 710,
+            "width": 820, "height": 640,
+        },
+        "parent_client_rect": {
+            "left": 0, "top": 0, "right": 800, "bottom": 600,
+            "width": 800, "height": 600,
+        },
+        "parent_client_origin_screen": {"x": 100, "y": 100},
+        "child_window_rect": {
+            "left": 100 + x, "top": 100 + y,
+            "right": 100 + x + width, "bottom": 100 + y + height,
+            "width": width, "height": height,
+        },
+        "child_client_rect": {
+            "left": 0, "top": 0, "right": width, "bottom": height,
+            "width": width, "height": height,
+        },
+        "child_client_origin_screen": {"x": 100 + x, "y": 100 + y},
+        "child_offset_from_parent_client": {"x": x, "y": y},
+        "parent_dpi": 96,
+        "child_dpi": 96,
+        "parent_dpi_awareness_context": -4,
+        "child_dpi_awareness_context": -4,
+        "probe_thread_dpi_awareness_context": -4,
+        "parent_dpi_awareness": 2,
+        "child_dpi_awareness": 2,
+        "probe_thread_dpi_awareness": 2,
+    }
+    return "FM2001_TRANSPORT_RECEIPT:" + json.dumps(payload, separators=(",", ":"))
 
 
 class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
@@ -291,6 +337,124 @@ class WindowsWpfStartupMediaBackendTests(unittest.TestCase):
         self.assertIn("ErrorException.Message", script)
         self.assertIn("DispatcherFrame", script)
         self.assertIn("RootVisual", script)
+        self.assertIn("GetWindowDpiAwarenessContext", script)
+        self.assertIn("GetWindowRect", script)
+        self.assertIn("ClientToScreen", script)
+        self.assertIn("FM2001_TRANSPORT_RECEIPT:", script)
+        self.assertNotIn("FM2001_STARTUP_CAPTURE_TRANSPORT", kwargs["env"])
+
+    def test_transport_receipt_capture_is_opt_in_and_records_actual_hwnd_dpi_state(self):
+        class ReceiptRunner(RecordingRunner):
+            def __call__(self, command, **kwargs):
+                self.calls.append((command, kwargs))
+                env = kwargs["env"]
+                stdout = transport_receipt_json(
+                    parent_hwnd=int(env["FM2001_STARTUP_PARENT_HWND"]),
+                    x=int(env["FM2001_STARTUP_MEDIA_X"]),
+                    y=int(env["FM2001_STARTUP_MEDIA_Y"]),
+                    width=int(env["FM2001_STARTUP_MEDIA_WIDTH"]),
+                    height=int(env["FM2001_STARTUP_MEDIA_HEIGHT"]),
+                )
+                return SimpleNamespace(returncode=0, stderr="", stdout=stdout)
+
+        runner = ReceiptRunner()
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows",
+            runner=runner,
+        )
+        backend.bind_parent_window(12345, x=80, y=60, width=640, height=480)
+        backend.enable_transport_receipt_capture()
+
+        self.assertTrue(backend.play(derivative(Path(r"C:\private\easp.mp4"))))
+        self.assertEqual(
+            runner.calls[0][1]["env"]["FM2001_STARTUP_CAPTURE_TRANSPORT"],
+            "1",
+        )
+        self.assertEqual(len(backend.transport_receipts), 1)
+        receipt = backend.transport_receipts[0]
+        self.assertEqual(receipt["sequence"], 0)
+        self.assertEqual(receipt["source_path"], "FMV/test.tgq")
+        self.assertEqual(receipt["parent_hwnd"], 12345)
+        self.assertEqual(receipt["child_hwnd"], 54321)
+        self.assertEqual(receipt["child_offset_from_parent_client"], {"x": 80, "y": 60})
+        self.assertEqual(receipt["child_window_rect"]["width"], 640)
+        self.assertEqual(receipt["parent_dpi"], 96)
+        self.assertEqual(receipt["child_dpi"], 96)
+        self.assertEqual(receipt["parent_dpi_awareness"], 2)
+        self.assertEqual(receipt["child_dpi_awareness"], 2)
+        self.assertTrue(receipt["transport_comparison"]["offset_matches_request"])
+        self.assertTrue(receipt["transport_comparison"]["window_size_matches_request"])
+        self.assertFalse(receipt["transport_comparison"]["visual_equivalence_assessed"])
+
+    def test_transport_receipt_rejects_inconsistent_win32_structural_fields(self):
+        # Reject internally self-contradictory captures instead of treating
+        # presence of fields as sufficient Windows evidence.
+        def mutate_edge(row):
+            row["child_window_rect"]["right"] += 1
+
+        def mutate_client_origin(row):
+            row["parent_client_rect"]["top"] = 1
+            row["parent_client_rect"]["height"] -= 1
+
+        def mutate_child_offset(row):
+            row["child_offset_from_parent_client"]["x"] += 1
+
+        def mutate_invalid_awareness(row):
+            row["child_dpi_awareness"] = -1
+
+        for label, mutate, error in (
+            ("rect edge", mutate_edge, "inconsistent child_window_rect edges"),
+            ("client origin", mutate_client_origin, "nonzero parent_client_rect origin"),
+            ("child offset", mutate_child_offset, "inconsistent child offset"),
+            ("invalid DPI context", mutate_invalid_awareness, "invalid child_dpi_awareness enumeration"),
+        ):
+            with self.subTest(label=label):
+                row = json.loads(transport_receipt_json().split(":", 1)[1])
+                mutate(row)
+                backend = WindowsWpfStartupMediaBackend(
+                    platform_system="Windows", runner=RecordingRunner()
+                )
+                backend.enable_transport_receipt_capture()
+                completed = SimpleNamespace(
+                    stdout="FM2001_TRANSPORT_RECEIPT:" + json.dumps(row)
+                )
+                with self.assertRaisesRegex(WindowsStartupMediaBackendError, error):
+                    backend._record_transport_receipt(
+                        completed, derivative(Path(r"C:\\private\\easp.mp4"))
+                    )
+                self.assertEqual(backend.transport_receipts, ())
+
+    def test_transport_receipt_preserves_observed_dpi_and_size_disagreements(self):
+        # Requested geometry and measured geometry may differ in real Windows.
+        # A coherent mismatch must remain usable diagnostic evidence, not be
+        # silently forced to 640x480 or promoted to visual acceptance.
+        row = json.loads(transport_receipt_json().split(":", 1)[1])
+        row["child_window_rect"]["right"] += 80
+        row["child_window_rect"]["width"] += 80
+        row["child_client_rect"]["right"] += 80
+        row["child_client_rect"]["width"] += 80
+        row["parent_dpi"] = 144
+        row["child_dpi"] = 96
+        backend = WindowsWpfStartupMediaBackend(
+            platform_system="Windows", runner=RecordingRunner()
+        )
+        backend.enable_transport_receipt_capture()
+        backend._record_transport_receipt(
+            SimpleNamespace(stdout="FM2001_TRANSPORT_RECEIPT:" + json.dumps(row)),
+            derivative(Path(r"C:\\private\\easp.mp4")),
+        )
+        receipt = backend.transport_receipts[0]
+        self.assertEqual(receipt["child_window_rect"]["width"], 720)
+        self.assertEqual(
+            receipt["transport_comparison"],
+            {
+                "offset_matches_request": True,
+                "window_size_matches_request": False,
+                "client_size_matches_request": False,
+                "parent_child_dpi_equal": False,
+                "visual_equivalence_assessed": False,
+            },
+        )
 
     def test_failed_wpf_process_surfaces_exit_and_stderr(self):
         backend = WindowsWpfStartupMediaBackend(

@@ -236,7 +236,25 @@ def static_text_trace_report(
         "direct_textcontrol_calls_not_argument_proof": calls,
         "static_text_control_geometry_recovered": True,
         "static_text_source_order_recovered": True,
-        "argument_positions_recovered": False,
+        # Independently recovered from the checksum-verified shipped executable
+        # in Recovery 406, NOT inferred from these linear predecessor windows.
+        "argument_positions_recovered": True,
+        "verified_constructor_abi_provenance": (
+            "research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md"
+        ),
+        "verified_constructor_this_register": "ecx",
+        "verified_constructor_stack_cleanup_bytes": 0x14,
+        "verified_constructor_five_argument_roles": (
+            "base_control_configuration",
+            "rectangle_pointer",
+            "native_control_flags",
+            "source_string_object",
+            "font_selector_index",
+        ),
+        "verified_font_selector_wrapper_vas": (
+            0x87BEA0, 0x87BE90, 0x87BE80, 0x87BE30, 0x87BDF0
+        ),
+        "verified_league_table_row_heading_font_selector": 0,
         "user_facing_semantics_recovered": False,
         "final_text_values_recovered": False,
         "font_style_color_recovered": False,
@@ -246,10 +264,12 @@ def static_text_trace_report(
         "complete_fastview_frame_recovered": False,
         "gate14_complete": False,
         "evidence_limit": (
-            "Bounded canonical source windows and decoded direct TextControl calls "
-            "only. Linear predecessor instructions are not proof of argument "
-            "positions, text values/meaning, style, font, color, runtime update "
-            "semantics, pixels, complete score-subpanel output or Gate 14."
+            "Independent Recovery-406 original-source disassembly proves the "
+            "five-argument generic constructor ABI and LeagueTable selector 0. "
+            "This reporter's bounded caller windows and their linear "
+            "predecessor instructions alone are not proof of argument positions, "
+            "text values/meaning, remaining font identities, color, runtime "
+            "update semantics, pixels, complete score-subpanel output or Gate 14."
         ),
     }
 

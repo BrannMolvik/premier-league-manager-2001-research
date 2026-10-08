@@ -61,7 +61,7 @@
     },
     {
       "gap": "Original front-end / management presentation fidelity",
-      "planned_gate": "13, then 15 for true secondary refinements",
+      "planned_gate": "13, then 15 for secondary refinements",
       "owner_gate": 15,
       "status": "pending_final_acceptance",
       "fallback_described_as_original": false,
