@@ -1,5 +1,20 @@
 # Local recovery integration — 9 October 2026
 
+**Requested local playtest delivered:** fixed source snapshot `170970e5` is at
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-170970e5`.
+It includes normal intros, an explicitly separate quick/no-intro diagnostic
+launcher, and the already-approved generic gameplay fallback. Installed Python
+3.13 passed 73 targeted snapshot tests; withdrawn real Windows/Tk production
+menu/management-loader/Squad checks showed all 30 Southport players and public
+row press/drop; disk save/fresh-process reload retained XI11/bench5. Separate
+fallback calculated Southport/Telford on 19 August, saved and freshly reloaded.
+Both intro derivatives passed actual-user cache verification. No visible/audio
+or ordinary NEXT/MATCH acceptance is claimed: original-look NEXT remains
+unbound. This is a presentation/lineup test plus separate developer fallback,
+not a complete playable original-look release. Private `VALIDATION.txt` and logs
+retain the exact scope. No native original, security change, main merge or
+agent-runtime change.
+
 **9 October continuation:** native bounded NEXT day-owner integration now
 preserves the actual two-pass primary League order (all accepted AI first,
 human modal second). 320 bounded canonical executions matched. Canonical
