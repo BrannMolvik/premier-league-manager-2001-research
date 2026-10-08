@@ -101,6 +101,8 @@ HEADER_CAPTION_NATIVE_COLOR_16 = 0xFFFF
 # Recovery 396/398 source-closed central management text controls. Recovery
 # 402 integrates y=34/y=51 only for the bounded source-closed clear direct
 # fixed-League selector; symbolic/unknown runtime cases remain fail-closed.
+# Recovery 406 corrects exact font file/object pairings by tracing the
+# preceding source-path construction into each native 0x657650 loader call.
 HEADER_CLUB_NAME_RECT = (172, 1, 378, 32)
 HEADER_CLUB_NAME_RAW_STYLE = 0x2102
 HEADER_CLUB_NAME_NATIVE_COLOR_16 = 0xFFFF
@@ -108,11 +110,11 @@ HEADER_CLUB_NAME_REFRESH_VA = 0x432A20
 HEADER_CLUB_NAME_ACCESSOR_VA = 0x40DA50
 HEADER_CLUB_NAME_FONT_LOADER_VA = 0x6043F2
 HEADER_CLUB_NAME_FONT_OBJECT_VA = 0x8F21B0
-HEADER_CLUB_NAME_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_36pixel.fnt"
+HEADER_CLUB_NAME_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_32pixel.fnt"
 HEADER_CLUB_NAME_FONT_SHA256 = (
-    "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df"
+    "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36"
 )
-HEADER_CLUB_NAME_FONT_BYTE_SIZE = 155_544
+HEADER_CLUB_NAME_FONT_BYTE_SIZE = 136_128
 
 HEADER_MATCH_COMPETITION_RECT = (172, 34, 378, 16)
 HEADER_MATCHUP_RECT = (172, 51, 378, 16)
@@ -125,12 +127,13 @@ HEADER_DATE_TEMPLATE_GLOBAL_VA = 0x983FE4
 HEADER_DATE_ENGLISH_INDEX = 517
 HEADER_DATE_TEMPLATE = "Today is %D %M %Yf"
 HEADER_DATE_FONT_OBJECT_VA = 0x8CAB80
-HEADER_DATE_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_18pixel.fnt"
+HEADER_DATE_FONT_LOADER_VA = 0x6044F4
+HEADER_DATE_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_16pixel.fnt"
 HEADER_DATE_FONT_SHA256 = (
-    "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a"
+    "e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18"
 )
-HEADER_DATE_FONT_BYTE_SIZE = 79_734
-HEADER_DATE_FONT_ATLAS_SIZE = (1366, 19)
+HEADER_DATE_FONT_BYTE_SIZE = 75_217
+HEADER_DATE_FONT_ATLAS_SIZE = (1261, 17)
 HEADER_DATE_MONTH_NAMES = (
     "January",
     "February",
@@ -164,7 +167,7 @@ class OriginalManagementHeaderResources:
             raise OriginalManagementHeaderError("Central date font atlas geometry mismatch")
         if self.club_name_font is not None and (
             self.club_name_font.atlas_width, self.club_name_font.atlas_height
-        ) != (2678, 38):
+        ) != (2422, 34):
             raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
 
 
@@ -325,7 +328,7 @@ def validate_management_header_date_font(source_root: str | Path) -> EAFont:
 
 
 def validate_management_header_club_name_font(source_root: str | Path) -> EAFont:
-    """Load only the byte-identical source 36px Zurich Bold club-name font."""
+    """Load only the byte-identical source 32px Zurich Bold club-name font."""
     path = Path(source_root) / HEADER_CLUB_NAME_FONT_SOURCE_PATH
     try:
         raw = path.read_bytes()
@@ -338,7 +341,7 @@ def validate_management_header_club_name_font(source_root: str | Path) -> EAFont
     if sha256(raw).hexdigest() != HEADER_CLUB_NAME_FONT_SHA256:
         raise OriginalManagementHeaderError("Club-name font checksum mismatch")
     font = EAFont.from_bytes(raw)
-    if (font.atlas_width, font.atlas_height) != (2678, 38):
+    if (font.atlas_width, font.atlas_height) != (2422, 34):
         raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
     return font
 

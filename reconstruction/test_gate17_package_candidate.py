@@ -73,6 +73,24 @@ class Gate17PackageCandidateTests(unittest.TestCase):
             with self.assertRaisesRegex(PackageCandidateError, "checksum mismatch"):
                 validate_distribution(dist, "FM2001-Windows11.exe")
 
+    def test_corrected_native_club_font_32px_package_identity(self):
+        relative = "original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt"
+        self.assertIn(relative, REQUIRED_BUNDLED_FILES)
+        self.assertEqual(
+            REQUIRED_EXACT_BUNDLED_SHA256[relative],
+            "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36",
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            dist = self._distribution(Path(temp))
+            staged = dist / relative
+            self.assertEqual(staged.stat().st_size, 136_128)
+            self.assertTrue(validate_distribution(dist, "FM2001-Windows11.exe"))
+            data = bytearray(staged.read_bytes())
+            data[0] ^= 1
+            staged.write_bytes(data)
+            with self.assertRaisesRegex(PackageCandidateError, "checksum mismatch"):
+                validate_distribution(dist, "FM2001-Windows11.exe")
+
     def test_distribution_rejects_user_owned_game_data(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
