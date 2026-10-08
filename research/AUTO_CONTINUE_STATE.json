@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 421,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 421 2026-10-09 KST: checked main ref exact SHA 95c9609f388f23729bb7e5302db88c6b32f23d4c and research/CURRENT_STATE.md; latest source-tracer PR #559 already merged, no new source findings. Retried trivial container process ['/bin/echo','fm2001 recovery 421 preflight'], returned caas.internal.errors.ClientError before execution. No usable private executable/disassembly, tests, or native Windows GUI access; don't invent source identities, re-merge stale PRs, or make useless checkpoint changes to main. Next substantive task is working private source process, original footballmanager.exe SHA256 guard, Gate14 0x87BEA0 index0 font initializer/file then LeagueTable arg4 and ScoreComposite selectors; Gate13 external Win11 HWND/DPI and true visual/menu/Squad responsiveness acceptance remains outstanding. Persist runtime in working not completed.",
+  "recovery_generation": 422,
+  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
+  "note": "Recovery 422 2026-10-09 KST: new chat after stale-repository-activity-missing-worker-tab (21m; missing_worker_tab_id none). Verified current main 95c9609f388f23729bb7e5302db88c6b32f23d4c; read CURRENT_STATE.md, CONTINUATION_INSTRUCTIONS.md, AUTO_CONTINUE.md; work resumes without reopening completed milestones. Gate13 remains active validation gate, and Gate14 source tasks require independently verified original private source. Runtime continuous/working; only Gate17 verified release may be completed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
