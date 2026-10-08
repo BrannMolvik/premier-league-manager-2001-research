@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 409: Full reconstruction CI 37722819830 has completed FAILURE at exact PR #557 head d4a6f94, despite targeted Gate14 and asset policy SUCCESS. Diagnose failure logs first; do not claim full pass. External Gate13 private Win11 HWND/DPI and menu/Squad responsiveness acceptance still missing. Current container shell ClientError confirmed. Then continue independent source-backed work and full Gates 13–17 mission.",
+  "active_task": "Recovery 409: main e7c89e9. Full CI run 37722819830 failed 2 Gate15 planned-gate mismatch tests (2929 tests; 25 skipped). The sole root cause is stale JSON label '13, then 15 for true secondary refinements' vs exact FIDELITY_GAPS source '13, then 15 for secondary refinements'. PR #558 exact head 2a65a87 updates the JSON only; read-only 12/12 ledger cross-check has no mismatches/missing/extra, full CI run 37724541991 currently in progress, not asserted passed. After green exact-head merge, checkpoint canonical status and resume source-backed work. Private original disassembly blocked by container ClientError, actual Win11 Gate13 acceptance missing; Gates13-17 not complete.",
   "last_known_main_head": "e7c89e9d34ac4db7c92aca51f9971d7218b2de6e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 409,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Verified main e7c89e9. Previous full CI outcome is failure, not pending. Investigate failing tests and identify whether caused by Gate14 report update or preexisting failure. Container execution ClientError persists.",
+  "note": "Source of truth main unchanged e7c89e9 until PR #558 verified merge. Avoid duplicate CI while 37724541991 is active. Sandbox still ClientError. Earlier PR #557 full 37722819830 failed only ledger label drift, not runtime regression.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
