@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 407: Main 55a8430 source-trace committed. Active validation Gate13 requires private Win11 --transport-probe-only HWND/DPI receipt and normal menu/Squad visual+latency acceptance. Independent Gate14 work-ahead: source-trace five TextControl font selector globals and text string producers from hash-verified original executable (research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md). Do not enable guessed rendering. Mission remains through Gate17.",
-  "last_known_main_head": "55a8430852a70155bcd9c975220845e86717602d",
+  "active_task": "Recovery 407 main a34db9f: prior source verified font selectors 1 (0x87BE90 Zurich bold 18px) and 3 (0x87BE30 Zurich 16px) reconciled. Still Gate13 external Win11 HWND/DPI movie/menu/Squad visual+latency blocker. Gate14 exact next task when execution healthy: verified PE32, trace index0 0x87BEA0 initializer/font loader and LeagueTable text producer, then owner-bound ScoreComposite indices. Private archive materialized but sandbox ClientError on trivial processes. Continue full Gates 13-17 mission.",
+  "last_known_main_head": "a34db9f4786b9c5636af6fdd31c0fb8bda46f0fb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 407,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "New chat recovered from runtime generation 406; latest main 55a8430. Research source-backed Gate14 continuation with Gate13 Windows external blocker unchanged. Avoid frequent CI/commits.",
+  "note": "Verified research-only main a34db9f persisted trace/CURRENT_STATE/PROGRESS atomically; no CI launched. Private original ZIP 511121336 bytes materialized; shell/Python process ClientError. Avoid redoing verified selector1/3; source-only work remains fail-closed and Windows visual receipt outstanding.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
