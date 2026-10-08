@@ -1,5 +1,17 @@
 # Local recovery integration — 8 October 2026
 
+**Ordinary match-input correction:** the native `PBg::NextGameBtn` trace
+establishes `407C00(0)` accepts eligible substitutes **<= quota**, not exact
+quota. The primary bridge preserves underfilled benches plus the native
+role-one occupancy==1 guard. 280 bounded native guard comparisons passed.
+Untouched canonical Southport XI11/bench2 survived disk save/fresh-process
+reload and calculated its 19 August Conference fixture, with no autofill or
+role reassignment. 325 integrated focused tests passed / 33.275s; expanded
+disk-roundtrip regression also passed separately (25 row-drop tests / .504s).
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md` for the actual event3 background
+control, NEXT/MATCH caption source, outstanding day/UI binding and bounded
+cursor trace. No normal on-screen match/build acceptance is claimed.
+
 **Latest row-interaction checkpoint:** default paired Squad row-name press/drop
 now runs the canonical `4B9350` producer and `4B7500` refresh, rather than a
 toggle/dropdown or autofill. Four hundred bounded native state comparisons

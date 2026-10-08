@@ -6,6 +6,18 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 ## Active gaps
 
+Recovery-branch update, 8 October 2026: the old first-20/top-controls-only
+Squad notes below are historical for this branch. Source-qualified paired
+first/reserve owners now present all Southport/Liverpool players, native
+row-name drops are connected, and retained human inputs preserve an eligible
+underfilled bench. The untouched XI11/bench2 survives disk/fresh reload and
+calculates Southport's first Conference fixture in background checks.
+Ordinary `PBg::NextGameBtn` day/pre-match/UI binding and normal Windows
+playability acceptance remain open; no new original-look playable build is
+claimed. Cursor surface/font geometry is qualified but destination-format
+fill/blend is still bounded. See `GATE13_SQUAD_ROW_DROP.md` and
+`GATE13_ORDINARY_ADVANCE_BOUNDARY.md`; shared font semantics are not changed.
+
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |
 | External Windows front-end/management playability regression (#482) | Real Windows 11 currently shows ~26.301s cold presenter construction, a ~3.355s synchronous New Game world-build transaction, a previously measured ~16.724s broad management-resource load, and a fresh Squad landing whose host draws only top controls despite a populated source-backed 20-row presenter | Gate 13 is reopened. First-screen redraw caches remain present, so the repair must target cold immutable conversion, world-build lifecycle, route-scoped lazy resources, and already-recovered Squad row rendering. Startup FMV WPF playback is visible/audible but its separate-window feel and naive 320x480 Uniform display treatment are not source-qualified. External Windows acceptance is mandatory before reclosure. | 13/14 |

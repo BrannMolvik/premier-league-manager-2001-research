@@ -50,6 +50,21 @@ clears selection and reassigns formation-table slots; that is the defect fixed
 by a read-only native branch. Existing complete XI/bench, ownership,
 availability and Non-EU validation remains conservative/fail-closed; this
 change does not claim to recover every native pre-match acceptance warning.
+The subsequent exact ordinary advance trace corrects one over-strict adapter
+guard: `PBg` vtable `7BEE8C` +10 -> `432690` receives the embedded
+`NextGameBtn` (+524), registered with event 3 at `430995..9B1`, and calls
+`432190`. At `43226E..277` the next-match checks call `407FE0`, whose
+`407FF4..7FFD` invokes `407C00` with argument **0**. `407C00` first requires
+selected/eligible substitute counts to match and checks `418050` per selected
+player; at `407CAD..CD1`, argument 0 bypasses the exact-quota branch and
+returns **selected substitutes <= 408500 quota**. Argument nonzero is the
+separate exact-quota case. Thus the primary read-only bridge must accept an
+eligible underfilled bench, not manufacture players or require the maximum.
+The same chain calls `407770(1)`; `4077C4..7FDB` tests native role-one
+occupancy ==1. Retain this goalkeeper guard along with complete XI/ownership,
+availability and Non-EU guards. The ordinary advance control itself is not
+yet integrated: tomorrow-match warning/acceptance and day/UI lifecycle still
+need binding before claiming user-visible normal play.
 Native role bytes/flags and ordered roster already survive schema48, so no
 new save schema or synthetic report context is required.
 

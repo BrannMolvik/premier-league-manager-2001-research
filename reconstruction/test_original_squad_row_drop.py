@@ -200,9 +200,23 @@ class NativeHumanSelectionTests(unittest.TestCase):
 
     def test_partial_native_bench_is_not_autofilled_or_reassigned(self):
         c = self.controller(bench=2)
-        with self.assertRaisesRegex(ValueError, 'retained 11 and 2'):
-            c.current_selection()
+        selected = c.current_selection()
+        self.assertEqual(len(selected.lineup.substitutes), 2)
+        self.assertEqual(len(selected.participants), 13)
         self.assertEqual(sum(p.match_substitute_available for p in c.state.ordered_club_roster(1)), 2)
+
+    def test_empty_native_bench_is_valid_but_excess_or_missing_goalkeeper_is_not(self):
+        c = self.controller(bench=0)
+        self.assertEqual(len(c.current_selection().participants), 11)
+        c = self.controller(bench=5)
+        next(p for p in c.state.ordered_club_roster(1)
+             if not p.match_active and not p.match_substitute_available).set_match_substitute_available()
+        with self.assertRaisesRegex(ValueError, 'at most 5'):
+            c.current_selection()
+        c = self.controller()
+        next(p for p in c.state.ordered_club_roster(1) if p.current_position == 1).current_position = 2
+        with self.assertRaisesRegex(ValueError, 'role-one'):
+            c.current_selection()
 
     def test_live_drag_updates_owner_and_saved_human_ids(self):
         c = self.controller(bench=2)
@@ -273,23 +287,29 @@ class NativeRowSaveTests(unittest.TestCase):
     def test_native_drop_role_flags_order_and_match_inputs_survive_reload(self):
         from internal_save import dumps_human_gameplay, loads_human_gameplay
         from test_internal_save import InternalSaveTests, Database, coefficient_matrix
-        c = InternalSaveTests().build_controller()
-        c.state.native_squad_first_formations[1] = 0
-        c.original_squad_membership = c.state.original_primary_squad_membership(1, substitute_quota=5)
-        self.assertTrue(c.drop_original_squad_row(0, 11))
-        before = tuple((p.index,p.match_selection_state_code,p.current_position,p.position_aux_code,
-                        p.saved_reserve_role_152,p.saved_reserve_aux_153)
-                       for p in c.state.ordered_club_roster(1))
-        expected = c.current_selection()
-        restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
-                                       dumps_human_gameplay(c))
-        self.assertEqual(before, tuple((p.index,p.match_selection_state_code,p.current_position,p.position_aux_code,
-                        p.saved_reserve_role_152,p.saved_reserve_aux_153)
-                       for p in restored.state.ordered_club_roster(1)))
-        actual = restored.current_selection()
-        self.assertEqual(actual.lineup, expected.lineup)
-        self.assertEqual(tuple(p.index for p in actual.participants),
-                         tuple(p.index for p in expected.participants))
+        for bench_count in (2, 5):
+            with self.subTest(bench_count=bench_count):
+                c = InternalSaveTests().build_controller()
+                c.state.native_squad_first_formations[1] = 0
+                bench = [p for p in c.state.ordered_club_roster(1) if p.match_substitute_available]
+                for p in bench[bench_count:]:
+                    p.clear_match_selection(reset_position=True)
+                c.original_squad_membership = c.state.original_primary_squad_membership(1, substitute_quota=5)
+                self.assertTrue(c.drop_original_squad_row(0, 11))
+                before = tuple((p.index,p.match_selection_state_code,p.current_position,p.position_aux_code,
+                                p.saved_reserve_role_152,p.saved_reserve_aux_153)
+                               for p in c.state.ordered_club_roster(1))
+                expected = c.current_selection()
+                restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                               dumps_human_gameplay(c))
+                self.assertEqual(before, tuple((p.index,p.match_selection_state_code,p.current_position,p.position_aux_code,
+                                p.saved_reserve_role_152,p.saved_reserve_aux_153)
+                               for p in restored.state.ordered_club_roster(1)))
+                actual = restored.current_selection()
+                self.assertEqual(len(actual.lineup.substitutes), bench_count)
+                self.assertEqual(actual.lineup, expected.lineup)
+                self.assertEqual(tuple(p.index for p in actual.participants),
+                                 tuple(p.index for p in expected.participants))
 
 
 if __name__ == '__main__':

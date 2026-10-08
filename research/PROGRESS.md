@@ -1,5 +1,19 @@
 ### 8 October 2026 KST — Recovery 399 selector trace corrected before implementation
 
+Local Codex recovery checkpoint on `codex/gate13-windows-playability-recovery`:
+native paired row drops/read-only human inputs pushed as `3aae0312` (400
+bounded drop comparisons). The subsequent ordinary background advance trace
+corrects an over-strict exact-bench guard: `407C00(0)` allows <=quota and
+`407770(1)` requires role-one count1. 280 native guard comparisons pass.
+Untouched canonical Southport XI11/bench2 now saves, fresh-process reloads
+and calculates its first Conference fixture without selection/role writes.
+325 integrated focused tests pass; broader 3,026-test run retains only the
+previously recorded 3 failures/1 error in disjoint Gate17 package-lock digest
+checks. Actual NextGameBtn event3 day/UI binding and normal-game acceptance
+remain required; source-only cursor format evidence is not promoted to pixels.
+No main merge, agent-runtime change, native process launch or playable build
+claim. See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md` for the exact resume boundary.
+
 Recovery 399 resumed from `de130503546f3a49db8e6d8a9e7aa133148d13a0`, reverified canonical `footballmanager.exe` as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, and merged the initial management-header selector trace as `671f98492661a43ae07ea60517971cf66d2916dc`. A subsequent instruction-level verification pass caught a material branch-direction error in that trace **before any renderer implementation**.
 
 The corrected `0x615C50` behavior skips a node when `node+0x08` is already non-null and, after `0x514520` invokes Side resolvers, returns the current node only when `node+0x08` remains null. `0x514520` itself does not allocate the link. `Side::+0x00` at `0x510320` can reach `0x615F40`, which can call `0x510BA0` and create/insert the linked 0x1c schedule object. The common direct-ClubRef `0x510B20` predicate is still source-closed as zero once reached, but direct fixed-League participants alone do not prove the earlier linked-state acceptance condition.

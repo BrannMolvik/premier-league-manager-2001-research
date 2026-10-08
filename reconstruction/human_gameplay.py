@@ -1382,11 +1382,16 @@ class HumanGameplayController:
         substitutes = tuple(p for p in roster if p.match_substitute_available)
         competition = self._human_selection_competition()
         quota = resolved_substitute_quota(int(competition.substitute_quota))
-        if len(starters) != 11 or len(substitutes) != quota:
-            raise ValueError(f'Native human selection requires 11 starters and {quota} substitutes; '
+        # Ordinary PBg 432190 -> 407FE0 -> 407C00(0) permits an underfilled
+        # eligible bench; only its nonzero argument requires the exact quota.
+        if len(starters) != 11 or len(substitutes) > quota:
+            raise ValueError(f'Native human selection requires 11 starters and at most {quota} substitutes; '
                              f'retained {len(starters)} and {len(substitutes)}')
+        if sum(p.current_position == 1 for p in starters) != 1:
+            raise ValueError('Native human selection requires exactly one role-one starter')
         participants = collect_match_participants(self.human.club_id, roster)
-        if len(participants) != 11 + quota or len({p.index for p in participants}) != len(participants):
+        if (len(participants) != 11 + len(substitutes)
+                or len({p.index for p in participants}) != len(participants)):
             raise RuntimeError('Native human participant ownership is incomplete')
         if any(p.base_match_unavailable for p in participants):
             raise ValueError('Native human selected player is unavailable')
