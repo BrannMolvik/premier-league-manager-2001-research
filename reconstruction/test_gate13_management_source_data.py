@@ -548,6 +548,26 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         with self.assertRaisesRegex(ManagementPresentationError, "absent or ambiguous"):
             ManagementSourceDataBridge(controller).pending_fixture()
 
+    def test_squad_numbers_are_club_relative_not_guessed_primary_or_zero(self):
+        controller = FakeController()
+        player = controller._squad[0]
+        bridge = ManagementSourceDataBridge(controller)
+        self.assertEqual(bridge.squad_rows()[0].club_relative_assignment, player.shirt_number)
+        player.club_id = 11
+        self.assertIsNone(bridge.squad_rows()[0].club_relative_assignment)
+        player.alternate_shirt_number = 0
+        self.assertEqual(bridge.squad_rows()[0].club_relative_assignment, 0)
+        player.alternate_shirt_number = 255
+        self.assertEqual(bridge.squad_rows()[0].club_relative_assignment, 255)
+        player.alternate_shirt_number = -1
+        with self.assertRaises(ManagementPresentationError):
+            bridge.squad_rows()
+        del player.alternate_shirt_number
+        for value in (None, True, -1, 256):
+            player.shirt_number = value
+            with self.assertRaises(ManagementPresentationError):
+                bridge.squad_rows()
+
     def test_squad_projection_retains_recovered_neutral_runtime_fields(self):
         bridge = ManagementSourceDataBridge(FakeController())
 

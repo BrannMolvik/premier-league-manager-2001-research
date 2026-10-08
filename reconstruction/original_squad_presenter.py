@@ -2,8 +2,8 @@
 
 This module consumes immutable SquadRowView-style objects and exposes only the
 row geometry/fields recovered from PSquadPlayerRow and PSCFRow. It deliberately
-does not choose first-team versus reserve membership, resolve the club-relative
-assignment selector, name the native status icon categories, or invent scrolling.
+does not choose first-team versus reserve membership, invent a missing club-relative
+shirt byte, name the native status icon categories, or invent scrolling.
 """
 from __future__ import annotations
 
@@ -55,6 +55,7 @@ class OriginalSquadRowSnapshot:
     recent_form_average: float
     current_role_rating: int
     native_status_frame_index: int | None
+    club_relative_assignment: int | None = None
 
 
 @dataclass(frozen=True)
@@ -203,6 +204,11 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 raise OriginalSquadPresentationError(str(exc)) from exc
 
         condition = _require_int(getattr(row, "condition", None), label="condition")
+        assignment = getattr(row, "club_relative_assignment", None)
+        if assignment is not None and (
+            type(assignment) is not int or not 0 <= assignment <= 0xFF
+        ):
+            raise OriginalSquadPresentationError("Squad shirt number must be a source byte")
         current_role_rating = _require_int(
             getattr(row, "current_role_rating", None),
             label="current_role_rating",
@@ -230,14 +236,20 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
                 recent_form_average=float(recent_form_average),
                 current_role_rating=current_role_rating,
                 native_status_frame_index=native_status_frame_index,
+                club_relative_assignment=assignment,
             )
         )
 
+    resolved = set(_RESOLVED_PLAYER_COLUMNS)
+    unresolved = _UNRESOLVED_COLUMNS
+    if projected and all(row.club_relative_assignment is not None for row in projected):
+        resolved.add("club_relative_assignment")
+        unresolved = tuple(key for key in unresolved if key != "club_relative_assignment")
     return OriginalSquadViewportSnapshot(
         row_capacity=SQUAD_VISIBLE_ROW_COUNT,
         row_y_origins=tuple(SQUAD_VISIBLE_ROW_Y_ORIGINS),
         player_columns=tuple(
-            _column_snapshot(column, _RESOLVED_PLAYER_COLUMNS)
+            _column_snapshot(column, resolved)
             for column in SQUAD_PLAYER_COLUMNS
         ),
         side_columns=tuple(
@@ -245,5 +257,5 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
             for column in SQUAD_SCF_COLUMNS
         ),
         rows=tuple(projected),
-        unresolved_value_columns=_UNRESOLVED_COLUMNS,
+        unresolved_value_columns=unresolved,
     )

@@ -6,6 +6,14 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 ## Active gaps
 
+9 October Squad number correction: populated club-relative number text is
+now source-bound in both native owners, rather than silently absent. Primary
+club bytes render with the exact recovered control/font/flags; unresolved
+alternate/loan byte contexts stay blank. See `GATE13_SQUAD_NUMBER_TEXT.md`.
+The old immutable170970e5 playtest lacks this correction. Ordinary NEXT/live
+pre-match/modal and manual original-look playability remain unresolved; the
+following historical first-20 wording is not the current paired-list behavior.
+
 Recovery-branch update, 8 October 2026: the old first-20/top-controls-only
 Squad notes below are historical for this branch. Source-qualified paired
 first/reserve owners now present all Southport/Liverpool players, native

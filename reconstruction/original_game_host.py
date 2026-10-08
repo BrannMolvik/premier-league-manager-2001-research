@@ -124,6 +124,7 @@ from original_squad_top_controls import (
 )
 from original_squad_row_style import (
     build_first_roster_column_heading_overlays,
+    build_first_roster_shirt_number_overlays,
     OriginalSquadRowTextResources,
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
@@ -1427,6 +1428,7 @@ class OriginalGameTkHost:
         paired = getattr(frame.presentation, 'paired_squad', None)
         overlays = build_paired_roster_text_overlays(paired, resources) if paired is not None else (
             *build_first_roster_column_heading_overlays(resources),
+            *build_first_roster_shirt_number_overlays(snapshot.rows, resources),
             *build_first_roster_role_overlays(snapshot.rows, resources),
             *build_first_roster_name_overlays(snapshot.rows, resources),
             *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),

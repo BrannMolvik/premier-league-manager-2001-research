@@ -24,6 +24,8 @@ from original_squad_row_style import (
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
     build_first_roster_scf_numeric_overlays,
+    build_first_roster_shirt_number_overlays,
+    select_squad_shirt_number,
     format_squad_display_name,
     format_squad_recent_form,
     format_squad_whole_number,
@@ -37,6 +39,54 @@ from original_squad_row_style import (
 
 
 class OriginalSquadRowStyleTests(unittest.TestCase):
+    def test_shirt_selector_preserves_primary_and_alternate_native_context(self):
+        self.assertEqual(select_squad_shirt_number(registered_club_id=5,
+            represented_club_id=5, primary_number=12, alternate_number=29), 12)
+        self.assertEqual(select_squad_shirt_number(registered_club_id=5,
+            represented_club_id=7, primary_number=12, alternate_number=29), 29)
+        self.assertIsNone(select_squad_shirt_number(registered_club_id=5,
+            represented_club_id=7, primary_number=12))
+        for byte in (0, 40, 255):
+            self.assertEqual(select_squad_shirt_number(registered_club_id=-1,
+                represented_club_id=-1, primary_number=byte), byte)
+        for value in (-1, 256, True, 12.0, '12'):
+            with self.assertRaises(OriginalSquadRowStyleError):
+                select_squad_shirt_number(registered_club_id=5,
+                    represented_club_id=5, primary_number=value)
+        with self.assertRaises(OriginalSquadRowStyleError):
+            select_squad_shirt_number(registered_club_id=65535,
+                represented_club_id=-1, primary_number=12)
+
+    def test_shirt_number_raster_uses_original_font_centering_and_clip(self):
+        from original_squad_row_style import _clip_mask, _rgb_rgba
+        resources = load_verified_squad_row_text_resources(
+            Path(__file__).resolve().parents[1] / 'original_assets/source')
+        for value in (0, 9, 40, 255):
+            with self.subTest(value=value):
+                actual, = build_first_roster_shirt_number_overlays(
+                    (SimpleNamespace(y=154, club_relative_assignment=value),), resources)
+                text = str(value)
+                font = resources.font
+                x = 38 + 22 // 2 - font.measure_text(text) // 2
+                y = 234 + 14 // 2 - font.native_line_height() // 2
+                clipped = _clip_mask(font.render_text_alpha(text), line_x=x,
+                    line_y=y, rect=(38, 234, 22, 14))
+                self.assertEqual((actual.x, actual.y, actual.width, actual.height), clipped[:4])
+                self.assertEqual(actual.rgba, _rgb_rgba(clipped[4], (255, 255, 255)))
+                self.assertEqual(actual.text, text)
+                self.assertEqual(actual.font_source_path, SQUAD_ROW_FONT_SOURCE_PATH)
+
+    def test_shirt_numbers_withhold_unknown_context_and_reject_invalid_bytes(self):
+        resources = load_verified_squad_row_text_resources(
+            Path(__file__).resolve().parents[1] / 'original_assets/source')
+        self.assertEqual(build_first_roster_shirt_number_overlays(
+            (SimpleNamespace(y=154), SimpleNamespace(y=171, club_relative_assignment=None)),
+            resources), ())
+        for value in (True, -1, 256, 12.0):
+            with self.assertRaises(OriginalSquadRowStyleError):
+                build_first_roster_shirt_number_overlays(
+                    (SimpleNamespace(y=154, club_relative_assignment=value),), resources)
+
     def test_rotated_heading_pixels_follow_native_decreasing_y(self):
         from ea_font import EATextMask
         rotated = _rotate_heading_mask(EATextMask(3, 2, bytes((1,2,3,4,5,6))))

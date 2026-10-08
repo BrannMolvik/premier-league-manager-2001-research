@@ -1,5 +1,28 @@
 # Local recovery integration — 9 October 2026
 
+**Latest Squad correction:** original populated number control+1E8 now renders
+in both native list owners.41E3F0/41E3D0 primary/alternate context, signed club
+ID, 18px font, `(1,1,22,14)`, flags24, `%N`, whiteFFFF are source-qualified.
+1,024 canonical bounded comparisons and real withdrawn Windows/Tk Southport
+30-number rendering at1x/1.5x plus disk/fresh-process reload passed.228
+focused tests passed; asset policy passed. Full suite3,070 /166.821s /25 skips
+has the existing three Gate17 package-lock failures/one error plus one
+sandbox-only subprocess path failure (that unchanged test passed outside
+the sandbox). Full suite not green. See `GATE13_SQUAD_NUMBER_TEXT.md`.
+No native original launch, main merge, save-schema or Gate14 implementation
+change. The older delivered170970e5 folder is immutable and lacks this fix.
+
+**Daniel's worker assignment:** autonomous ChatGPT worker is now AUDIT ONLY
+until Daniel explicitly lifts it: no reconstruction implementation, feature,
+asset/schema/save changes or Gate14+ coding. Triple-check original identity,
+owner/caller/CFG/producer semantics and original visible/input/timing behavior;
+report confirmed/probable/unresolved findings, do not implement corrections.
+Role/active-task restriction persisted on `agent-runtime` at
+`0d8f9bab512fbab87ae646de72487da46d4f8435`, with ownership/mode unchanged.
+Direction was also sent to “Recover FM2001 State”; no actual audit result or
+live acknowledgement has yet been observed. Codex keeps the recovery branch
+implementation; ordinary NEXT/modal and normal manual acceptance remain open.
+
 **Requested local playtest delivered:** fixed source snapshot `170970e5` is at
 `C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-170970e5`.
 It includes normal intros, an explicitly separate quick/no-intro diagnostic

@@ -81,6 +81,8 @@ class SquadRowView:
     non_eu: bool = False
     non_eu_registration_expired: bool | None = None
     cup_tied_positive: bool = False
+    # Selected by 41E3F0 -> 41E3D0 for the represented club, not simply +70.
+    club_relative_assignment: int | None = None
 
 
 @dataclass(frozen=True)
@@ -1094,7 +1096,8 @@ class ManagementSourceDataBridge:
         return build_paired_squad_snapshot(membership, rows)
 
     def squad_rows(self) -> tuple[SquadRowView, ...]:
-        self._human_club_id()
+        represented_club_id = self._human_club_id()
+        from original_squad_row_style import select_squad_shirt_number
         squad = getattr(self.controller, "squad", None)
         if not callable(squad):
             raise ManagementPresentationError("Controlled-club roster is unavailable")
@@ -1273,13 +1276,27 @@ class ManagementSourceDataBridge:
                         except (KeyError, TypeError, ValueError, RuntimeError):
                             cup_tied_positive = False
 
+            primary_number = getattr(player, "shirt_number", None)
+            if type(primary_number) is not int or not 0 <= primary_number <= 0xFF:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no valid source shirt-number byte")
+            try:
+                assignment = select_squad_shirt_number(
+                    registered_club_id=registered_club_id,
+                    represented_club_id=represented_club_id,
+                    primary_number=primary_number,
+                    alternate_number=getattr(player, "alternate_shirt_number", None))
+            except ValueError as exc:
+                raise ManagementPresentationError(str(exc)) from exc
+
             rows.append(SquadRowView(
                 source_roster_index=source_index,
                 player_id=player_id,
                 first_name=first_name,
                 surname=surname,
                 full_name=self._player_name(player),
-                shirt_number=int(getattr(player, "shirt_number", 0)),
+                shirt_number=primary_number,
+                club_relative_assignment=assignment,
                 positions=positions,
                 current_position=current_position,
                 assigned_role_abbreviation=abbreviation,

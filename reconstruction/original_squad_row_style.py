@@ -2,7 +2,7 @@
 
 This module keeps recovered ordinary Squad row styling separate from viewport
 membership/filtering. The canonical executable proves the player role/name
-controls plus the paired PSCFRow Condition, recent-form and current-role-rating
+controls and club-relative shirt number plus the paired PSCFRow Condition, recent-form and current-role-rating
 numeric controls. Runtime callers retain the independent reserve-selection
 flags initialized by the original constructor. Bounded/legacy adapters lacking
 those states still withhold an unproven color rather than inventing one.
@@ -74,6 +74,10 @@ SQUAD_COLUMN_HEADINGS = (
 
 SQUAD_ROLE_RECT = (28, 1, 38, 14)
 SQUAD_ROLE_TEXT_FLAGS = 0x24
+SQUAD_SHIRT_NUMBER_RECT = (1, 1, 22, 14)
+SQUAD_SHIRT_NUMBER_TEXT_FLAGS = 0x24
+SQUAD_SHIRT_NUMBER_RGB = (255, 255, 255)
+SQUAD_SHIRT_NUMBER_SELECTOR_VA = 0x41E3F0
 SQUAD_NAME_RECT = (76, 1, 144, 14)
 SQUAD_NAME_TEXT_FLAGS = 0x21
 
@@ -179,6 +183,29 @@ def format_squad_whole_number(value: int) -> str:
     if type(value) is not int:
         raise OriginalSquadRowStyleError("Squad whole-number value must be an integer")
     return str(value)
+
+
+def select_squad_shirt_number(
+    *, registered_club_id: int, represented_club_id: int,
+    primary_number: int | None, alternate_number: int | None = None,
+) -> int | None:
+    """Mirror 41E3F0 -> 41E3D0; never borrow the primary byte on mismatch.
+
+    The original compares DBRPlayer's signed +10 word with the represented
+    club's +4 identity, then reads +70 or +76 respectively. An adapter that
+    has not retained the selected byte withholds the text rather than making
+    an unresolved loan/secondary context display the primary number (or zero).
+    """
+    if type(registered_club_id) is not int or type(represented_club_id) is not int:
+        raise OriginalSquadRowStyleError("Squad shirt selector requires source club IDs")
+    if not -0x8000 <= registered_club_id <= 0x7FFF:
+        raise OriginalSquadRowStyleError("Squad registered club ID must preserve the signed source word")
+    number = primary_number if registered_club_id == represented_club_id else alternate_number
+    if number is None:
+        return None
+    if type(number) is not int or not 0 <= number <= 0xFF:
+        raise OriginalSquadRowStyleError("Squad shirt number must be a source byte")
+    return number
 
 
 def format_squad_recent_form(value: int | float) -> str:
@@ -412,6 +439,7 @@ def build_paired_roster_text_overlays(paired, resources):
     def local(snapshot):
         return (
             *build_first_roster_column_heading_overlays(resources),
+            *build_first_roster_shirt_number_overlays(snapshot.rows, resources),
             *build_first_roster_role_overlays(snapshot.rows, resources),
             *build_first_roster_name_overlays(snapshot.rows, resources),
             *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
@@ -420,6 +448,46 @@ def build_paired_roster_text_overlays(paired, resources):
     dy = SQUAD_RESERVE_ROSTER_RECT.y - SQUAD_FIRST_ROSTER_RECT.y
     return (*local(paired.first), *(replace(o, x=o.x + dx, y=o.y + dy)
                                    for o in local(paired.reserve)))
+
+
+def build_first_roster_shirt_number_overlays(
+    rows, resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Raster populated PSquadPlayerRow +1E8, not a new numbering scheme.
+
+    4897B2..4897F3 supplies the unsigned selected byte, format %N, 94758C
+    font, 0x24 alignment and color 0xFFFF to the (1,1,22,14) control.
+    Native empty owners have no number child; the viewport preserves them by
+    omitting their rows. Zero is a valid retained byte, not an empty sentinel.
+    """
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError("Squad numbers require verified font resources")
+    panel_x, panel_y, _width, _height = SQUAD_PANEL_RECT
+    roster = SQUAD_FIRST_ROSTER_RECT
+    font = resources.font
+    overlays = []
+    for row in tuple(rows):
+        number = getattr(row, "club_relative_assignment", None)
+        if number is None:
+            continue
+        if type(number) is not int or not 0 <= number <= 0xFF:
+            raise OriginalSquadRowStyleError("Squad shirt number must be a source byte")
+        row_y = getattr(row, "y", None)
+        if type(row_y) is not int:
+            raise OriginalSquadRowStyleError("Squad row y must be an integer")
+        x, y, width, height = SQUAD_SHIRT_NUMBER_RECT
+        rect = (panel_x + roster.x + x, panel_y + roster.y + row_y + y, width, height)
+        text = format_squad_whole_number(number)
+        mask = font.render_text_alpha(text)
+        line_x = rect[0] + width // 2 - font.measure_text(text) // 2
+        line_y = rect[1] + height // 2 - font.native_line_height() // 2
+        clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+        if clipped is not None:
+            left, top, out_width, out_height, alpha = clipped
+            overlays.append(OriginalSquadRowTextOverlay(
+                text, left, top, out_width, out_height,
+                _rgb_rgba(alpha, SQUAD_SHIRT_NUMBER_RGB), SQUAD_SHIRT_NUMBER_RGB))
+    return tuple(overlays)
 
 
 def build_first_roster_role_overlays(

@@ -63,6 +63,17 @@ A reusable prompt for a fresh session is stored in `research/HANDOFF_PROMPT.md`.
 
 ## Cross-worker ownership locks
 
+**Daniel's 9 October assignment overrides automatic implementation recovery:**
+the autonomous ChatGPT worker is audit-only until Daniel explicitly lifts the
+restriction. Its role is to verify original executable/resource identities,
+exact owner/caller/CFG producer semantics, and original visible/input/timing
+behavior, then report evidence-backed discrepancies and correction advice.
+It must not implement reconstruction changes or reconcile the active Codex
+recovery branch. Preserve historical independent later-gate work; do not
+continue later-gate coding. Codex retains the actual original-look Windows
+fixes. The runtime role/task restriction is checkpointed at0d8f9bab; an old
+generic recovery prompt does not lift this user-directed scope.
+
 Before choosing work from the earliest incomplete gate, read
 `research/WORK_OWNERSHIP.json`.
 
