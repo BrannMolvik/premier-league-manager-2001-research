@@ -35,6 +35,64 @@ to the ordinary host. State-dependent source-row overrides are `5D3A80` and
 
 ## Input correction already integrated
 
+## Bounded day target and native settings
+
+Direct canonical `4A83F0..4A87DD` closes the advance target, independently of
+the still-required user-message/pre-match presentation binding. It queries
+`615D10(club,current_day,1)` on primary container `947AD8` for each user and
+retains the earliest returned wrapper. For a returned date more than one day
+ahead it stops one day before; for today/tomorrow it retains that date. A
+source-proven null result uses `616A30(primary)-1`. `4A84D2..E5` caps this at
+`current_day + [87753C]`. `4A84E9..8513` increments the day before each ordered
+`4A83D0` call (stages `4A7280`, `4A8260`, `4A8070`). `4A7210` counts eligible
+primary wrappers for progress; it does not produce match results.
+
+The increment at `4A8676` is **not a common extra advance day**: it is reachable
+only through the primary terminal-date branch `4A8620..22`. Ordinary turns
+must not add it. End-of-season processing remains separately bounded.
+
+`515590 -> 5155A0 -> 5155B0` explicitly initializes settings object `877530`
+with +00=5 and **+0C=7**; therefore the native default turn length is seven,
+not an inferred BSS zero or arbitrary modern limit. `5155C0` subsequently
+reads DWORD `TURNLENGTH` into +0C from the original `\\Settings` registry
+subkey. The existing machine setting was inspected read-only and is seven;
+no registry values were changed. Original options constructor `46A120`
+provides the exact choices 1,2,3,7,14 at +6C..+7C. Event callbacks
+`46A6F1/46A70F` write the selected value back to `87753C`.
+
+The small compatibility replacement preserves this target calculation only
+with explicit source-qualified selector inputs. An unavailable/unresolved
+selector is not converted into a native null. UI warnings, queued user state
+and `4C3280` pre-match entry remain separate mandatory binding work. A native
+target calculation alone is not a playable NEXT/MATCH workflow.
+
+Verification: 105 bounded canonical `4A83F0..4A8513` comparisons matched the
+target and every processing date; selector/date and UI-progress leaves were
+explicit supplied inputs, not semantic discoveries. Six focused regressions
+passed, including unknown-selector rejection, current/tomorrow/distant dates,
+native null, zero/custom turn lengths and separate annual-boundary rejection.
+Private `qualify-native-advance-target.py` remains outside Git.
+
+## NEXT bitmap, caption and pointer phase
+
+Exact disc extent105300 is `back_5.444`, 10,940 bytes, 100x380 (four 100x95
+rows), SHA-256 `171257f958b9fa15115476814a31de2d86bbdd2beb4767e42b3181d83e7ba605`.
+It was re-extracted from the hash-verified authorized archive using the
+existing inventory tool and matches the installed original byte-for-byte.
+`5D3900` sets +4C=40; `5D3AC0` therefore selects vertical source row3 when
+disabled, row2 when pressed (+18 bit10), row1 when hovered (bit8), else row0.
+There is no animated timer or synthetic frame sequence for this control.
+The separate caption uses raw style18: right aligned, vertically centered,
+rect(700,62,73,30), verified Zurich_XCn_BT_24pixel, white endpointFFFF.
+
+Generic `64F7A0` accepts an enabled, not-already-pressed control, consults the
+registered parent's +0C acceptance, sets the pressed bit, then calls parent's
+**+10 on press**, not a conventional release-to-click replacement. For this
+owner those slots are `42DE00` (returns1) and `432690` (event3). The release
+callback is `428AE0`, distinct from the action. `5D39C0/5D3A20` also toggle the
+control's visible-bit state and invoke serialized application updates; they
+are not evidence for introducing a timer or skipping the day-owner lifecycle.
+
 `43226E..277 -> 407FE0 -> 407C00(0)` permits an eligible substitute count
 **at most** the native quota; its nonzero argument separately requires exact
 quota. `407770(1)` also checks role-one occupancy exactly1. The read-only

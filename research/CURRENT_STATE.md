@@ -1,5 +1,18 @@
 # Local recovery integration — 8 October 2026
 
+**NEXT target checkpoint:** `original_management_advance.py` now preserves the
+canonical `4A83F0` pre-match stop, explicit `5155B0` seven-day default and
+ordered increment-before-processing dates. 105 bounded canonical native
+comparisons and six target regressions passed. The primary terminal branch's
+increment is not a common extra day. Original `TURNLENGTH` was inspected
+read-only (seven); no registry or original-process execution occurred.
+Exact `back_5.444` was recovered again from the hash-verified authorized archive
+(100x380, four 95px rows); native action is parent +10 **on press**.
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md`. Next: bind this control's verified
+art/state and the queued-user/pre-match lifecycle, without converting an
+unknown selector into native null or calling prototype skip/autofill. This
+target-only checkpoint is not an ordinary-gameplay or playable-build claim.
+
 **Ordinary match-input correction:** the native `PBg::NextGameBtn` trace
 establishes `407C00(0)` accepts eligible substitutes **<= quota**, not exact
 quota. The primary bridge preserves underfilled benches plus the native

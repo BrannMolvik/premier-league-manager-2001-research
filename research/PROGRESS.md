@@ -1,5 +1,15 @@
 ### 8 October 2026 KST — Recovery 399 selector trace corrected before implementation
 
+Local NEXT target checkpoint: source-closed `4A83F0` bounded day target and
+`5155B0` explicit seven-day default, original TURNLENGTH/choices 1/2/3/7/14.
+Existing machine setting inspected read-only: seven. 105 bounded canonical
+comparisons verify the target and every increment-before-processing date;
+six focused regressions passed. Exact disc `back_5.444` recovered and NEXT
+event3 qualified on press. Do not add the source annual-only increment to
+ordinary turns. Continue art/state and queued-user/pre-match binding, not
+prototype skip/autofill. No native launch, registry change or playable-build
+claim; no main/agent-runtime modification.
+
 Local Codex recovery checkpoint on `codex/gate13-windows-playability-recovery`:
 native paired row drops/read-only human inputs pushed as `3aae0312` (400
 bounded drop comparisons). The subsequent ordinary background advance trace
