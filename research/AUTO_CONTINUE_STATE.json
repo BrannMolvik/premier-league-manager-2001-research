@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 406 verified: PR #554 exact revised head 017d1d55 CI all green (full 2926, 25 skips), merged main 3b9cb028; canonical status/audit/fidelity docs checkpoint e3b6e979. Earliest incomplete Gate13 still requires an actual non-disruptive private Win11 --transport-probe-only HWND/DPI receipt and real menu/Squad visual+latency acceptance. Next independent cloud-safe source-backed work-ahead: Gate14 FastView static score/table TextControl calling-convention trace from authorized FOOTBAL.EXE using research/GATE14_FASTVIEW_STATIC_TEXT_SOURCE_TRACE.md; missing capstone Python in local container (attempt objdump or appropriate available disassembler), do not infer source semantics without evidence. Continue mission through Gate17; no closure claim.",
-  "last_known_main_head": "e3b6e9799911fbd4f9d87c9dedb2d5907d369b86",
+  "active_task": "Recovery 407: Main 55a8430 source-trace committed. Active validation Gate13 requires private Win11 --transport-probe-only HWND/DPI receipt and normal menu/Squad visual+latency acceptance. Independent Gate14 work-ahead: source-trace five TextControl font selector globals and text string producers from hash-verified original executable (research/GATE14_FASTVIEW_TEXTCONTROL_SOURCE_ARGUMENT_TRACE_RECOVERY406.md). Do not enable guessed rendering. Mission remains through Gate17.",
+  "last_known_main_head": "55a8430852a70155bcd9c975220845e86717602d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 406,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Main e3b6e979; audit classified 40 post-b890 first-parent commits through PR #554; Windows package 37704161266, Gate13 37704161255, asset policy 37704161379, full reconstruction 37704161253 success (2926,25 skipped). No new test jobs required for docs checkpoint. Next task source-backed FastView research if private Windows still unavailable; Windows human acceptance remains mandatory.",
+  "recovery_generation": 407,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "New chat recovered from runtime generation 406; latest main 55a8430. Research source-backed Gate14 continuation with Gate13 Windows external blocker unchanged. Avoid frequent CI/commits.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
