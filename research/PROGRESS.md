@@ -12600,3 +12600,9 @@ continues with ordinary Squad row display-name/color helpers.
 - Under the deferred-blocker policy, PR #550 persisted the source-closed club-name raster contract without runtime wiring or fallback font. Rebased exact head `654b9dd696dea4ff766671d02f0e12ce73e49bb5` passed asset `37692292200` and Gate-13 `37692292284`, then merged as `2d82a2b69e57b73ebb1289a4659f9fd732e3bdf2`.
 - Gate 13 and the retrospective audit remain open. Exact next implementation is byte-identical 36px font staging/provenance, live `Club.name` binding, and Southport plus second-club regressions. Startup-FMV parent/child HWND/DPI evidence remains the separate external blocker.
 
+## 10 October 2026 KST — Recovery 467 PMenu disabled-node input/state audit
+
+- Recovered GitHub canonical main `b7f2c58b2f1d6dc59b5f1102f188f159976105f1`, Codex branch `0ae745d1b56f45cade460f03cd893849a2f53b45`; runtime generation 467, mode continuous, status working, strictly audit_only.
+- Static read-only cross-branch verification: original child handler's node +0x14 bit1 guard is implemented/tested in `original_pmenu_activation.py`, but both normal Tk `on_click` implementations pass only the menu-row selected Boolean as integer 0/1. Visible menu rows do not retain guard bit1 and static visual state always takes `disabled=False`. Direct helper tests are not pointer-route proof.
+- Original producer/conditions, actual disabled menu states and real Windows effects were **not** verified; no fresh canonical source extraction, no CI, game edits, native launch, gate close or release claim.
+- Persisted `research/GATE13_PMENU_NODE_DISABLED_FLAG_LOST_AT_POINTER_RECOVERY467.md` and fidelity ledger row. Codex-only minimum fix is source-backed flag round-trip and normal-click guarded/unguarded route tests, subordinated to existing P0 functionality. Next independent audit: original bit1 node-state producer/lifecycle or another P0 core-route fidelity gap if private source inaccessible.
