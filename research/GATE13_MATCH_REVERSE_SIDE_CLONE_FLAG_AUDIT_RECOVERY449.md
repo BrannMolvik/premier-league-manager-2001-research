@@ -48,6 +48,17 @@ Within original source `0x4A75FE..0x4A767D`, a qualification chain tests event/m
 
 **Strong source conclusion:** at this specific results/competition branch, **bit0x20 is attached to a newly derived, participant-reversed LeagueMatch**. It is misleading to label bit0x20 a generic "played" bit or assume the source fixture is mutated in place by this caller. A reversal/derived-leg interpretation is **PROBABLE**, but the exact original football label (replay, second leg, venue reversal, fallback) **remains UNKNOWN** until the enclosing competition kind and data-specific branch are typed. Do not hardcode either high-level label.
 
+## B2. Proven original calendar insertion of the derived reversed LeagueMatch
+
+Following the actual `0x4A767D -> 0x512F20` reversal **further along the same original caller** yields the missing scheduled-event lifecycle:
+
+- After `0x4A767D`, a qualified path continues through native match/competition and event-record processing; at `0x4A78A4..0x4A78B0` the original loads **current game date `0x9847FC`**, source base **`0x947AE0`** (equal to original `0x947AD8 +0x08`), computes **`current_date+1 - calendar_base`**, and passes the retained derived-match pointer **`EBX`** to the original **`0x615A60`** insertion routine on calendar family **`0x947AD8`**.
+- This adds a source-original **relative requested slot** for the derived match, not an ad hoc virtual fixture on an unsourced screen. The insertion helper `0x615A60` may change the final relative slot under its native conflict handling `0x615890` (Recovery446).
+- The complete source chain on the qualifying derived-object path is now **`0x4A760D` allocate 0x50 → `0x4A7990` copy source Match → `0x4A7633` install concrete LeagueMatch vtable → `0x4A767D` reverse participant Side fields/set bit0x20 → `0x4A78B0` insert into calendar 0x947AD8 for requested next-day slot**.
+- The source conditional in `0x4A75C8..` and intervening participant/event state must still be retained. It would be incorrect to create a reversed match on *every* NEXT press or to guarantee that source conflict resolution leaves the fixture on the requested following date.
+
+**Exact:** original allocation/clone/participant reversal/status mark/native calendar family and requested relative offset are now all instruction-verified. **Probable but NOT named:** this is part of a replay/second-leg/derived league match workflow; the precise original football reason is not source-closed. No live original Win11 input or multi-club fixture state was recorded.
+
 ## C. Other status-bit producer context and correctness consequence
 
 Recovery448 separately identified `Match+0x44` constructor default **0**, bit0 writer `0x511370` and bit0x40 writer `0x514640`. Additional original inspection shows the bit0 writer `0x511370` is called by both `0x5132E0` and `0x5136E0`; its body invokes multiple underlying participant/competition helpers and conditional match hooks after setting bit0, including `0x5127A0` on one path. This substantiates *match processing* as the context, but not the exact caption/visible lifecycle of bit0.
