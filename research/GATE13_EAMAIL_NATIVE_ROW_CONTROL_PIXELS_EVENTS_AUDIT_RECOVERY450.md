@@ -68,6 +68,27 @@ Row final vtable `0x7C266C`:
 - **`0x471780`** checks original message **`+0x08 bit0x02`** and mutually toggles icon controls `+0x70C/+0x73C`. Their vtable `+0x30=0x64F510` sends argument1 to underlying `+0x0C`, and `+0x34=0x64F520` sends argument0; the branch chooses opposite on/off states depending on status bit0x02. Detail `0x471270` independently **clears the same bit0x02** when opening the message, so source visibly relates this status bit to the row's two icon states. It is *plausible* this is read/unread, but **unproven as a semantic caption**; do not invent persistence rules before tracing original save/restore.
 - Previously proven `PEAMail` message count/filtered `+0x68/+0x6C`, eight-row scroll calculation `max(0,count−8)`, and post-detail scroll restoration remain binding.
 
+## C2. Actual original mailbox source and large polymorphic EAM family — not one synthetic message type
+
+The original menu factory branch **`0x47B1EF..0x47B207`** first obtains the current manager/user via `0x4139D0`, loads **`user+0x6B4`**, and passes that object into the real **`PEAMail::0x474B10`** constructor. `PEAMail::0x472680` then enumerates the source-linked original messages and constructs the filtered pointer array used by the 532×18 rows. This connects the inbox panel's visible data source to the manager context, not to an invented global generic-message registry.
+
+A newly performed read-only **MSVC RTTI TypeDescriptor scan** of the canonical original PE yields **609 distinct native RTTI class identifiers beginning with `EAM`**, plus the independent `MPMEAMail` type. Among those 609 names, **148 end in lowercase `sub`** (and three end in uppercase `Sub`), suggesting multiple container/subrecord identities. These are **compiled RTTI class identifiers**, **not** proof that 609 messages appear in any given manager's mailbox, that they are all instantiated at startup, or that their source category and screen/action effects are interchangeable.
+
+Concrete original source class vtable confirmations (TypeDescriptor pointer at `stringVA−8`, COL at RTTI type-reference VA−0x0C, native vtable pointer at COL-reference VA+4) include:
+
+| Exact original RTTI class | TypeDescriptor string VA | Verified virtual table | Source category inference boundary |
+| --- | --- | --- | --- |
+| `EAMYouthPromoteOffer` | `0x818E20` | `0x7CE780` | Youth promotion offer type exists, visible body/actions untested |
+| `EAMClubTransferOfferReply` | `0x819160` | `0x7CEFCC` | Transfer reply class exists, exact accept/decline action untested |
+| `EAMAssManMonthlyTrainingReportM` | `0x82A3F8` | `0x7CEF24` | Training report class exists; no verified default label |
+| `EAMbcmonthlyincome` | `0x82D580` | `0x7D00FC` | Financial source class exists; mailbox delivery depends on game state |
+| `EAMChairmanRefusesExpenditureM` | `0x82D318` | `0x7CFC5C` | Budget/expenditure source class exists, original action semantics unresolved |
+| `EAMMatchInjuryNoRecoveryPlayer` | `0x82AA28` | `0x7CB328` | Injury/medical class exists, not every injury is a mailbox record |
+
+**Audit distinction:** these entries verify actual original RTTI types and at least the existence of their own vtables; they do not yet source-close the exact virtual `+0x18`, `+0x1C`, `+0x34` or `+0x2C` methods for those concrete class objects, nor whether `EAM*` class variants are stored at `user+0x6B4` in every gameplay state. The original `PMessageRow` and `PEAMMessage` use *polymorphic* record virtual methods, so a one-template placeholder that invents common data/action semantics cannot honestly close P0-B.
+
+**Next high-value owner trace:** pick at least two real source EAM message constructors/producer paths (one ordinary informational, one actionable) and inspect their payload/message records, virtual action/label owner, message insertion into `user+0x6B4`, and resulting native row/detail state. Compare two managers/clubs and empty/populated inbox states on Windows 11, Codex-only implementation.
+
 ## D. Comparison to current runtime and immediate Codex handoff
 
 At latest Codex head `0ae745d1b56f45cade460f03cd893849a2f53b45`, `reconstruction/original_game_host.py::on_click` has no live PEAMail route. Both main and Codex still lack the actual **PBg direct EAMail header click**, original **CMessageList/PMessageRow**, and native **PEAMMessage** detail. PMenu 0x65 identity does not imply a working inbox; header source geometry from Recovery449 is exact **(558,0,40,95)**, with original PMenu (599,0,100,95) and NEXT (700,0,100,95).
