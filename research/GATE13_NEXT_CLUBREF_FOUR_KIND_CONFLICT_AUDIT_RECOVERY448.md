@@ -19,15 +19,27 @@ objdump -d -M intel --start-address=0x514520 --stop-address=0x514564 footballman
 ```
 Do not commit original binary/disassembly.
 
-## A. Original ClubRef class identity and source call chain
+## Source-owner correction and second verified step: Match embeds concrete `Side`, not plain `ClubRef`
+
+**Independently verified later in Recovery448; do not lose this correction when implementing the four-kind branch table.** Original MSVC RTTI distinguishes **`Side` final vtable `0x7C4D50`**, COL `0x7E54F8`, TypeDescriptor `0x81D740` (`.?AVSide@@`), from **`ClubRef` vtable `0x7C4D60`**, COL `0x7E5578`, TypeDescriptor `0x81D758` (`.?AVClubRef@@`).
+
+Original `Match::0x5103D0` constructs the two participant objects in place at **`Match+0x14`** and **`Match+0x28`**, installing **`Side` vtable `0x7C4D50`** in each at source instructions `0x510446` and `0x5104B1`. It also initializes the match payload status field **`Match+0x44 = 0`** at `0x5104CF`. Separate `ClubRef::0x4F2CB0` creates a generic reference with `0x7C4D60` vtable. This does **not** mean every Side embedded in Match is a plain ClubRef vtable instance.
+
+The `0x4F2B60` kind-dispatch routine is invoked by `LeagueMatch/CupMatch::0x510B20` on these **concrete Side participants**. Its first call to the participant's **virtual `+0x00`** therefore dispatches as **`Side::0x510320`**, not the base generic `ClubRef::0x4F28A0`. `Side::0x510320` first inspects Side `+0x04` cached resolved pointer and may invoke `0x4F28A0`, `0x513FE0`, `0x615F40` and `0x511350` while resolving the participant (with conditional data update at `0x510373`). **Only if that virtual returns zero** does `0x4F2B60` enter the four source kind branches. Thus conflict eligibility can depend on the source Side resolution lifecycle, not merely stored type/club IDs.
+
+For precision, references in this report to “`ClubRef::0x4F2B60`” mean **a kind-dependent ClubRef-layout predicate called on Side-compatible references**; no standalone proof establishes that `0x4F2B60` is a virtual ClubRef member function. Its four byte-proven cases and lookup behaviors remain correct, but the concrete owner argument in ordinary LeagueMatch/CupMatch is **Side**, and the initial virtual source resolve method changes accordingly.
+
+**Status: EXACT** RTTI, two concrete embedded Side vtables, Match payload flags zero at construction, initial dynamic virtual binding and source predicate branch. **UNKNOWN:** whether future match flags +0x44 bits0/5/6 are set by particular game conditions, precise runtime Side mutation outcomes, and physical Windows input/return.
+
+## A. Original ClubRef-compatible layout and concrete Side call chain
 
 RTTI: original **`ClubRef` vtable `0x7C4D60`**, COL **`0x7E5578`**, TypeDescriptor **`0x81D758`** identifying `.?AVClubRef@@`. This is the class constructed by native **`0x4F2CB0`**.
 
 Original concrete `LeagueMatch` (`0x7C4C24`) and `CupMatch` (`0x7C9D9C`) have virtual **`+0x64 -> 0x510B20`**. It invokes **`0x4F2B60`** once for **`Match+0x14`** and, if false, again for **`Match+0x28`**, passing the candidate Event's original relative slot `Event+0x10`. If either returns true, `0x510B20` returns true to the original mutable header query **`0x615DA0`**, which conditionally invokes **`0x510BA0`** and can construct a `PostponedEvent` wrapper at a source relative slot `+7`. These are source-specific conflict/postponement predicates, not ordinary participant equality or an every-match 'advance one day' instruction.
 
-## B. EXACT native ClubRef type dispatch — four distinct cases
+## B. EXACT native Side/ClubRef-layout reference-kind dispatch — four distinct cases
 
-`ClubRef::0x4F2B60` first calls the object's virtual **`+0x00`**. If it returns non-null, it immediately returns false for this conflict predicate. Only when that resolution returns null does it dispatch on **16-bit `ClubRef+0x0C` kind**. The four native jump-table entries at **`0x4F2C9C`** are:
+`0x4F2B60` first calls the object's virtual **`+0x00`**. If it returns non-null, it immediately returns false for this conflict predicate. Only when that resolution returns null does it dispatch on **16-bit `ClubRef+0x0C` kind**. The four native jump-table entries at **`0x4F2C9C`** are:
 
 | `ClubRef+0x0C` kind | Original branch / jump-table target | Source condition and traversal — do not invent soccer labels |
 | ---: | --- | --- |
