@@ -94,11 +94,11 @@ clear control flag mask 1 through `0x64F3E0`. The durable contract retains the
 neutral native-mask wording rather than assigning a broader UI meaning beyond
 the proven container transitions.
 
-## Exact `PSquadPitch` / `FormationText` geometry
+## Exact `PSquadPitch` / formation-control geometry
 
 RTTI proves setup method `0x4B3C80` is vtable slot 1 of `PSquadPitch`
 (TypeDescriptor `0x81DB30`, vtable `0x7C54A8`). It constructs 22 paired
-`FormationText` controls with consecutive control IDs 12..55:
+`FormationBtn` / `FormationText` pairs with consecutive control IDs 12..55:
 
 - row `i` is at local y `25 + 17*i`, for `i=0..21`;
 - the `squad_form_anim.444` control is `(279,y,23,16)`, ID `12+2*i`, object
@@ -115,13 +115,16 @@ step leaves one native pixel between adjacent 16-pixel rows.
 
 `squad_bars.444` is consumed by `FormationText::0x4B6B60`; the method forwards
 caller-provided geometry into `0x652C50` with wrapper `0x941730`.
-`squad_form_anim.444` is consumed by `FormationText::0x4B6C30`, which forwards
+`squad_form_anim.444` is consumed by `FormationBtn::0x4B6C30`, which forwards
 caller-provided geometry into `0x652CB0` with wrapper `0x941770`.
 
 `FormationText` is independently identified by TypeDescriptor `0x81DBC0`, COL
 `0x7E5BB8`, and vtable `0x7C5700`. `PSquadPitch` (TypeDescriptor `0x81DB30`,
 vtable `0x7C54A8`) constructs a 22-element embedded `FormationText` array at
-`0x4B5B18`. These two resources therefore belong to the formation/pitch
+`0x4B5B18`. The separate form array is constructed by `0x4B5C20`, which
+installs `FormationBtn` vft `0x7C5644`; its COL `0x7E5B58` resolves to
+TypeDescriptor `0x81DBA0` (`.?AVFormationBtn@@`). The earlier shared-class
+claim is superseded. These two resources therefore belong to the formation/pitch
 presentation family, not automatically to the general roster panel.
 
 ## `blue_toggle.444` is shared, not `PSquadScreen` proof
@@ -182,7 +185,28 @@ Its user-facing category name remains deliberately unclaimed.
 codes: no unsupported UI labels are attached. Both concrete factories emit
 their empty-row class when the shared visible-row mapping returns -1.
 
-## Exact `FormationText` state-to-atlas transform
+## Exact distinct formation-control state-to-atlas transforms
+
+**9 October independent correction:** the following `(2,1,1)` rule applies
+only to the adjacent `FormationText` bar. Applying it to `FormationBtn` is
+incorrect. Constructor `0x4B5C20` installs vft `0x7C5644`, whose `+0xA8`
+is `0x652BC0`, returning `(11,1,1)`. The shared `0x5D4D70` source-offset
+method calls that actual owner virtual. Its form rows are ordinary `0..10`,
+selected `11` (y176), and disabled `22` (y352). Constructor `0x4B6B30`
+installs the bar's `0x7C5700`, whose `+0xA8=0x4D8D30` returns `(2,1,1)`.
+`original_squad_resources` now requires the explicit source-qualified class
+for source-row/y selection, and the private source tracer includes both vfts.
+
+Primary source review and independent canonical replay executed both actual
+constructors and updater/offset virtuals: 6,656 form and2,048 bar cases, all
+valid old group/subframes, all low8 flag combinations, selected8000 clear/set.
+Synthetic owner/resource-wrapper dimensions and null invalidation callback are
+explicit fixtures; no original process, live raster or visible acceptance.
+Vector SHA256: form `fce4705d8dccc242a4ae311083225c01ec4f23bb81a4a5181b962feb22a5b2f6`;
+bar `9c8f700bbf2c79600d4cf9a93dd9026ddc645c10f63aea80930eab9ffd639871`.
+A targeted regression failed before the repair (`32 != 176`). Ordinary pitch
+activation is still withheld until its complete producer/render/input path is
+integrated. This is SOURCE-VERIFIED contract correction, not a playable view.
 
 The generic transform is now source-bound rather than inferred from atlas
 height. Vtable slot `+0xA8` (`0x4D8D30`) returns group lengths `(2,1,1)`;
@@ -200,8 +224,9 @@ therefore selecting row 2 (source y=32). An ordinary enabled row uses rows
 The inherited mask-2-clear transform calculates row 4. That is outside the
 four-row 81x64 `squad_bars.444` atlas, and no Squad runtime path clearing that
 mask has been proved. It must therefore fail closed rather than inventing a
-disabled bar. Row 3 and the remaining rows of the 23-frame-high form atlas
-are not selected by this `FormationText` path and receive no guessed meaning.
+disabled bar. Bar row3 is not selected by this `FormationText` path. The form
+atlas follows the separately verified `FormationBtn` rule above; its otherwise
+unused rows receive no guessed meaning.
 
 ## Next action
 

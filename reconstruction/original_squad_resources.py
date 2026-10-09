@@ -187,6 +187,11 @@ SQUAD_PITCH_CLASS = "PSquadPitch"
 SQUAD_PITCH_TYPE_DESCRIPTOR_VA = 0x81DB30
 SQUAD_PITCH_VFTABLE_VA = 0x7C54A8
 SQUAD_PITCH_SETUP_VA = 0x4B3C80
+FORMATION_BUTTON_CLASS = "FormationBtn"
+FORMATION_BUTTON_TYPE_DESCRIPTOR_VA = 0x81DBA0
+FORMATION_BUTTON_VFTABLE_VA = 0x7C5644
+FORMATION_BUTTON_GROUP_LENGTH_VA = 0x652BC0
+FORMATION_BUTTON_GROUP_LENGTHS = (11, 1, 1)
 FORMATION_TEXT_CLASS = "FormationText"
 FORMATION_TEXT_TYPE_DESCRIPTOR_VA = 0x81DBC0
 FORMATION_TEXT_VFTABLE_VA = 0x7C5700
@@ -251,7 +256,7 @@ SQUAD_RESOURCES = (
         0x839478,
         0x941790,
         0x941770,
-        ("FormationText",),
+        (FORMATION_BUTTON_CLASS,),
     ),
 )
 
@@ -260,25 +265,31 @@ class OriginalSquadResourceError(ValueError):
     pass
 
 
-def formation_text_source_row(
-    *, enabled: bool, complete: bool, subframe: int = 0
+def formation_control_source_row(
+    *, control_class: str, enabled: bool, complete: bool, subframe: int = 0
 ) -> int:
-    """Apply FormationText's native state-group transform without naming art."""
+    """5D4D70 uses the actual owner's +A8, not the neighboring control's."""
+    if control_class == FORMATION_BUTTON_CLASS:
+        lengths = FORMATION_BUTTON_GROUP_LENGTHS
+    elif control_class == FORMATION_TEXT_CLASS:
+        lengths = FORMATION_TEXT_GROUP_LENGTHS
+    else:
+        raise OriginalSquadResourceError("Unqualified formation control owner")
+    if type(enabled) is not bool or type(complete) is not bool or type(subframe) is not int:
+        raise OriginalSquadResourceError("Explicit formation flags/integer subframe required")
     group = 2 if not enabled else 1 if complete else 0
-    if not 0 <= subframe < FORMATION_TEXT_GROUP_LENGTHS[group]:
+    if not 0 <= subframe < lengths[group]:
         raise OriginalSquadResourceError(
-            f"FormationText subframe {subframe} is outside native group {group}"
+            f"{control_class} subframe {subframe} is outside native group {group}"
         )
-    return (
-        subframe if group == 0 else 2 + subframe if group == 1 else 4 + subframe
-    )
+    return subframe + (0 if group == 0 else lengths[0] * group)
 
 
-def formation_text_source_y(
-    *, enabled: bool, complete: bool, subframe: int = 0
+def formation_control_source_y(
+    *, control_class: str, enabled: bool, complete: bool, subframe: int = 0
 ) -> int:
-    return formation_text_source_row(
-        enabled=enabled, complete=complete, subframe=subframe
+    return formation_control_source_row(
+        control_class=control_class, enabled=enabled, complete=complete, subframe=subframe
     ) * FORMATION_TEXT_FORM_FRAME_SIZE[1]
 
 

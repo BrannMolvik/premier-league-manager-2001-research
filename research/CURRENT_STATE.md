@@ -1,5 +1,18 @@
 # Local recovery integration — 9 October 2026
 
+**Independent formation-owner correction:** actual constructors distinguish
+FormationBtn7C5644 (11/1/1; selected source y176) from FormationText7C5700
+(2/1/1; selected y32). The old shared bar rule was wrong for the form atlas.
+Corrected resource ownership, explicit-class frame helper and both source
+trace anchors; red-before-green regression, primary re-execution of8,704
+canonical update/offset cases,92 focused tests/26.700s/1 expected licensed
+skip, asset policy and diff checks passed. See `GATE13_SQUAD_RESOURCE_CORRELATION.md`.
+This is a source-contract repair, not live formation activation. Continue the
+ordinary pitch producer/render/input chain, then Inbox/NEXT. Independent
+Inbox loader/owner/text checks are retained privately; no fabricated inbox
+queue or UI is wired. Gate13 OPEN; no original process, main merge or worker
+protocol/later-gate change. Full-suite status below remains NOT green.
+
 **Post-restart continuation:**8f31fe5e and private evidence survived. Its full
 regression completed:3,101 tests/339.633s/25 skips, only the recorded disjoint
 Gate17 package-lock three failures/one error; full suite NOT green. Independent

@@ -11,6 +11,7 @@
   "gate13_reserve_goalkeeper_focused_tests": 276,
   "gate13_reserve_goalkeeper_full_suite": "8f31fe5e:3101 tests/339.633s/25 skips; only existing Gate17 package-lock3 failures+1 error. Full suite NOT green; no waiver or later-gate change.",
   "gate13_native_user_shape_contract": "research/GATE13_USER_SHAPE_LIFECYCLE.md",
+  "gate13_formation_owner_correction": "FormationBtn7C5644 uses11/1/1, selectedy176; FormationText7C5700 uses2/1/1, selectedy32. Explicit-owner helper/source anchors corrected after red-before-green regression.8704 canonical comparisons,92 focused tests/1 expected licensed skip, asset policy passed. Source-only; live pitch render/input still open.",
   "gate13_native_user_shape_boundary": "Fresh actual Southport binding and internal disk/fresh-process reload retain native180..186 bytes.512 canonical serializer cases and512 conversion cases,192 focused tests. Old schema48 absent-field stays unknown. Ordinary tab/release mode0 bypasses affine values; complete pitch rendering still open.",
   "gate13_squad_name_cursor_contract": "research/GATE13_SQUAD_NAME_CURSOR.md",
   "gate13_reserve_goalkeeper_integration_boundary": "Fresh Southport3 ordinary public host gestures at1x/1.5x, no state arrangement; native selection/current/aux/reserve bytes match each drop, all30 retained; actual disk/fresh-process reload retains order/rows/human IDs. Withdrawn Windows/Tk, not visible physical-mouse/playable acceptance. Quota/first-active sideeffect qualification fixture leaves explicit.",

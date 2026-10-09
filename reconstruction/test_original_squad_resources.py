@@ -9,6 +9,11 @@ from original_squad_resources import (
     CBASE_PLAYER_LIST_VFTABLE_VA,
     FORMATION_TEXT_BAR_FRAME_SIZE,
     FORMATION_TEXT_BAR_SETUP_VA,
+    FORMATION_BUTTON_CLASS,
+    FORMATION_BUTTON_TYPE_DESCRIPTOR_VA,
+    FORMATION_BUTTON_VFTABLE_VA,
+    FORMATION_BUTTON_GROUP_LENGTH_VA,
+    FORMATION_BUTTON_GROUP_LENGTHS,
     FORMATION_TEXT_CLASS,
     FORMATION_TEXT_FORM_FRAME_SIZE,
     FORMATION_TEXT_FORM_SETUP_VA,
@@ -56,8 +61,8 @@ from original_squad_resources import (
     SQUAD_PLAYER_COLUMNS,
     SQUAD_SCF_COLUMNS,
     SQUAD_STATUS_FILTER_CODE_BY_MASK,
-    formation_text_source_row,
-    formation_text_source_y,
+    formation_control_source_row,
+    formation_control_source_y,
     squad_view_transition,
     validate_imported_original_squad_resources,
     validate_original_squad_button_labels,
@@ -256,16 +261,50 @@ class OriginalSquadResourceTests(unittest.TestCase):
         self.assertEqual(FORMATION_TEXT_GROUP_SELECTOR_VA, 0x652AE0)
         self.assertEqual(FORMATION_TEXT_SOURCE_OFFSET_VA, 0x5D4D70)
         self.assertEqual(
-            formation_text_source_row(enabled=True, complete=False, subframe=0), 0
+            formation_control_source_row(control_class=FORMATION_TEXT_CLASS,
+                enabled=True, complete=False, subframe=0), 0
         )
         self.assertEqual(
-            formation_text_source_row(enabled=True, complete=False, subframe=1), 1
+            formation_control_source_row(control_class=FORMATION_TEXT_CLASS,
+                enabled=True, complete=False, subframe=1), 1
         )
-        self.assertEqual(formation_text_source_row(enabled=True, complete=True), 2)
-        self.assertEqual(formation_text_source_y(enabled=True, complete=True), 32)
-        self.assertEqual(formation_text_source_row(enabled=False, complete=False), 4)
+        self.assertEqual(formation_control_source_row(control_class=FORMATION_TEXT_CLASS,
+            enabled=True, complete=True), 2)
+        self.assertEqual(formation_control_source_y(control_class=FORMATION_TEXT_CLASS,
+            enabled=True, complete=True), 32)
+        self.assertEqual(formation_control_source_row(control_class=FORMATION_TEXT_CLASS,
+            enabled=False, complete=False), 4)
         with self.assertRaises(OriginalSquadResourceError):
-            formation_text_source_row(enabled=True, complete=True, subframe=1)
+            formation_control_source_row(control_class=FORMATION_TEXT_CLASS,
+                enabled=True, complete=True, subframe=1)
+
+    def test_form_button_must_not_reuse_bar_selected_source_y(self):
+        # Native 4B5C20 installs 7C5644, whose +A8 is 652BC0 (11,1,1).
+        self.assertEqual(FORMATION_BUTTON_CLASS, 'FormationBtn')
+        self.assertEqual(FORMATION_BUTTON_TYPE_DESCRIPTOR_VA, 0x81DBA0)
+        self.assertEqual(FORMATION_BUTTON_VFTABLE_VA, 0x7C5644)
+        self.assertEqual(FORMATION_BUTTON_GROUP_LENGTH_VA, 0x652BC0)
+        self.assertEqual(FORMATION_BUTTON_GROUP_LENGTHS, (11, 1, 1))
+        self.assertEqual(formation_control_source_y(control_class=FORMATION_BUTTON_CLASS,
+            enabled=True, complete=True), 176)
+        self.assertEqual(formation_control_source_y(control_class=FORMATION_BUTTON_CLASS,
+            enabled=False, complete=False), 352)
+        self.assertEqual([formation_control_source_row(control_class=FORMATION_BUTTON_CLASS,
+            enabled=True, complete=False, subframe=i) for i in range(11)], list(range(11)))
+        resource = next(r for r in SQUAD_RESOURCES if 'squad_form_anim' in r.source_path)
+        self.assertEqual(resource.native_owners, (FORMATION_BUTTON_CLASS,))
+
+    def test_formation_control_requires_qualified_owner_flags_and_subframe(self):
+        for owner, enabled, complete, frame in (
+            ('unknown', True, False, 0), (FORMATION_BUTTON_CLASS, 1, False, 0),
+            (FORMATION_TEXT_CLASS, True, 0, 0), (FORMATION_BUTTON_CLASS, True, False, True),
+            (FORMATION_BUTTON_CLASS, True, False, 11), (FORMATION_TEXT_CLASS, True, False, 2),
+            (FORMATION_BUTTON_CLASS, True, True, 1), (FORMATION_BUTTON_CLASS, False, False, -1),
+        ):
+            with self.subTest(owner=owner, enabled=enabled, complete=complete, frame=frame):
+                with self.assertRaises(OriginalSquadResourceError):
+                    formation_control_source_y(control_class=owner, enabled=enabled,
+                        complete=complete, subframe=frame)
 
     def test_wrong_imported_bytes_fail_closed(self):
         source = Path(__file__).resolve().parent.parent / "original_assets" / "source"

@@ -1,3 +1,16 @@
+### 9 October 2026 KST — independent formation-control owner counterexample
+
+Canonical constructors/vtables disprove the shared2/1/1 form/bar claim:
+FormationBtn7C5644 uses11/1/1; FormationText7C5700 uses2/1/1. Corrected
+exact resource class, explicit-owner source-row/y resolver and private trace
+seeds. Targeted regression failed32!=176 before repair.8,704 original bounded
+update/offset comparisons and92 focused tests/26.700s/1 expected licensed
+skip passed; asset policy passed. Source fixture/unknowns and hashes are in
+`GATE13_SQUAD_RESOURCE_CORRELATION.md`. No live tab activation or visible
+acceptance claimed. Ordinary pitch rendering/input, Inbox/NEXT still required;
+Gate13 OPEN. Existing full-suite Gate17 failures are not waived. No original
+process, main merge, security, worker-protocol or later-gate changes.
+
 ### 9 October 2026 KST — restart recovery; native human formation-input ownership
 
 Retained source-proven DBRUser180..186 on the actual human manager: explicit

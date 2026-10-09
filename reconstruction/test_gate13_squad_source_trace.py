@@ -26,6 +26,7 @@ from gate13_squad_source_trace import (
 )
 from original_squad_resources import (
     CBASE_PLAYER_LIST_VFTABLE_VA,
+    FORMATION_BUTTON_VFTABLE_VA,
     FORMATION_TEXT_BAR_SETUP_VA,
     FORMATION_TEXT_FORM_SETUP_VA,
     FORMATION_TEXT_VFTABLE_VA,
@@ -49,6 +50,7 @@ class Gate13SquadSourceTraceTests(unittest.TestCase):
             SQUAD_VTABLE_SEEDS,
             (
                 ("CBasePlayerList class vtable", CBASE_PLAYER_LIST_VFTABLE_VA),
+                ("FormationBtn class vtable", FORMATION_BUTTON_VFTABLE_VA),
                 ("FormationText class vtable", FORMATION_TEXT_VFTABLE_VA),
                 ("PSquadPitch class vtable", SQUAD_PITCH_VFTABLE_VA),
                 ("PSquadScreen class vtable", SQUAD_SCREEN_VFTABLE_VA),
@@ -92,6 +94,7 @@ class Gate13SquadSourceTraceTests(unittest.TestCase):
         self.assertEqual(SQUAD_SELECTION_OVERFLOW_REPAIR_VA, 0x4067B0)
         self.assertEqual(CBASE_PLAYER_LIST_VFTABLE_VA, 0x7C5BC8)
         self.assertEqual(FORMATION_TEXT_VFTABLE_VA, 0x7C5700)
+        self.assertEqual(FORMATION_BUTTON_VFTABLE_VA, 0x7C5644)
         self.assertEqual(SQUAD_PITCH_VFTABLE_VA, 0x7C54A8)
         self.assertEqual(SQUAD_SCREEN_VFTABLE_VA, 0x7C5CA4)
 
