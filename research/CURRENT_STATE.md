@@ -5,9 +5,9 @@ vft7BE814 ->6527F0, lengths11/1/1 and physical row bases0/11/22.
 The combined-view selected tab stays at11; ordinary unselected tabs now
 hover0..10 and retreat on the existing management idle pass, alongside the
 header. No guessed timer, tab activation, roster split or formation shape.
-6,656 canonical bounded update/offset comparisons passed.170 focused tests
-passed before the final shared-pass regression; all10 new tab tests including
-that additional case passed. Asset policy and diff checks passed. Withdrawn
+6,656 canonical bounded update/offset comparisons passed. The final focused
+recheck passed all 171 tests in 19.026s, including the shared-pass regression.
+Asset policy and diff checks passed. Withdrawn
 real Windows/Tk at1x/1.5x verified240 actual tab bitmap reads,40 updates per
 scale, no snapshots/redraws/item or photo-reference growth, and all30 Southport
 owners. See `GATE13_SQUAD_TAB_UPDATE.md` for exact original contract and the
@@ -17,6 +17,14 @@ reverified. Daniel need not extract the authorized ZIP again. No original
 process, main merge, agent-runtime or security change. Formation activation,
 Inbox and ordinary NEXT remain unfinished; Gate13 is OPEN. This focused
 repair does not supersede the non-green full-suite receipt below.
+Technical checkpoint:3744bae73cc4fdef572a9cbe4ac6cb7dd2857dbe (pushed).
+New immutable local test folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-3744bae7`.
+Its actual source snapshot passed the same withdrawn Windows/Tk tab and
+populated-cell checks plus disk/fresh-process reload (30 owners/90 cells).
+Quick Squad launcher explicitly skips intros; ordinary launcher retains them.
+Private wrapper stays windowed; older test folder and user saves are unchanged.
+This is a presentation test, NOT a complete playable original-look release.
 
 **Local repair resumed:** merged current audited `origin/main` a3c93648 into
 `codex/gate13-windows-playability-recovery`, preserving the audit-only worker's

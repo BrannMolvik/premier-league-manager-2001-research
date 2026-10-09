@@ -79,3 +79,28 @@ defaults. Pitch resource is coaching/pitch/pitch.444 at literal8376E4,
 wrapper943F10; title wrappers9467F0/9467B0 bind title_bar_31/30. The original
 installed files and canonical private executable remain available; no ZIP
 re-extraction or cloud upload is necessary for the local analysis.
+
+## Latest fixed-source test delivery
+
+Technical checkpoint `3744bae73cc4fdef572a9cbe4ac6cb7dd2857dbe` is pushed
+on `codex/gate13-windows-playability-recovery`, not merged to main.
+Final focused recheck:171 tests/19.026s/OK, including the shared header/tab
+update-pass regression. Asset-policy and diff checks passed. Full suite was
+not rerun for this focused change; the non-green receipt above still applies.
+
+New immutable source-test folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-3744bae7`.
+Use `Launch quick Squad test - no intros.cmd`, then New Game -> England ->
+Conference -> Southport -> Start. The other launcher retains normal intros.
+Both use installed trusted Python and original data, with the same private
+windowed presentation wrapper. Source archive SHA256:
+`24f35e7a4c803685e106eab9600b03945a8c590a4119e98be500ddb510df1beb`.
+Delivered host/tab module Git blobs match the exact technical checkpoint.
+
+The actual delivered snapshot passed withdrawn Windows/Tk at1x/1.5x:
+240 exact tab atlas reads, no tab-update snapshots/redraws/item/reference
+growth,30 populated owners/90 source cells,300 passive motion events per
+scale without snapshots, header animation, and disk/fresh-process reload.
+Launcher syntax checked. No visible/manual/audio acceptance was claimed.
+Formation activation, Inbox and NEXT/MATCH remain unfinished; this is NOT
+a complete playable original-look release. Older folder/user saves unchanged.
