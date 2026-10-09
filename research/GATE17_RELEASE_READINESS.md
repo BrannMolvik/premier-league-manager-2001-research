@@ -4,7 +4,7 @@ _Date: 5 October 2026 KST_
 
 ## Status
 
-This is release-audit groundwork. Gate 17 is not complete. Gate 13 is complete, and Gate 14 is the earliest incomplete validation gate.
+This is release-audit groundwork, not release acceptance. Gate 17 is incomplete. **Gate 13 is the earliest incomplete active gate**, reopened on 6 October 2026 following external Windows playability regression #482; Gates 14–17 remain incomplete. This replaces the original 5 October checkpoint's obsolete Gate 13 completion statement.
 
 The final audit in reconstruction/gate17_release_readiness.py is designed to run on the actual Windows 11 release candidate. It joins repository checks with separate clean-install and gameplay evidence rather than treating hosted CI as proof of a successful Windows release.
 
@@ -52,8 +52,8 @@ Gate 16 is no longer missing canonical real-data multi-season evidence. Its
 work-ahead readiness audit records two independent shipped-data seeds, each
 completing three annual qualification/regeneration cycles, plus the synthetic,
 save/reload, transfer-churn, mixed-primary, and state-growth stress coverage.
-Those criteria remain prevalidated rather than complete because Gates 14-15
-are still open and the final current-runtime rerun has not happened. Gate 13
+Those criteria remain prevalidated rather than complete because Gate 13 was
+reopened, Gates 14–15 remain open and the final current-runtime rerun has not happened. Gate 13
 is complete and no longer part of this prerequisite block.
 
 The pre-release limitations ledger must therefore describe Gate 16 as
@@ -61,6 +61,10 @@ prevalidated-but-blocked-by-prerequisites, not as lacking canonical
 multi-season evidence. Gate 14 remains the earliest incomplete validation gate,
 and Gate 14/15 work remains unfinished.
 
+
+### Recovery 466 — backend smoke is not proof of normal game interaction
+
+The three receipts produced by `reconstruction/gate17_windows_gameplay_receipts.py` test direct **controller APIs**, not the native-looking on-screen controls. The management smoke calls `advance_to_next_user_fixture`/`play_user_fixture` rather than the actual NEXT button or bounded `advance_original_management_turn`; save/reload uses an internal temporary `.fm2k` file, not the PMenu `PSaveGame` interface. The backend evidence remains useful, but cannot establish the externally rejected Gate-13 GUI playability criterion. The final release audit **also requires separate clean-install and full-original-scope receipts**, including all source selectable scopes and simultaneous-human management, so this distinction is **not an accusation of a final Gate-17 bypass**. See [Recovery 466 source/code audit](GATE13_GATE17_BACKEND_SMOKE_VS_NATIVE_GUI_RECEIPT_AUDIT_RECOVERY466.md).
 
 ### Windows gameplay receipt producer
 
