@@ -26,6 +26,12 @@ The code does preserve a source-like TeamSelect user selection array:
 
 The separate gameplay `reconstruction/human_gameplay.py` method `selectable_club_ids` (~line568) includes **fixed Premier League and materialized playable procedural League clubs** in its supported set; this audit does not incorrectly assert that every non-Premier League club is unsupported. `select_club` still installs **one** `HumanManagerState`, so even single-manager support across leagues doesn't provide original multi-human play.
 
+## B2. Front-end host catches the rejected Start — no evidence of process crash or partial gameplay state
+
+The latest Codex `reconstruction/original_game_host.py::on_click` runs its non-management `presenter.pointer` action inside a `try` block (the management cases return earlier). Near **lines2456–2458** an `except Exception` handler sets `last_status` to the exception type/message, calls the injected `error_reporter` and returns. Thus when `FrontEndSession.dispatch` rejects multiple users, **the normal event handler has a documented error-reporting path**, not an independently proven GUI process crash or a fabricated successful management transition. The session guard precedes backend construction/selection; the unit test confirms `started=False` and no selected backend clubs after rejection.
+
+The audit has **not executed Tk on Windows11**; whether an appropriate in-game error dialog appears or the failure only reaches a diagnostic output is **UNKNOWN**. Do not misreport this as a Windows crash or assume that this diagnostic is original-interface parity. Codex should preserve clean rejection while multi-human backend is incomplete.
+
 ## C. Why this changes the immediate NEXT/Codex acceptance contract
 
 Recovery457 correctly identified that Codex already has bounded original NEXT backend work but no physical NEXT click. Even **after** the button is connected for a single manager, Gate13/full-original acceptance must not be described as complete:
