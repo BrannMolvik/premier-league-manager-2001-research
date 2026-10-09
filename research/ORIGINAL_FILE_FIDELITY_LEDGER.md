@@ -2,6 +2,21 @@
 
 This ledger is the worker's primary queue while the original-file fidelity sweep is active.
 
+## Urgent order — Daniel's core-functionality priority (9 Oct 2026)
+
+Follow `research/GATE13_CORE_MENU_FUNCTIONALITY_AUDIT_PRIORITY_2026-10-09.md` **ahead of the general P0/P1/P2 ordering below**. The next audit is not another isolated row-bitmap/font trace; it is the original **menu-to-function graph** and end-to-end playability path. This changes **work ordering only**, not the evidence/status claims in historical research or the independent Codex implementation ownership.
+
+| Order | Audit target | Minimum result before moving down | Current status |
+| --- | --- | --- | --- |
+| **P0-A** | PMenu roots/children, selection, visual state, dispatch and back/return | Complete source-addressed per-item action map; identify supported, accepted-but-not-integrated, and unresolved routes; audit actual selection/pathing | PARTIAL — three integrated presenter routes; other original action kinds must be classified |
+| **P0-B** | EAMail / inbox | Trace native PEAMail/CMessageList list ownership, order, controls and callbacks through visible usable inbox; compare clean-room | PARTIAL — original constructor verified, clean-room inbox absent |
+| **P0-C** | Main first-team / Squad controls including 1ST, RES, formations and interaction | Control-by-control original/port/working-Codex comparison across 2 clubs/states, functionality not just pixels | PARTIAL — rendering repairs exist; several tabs/selection semantics incomplete |
+| **P0-D** | Core menu-to-gameplay loop including NEXT/MATCH, fixtures, table, calendar, Save/Load | Trace original route → actual state/destination → return, identify blockers and whether clean-room normal original-look path works | UNKNOWN/PARTIAL — standalone development playtest is not original navigation |
+| **P0-E** | Menu/input responsiveness | Map swallowed clicks and repeated redraw/snapshot work to original input contract; measure on Windows when available | PARTIAL — code-level repeated-work defects known; complete latency unverified |
+
+Only after those is it appropriate to resume isolated bitmap-color, other UI styling, and Gate-14 audits except when directly necessary to prove these paths.
+
+
 Status values:
 - **EXACT**
 - **COMPATIBILITY-EQUIVALENT**
