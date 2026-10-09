@@ -1,5 +1,14 @@
 # Local recovery integration — 9 October 2026
 
+**Local repair resumed:** merged current audited `origin/main` a3c93648 into
+`codex/gate13-windows-playability-recovery`, preserving the audit-only worker's
+research. Confirmed and corrected resident Fixtures art causing full Squad/
+Tables snapshots on every mouse-motion pager check; native Fixtures ownership,
+events and input guards are unchanged. See `GATE13_LOCAL_INPUT_PERFORMANCE_FIX.md`.
+Original populated Squad cell palette/state tracing continues privately; no
+guessed blue selection strips have been introduced. NEXT and Inbox remain
+unfinished; Gate13 OPEN. No original-game launch or main merge.
+
 **4% reserve handoff:** Daniel's latest priority is the missing original
 selection-dependent blue row backgrounds and incomplete inbox/menu, not merely
 shirt numbers. Current host repeats disabled strips across every slot; actual

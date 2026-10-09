@@ -1575,10 +1575,12 @@ class OriginalGameTkHost:
         return len(overlays)
 
     def _fixtures_page_controls(self):
+        from original_management_navigation import LEAGUE_FIXTURES_PANEL
         if (self.active_pmatchinfo_art is not None
                 or self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
                 or self.management_presenter is None
-                or not isinstance(self.fixtures_pager_art, OriginalFixturesPagerArt)):
+                or not isinstance(self.fixtures_pager_art, OriginalFixturesPagerArt)
+                or self.management_presenter.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id):
             return ()
         snapshot = self.management_presenter.snapshot()
         if snapshot.panel_class != 'PLeagueFixtures' or snapshot.league_fixtures is None:
