@@ -47,6 +47,19 @@ The routine spans **`0x432190..0x432687`** and has multiple materially different
 
 **Key correctness warning:** The modulo divisor **`0x8755E4`** and date global `0x9847FC` are distinct. The `0x8755D4` counter update is source-real and **must not** be represented as unconditional date increment in a clean-room NEXT implementation. The original may also enter PStartMenu rather than remain in management. Gate13 acceptance should exercise these different source branches with controlled fixture/club states.
 
+## B2. Native `0x431F70` result presentation class now VERIFIED
+
+The earlier neutral `0x4324FE -> 0x431F70` callback is a **source-proven original results-panel construction path**, not a guessed calendar/details window.
+
+- `0x431F8D..0x431FB5` allocates **`0x2A0` bytes** and invokes **`0x4A6FD0`**. That native constructor installs base `ePanel` vtable `0x7BE674` and the **final derived vtable `0x7C4B84`** at `0x4A70B1`. The original PE RTTI for `0x7C4B84`: COL `0x7E5328`, TypeDescriptor `0x81D618`, **`.?AVPResults@@`**. The source class identity is independently confirmed from the bytes, not a guessed “Results” English caption.
+- `0x431FBA..0x432020` navigates/clears prior original window-stack panels, then `0x432049..0x43205F` uses original layout helper **`0x653320`** with native width **`0x320=800`**, height **`0x258=600`** and the newly created `PResults` object; `0x43205F..0x432065` registers the original results panel in the window stack through **`0x5329A0`**.
+- `0x4320DD..0x43215C` iterates source original integer **`0x8755E4`** and current-user `+0x5B4` data, stepping through a list of entries at user `+0x244` and invoking **`0x41BEE0`** for selected source records; `0x43215E` further invokes **`0x613EE0`** with current global `0x9847FC`. The exact identity of list contents and selected result rows remains UNKNOWN pending producer/data semantics.
+- The call at `0x4324FE` into `0x431F70` is **guarded** by source conditions in `0x4322ED..0x43231A`, including neutral `0x8755D4/0x8755E4`. Thus the results panel is a conditional original NEXT destination, not automatically shown after every press.
+
+**Classification: EXACT class/panel-construction/layout/window-stack branch; PARTIAL result payload, club/state conditions, return/control behavior.** The current three-panel clean management presenter has no original `PResults` integration. A separate developer-only results/debug view is not proof of this native 800×600 panel/path. Codex's NEXT bitmaps still cannot navigate to it through ordinary click.
+
+**Next original-input and gameplay audit handoff:** recover native `PResults` controls/assets/font/score fields and event return to PMenu/Squad, and type the `0x431F70` user `+0x244` entry list and date `0x9847FC` consumers on two actual clubs/fixture states. Keep source geometry and object lifecycle, no generic results panel substitution.
+
 ## C. Reconstructed current main/Codex outcomes and concrete regression
 
 - `main` on GitHub lacks original NEXT button dispatch in its normal `reconstruction/original_game_host.py::on_click`.
