@@ -31,6 +31,23 @@ For precision, references in this report to “`ClubRef::0x4F2B60`” mean **a k
 
 **Status: EXACT** RTTI, two concrete embedded Side vtables, Match payload flags zero at construction, initial dynamic virtual binding and source predicate branch. **UNKNOWN:** whether future match flags +0x44 bits0/5/6 are set by particular game conditions, precise runtime Side mutation outcomes, and physical Windows input/return.
 
+## Second source step — Match flag `+0x44` original producers, not speculative status captions
+
+The source `Match::0x5103D0` constructor initializes the original payload **`Match+0x44=0`** at `0x5104CF`; both `LeagueMatch::0x5104F0` and `CupMatch::0x510520` invoke this common constructor before final derived vtable assignment. This independently grounds the clean initial state behind the ordinary NEXT `0x615C50` status-bit exclusions and the scheduling update helper `0x514520`.
+
+The following **original write paths** were traced, using exact opcode contexts rather than guessing from a single read site:
+
+| Field bit | Source writer and call provenance | Verified neutral effect |
+| --- | --- | --- |
+| **`0x01`** | `0x511370` instruction **`0x511381: or dword [Match+0x44],1`**. Observed direct call sites **`0x5132EB`** and **`0x513703`** (both original Match processing). | Sets bit0 **before** additional native work in `0x511370`. Ordinary NEXT source selector excludes matches when bit0 is set under its literal caller flags. Do **not** assign a "played/completed" caption without following the full producer state. |
+| **`0x20`** | `0x512F20` instruction **`0x512F2A..0x512F2D`** ORs bit0x20 into `Match+0x44`; direct caller **`0x4A767D`** within an original match/results work function. | Sets bit5, which causes `0x615C50`, `0x514520` and `0x4F2B60` to take their respective source-dependent skip/alternative branches. Do **not** assert a game caption, score meaning or final disposition. |
+| **`0x40`** | `0x514640` instruction **`0x514643..0x514645`** ORs bit0x40 into payload `+0x44`; sole direct `CALL rel32` found at **`0x4455F0`**, following an original filtered `0x615C50` lookup, intermediate `0x4506B0` condition and type/conversion helper `0x668995`. | Marks a branch-specific payload exclusion for future NEXT and postponed-wrapper eligibility. The precise corresponding football action is not proven from the bit alone. |
+| **`0x02/0x04/0x08`** | Derived `CupMatch::0x510520` at `0x51056F..0x51058F` reads three input booleans, packs them into bits1..3 and rewrites low status byte (preserving other bits via `and al,0xF1`). | These are **constructor parameters**, not automatically the same as later bits0/5/6 or proof of any universal match type status. |
+
+The existing original eligibility work **must remain literal**: ordinary `0x615D10→0x615C50` with its source arguments rejects flags `0x01/0x20/0x40`; postponement conflict `0x4F2B60` kind4 separately tests `0x20`, and `0x510BA0` wrapper creation tests `0x40`. A common payload status word does not imply identical handling or identical meaning at each caller.
+
+**Scope:** these writers and their direct call edges are instruction-verified; the complete lifecycle meaning of bits0,5,6, serial persistence, and every caller behind virtual flags remain **UNKNOWN**. Code Mode did not launch the original executable or assert original Windows game behavior. The distinction matters when Codex extends the existing bounded scheduler into a genuinely clickable NEXT/MATCH pathway.
+
 ## A. Original ClubRef-compatible layout and concrete Side call chain
 
 RTTI: original **`ClubRef` vtable `0x7C4D60`**, COL **`0x7E5578`**, TypeDescriptor **`0x81D758`** identifying `.?AVClubRef@@`. This is the class constructed by native **`0x4F2CB0`**.
