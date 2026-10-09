@@ -35,6 +35,7 @@ from gate_receipts import GateAttendanceCell, GateReceiptResult
 from native_club_report_state import ClubAttendanceCounter
 from complete_fixture_report import snapshot_report, restore_report, validate_report_owner, report_language_from_database
 from human_gameplay import HumanGameplayController, HumanManagerState
+from original_user_shape import NativeUserShapeState
 from primary_schedule_shadow import PrimaryScheduleShadowState
 from procedural_league_state import LiveProceduralLeagueState
 from match_engine_rng import MatchEngineRng
@@ -2042,6 +2043,12 @@ def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, An
             "formation_id": int(human.formation_id),
             "starter_ids": [int(v) for v in human.starter_ids],
             "substitute_ids": [int(v) for v in human.substitute_ids],
+            # Additive schema48 input: absent old state is unknown, not a fresh
+            # 4258D0 reset. Never synthesize these bytes from formation_id.
+            "native_shape_bytes_180_186": (
+                None if human.native_shape is None
+                else list(human.native_shape.bytes_180_186)
+            ),
             "team_orders": {
                 "captain": [int(v) for v in human.team_orders.captain],
                 "penalty": [int(v) for v in human.team_orders.penalty],
@@ -2141,11 +2148,15 @@ def restore_human_gameplay(
     human = control["human"]
     if human is not None:
         orders = human["team_orders"]
+        raw_shape = human.get("native_shape_bytes_180_186")
+        if raw_shape is not None and type(raw_shape) is not list:
+            raise ValueError('Saved native user shape requires a seven-byte array')
         controller.human = HumanManagerState(
             club_id=int(human["club_id"]),
             formation_id=int(human["formation_id"]),
             starter_ids=tuple(int(v) for v in human["starter_ids"]),
             substitute_ids=tuple(int(v) for v in human["substitute_ids"]),
+            native_shape=(None if raw_shape is None else NativeUserShapeState(tuple(raw_shape))),
             team_orders=TeamOrderPriorities(
                 captain=tuple(int(v) for v in orders["captain"]),
                 penalty=tuple(int(v) for v in orders["penalty"]),

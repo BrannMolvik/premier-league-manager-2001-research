@@ -87,6 +87,41 @@ class CupDatabase(Database):
 
 
 class InternalSaveTests(unittest.TestCase):
+    def test_native_user_shape_fresh_binding_and_arbitrary_bytes_survive_disk(self):
+        from original_user_shape import NativeUserShapeState
+        original = self.build_controller()
+        self.assertEqual(original.human.native_shape.bytes_180_186,
+                         (50, 50, 50, 50, 50, 0, 0))
+        # Counterexample to resetting a loaded user to fresh50. This pattern
+        # comes from the independent canonical buffered serializer replay.
+        original.human.native_shape = NativeUserShapeState((255, 36, 73, 110, 147, 184, 221))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'shape.fm2k'
+            save_human_gameplay(original, path)
+            restored = load_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), path)
+        self.assertEqual(restored.human.native_shape, original.human.native_shape)
+        self.assertEqual(snapshot_human_gameplay(restored), snapshot_human_gameplay(original))
+
+    def test_older_schema48_user_shape_absence_stays_unknown_across_resave(self):
+        original = self.build_controller()
+        snapshot = snapshot_human_gameplay(original)
+        del snapshot['controller']['human']['native_shape_bytes_180_186']
+        restored = restore_human_gameplay(
+            Database(), coefficient_matrix(), coefficient_matrix(), snapshot)
+        self.assertIsNone(restored.human.native_shape)
+        self.assertIsNone(snapshot_human_gameplay(restored)['controller']['human']
+                          ['native_shape_bytes_180_186'])
+
+    def test_malformed_saved_user_shape_fails_closed_without_integer_coercion(self):
+        snapshot = snapshot_human_gameplay(self.build_controller())
+        for raw in ([0] * 6, [0] * 8, [256] + [0] * 6, [True] + [0] * 6,
+                    [50.0] + [0] * 6, ['50'] + [0] * 6, 'abcdefg', {}):
+            snapshot['controller']['human']['native_shape_bytes_180_186'] = raw
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                restore_human_gameplay(
+                    Database(), coefficient_matrix(), coefficient_matrix(), snapshot)
+
     def test_native_reserve_formation_and_swap_bytes_survive_disk_reload(self):
         original = self.build_controller()
         club_id = original.human.club_id

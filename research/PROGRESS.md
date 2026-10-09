@@ -1,3 +1,18 @@
+### 9 October 2026 KST — restart recovery; native human formation-input ownership
+
+Retained source-proven DBRUser180..186 on the actual human manager: explicit
+fresh club-binding bytes, unsigned original float32 conversions, raw internal
+disk/fresh-process persistence. Missing old schema48 fields stay unknown.
+Independent canonical serializer512 cases and conversion512 cases; primary
+source read-back/replay;192 focused tests passed. See
+`GATE13_USER_SHAPE_LIFECYCLE.md`. Ordinary tab/release mode0 bypasses affine
+shape, so placement must use original table base coordinates, not invented
+shape-derived positions. Formation rendering/Inbox/NEXT still unfinished.
+Cursor source contract recorded with exact unusual packing, no guessed live
+transport. Completed8f31fe5e full suite:3,101/339.633s/25 skips; only existing
+Gate17 package-lock3 failures+1 error. NOT green. No native launch, main merge,
+security/worker-protocol or later-gate implementation changes; Gate13 OPEN.
+
 ### 9 October 2026 KST — independent original-behaviour recovery and Reserve-XI guard correction
 
 Daniel's approved recovery plan and hard audit gate are durable in

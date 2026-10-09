@@ -26,6 +26,7 @@ from match_participants import collect_match_participants
 from match_preparation import PreparedAiMatchSelection, prepare_ai_match_selection
 from match_schedule import MsvcCrtRng
 from match_team_setup import TeamTacticalState, resolved_substitute_quota
+from original_user_shape import NativeUserShapeState
 from scouting import (
     SCOUTING_SORT_MODE_CLUB_NAME,
     SCOUTING_SORT_MODE_HISTORY_AVERAGE,
@@ -81,6 +82,11 @@ class HumanManagerState:
     starter_ids: tuple[int, ...] = ()
     substitute_ids: tuple[int, ...] = ()
     team_orders: TeamOrderPriorities = field(default_factory=TeamOrderPriorities)
+    native_shape: NativeUserShapeState | None = None
+
+    def __post_init__(self):
+        if self.native_shape is not None and not isinstance(self.native_shape, NativeUserShapeState):
+            raise ValueError('Human formation shape requires the native user byte owner')
 
 
 @dataclass(frozen=True)
@@ -614,7 +620,8 @@ class HumanGameplayController:
         membership = None
         if club_id in self.state.native_squad_first_formations:
             membership = self.state.construct_original_primary_squad_membership(club_id)
-        self.human = HumanManagerState(club_id=club_id)
+        self.human = HumanManagerState(
+            club_id=club_id, native_shape=NativeUserShapeState.fresh_club_binding())
         self.original_squad_membership = membership
         if membership is not None:
             self.human.formation_id = self.state.native_squad_first_formations[club_id]

@@ -1,5 +1,22 @@
 # Local recovery integration — 9 October 2026
 
+**Post-restart continuation:**8f31fe5e and private evidence survived. Its full
+regression completed:3,101 tests/339.633s/25 skips, only the recorded disjoint
+Gate17 package-lock three failures/one error; full suite NOT green. Independent
+source audit and primary re-execution now establish the DBRUser180..186 fresh
+binding/reset and raw save/load lifecycle. Those actual per-human bytes are
+retained at select_club and through disk/fresh-process reload; older schema48
+files lacking the additive nullable field retain UNKNOWN, not fabricated50.
+Both original float conversions matched512 cases.192 focused tests passed.
+See `GATE13_USER_SHAPE_LIFECYCLE.md`. Crucial reachability correction: ordinary
+Squad tab/release passes mode0, so5F0BD0 uses base coordinates, not affine shape
+values. Complete pitch/overlap/control rendering remains to integrate. Cursor
+contract is recorded in `GATE13_SQUAD_NAME_CURSOR.md`, but runtime packed-color
+transport remains unresolved and no guessed live cursor is bound. Inbox source
+owner/filter/order/lifecycle is under independent audit; no modern queue merge.
+Continue these required controls and NEXT; Gate13 OPEN. No original launch,
+main merge, worker-protocol or later-gate implementation change.
+
 **Approved independent-reference recovery is now active:** read
 `GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md` and the hard audit gate in
 `ORIGINAL_BEHAVIOR_FIRST_POLICY.md`. Unverified findings are unsafe dependencies;

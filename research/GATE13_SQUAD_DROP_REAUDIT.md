@@ -79,8 +79,11 @@ No broader drop/cursor/shirt/loan/pre-match acceptance is inferred.
 
 Regression: three new tests failed before the repair; all passed afterward.
 Final focused Squad/host/gameplay/save suite:276 tests/46.359s, all passed.
-Asset policy passed. Historical non-green full-suite findings remain recorded;
-no full-suite green or Gate13 completion is claimed.
+Asset policy passed. Completed full reconstruction recheck at8f31fe5e:
+3,101 tests/339.633s/25 expected skips; three failures and one error, all in
+the already recorded disjoint Gate17 complete package-lock digest checks
+(`test_gate17_ffmpeg_toolchain_provenance`). No additional failure, no waiver
+or Gate17 changes. The full suite is NOT green; no Gate13 completion claimed.
 
 Private scripts remain outside Git:
 `work/independent-drag-audit/verify-reserve-role-one.py`,
