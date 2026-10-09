@@ -57,6 +57,29 @@ For each row, the original common **input/action** is row SelectBmp pointer pres
 - **P0 handoff order for Codex, no implementation authorization from this audit:** (1) restore original **inbox** via `PEAMail + CMessageList` true producers and actions; (2) restore **core Squad and 1ST/RES/formation** interactions (exact original input/tab destinations, not bitmap-only); (3) original game-options **Return to Main Menu** exceptional action + real original Save/Load UI/slots; (4) native menu state and popup events/animation, plus supported/unintegrated routes; (5) ordinary NEXT/MATCH path from the actual reconstructed original management screen and back. Other 21 unintegrated rows remain documented source-addressed scope, but should not become unsupported generic fallback panels.
 - **Main-vs-Codex original-look acceptance missing:** this recovery did not run the original process or a Windows 11 GUI, cannot certify cross-club rendering or live timing. All 28 table addresses **were calculated by reading canonical PE dispatch bytes/target pointers**, corroborated by disassembly of `0x47AEC0`, `0x47AC60`, `0x47AD60`, `0x47C928`, `0x4C3280`, `0x4802F0` and `0x46A120`. Original menu resource and font details remain in `research/GATE13_PMENU_CHROME_TRACE.md`; specific per-panel resources and original close/return methods require later targeted traces.
 
+## P0-B follow-on — source-proven EAMail control event groups (read-only original EXE)
+
+After closing all 28 factory cases, the same canonical PE source was followed into `PEAMail`:
+
+- `0x47B1F9` reads original current-user field **`+0x6B4`** and passes it to constructor `0x474B10`; `0x474B63` stores that argument at `PEAMail+0x64`. The structure's meaning (mail collection vs a general owner handle) is not yet independently proven.
+- `PEAMail::0x474CF8` constructs **`CMessageList` at `PEAMail+0xF58`**, calls inherited `0x4489B0`, and overwrites with final vtable `0x7C2A50` at `0x474CFF`; verified native RTTI TypeDescriptor `0x81C7B8` = `.?AVCMessageList@@`.
+- `PEAMail` has **original event callback vtable `0x7C2950+0x10 -> 0x4721C0`**, independently decoded. Its input event object holds a neutral event ID at `+0x20`; `0x4721D6..0x4721EB` checks IDs `1..25` with an original byte-table at `0x47236C` and destination table `0x472354`. The case grouping below is read directly from those tables. **Event numbers are NOT user-facing meanings.**
+  
+  | Native IDs | Callback target | Source-observed effects |
+  | --- | --- | --- |
+  | `1` | `0x472288` | calls `0x470D90` (meaning unproved) |
+  | `2..11, 17..18` | `0x4722C3` | scans 10 owner entries starting `PEAMail+0x66C`, stride `0x4C`, compares each to event ID `+0x20`; on matching state refreshes owner through `0x472680` and `0x472880` |
+  | `12..16` | `0x4721F2` | invokes event-object virtual `+0x14` with argument 1, clears/updates global owner state and calls `0x472680` / `0x472880` |
+  | `19..21` | `0x47223C` | calls `CMessageList` (child `+0xF58`) virtual `+0xA8`, supplying owner field `PEAMail+0x127C` |
+  | `22..24` | `0x472264` | computes font-dependent size, stores owner child metric `+0x44` at `PEAMail+0xFD8`, updates child control `0x64F600` |
+  | `25` | `0x472292` | calls `0x4723D0`, checks current-user field `+0x688` via `0x5E2330`, conditionally activates a child at `PEAMail+0x1454` via virtual `+0x3C` |
+  
+- `0x474EEF` installs final `PEAMail` vtable `0x7C2950`, and `0x474EF5` stores the live instance in global `0x876758`; destructor `0x474FB0` clears that global only when it still points to this instance. This is **explicit live inbox ownership and lifetime**, not merely a language menu label.
+
+**Fidelity comparison:** main and Codex reconstruction still have no `PEAMail` owner, no `CMessageList` child/control event-table flow, no verified message provider, and no opening/closing of usable inbox. Their `MPMEAMail` message-event code is not the above presentation/selection dispatch. **Status PARTIAL for identified original source, WRONG/absent relative to full usable native route, no implementation change.**
+
+**Precisely unresolved before Codex implements:** recover the message collection behind user `+0x6B4`, `CMessageList` actual source items/global interleave/order, 10 entries at `PEAMail+0x66C`, the neutral event ID meanings and detail/row activation, clipping/resources/font/geometry, read/unread and persistence, cancel/return. Do not assume that native IDs `2..11` are mailbox categories or that 19..21 represent tab labels.
+
 ## Explicit unresolved questions
 
 1. **End-to-end native controls**: Which original physical mouse movement/press/release changes selected bit/animation frame for the PMenu, and when does popup dismiss on outside click vs pointer movement? `0x47AC60/0x47AD60` proves action dispatch, but not all timing states. The reconstructed hover/static frame policy is already known incomplete.
