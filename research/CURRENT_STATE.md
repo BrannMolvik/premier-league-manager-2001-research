@@ -1,3 +1,15 @@
+# Immediate audit priority — original first-team, inbox and PMenu functions
+
+_9 October 2026 KST. Daniel-directed audit-only scope change._
+
+**The next independent autoworker task is `research/GATE13_CORE_MENU_FUNCTIONALITY_AUDIT_PRIORITY_2026-10-09.md`, not more narrow Squad artwork or later-gate research.** Trace **menu selection and navigation/pathing**, the original EAMail inbox, the common first-team/Squad controls (first/reserve/formation), and ordinary NEXT/MATCH and other core management actions against the canonical original executable/resources. Deliver a complete menu-ID → source factory/action → selected/destination screen → return/side-effects **matrix**, separately comparing `main` and the current Codex implementation branch. Do not call a route fixed because a menu button is clickable, a player list renders, or a generic development playtest can simulate matches.
+
+**Known boundary:** original PEAMail `0x65` factory/class is now independently proven, but no complete source-faithful integrated inbox exists. At latest checkpoint only Squad, League Fixtures and League Tables are panel-integrated, out of 28 static PMenu children; many other entries may be commands/dialogs and must be typed from source rather than assumed full panels. Squad's blue-cell restoration on Codex does not establish correct whole first-team/formation/navigation behavior.
+
+**Operating constraint:** agent-runtime `worker_role=audit_only`, `implementation_allowed=false`; maintain that. Worker may trace/review, update evidence/ledger and produce Codex handoffs, but must not modify Codex's code branch, write game implementation, merge, dispatch wasteful CI or close Gate 13. Codex retains implementation and Windows-local playtesting ownership. Original-only Windows11 compatibility; Settings/upscaling modernizations remain frozen. Gate 13 and post-#482 external playability acceptance remain open.
+
+---
+
 # Daniel directive — systematic original-file fidelity sweep is primary
 
 _9 October 2026 KST._
