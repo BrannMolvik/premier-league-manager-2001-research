@@ -80,6 +80,34 @@ After closing all 28 factory cases, the same canonical PE source was followed in
 
 **Precisely unresolved before Codex implements:** recover the message collection behind user `+0x6B4`, `CMessageList` actual source items/global interleave/order, 10 entries at `PEAMail+0x66C`, the neutral event ID meanings and detail/row activation, clipping/resources/font/geometry, read/unread and persistence, cancel/return. Do not assume that native IDs `2..11` are mailbox categories or that 19..21 represent tab labels.
 
+## P0-B follow-on — original EAMail message-source filter and sorting recovered
+
+**Original executable `0x472680` is an exact message-array producer.** It retrieves the current user via `0x4139D0`, reads **user `+0x6B4`**, and follows a linked list starting at **`[user+0x6B4]+0x04`**. Each list node has a message pointer at `+0x00` and next pointer at `+0x04`. The `PEAMail` owner stores an allocated working array at **`+0x68`** and its count at **`+0x6C`**, computed in a first pass then populated in a second. The selection filter is sourced from ten live original control objects starting `PEAMail+0x64C`, **stride `0x4C`**; `0x47268E` calls `0x651AB0` to obtain their source selection predicate.
+
+The exact byte/field predicate, checked **both** when counting and filling the working array:
+
+| Selected native filter index | Original predicate on message record | Verified branch |
+| --- | --- | --- |
+| `0` (also default when none of the ten is selected) | message `+0x08` **bit `0x04`** set | `0x4726E9..0x4726F9`; `0x47274B..0x472761` |
+| `1` | **every** message record in list | `0x4726F6`; `0x472744..0x47275E` |
+| `2..9` | message `+0x0C` **equals filter index** | `0x4726DC`; `0x472735..0x472742` |
+
+**Caveat:** exact user-facing filter captions/categories, record type identity, bit `0x04` meaning, and any original message creation/insertion ordering are still **UNKNOWN**. The original code works from a preexisting single linked list, not a proven arbitrary concatenation of reconstructed `MPMEAMail` event queues.
+
+**Original executable `0x472880` is the dynamic selected-column order producer.** It examines five original controls at `PEAMail+0xC14`, `+0xC68`, `+0xCBC`, `+0xD10`, `+0xD64` using `0x652F80`, selects a comparison function and sorts the selected message pointer array at `+0x68` and `+0x6C`. Source comparator selection and predicates:
+
+| Source selected control | Function | Proven neutral comparison |
+| --- | --- | --- |
+| none or `+0xD64` | `0x472C60` | compares message dword **`+0x04`** by greater-than |
+| `+0xC14` | `0x472C80` | tests bit `0x01` of both message `+0x08` status bytes |
+| `+0xC68` | `0x472CA0` | tests message `+0x08` bit `0x02` in first vs second |
+| `+0xCBC` | `0x472BA0` | resolves message **`+0x1C`** string-like field via `0x5CE6A0`, then compares bytes |
+| `+0xD10` | `0x472C00` | resolves each message through its vtable **`+0x18`** string-returning function and compares bytes |
+
+**Important corrective consequence:** Replacing EAMail with a generic date-sorted list would discard original selected-filter state and native comparison rules. The field `message+0x04` comparator **must not yet be labeled “date”** without decoding the record layout and producer. Neither sorting *direction* nor stability can be asserted solely from one comparator, absent full sorting-loop/initial list evidence.
+
+**Status:** source producer and filter/comparator **EXACT on the described pointer/bit/arithmetic boundary**, broader original end-to-end inbox **PARTIAL** (no original GUI receipt, no complete record typing/action/data lifecycle), current main and Codex integrated inbox still **ABSENT**. Next source task: trace the concrete message record constructors / user `+0x6B4` producers and native row renderer `CMessageList`, validate actual original messages across multiple clubs/states, then label controls and implement through Codex only when proven.
+
 ## P0-C/P0-D follow-on — original first-team view actions and missing native-look NEXT click
 
 **Native original control proof, hash-gated:**
