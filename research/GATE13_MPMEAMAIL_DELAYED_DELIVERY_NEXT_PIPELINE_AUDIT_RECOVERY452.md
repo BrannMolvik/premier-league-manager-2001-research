@@ -45,6 +45,18 @@ Then **`0x613F4C..0x613F75`** loops all registered managers **`index=0..0x8755E4
 
 **Classification: EXACT source instruction-level due-date bound, event virtual dispatch, called NEXT/PResults sites, manager routing and mailbox-list follow-up. PARTIAL/UNKNOWN** input consumer timing beyond these two call sites, record readiness semantics, lifecycle/delete consequences, save persistence, 2-club behavior, actual Windows GUI receipts.
 
+## C2. Actual original per-record retention and expired-mail removal — source-verified second step
+
+The manager-wide `0x5CF990` pass at the end of `0x613EE0` is not just a redraw/counter recalculation. Its exact original source control flow is:
+
+1. For each existing 12-byte mailbox node, it calls the **message record's virtual `+0x40`** at `0x5CF99C..0x5CF9A3`. If that returns **nonzero**, the node is kept and the iteration advances to the next node.
+2. If **`+0x40` returns zero**, it calls the message record's virtual **`+0x44`** at `0x5CF9AA..0x5CF9AE`, then invokes **`0x42CC30`** for the current node at `0x5CF9B8`. That method unlinks the node via `0x42CBF0`, conditionally invokes record cleanup, and frees the list node. This is a *native mailbox-retention/removal rule*, not a visual-list filter.
+3. **Default original EAM record method `0x470CE0`** compares `current_game_date 0x9847FC` with **`record+0x04 + 0x16D`** and returns one exactly when `current_date <= record_date + 365`. Multiple representative concrete classes have virtual `+0x40→0x470CE0`: `EAMYouthPromoteOffer` vft `0x7CE780`, `EAMClubTransferOfferReply` vft `0x7CEFCC`, `EAMAssManMonthlyTrainingReportM` vft `0x7CEF24`, `EAMbcmonthlyincome` vft `0x7D00FC` and `EAMChairSeasonTicketssub` vft `0x7BD9B8`. This supports **365 original date-units** of retention for these specific classes, inclusive of the boundary — not all 609 EAM-prefixed types.
+4. A concrete counterexample is **`EAMChairSeasonTicketSetsub`** vft `0x7BD95C`, virtual **`+0x40→0x538530`**, comparing **`current_date <= record_date + 0x15`**, i.e. **21 date-units**. Its virtual `+0x44→0x5D18E0` also differs from those representative classes' common `+0x44→0x667D30`. This is **class-specific retention and lifecycle**, not a global mailbox TTL.
+5. The previously proven `MPMEAMail::0x5CFA20` stamps the underlying record `+0x04` from the queued event date when dispatching. That dated record field is the **same `record+0x04` operand** used by these retention methods. Delivery chronology, status bits and cleanup timing therefore interact; don't set every message date to when its inbox screen is first opened.
+
+**CONFIRMED:** class-specific original date-offset eligibility tests and the native mailbox per-manager removal sequence, invoked by `0x613EE0` during actual NEXT and PResults advancement; **UNKNOWN:** original game-calendar mapping for date-units under every calendar family, what specialized cleanup `0x5D18E0` additionally changes, full exception list across 609 RTTI EAM classes and user-visible expired-message behavior. Do not automatically delete all mail after 365 wall-clock days or force a one-size global in-game TTL. This source work does **not** prove an implemented usable inbox or verified Windows11 save/load behavior.
+
 ## D. Concrete Codex handoff (research only)
 
 1. Do not populate the original inbox simply by reading the global pending queue or running all EAM constructors at panel opening. Preserve **global due-event queue → scheduled MPMEAMail envelope → polymorphic record readiness → record date stamp → owner-specific mailbox routing → sorted/filtered PEAMail view**.
