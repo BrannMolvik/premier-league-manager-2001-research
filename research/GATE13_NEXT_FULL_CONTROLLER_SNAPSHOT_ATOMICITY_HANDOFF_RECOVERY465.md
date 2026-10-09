@@ -60,6 +60,19 @@ Add **tests of the actual `advance_original_management_turn`**, not just `origin
 
 **Release severity:** P0 for transactional game-state integrity **once ordinary NEXT is wired**, P0 for its still absent real click. This report does **not** claim whole backend missing or claim unsafe behavior in a real Windows session today.
 
+## D2. Second source/code cross-check — single-user controller and save are NOT a hotseat rollback oracle
+
+The original new-user constructor registers multiple human managers and NEXT rotates current-manager index modulo count (Recovery445/458, original `0x413C60..0x413C71`, `0x43261F..0x432639`). A second code inspection during Recovery465 makes the *implementation* obstruction exact:
+
+- `reconstruction/front_end_session.py::dispatch(TeamSelectControl.START_CONTINUE)` explicitly rejects `len(selected_club_ids)!=1`. The test `test_source_style_multiple_users_are_recorded_but_fail_closed_at_start` expects that failure; it is intentional fail-closed scope, not a working hotseat mode.
+- The current `HumanGameplayController` constructor sets one mutable **`self.human: HumanManagerState|None`** and a single `self.original_squad_membership`. Its `select_club` (~lines582–637) **overwrites `self.human = HumanManagerState(club_id=...)`** and the squad membership and initializes the controlled club's financial/stadium state; it does **not** append a registered human manager to a user collection. Calling `select_club` twice would *replace* the earlier active manager context instead of creating two original registered human users.
+- `internal_save.py::snapshot_human_gameplay` (**schema48**) serializes exactly one optional **`controller.human`** to scalar field **`controller["human"]`**; `restore_human_gameplay` rebuilds one `HumanManagerState` and sets **`state.user_controlled_club_id`**. It has **no per-user array and no source current-user-index field** in that controller mapping.
+- Thus the modern internal save's otherwise broad rollback/testing scope in Section C is **a single-human contract only**. It cannot prove source hotseat manager switching, both users' independent roster/formations/messages, or the selected current-human index survives save and load.
+
+**Required Codex sequencing:** maintain the present single-user guard until the controller, shared calendar, per-user mail/roster ownership, and versioned save schema **all** support multiple registered human contexts with explicit selected index. Do not “fix” Gate13 hotseat by deleting the front-end length check, by repeated `select_club` calls or by testing two unrelated single-human saves. Source-level test: TeamSelect two distinct clubs → Start creates exactly two owners → NEXT state2 rotates current user without resetting game state → selected club/roster/inbox views follow correct owner → save/reload retains both and current index. Test source roster gate and shared results for both users on real Windows11 before acceptance.
+
+**Classification:** confirmed original multi-human semantics from existing source audit; confirmed current *single-human* controller and save schema code from current Codex; not a live Windows11 gameplay or save test. The finding refines, not overturns, Recovery458.
+
 ## E. Standing original-source constraint from Recovery464
 
 Native `Side::0x510320→0x615F40` searches its selected calendar's same-slot, previous-slot and next-slot before conditionally creating a `PostponedEvent`, and the original `0x615A60` inserts using relative slots and source collision adjustment. The original 0x615F40 dependency is locally bounded, but other wrapper producers and post-processing source callbacks remain. No part of this implementation audit justifies marking all `unknown` event wrappers `clear`, inferring a native event from display-only header text, or treating any synthetic date interval as authorized native game progress.
