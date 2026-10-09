@@ -89,6 +89,21 @@ Concrete original source class vtable confirmations (TypeDescriptor pointer at `
 
 **Next high-value owner trace:** pick at least two real source EAM message constructors/producer paths (one ordinary informational, one actionable) and inspect their payload/message records, virtual action/label owner, message insertion into `user+0x6B4`, and resulting native row/detail state. Compare two managers/clubs and empty/populated inbox states on Windows 11, Codex-only implementation.
 
+## C3. Representative native message-class vtables prove distinct row data and action callbacks
+
+A second independent source step inspected **actual vtable slots**, not merely RTTI name strings. These four concrete original record classes (type descriptors and vtables above) have **distinct per-record `+0x18` / `+0x1C` presentation producers and, for the actionable examples, distinct `+0x34` callbacks**:
+
+| Original record class | vtable | virtual +0x18 (row second text) | virtual +0x1C (selected preview/data) | virtual +0x34 (auxiliary event3 target) |
+| --- | --- | --- | --- | --- |
+| `EAMYouthPromoteOffer` | `0x7CE780` | `0x551C60` | `0x551CE0` | `0x585F00` |
+| `EAMClubTransferOfferReply` | `0x7CEFCC` | `0x54C000` | `0x54C080` | `0x559610` |
+| `EAMAssManMonthlyTrainingReportM` | `0x7CEF24` | `0x54D9F0` | `0x54DA20` | `0x5B6000` |
+| `EAMbcmonthlyincome` | `0x7D00FC` | `0x5724A0` | `0x5724D0` | `0x5B6000` |
+
+The original PMessageRow code **`0x471ED7`** actually invokes record virtual `+0x18`, the row select method **`0x471BC3`** invokes record virtual `+0x1C`, and auxiliary row event3 **`0x471C97`** calls record virtual `+0x34`. This closes the source link from the common row UI to **polymorphic, concretely different** source data and action producers. Different callbacks **do not by themselves identify the user-visible button labels or verify a complete transaction**. The shared `0x5B6000` callback on two sample classes also demonstrates that not every record necessarily needs a unique action.
+
+**Codex scope:** a faithful mailbox cannot populate all these rows with one invented generic message title/preview/action; however implementations may share behavior where original virtuals share the same owner. More source work is required to type the meaning, side effects and persistence for each actually emitted message family.
+
 ## D. Comparison to current runtime and immediate Codex handoff
 
 At latest Codex head `0ae745d1b56f45cade460f03cd893849a2f53b45`, `reconstruction/original_game_host.py::on_click` has no live PEAMail route. Both main and Codex still lack the actual **PBg direct EAMail header click**, original **CMessageList/PMessageRow**, and native **PEAMMessage** detail. PMenu 0x65 identity does not imply a working inbox; header source geometry from Recovery449 is exact **(558,0,40,95)**, with original PMenu (599,0,100,95) and NEXT (700,0,100,95).
