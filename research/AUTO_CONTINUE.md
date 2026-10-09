@@ -32,6 +32,8 @@ tests, modern conventions, or visual plausibility are not substitutes for that
 evidence. If the behavior is unresolved, investigate first or preserve an
 explicit unresolved/fail-closed boundary.
 
+**Original-file fidelity sweep is the worker's primary operating mode.** Read `research/ORIGINAL_FILE_FIDELITY_SWEEP.md` and maintain `research/ORIGINAL_FILE_FIDELITY_LEDGER.md`. Prefer auditing and correcting existing mappings/designs over expanding into a new screen/subsystem. When a private/Windows blocker prevents one audit target, move to another existing reconstructed surface to verify against original evidence rather than defaulting to later-gate feature work.
+
 Until Daniel explicitly lifts the modernization freeze, autonomous work is
 limited to restoring the original game and the minimum technical compatibility
 work required for Windows 11. Do not add or expand Settings, upscaling, visual
