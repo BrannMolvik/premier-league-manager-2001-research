@@ -24,6 +24,23 @@ The authorized private original executable at `/mnt/data/fm2001_private/football
 
 **Exact row-local dimensions and IDs** follow the original instruction arguments in `0x5D68D0`, `0x64F380`, `0x651BA0`; the row **532×18** also matches the original 532×18 grid-asset headers. **NOT YET PROVEN:** absolute screen x/y of `PEAMail+0xF58` list parent, row font names/actual pixel raster, labels for the text columns, and whether the row background's ID1 click always produces the same neutral row-event argument. Avoid guessing a global screen rectangle from these row-local values.
 
+## A2. Source-verified CMessageList list rect and eight visible row-slot stride
+
+A follow-on direct source trace identifies the previously unresolved **panel-local list control geometry**, but **not yet the whole PEAMail panel's absolute screen origin**:
+
+1. The real `PEAMail` child setup **`0x46F511..0x46F557`** obtains `PEAMail+0xF58` (final `CMessageList` vtable `0x7C2A50`), assigns parent/control ownership with **ID `0x11` (17)**, and calls the list's virtual **`+0x98 → 0x6510F0`** with exact nine original arguments:
+   ```text
+   0x6510F0(x=0xE9=233, y=0x1E=30,
+            width=0x221=545, height=0xA0=160,
+            visible_slots=8, row_stride=0x14=20,
+            extra_arg=2, initial_scroll=0, flags=0)
+   ```
+2. **`0x6510F0`** forwards the first four arguments to `0x64F380` as the source local control rectangle, writes `CMessageList+0x30 = 8`, **`+0x34 = 20`**, **`+0x38 = 2`**, **`+0x3C = 0`** and allocates eight 0x30-byte list-entry descriptors (`0x65113E..0x65117B`).
+3. The source loop **`0x651194..0x651209`** invokes the CMessageList virtual **`+0x9C → 0x471D20`** once per visible slot, links each actual concrete `PMessageRow` as list child, and positions it using list row geometry virtuals **`+0xA0`** / **`+0xA4`**. The source initial viewport starts at scroll offset zero.
+4. Thus the native inbox has a **545×160 panel-local list region at (233,30)** with eight **20-pixel-spaced row slots** holding **532×18** source grid rows. This corroborates the earlier source `max(0,filtered_count−8)` scroll limit rather than replacing it with an arbitrary table pagination rule.
+
+**Classification: EXACT original `PEAMail`-local list position, 8-row count, 20-pixel row pitch, embedded row dimensions, constructor ownership and original list factory.** **UNKNOWN:** original PEAMail panel's absolute screen offset, scroll widget visible pixels/click events, whether the enclosing panel placement changes the final coordinates, and the specific native row-boundary hit-test action sequence. Do not render it at screen (233,30) before establishing parent offset.
+
 ## B. Four real original EAMail grid resources — no guessed modern row background
 
 The original executable paths at `0x836024/0x836050/0x83607C/0x8360AC` and static resource loaders bind:
