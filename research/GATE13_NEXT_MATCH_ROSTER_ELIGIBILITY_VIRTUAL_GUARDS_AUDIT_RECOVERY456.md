@@ -51,6 +51,21 @@ Prior Recoveries442/445 already prove, and original `0x4324FE..0x432688` re-disa
 
 Do not restart the previous calendar/PResults/event-classes audits; these remain exact source findings with unknown Windows GUI acceptance.
 
+## D2. Second independently verified roster gate: native 0x407F40 and guarded forced Squad return
+
+This source path is **different from `0x407FE0`** above. The original `0x43245F..0x4324FC` branch explicitly fetches the current manager `0x4139D0`, gets that user's `+0x5B4` roster/selector, invokes **`0x407F40`**, and then conditionally performs a source modal and **Squad-screen** transition.
+
+Original `0x407F40` performs an **effective eleven-entry threshold**, not merely the raw roster count gate in `0x407770`:
+
+1. Iterates `roster_owner+0x294` entries selected by 16-bit player IDs in the array beginning `roster_owner+0x244`; resolves original player records from global **`0x875640`** using original **0x250-byte per-record stride** (the disassembly computes `((37 * id) << 4)=592=0x250`).
+2. Calls player method **`0x418050`** with original roster-owner `+0x04` and `0x407EC0` context, and increments a tally only when that callback returns **false** (see `0x407F88..0x407F95`). What the original callback's football meaning is remains UNKNOWN.
+3. Obtains **`0x407060(11,0)`**, calls **`0x407DF0`**, calculates **`max(0, result_of_407060 - result_of_407DF0)`**, **subtracts this quantity** from the earlier tally, and returns true iff the adjusted tally is **at least 11** (`0x407FBB..0x407FD7`).
+4. Therefore **`0x407F40` is NOT equivalent to `roster_owner+0x294 >= 11`**, and also is not equivalent to the earlier composite readiness `0x407FE0`. It is an independently source-defined *adjusted eligible-player tally*. Avoid naming player exclusion flags beyond their own producer evidence.
+
+**What the original NEXT function does with it:** at **`0x43246F`**, if `0x407F40` returns nonzero, it builds original roster feedback text via **`0x407410`**, invokes native modal/choice via **`0x668995`**. If that modal returns **zero**, the code calls **`0x482BF0(0xCE)`** to construct the original **Squad** panel and **`0x5ED2A0`** to push it, and calls **`user::0x42C6C0(2)`** before common date/UI post-processing. If the modal returns **nonzero**, it bypasses that Squad construction (source branch `0x4324B7→0x432505`). If `0x407F40` itself returns zero, it skips the modal/Squad subpath and reaches the user state2 setter via `0x4324E9`. Exact prompted text, accepted choice semantics and all input states are **UNKNOWN**. It would be wrong to read `0x407F40` result alone as a universal match-failure / success or to unconditionally open Squad on every NEXT click.
+
+**Concrete Codex regression cases:** verify `0x407FE0` roster readiness separately from the later `0x407F40` adjusted tally; create source-backed fixtures for adjusted count below/equal/above11, a modal accepted/refused path, a route back to native Squad, and a route continuing without Squad — all after an *actual NEXT ID3 pointer event* and within original selected-manager context. Exact source behavior and Windows11 receipts are not already implemented by the existence of an isolated match simulator.
+
 ## E. Verified main/Codex normal-click comparison and Codex-only handoff
 
 Both branches include a `reconstruction/original_management_next.py` source-backed bitmap/caption and hit helper `native_next_at_point(x,y)` for native rect **(700,0,100,95)**. Latest Codex host **`reconstruction/original_game_host.py` blob `14c4436d600aa2a397779d6fe22cdc74b742bf26`** uses `native_next_at_point` in its **`on_fixtures_pager_motion` hover** and changes `management_next_flags`. But its actual ordinary **`on_click`** block (**around lines2320–2420**) recognizes PMenu opener, Squad row, Fixtures pager, PMenu tree and Fixtures grid, **with no NEXT/MATCH hit-to-action dispatch**; if no PMenu row or fixture grid it sets a status string and returns. The main host also has no NEXT action in its management `on_click`.
