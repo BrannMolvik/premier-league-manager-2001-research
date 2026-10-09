@@ -22,6 +22,7 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 10. Before moving to the next gate, verify the gate's completion criteria.
 11. **Original-behavior-first is a hard implementation gate.** Before changing behavior, presentation, controls, timing, navigation, layouts, asset transforms, or simulation semantics, first establish and persist how the shipped original behaved and the evidence supporting it. If the original behavior is unresolved, investigate it or leave the boundary unresolved/fail-closed; do not invent a plausible modern substitute. See `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
 12. **Modernization freeze:** until Daniel explicitly lifts it, the only modernization permitted is the minimum technical adaptation required to make the original game run correctly on Windows 11. Do not add new UX, graphics features, settings, controls, gameplay changes, or quality-of-life behavior during this phase. Performance work is allowed only to remove reconstruction overhead while preserving original behavior.
+13. **Active fidelity-sweep directive:** the autonomous worker's primary job is to re-check existing reconstructed mappings/designs against the original files/executable. Follow `research/ORIGINAL_FILE_FIDELITY_SWEEP.md` and maintain `research/ORIGINAL_FILE_FIDELITY_LEDGER.md`. Correct or fail-close discrepancies before choosing new feature expansion.
 
 ## Current roadmap status
 
