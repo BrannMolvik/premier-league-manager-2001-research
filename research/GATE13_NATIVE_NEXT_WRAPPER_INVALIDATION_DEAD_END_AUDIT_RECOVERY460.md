@@ -44,6 +44,14 @@ The explicit invalidation is intentional. Its docstring correctly notes the orig
 
 This is an **implementation dead end within a deliberately bounded source contract**, not proof that the backend's prototype match engine is absent. Its correct integration could be staged for source-qualified fresh fixtures, while symbolic Cup/postponed/rescheduled events continue to fail closed.
 
+## A2. Additional integrity risk — failure occurs *after* mutating game date and wrapper state
+
+The current `advance_original_management_turn` method has **no transaction/rollback** around its day loop. In the same order proven above, it increments `self.state.calendar.current_date` and rewrites the shadow's wrapper-link states to `unknown` **before** it invokes `_process_current_primary_day`. When that final call throws `RuntimeError('Original NEXT current-day wrapper lifecycle is unresolved')` for a due fixture, the exception exits the controller without an inverse date increment, restored wrapper snapshot, or compensating state rollback.
+
+**Precisely conditional finding:** if a source-qualified UI/controller call proceeds into a calendar day with a due primary entry that triggers this guard, the call can fail **with an already advanced current date and downgraded wrapper certainties**. Subsequent retries would then start from mutated state unless a higher-level implementation handles transactionality. This is a **static control-flow observation**, *not* a report of observed corruption in today's normal Tk game, because its original-look NEXT click still cannot reach this controller*. Nor does it establish which additional monthly/weekly player-management effects may have occurred on the same day.
+
+**Codex regression:** snapshot date, relevant schedule-shadow links, pending fixture and RNG before a qualified NEXT operation; force the precisely expected unresolved due-owner branch; compare all snapshots after exception. A source-fail-closed refusal should not silently consume a game day or mutate the saved manager context. Determine actual original transactional boundary from the native source before introducing rollback behavior; do not simply suppress an exception and count the day as processed.
+
 ## B. Existing tests do not cover this actual controller path
 
 - `reconstruction/test_original_management_advance.py` blob **`a9fbbb367d955f67a3b4257a5fb837ca036544e6`** tests the **pure** `original_management_advance_target` date-selection function, but has **no call** to `HumanGameplayController.advance_original_management_turn`.
