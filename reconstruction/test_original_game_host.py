@@ -190,8 +190,8 @@ class FakeHeaderFont:
 
 
 class FakeHeaderDateFont:
-    atlas_width = 1366
-    atlas_height = 19
+    atlas_width = 1261
+    atlas_height = 17
 
     def measure_text(self, text):
         return 100

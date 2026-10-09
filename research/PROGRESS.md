@@ -1,3 +1,17 @@
+### 9 October 2026 KST — actual direct-font ownership restored
+
+Canonical6044AC/6044F4/6044F9 binds16px8CAB80, not adjacent18px8BD970.
+Independent full-loader/lifecycle challenge and primary source read-back
+disprove old Squad/header claims. Minimum shared binding/guards/tests repaired;
+Bold18 name/number font, rectangles, selection and save schema unchanged.
+144 focused tests/23.940s/1 licensed skip and asset policy passed. Withdrawn
+Windows/Tk1x/1.5x checked99 actual controls against independently decoded source
+atlas,18,358/43,144 pixel reads, all30 players/90 cells and disk/fresh-process
+reload. No visible or whole-playable acceptance; formation refresh/input,
+Inbox/NEXT still unfinished. Original binaries/reports remain private; no
+original process, main merge, immutable-folder or worker-protocol change.
+Gate13 OPEN; known disjoint full-suite failures not waived.
+
 ### 9 October 2026 KST — independent formation-control owner counterexample
 
 Canonical constructors/vtables disprove the shared2/1/1 form/bar claim:

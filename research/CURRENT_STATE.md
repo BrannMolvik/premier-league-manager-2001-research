@@ -1,5 +1,20 @@
 # Local recovery integration — 9 October 2026
 
+**Live direct-font correction:** independent canonical loader/lifecycle review
+disproved8CAB80=18px. It is16px; adjacent8BD970 owns18px. Corrected shared Squad
+numbers/headings and header date/match font verification, retaining the separate
+Bold18 name/number owner and all existing geometry/state.144 focused tests in
+23.940s/1 expected licensed skip and asset policy passed. Withdrawn real Windows/
+Tk at1x/1.5x checked99 controls per scale against an independent original16px
+atlas decoder (18,358/43,144 pixel transparency/RGB reads), all30 players/90
+cells and disk/fresh-process row preservation. Not visible acceptance or a
+complete playable build. Private receipts:
+9ebe948d2beddf1a1f2e1b7c8af8ee89903710d6b324140a2eedd81b0285838c /
+aeb895763d2f2d766fbf35fc81fb74591cbad0348c8d73deedd130a96a130092.
+Next continue ordinary pitch/refresh normalization and Inbox/NEXT. No original
+process, old delivered-folder overwrite, main merge, worker protocol or later-
+gate change. Gate13 OPEN; established full-suite Gate17 failures below remain.
+
 **Independent formation-owner correction:** actual constructors distinguish
 FormationBtn7C5644 (11/1/1; selected source y176) from FormationText7C5700
 (2/1/1; selected y32). The old shared bar rule was wrong for the form atlas.

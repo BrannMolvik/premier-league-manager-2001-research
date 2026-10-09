@@ -39,6 +39,15 @@ from original_squad_row_style import (
 
 
 class OriginalSquadRowStyleTests(unittest.TestCase):
+    def test_direct_scf_font_owner_does_not_use_adjacent_18px_font(self):
+        # 6044AC/6044F4/6044F9 bind 16px to 8CAB80; 18px binds 8BD970.
+        self.assertEqual(SQUAD_SCF_FONT_SOURCE_PATH, 'Fonts/Zurich_XCn_BT_16pixel.fnt')
+        self.assertEqual(SQUAD_SCF_FONT_ATLAS_SIZE, (1261, 17))
+        resources = load_verified_squad_row_text_resources(
+            Path(__file__).resolve().parents[1] / 'original_assets/source')
+        self.assertEqual((resources.scf_font.atlas_width, resources.scf_font.atlas_height),
+                         (1261, 17))
+
     def test_shirt_selector_preserves_primary_and_alternate_native_context(self):
         self.assertEqual(select_squad_shirt_number(registered_club_id=5,
             represented_club_id=5, primary_number=12, alternate_number=29), 12)
@@ -173,7 +182,7 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
             SQUAD_NAME_DEFAULT_RGB,
         )
 
-    def test_exact_imported_18px_squad_fonts_are_verified(self):
+    def test_distinct_18px_name_and_16px_scf_fonts_are_verified(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
         resources = load_verified_squad_row_text_resources(source_root)
         self.assertEqual(

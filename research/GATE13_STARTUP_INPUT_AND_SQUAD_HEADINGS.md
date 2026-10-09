@@ -52,7 +52,8 @@ Their globals/English.idx indexes are:
 
 The sequential loader at 64661C qualifies Skill; previously proven First Team
 166 and 1ST & RES 2490 calibrate the language reader. All four use font 8CAB80
-(verified Zurich_XCn_BT_18pixel.fnt), white, raw flags 2050h. The first-roster
+(Zurich_XCn_BT_16pixel.fnt; the old18px claim was disproved by the direct
+6044AC/6044F4/6044F9 loader on9October), white, raw flags 2050h. The first-roster
 parent origin is (37,101); heading parent is therefore (275,123).
 6520C0/657280/6570F0 prove counterclockwise rotation, centering by native line
 height and bottom anchoring with the space glyph width as initial advance.

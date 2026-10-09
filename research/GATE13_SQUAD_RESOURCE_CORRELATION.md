@@ -410,10 +410,28 @@ numeric controls without borrowing styling from `PSquadPlayerRow`.
 
 All three route through numeric text helper `0x652400` with raw text flags
 `0x24` (horizontal + vertical centering) and font object `0x8CAB80`.
-That object is already provenance-bound to byte-identical
-`Fonts/Zurich_XCn_BT_18pixel.fnt` (79,734 bytes; SHA-256
-`968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a`;
-atlas 1366x19).
+**9 October correction:** the earlier 18px ownership claim was incorrect.
+The sequential loader pushes the 16px path at `6044AC`, assigns ECX=`8CAB80`
+at `6044F4`, and calls `657650` at `6044F9`. The following 18px block loads
+**`8BD970`**, not `8CAB80`. The exact direct-owner resource is
+`Fonts/Zurich_XCn_BT_16pixel.fnt` (75,217 bytes; SHA-256
+`e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`;
+atlas 1261x17, native line height18).
+
+Independent canonical re-execution/source challenge establishes that `604160`
+is sequential, reached from `5310E6` after the display branches merge.
+`6040B0` changes resolution-dependent aliases, not this direct font object.
+PSCFRow, `48A590` headings, and application header controls
+`4306D8/43075C/4307DA` pass `8CAB80` directly; they cannot use the neighboring
+18px font. PMenu child labels already use the correct16px resource.
+
+Implementation gate: the original draws these controls with the16px atlas;
+the reconstruction's18px binding is a confirmed defect. Minimum repair is
+the Squad/header font identity, size/hash/atlas guards and affected tests,
+without changing rectangles, text styles, row membership or simulation.
+Source identity is verified; actual Windows widget output is a separate check,
+and visible/user acceptance is not inferred from static or bounded evidence.
+Other font aliases and later-gate consumers are not certified by this repair.
 
 The exact format strings are `%N` at `0x81ACAC` for Condition and role
 rating, and `%.N` at `0x81B534` for recent form. In formatter

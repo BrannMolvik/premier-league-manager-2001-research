@@ -4,6 +4,18 @@ _Recovery 396, 8 October 2026._
 
 ## Authoritative local correction — 8 October 2026
 
+**Additional9October correction:** the supporting font ownership below was
+also wrong. Direct object `8CAB80` is16px, not18px: the canonical sequential
+loader pushes path839E30 at6044AC, sets ECX=8CAB80 at6044F4, then calls657650
+at6044F9. The following18px resource is bound to8BD970. Header setup passes
+8CAB80 directly at4306D8/43075C/4307DA. Use the staged
+`Fonts/Zurich_XCn_BT_16pixel.fnt`,75,217bytes,
+SHA-256`e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`,
+atlas1261x17/native lineheight18. The minimal repair changes only that binding
+and its verification/tests; geometry, formatting and input semantics stay put.
+See `GATE13_SQUAD_RESOURCE_CORRELATION.md` for independent lifecycle challenge.
+The historical18px claims below are superseded, not implementation authority.
+
 The **36-pixel font mapping below is disproved** by a fresh, hash-gated read
 of the canonical executable. The exact `0x6043AA` instruction pushes
 `0x839E94`; that string is `Fonts\\Zurich_BdXCn_BT_32pixel.fnt`, including

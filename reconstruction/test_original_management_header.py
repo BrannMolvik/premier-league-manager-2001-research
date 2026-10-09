@@ -96,8 +96,8 @@ class FakeClubNameFont:
 
 
 class FakeDateFont:
-    atlas_width = 1366
-    atlas_height = 19
+    atlas_width = 1261
+    atlas_height = 17
 
     def measure_text(self, text):
         return 100
@@ -171,7 +171,7 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(HEADER_DATE_FONT_OBJECT_VA, 0x8CAB80)
         self.assertEqual(
             HEADER_DATE_FONT_SOURCE_PATH,
-            "Fonts/Zurich_XCn_BT_18pixel.fnt",
+            "Fonts/Zurich_XCn_BT_16pixel.fnt",
         )
 
     def test_exact_staged_club_name_font_verifies_source_bytes_and_two_clubs(self):
@@ -259,7 +259,7 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(overlay.native_color_16, 0xFFFF)
         self.assertEqual(
             overlay.font_source_path,
-            "Fonts/Zurich_XCn_BT_18pixel.fnt",
+            "Fonts/Zurich_XCn_BT_16pixel.fnt",
         )
         self.assertEqual(overlay.rgba[:4], b"\xff\xff\xff\xff")
         self.assertEqual(len(overlay.rgba), 100 * 9 * 4)
