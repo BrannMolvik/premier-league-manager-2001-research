@@ -121,7 +121,9 @@ from original_squad_top_controls import (
     OriginalSquadTopResources,
     build_fresh_squad_top_render,
     load_verified_squad_top_resources,
+    squad_button_frame_png,
 )
+from original_squad_tab_animation import OriginalSquadTabAnimation
 from original_squad_row_style import (
     build_first_roster_column_heading_overlays,
     build_first_roster_shirt_number_overlays,
@@ -438,6 +440,9 @@ class OriginalGameTkHost:
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self._squad_drag_source = None
+        self._squad_tab_animation = OriginalSquadTabAnimation()
+        self._squad_tab_items = {}
+        self._squad_tab_draw_resources = None
         self._squad_background_rows = ()
         self._squad_background_items = {}
         self._squad_background_photos = {}
@@ -748,6 +753,8 @@ class OriginalGameTkHost:
                                      width, height, rgba)
 
     def _draw_first_screen(self) -> None:
+        self._squad_tab_items = {}
+        self._squad_tab_draw_resources = None
         self._management_header_items = {}
         self._management_header_draw_resources = None
         self._squad_background_rows = ()
@@ -1194,9 +1201,10 @@ class OriginalGameTkHost:
 
     def _schedule_management_header_update(self) -> None:
         if (
-            isinstance(self.management_header_resources, OriginalManagementHeaderResources)
-            and self._management_header_idle is None
-            and self.management_header_state.pending()
+            self._management_header_idle is None
+            and ((isinstance(self.management_header_resources, OriginalManagementHeaderResources)
+                  and self.management_header_state.pending())
+                 or (self._squad_tabs_live() and self._squad_tab_animation.pending()))
         ):
             self._management_header_idle = self.root.after_idle(
                 self._advance_management_header
@@ -1206,11 +1214,40 @@ class OriginalGameTkHost:
         self._management_header_idle = None
         if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
             return
-        if self.management_header_state.update():
-            if not self._update_management_header_layers():
+        # The same serialized visible-owner update pass advances both concrete
+        # owners. Squad vft7BE814 is NOT the first-screen Button@ease class.
+        header_changed = (isinstance(self.management_header_resources, OriginalManagementHeaderResources)
+                          and self.management_header_state.update())
+        tabs_changed = self._squad_tabs_live() and self._squad_tab_animation.update()
+        if header_changed or tabs_changed:
+            if ((header_changed and not self._update_management_header_layers())
+                    or (tabs_changed and not self._update_squad_tab_layers())):
                 self.redraw()
             else:
                 self._schedule_management_header_update()
+
+    def _squad_tabs_live(self) -> bool:
+        from original_management_shell import SQUAD_PANEL_CODE
+        return bool(self._squad_tab_items
+            and self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+            and self.management_presenter is not None
+            and self.management_presenter.selected_child_id == SQUAD_PANEL_CODE
+            and self.management_presenter.squad_view_control_id == 3
+            and self.active_pmatchinfo_art is None and not self.pmenu_popup_active)
+
+    def _update_squad_tab_layers(self) -> bool:
+        resources = self.squad_top_resources
+        if (not isinstance(resources, OriginalSquadTopResources)
+                or resources is not self._squad_tab_draw_resources
+                or self._squad_tab_items.keys() != {3, 4, 5}):
+            return False
+        for control_id, source_index in zip((3, 4, 5), self._squad_tab_animation.frames()):
+            item, previous_index = self._squad_tab_items[control_id]
+            if source_index != previous_index:
+                self.canvas.itemconfigure(item, image=self._photo(
+                    squad_button_frame_png(resources, source_index), retain=False))
+                self._squad_tab_items[control_id] = item, source_index
+        return True
 
     def _update_management_header_layers(self) -> bool:
         resources = self.management_header_resources
@@ -1409,6 +1446,8 @@ class OriginalGameTkHost:
 
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
+        self._squad_tab_items = {}
+        self._squad_tab_draw_resources = None
         if frame.presentation.panel_class != "PSquadScreen":
             return 0
         transition = frame.presentation.squad_view_transition
@@ -1427,17 +1466,24 @@ class OriginalGameTkHost:
                 "Squad landing renderer requires verified original top-control resources"
             )
         rendered = build_fresh_squad_top_render(
-            resources, include_reserve=getattr(frame.presentation, 'paired_squad', None) is not None)
+            resources, include_reserve=getattr(frame.presentation, 'paired_squad', None) is not None,
+            source_frames=self._squad_tab_animation.frames())
         count = 0
         for overlay in rendered.overlays:
             image = self._photo(overlay.png)
-            self._create_native_image(
+            item = self._create_native_image(
                 overlay.x,
                 overlay.y,
                 image=image,
                 anchor=self.tk.NW,
             )
+            if overlay.role == 'button':
+                self._squad_tab_items[overlay.control_id] = item, overlay.source_index
             count += 1
+        self._squad_tab_draw_resources = resources
+        self._squad_tab_animation.observe(
+            self._first_screen_pointer if self._squad_tabs_live() else None)
+        self._schedule_management_header_update()
         return count
 
     def _draw_squad_backgrounds(self, frame) -> int:
@@ -1703,6 +1749,8 @@ class OriginalGameTkHost:
             self._schedule_first_screen_update(view)
             return
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            self._squad_tab_animation.observe(
+                self._first_screen_pointer if self._squad_tabs_live() else None)
             x, y, width, height = HEADER_COMPOUND_RECT
             inside_header = (
                 x <= int(event.x) < x + width

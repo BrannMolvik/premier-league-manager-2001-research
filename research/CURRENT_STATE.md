@@ -1,5 +1,23 @@
 # Local recovery integration — 9 October 2026
 
+**Further local original-control repair:** source-closed Squad tab update
+vft7BE814 ->6527F0, lengths11/1/1 and physical row bases0/11/22.
+The combined-view selected tab stays at11; ordinary unselected tabs now
+hover0..10 and retreat on the existing management idle pass, alongside the
+header. No guessed timer, tab activation, roster split or formation shape.
+6,656 canonical bounded update/offset comparisons passed.170 focused tests
+passed before the final shared-pass regression; all10 new tab tests including
+that additional case passed. Asset policy and diff checks passed. Withdrawn
+real Windows/Tk at1x/1.5x verified240 actual tab bitmap reads,40 updates per
+scale, no snapshots/redraws/item or photo-reference growth, and all30 Southport
+owners. See `GATE13_SQUAD_TAB_UPDATE.md` for exact original contract and the
+formation producer dependencies recovered next. Existing installed originals
+at C:\Games\FM2001 and the private canonical exe are present; executable hash
+reverified. Daniel need not extract the authorized ZIP again. No original
+process, main merge, agent-runtime or security change. Formation activation,
+Inbox and ordinary NEXT remain unfinished; Gate13 is OPEN. This focused
+repair does not supersede the non-green full-suite receipt below.
+
 **Local repair resumed:** merged current audited `origin/main` a3c93648 into
 `codex/gate13-windows-playability-recovery`, preserving the audit-only worker's
 research. Confirmed and corrected resident Fixtures art causing full Squad/

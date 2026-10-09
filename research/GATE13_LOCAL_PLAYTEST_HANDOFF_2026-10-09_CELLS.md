@@ -62,3 +62,20 @@ Original executable/archive remain verified/private. No original process,
 Azure/signing, App Control change, registry operation, Gate14 implementation,
 main merge or agent-runtime mutation occurred. Private scripts/receipts/images/
 saves remain under the thread's `work` directory, outside Git.
+
+## Subsequent original-control recovery
+
+`GATE13_SQUAD_TAB_UPDATE.md` now source-closes the actual Squad tab update
+owner. Combined-view hover is live, with group lengths11/1/1 rather than
+Button@ease's11/11/1, no new timer, and in-place bitmap updates on the same
+management idle pass as the header.6,656 canonical comparisons and withdrawn
+Windows/Tk at1x/1.5x passed. Formation controls are still not click-wired.
+
+The next pitch dependency is now bounded:4B60A0/4B5ED0 normalize actual
+role/aux state via405FF0/406320, use role population count in5F0CC0, and
+apply user-manager180/183 through5F0BD0. Do not use the AI formation template
+as a substitute for those live player coordinates or invent shape-byte50
+defaults. Pitch resource is coaching/pitch/pitch.444 at literal8376E4,
+wrapper943F10; title wrappers9467F0/9467B0 bind title_bar_31/30. The original
+installed files and canonical private executable remain available; no ZIP
+re-extraction or cloud upload is necessary for the local analysis.

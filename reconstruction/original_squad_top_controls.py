@@ -178,17 +178,30 @@ def _crop_frame(atlas: EA444DecodedImage, source_index: int) -> bytes:
     )
 
 
+def squad_button_frame_png(resources: OriginalSquadTopResources, source_index: int) -> bytes:
+    """Crop only one source bitmap; do not rerasterize roster/text on each tick."""
+    if not isinstance(resources, OriginalSquadTopResources) or type(source_index) is not int:
+        raise OriginalSquadTopControlsError('Verified Squad resources/source frame required')
+    return encode_rgba_png(*SQUAD_BUTTON_FRAME_SIZE, _crop_frame(resources.atlas, source_index))
+
+
 def build_fresh_squad_top_render(
     resources: OriginalSquadTopResources,
     *, include_reserve: bool = False,
+    source_frames: tuple[int, int, int] = SQUAD_BUTTON_INITIAL_SOURCE_FRAMES,
 ) -> OriginalSquadTopRender:
-    """Compose the native initial state: control 3 selected, controls 4/5 normal."""
+    """Compose the combined view, including its live ordinary hover subframes."""
     if not isinstance(resources, OriginalSquadTopResources):
         raise OriginalSquadTopControlsError(
             "Squad top rendering requires verified original resources"
         )
     if type(include_reserve) is not bool:
         raise OriginalSquadTopControlsError('Explicit native paired-list visibility is required')
+    if (not isinstance(source_frames, tuple) or len(source_frames) != 3
+            or any(type(value) is not int for value in source_frames)
+            or source_frames[0] != 11
+            or any(not 0 <= value <= 10 for value in source_frames[1:])):
+        raise OriginalSquadTopControlsError('Unqualified combined-view Squad tab frames')
     panel_x, panel_y, _panel_w, _panel_h = SQUAD_PANEL_RECT
     width, height = SQUAD_BUTTON_FRAME_SIZE
     line_height = resources.font.native_line_height()
@@ -231,7 +244,7 @@ def build_fresh_squad_top_render(
     for button, group, source_index in zip(
         SQUAD_BUTTONS,
         SQUAD_BUTTON_INITIAL_GROUPS,
-        SQUAD_BUTTON_INITIAL_SOURCE_FRAMES,
+        source_frames,
     ):
         x = panel_x + button.origin[0]
         y = panel_y + button.origin[1]
