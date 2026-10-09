@@ -19,12 +19,8 @@ These are **ORIGINAL EXECUTABLE RTTI NAMES**, not class names invented by clean-
 | **`Event`** | `0x7C4D70` | `0x81B1F0`, `.?AVEvent@@` | `0x510380` constructs core calendar event, assigning initial relative offset `+0x10=-1` |
 | **`Match`** | `0x7C4CE4` | `0x81B3F8`, `.?AVMatch@@` | `0x5103D0` calls `Event::0x510380` then overwrites final vtable `0x7C4CE4` |
 | **`LeagueMatch`** | `0x7C4C24` | `0x81B410`, `.?AVLeagueMatch@@` | `0x5104F0` calls `Match::0x5103D0`, then overwrites final vtable `0x7C4C24`; original caller `0x61622B` constructs 0x50-byte instance in source calendar |
-| **`CupMatch`** | `0x7C9D9C` | `0x828240`, `.?AVCupMatch@@` | `0x510520` calls `Match::0x5103D0` and overwrites final vtable, original factory call `0x6162F5` |
-| **`PostponedEvent`** | `0x7C9FE8` | `0x828240` is **NOT** its descriptor; exact own TypeDescriptor **`0x828240` belongs to CupMatch**, while PostponedEvent uses **`0x828240`?** — check below | `0x510BA0` and `0x6161A0` allocate 0x1C and call base Event `0x510380`, then set final `0x7C9FE8` |
-
-### Source correction of RTTI table for PostponedEvent
-
-To eliminate descriptor conflation, verified static RTTI for `0x7C9FE8` is **COL `0x7EA128`, TypeDescriptor `0x828240`, `.?AVPostponedEvent@@`**. The `CupMatch` table row's correct TypeDescriptor **must be independently verified before publishing a duplicate address**; the class name `.?AVCupMatch@@` and vtable `0x7C9D9C` are independently verified. The exact RTTI type descriptors should be treated as address-level evidence only when source hash independently matches.
+| **`CupMatch`** | `0x7C9D9C` | `0x81BA80`, `.?AVCupMatch@@` | `0x510520` calls `Match::0x5103D0` and overwrites final vtable, original factory call `0x6162F5` |
+| **`PostponedEvent`** | `0x7C9FE8` | `0x828240`, `.?AVPostponedEvent@@` | `0x510BA0` and `0x6161A0` allocate 0x1C and call base Event `0x510380`, then set final `0x7C9FE8` |
 
 ## B. Original calendar entry data fields and allocation sequence
 
