@@ -57,6 +57,17 @@ The manager-wide `0x5CF990` pass at the end of `0x613EE0` is not just a redraw/c
 
 **CONFIRMED:** class-specific original date-offset eligibility tests and the native mailbox per-manager removal sequence, invoked by `0x613EE0` during actual NEXT and PResults advancement; **UNKNOWN:** original game-calendar mapping for date-units under every calendar family, what specialized cleanup `0x5D18E0` additionally changes, full exception list across 609 RTTI EAM classes and user-visible expired-message behavior. Do not automatically delete all mail after 365 wall-clock days or force a one-size global in-game TTL. This source work does **not** prove an implemented usable inbox or verified Windows11 save/load behavior.
 
+## C3. Original EAMail factory placement is not the same as Squad placement
+
+One more independently bounded original-source pass resolves the **parent-panel layout configuration**, supplementing the previously verified **CMessageList panel-local** rectangle `(233,30,545,160)`.
+
+- The original `PMenu` factory **`0x47B1D0..0x47B220`** constructs the real `PEAMail` object (0x14A0 bytes) with the current user's mailbox and calls its original layout wrapper **`0x47F2B0`** with four literal source parameters **`(0,0x94=148,8,0)`**.
+- The wrapper `0x47F2B0..0x47F2D3` calls common **`0x653320`** with six source operands **`x=0,y=148,width=0x320=800,height=0x212=530,aux=8,flags=0`**. Source `0x653320` assigns `panel+0x0C=0`, `panel+0x10=148`, `panel+0x14=800`, `panel+0x18=678` and `panel+0x54=0` from these arguments. These are **verified panel-owner rectangle values**, not guessed based on bitmap similarity.
+- The same original PMenu factory sets **`PSquadScreen`** differently: `0x47AF66..0x47AF80` calls `0x653320` with **`x=0,y=0x4F=79,width=800,height=0x208=520,aux=8,flags=0`**. Thus reusing Squad's 79-pixel top offset for EAMail would contradict original per-panel setup.
+- Combining native EAMail panel coordinate origin `(0,148)` with the source direct child list local origin `(233,30)` gives a **computed unclipped owner-relative list position `(233,178)`**; owner-local list dimensions remain 545×160 with eight 20-pixel slots. **This is not yet a measured final Windows screen-space hit rectangle** because original owner stacking, clipping and any translations/animations still require source/user-visible validation. Notably the stored panel bottom `678` is beyond a nominal 600-pixel height and should not be silently “corrected” to fit a modern canvas without understanding source clipping/viewport behavior.
+
+**Status:** original factory, source owner-rectangle parameters and relative child layout **EXACT**. Final physical screen offset, clipping and pixel-level original Windows GUI receipt **UNKNOWN**. This closes a concrete original-screen parent-layout mapping while deliberately not overstating full on-screen parity.
+
 ## D. Concrete Codex handoff (research only)
 
 1. Do not populate the original inbox simply by reading the global pending queue or running all EAM constructors at panel opening. Preserve **global due-event queue → scheduled MPMEAMail envelope → polymorphic record readiness → record date stamp → owner-specific mailbox routing → sorted/filtered PEAMail view**.
