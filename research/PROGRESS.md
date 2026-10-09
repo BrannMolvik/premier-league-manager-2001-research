@@ -1,3 +1,21 @@
+### 9 October 2026 KST — independent original-behaviour recovery and Reserve-XI guard correction
+
+Daniel's approved recovery plan and hard audit gate are durable in
+`GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md` / `ORIGINAL_BEHAVIOR_FIRST_POLICY.md`.
+An independent adversarial audit disproved the port's First-only goalkeeper
+drop guard. The exact source applies the target-side XI count to both sides.
+Small correction plus three red-before-green regressions;264 bounded canonical
+comparisons passed,16 guard hits. Fresh Southport reaches the corrected branch
+through three ordinary name drags, with no state arrangement. Withdrawn real
+Windows/Tk at1x/1.5x matched native bytes, all30 players/90 populated cell items;
+actual disk save/fresh-process reload retained order, roles/aux/reserve bytes,
+row locations and human IDs.276 focused tests/46.359s and asset policy passed.
+See `GATE13_SQUAD_DROP_REAUDIT.md` for fixture leaves and independent review.
+Not physical-mouse/visible acceptance or proof of Daniel's screenshot cause.
+Cursor, formation/Inbox/NEXT remain required; Gate13 OPEN. Historical full-suite
+failures are not waived. No original process, main merge, later-gate work,
+worker-protocol, signing, registry or security changes.
+
 ### 8 October 2026 KST — Recovery 415: opt-in Gate-14 decoded font-global leads verified and merged
 
 - Confirmed canonical initial `main` `9093e55e6480565c34b2e8bd96cea0cbaf758570`; source-first, ROADMAP, CURRENT_STATE and work ownership (released lock) were checked before independent Gate-14 work-ahead.

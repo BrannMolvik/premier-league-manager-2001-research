@@ -81,8 +81,10 @@ def drop_original_squad_row(players, *, source_index, target_index,
             # under two pushed arguments), not retained target aux at +1C.
             goalkeeper_count = sum(p.selection == target_kind and p.current_role == 1
                                    for p in result)
-            if (target_kind == 4 and goalkeeper_count == 0
-                    and sum(p.selection == 4 for p in result) == 11
+            # Both 406BE0 (First) and 406DF0 (Reserve) reach 4B97D2..F3;
+            # the selected-XI count belongs to the target side in either case.
+            if (goalkeeper_count == 0
+                    and sum(p.selection == target_kind for p in result) == 11
                     and source.current_role == 1):
                 role, aux = 1, 0  # 4B97DF..F3, not a goalkeeper approximation
         # Exact sequence also matters when source and target are identical.

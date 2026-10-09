@@ -1,5 +1,24 @@
 # Local recovery integration — 9 October 2026
 
+**Approved independent-reference recovery is now active:** read
+`GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md` and the hard audit gate in
+`ORIGINAL_BEHAVIOR_FIRST_POLICY.md`. Unverified findings are unsafe dependencies;
+SOURCE-VERIFIED, INTEGRATION-VERIFIED and VISIBLE-ACCEPTED are separate.
+Independent challenge found a real Reserve-XI goalkeeper guard omitted by the
+port; the original target-side count applies to both XIs. The smallest repair
+is integrated, with three red-before-green regressions and264/264 bounded native
+comparisons. Fresh Southport reached the guard via three ordinary row-name
+gestures (Reserve GK to empty First bench, unselected Morley to empty Reserve
+XI, First GK to Reserve non-GK). Real withdrawn Windows/Tk at1x/1.5x matched
+native bytes and retained all30 players; disk save/fresh-process reload retained
+bytes/order/rows/human IDs.276 focused tests and asset policy passed. See
+`GATE13_SQUAD_DROP_REAUDIT.md` for inputs, independent review and explicit
+emulation leaves. Not Daniel's exact physical-mouse sequence or full playable
+acceptance. Next: source-close original drag-name cursor and required formation/
+Inbox/NEXT ownership; a cursor packed-color/runtime-format ambiguity is not
+silently replaced with conventional RGB. Gate13 OPEN; no original process,
+main merge, later-gate implementation, agent-runtime or security changes.
+
 **Further local original-control repair:** source-closed Squad tab update
 vft7BE814 ->6527F0, lengths11/1/1 and physical row bases0/11/22.
 The combined-view selected tab stays at11; ordinary unselected tabs now

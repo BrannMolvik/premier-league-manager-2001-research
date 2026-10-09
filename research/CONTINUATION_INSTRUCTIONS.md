@@ -178,6 +178,13 @@ A chat conclusion is provisional until it is persisted with enough evidence that
 
 ### Mandatory implementation evidence check
 
+Daniel's hard audit gate in `ORIGINAL_BEHAVIOR_FIRST_POLICY.md` applies to old
+and new findings alike. Unverified claims are unsafe implementation dependencies.
+Keep bounded source proof, real integration verification and visible acceptance
+as separate statuses. Counterexamples reopen the claim and dependent acceptance;
+do not keep working in affected files on the disputed assumption. Follow the
+approved `GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md` before further cosmetic work.
+
 Before every behavior-changing implementation, explicitly record:
 - the original behavior being reproduced;
 - the source/original evidence for it;

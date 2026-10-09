@@ -44,6 +44,46 @@ class NativeRowDropTests(unittest.TestCase):
         members = members[:2] + (player(2, 4, 1),) + members[3:]
         self.assertEqual(self.drop(members).players[1].current_role, 4)
 
+    def test_reserve_goalkeeper_exception_uses_full_target_xi(self):
+        # Independently executed native4B97D2..F3 also handles Reserve XI.
+        # Full N30/quota5: First11+5, Reserve11+3 (not a small-roster default).
+        members = (replace(player(0, 4, 1), current_aux=2),)
+        members += tuple(player(i, 4, 4) for i in range(1, 11))
+        members += tuple(player(i, 3, 4) for i in range(11, 16))
+        members += tuple(replace(player(i, 2, 2), current_aux=3)
+                         for i in range(16, 27))
+        members += tuple(player(i, 1, 4) for i in range(27, 30))
+        result = self.drop(members, source=0, target=16)
+        by_id = {p.player_id: p for p in result.players}
+        self.assertEqual((by_id[0].selection, by_id[0].current_role,
+                          by_id[0].current_aux), (2, 1, 0))
+        self.assertEqual((by_id[16].selection, by_id[16].current_role,
+                          by_id[16].current_aux), (4, 1, 2))
+        self.assertEqual([p.player_id for p in result.players][0], 16)
+        self.assertEqual([p.player_id for p in result.players][16], 0)
+
+    def test_target_side_goalkeeper_guard_exact_boundaries(self):
+        for kind in (2, 4):
+            for count in (10, 11, 12):
+                for has_goalkeeper in (False, True):
+                    for source_role in (1, 3):
+                        with self.subTest(kind=kind, count=count,
+                                          has_goalkeeper=has_goalkeeper,
+                                          source_role=source_role):
+                            # Count12 is an injected guard boundary; ordinary
+                            #4B7500 clears overflow before normal presentation.
+                            members = [player(0, 0, source_role)]
+                            members += [replace(player(i, kind,
+                                1 if i == 2 and has_goalkeeper else 2),
+                                current_aux=3) for i in range(1, count + 1)]
+                            members += [player(i) for i in range(count + 1, 30)]
+                            result = self.drop(members)
+                            source = next(p for p in result.players if p.player_id == 0)
+                            expected = ((1, 0) if count == 11 and not has_goalkeeper
+                                        and source_role == 1 else (2, 3))
+                            self.assertEqual((source.current_role, source.current_aux),
+                                             expected)
+
     def test_self_drop_follows_native_clear_and_restore_sequence(self):
         member = replace(player(0, 2, 7), current_aux=2, reserve_role=3, reserve_aux=1)
         actual = self.drop((member,), target=0).players[0]
@@ -281,6 +321,40 @@ class NativeRowHostTests(unittest.TestCase):
         self.assertTrue(host._press_original_squad_row(SimpleNamespace(x=40,y=233)))
         self.assertIsNone(host._squad_drag_source)
         self.assertFalse(host._press_original_squad_row(SimpleNamespace(x=107,y=233+13*17)))
+
+    def test_ordinary_owner_drop_applies_reserve_goalkeeper_guard_and_refresh(self):
+        from types import SimpleNamespace
+        host, c = self.host()
+        for i, member in enumerate(c.state.ordered_club_roster(1)):
+            member.clear_match_selection(reset_position=True)
+            if i < 11:
+                member.set_match_active()
+                member.assign_match_position(1 if i == 0 else 4, 2)
+            elif i < 16:
+                member.set_match_substitute_available()
+            elif i < 27:
+                member.set_reserve_active()
+                member.assign_match_position(2, 3)
+            else:
+                member.set_reserve_substitute()
+        c.original_squad_membership = c.state.original_primary_squad_membership(
+            1, substitute_quota=5)
+        old_owner = c.original_squad_membership
+        source_id, target_id = old_owner.members[0].player_id, old_owner.members[16].player_id
+        self.assertTrue(host._press_original_squad_row(SimpleNamespace(x=107,y=233)))
+        self.assertEqual(host._squad_drag_source[1], source_id)
+        self.assertTrue(host._release_original_squad_row(SimpleNamespace(x=488,y=233)))
+        source, target = c.state.players[source_id], c.state.players[target_id]
+        self.assertEqual((source.match_selection_state_code, source.current_position,
+                          source.position_aux_code), (2, 1, 0))
+        self.assertEqual((target.match_selection_state_code, target.current_position,
+                          target.position_aux_code), (4, 1, 2))
+        self.assertIsNot(c.original_squad_membership, old_owner)
+        self.assertEqual(c.original_squad_membership.members[0].player_id, target_id)
+        self.assertEqual(c.original_squad_membership.members[16].player_id, source_id)
+        self.assertIn(target_id, c.human.starter_ids)
+        self.assertNotIn(source_id, c.human.starter_ids)
+        self.assertEqual(host.draws, 1)
 
 
 class NativeRowSaveTests(unittest.TestCase):

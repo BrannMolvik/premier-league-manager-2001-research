@@ -14,7 +14,8 @@ ownership guard, NOT injury checking). The target's original XI/reserve/bench
 kind and role/aux are retained. `406BE0` / `406DF0` receives literal role **one**,
 excluded pointer **null** (`4B973D/3F`). Its result writes original esp+14:
 the +1C store is under two pushed arguments, NOT the retained aux at esp+1C.
-For first XI count eleven, zero existing role-one players and dragged role one,
+For the target First OR Reserve XI count eleven, zero existing role-one players
+on that side and dragged role one,
 `4B97DF..F3` forces role one/aux zero. Clearing
 the target runs `4181B0`; its new kind comes from the dragged player's still-live
 selection. For XI this copies the dragged current role/aux; for bench it resets
@@ -22,6 +23,12 @@ to preferred role. The dragged player then receives the retained target kind
 and role/aux (or preferred reset). Finally the two +244 roster words swap,
 and `4B8C50` refreshes ordering. Setter transitions through reserve XI swap
 the retained +152/+153 bytes, so these must not be lost in a Python flag swap.
+
+**9 October independent re-audit:** the earlier First-only guard implementation
+was incorrect. Native4B9743/4B97BA both reach4B97D2..F3. A targeted valid N30
+Reserve-XI counterexample escaped all400 prior random cases. See
+`GATE13_SQUAD_DROP_REAUDIT.md` for proof scope, live-input contract and separate
+source/integration/visible acceptance statuses. Test counts are not fidelity proof.
 
 `4B9486..4B9673` handles actual empty-row owners. It preserves dragged role/aux
 for XI, rejects the exact occupancy == capacity test and loan guard, and uses
