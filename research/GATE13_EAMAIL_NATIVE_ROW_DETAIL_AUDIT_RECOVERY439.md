@@ -42,6 +42,14 @@ At the end of `PEAMail::0x472880`, the selected array count at `PEAMail+0x6C` is
 
 **Source relationship:** PMessageRow `+0x10` virtual action after original accepted event, global selected-row selection, and subsequent second press are distinct from PEAMail `+0x10` callback `0x4721C0` (filter/header/actions IDs 1..25). Do not merge their event namespaces or fabricate a Tk double-click equivalent without the original event source/timing verification. The row's second activation could mean repeated press or another original gesture; *repeat-event path* is certain, exact physical gesture remains UNKNOWN.
 
+## C2. Concrete message-detail panel identity and bounded native event dispatch
+
+The prior neutral “detail UI” can now be named from **original MSVC RTTI**: `0x472CD0` constructs a `0xD08`-byte derived object, first setting base **`PExplodingDialog` vtable `0x7C0D54`** at `0x472CF7` and finally writing **`PEAMMessage` vtable `0x7C2714`** at `0x47300C`. The original RTTI COL for `0x7C2714` is `0x7E3748`; TypeDescriptor `0x81C6B8` identifies **`.?AVPEAMMessage@@`**. Constructor `0x473017..0x473030` binds underlying message virtual `+0x18/+0x1C` result fields at instance `+0x7C/+0x80`. The original popup is thus a real concrete native `PEAMMessage` panel, not a generic clean-room text dialog.
+
+The `PEAMMessage` final virtual **`+0x10 -> 0x473500`** explicitly accepts event objects whose field `+0x20` lies in **ID range `5..16`**, dispatching through original byte table `0x4735C8` and target table `0x4735BC`. Its bounded targets include `0x473530` (calls generic `0x6539F0`), `0x473543` (updates child control metric via `0x64F600`), and `0x473573` (calls **message object virtual `+0x2C`**, then `0x473890` if accepted). The actual user-facing button/option labels, event-to-action semantics, confirmation/close side effects and return to inbox remain **UNKNOWN**, despite the now-proven concrete class, input event domain and message-dispatch path.
+
+**Minimum correct implementation handoff:** preserve `PEAMMessage` source object lifecycle, bounded 5..16 event dispatch and message-specific virtual `+0x2C` action; independently trace the per-event control/layout and the original panel-stack dismissal/return before wiring clicks. Do not assume “open details” is a generic label-only popup or that record flag `+0x08 bit 0x02` is a confirmed user-facing “read” field.
+
 ## D. Main vs Codex fidelity classification
 
 Both `main` and Codex branch `codex/gate13-windows-playability-recovery` (head above) still integrate only `0xCE` Squad, `0x25C` League Fixtures and `0x25A` League Tables in `build_management_panel_snapshot`. Neither has a live native `PEAMail`/`CMessageList`/`PMessageRow` panel path with the original linked-list filtering, sorting, scrolling, row selection, second-activation/detail, record-bit mutation and return semantics. The native **EAMail menu ID `0x65`** is static-recognized but its destination remains unusable.
