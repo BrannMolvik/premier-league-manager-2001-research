@@ -1,3 +1,17 @@
+# Daniel directive — systematic original-file fidelity sweep is primary
+
+_9 October 2026 KST._
+
+The autonomous worker's **main job is now correctness auditing of the existing reconstruction**. Recent evidence has shown that some mappings/design interpretations can be wrong even when tests pass. Before expanding new surfaces, systematically compare what is already implemented against the shipped original files/resources/executable using `research/ORIGINAL_FILE_FIDELITY_SWEEP.md` and maintain `research/ORIGINAL_FILE_FIDELITY_LEDGER.md`.
+
+Priority starts with the player-visible Gate-13 path and shared club-management screens, then startup media/window/input/timing, then already reconstructed Gate-14 presentation, then high-risk backend mappings. Verify exact resource identity, control ownership/order, geometry, fonts/text/colors, data fields, navigation/input/timing and gameplay semantics. Southport remains only a reproduction fixture; shared paths must be checked on additional clubs/states.
+
+**Do not treat old source-backed labels, passing reconstruction tests, or visual plausibility as sufficient. Re-check important mappings from the original.** If a mapping is WRONG, correct it or fail-close it. If UNKNOWN, persist the source question and do not guess. If one audit target is externally blocked, audit another existing reconstructed surface rather than defaulting to new later-gate feature work.
+
+Modernization remains frozen except minimum Windows 11 compatibility.
+
+---
+
 # Recovery 415 — decoded font-wrapper reference triage merged; private source execution still blocked
 
 _8 October 2026 KST. Canonical technical main commit `93cdb977fe1b90f0afa0d1b06de5f17f631eac4f`, PR #559. Gate 13 remains earliest incomplete validation gate; Gates 14–17 and the Windows 11 release are incomplete._
