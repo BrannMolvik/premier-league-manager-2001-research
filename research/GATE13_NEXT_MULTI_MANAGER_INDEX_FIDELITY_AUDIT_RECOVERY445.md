@@ -48,6 +48,18 @@ This directly qualifies earlier partial descriptions: `0x8755D4` is not an indep
 
 **Classification: EXACT** at native address/instruction and linked user-record identity; **PARTIAL/UNKNOWN** for calendar candidate `+0x10` semantic label, specific match/gameplay branch predicates, direct PResults `+0x10 -> 0x4A87E0` event producer, original visual/input timing and full Windows acceptance.
 
+## C2. Native candidate calendar family + relative offset → absolute date-like value
+
+An additional direct bounded source trace of `0x510300`, `0x510A20`, `0x615D10`, and `0x510BA0` independently closes the transformation of the still-neutral `candidate+0x10` ordering field:
+
+- **`0x510300`** reads candidate **byte `+0x0C` bit `0x01`**; when set returns original **calendar collection object `0x947AF0`**, otherwise **`0x947AD8`**. These are the same two original source collections inspected in `PResults::0x4A8260` event-processing.
+- **`0x510A20`**, with the original candidate as `this`, reads candidate dword **`+0x10`**, calls **`0x510300`** to choose the source collection, reads selected collection **`+0x08`**, then **adds the two** and writes the result to an out-param. Therefore the source *calendar date-like index* passed to NEXT is **`candidate.relative_offset(+0x10) + collection.base(+0x08)`**, not simply the raw candidate `+0x10` value.
+- The multi-user minimum selection in `PResults::0x4A8467..0x4A8471` compares **raw candidate `+0x10` offsets**, and only **after** selecting the winner calls `0x510A20` to calculate the date-like output. That distinction is an exact source order; sorting every candidate by an absolute date before selection would be **a rule change unless the bases are separately proven identical**.
+- The calendar collection lookup **`0x615D10`** uses its own `[collection+0x04]` size and `[collection+0x08]` base for indexed day-range traversal, eventually calling `0x615C50` on entries. This corroborates `+0x08` as collection base/index origin; source-specific field names and actual end-user calendars remain untyped.
+- Secondary candidate method **`0x510BA0`** checks candidate **`+0x08`** and returned event flags **`+0x44 bit `0x40`** before building/adding a next occurrence, where the code uses candidate `+0x10 + 7` and re-chooses the source collection via `0x510300`. This proves a real seven-unit source recurrence step for that method, **not** a universal weekly fixture rule or proof that every candidate repeats.
+
+**Classification:** EXACT native collection selection, relative offset arithmetic and source call order; user-facing semantics (what the two calendar families represent, whether collection base values differ on live data, and what the seven-unit cadence represents) **UNKNOWN**. **Minimum Codex rule:** do not collapse source candidate relative offset and normalized date or sort by normalized dates before proving source equivalence. Preserve distinct original flag paths.
+
 ## D. Original PResults callback remains source-unresolved, negative result respected
 
 An exhaustive **raw `CALL rel32` scan** of `.text` found **no direct `CALL 0x4A87E0`**. The only 4-byte absolute literal pointer to `0x4A87E0` in the canonical PE is its original vtable slot. This supports *virtual dispatch* as the likely caller class but **does not establish which runtime event, if any, reaches it**. Specifically, the shared `waiting_back_2.444` image at PResults `+0x16C` is registered with native control ID0, and native `0x64F7A0` skips parent-action dispatch for control ID0 (Recovery443). There is **still no proof** of a click-to-close control. Do not substitute a guessed bottom-strip click in production.
