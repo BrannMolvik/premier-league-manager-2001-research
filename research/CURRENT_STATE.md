@@ -17,7 +17,15 @@ policy passed. Real withdrawn Windows/Tk at1x/1.5x verified30 players/90
 cells, exact blue pixels,300 motion events per scale with0 snapshots, header
 cycles without snapshots/reference growth, and disk/fresh-process reload.
 These are background widget checks, not visible/audio acceptance. Full-suite
-recheck is in progress. NEXT, formation views and Inbox remain unfinished;
+recheck:3,088 tests/340.340s/25 skips; existing Gate17 package-lock3 failures+
+1 error and a sandbox subprocess-path failure (that test passed when rerun
+outside the sandbox); full suite not green. No new
+Squad/host failure. New fixed-source presentation test folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-5270f58c`;
+technical checkpoint5270f58c12cee04c923aa3f8492b0ddbf8d04839. Its actual
+snapshot passed the same withdrawn Tk/fresh-process checks; original-launcher
+startup media was not visibly/audibly requalified in this run. Earlier folders
+and Daniel's train save remain unchanged. NEXT, formation views and Inbox remain unfinished;
 Gate13 OPEN. No original-game launch, main merge or worker-protocol change.
 
 **Prior 4% reserve handoff (superseded by the repairs above):** Daniel's latest priority is the missing original

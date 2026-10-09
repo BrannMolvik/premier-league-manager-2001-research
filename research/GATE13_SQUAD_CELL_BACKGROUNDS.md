@@ -65,3 +65,19 @@ followed by a fresh Python process retaining the same30 native row owners.
 The per-scale300-event loops took0.020s/0.014s on this machine; these are
 synthetic widget-handler timings, not native/user-visible latency equivalence.
 No visible/manual/audio acceptance or working ordinary NEXT is claimed.
+
+Full reconstruction suite:3,088 tests/340.340s/25 skips, **not green**.
+The existing Gate17 complete-lock error/three package-lock mismatch assertions
+and sandbox repo-root subprocess path failure remain (the latter passed on
+individual rerun outside the sandbox); none of this work's
+Squad/host tests failed. No Gate17 check was weakened or unrelated fix attempted.
+
+Technical checkpoint5270f58c12cee04c923aa3f8492b0ddbf8d04839 is pushed on
+`codex/gate13-windows-playability-recovery`, not merged. Fixed source test folder
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-5270f58c`
+was tested again using its actual imports, not the working checkout, including
+fresh-process reload. Complete source archive SHA256:
+`421d8cac701bc4b453fa414ccafa971e6bcf222ec66bfb8a15a1a23c76abd38d`.
+The quick diagnostic launcher explicitly skips movies; the ordinary launcher
+keeps the existing verified media path. No frozen-executable or visible/audio
+startup acceptance is implied. Earlier snapshots and user saves are unchanged.
