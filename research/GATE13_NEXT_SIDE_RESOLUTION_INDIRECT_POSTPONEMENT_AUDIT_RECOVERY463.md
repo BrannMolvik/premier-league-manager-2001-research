@@ -56,6 +56,20 @@ This **does not** restore the Codex global blanket invalidation as an exact orig
 3. For source-complete fixed-League paths, test an actual normal PBg ID3 click feeding Codex's existing bounded `HumanGameplayController.advance_original_management_turn`, reaching pending human pre-match and returning through original PResults without mutating the game before a failed guard. Verify across **two actual clubs**, **two human managers in one save**, and real Windows11 normal input. The clicked NEXT button and simultaneous TeamSelect are still missing in current Codex and main.
 4. Do **not** ask Codex to redo bitmap/pixel audit, reimplement its existing match simulator, or overwrite original source art; return to functional implementation.
 
+## B2. Follow-on source step — ordinary NEXT candidate discovery can postpone and then skip its own candidate
+
+The **same `0x514520→Side::0x510320→0x615F40→0x510BA0` indirect chain** is *also entered during ordinary original NEXT candidate discovery*, not only during PResults tomorrow refresh:
+
+- `0x615D10` scans the source calendar day buckets and invokes common candidate filter **`0x615C50`** at `0x615D3B` with its manager selector and source flags. The previously source-verified `PBg::0x432190` NEXT action calls `0x615D10`.
+- `0x615C50` first checks payload presence, status and current Event+0x08 unlinked state (`0x615C65..0x615CDD`), then **calls `0x514520(Event)` at `0x615CE1`**.
+- As the present Recovery463 source chain shows, `0x514520` can resolve a concrete Side and call `0x615F40`, which can conditionally create a new `PostponedEvent` through `0x510BA0` and set an Event's +0x08 wrapper link.
+- Crucially, **`0x615C50` rereads candidate Event+0x08 at `0x615CE6`** and when nonzero continues scanning at `0x615CED`; only when still zero does it return the Event at `0x615CF8`. Thus an otherwise initially eligible Event may be **skipped after native candidate-time Side resolution changed its wrapper linkage**.
+- This source behavior is distinct from `0x615DA0` explicitly invoking a payload virtual +0x64 conflict check (Recovery447); neither native event *query* can automatically be represented by a pure function that only reads cached fixture dates.
+
+**New implementation boundary:** the source-equivalent NEXT selector cannot be certified just by looking at the first clear wrapper and assuming it stays clear. It needs the original candidate-time Side resolution and its **post-resolution Event+0x08 recheck**, or must refuse unknown dynamic cases before mutating the saved game state. A date-only, display-derived selector is insufficient. Conversely blanket UNKNOWN across all future event owners after every day increment remains unsupported by these narrowly scoped original call chains.
+
+**Evidence reproduction:** `objdump -d -Mintel --start-address=0x615c50 --stop-address=0x615cfb footballmanager.exe` and `--start-address=0x615d10 --stop-address=0x615d55`; linked methods `0x514520`, `0x510320`, `0x615F40`, `0x510BA0` as cited in Section A. **CONFIRMED** native call and recheck sequencing; **UNKNOWN** frequency/pattern of real-game candidates affected, Windows input outcomes and all other indirect writers.
+
 ## C. Limits and known unfinished gates
 
 - **CONFIRMED in original executable:** precise indirect virtual dispatch through next-day Side resolution into `0x615F40` and the existing `0x510BA0` guarded creator; chain-following in `0x513FE0`, second-Side call suppression when Event+0x08 becomes linked, additional candidate-specific filter `0x616020`.
