@@ -45,6 +45,31 @@ The row repeat-activation helper `0x471270` constructs `PEAMMessage` (0xD08-byte
 
 **Classification:** exact original instruction- and resource-address-level event/size/stack contract; **PARTIAL** end-to-end EAMail fidelity, because receiver/return/visual assets/fonts/button labels/message semantic field typing and multi-club original input observations are still UNKNOWN.
 
+## D. Follow-on: native post-dialog results and return-to-inbox refresh (second verified source step)
+
+Further static original-executable tracing **after** the detail activation identifies the source return path and discharges part of the prior “return unknown” label:
+
+1. The row-repeat `0x471270` pushes `PEAMMessage` through stack-entry `0x5EB540` at **`0x47136D`**, calls original OS message-pump helper **`0x532C10`** on global manager `0x877960` at `0x47137A`, then passes the detail object to **`0x532650`** at `0x471387`. That result is retained in `EBX` at `0x47138C`.
+2. **`0x47138E..0x4713AC` rechecks the currently live original EAMail instance global `0x876758`**, and if present, it calls `CMessageList` vtable **`+0xA8`** on `PEAMail+0xF58` with the preserved native scroll offset `PEAMail+0x127C` and argument 1. This explicitly **refreshes/restores list scroll position after detail processing**. It is not evidence that the currently missing clean-room mailbox does so.
+3. The returned neutral code is checked for **range `5..16`** at `0x4713B2..0x4713BE` and dispatched through the twelve-entry original dword jump table at **`0x4715E8`**:
+
+| Detail result code | Source target | Source operation, neutral original intent |
+| --- | --- | --- |
+| **5** | `0x4715B0` | invokes stack helper `0x5EB920` on current detail; calls underlying message virtual **`+0x20`** with argument **5** |
+| **6** | `0x471564` | removes current detail by `0x5EB920`; uses **previous** array entry `PEAMail+0x68[original_index-1]` and recursively calls **`0x471270`** to present it |
+| **7** | `0x47153A` | removes current detail; uses **next** array entry `PEAMail+0x68[original_index+1]` and recursively calls `0x471270` |
+| **8** | `0x47158E` | removes detail; calls message virtual **`+0x44`**, then `0x471150`; exact action and state effects require data-owner trace |
+| **9..11** | `0x4713DA` | gets message virtual **`+0x20`** with `result-9` and (on non-null return) opens another `PEAMMessage` object and conditionally creates a record/queue entry; source semantics not yet labelled |
+| **12..15** | `0x4715C9` | no immediate second detail action in this switch; proceeds to final message-pump call and return |
+| **16** | `0x4713C5` | calls native stack helper **`0x5EB920`** on current detail and proceeds to common return path |
+
+4. Common return at **`0x4715C9`** runs the source `0x532C10` event-pump helper again and returns from `0x471270`. For native posted `WM_USER=0x400`, an additional source message-processing loop at `0x532B80` explicitly intercepts `MSG.message==0x400` rather than dispatching it as an ordinary Windows message; **whether the detail's owner actually uses this helper for its posted Escape event is not yet established**. It would be misleading to call the complete Escape→result16 receiver path conclusively closed.
+5. The general `0x532C10` helper itself drains messages using original `PeekMessageA/GetMessageA/TranslateMessage/DispatchMessageA` imports, and skips standard translation for `WM_LBUTTONDOWN=0x201`, `WM_LBUTTONDBLCLK=0x203`, `WM_RBUTTONDOWN=0x204`. This is evidence of **real input-event sequencing**, not proof that modern Tk double-click or release events are equivalent.
+
+**Status:** **EXACT source result table/scroll restore/branch calls**, **PROBABLE** Escape result16 close connection, **UNRESOLVED** receiver/projection of Escape notification into dialog result code, action labels, complete message mutation rules, visual/physical Windows input. This finding makes ordinary mailbox navigation, especially next/previous message and return, substantially more concrete than merely knowing a detail class exists.
+
+**Codex handoff refinement:** preserve the indexed pointer array semantics **and original index** when navigating previous/next; after detail returns, refresh CMessageList with stored `PEAMail+0x127C` offset; route result codes through the verified table rather than assuming every close or message action simply returns to the menu. In particular result6 is previous, result7 next, result16 stack removal. No implementation by the audit worker.
+
 ## Hand-off order (Codex implementation owner; no authorization for this audit-only worker)
 
 1. Trace **`PostMessageA(WM_USER,16)` receiver** to prove actual Escape close/return sequencing and existing selected-message snapshot restoration, before implementing Escape mapping for EAMail detail.
