@@ -42,6 +42,16 @@ This audit searched the original PE's direct code references to global **`0x8768
 
 The `waiting_back_2.444` original bottom bitmap still has original control ID 0 and **`0x64F7A0` skips parent action callbacks for ID 0**. In particular, neither the event-progress callbacks nor an image's existence supports “click bottom 800×87 strip to return.” Do not implement that wrong route without new source proof.
 
+## B2. Verified normal NEXT call-return without an invented PResults bitmap button
+
+A bounded original control-flow recheck distinguishes two *different* concepts previously conflated in some handoff discussions:
+
+1. At original **`PBg::0x432190+0x36E` / VA `0x4324FE`**, `mov ecx,ebp; call 0x431F70` enters the concrete `PResults` construction/event-processing routine. That routine returns at **`0x43218C`**. The caller's very next instruction at **`0x432505`** reads the native date `0x9847FC`, formats/refreshed source UI at `0x43250A..0x43252B`, and evaluates original game/user/global conditions at **`0x43252C..0x432673`**.
+2. Under those source conditions, **`0x4325DF`** constructs `PStartMenu` via `0x4C3280` or **`0x432673..0x432675`** enters native `PMenu` via `0x4C2FB0`. **This reentry occurs by normal synchronous call-return from original NEXT/PResults processing**, not by assuming a click on the `waiting_back_2.444` strip.
+3. The independent **`PResults` virtual `+0x10 -> 0x4A87E0`** also constructs `PMenu` for a non-null event argument. **Its producer remains UNKNOWN**; no evidence shows that the initial zero-ID bottom image can trigger it. Do not wire that callback to an arbitrary button or assume it is required for ordinary NEXT processing.
+
+**CONFIRMED source CFG:** a route through `0x431F70` can continue directly into the original NEXT caller's post-results menu/start-menu decision. **UNRESOLVED:** exact reason/result for each branch, whether all appearances of `PResults` follow this route, source-visible frame duration and effects of the separate panel callback under real user input. When Codex implements the real normal game path, it must preserve both the synchronous continuation and any separately proven native result events, not invent an interactive progress-screen return.
+
 ## C. Reconstruction comparison and Codex handoff
 
 - Main and Codex have no original `PResults` 800×600 panel wired to the normal management `NEXT` click. Codex `original_management_next.py` covers source graphics/caption and hover, **not** source NEXT progression or source `PResults` counter ownership. A generic simulator/standalone test interface does not reproduce native `PResults`.
