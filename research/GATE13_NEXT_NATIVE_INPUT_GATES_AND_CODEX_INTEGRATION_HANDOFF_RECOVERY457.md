@@ -66,6 +66,29 @@ Codex already has **`reconstruction/original_management_advance.py` blob `6343fe
 
 **Important release scope:** a score-only backend simulation does not establish the original animated match-watch presentation or “3D players running around.” Those remain separate Gate14+/full-scope functionality requiring independent evidence. No source or Windows acceptance work in this audit implies those gates are done.
 
+## D2. Second verified step — do not reuse the visual header projection as a fully qualified native NEXT event
+
+The clean original management snapshot carries a **`ManagementHeaderMatchView`** with only `fixture_id, competition_name, home_short_name, away_short_name, scheduled_date` (from `reconstruction/gate13_management_source_data.py`, latest Codex blob **`4181db2efc218f5bf5c026767b111b3394b7789f`**). `ManagementSourceDataBridge.management_header_match()` around line1007 builds that display view using **`state.primary_schedule_shadow.direct_fixed_league_header_candidate`** and additional Premier League fixtures/results checks. Its own source docstring correctly limits it to the **Recovery401 fresh direct fixed-League** subset.
+
+The underlying current Codex `primary_schedule_shadow.py` blob **`5d8fbcbf411a308375f209fcae00d068fb55dea6`** makes this scope unmistakable:
+- `direct_fixed_league_header_candidate()` (line287) only returns **`node_kind='fixed_league_match', competition_id=0, competition_context=0`** with 4-token fixture identity, source-matching direct participant IDs, status not already played and **`wrapper_link_state=WRAPPER_LINK_CLEAR`**.
+- If a relevant symbolic source ref, other competition or unknown wrapper state occurs, it **returns None / fails closed** rather than claiming a native candidate.
+- The display model does **not** retain the original live Event pointer, its `Event+0x08` linkage, `+0x10` calendar-family-relative bucket index, native payload flag `+0x44`, source Side reference identity, or the deferred update operations in `0x615C50`. It only projects selected original-safe display text/date for a subset.
+
+The original header's **`PBg::0x432760`** call chain at `0x432767..0x432799` obtains manager `0x4139D0`, user's selector `+0x5B4`, original global date `0x9847FC`, calendar `0x4079D0` and invokes **mutable `0x615DA0`** before storing the **returned Event pointer `PBg+0x170`**. Recovery447 proved this lookup may create a `PostponedEvent` through native source conflict rules during specific lifecycle refreshes. Ordinary NEXT's **`0x615D10`** candidate/eligibility path is related but **not identical** to this header read/refresh. Thus a visual header date is neither a complete source selector proof nor evidence that its returned match is exactly the NEXT event in symbolic cup/rescheduled cases.
+
+**Potentially severe implementation shortcut to avoid:** a future adapter should not call:
+```python
+controller.advance_original_management_turn(
+    next_match_date=frame.presentation.header_match.scheduled_date,
+    selector_source_qualified=True,
+    ...,
+)
+```
+merely because `header_match` is non-null. That is a narrow *display* view with no exact native event identity or mutation/owner evidence; the backend explicitly requires the source-qualified selector. This report does **not** call the existing display bridge incorrect within its declared bounds. It says **promoting it to general gameplay authority would cross an unsupported source boundary**.
+
+**Codex handoff refinement:** create/retain a separate source-qualified runtime selector result (including identity, competition/calendar family, relevant wrapper/flag certainty and selected manager owner) for real NEXT. Use the existing conservative `direct_fixed_league_header_candidate` *only in states its precise contract supports* and fail closed on unknown/symbolic cases until the correct original event/candidate producer is modeled. Test at least one fixed League fixture and one unresolved Cup/postponed candidate so a drawn MATCH caption cannot accidentally authorize the wrong state transition.
+
 ## E. Source and implementation uncertainty
 
 - **EXACT:** canonical executable hash, original PBg ID3/0x432190 dispatch, accepted input flags bit0x02/0x10 at shared method `0x64F7A0`, common parent vft+0x0C/+0x10 chain, native bitmap rectangle/row flags, latest Codex hover/bitmap state, normal click gap, and bounded Codex backend method existence.
