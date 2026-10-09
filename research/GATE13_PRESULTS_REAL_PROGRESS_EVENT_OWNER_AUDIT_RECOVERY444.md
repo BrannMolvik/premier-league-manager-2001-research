@@ -25,6 +25,17 @@ _9 October 2026 KST; original-file fidelity sweep P0-D. **AUDIT ONLY**, source a
 
 **Classification: EXACT source instruction-level progress counter, per-event producer calls, zero guard, arithmetic, retained owner, and GUI update destinations; PARTIAL game-state semantics and visual/timing fidelity.** A modern implementation should never display a fabricated progress bar driven only by wall-clock time nor assume that each tick means a finished 3D match.
 
+## A2. Precise native `0x4A7210` pre-count eligibility and live-event filters
+
+A further independent original-source disassembly of `0x4A7210..0x4A727A` and `0x6168C0..0x61698B` pins *which* queued records contribute to the nominal workload. Earlier source notes merely called this a “total” without its native predicate:
+
+- At original `0x4A7217..0x4A7238`, the pre-counter traverses **calendar dates from `global 0x9847FC+1` through an explicit upper-date argument**, looks up date-indexed collection `[0x947AD8+(date-0x947AE0)*4]`, then traverses nodes by node `+0x04`.
+- For each candidate `esi`, `0x4A723C..0x4A7260` increments the total **only when all three checks pass**: **candidate virtual `+0x0C` returns nonzero**, **candidate field `+0x08` is zero**, and **candidate virtual `+0x18` returns an object whose flags `+0x44` have bit `0x40` clear**. The function returns the number of eligible node records, not a match count or a number of days.
+- `0x4A84E9..0x4A850B` recalculates **`total = pre_count(current_date, upper_date) + already_processed`** before incrementing original date `0x9847FC` and running `0x4A83D0` for that day. Thus the bar's denominator can be source-recomputed during multi-date simulation; it must not be frozen from the first date without evidence.
+- The **actual producer** `0x6168C0` traverses real dated events and can call `0x4A71F0` at **`0x61691B`** or **`0x61696D`** after further event-specific checks. Source `0x4A8260` invokes it separately on **`0x947AD8`** and **`0x947AF0`**. The two families need not have identical acceptance conditions. An event count based only on UI-displayed fixtures could differ from the native denominator and progress ticks.
+
+**Important source boundary:** the plain pre-count predicate is *not identical* to every downstream event-execution predicate; whether progress ever overshoots or is re-clamped in source state requires a qualified original run. Do not assume `processed_count <= total_count` for all paths from the arithmetic alone. The neutral original bit `0x40`, candidate `+0x08` and virtuals `+0x0C/+0x18` are **not assigned invented football meanings** in this evidence.
+
 ## B. Recovery443 negative clickable-strip result remains binding
 
 This audit searched the original PE's direct code references to global **`0x876860`**. Independent additional source accesses were found at `0x61691B` and `0x61696D`, both **real progress callbacks `0x4A71F0`**; constructor `0x4A70BA` installs the global and destructor `0x4A7121` clears it. These do **not** call `PResults::0x4A87E0` to return to PMenu. The proven `0x4A87E0` virtual `+0x10` still constructs PMenu for non-null argument; **its native accepted event producer remains UNKNOWN**.
