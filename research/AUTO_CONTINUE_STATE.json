@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 466,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery466 Oct10 KST. Verified main b7f2c58b2f1d6dc59b5f1102f188f159976105f1/CURRENT_STATE, agent runtime audit_only and unchanged Codex 0ae745d1b56f45cade460f03cd893849a2f53b45; original PE SHA verified. Source/code audit: current gate17_windows_gameplay_receipts.py creates THREE backend-only CLI receipts using prototype advance_to_next_user_fixture/play_user_fixture, internal save .fm2k, annual rollover, not actual OriginalGameHost native NEXT/PSaveGame/PResults. Final Gate17 has separate five-receipt external Win11 full-scope safeguard, so no claim final release audit bypass. Corrected outdated Oct5 research/GATE17_RELEASE_READINESS.md stating Gate13 complete/14 earliest despite ROADMAP.md Gate13 reopened Oct6 external issue #482; new main research report, CURRENT_STATE top. Main b7f2c58b2f1d6dc59b5f1102f188f159976105f1. Codex implementation branch unchanged, ordinary gameplay still not playable. No game edits, original files uploaded, CI/Win11 GUI, merge/gate closure; next Codex implementation is genuine bottleneck. Agent-runtime working marker means resumability only, no idle automation.",
+  "recovery_generation": 467,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery467 (2026-10-10 KST): recovered canonical main b7f2c58b2f1d6dc59b5f1102f188f159976105f1 and audit-only directive from agent-runtime; continue source-backed original-fidelity audit, do not implement game code or alter Codex branch. Active audit verification in progress; Gate13 reopened and Gates14–17 incomplete. The working marker is for restart, not asynchronous execution.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
