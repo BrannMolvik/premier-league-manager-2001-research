@@ -60,6 +60,18 @@ The earlier neutral `0x4324FE -> 0x431F70` callback is a **source-proven origina
 
 **Next original-input and gameplay audit handoff:** recover native `PResults` controls/assets/font/score fields and event return to PMenu/Squad, and type the `0x431F70` user `+0x244` entry list and date `0x9847FC` consumers on two actual clubs/fixture states. Keep source geometry and object lifecycle, no generic results panel substitution.
 
+## B3. Native `PResults` event → original PMenu return callback
+
+Following the verified `PResults` final vtable `0x7C4B84` (MSVC RTTI `.?AVPResults@@`) one more control-flow step closes a real management-return seam. The concrete original virtual **`+0x10 → 0x4A87E0`**:
+
+- reads native argument **`[esp+0x04]`** and returns without action when it is null (`0x4A87E0..0x4A87E6`);
+- when non-null, pushes source integers **`1,0,1`** and invokes original **`PMenu` construction `0x4C2FB0`** at **`0x4A87EE`**;
+- returns after that constructor call (`0x4A87F6`).
+
+**Confirmed:** `PResults` has a direct original callback that creates the native PMenu management shell after a qualified event, not a development-mode return or an automatic NEXT result. **Unresolved:** the concrete child/control that generates this callback, its pointer/keyboard acceptance semantics, focus/disposal timing and which saved position/club is selected on reentry. This cannot be reduced to “any click anywhere in results should return”; the code proves only the virtual callback when invoked with nonzero argument.
+
+**Implementation handoff:** include an ordinary source-qualified `PResults` → `PMenu` return control in the same end-to-end normal game path as PBg NEXT; independently trace its event-producing child, input gating, and PMenu restoration rather than hardcoding a generic dismissal.
+
 ## C. Reconstructed current main/Codex outcomes and concrete regression
 
 - `main` on GitHub lacks original NEXT button dispatch in its normal `reconstruction/original_game_host.py::on_click`.
