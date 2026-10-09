@@ -1,45 +1,34 @@
-# Recovery 454 — original PMenu popup dismissal is source-implemented but the live host leaves its popup state latched
+# Recovery 454 corrected by Recovery 455 — PMenu outside-pointer dismissal IS integrated in both hosts
 
-_10 October 2026 KST. Second source- and live-Codex-backed Gate13 original navigation audit after native Save-Game events. STRICT audit-only, no gameplay code, assets/saves, CI, Codex edits, branch merge, gate change or Windows11 runtime claim._
+_10 October 2026 KST. **MANDATORY ERRATUM / RETRACTION:** the first version of this audit mistakenly concluded `pmenu_app_pointer_dismiss` was never invoked. That claim was **WRONG**. Recovery455 inspected the full original and Codex host pointer-motion methods, verified the existing dismissal call, and corrected the underlying evidence. This file preserves the original report path to prevent later references from reviving the false finding. Strict audit-only; no game code, Codex branch, assets, saves, CI or Windows test._
 
-## Source and branch identity
+## Why the earlier P0 latch diagnosis was wrong
 
-Beginning main at `9224fdf0deca71922eb753f76a63ef198d506f55`, Recovery454 SaveGame report checkpoint at `2e9bf9a9626f9e0fb37aa5e97c8e65c9ec2dbc0b`. Current Codex head `0ae745d1b56f45cade460f03cd893849a2f53b45` (unchanged throughout) and authoritative `research/CURRENT_STATE.md` PMenu gameplay-first, agent-runtime audit_only. Canonical authorized original `footballmanager.exe` **SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`** independently rehashed. Bounded disassembly original `0x432970..0x432A05` and `0x47AD60..0x47AEAB`; no original program execution.
+The earlier audit focused on **`original_game_host.py::on_click`** and searched assignments that included initialization, while overlooking the actual pointer-motion handler **`on_fixtures_pager_motion`**. The mistaken conclusion that popup True could never reset during normal management interaction is invalid.
 
-## A. Original PBg actually has an overlay-aware pointer dismissal callback
+Verified both branch blob identities at Recovery455:
+- **`main` host `reconstruction/original_game_host.py` blob `76820796c9bbf4a51b6972fd9f88099b734c1a91`**: `canvas.bind("<Motion>", self.on_fixtures_pager_motion)` around line507; `on_fixtures_pager_motion` starts around line1502; calls `pmenu_app_pointer_dismiss(int(event.x),int(event.y))` around line1528; sets **`pmenu_popup_active=False`** around line1529 and redraws. `<Leave>` also delegates to a synthesized outside-motion event.
+- **Codex `codex/gate13-windows-playability-recovery`** host blob **`14c4436d600aa2a397779d6fe22cdc74b742bf26`**: `canvas.bind("<Motion>", self.on_fixtures_pager_motion)` around line517; the handler around line1736 invokes dismissal helper around line1772 and clears the state around line1773, then redraws; `<Leave>` uses `on_fixtures_pager_leave` in the same way.
+- Shared original input helper **`reconstruction/original_pmenu_popup.py` blob `c14309a65fef0b926c0a95f6410b3166a6e122cf`** contains both `pmenu_open_press` and `pmenu_app_pointer_dismiss`; the latter **IS CALLED** on both branches. The previous report and some Recovery454 matrix/ledger statements that said “imported but never called” are therefore **retracted**.
+- The normal **`on_click`** path does **not itself** call dismissal. But a pointer already moved outside the popup triggers the normal <Motion> route, so there is no justification for asserting the popup is permanently latched. Whether a *stationary outside click* must dismiss without any preceding motion is **NOT PROVEN**, and is not declared a source mismatch here.
 
-Original **`PBg::0x432970`** processes an event only for its own accepted branch when first argument is zero (`0x432974..0x43297C`). At **`0x43297C..0x43298C`** it checks original stack owner **`0x877960::0x532960`** equals active popup **`0x876760`** before accepting outside-pointer dismissal. This is an explicit source **PMenu-top modal-stack guard**, not an unconditional 'any click closes menu'.
+## Original PBg pointer event and ownership evidence (retained)
 
-Within that guard, the original interprets a pointer coordinate object:
-- **x < 0x20C (524)** at `0x432992..0x43299C` invokes **`0x4329F0`** to dismiss the original popup;
-- **y < 0x60 (96)** and **x > source `PBg+0x52C`** at `0x4329B5..0x4329C9` invoke the same `0x4329F0`;
-- after either accepted dismissal it calls **original ID2 PMenu header control+0x98 with 0**, restoring the header's pressed/state behavior at `0x4329A1..0x4329B5` or `0x4329CE..0x4329E2`.
+The private canonical original `footballmanager.exe` has SHA-256 **`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`** (4,714,541 bytes). Reproduce disassembly `0x432970..0x4329E5` and original `.rdata` **`PBg` vft `0x7BEE8C +0x2C→0x432970`**. The native callback's original pointer/event semantics are not necessarily a click; the vtable slot and current Tk motion binding make it reasonable to test it as pointer behavior instead of forcing a click-only interpretation.
 
-`PBg+0x52C` derives from the native right/header control transform. The clean-room helper has already modeled its bound as `x>700`, but that runtime value is not independently measured in this audit, so retain the **source field**, do not invent edge semantics or a globally unconditional 'click any outside area closes'. This is **EXACT** original predicate/stack/coordinate dispatch, with original physical event producer/button-down phase still PARTIAL.
+Original native `0x432970` accepts only source event arg0==0 and only when global modal-stack top **`0x877960::0x532960`** equals active popup **`0x876760`**. Under those guards:
+- **x < 524** at `0x432992..` triggers native **`0x4329F0`** to close the popup;
+- **y < 96 and x > PBg+0x52C** at `0x4329B5..` triggers the same close;
+- both paths subsequently call PMenu header ID2 control virtual **`+0x98` with argument0** to restore control visual/pressed state.
 
-## B. Both main and Codex already possess a source-backed predicate — but live host never calls it
+The clean helper models the boundary `x>700`; the actual native source field `PBg+0x52C` and modal-stack guard should continue to be independently verified for equivalence rather than presumed correct because both host code and original source have superficially similar conditions.
 
-Exact source module **`reconstruction/original_pmenu_popup.py`** has the **same blob `c14309a65fef0b926c0a95f6410b3166a6e122cf`** on main and Codex. It declares:
-```python
-def pmenu_open_press(x, y, *, active):
-    return not active and 599 <= x < 699 and 0 <= y < 95
+## Current classification and Codex action
 
-def pmenu_app_pointer_dismiss(x, y):
-    return x < 524 or (y < 96 and x > 700)
-```
-The host imports **both** functions on both branches (source file around **line106**), but `pmenu_app_pointer_dismiss` has **zero call sites** inside `reconstruction/original_game_host.py` (ordinary live source, not just tests). Main host blob `76820796c9bbf4a51b6972fd9f88099b734c1a91`; Codex host blob `14c4436d600aa2a397779d6fe22cdc74b742bf26`.
+**SOURCE original dismissal: CONFIRMED. Clean-room motion dismissal: PRESENT and INTEGRATED in both branches. Code-level permanent popup latch defect: RETRACTED, FALSE.** Remaining aspects — moving out of popup vs clicking without pointer motion, modal ownership when other dialogs are open, frame reset, menus with unsupported child route, repeated open-close and cross-club Win11 acceptance — **UNVERIFIED**. Do not file a P0 bug claiming the helper is absent; this would divert Codex from genuinely missing source functionality.
 
-Live `on_click` (Codex **lines2287–2542**, management subtree around **2335–2418**) sets `self.pmenu_popup_active=True` on a source-accepted menu header click. If the popup remains active and **no recognized menu row candidate** is found, the code states “PMenu popup owns input; no source-bounded PMenu candidate row” and returns. It does **not** evaluate `pmenu_app_pointer_dismiss`, reset `self.pmenu_popup_active=False`, queue `redraw`, or restore header control state there.
+Actual high-confidence Gate13 blockers still include: neither normal host `on_click` dispatches native EAMail direct header control or NEXT/MATCH progression, normal Squad 3/4/5 formation buttons are unhandled, Save Game0x321 and Return Main0x323 are not source-faithfully integrated, and only 3 of 28 PMenu children have partial presenter implementations. These are independent, true P0/P1 gaps documented elsewhere.
 
-A global scan of **every line** in each host source finds assignments to `pmenu_popup_active=False` **only in initialization and management-start/reset flows** (Codex about lines404 and1773; main about392 and1529); the only transition assigning True is the header click. Thus no ordinary management PMenu outside-click can unlatch the live popup variable, and even selecting an integrated child leaves it True unless a separate reset route fires.
+**Codex-only acceptance plan:** write normal Tk UI tests for `PMenu open → move outside to dismiss → reopen` in multiple club contexts, stationary click behavior as a separate source comparison, and header state reset after stack transitions. Source-control input tests should not be replaced by calls directly to the helper. **Do not write a redundant dismissal hook based on this retracted report.**
 
-**CONFIRMED code-level functional defect:** the existing original-looking PMenu popup can become **latched open** in the normal game host. It intercepts outside clicks while active, instead of exposing the source's qualified dismiss action. This is separate from recognized-but-unintegrated 25 menu child actions; even the three partial panels can be obstructed by the overlay state. **NOT asserted:** original Windows UI input timing, exact popup draw frame and every mouse-up event state, since no original Windows process or Tk GUI acceptance test was run.
-
-## C. Concrete Codex-only implementation/acceptance handoff
-
-1. Integrate the already recovered source `pmenu_app_pointer_dismiss` in the *ordinary management input* flow, respecting original **active popup/top-of-stack/owner** predicates; restore PMenu header ID2 control state when the original qualifies, not on every random click.
-2. Track the **popup overlay state separately from selected menu child**. An accepted child switch should not be blocked by a permanent overlay or by an unsupported child loader exception. For real native child `0x323` Return to Main, preserve original side-effecting `PStartMenu` command with null factory return (Recovery454 SaveGame audit).
-3. Add real physical input regression tests `open → outside dismiss → reopen → choose Squad/Fixtures/Tables → click underlying panel`, with x boundary cases 523/524 and PMenu rect 599..698, plus upper-right cutout and at least two clubs/managers. An ad hoc call to popup helper without invoking host `on_click` is **not** sufficient.
-4. Existing code already has correct composite 100×95 PMenu source rect and a correct helper; do not spend new work re-tracing already resolved static bitmap dimensions. Prioritize real click path, then missing native inbox button and NEXT progression.
-
-**Severity:** P0-E menu responsiveness / P0-A navigation. It does not complete functional Gate13. Gates14–17 and original full Windows11 release remain incomplete. No implementation/CI/playtest performed by audit worker.
+No original executable Windows run, CI, game changes, Codex branch merge or gate closure. Gate13 remains OPEN; Gates14–17 and verified Win11 release INCOMPLETE.
