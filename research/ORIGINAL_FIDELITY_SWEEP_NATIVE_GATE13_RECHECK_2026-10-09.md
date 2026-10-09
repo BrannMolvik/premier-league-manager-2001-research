@@ -31,6 +31,19 @@ Independent original Joliet directory lists all three assets. **`highlight_grid.
 
 **Exact next owner trace:** begin at final `PSquadPlayerRow` and `CSquadPlayerList` constructors (`0x4B6E80`, `0x4B7170`) and the row image pointer through owner `+0x50` to row `+0x70`, then child `0x443E70 +0x2C`. Independently follow `highlight_grid.444` image-loader/wrapper consumers at `0x5F99C0/0x5F9A10` and `0x5F9BB0/0x5F9C00`; verify source owner, actual control draw call and selection/pointer flag source. Do **not** paint a guessed blue rectangle.
 
+### Further private source closure — exact populated-row control parent pointer (same session)
+
+Following the native call chain disambiguates an earlier ambiguous description of row `+0x70` as a “texture/image-wrapper”:
+
+1. `PSquadList::0x4B4FE0` at **`0x4B5086`** executes `lea ebp,[esi+0x9D8]` and does not overwrite EBP before its `0x4B56B9` indirect call. That call operates on `CSquadPlayerList` at `PSquadList+0xE44`, through **vtable `0x7C5AF4 +0xCC -> 0x4B7FD0`**.
+2. `0x4B56A8..0x4B56B9` supplies the eight arguments to `0x4B7FD0`: for this call, `[esp+0x18]` at the callee is the original **`PSquadList+0x9D8`** control pointer. `0x4B7FDB..0x4B7FE6` stores it in **`CSquadPlayerList+0x54`**.
+3. `CSquadPlayerList::0x4B7170` reads its `+0x54` and passes the pointer to the populated-row factory via virtual `+0xC8 -> 0x4B6E80`. The latter calls `0x48A8E0`; **`0x48A92C` stores that pointer as `PSquadPlayerRow+0x70`**.
+4. `PSquadPlayerRow::0x489530` passes row `+0x70` to `0x443E70` for multiple child controls; `0x443E70` copies its respective argument to **child `+0x2C`**.
+
+**Classification: EXACT original pointer-provenance chain (original executable), UNKNOWN downstream graphic ownership and meaning.** The forwarded address is *not* directly the global image-wrapper VA `0x943010` or `0x943F50`; it originates from a **`PSquadList`-local control at `+0x9D8`**. Label its semantic role neutral until this owner's vtable/init and downstream draw are traced. Any earlier handoff description that treated the child `+0x2C` assignment alone as proof that a particular texture or blue selection layer was attached overclaimed the evidence. The real background/selection frame still requires separate original-byte/caller verification.
+
+**Remaining next native question:** identify the concrete class/vtable/parent relationships for `PSquadList+0x9D8`, its drawing/highlight children and the resource access path for `highlight_grid.444` before authorizing a selected-row bitmap fix.
+
 ## B. EAMail — original factory/RTTI identity now CLOSED, visible screen remains PARTIAL
 
 **Independent canonical executable dispatch:**
