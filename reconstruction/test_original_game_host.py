@@ -1224,16 +1224,17 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
             self.assertFalse(host.pmenu_popup_active)
-            self.assertEqual(len(host.canvas.images), 15)
-            # Six top controls and four native column headings precede row text.
+            self.assertEqual(len(host.canvas.images), 18)
+            # Six top controls, three original populated cell backgrounds,
+            # and four native column headings precede row text.
             # Role/name remain first in that row-text group; the three new
             # PSCF numeric controls follow them.
-            self.assertEqual(host.canvas.images[10][:2], (77, 234))
-            self.assertEqual(host.canvas.images[11][:2], (113, 234))
+            self.assertEqual(host.canvas.images[13][:2], (77, 234))
+            self.assertEqual(host.canvas.images[14][:2], (113, 234))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
             self.assertIn("source PMenu rows rendered", host.last_status)
-            self.assertIn("15 source panel bitmaps rendered", host.last_status)
+            self.assertIn("18 source panel bitmaps rendered", host.last_status)
             self.assertIn("surrounding management background unresolved", host.last_status)
 
             before = host.management_presenter.snapshot()
@@ -1245,7 +1246,7 @@ class OriginalGameHostTests(unittest.TestCase):
             after = host.management_presenter.snapshot()
             self.assertEqual(after.panel_code, 0xCE)
             self.assertEqual(after.menu.selected_child_id, 0xCE)
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
 
             # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
             # matching the recovered SelectBmp +0x6C input virtual.
@@ -1254,7 +1255,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(native.panel_code, 0xCE)
             self.assertEqual(native.menu.selected_root_id, 0x259)
             self.assertIn("expand_root 0x259", host.last_status)
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
 
             accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
             self.assertTrue(accepted.action.accepted)
@@ -1263,12 +1264,12 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
             self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
             self.assertIn("source-accepted PMenu action", host.last_status)
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
 
             host.on_click(SimpleNamespace(x=100, y=120))
             self.assertIn("no source-bounded PMenu candidate row", host.last_status)
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
 
     def test_management_header_draws_exact_two_bitmaps_plus_menu_caption(self):
         host = OriginalGameTkHost(
@@ -1665,7 +1666,7 @@ class OriginalGameHostTests(unittest.TestCase):
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
 
             activation = host.apply_source_accepted_squad_view(4)
             self.assertEqual(activation.transition.control_id, 4)
@@ -1686,7 +1687,7 @@ class OriginalGameHostTests(unittest.TestCase):
 
             restored = host.apply_source_accepted_squad_view(3)
             self.assertEqual(restored.transition.control_id, 3)
-            self.assertEqual(len(host.canvas.images), 16)
+            self.assertEqual(len(host.canvas.images), 19)
 
     def test_native_league_fixtures_grid_left_press_uses_exact_source_control(self):
         live = presenter()

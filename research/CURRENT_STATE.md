@@ -5,11 +5,22 @@
 research. Confirmed and corrected resident Fixtures art causing full Squad/
 Tables snapshots on every mouse-motion pager check; native Fixtures ownership,
 events and input guards are unchanged. See `GATE13_LOCAL_INPUT_PERFORMANCE_FIX.md`.
-Original populated Squad cell palette/state tracing continues privately; no
-guessed blue selection strips have been introduced. NEXT and Inbox remain
-unfinished; Gate13 OPEN. No original-game launch or main merge.
+The original populated number/role/name cells are now restored in both lists:
+normal blue RGB57,130,171; enabled-hover blue16,95,162; exact native cell and
+parent geometry, preserving empty slots and independent player text colours.
+Canonical bounded draw/state code passed6,144 comparisons. Palette8000's
+owner-local producer remains unresolved and is NOT guessed from lineup flags.
+See `GATE13_SQUAD_CELL_BACKGROUNDS.md`. Header-only animation now changes
+existing bitmap items without rebuilding the entire active-panel snapshot;
+source frames and idle cadence are unchanged.161 focused tests and asset
+policy passed. Real withdrawn Windows/Tk at1x/1.5x verified30 players/90
+cells, exact blue pixels,300 motion events per scale with0 snapshots, header
+cycles without snapshots/reference growth, and disk/fresh-process reload.
+These are background widget checks, not visible/audio acceptance. Full-suite
+recheck is in progress. NEXT, formation views and Inbox remain unfinished;
+Gate13 OPEN. No original-game launch, main merge or worker-protocol change.
 
-**4% reserve handoff:** Daniel's latest priority is the missing original
+**Prior 4% reserve handoff (superseded by the repairs above):** Daniel's latest priority is the missing original
 selection-dependent blue row backgrounds and incomplete inbox/menu, not merely
 shirt numbers. Current host repeats disabled strips across every slot; actual
 populated row background ownership/selection must be traced via final vft7C57BC

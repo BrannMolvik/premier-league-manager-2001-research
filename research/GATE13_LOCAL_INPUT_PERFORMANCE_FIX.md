@@ -22,3 +22,23 @@ on Squad/Tables, plus active Fixtures and modal guards.
 Remaining unknown: actual Windows end-to-end latency and other redraw costs.
 This correction does not repair selected-row backgrounds, Inbox, alternate
 Squad views or the unbound ordinary NEXT path, and does not close Gate13.
+
+## Header-only animation update
+
+Recovery432 proves `_advance_management_header -> redraw` rebuilds the entire
+active management snapshot and canvas for each otherwise header-only step.
+The existing source-qualified `OriginalManagementHeaderState` and
+`management_header_overlays` already determine exact back_4/back_4_anim frames,
+owner-local rectangles and update cadence (`original_management_header.py`).
+No gameplay producer or panel data changes on that pointer animation step.
+
+Minimum compatibility correction: retain the two existing header bitmap item
+IDs during a full redraw, then change only their source-frame images on the
+existing idle update. Keep the caption, z-order, scheduling and source-state
+algorithm unchanged. If the resource identity or set/geometry of header owners
+changes, use the existing full redraw. Actual navigation, state/data changes
+and viewport resize still perform fresh full draws; no game snapshot cache or
+dependency guess is introduced. Drop item IDs when the canvas is replaced.
+Regressions compare exact source frames, count zero gameplay snapshots/full
+redraws across a hover cycle, and ensure photo references do not grow on
+repeated motion. This does not claim native millisecond equivalence.

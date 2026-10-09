@@ -433,9 +433,15 @@ class OriginalGameTkHost:
         self._management_load_poll = None
         self.management_header_state = OriginalManagementHeaderState()
         self._management_header_idle = None
+        self._management_header_items = {}
+        self._management_header_draw_resources = None
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self._squad_drag_source = None
+        self._squad_background_rows = ()
+        self._squad_background_items = {}
+        self._squad_background_photos = {}
+        self._squad_background_hover = None
         self.last_league_fixtures_grid_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_context = None
@@ -703,7 +709,7 @@ class OriginalGameTkHost:
         messagebox.showerror("FM2001 port: action could not complete", message,
                              parent=self.root)
 
-    def _photo(self, png: bytes):
+    def _photo(self, png: bytes, *, retain: bool = True):
         # All host-generated management/report PNGs use the reconstruction's
         # deterministic RGBA/filter-0 encoder. Decode once, scale directly to
         # the final rational display size, and retain the Tk image by source
@@ -728,7 +734,8 @@ class OriginalGameTkHost:
                 format="png",
             )
             self._generic_photo_cache[png] = photo
-        self._photos.append(photo)
+        if retain:
+            self._photos.append(photo)
         return photo
 
     def _rgba_photo(self, width: int, height: int, rgba: bytes):
@@ -741,6 +748,11 @@ class OriginalGameTkHost:
                                      width, height, rgba)
 
     def _draw_first_screen(self) -> None:
+        self._management_header_items = {}
+        self._management_header_draw_resources = None
+        self._squad_background_rows = ()
+        self._squad_background_items = {}
+        self._squad_background_hover = None
         if self._management_header_idle is not None:
             self.root.after_cancel(self._management_header_idle)
             self._management_header_idle = None
@@ -1195,9 +1207,33 @@ class OriginalGameTkHost:
         if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
             return
         if self.management_header_state.update():
-            self.redraw()
+            if not self._update_management_header_layers():
+                self.redraw()
+            else:
+                self._schedule_management_header_update()
+
+    def _update_management_header_layers(self) -> bool:
+        resources = self.management_header_resources
+        if (not isinstance(resources, OriginalManagementHeaderResources)
+                or resources is not self._management_header_draw_resources):
+            return False
+        overlays = management_header_overlays(resources, self.management_header_state.source_frame())
+        if {o.role for o in overlays} != self._management_header_items.keys():
+            return False
+        for overlay in overlays:
+            item, rect = self._management_header_items[overlay.role]
+            if rect != (overlay.x, overlay.y, overlay.width, overlay.height):
+                return False
+        for overlay in overlays:
+            item, _rect = self._management_header_items[overlay.role]
+            image = self._photo(_cached_runtime_png(overlay.width, overlay.height, overlay.rgba),
+                                retain=False)
+            self.canvas.itemconfigure(item, image=image)
+        return True
 
     def _draw_management_header(self, club=None) -> int:
+        self._management_header_items = {}
+        self._management_header_draw_resources = None
         resources = self.management_header_resources
         if resources is None:
             return 0
@@ -1215,13 +1251,17 @@ class OriginalGameTkHost:
                 overlay.height,
                 overlay.rgba,
             )
-            self._create_native_image(
+            item = self._create_native_image(
                 overlay.x,
                 overlay.y,
                 image=self._photo(png),
                 anchor=self.tk.NW,
             )
+            self._management_header_items[overlay.role] = (
+                item, (overlay.x, overlay.y, overlay.width, overlay.height))
             count += 1
+
+        self._management_header_draw_resources = resources
 
         caption = management_header_caption_overlay(resources)
         self._create_native_image(
@@ -1399,6 +1439,58 @@ class OriginalGameTkHost:
             )
             count += 1
         return count
+
+    def _draw_squad_backgrounds(self, frame) -> int:
+        from original_squad_row_background import build_squad_row_backgrounds
+        self._squad_background_rows = ()
+        self._squad_background_items = {}
+        self._squad_background_photos = {}
+        self._squad_background_hover = None
+        transition = getattr(frame.presentation, 'squad_view_transition', None)
+        if (frame.presentation.panel_class != 'PSquadScreen'
+                or transition is None or transition.control_id != 3):
+            return 0
+        paired = getattr(frame.presentation, 'paired_squad', None)
+        first = frame.presentation.squad if paired is None else paired.first
+        self._squad_background_rows = build_squad_row_backgrounds(
+            first, None if paired is None else paired.reserve)
+        for row in self._squad_background_rows:
+            items = []
+            for x, y, w, h in row.cells:
+                # Retain both images once: hover never appends image references
+                # or rebuilds the model/text on every mouse-motion event.
+                for hovered in (False, True):
+                    self._squad_cell_photo(w, h, hovered)
+                items.append((self._create_native_image(x, y,
+                    image=self._squad_cell_photo(w, h, False), anchor=self.tk.NW), w, h))
+            self._squad_background_items[row.key] = tuple(items)
+        self._update_squad_background_hover(*(self._first_screen_pointer or (-1, -1)))
+        return len(self._squad_background_rows) * 3
+
+    def _squad_cell_photo(self, width, height, hovered):
+        from original_squad_row_background import SQUAD_CELL_NORMAL_RGB, SQUAD_CELL_HOVER_RGB
+        key = width, height, hovered
+        photo = self._squad_background_photos.get(key)
+        if photo is None:
+            rgb = SQUAD_CELL_HOVER_RGB if hovered else SQUAD_CELL_NORMAL_RGB
+            photo = self._rgba_photo(width, height, bytes((*rgb, 255)) * (width * height))
+            self._squad_background_photos[key] = photo
+        return photo
+
+    def _update_squad_background_hover(self, x, y):
+        from original_squad_row_background import squad_row_at_point
+        target = None
+        if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+                and self.active_pmatchinfo_art is None and not self.pmenu_popup_active):
+            target = squad_row_at_point(self._squad_background_rows, x, y)
+        previous = self._squad_background_hover
+        if previous == target:
+            return
+        for key, hovered in ((previous, False), (target, True)):
+            for item, width, height in self._squad_background_items.get(key, ()):
+                self.canvas.itemconfigure(item,
+                    image=self._squad_background_photos[width, height, hovered])
+        self._squad_background_hover = target
 
     def _draw_squad_rows(self, frame) -> int:
         """Draw source-closed first-roster text plus source-qualified PSCF status."""
@@ -1600,6 +1692,7 @@ class OriginalGameTkHost:
             return
         event = self._normalize_pointer_event(event)
         self._first_screen_pointer = (int(event.x), int(event.y))
+        self._update_squad_background_hover(int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
                 FrontEndScreen.START_MENU,
                 FrontEndScreen.SETTINGS,
@@ -1755,6 +1848,7 @@ class OriginalGameTkHost:
         header_image_count += self._draw_management_match_lines(frame)
         header_image_count += self._draw_management_current_date(frame)
         squad_image_count = self._draw_squad_top_controls(frame)
+        squad_image_count += self._draw_squad_backgrounds(frame)
         squad_image_count += self._draw_squad_rows(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         fixture_image_count += self._draw_fixtures_pager()
