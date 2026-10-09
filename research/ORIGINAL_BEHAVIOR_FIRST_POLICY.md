@@ -73,3 +73,11 @@ Every implementation PR that changes game/runtime behavior should state:
 - tests that distinguish preserved original behavior from reconstruction convenience.
 
 A PR that cannot answer those questions is not ready to merge.
+
+## Retrospective correctness duty
+
+The source-first rule applies to **existing reconstructed work as well as new work**. A prior merge, passing test, old audit, or earlier "source-backed" label does not exempt an implementation from re-verification.
+
+While `research/ORIGINAL_FILE_FIDELITY_SWEEP.md` is active, the worker's default task is to audit current mappings/designs against the original files/executable and maintain `research/ORIGINAL_FILE_FIDELITY_LEDGER.md`. If a prior interpretation is found wrong, correcting or fail-closing it takes priority over feature expansion.
+
+Particular suspicion should be applied to mappings that were inferred from partial disassembly, visually reconstructed layouts, guessed resource ownership, ambiguous structure fields, generic fallbacks, or tests written from the reconstruction rather than from original evidence.
