@@ -50,6 +50,34 @@ However it is also **not equivalent to the original full `0x615C50` filtering/si
 
 The live `reconstruction/original_game_host.py::on_click` on both main and the current Codex head **still does not dispatch ordinary native-look NEXT button input** through `PBg` ID3 / `0x432190`; real `PResults`, inbox and 1ST/RES formation click paths are missing. The latest Codex `original_management_next.py` provides source bitmap/caption/hover only. This remains the priority P0 functional defect; the native lookup filter does not by itself close Gate13.
 
+## C2. PMenu/NEXT header event lookup can reschedule postponed matches — not pure render
+
+The only direct native source call to **`0x615DA0`** in the canonical executable occurs at **`PBg::0x432760+0x28 / VA 0x432788`**, *before* the routine stores returned Event pointer at **`PBg+0x170`** at `0x432799` and updates the NEXT/MATCH caption/UI at `0x43279F..`. The literal source call sequence is:
+
+```text
+0x432767 call 0x4139D0             current manager/user
+0x432771 global 0x9847FC           current native date
+0x432777 read user+0x5B4          schedule/participant selector
+0x432781 call 0x4079D0            choose original calendar collection
+0x432788 call 0x615DA0            mutable filtered event lookup
+0x432799 store returned Event at PBg+0x170
+0x4327B9 call 0x64F600            refresh original text/control
+```
+
+**The native caller sites to `PBg::0x432760` are bounded and source-relevant:** `0x4C3046` during original **PMenu/management-shell construction `0x4C2FB0`**, and `0x4A80D4` in the **`PResults` post-simulation processing flow**. Therefore the source mutation risk occurs on *these state refresh/lifecycle calls*, **not** every generic paint or mouse-motion redraw. Do not infer high-frequency mutation of schedule from a modern host's redraw method.
+
+The original `0x615DA0` loop:
+1. queries eligible Event via **`0x615D10`** at `0x615DB2`;
+2. resolves polymorphic payload `Event.vft+0x18`, then calls that payload's virtual **`+0x64` with current Event relative slot `+0x10`** at `0x615DCC`;
+3. if this predicate is **nonzero**, calls original **`0x510BA0(Event,1)`** at **`0x615DD7`**. That function, guarded by unlinked Event+0x08 and payload bit `0x40` clear, constructs `PostponedEvent` wrapper and schedules a relative slot **+7** by **`0x615A60`**;
+4. recalculates date from candidate `0x510A20`, queries `0x615D10` again, and repeats while the payload `+0x64` predicate remains nonzero. Otherwise it returns the retained Event for the header.
+
+**Concrete source virtual ownership:** native `LeagueMatch` vtable `0x7C4C24 +0x64 -> 0x510B20`; native `CupMatch` vtable `0x7C9D9C+0x64 -> 0x510B20`. `0x510B20` checks source participant references at `Match+0x14/+0x28` by invoking **`0x4F2B60`** against supplied relative date slot, returning nonzero if either reports the condition. **Source word semantics for this predicate are not fully typed**: despite the subsequent creation of a `PostponedEvent`, don't name it 'injury', 'availability', 'fixture collision', or a fixed one-week postponement without source producer evidence. Base `Match` vtable `+0x64` is **`0x668766` pure-virtual**, so do not invoke this behavior generically on an abstract Match without a concrete override.
+
+**Practical high-severity contract:** source lifecycle NEXT/MATCH header construction can be a *schedule-mutating* operation. A clean-room implementation that treats `native_next_caption` as sufficient game-state logic would not reproduce original `PBg::0x432760`; conversely re-running the mutable query every Tk hover/redraw would also be an unproven rule change. Separate the qualified original **PMenu creation/post-simulation header synchronization** from ordinary bitmap/caption painting, and preserve source-selected user, wrapped event and relative calendar family.
+
+**Evidence scope:** exact original call/callee/dispatch and conditional wrapper allocation/insert are CONFIRMED. Whether and how often this fires for particular clubs/fixture statuses, conditions behind `0x4F2B60`, wrap-link persistence and original visible updates remain UNKNOWN. No original Windows runtime was run.
+
 ## D. Minimum handoff and remaining original-source questions
 
 1. **Codex-only implementation:** wire source-qualified native NEXT physical control acceptance and original conditional game path, then extend the *bounded* schedule projection only with source-verified Event payload flags, wrapped Event source predicate, manager reference identity and deferred update semantics. Avoid unconditional day increment and arbitrary absolute-date sorting.
