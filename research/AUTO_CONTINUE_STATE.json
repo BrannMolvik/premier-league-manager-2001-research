@@ -19,7 +19,7 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "RECOVERY491 AUDIT_ONLY. Main d541058b2b395d0028a1afd381b6f98896fd195b, Codex e166ae4d70c32b41f8dcef86b3d3d42b19a24262 unchanged (no new implementation delta). Complete P0 source-backed R0→R1→R2→R3 blocker/acceptance matrix is research/GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md; Codex handoff also issue #482 comment 6098622303. NEXT ACTION: review genuine new Codex code or Windows playtest receipts when they appear, retire only genuinely fixed discrepancies. Without new Codex delta, resume narrowly prioritized original executable first-playable match-phase/modal/return source research only when sandbox survives; do not redo Recovery470–490 micro-audits. Authorized original disc ZIP successfully located/materialized from File Library, but source extraction was blocked when BOTH trivial shell and Python then failed with caas.internal.errors.ClientError. Repository GitHub connector works; container network git clone DNS fails. No PE original-process/Win11 run. Do not implement game/CI/merge or close Gate13; audit_only implementation_allowed=false. Gate13 OPEN, Gates14–17 and verified Win11 release pending.",
+  "active_task": "Recovery492, Gate13 audit only. Main d541058b and Codex e166ae4d unchanged. NEXT: review a new Codex R1 original-NEXT/PPreMatch/Quick3/PResults/return implementation if it appears; otherwise perform original read-only source research when shell execution recovers. This recovery reproduced caas.internal.errors.ClientError for both basic shell and Python, so no new executable trace or Windows acceptance. Existing detailed Codex handoff: research/GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md. No new code/tests/CI. Gate13 open and Gate14–17 incomplete.",
   "last_known_main_head": "d541058b2b395d0028a1afd381b6f98896fd195b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -31,7 +31,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 492,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery492 started at unchanged main d541058b and Codex e166ae4d. Audit_only maintained. Next: determine whether temporary container execution has recovered; only source-backed new P0 match modal/result investigation, no duplicate micro-audits or CI.",
+  "note": "Recovery492: heads unchanged, pending NEXT/source mode first-playable gap still present by read-only GitHub source inspection. Shell and Python trivial command both ClientError, blocking new original-source extraction. Do not repeat earlier audit absent new evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
