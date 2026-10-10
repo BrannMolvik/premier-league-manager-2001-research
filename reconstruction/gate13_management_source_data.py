@@ -2182,6 +2182,11 @@ class ManagementSourceDataBridge:
             raise ManagementPresentationError(
                 "Recovered Premier League member preparation is unavailable"
             )
+        if club_id not in {int(value) for value in member_ids}:
+            raise ManagementPresentationError(
+                f"Current-manager club {club_id} is absent from live Premier League "
+                "membership; refusing unrelated Premier League fixtures"
+            )
 
         name_bytes: dict[int, bytes] = {}
         for club_id in member_ids:

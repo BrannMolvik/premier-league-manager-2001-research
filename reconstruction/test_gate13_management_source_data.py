@@ -1592,6 +1592,27 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
 
         self.assertEqual(table_calls, [])
 
+    def test_league_fixtures_grid_source_fails_closed_when_manager_absent_from_live_pl(self):
+        controller = FakeController()
+        controller.state.clubs[12] = FakeClub("Gamma Town", "Gamma")
+        controller.state.club_competition_membership = {10: 0, 11: 0, 12: 0}
+        controller.state.premier_league.club_ids = (11, 12)
+        table_calls = []
+        controller.state.premier_league.table = (
+            lambda name_key: table_calls.append(name_key) or controller.state._table
+        )
+        controller.state.competitions = {
+            0: SimpleNamespace(scheduled_matchday_count=2)
+        }
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "absent from live Premier League membership",
+        ):
+            ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+        self.assertEqual(table_calls, [])
+
     def test_league_fixtures_grid_source_fails_closed_without_manager_league_identity(self):
         controller = FakeController()
         controller.state.premier_league.club_ids = (10, 11)
