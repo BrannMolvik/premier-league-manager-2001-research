@@ -337,3 +337,7 @@ normalized text begins with `Analysis errored` and is no longer than 240
 characters are classified as a sandbox failure from inside a message. User
 messages and assistant prose merely containing `ClientError` remain inert.
 The classified failure uses the existing fresh-chat recovery path.
+
+## Standing original-reference and completeness guard (10 October 2026)
+
+The automatic worker MUST read `research/ORIGINAL_REFERENCE_PLAYABILITY_AUDIT_PROTOCOL.md` on recovery and at each substantial source target. Recheck the shipped original as evidence (with provenance) and verify **complete original screens, actions, gameplay phases and ordinary user journeys**, not merely individual fields, pixels or passing reconstruction tests. At every meaningful checkpoint check the original feature inventory for omissions; prioritize P0 missing playable NEXT/pre-match/results/return, Inbox, formations, Save/Load and management actions over esoteric incremental traces when relevant. Re-evaluate after Codex merges; explicitly retire superseded defects. Native executable read-only source inspection is not original-game runtime observation. No unapproved original executable launch, game-code implementation, role change, unnecessary CI or extra heartbeat commits. Audit-only Codex/worker ownership remains intact.

@@ -198,3 +198,7 @@ This sweep is not complete until:
 - UNKNOWN items are explicit and do not masquerade as original behavior;
 - high-risk backend mappings identified by the retrospective audit have been rechecked;
 - the next Windows acceptance build contains only audited or explicitly fail-closed behavior on its tested path.
+
+## Recurring original-game completeness check (10 October 2026)
+
+Apply `research/ORIGINAL_REFERENCE_PLAYABILITY_AUDIT_PROTOCOL.md` in addition to this resource/control-level sweep. Each meaningful audit checkpoint must ask which entire **original user-visible screen, menu action, alternate path, postmatch step, gameplay event phase or persistence route** is absent in the reconstructed player journey. Check original sources frequently, retain source-vs-running-original-vs-Windows-acceptance distinctions, and surface the highest-impact omission to Codex. Do not spend unlimited cycles perfecting small already-known source details while the complete gameplay loop remains unusable. Audit-only privileges unchanged.
