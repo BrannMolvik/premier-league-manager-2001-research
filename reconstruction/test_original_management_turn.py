@@ -93,6 +93,26 @@ class OriginalManagementTurnTests(unittest.TestCase):
         self.assertEqual(repeated.pending_primary_entry, human)
         self.assertEqual(c.state.simulate_primary_ai_entry.call_count, 2)
 
+    def test_public_next_refuses_pending_match_before_mutable_selector(self):
+        human = ('premier_league', 7)
+        c = self.controller(self.today, (human,))
+        c.state.primary_schedule_end_date = self.end
+        c.pending_primary_entry = human
+        before_days = dict(c.state.primary_schedule_shadow.days)
+        with patch.object(
+            c.state.primary_schedule_shadow,
+            'ordinary_next_candidate',
+            side_effect=AssertionError('mutable Side selector entered'),
+        ):
+            result = c.advance_original_management()
+        self.assertEqual(result.processed_dates, ())
+        self.assertEqual(result.pending_primary_entry, human)
+        self.assertEqual(result.target.current_date, self.today)
+        self.assertEqual(result.target.target_date, self.today)
+        self.assertEqual(c.state.primary_schedule_shadow.days, before_days)
+        c.current_selection.assert_not_called()
+        c.state.simulate_primary_ai_entry.assert_not_called()
+
     def test_current_day_and_zero_length_do_not_reprocess_today(self):
         for next_date, length in ((self.today, 7), (None, 0)):
             c = self.controller(self.today, (('premier_league', 7),))

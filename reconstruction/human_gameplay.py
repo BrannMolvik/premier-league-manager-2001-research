@@ -1639,6 +1639,12 @@ class HumanGameplayController:
         """Ordinary NEXT entry: stage the native mutable selector and day walk."""
         if self.human is None:
             raise RuntimeError('select a human club first')
+        if self.pending_primary_entry is not None:
+            current_date = self.state.calendar.current_date
+            target = OriginalManagementAdvanceTarget(
+                current_date, current_date, current_date,
+                NATIVE_DEFAULT_TURN_LENGTH)
+            return OriginalManagementTurnOutcome(target, (), self.pending_primary_entry)
         if self.state.clubs[self.human.club_id].team_category_code != 1:
             raise RuntimeError('Original NEXT secondary calendar is not integrated')
         if self.state.primary_schedule_end_date is None:

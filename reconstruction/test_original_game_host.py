@@ -597,6 +597,34 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(host.management_next_flags, 2)
             self.assertIsNone(host._management_turn_thread)
 
+    def test_pending_match_owns_every_background_pointer_path_after_poll(self):
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+            management_thread_factory=DeferredThread)
+        live.session.gameplay = StubBackend()
+        live.session.gameplay.pending_primary_entry = ('premier_league', 7)
+        host._squad_drag_source = ('retained',)
+        before = (
+            host.pmenu_popup_active,
+            host.management_next_flags,
+            dict(host.fixtures_pager_flags),
+            host._squad_drag_source,
+        )
+        with patch.object(host, '_normalize_pointer_event',
+                          side_effect=AssertionError('background input leaked')):
+            host.on_click(None)
+            host.on_fixture_report_press(None)
+            host.on_script_arrow_release(None)
+            host.on_fixtures_pager_motion(None)
+        host._begin_original_management_turn()
+        self.assertIsNone(host._management_turn_thread)
+        self.assertEqual((
+            host.pmenu_popup_active,
+            host.management_next_flags,
+            host.fixtures_pager_flags,
+            host._squad_drag_source,
+        ), before)
+
     def test_next_thread_start_failure_releases_busy_state(self):
         live = presenter()
         live.session.gameplay = SimpleNamespace(advance_original_management=lambda: None)

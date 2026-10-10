@@ -1209,7 +1209,7 @@ class OriginalGameTkHost:
 
     def _begin_original_management_turn(self) -> None:
         """Run the existing transactional NEXT without starving Tk's message pump."""
-        if self._management_turn_thread is not None:
+        if self._original_match_input_owner() is not None:
             return
         gameplay = self.presenter.session.gameplay
         if not callable(getattr(gameplay, 'advance_original_management', None)):
@@ -1264,6 +1264,15 @@ class OriginalGameTkHost:
         self.last_status = ('Original NEXT reached pending pre-match event '
                             f'{outcome.pending_primary_entry!r}' if outcome.pending_primary_entry
                             else f'Original NEXT advanced to {gameplay.state.calendar.current_date}')
+
+    def _original_match_input_owner(self) -> str | None:
+        """Return the source owner that excludes ordinary background input."""
+        if self._management_turn_thread is not None:
+            return 'results'
+        gameplay = self.presenter.session.gameplay
+        if getattr(gameplay, 'pending_primary_entry', None) is not None:
+            return 'prematch'
+        return None
 
     def _schedule_management_header_update(self) -> None:
         if (
@@ -1830,7 +1839,8 @@ class OriginalGameTkHost:
         return len(controls)
 
     def on_fixtures_pager_motion(self, event):
-        if getattr(self, "_startup_media_active", False):
+        if (getattr(self, "_startup_media_active", False)
+                or self._original_match_input_owner() is not None):
             return
         event = self._normalize_pointer_event(event)
         self._first_screen_pointer = (int(event.x), int(event.y))
@@ -2275,7 +2285,7 @@ class OriginalGameTkHost:
 
     def on_fixture_report_press(self, event) -> None:
         if (getattr(self, "_startup_media_active", False)
-                or self._management_turn_thread is not None):
+                or self._original_match_input_owner() is not None):
             return
         event = self._normalize_pointer_event(event)
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
@@ -2318,7 +2328,7 @@ class OriginalGameTkHost:
 
     def on_script_arrow_release(self, event) -> None:
         if (getattr(self, "_startup_media_active", False)
-                or self._management_turn_thread is not None):
+                or self._original_match_input_owner() is not None):
             return
         event = self._normalize_pointer_event(event)
         if self._release_original_squad_row(event):
@@ -2398,8 +2408,8 @@ class OriginalGameTkHost:
     def on_click(self, event) -> None:
         if getattr(self, "_startup_media_active", False):
             return  # Startup skip/menu semantics are not inferred from input.
-        if self._management_turn_thread is not None:
-            return  # PResults/native progression owns input until management reentry.
+        if self._original_match_input_owner() is not None:
+            return  # PPreMatch/PResults owns input until management reentry.
         event = self._normalize_pointer_event(event)
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self._management_load_thread is not None:
