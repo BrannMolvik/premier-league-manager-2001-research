@@ -226,3 +226,50 @@ This closes the previously open canonical seed-1 multi-season execution
 boundary. Gate 16 remains work-ahead rather than a completed gate while Gate 13
 is the earliest incomplete prerequisite. Additional canonical seed coverage is
 the next independent cloud-safe long-duration stress.
+
+
+## Recovery 185 canonical multi-seed audit preparation
+
+The seed-1 shipped-data audit above is already verified. The next independent
+Gate-16 gap is broader **canonical** seed coverage rather than more synthetic
+season stress.
+
+Recovery 185 adds:
+
+`reconstruction/canonical_multiseed_audit.py`
+
+This wrapper delegates each requested seed to the existing
+`run_canonical_multiseason_audit` entrypoint and emits one combined evidence
+envelope only if every seed completes the requested rollover count. It does not
+construct or mutate standings, qualification inputs, competition state, RNG
+state or source data itself.
+
+The default bounded seed set is:
+
+- `1`, preserving direct comparability with the already verified canonical
+  seed-1 evidence;
+- `2`, a nearby independent CRT start;
+- `0x12345678`, the nontrivial seed already used in synthetic deterministic
+  stress.
+
+The wrapper fails before execution on duplicate/single-seed requests, normalizes
+seed values to uint32, aborts on the first failing canonical seed, and rejects a
+runner result whose reported seed, rollover count or snapshot count does not
+match the request. A partial batch is therefore never emitted as a passing
+combined audit.
+
+On a healthy private execution path the intended command is:
+
+```text
+cd reconstruction
+python canonical_multiseed_audit.py <game-dir> --rollovers 3
+```
+
+The default command runs seeds `1`, `2` and `0x12345678`. Additional seeds can
+be supplied with repeated `--player-seed` arguments. The resulting JSON must be
+persisted together with exact canonical source receipts before any new Gate-16
+canonical-seed claim is made.
+
+This repository change is **preparation only**. Recovery 185 does not claim the
+new multi-seed batch has run against the authorized source. Gate 16 remains
+work-ahead while Gate 13 is the earliest incomplete validation gate.
