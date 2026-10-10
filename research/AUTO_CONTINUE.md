@@ -1,5 +1,10 @@
 # Automatic Continuation Protocol
 
+## Updated high-impact reconstruction ownership — 11 October 2026
+
+**This supersedes earlier "small fixes", "no worker merge" and Codex-always-review language below.** Read `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md` on every recovery. The automatic worker must pursue the **highest-impact missing original-game features and full player journeys**, and implement verified large or small pieces it can safely prove/test. It may perform routine validated worker PR merges without Codex when protected conditions are met. Codex is scarce specialist for difficult/source-uncertain shared integrations, currently R1 NEXT→PPreMatch→Quick3→PResults→return; worker should work on large disjoint management functionality such as correct current-league Fixtures/Tables. Unknown behavior requires research, not invention; a fail-closed guard is not a full feature. Use current-state and ownership checks and avoid working in Codex's branch. Independent green CI with original-derived tests may verify a PR when local shell/Python fails, but do not merge without credible test evidence. No extra CI and no unapproved original program launch.
+
+
 This protocol exists so long-running FM2001 work can recover from a ChatGPT
 timeout, connection interruption, or conversation-length limit without relying
 on the dead conversation.
@@ -341,7 +346,3 @@ The classified failure uses the existing fresh-chat recovery path.
 ## Standing original-reference and completeness guard (10 October 2026)
 
 The automatic worker MUST read `research/ORIGINAL_REFERENCE_PLAYABILITY_AUDIT_PROTOCOL.md` on recovery and at each substantial source target. Recheck the shipped original as evidence (with provenance) and verify **complete original screens, actions, gameplay phases and ordinary user journeys**, not merely individual fields, pixels or passing reconstruction tests. At every meaningful checkpoint check the original feature inventory for omissions; prioritize P0 missing playable NEXT/pre-match/results/return, Inbox, formations, Save/Load and management actions over esoteric incremental traces when relevant. Re-evaluate after Codex merges; explicitly retire superseded defects. Native executable read-only source inspection is not original-game runtime observation. No unapproved original executable launch, game-code implementation, role change, unnecessary CI or extra heartbeat commits. Audit-only Codex/worker ownership remains intact.
-
-## Scoped source-proven worker fixes (user authorization 11 October 2026)
-
-Read `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md` on recovery. The prior audit-only restriction is **partly lifted**: independent worker may fix small, disjoint, original-source-verified bugs on a dedicated `worker/source-fix-*` branch, after executing relevant tests, and open an **unmerged** review PR. No self-merge, game edits on main/agent-runtime/Codex branch, speculative behavior, untested changes during ClientError, original program launch or excess CI. Codex owns R1 full NEXT/PPreMatch/Quick3/PResults/return and major R2. Independent original-game auditing remains the default.

@@ -21,6 +21,37 @@
       "release_condition": "Gate 13 passes and main advances to Gate 14, or Daniel/coordination explicitly releases or reassigns this lock.",
       "released_date": "2026-10-05",
       "release_reason": "Gate 13 passed and main advanced to Gate 14; recorded release condition satisfied."
+    },
+    {
+      "scope": "Gate 13 R1 real match lifecycle",
+      "owner": "codex",
+      "status": "active",
+      "created_date": "2026-10-11",
+      "reason": "Reserve scarce Codex effort for complex end-to-end original match input, mode, result and return while worker develops high-impact disjoint original screens.",
+      "protected_subsystems": [
+        "pending NEXT source input/Side/calendar transaction",
+        "central original management Tk host match-phase event owner",
+        "source conditional PPreMatch and four modes",
+        "mode-specific human match simulation and PResults lifecycle",
+        "normal match return and repeated NEXT acceptance"
+      ],
+      "non_owner_policy": "Autonomous worker may source-audit these but must not edit this active Codex implementation surface; take disjoint large source-backed management features instead. Codex is not responsible for routine reviewing or merging worker PRs.",
+      "release_condition": "R1 source-complete player-visible Windows 11 Quick3 match-to-results-to-return independently accepted and handoff completed, or explicit user reassignment."
+    },
+    {
+      "scope": "Gate 13 original management feature restoration outside R1",
+      "owner": "chatgpt-autonomous-worker",
+      "status": "active",
+      "created_date": "2026-10-11",
+      "reason": "Worker prioritizes highest-impact missing original game systems rather than only isolated small defects.",
+      "suggested_priority": [
+        "original current-manager League Fixtures and selectors",
+        "original current-manager League Tables and sort",
+        "PMatchInfo modal tabs and exit",
+        "other large nonoverlapping original management functionality"
+      ],
+      "non_owner_policy": "Do not overlap this work without an explicit coordination change. Codex can accept precise blocked/hard integration handoffs; no routine PR review requirement.",
+      "release_condition": "Reallocate a scope explicitly when another owner is better positioned; task otherwise continues through complete feature verification."
     }
   ]
 }
