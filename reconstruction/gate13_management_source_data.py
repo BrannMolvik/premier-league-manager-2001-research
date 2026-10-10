@@ -2278,6 +2278,79 @@ class ManagementSourceDataBridge:
             fixtures_in_source_order=tuple(rows),
         )
 
+    def source_selected_premier_league_fixtures_grid_source(
+        self, selector_context,
+    ) -> LeagueFixturesGridSourceView:
+        """Native primary 373-head *fixed* Premier0, not a fabricated manager."""
+        from original_league_fixtures_selected_premier0 import (
+            SelectedPremier0FixturesSourceError,
+            selected_original_premier0_primary_fixtures,
+        )
+        state = self.state
+        clubs = getattr(state, "clubs", None)
+        membership = getattr(state, "club_competition_membership", None)
+        definitions = getattr(state, "competitions", None)
+        league = getattr(state, "premier_league", None)
+        primary = getattr(state, "primary_schedule_shadow", None)
+        days = getattr(primary, "days", None)
+        if not (hasattr(clubs, "get") and hasattr(membership, "get")
+                and hasattr(definitions, "get") and hasattr(days, "items")):
+            raise ManagementPresentationError(
+                "Original selected Premier0 source catalog/calendar is unavailable"
+            )
+        try:
+            selected = selected_original_premier0_primary_fixtures(
+                human_club_id=self._human_club_id(),
+                selection=selector_context, clubs=clubs, membership=membership,
+                competitions=definitions, premier_league=league, days=days,
+            )
+        except SelectedPremier0FixturesSourceError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+        rows = []
+        for f in selected.fixtures_in_source_order:
+            original_fixed_id = f.node_token[3]
+            home, away = self._source_club(f.home_club_id), self._source_club(f.away_club_id)
+            rows.append(FixtureRowView(
+                source_fixture_index=f.native_encounter_index,
+                fixture_id=original_fixed_id,  # Actual fixed token, not an inferred PMatchInfo link.
+                round_index=None,
+                scheduled_date=f.scheduled_date,
+                home_club_id=f.home_club_id,
+                home_club_name=home.name,
+                away_club_id=f.away_club_id,
+                away_club_name=away.name,
+                played=f.played,
+                home_goals=f.home_goals,
+                away_goals=f.away_goals,
+                source_node_token=f.node_token,
+            ))
+        return LeagueFixturesGridSourceView(
+            competition_id=0,
+            member_club_ids=selected.member_club_ids,
+            scheduled_matchday_count=selected.scheduled_matchday_count,
+            schedule_cycle_count=selected.schedule_cycle_count,
+            matrix_layer_count=selected.matrix_layer_count,
+            fixtures_in_source_order=tuple(rows),
+        )
+
+    def source_selected_league_fixtures_grid_source(
+        self, selector_context,
+    ) -> LeagueFixturesGridSourceView:
+        """Dispatch original selected Premier0 versus real procedural root Leagues."""
+        from original_league_fixtures_selector_context import LeagueFixturesSelectionContext
+        candidate = selector_context
+        if (type(candidate) is not LeagueFixturesSelectionContext
+                or type(candidate.active_country_index) is not int
+                or not 0 <= candidate.active_country_index < 8
+                or type(candidate.selected_league_indices) is not tuple
+                or len(candidate.selected_league_indices) != 8):
+            raise ManagementPresentationError(
+                "Original selected League Fixtures radio context is malformed"
+            )
+        if candidate.selected_competition_id == 0:
+            return self.source_selected_premier_league_fixtures_grid_source(candidate)
+        return self.source_selected_nonpl_league_fixtures_grid_source(candidate)
+
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
         """Project original managed-club League fixture candidates.
 
