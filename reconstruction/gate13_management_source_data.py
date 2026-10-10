@@ -2213,6 +2213,71 @@ class ManagementSourceDataBridge:
         except OriginalLeagueFixturesMembersError as exc:
             raise ManagementPresentationError(str(exc)) from exc
 
+    def source_selected_nonpl_league_fixtures_grid_source(
+        self, selector_context,
+    ) -> LeagueFixturesGridSourceView:
+        """Render-data bridge for an authentic *other* selected native root League.
+
+        Does not switch panel state or claim fmRadioTextSm pointer acceptance.
+        The original Premier League fixed fixture path remains independent.
+        """
+        from original_league_fixtures_selected_source import (
+            SourceSelectedLeagueFixturesError,
+            source_qualified_selected_nonpl_league_fixtures,
+        )
+        state = self.state
+        clubs = getattr(state, "clubs", None)
+        membership = getattr(state, "club_competition_membership", None)
+        definitions = getattr(state, "competitions", None)
+        live_states = getattr(state, "procedural_leagues", None)
+        shadow = getattr(state, "primary_schedule_shadow", None)
+        if not (hasattr(clubs, "get")
+                and hasattr(membership, "get")
+                and hasattr(definitions, "get")
+                and hasattr(live_states, "get")
+                and hasattr(getattr(shadow, "days", None), "items")):
+            raise ManagementPresentationError(
+                "Selected source country, competition, live state or calendar is unavailable"
+            )
+        try:
+            selected = source_qualified_selected_nonpl_league_fixtures(
+                human_club_id=self._human_club_id(),
+                selection=selector_context,
+                clubs=clubs,
+                membership=membership,
+                competitions=definitions,
+                procedural_leagues=live_states,
+                days=shadow.days,
+            )
+        except SourceSelectedLeagueFixturesError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+        rows = []
+        for fixture in selected.fixtures_in_source_order:
+            home = self._source_club(fixture.home_club_id)
+            away = self._source_club(fixture.away_club_id)
+            rows.append(FixtureRowView(
+                source_fixture_index=fixture.native_encounter_index,
+                fixture_id=None,   # NEVER synthesize PMatchInfo +0x40 integer link.
+                round_index=None,
+                scheduled_date=fixture.scheduled_date,
+                home_club_id=fixture.home_club_id,
+                home_club_name=home.name,
+                away_club_id=fixture.away_club_id,
+                away_club_name=away.name,
+                played=fixture.played,
+                home_goals=fixture.home_goals,
+                away_goals=fixture.away_goals,
+                source_node_token=fixture.node_token,
+            ))
+        return LeagueFixturesGridSourceView(
+            competition_id=selected.competition_id,
+            member_club_ids=selected.member_club_ids,
+            scheduled_matchday_count=selected.scheduled_matchday_count,
+            schedule_cycle_count=selected.schedule_cycle_count,
+            matrix_layer_count=selected.matrix_layer_count,
+            fixtures_in_source_order=tuple(rows),
+        )
+
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
         """Project original managed-club League fixture candidates.
 
