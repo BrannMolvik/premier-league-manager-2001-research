@@ -12727,3 +12727,11 @@ No original launch, main merge, agent-runtime write, signing/security change,
 playable-package acceptance or Gate13 closure. Next: source drag cursor and
 ordinary advance/pre-match control integration, then actual hands-on acceptance.
 
+## 10 October 2026 KST — Recovery 467 PMenu disabled-node input/state audit
+
+- Recovered GitHub canonical main `b7f2c58b2f1d6dc59b5f1102f188f159976105f1`, Codex branch `0ae745d1b56f45cade460f03cd893849a2f53b45`; runtime generation 467, mode continuous, status working, strictly audit_only.
+- Static read-only cross-branch verification: original child handler's node +0x14 bit1 guard is implemented/tested in `original_pmenu_activation.py`, but both normal Tk `on_click` implementations pass only the menu-row selected Boolean as integer 0/1. Visible menu rows do not retain guard bit1 and static visual state always takes `disabled=False`. Direct helper tests are not pointer-route proof.
+- Original producer/conditions, actual disabled menu states and real Windows effects were **not** verified; no fresh canonical source extraction, no CI, game edits, native launch, gate close or release claim.
+- Persisted `research/GATE13_PMENU_NODE_DISABLED_FLAG_LOST_AT_POINTER_RECOVERY467.md` and fidelity ledger row. Codex-only minimum fix is source-backed flag round-trip and normal-click guarded/unguarded route tests, subordinated to existing P0 functionality. Next independent audit: original bit1 node-state producer/lifecycle or another P0 core-route fidelity gap if private source inaccessible.
+
+- **Recovery 467 original-source addendum:** independently materialized authorized private 511,121,336-byte ZIP, extracted actual root `footballmanager.exe;1` from MODE1/2352 Joliet LBA 260425, 4,714,541 bytes; fresh SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Original disassembly directly confirms node initializers zero +0x14 (`0x60C9C8/0x60C9D2`; leaf `0x60CA04/0x60CA0E`) and separate child bit1 gate before factory `0x47ADA5–0x47ADAD`. The dynamic producer is unproven, so ledger priority lowered to P1 conditional mismatch; do not displace broken P0 core routes. Original bytes remain private.

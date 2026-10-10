@@ -27,6 +27,20 @@ runtime with `completed` only after Gate 17 passes; otherwise preserve the
 exact next action and allow normal recovery across finite sessions.
 
 
+## Primary correctness-audit assignment
+
+Until Daniel explicitly changes this directive, the worker's main day-to-day assignment is **verify the existing reconstruction against the shipped original files/executable and correct discrepancies**.
+
+Before choosing new implementation work:
+
+1. read `research/ORIGINAL_FILE_FIDELITY_SWEEP.md`;
+2. read/update `research/ORIGINAL_FILE_FIDELITY_LEDGER.md`;
+3. choose the highest-value existing NOT AUDITED / PARTIAL / WRONG surface that can be investigated with available evidence;
+4. verify resource mapping, control ownership/order, geometry/design, text/fonts/colors, data fields, navigation/input/timing and gameplay semantics as applicable;
+5. correct WRONG behavior or fail-close unresolved behavior before expanding functionality.
+
+A later-gate source-research task is not automatically preferable merely because Gate 13 is externally blocked. If useful existing reconstruction remains unaudited, audit it first.
+
 ## Source-of-truth hierarchy
 
 Use these files for different purposes:
