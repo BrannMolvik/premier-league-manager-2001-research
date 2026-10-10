@@ -84,6 +84,7 @@ from original_prematch_panel import (
     PREMATCH_SELECTOR_EVENT_HANDLER_VA,
     PREMATCH_SELECTOR_COMMIT_VA,
     PREMATCH_SELECTOR_MODE_GLOBAL_VA,
+    prematch_selector_at_point,
     PREMATCH_SELECTOR_MODAL_OWNER_VA,
     PREMATCH_SELECTOR_MODAL_SIGNAL_VA,
     PREMATCH_SELECTOR_CLOSE_VA,
@@ -161,6 +162,15 @@ class OriginalPrematchPanelTests(unittest.TestCase):
                 (3, "Quick Match", 1, (518, 107, 106, 25), 0x981DC8),
             ),
         )
+
+    def test_four_choice_pointer_hit_uses_half_open_native_rectangles(self):
+        for selector in PREMATCH_SELECTORS:
+            rect = selector.rect
+            self.assertIs(prematch_selector_at_point(rect.x, rect.y), selector)
+            self.assertIs(prematch_selector_at_point(rect.right - 1, rect.bottom - 1),
+                          selector)
+            self.assertIsNot(prematch_selector_at_point(rect.right, rect.y), selector)
+        self.assertIsNone(prematch_selector_at_point(0, 0))
 
     def test_selector_uses_button_type_14_not_adjacent_type_15(self):
         self.assertTrue(PREMATCH_SELECTOR_ATLAS.source_path.endswith("button_type_14.444"))
