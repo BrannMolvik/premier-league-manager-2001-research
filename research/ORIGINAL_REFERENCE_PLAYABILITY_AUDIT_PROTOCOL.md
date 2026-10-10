@@ -1,6 +1,6 @@
 # Original-game reference and complete-playability audit protocol
 
-**User direction, 10 October 2026:** Further strengthen the automatic worker's original-game checks. The shipped FM2001 is the reference, not the current reconstruction, prior reconstruction tests or guesses. **Audit whole original features and playable journeys, not isolated visual/source details.** This applies to retrospective audits, Codex handoffs and new findings. It does not lift the worker's audit-only restriction.
+**User direction, 10 October 2026:** Further strengthen the automatic worker's original-game checks. The shipped FM2001 is the reference, not the current reconstruction, prior reconstruction tests or guesses. **Audit whole original features and playable journeys, not isolated visual/source details.** This applies to retrospective audits, Codex handoffs and new findings. The user's later 11 October authorization narrowly lifts the audit-only restriction for isolated, source-proven fixes under `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md`.
 
 ## Original-reference checkpoint cadence
 
@@ -39,4 +39,4 @@ An original fully functional management screen cannot be considered restored if 
 
 ## Roles and boundaries
 
-Automatic worker: **audit_only, implementation_allowed=false**. It can inspect verified original executable/data and existing code, challenge its own reports and write evidence/handoffs. It must not implement game/runtime/schema/assets, approve merges, trigger unnecessary Actions or close gates. Codex owns implementation and Windows acceptance. No exact original observation is implied by read-only source disassembly. Gate13 remains open until ordinary original-style gameplay works, and Gates14–17 plus clean Windows11 release remain separate requirements.
+The automatic worker remains the independent original-game fidelity auditor, now with **limited source-verified isolated-fix permission** under `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md`. Only small independent and locally tested repairs on dedicated unmerged PR branches; no main or Codex game edits, self-merges, gate closures, unapproved original runs or code changes when testing is blocked. Codex owns core NEXT/pre-match/results/return, major Inbox, formations, native Save/Load, schema/multiuser and Windows release. Reading the original executable is not observing a live original game. Gate13 through Gate17 acceptance remains unchanged.

@@ -77,17 +77,7 @@ A reusable prompt for a fresh session is stored in `research/HANDOFF_PROMPT.md`.
 
 ## Cross-worker ownership locks
 
-**Daniel's 9 October assignment overrides automatic implementation recovery:**
-the autonomous ChatGPT worker is audit-only until Daniel explicitly lifts the
-restriction. Its role is to verify original executable/resource identities,
-exact owner/caller/CFG producer semantics, and original visible/input/timing
-behavior, then report evidence-backed discrepancies and correction advice.
-It must not implement reconstruction changes or reconcile the active Codex
-recovery branch. Preserve historical independent later-gate work; do not
-continue later-gate coding. Codex retains the actual original-look Windows
-fixes. The runtime role/task restriction is checkpointed at0d8f9bab; an old
-generic recovery prompt does not lift this user-directed scope.
-
+**11 October authorization supersedes the 9 October blanket audit-only prohibition, but only for narrow fixes.** Read `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md`. The worker primarily audits original-game source and whole player journeys. When a clearly isolated original-source-verified defect is certain within its bounded scope, there is no active Codex overlap, and real focused regression tests can run, the worker may implement it on a dedicated worker PR branch and request review. Do not self-merge, touch main/Codex game files, or commit untested gameplay fixes while infrastructure fails. Codex exclusively owns the full R1 NEXT/pending/PPreMatch/Quick3/PResults/return integration and major Inbox/formations/Save/Load/multiuser/Windows release work. Historical audit-only directives remain valid for all other implementation.
 Before choosing work from the earliest incomplete gate, read
 `research/WORK_OWNERSHIP.json`.
 
