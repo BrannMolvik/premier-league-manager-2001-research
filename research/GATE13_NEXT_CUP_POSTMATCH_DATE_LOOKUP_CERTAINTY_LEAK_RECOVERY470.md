@@ -42,3 +42,19 @@ Take one manager club1, `after_date=2000-07-02`, a source-direct club1 match `A`
 4. Retain the newly fixed staged NEXT whole-controller refusal transaction in Codex; account for Cup post-match source uncertainty *within* it when eventually connected to a normal PBg ID3 click, rather than bypassing the input gates. Complete real UI `NEXT→Cup/League event→PResults→return` test and canonical-game save/reload on Windows11 only after legitimate source-integrated implementation.
 
 **Implementation owner: Codex.** No game/source/test/Codex edits, main merge, CI dispatch, original-executable launch or gate closure. Gate13 still OPEN; Gates14–17 and full-original-scope verified Windows11 release incomplete.
+
+## Recovery470 source-owned shared-pipeline follow-up — four real consumers, not Cup-only
+
+Following the first checkpoint, source-owner verification against `research/GATE12_ENGLISH_DOMESTIC_CUPS.md` lines590–693 confirms the original `Match::0x511370→0x5127A0` card/injury/suspension flow: on the original primary-container branch, `0x5127A0` derives the next relative calendar slot (+1), selects the calendar via `0x510300`, runs the manager/team selector `0x615D10`, and hands its selected date context to the original player suspension updater `0x419680`. That original source trace establishes **why** the clean-room `next_primary_match_date_for_club` is used as a preflight for RNG order; it does **not** authorize skipping `0x615C50`'s link/flag/Side gates. The original branch excludes source payload `+0x44` bit0x20 and checks owning competition's virtual `+0x30` through `0x5112E0`; do not generalize the shared path to arbitrary competition types.
+
+A separate exact-code caller search in current Codex `reconstruction/game_state.py` found **four** uses of `_persist_domestic_cup_shared_post_match`:
+- `simulate_procedural_league_ai_node` (~line2549);
+- `simulate_procedural_league_human_node` (~line2728);
+- `simulate_domestic_cup_ai_node` (~line4117);
+- `simulate_domestic_cup_human_node` (~line4316).
+
+They all enter the *same* method at line3631, which invokes the same linked/unknown-blind date preflight at 3671 before conditional `persist_premier_league_match_incidents` and morale/transfer-request processing. This establishes **confirmed shared runtime exposure** in both AI and human procedural League and domestic Cup simulations. It does **not** demonstrate that a real fixture has reached the counterexample, that every competition uses this path, or that a specific card/injury was wrong. No European Cup gameplay path was established by this four-caller scan.
+
+**Additional Codex-only acceptance requirement:** use the same source-typed linked/unknown shadow cases to verify *all four callers*, separately from any control-input/game-host fix. Assert fail-closed two-side preflight prevents RNG-consuming incidents/morale branch while preserving the independent condition/Cup-Tied/pitch paths already source-owned, and verify true source-qualified clear paths continue to execute shared post-match work in original order. Include original source branch eligibility from `0x511370/0x5112E0` in the test provenance; don't invent cross-competition equivalence.
+
+Source confirmation here is a cross-check of historical hash-gated PE evidence and current GitHub code, **not fresh executable disassembly or executed regression tests**. Implementation and end-to-end Windows11 acceptance stay Codex-owned; gate states unchanged.
