@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 469,
+  "recovery_generation": 470,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery469 research checkpoints on main b4ab91c (EAMail pending/delivered) and 483afb4e06d82187c02b2c35e7c18a06a9085756 (post-staging quiet-day successful NEXT future MATCH disappearance). Runtime continuous/working, audit_only; private container still ClientError. Codex 5413dd3 implementation branch unmodified by worker.",
+  "note": "Recovery470 verified main 483afb4e06d82187c02b2c35e7c18a06a9085756 and Codex 5413dd35f7bfd57a4f90131f477227227c4a2734; source-first NEXT event/Side producer audit resumes. Trivial shell and Python still fail caas.internal.errors.ClientError. Audit-only preserved.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
