@@ -29,9 +29,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 492,
+  "recovery_generation": 493,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery492: heads unchanged, pending NEXT/source mode first-playable gap still present by read-only GitHub source inspection. Shell and Python trivial command both ClientError, blocking new original-source extraction. Do not repeat earlier audit absent new evidence.",
+  "note": "Recovery493: main and Codex heads rechecked unchanged from Recovery492. Worker remains audit-only. Checking local execution viability before novel original-source research, rather than repeating prior microaudits.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
