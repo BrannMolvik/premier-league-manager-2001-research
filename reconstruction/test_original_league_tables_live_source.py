@@ -174,6 +174,20 @@ class SourceProceduralLeagueTableTests(unittest.TestCase):
         with self.assertRaises(SourceProceduralLeagueTableError):
             exact_rows(s)
 
+    def test_missing_current_manager_membership_never_defaults_to_pl_zero(self):
+        s = source()
+        del s.club_competition_membership
+        c = SimpleNamespace(state=s, human=SimpleNamespace(club_id=10))
+        with self.assertRaisesRegex(ManagementPresentationError, "membership source"):
+            ManagementSourceDataBridge(c).league_table_rows()
+        s.premier_league_table.assert_not_called()
+
+    def test_missing_canonical_human_country_does_not_imply_valid_root_league(self):
+        s = source()
+        del s.clubs[10].country_id
+        with self.assertRaisesRegex(SourceProceduralLeagueTableError, "country identity"):
+            exact_rows(s)
+
     def test_no_live_nonpl_source_never_calls_premier_league_projection(self):
         s = source()
         s.procedural_leagues = {}

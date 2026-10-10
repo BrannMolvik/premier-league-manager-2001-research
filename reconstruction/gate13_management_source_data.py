@@ -2323,14 +2323,16 @@ class ManagementSourceDataBridge:
         """
         state = self.state
         membership = getattr(state, "club_competition_membership", None)
-        competition_id = None
-        if hasattr(membership, "get"):
-            competition_id = membership.get(self._human_club_id())
-            if type(competition_id) is not int or competition_id < 0:
-                raise ManagementPresentationError(
-                    "Current manager has no recovered League-table identity"
-                )
-        if competition_id not in (None, 0):
+        if not hasattr(membership, "get"):
+            raise ManagementPresentationError(
+                "Current-manager League membership source is unavailable"
+            )
+        competition_id = membership.get(self._human_club_id())
+        if type(competition_id) is not int or competition_id < 0:
+            raise ManagementPresentationError(
+                "Current manager has no recovered League-table identity"
+            )
+        if competition_id != 0:
             # This adapter is strictly read-only. There is no calendar/event
             # materialization, participation guessing or ID-based sorting.
             from original_league_tables_live_source import (

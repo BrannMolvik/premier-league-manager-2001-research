@@ -52,10 +52,15 @@ def source_qualified_procedural_league_table(
         raise SourceProceduralLeagueTableError(
             "Current club or original League source record is missing"
         )
-    if (getattr(competition, "runtime_kind_code", None) != 1
+    human_country_id = getattr(human_club, "country_id", None)
+    if type(human_country_id) is not int or human_country_id < 0:
+        raise SourceProceduralLeagueTableError(
+            "Original current club country identity is unavailable"
+        )
+    if (type(getattr(competition, "runtime_kind_code", None)) is not int
+            or competition.runtime_kind_code != 1
             or getattr(competition, "parent_competition_id", object()) is not None
-            or getattr(competition, "country_region_id", None)
-            != getattr(human_club, "country_id", None)):
+            or getattr(competition, "country_region_id", None) != human_country_id):
         raise SourceProceduralLeagueTableError(
             "Selected source competition is not the current club's root League"
         )
@@ -92,7 +97,7 @@ def source_qualified_procedural_league_table(
     source_names = {}
     for cid in member_ids:
         club = clubs.get(cid)
-        if club is None or getattr(club, "country_id", None) != human_club.country_id:
+        if club is None or getattr(club, "country_id", None) != human_country_id:
             raise SourceProceduralLeagueTableError(
                 "Live League participant lacks a matching source club/country"
             )
