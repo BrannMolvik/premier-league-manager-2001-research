@@ -1312,6 +1312,57 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertFalse(host._fullscreen)
         self.assertFalse(root.values["attributes"]["-fullscreen"])
 
+    def test_escape_exits_active_source_pmatchinfo_modal_before_fullscreen(self):
+        # Original 0x488C60: Escape 0x1B posts PMatchInfo exit event 7.
+        # The native popup owns the key even when the Tk compatibility shell
+        # happens to be in fullscreen.
+        from original_pmatchinfo_art import build_pmatchinfo_popup_art
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        host.presenter.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.active_pmatchinfo_art = build_pmatchinfo_popup_art(
+            fake_pmatchinfo_snapshot(), pointer_x=799, pointer_y=599,
+        )
+        host.active_pmatchinfo_context = SimpleNamespace(
+            captured_report="retained source context",
+        )
+        host.last_pmatchinfo_action = LEAGUE_FIXTURES_MATCH_INFO_ACTION
+        self.assertTrue(host._fullscreen)
+
+        with patch.object(host, "redraw") as redraw:
+            self.assertEqual(host.leave_fullscreen(SimpleNamespace(keysym="Escape")),
+                             "break")
+        self.assertIsNone(host.active_pmatchinfo_art)
+        self.assertIsNone(host.active_pmatchinfo_context)
+        self.assertIsNone(host.last_pmatchinfo_action)
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values["attributes"]["-fullscreen"])
+        redraw.assert_called_once_with()
+        self.assertIn("Closed source-accepted PMatchInfo", host.last_status)
+
+    def test_pmatchinfo_escape_cannot_bypass_pending_match_owner(self):
+        from original_pmatchinfo_art import build_pmatchinfo_popup_art
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        host.presenter.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.presenter.session.gameplay = StubBackend()
+        host.presenter.session.gameplay.pending_primary_entry = ("premier_league", 7)
+        popup = build_pmatchinfo_popup_art(
+            fake_pmatchinfo_snapshot(), pointer_x=32, pointer_y=70,
+        )
+        host.active_pmatchinfo_art = popup
+
+        with patch.object(host, "redraw") as redraw:
+            self.assertEqual(host.leave_fullscreen(), "break")
+            self.assertIs(host.active_pmatchinfo_art, popup)
+            self.assertTrue(host._fullscreen)
+            redraw.assert_not_called()
+            host.presenter.session.gameplay.pending_primary_entry = None
+            self.assertEqual(host.leave_fullscreen(), "break")
+            redraw.assert_called_once_with()
+        self.assertIsNone(host.active_pmatchinfo_art)
+        self.assertTrue(host._fullscreen)
+
     def test_first_screen_photo_cache_reuses_background_and_source_frame_images(self):
         root = FakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
