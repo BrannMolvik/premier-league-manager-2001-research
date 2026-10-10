@@ -96,6 +96,14 @@ def qualified_primary_league_fixtures(
     member_index = {cid: i for i, cid in enumerate(member_club_ids)}
     matrix_occupied = [False] * (n*n*layers)
     known_tokens = set(live.fixtures)
+    # A complete source League season has N clubs playing the original
+    # number of matchdays. Partial schedule materialization must never
+    # masquerade as an original full-season fixtures grid.
+    expected_fixture_count = n * scheduled_matchday_count
+    if expected_fixture_count % 2 or len(known_tokens) != expected_fixture_count // 2:
+        raise SourcePrimaryLeagueFixturesError(
+            "Source League fixture schedule is incomplete for original matchdays"
+        )
     seen = set()
     ordered = []
     # PrimaryScheduleShadowState.days preserves exact sorted original source
