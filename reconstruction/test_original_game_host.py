@@ -60,6 +60,7 @@ from original_pmatchinfo_resources import (
     PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
 )
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
+from original_prematch_panel import PREMATCH_SELECTORS
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_resources import squad_view_transition
 from original_squad_status import (
@@ -693,6 +694,47 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(gameplay.pending_primary_entry, entry)
         self.assertIsNone(host._management_turn_thread)
         self.assertIn('conditional PPreMatch', host.last_status)
+
+    def test_unimplemented_prematch_modes_do_not_commit_selection_or_simulate(self):
+        live = presenter()
+        errors = []
+        host = OriginalGameTkHost(
+            live, FakeRoot(), FakeTk, error_reporter=errors.append
+        )
+        live.session.gameplay = StubBackend()
+        live.session.started = True
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        pending = ("premier_league", 7)
+        live.session.gameplay.pending_primary_entry = pending
+        host.prematch_surface = SimpleNamespace()
+        self.assertIsNone(live.session.match_detail_mode)
+
+        with patch.object(host, "_begin_original_human_match") as begin:
+            for selector in PREMATCH_SELECTORS:
+                if selector.mode is MatchDetailMode.QUICK_MATCH:
+                    continue
+                rect = selector.rect
+                host.on_click(SimpleNamespace(
+                    x=rect.x + rect.width // 2,
+                    y=rect.y + rect.height // 2,
+                ))
+                self.assertIsNone(live.session.match_detail_mode)
+                self.assertEqual(live.session.gameplay.pending_primary_entry, pending)
+                self.assertIsNone(host._management_turn_thread)
+            begin.assert_not_called()
+        self.assertEqual(len(errors), 3)
+        self.assertTrue(all("unfinished source renderer" in error for error in errors))
+
+        quick = next(selector for selector in PREMATCH_SELECTORS
+                     if selector.mode is MatchDetailMode.QUICK_MATCH)
+        with patch.object(host, "_begin_original_human_match") as begin:
+            host.on_click(SimpleNamespace(
+                x=quick.rect.x + quick.rect.width // 2,
+                y=quick.rect.y + quick.rect.height // 2,
+            ))
+            begin.assert_called_once_with(MatchDetailMode.QUICK_MATCH)
+        self.assertEqual(live.session.match_detail_mode, MatchDetailMode.QUICK_MATCH)
+        self.assertEqual(live.session.gameplay.pending_primary_entry, pending)
 
     def test_next_thread_start_failure_releases_busy_state(self):
         live = presenter()
