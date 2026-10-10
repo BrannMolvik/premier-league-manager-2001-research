@@ -17,8 +17,8 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "STRICT AUDIT ONLY, recovery468. Audited actual normal PBg header controls (ID1 EAMail, ID2 PMenu, ID3 NEXT), core PMenu EAMail/Save/Return, Squad 3/4/5, and multi-manager Start across main fc857236 and Codex 0ae745d; new audit+ledger at main 41d5946. Confirmed ID1/ID3 unwired, Save/Return absent, Squad tab UI unwired, 25/28 menu children unintegrated; conditional P1 MENU ID2 geometry-only acceptance. Original disc ZIP in Library materialized but trivial shell/Python failed ClientError; no fresh native disassembly or Windows GUI. NEXT exact next audit priority: original EAMail source record/row input/lifecycle or qualified original NEXT user-route versus on_click; verify both branch host/dispatcher and produce ranked Codex handoff. DO NOT modify Codex/game, merge or run CI. Original Gate13 still OPEN, Gates14-17 incomplete. Preserve source evidence and audit-only until Daniel explicitly lifts restriction.",
-  "last_known_main_head": "41d5946dd68c5a1e96b898063a791ca29add46de",
+  "active_task": "STRICT AUDIT ONLY Recovery469. Canonical main b4ab91c075bafa06ef36cf88a4d02ffe6e3fd64e contains GATE13_EAMAIL_PENDING_VS_DELIVERED_RUNTIME_GAP_RECOVERY469.md plus ledger/PROGRESS. Recovered original source says MPMEAMail future queue -> +0x3C readiness -> per-manager delivered user+0x6B4 linked inbox via 0x613EE0 processing; current Codex 5413dd35f7bfd57a4f90131f477227227c4a2734 retains only 2 source queues and a read-only seam, not delivered inbox. Latest Codex stages whole-controller NEXT on deepcopy but has no ordinary ID3 click/qualified wrapper selector. NEXT INDEPENDENT AUDIT: inspect staged NEXT event selection & source-qualified header vs source 0x615D10, original owner roster and preflight; produce narrow Codex handoff, not implementation. Original binary execution sandbox ClientError, no GUI receipt. Preserve Codex branch and implementation_allowed=false; Gate13 OPEN, Gates14-17 incomplete.",
+  "last_known_main_head": "b4ab91c075bafa06ef36cf88a4d02ffe6e3fd64e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -29,7 +29,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 469,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery469: main 41d5946dd68c5a1e96b898063a791ca29add46de; Codex implementation branch advanced to 5413dd35f7bfd57a4f90131f477227227c4a2734 since Recovery468. Audit-only restriction held; investigate new Codex changes and EAMail physical-route/lifecycle next.",
+  "note": "Recovery469 checkpoint main b4ab91c075bafa06ef36cf88a4d02ffe6e3fd64e: native EAMail pending-event vs delivered mailbox runtime gap cross-branch audit, source queue correctly kept distinct, Codex 5413dd35f7b unchanged by audit. Exact next: verify latest Codex staged NEXT event and source-qualified path, identify code risks with truthful original source boundaries; private container ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
