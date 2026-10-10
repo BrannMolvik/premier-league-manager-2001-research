@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 467,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery467 checkpoint: original executable SHA reverified privately, node state initialization and guard source independently disassembled, ledger P1 priority corrected; main fc857236c64b4a99feea10d9fc7e2eb5454f8944. Runtime working is only recovery marker, not asynchronous processing.",
+  "recovery_generation": 468,
+  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
+  "note": "Recovery 468 initiated 2026-10-10: main HEAD fc857236c64b4a99feea10d9fc7e2eb5454f8944; continuing strict audit-only P0 original-management source verification. No implementation or Codex branch mutation authorized.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
