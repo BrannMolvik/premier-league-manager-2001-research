@@ -17,11 +17,13 @@ from datetime import date
 from hashlib import sha256
 from pathlib import Path
 
-from ea444_decoder import EA444DecodedImage, decode_ea444
+from ea444_decoder import EA444DecodedImage
+from gate13_ea444_staged_rasters import decode_staged_or_original as decode_ea444
 from ea444_header import parse_ea444_header
 from ea444_quantization import quantization_from_verified_executable
 from ea444_tables import tables_from_original_executable
 from ea_font import EAFont
+from original_management_club_caption import load_verified_management_club_font
 
 
 class OriginalManagementHeaderError(ValueError):
@@ -108,11 +110,11 @@ HEADER_CLUB_NAME_REFRESH_VA = 0x432A20
 HEADER_CLUB_NAME_ACCESSOR_VA = 0x40DA50
 HEADER_CLUB_NAME_FONT_LOADER_VA = 0x6043F2
 HEADER_CLUB_NAME_FONT_OBJECT_VA = 0x8F21B0
-HEADER_CLUB_NAME_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_36pixel.fnt"
+HEADER_CLUB_NAME_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_32pixel.fnt"
 HEADER_CLUB_NAME_FONT_SHA256 = (
-    "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df"
+    "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36"
 )
-HEADER_CLUB_NAME_FONT_BYTE_SIZE = 155_544
+HEADER_CLUB_NAME_FONT_BYTE_SIZE = 136_128
 
 HEADER_MATCH_COMPETITION_RECT = (172, 34, 378, 16)
 HEADER_MATCHUP_RECT = (172, 51, 378, 16)
@@ -125,12 +127,12 @@ HEADER_DATE_TEMPLATE_GLOBAL_VA = 0x983FE4
 HEADER_DATE_ENGLISH_INDEX = 517
 HEADER_DATE_TEMPLATE = "Today is %D %M %Yf"
 HEADER_DATE_FONT_OBJECT_VA = 0x8CAB80
-HEADER_DATE_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_18pixel.fnt"
+HEADER_DATE_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_16pixel.fnt"
 HEADER_DATE_FONT_SHA256 = (
-    "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a"
+    "e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18"
 )
-HEADER_DATE_FONT_BYTE_SIZE = 79_734
-HEADER_DATE_FONT_ATLAS_SIZE = (1366, 19)
+HEADER_DATE_FONT_BYTE_SIZE = 75_217
+HEADER_DATE_FONT_ATLAS_SIZE = (1261, 17)
 HEADER_DATE_MONTH_NAMES = (
     "January",
     "February",
@@ -153,6 +155,7 @@ class OriginalManagementHeaderResources:
     right_state: EA444DecodedImage
     font: EAFont
     date_font: EAFont
+    club_font: EAFont | None = None
     club_name_font: EAFont | None = None
 
     def __post_init__(self) -> None:
@@ -164,7 +167,7 @@ class OriginalManagementHeaderResources:
             raise OriginalManagementHeaderError("Central date font atlas geometry mismatch")
         if self.club_name_font is not None and (
             self.club_name_font.atlas_width, self.club_name_font.atlas_height
-        ) != (2678, 38):
+        ) != (2422, 34):
             raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
 
 
@@ -325,7 +328,7 @@ def validate_management_header_date_font(source_root: str | Path) -> EAFont:
 
 
 def validate_management_header_club_name_font(source_root: str | Path) -> EAFont:
-    """Load only the byte-identical source 36px Zurich Bold club-name font."""
+    """Load the byte-identical 32px font used by the native club caption owner."""
     path = Path(source_root) / HEADER_CLUB_NAME_FONT_SOURCE_PATH
     try:
         raw = path.read_bytes()
@@ -338,7 +341,7 @@ def validate_management_header_club_name_font(source_root: str | Path) -> EAFont
     if sha256(raw).hexdigest() != HEADER_CLUB_NAME_FONT_SHA256:
         raise OriginalManagementHeaderError("Club-name font checksum mismatch")
     font = EAFont.from_bytes(raw)
-    if (font.atlas_width, font.atlas_height) != (2678, 38):
+    if (font.atlas_width, font.atlas_height) != (2422, 34):
         raise OriginalManagementHeaderError("Club-name font atlas geometry mismatch")
     return font
 
@@ -353,14 +356,15 @@ def load_verified_management_header_resources(
     right_raw = _validate_source_file(root, HEADER_RIGHT_RESOURCE)
     font = validate_management_header_font(root)
     date_font = validate_management_header_date_font(root)
-    club_name_font = validate_management_header_club_name_font(root)
 
     executable = Path(original_executable).read_bytes()
     tables = tables_from_original_executable(executable)
     quant = quantization_from_verified_executable(executable)
     left = decode_ea444(left_raw, tables=tables, quant=quant)
     right = decode_ea444(right_raw, tables=tables, quant=quant)
-    return OriginalManagementHeaderResources(left, right, font, date_font, club_name_font)
+    return OriginalManagementHeaderResources(
+        left, right, font, date_font, load_verified_management_club_font(root)
+    )
 
 
 def _crop_frame(image: EA444DecodedImage, source_row: int) -> bytes:
@@ -713,8 +717,9 @@ def management_header_club_name_overlay(
 ) -> OriginalManagementHeaderClubNameOverlay:
     """Rasterize the source-bound primary management Club.name control.
 
-    The caller must supply the exact verified 36px original font; no font
-    substitution or modern styling is permitted.
+    The canonical loader binds the exact staged 32px font to 8F21B0; the
+    36px ownership claim was disproved by the path at 839E94. Callers retain
+    the native caption override/fallback policy separately.
     """
     if not isinstance(club_name, str) or not club_name:
         raise OriginalManagementHeaderError(

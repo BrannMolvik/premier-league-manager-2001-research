@@ -21,10 +21,97 @@ import time
 from typing import Callable
 
 from startup_media_derivatives import VerifiedStartupMediaDerivative
+from startup_media_input import startup_input_allowed, parse_native_skip_receipt
 
 
 class WindowsStartupMediaBackendError(RuntimeError):
     pass
+
+
+class _GameOwnedChildViewport:
+    """Resize only this player's child of the bound game HWND, never its owner.
+
+    The WPF child processes WM_SIZE itself, including its physical-pixel to DIP
+    conversion. No media restart, desktop/display change, activation or z-order
+    change is performed. Discovery is qualified by both parent and owned PID.
+    """
+    def __init__(self, parent_hwnd: int, player_pid: int):
+        from ctypes import wintypes
+        if type(player_pid) is not int or player_pid <= 0:
+            raise WindowsStartupMediaBackendError('Invalid owned media-player PID')
+        self.parent_hwnd = parent_hwnd
+        self.player_pid = player_pid
+        self.last_rect = None
+        self.child_hwnd = None
+        self.user32 = ctypes.WinDLL('user32', use_last_error=True)
+        self.callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        self.user32.EnumChildWindows.argtypes = (wintypes.HWND, self.callback_type, wintypes.LPARAM)
+        self.user32.EnumChildWindows.restype = wintypes.BOOL
+        self.user32.GetWindowThreadProcessId.argtypes = (wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
+        self.user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+        self.user32.GetParent.argtypes = (wintypes.HWND,)
+        self.user32.GetParent.restype = wintypes.HWND
+        self.user32.IsWindow.argtypes = (wintypes.HWND,)
+        self.user32.IsWindow.restype = wintypes.BOOL
+        self.user32.SetWindowPos.argtypes = (wintypes.HWND, wintypes.HWND,
+                                           ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                           wintypes.UINT)
+        self.user32.SetWindowPos.restype = wintypes.BOOL
+        self.user32.PostMessageW.argtypes = (wintypes.HWND, wintypes.UINT,
+                                           wintypes.WPARAM, wintypes.LPARAM)
+        self.user32.PostMessageW.restype = wintypes.BOOL
+        self.pid_type = wintypes.DWORD
+
+    def __call__(self, rect: tuple[int, int, int, int]) -> None:
+        if self.child_hwnd is None:
+            candidates = []
+            def capture(hwnd, _parameter):
+                pid = self.pid_type()
+                self.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+                if pid.value == self.player_pid and self.user32.GetParent(hwnd) == self.parent_hwnd:
+                    candidates.append(hwnd)
+                return True
+            self.user32.EnumChildWindows(self.parent_hwnd, self.callback_type(capture), 0)
+            if not candidates:
+                return  # HwndSource has not been constructed yet.
+            if len(candidates) != 1:
+                raise WindowsStartupMediaBackendError('Ambiguous game-owned media child')
+            self.child_hwnd = candidates[0]
+        pid = self.pid_type()
+        self.user32.GetWindowThreadProcessId(self.child_hwnd, ctypes.byref(pid))
+        parent = self.user32.GetParent(self.child_hwnd)
+        if pid.value != self.player_pid or parent != self.parent_hwnd:
+            if pid.value == 0 and not parent and not self.user32.IsWindow(self.child_hwnd):
+                # MediaEnded disposes HwndSource before PowerShell exits. Do
+                # not resize a dead HWND, or mistake disposal for completion:
+                # the caller still requires the player's verified exit code.
+                return
+            raise WindowsStartupMediaBackendError('Media child ownership changed')
+        if rect == self.last_rect:
+            return
+        # SWP_NOZORDER | SWP_NOACTIVATE: this transport cannot take focus.
+        if not self.user32.SetWindowPos(self.child_hwnd, None, *rect, 0x0014):
+            error = ctypes.get_last_error()
+            if error == 1400 and not self.user32.IsWindow(self.child_hwnd):
+                return  # Teardown raced the ownership check; no HWND was moved.
+            raise ctypes.WinError(error)
+        self.last_rect = rect
+
+    def post_native_input(self, message: int, wparam: int = 0) -> bool:
+        if not startup_input_allowed(True, message) or type(wparam) is not int or not 0 <= wparam <= 255:
+            raise WindowsStartupMediaBackendError('Invalid native startup input')
+        if self.child_hwnd is None:
+            return False  # No live child yet; never post to an unrelated HWND.
+        pid = self.pid_type()
+        self.user32.GetWindowThreadProcessId(self.child_hwnd, ctypes.byref(pid))
+        parent = self.user32.GetParent(self.child_hwnd)
+        if pid.value != self.player_pid or parent != self.parent_hwnd:
+            if pid.value == 0 and not parent and not self.user32.IsWindow(self.child_hwnd):
+                return False
+            raise WindowsStartupMediaBackendError('Media child ownership changed')
+        if not self.user32.PostMessageW(self.child_hwnd, message, wparam, 0):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return True
 
 
 def _default_mci_sender() -> tuple[Callable[[str], int], Callable[[int], str]]:
@@ -198,6 +285,11 @@ if (
 
 $script:mediaFailed = $false
 $script:mediaEnded = $false
+$script:mediaOpened = $false
+$script:skipMessage = 0
+$inputFlag = [Environment]::GetEnvironmentVariable('FM2001_STARTUP_INPUT_BIT0', 'Process')
+if ($inputFlag -ne '0' -and $inputFlag -ne '1') { exit 2 }
+$script:allowNativeInput = $inputFlag -eq '1'
 $script:frame = New-Object Windows.Threading.DispatcherFrame
 
 $params = New-Object Windows.Interop.HwndSourceParameters('FM2001StartupMedia')
@@ -234,6 +326,7 @@ $media.Add_MediaEnded({
     $script:mediaEnded = $true
     $script:frame.Continue = $false
 })
+$media.Add_MediaOpened({ $script:mediaOpened = $true })
 $media.Add_MediaFailed({
     param($sender, $eventArgs)
     $script:mediaFailed = $true
@@ -251,6 +344,26 @@ $media.Add_Loaded({
         $script:frame.Continue = $false
     }
 })
+
+# This is only a hook on this player's game-owned child; no global keyboard
+# hooks, desktop policy changes, invented polling timer or media restart.
+$inputHook = [Windows.Interop.HwndSourceHook]{
+    param([IntPtr]$hwnd, [int]$message, [IntPtr]$wParam, [IntPtr]$lParam, [ref]$handled)
+    if ($script:allowNativeInput -and $script:mediaOpened -and
+        -not $script:mediaFailed -and -not $script:mediaEnded -and
+        $message -in @(0x100, 0x201, 0x204)) {
+        try {
+            $media.Stop()
+            $script:skipMessage = $message
+        } catch {
+            $script:mediaFailed = $true
+            [Console]::Error.WriteLine($_.Exception.Message)
+        }
+        $script:frame.Continue = $false
+    }
+    return [IntPtr]::Zero
+}
+$source.AddHook($inputHook)
 
 [void]$grid.Children.Add($media)
 $source.RootVisual = $grid
@@ -416,7 +529,12 @@ public static class FM2001TransportProbe {
 
 try { $media.Stop() } catch {}
 $source.RootVisual = $null
+$source.RemoveHook($inputHook)
 $source.Dispose()
+if (-not $script:mediaFailed -and $script:skipMessage -ne 0) {
+    [Console]::Out.WriteLine('FM2001_STARTUP_SKIPPED=' + $script:skipMessage)
+    exit 4
+}
 if ($script:mediaFailed -or -not $script:mediaEnded) {
     exit 3
 }
@@ -431,9 +549,10 @@ class WindowsWpfStartupMediaBackend:
     native status 277 on the external Windows 11 client. The media path is
     passed through a process environment variable rather than interpolated into
     PowerShell source, and the child process does not return until the
-    game-owned WPF child reaches MediaEnded or MediaFailed. The Tk owner must
+    game-owned WPF child reaches MediaEnded, a qualified input stop or MediaFailed. The Tk owner must
     service Windows messages while that cross-process child is created/played.
     """
+    source_input_contract_recovered = True
 
     def __init__(
         self,
@@ -442,6 +561,7 @@ class WindowsWpfStartupMediaBackend:
         runner: Callable[..., object] = subprocess.run,
         powershell_executable: str = "powershell.exe",
         process_factory: Callable[..., object] = subprocess.Popen,
+        viewport_factory: Callable[..., object] = _GameOwnedChildViewport,
         capture_transport_receipts: bool = False,
     ):
         system = platform.system() if platform_system is None else platform_system
@@ -462,6 +582,13 @@ class WindowsWpfStartupMediaBackend:
         self._parent_hwnd = None
         self._presentation_rect = None
         self._event_pump = None
+        self._active_viewport = None
+        self._active_input_bit0 = False
+        self.last_native_input_message = None
+        self._presentation_geometry = None
+        if not callable(viewport_factory):
+            raise WindowsStartupMediaBackendError('Media viewport factory must be callable')
+        self._viewport_factory = viewport_factory
         if type(capture_transport_receipts) is not bool:
             raise WindowsStartupMediaBackendError(
                 "transport-receipt capture flag must be boolean"
@@ -483,6 +610,20 @@ class WindowsWpfStartupMediaBackend:
             raise WindowsStartupMediaBackendError("startup-media event pump must be callable")
         self._event_pump = event_pump
 
+    def request_native_input(self, message: int, wparam: int = 0) -> bool:
+        """Forward human input only to the verified owned player, never its parent."""
+        if not startup_input_allowed(self._active_input_bit0, message):
+            return False
+        if self._active_viewport is None:
+            return False
+        return self._active_viewport.post_native_input(message, wparam)
+
+    def bind_presentation_geometry(self, provider: Callable[[], dict]) -> None:
+        """Bind the owner's realized viewport, sampled after servicing Tk events."""
+        if not callable(provider):
+            raise WindowsStartupMediaBackendError('Media geometry provider must be callable')
+        self._presentation_geometry = provider
+
     def _run_player(self, command, *, env, timeout):
         if self._event_pump is None:
             return self._runner(command, check=False, capture_output=True, text=True,
@@ -492,9 +633,22 @@ class WindowsWpfStartupMediaBackend:
             stderr=subprocess.PIPE, text=True, env=env,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         deadline = time.monotonic() + timeout
+        viewport = None
         try:
+            if self._presentation_geometry is not None:
+                viewport = self._viewport_factory(self._parent_hwnd, process.pid)
+                self._active_viewport = viewport
             while True:
                 self._event_pump()  # Always on the calling/owning Tk thread.
+                if viewport is not None and process.poll() is None:
+                    binding = self._presentation_geometry()
+                    if binding.get('parent_hwnd') != self._parent_hwnd:
+                        raise WindowsStartupMediaBackendError('Media parent changed during playback')
+                    rect = tuple(binding.get(key) for key in ('x', 'y', 'width', 'height'))
+                    if (any(type(value) is not int for value in rect)
+                            or min(rect[:2]) < 0 or min(rect[2:]) <= 0):
+                        raise WindowsStartupMediaBackendError('Invalid live media viewport')
+                    viewport(rect)
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
                     raise subprocess.TimeoutExpired(command, timeout)
@@ -510,6 +664,8 @@ class WindowsWpfStartupMediaBackend:
                 process.kill()
             process.communicate()
             raise
+        finally:
+            self._active_viewport = None
 
     def bind_parent_window(
         self,
@@ -730,6 +886,7 @@ class WindowsWpfStartupMediaBackend:
                 "Windows WPF startup-media backend is not bound to the game window"
             )
         x, y, width, height = self._presentation_rect
+        self.last_native_input_message = None
         env = os.environ.copy()
         env["FM2001_STARTUP_MEDIA_PATH"] = str(Path(item.path))
         env["FM2001_STARTUP_PARENT_HWND"] = str(self._parent_hwnd)
@@ -737,6 +894,7 @@ class WindowsWpfStartupMediaBackend:
         env["FM2001_STARTUP_MEDIA_Y"] = str(y)
         env["FM2001_STARTUP_MEDIA_WIDTH"] = str(width)
         env["FM2001_STARTUP_MEDIA_HEIGHT"] = str(height)
+        env["FM2001_STARTUP_INPUT_BIT0"] = '1' if item.spec.playback_flag_bit0 is True else '0'
         if self._capture_transport_receipts:
             env["FM2001_STARTUP_CAPTURE_TRANSPORT"] = "1"
         command = (
@@ -752,22 +910,34 @@ class WindowsWpfStartupMediaBackend:
             self._encoded_script(),
         )
         try:
+            self._active_input_bit0 = item.spec.playback_flag_bit0 is True
             completed = self._run_player(command, env=env,
                 timeout=self._timeout_seconds(item))
         except subprocess.TimeoutExpired as exc:
             raise WindowsStartupMediaBackendError(
                 f"Windows WPF startup-media playback timed out: {item.path}"
             ) from exc
+        except WindowsStartupMediaBackendError:
+            raise
         except Exception as exc:
             raise WindowsStartupMediaBackendError(
                 "Windows WPF startup-media player failed to launch"
             ) from exc
+        finally:
+            self._active_input_bit0 = False
 
         returncode = getattr(completed, "returncode", None)
         if type(returncode) is not int:
             raise WindowsStartupMediaBackendError(
                 "Windows WPF startup-media player returned no integer exit code"
             )
+        if returncode == 4:
+            try:
+                self.last_native_input_message = parse_native_skip_receipt(
+                    getattr(completed, 'stdout', ''), item.spec.playback_flag_bit0)
+            except ValueError as exc:
+                raise WindowsStartupMediaBackendError(str(exc)) from exc
+            return True
         if returncode != 0:
             stderr = str(getattr(completed, "stderr", "") or "").strip()
             detail = f": {stderr}" if stderr else ""

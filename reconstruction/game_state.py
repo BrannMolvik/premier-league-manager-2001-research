@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from time import time
 from typing import Callable, Iterable
@@ -223,6 +223,12 @@ class GameState:
     access_fan_bases: tuple[object, ...] = ()
     access_skill_financial_values: tuple[object, ...] = ()
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
+    # DBRClub import 403660 explicitly initializes +1DC to zero (403764).
+    # This is persistent reserve-formation state, not an allocator default.
+    native_squad_reserve_formations: dict[int, int] = field(default_factory=dict)
+    # 409BD0 first-season selection output. Empty means not yet produced;
+    # loaded/advanced state must never be silently reinitialized.
+    native_squad_first_formations: dict[int, int] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     # Completion inputs only, NOT captured reports or fixture links. These
@@ -251,6 +257,7 @@ class GameState:
     ] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
+    primary_schedule_end_date: date | None = None
     primary_schedule_shadow: PrimaryScheduleShadowState = field(
         default_factory=lambda: PrimaryScheduleShadowState(days={})
     )
@@ -283,6 +290,8 @@ class GameState:
     ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
     country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
     user_controlled_club_id: int | None = None
+    # Runtime DBRClub+40 after426090 human binding, not imported AI manager_id.
+    native_user_recipient_key: int | None = None
     # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
     # independent of club_roster_order until 0x61E3D0 promotion.
     user_youth: YouthTeamState | None = None
@@ -299,6 +308,27 @@ class GameState:
     # consumes it to show the reason-specific message and leave management.
     user_sacking_reason: int | None = None
     rng: MsvcCrtRng | None = None
+
+    def __post_init__(self):
+        key = self.native_user_recipient_key
+        if key is not None and (type(key) is not int or key not in self.managers):
+            raise ValueError('Native human recipient key must be an explicit manager index')
+
+    def bind_original_user_mail_recipient(self, club_id: int) -> None:
+        """426090/4151C0, bounded to the currently supported single human."""
+        self.native_user_recipient_key = None
+        club = self.clubs[club_id]
+        old_key = getattr(club, 'manager_id', None)
+        managers = tuple(self.managers.get(i) for i in range(len(self.managers)))
+        if (type(old_key) is not int or not (0 <= old_key < len(managers) or old_key == 0xFFFFFFFF)
+                or any(manager is None or not isinstance(
+                    getattr(manager, 'first_name', None), str) for manager in managers)):
+            return
+        # The new user is already registered:4151C0 excludes its imported key.
+        self.native_user_recipient_key = next(
+            (i for i, manager in enumerate(managers)
+             if i != old_key and manager.first_name.startswith('!')),
+            None if old_key == 0xFFFFFFFF else old_key)
 
     def _resolve_rng(self, rng=None):
         if rng is not None:
@@ -474,6 +504,7 @@ class GameState:
             access_fan_bases=fan_bases,
             access_skill_financial_values=financial_values,
             team_tactics=team_tactics,
+            native_squad_reserve_formations={club_id: 0 for club_id in known_club_ids},
             pitch_wear=pitch_wear,
             ai_transfer_startup_roster_count=ai_transfer_startup_roster_count,
             ai_transfer_buy_counter=ai_transfer_buy_counter,
@@ -531,6 +562,191 @@ class GameState:
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
 
+    def initialize_original_primary_first_season_squad(
+        self, club_id: int, *, primary_pass_before_secondary: bool = False,
+    ):
+        """Bounded 404110(1) primary pass, before secondary scheduling/human setup.
+
+        Source ordering proves empty secondary lookup -> class 0 / limit 11.
+        This explicit fresh-only producer is not an ordinary-match fallback.
+        All candidate inputs/side effects are qualified before state mutation.
+        """
+        from original_squad_startup import select_first_season_primary_squad
+        club_id = int(club_id)
+        if club_id in self.native_squad_first_formations:
+            raise RuntimeError('Native first-season Squad selection already produced')
+        if primary_pass_before_secondary is not True:
+            raise RuntimeError('Native first-season Squad requires its qualified startup phase')
+        club = self.clubs.get(club_id)
+        if club is None or getattr(club, 'team_category_code', None) != 1:
+            raise RuntimeError('Native startup Squad requires an ordinary primary club')
+        if not isinstance(club.name, str) or club.name.startswith('!'):
+            raise RuntimeError('Native startup Squad excludes dummy team names')
+        roster = self.ordered_club_roster(club_id)
+        if any(p.loan_club_id is not None or int(p.club_id) != club_id or
+               p.loan_listed or p.match_selection_state_code != 0 for p in roster):
+            raise RuntimeError('Native startup Squad requires retained fresh own-club state')
+        manager = self.managers.get(int(club.manager_id))
+        # 403E10 rejects -1 manager or manager +24 == -1. It does not
+        # compare that club field to the selected team.
+        valid_manager = manager is not None and manager.club_id not in (None, -1)
+        formation = manager.formation_default if valid_manager else 0
+        result = select_first_season_primary_squad(
+            roster, formation_id=formation, non_eu_limit=11)
+        if result.complete:
+            for player in roster:
+                player.clear_match_selection()
+            for assignment in result.lineup.starters:
+                player = self.players[assignment.player_index]
+                player.assign_match_position(assignment.role, assignment.auxiliary_code)
+                player.match_active = True
+            for player_id in result.lineup.substitutes:
+                player = self.players[player_id]
+                player.match_substitute_available = True
+                player.reset_match_position()
+        # 409BD0 writes the formation even if 409C90 returns without a XI.
+        self.native_squad_first_formations[club_id] = formation
+        return result
+
+    def prepare_original_primary_squad(self, club_id: int, *, substitute_quota: int):
+        """Apply the source-proven primary-club 4B7BD0 constructor producer.
+
+        Secondary/loan and loan-list side effects are deliberately not invented.
+        All validation occurs on retained copies before committing live state.
+        """
+        from original_squad_preparation import PreparedSquadPlayer, prepare_primary_squad
+        club_id = int(club_id)
+        roster = self.ordered_club_roster(club_id)
+        if club_id not in self.native_squad_reserve_formations:
+            raise RuntimeError('Native Squad reserve formation has not been retained')
+        inputs = []
+        for player in roster:
+            if int(player.club_id) != club_id or player.loan_club_id is not None:
+                raise RuntimeError('Secondary-club Squad preparation is not source-integrated')
+            unavailable = player.base_match_unavailable
+            if player.non_eu:
+                if player.contract_expiry_date is None:
+                    raise RuntimeError('Native Squad Non-EU cutoff has not been retained')
+                unavailable |= self.calendar.current_date > player.contract_expiry_date
+            inputs.append(PreparedSquadPlayer(
+                player.index, player.match_selection_state_code,
+                player.current_position, player.position_aux_code,
+                player.saved_reserve_role_152, player.saved_reserve_aux_153,
+                tuple(player.positions), tuple(player.skills), player.form_state,
+                bool(unavailable)))
+        def qualify_first_active(member):
+            if self.players[member.player_id].loan_listed:
+                raise RuntimeError('Native Squad loan-list counter side effect is not integrated')
+        result = prepare_primary_squad(inputs, substitute_quota=substitute_quota,
+            reserve_formation=self.native_squad_reserve_formations[club_id],
+            on_first_active=qualify_first_active)
+        for member in result.players:
+            player = self.players[member.player_id]
+            player.match_active = member.selection == 4
+            player.match_substitute_available = member.selection == 3
+            player.reserve_active = member.selection == 2
+            player.reserve_substitute = member.selection == 1
+            player.current_position = member.current_role
+            player.position_aux_code = member.current_aux
+            player.saved_reserve_role_152 = member.reserve_role
+            player.saved_reserve_aux_153 = member.reserve_aux
+        self.native_squad_reserve_formations[club_id] = result.reserve_formation
+        return result
+
+    def original_primary_squad_constructor_quota(self, club_id: int) -> int:
+        """Bounded fresh 408500 -> 615D10 -> Competition+1C lookup.
+
+        Current-day-inclusive, source bucket/head order, primary direct League
+        only. Absence in this semantic shadow is not a proven native null, so
+        even the real native fallback five is deliberately not inferred here.
+        """
+        club_id = int(club_id)
+        club = self.clubs.get(club_id)
+        if club is None or getattr(club, 'team_category_code', None) != 1:
+            raise RuntimeError('Squad quota requires a qualified primary club')
+        for on_date in sorted(d for d in self.primary_schedule_shadow.days
+                              if d >= self.calendar.current_date):
+            for entry in self.primary_schedule_shadow.days[on_date]:
+                direct = tuple(ref.direct_club_id for ref in entry.refs)
+                if any(value is None for value in direct):
+                    if any(club_id in values for values in entry.candidate_sets):
+                        raise RuntimeError('Squad quota has unresolved prior symbolic ownership')
+                    continue
+                if club_id not in direct:
+                    continue
+                if entry.wrapper_link_state == 'linked':
+                    continue
+                if entry.wrapper_link_state != 'clear':
+                    raise RuntimeError('Squad quota wrapper lifecycle is unresolved')
+                if entry.node_kind not in ('league_match', 'fixed_league_match'):
+                    raise RuntimeError('Squad quota match owner is not source-qualified')
+                competition = self.competitions.get(entry.competition_id)
+                quota = getattr(competition, 'substitute_quota', None)
+                if type(quota) is not int or not 0 <= quota <= 9:
+                    raise RuntimeError('Squad quota Competition+1C is missing')
+                return quota
+        raise RuntimeError('Squad quota has no proven original match/null context')
+
+    def construct_original_primary_squad_membership(self, club_id: int):
+        """Exact primary constructor sequence, after retained startup selection."""
+        if int(club_id) not in self.native_squad_first_formations:
+            raise RuntimeError('Original Squad startup selection has not been retained')
+        quota = self.original_primary_squad_constructor_quota(club_id)
+        self.prepare_original_primary_squad(club_id, substitute_quota=quota)
+        return self.original_primary_squad_membership(club_id, substitute_quota=quota)
+
+    def drop_original_primary_squad_row(self, club_id: int, *, source_index: int,
+                                        target_index: int, empty_row_index=None,
+                                        substitute_quota: int):
+        """Transactional primary 4B9350 -> 4B7500, without constructor replay."""
+        from original_squad_preparation import PreparedSquadPlayer
+        from original_squad_row_drop import drop_original_squad_row
+        from original_squad_membership import NativeSquadMember, prepare_ordered_squad_membership
+        roster = self.ordered_club_roster(club_id)
+        if any(int(p.club_id) != int(club_id) or p.loan_club_id is not None for p in roster):
+            raise RuntimeError('Secondary-club Squad drop is not source-integrated')
+        inputs = tuple(PreparedSquadPlayer(p.index, p.match_selection_state_code,
+            p.current_position, p.position_aux_code, p.saved_reserve_role_152,
+            p.saved_reserve_aux_153, tuple(p.positions), tuple(p.skills),
+            p.form_state, bool(p.base_match_unavailable)) for p in roster)
+        result = drop_original_squad_row(inputs, source_index=source_index,
+            target_index=target_index, empty_row_index=empty_row_index,
+            substitute_quota=substitute_quota)
+        if not result.accepted:
+            return None
+        if any(self.players[pid].loan_listed for pid in result.first_active_player_ids):
+            raise RuntimeError('Native Squad loan-list counter side effect is not integrated')
+        # Validate ordering before any mutation, then commit retained producer bytes.
+        membership = prepare_ordered_squad_membership(tuple(NativeSquadMember(
+            p.player_id, p.selection, p.current_role, p.preferred_roles[0])
+            for p in result.players), substitute_quota=substitute_quota)
+        for member in result.players:
+            p = self.players[member.player_id]
+            p.match_active = member.selection == 4
+            p.match_substitute_available = member.selection == 3
+            p.reserve_active = member.selection == 2
+            p.reserve_substitute = member.selection == 1
+            p.current_position, p.position_aux_code = member.current_role, member.current_aux
+            p.saved_reserve_role_152, p.saved_reserve_aux_153 = member.reserve_role, member.reserve_aux
+        for pid in membership.cleared_player_ids:
+            self.players[pid].clear_match_selection(reset_position=True)
+        self.club_roster_order[int(club_id)] = [m.player_id for m in membership.members]
+        return membership
+
+    def original_primary_squad_membership(self, club_id: int, *, substitute_quota: int):
+        """Apply the native 4B7500 refresh/order producer to retained live state."""
+        from original_squad_membership import NativeSquadMember, prepare_ordered_squad_membership
+        roster = self.ordered_club_roster(club_id)
+        if any(int(p.club_id) != int(club_id) or p.loan_club_id is not None for p in roster):
+            raise RuntimeError('Secondary-club Squad ordering is not source-integrated')
+        result = prepare_ordered_squad_membership(tuple(NativeSquadMember(
+            p.index, p.match_selection_state_code, p.current_position, p.positions[0])
+            for p in roster), substitute_quota=substitute_quota)
+        for player_id in result.cleared_player_ids:
+            self.players[player_id].clear_match_selection(reset_position=True)
+        self.club_roster_order[int(club_id)] = [m.player_id for m in result.members]
+        return result
+
     def ordered_club_roster(self, club_id: int) -> tuple[RuntimePlayer, ...]:
         """Return live team-roster order matching DBRTeam +0x244 semantics."""
         club_id = int(club_id)
@@ -554,6 +770,17 @@ class GameState:
             else int(player.club_id)
         )
         return active_club_id == int(controlled)
+
+    def _retain_player_transfer_request(self, request: PlayerTransferRequest) -> None:
+        """Capture41B63F recipient and sender context at production, not opening."""
+        player = self.players[request.player_id]
+        active_club_id = (player.club_id if player.loan_club_id is None
+                          else player.loan_club_id)
+        if (self.native_user_recipient_key is not None
+                and active_club_id == self.user_controlled_club_id):
+            request = replace(request, recipient_manager_key=self.native_user_recipient_key,
+                              sender_club_id=int(active_club_id))
+        self.player_transfer_requests.append(request)
 
     def _persist_premier_league_morale_form_and_requests(
         self,
@@ -579,7 +806,7 @@ class GameState:
             rng,
             club_user_controlled=club_user_controlled,
             active_club_user_controlled=self._player_active_club_is_user_controlled,
-            transfer_request_sink=self.player_transfer_requests.append,
+            transfer_request_sink=self._retain_player_transfer_request,
         )
 
     def due_player_transfer_requests(
@@ -2964,6 +3191,7 @@ class GameState:
         self.qualification_cups = new_qualification
         self.procedural_leagues = new_procedural
         self.primary_schedule_shadow = new_shadow
+        self.primary_schedule_end_date = season_weekday_date(season_year, 0, 1) + timedelta(days=len(buckets))
         self.primary_matchday_order = new_primary_order
         self.premier_league_scheduler_order = new_scheduler_order
         self.prepared_match_environments = {}
@@ -3276,6 +3504,8 @@ class GameState:
         season_year: int,
     ) -> PrimaryScheduleShadowState:
         """Retain all primary-container participants for 0x615D10 lookups."""
+        buckets = tuple(tuple(bucket) for bucket in buckets)
+        self.primary_schedule_end_date = season_weekday_date(int(season_year), 0, 1) + timedelta(days=len(buckets))
         self.primary_schedule_shadow = (
             PrimaryScheduleShadowState.from_primary_schedule_buckets(
                 buckets,
@@ -3543,6 +3773,7 @@ class GameState:
         *,
         season_year: int,
         procedural_league_ids: tuple[int, ...] = (14, 167),
+        qualification_cup_ids: tuple[int, ...] = (19, 23, 33, 91, 98, 101),
     ) -> dict[date, tuple[tuple, ...]]:
         """Persist exact shuffled live Gate-12 primary order by date."""
         from primary_schedule import gate12_primary_matchday_order
@@ -3554,6 +3785,7 @@ class GameState:
                 procedural_league_ids=tuple(
                     int(value) for value in procedural_league_ids
                 ),
+                qualification_cup_ids=qualification_cup_ids,
             )
         )
         return self.primary_matchday_order
@@ -3630,6 +3862,26 @@ class GameState:
                 due.append(entry)
         return tuple(due)
 
+    def retain_postponed_primary_entry(self, entry, *, from_date, to_date):
+        """Keep backend due ownership aligned with the native terminal event."""
+        if self.primary_matchday_order.get(from_date, ()).count(entry) != 1 \
+                or entry in self.primary_matchday_order.get(to_date, ()):
+            raise RuntimeError('Original NEXT postponed execution order is inconsistent')
+        owners = {'domestic_cup': self.domestic_cups, 'european_cup': self.european_cups,
+                  'qualification_cup': self.qualification_cups}
+        if entry[0] in owners:
+            owner = owners[entry[0]]
+            node = owner.node(entry[1])
+            if node.scheduled_date != from_date:
+                raise RuntimeError('Original NEXT postponed Cup date is inconsistent')
+            owner.nodes = tuple(replace(item, scheduled_date=to_date) if item.node_token == entry[1]
+                                else item for item in owner.nodes)
+        elif entry[0] != 'procedural_league':
+            raise RuntimeError('Original NEXT postponed calendar owner is not integrated')
+        self.primary_matchday_order[from_date] = tuple(
+            item for item in self.primary_matchday_order[from_date] if item != entry)
+        self.primary_matchday_order[to_date] = (entry,) + self.primary_matchday_order.get(to_date, ())
+
     def install_domestic_cup_schedule_nodes(
         self,
         nodes,
@@ -3686,6 +3938,7 @@ class GameState:
         buckets,
         *,
         season_year: int,
+        competition_ids=None,
     ) -> DomesticCupScheduleState:
         """Attach Cups required solely as annual type-3 qualification sources."""
         from domestic_cup_state import ANNUAL_QUALIFICATION_CUP_IDS
@@ -3694,7 +3947,8 @@ class GameState:
             DomesticCupScheduleState.from_primary_schedule_buckets(
                 buckets,
                 season_year=int(season_year),
-                competition_ids=ANNUAL_QUALIFICATION_CUP_IDS,
+                competition_ids=(ANNUAL_QUALIFICATION_CUP_IDS if competition_ids is None
+                                 else competition_ids),
             )
         )
         return self.qualification_cups

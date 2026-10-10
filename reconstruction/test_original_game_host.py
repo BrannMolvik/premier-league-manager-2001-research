@@ -190,8 +190,8 @@ class FakeHeaderFont:
 
 
 class FakeHeaderDateFont:
-    atlas_width = 1366
-    atlas_height = 19
+    atlas_width = 1261
+    atlas_height = 17
 
     def measure_text(self, text):
         return 100
@@ -225,7 +225,7 @@ def fake_management_header_resources(*, club_name_font=None):
         ),
         FakeHeaderFont(),
         FakeHeaderDateFont(),
-        club_name_font,
+        club_name_font=club_name_font,
     )
 
 
@@ -379,6 +379,12 @@ class FakeCanvas(FakeWidget):
         self.delete_count = 0
         self.itemconfigure_count = 0
 
+    def configure(self, **kwargs):
+        self.kwargs.update(kwargs)
+
+    def coords(self, item, *values):
+        self.values.setdefault('coords', {})[item] = values
+
     def delete(self, *args):
         self.delete_count += 1
         self.images = []
@@ -466,6 +472,191 @@ class FullHDFakeRoot(FakeRoot):
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_normal_menu_motion_uses_shared_idle_and_only_updates_existing_bitmaps(self):
+        from test_original_management_canvas import _pmenu_resources
+        live, root = presenter(), FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk,
+            management_presenter_factory=management_factory,
+            management_pmenu_resources=_pmenu_resources(),
+            squad_top_resources=fake_squad_top_resources(),
+            squad_row_text_resources=fake_squad_row_text_resources())
+        host.on_click(SimpleNamespace(x=141, y=512))
+        live.choose_club(12)
+        host.on_click(SimpleNamespace(x=426, y=301))
+        host.on_click(SimpleNamespace(x=640, y=30))
+        counts = host.canvas.delete_count, len(host.canvas.images), len(host._photos)
+        with patch.object(host.management_presenter, 'snapshot', side_effect=AssertionError('hover snapshot')), \
+                patch.object(host, 'redraw', side_effect=AssertionError('hover redraw')):
+            host.on_fixtures_pager_motion(SimpleNamespace(x=640, y=155))
+            for frame in range(1, 11):
+                root.run_idle()
+                self.assertEqual(host._pmenu_animation.snapshot().rows[2].arrow_frame, frame)
+            self.assertFalse(root.values['idle'])
+            self.assertEqual(host._pmenu_animation.snapshot().rows[2].background_state_bits, 10)
+            host.on_fixtures_pager_motion(SimpleNamespace(x=790, y=598))
+            for frame in range(9, -1, -1):
+                root.run_idle()
+                self.assertEqual(host._pmenu_animation.snapshot().rows[2].arrow_frame, frame)
+            self.assertFalse(root.values['idle'])
+        self.assertEqual((host.canvas.delete_count, len(host.canvas.images), len(host._photos)), counts)
+        self.assertGreater(host.canvas.itemconfigure_count, 0)
+        self.assertEqual(host.management_presenter.selected_child_id, 0xCE)
+
+    def test_normal_game_options_return_main_and_continue_preserve_live_game(self):
+        for club_id in (12, 13):
+            with self.subTest(club_id=club_id), patch(
+                    'original_game_host.build_management_pmenu_render',
+                    side_effect=lambda *_: fake_pmenu_render()):
+                live = presenter()
+                host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+                    management_presenter_factory=management_factory,
+                    management_pmenu_resources=object(),
+                    squad_top_resources=fake_squad_top_resources(),
+                    squad_row_text_resources=fake_squad_row_text_resources())
+                host.on_click(SimpleNamespace(x=141, y=512))
+                live.choose_club(club_id)
+                host.on_click(SimpleNamespace(x=426, y=301))
+                gameplay = live.session.gameplay
+                host.on_click(SimpleNamespace(x=640, y=30))
+                menu = host.management_presenter.snapshot().menu
+                options = next(row for row in menu.rows if row.row_kind == 'title' and row.menu_id == 8)
+                host.on_click(SimpleNamespace(x=640, y=96 + options.y + 10))
+                menu = host.management_presenter.snapshot().menu
+                back = next(row for row in menu.rows if row.menu_id == 0x323)
+                host.on_click(SimpleNamespace(x=640, y=96 + back.y + 10))
+                self.assertIs(live.session.navigation.screen, FrontEndScreen.START_MENU)
+                self.assertIs(live.session.gameplay, gameplay)
+                self.assertTrue(live.session.started)
+                self.assertFalse(host.pmenu_popup_active)
+                self.assertIsNone(host.management_presenter)
+                self.assertEqual(gameplay.selections, [club_id])
+                control = next(c for c in live.snapshot().controls if int(c.event) == 1)
+                host.on_click(SimpleNamespace(x=control.rect.x + 5, y=control.rect.y + 5))
+                self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+                self.assertIs(live.session.gameplay, gameplay)
+                self.assertEqual(gameplay.selections, [club_id])
+                self.assertEqual(host.management_presenter.selected_child_id, 0xCE)
+
+    def test_next_press_runs_off_tk_and_publishes_only_after_successful_poll(self):
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk,
+            management_presenter_factory=management_factory,
+            management_thread_factory=DeferredThread)
+        host.on_click(SimpleNamespace(x=141, y=512))
+        live.choose_club(12)
+        with patch.object(host, 'redraw'):
+            host.on_click(SimpleNamespace(x=426, y=301))
+        gameplay = live.session.gameplay
+        gameplay.turns = 0
+        gameplay.state = SimpleNamespace(calendar=SimpleNamespace(current_date=date(2000, 8, 1)))
+
+        def advance(staged):
+            staged.turns += 1
+            return SimpleNamespace(pending_primary_entry=None)
+
+        with patch.object(StubBackend, 'advance_original_management', advance, create=True), \
+                patch.object(host, 'redraw'):
+            host.on_click(SimpleNamespace(x=750, y=40))
+            thread = host._management_turn_thread
+            self.assertTrue(thread.started)
+            self.assertEqual(host.management_next_flags & 0x10, 0x10)
+            self.assertEqual(gameplay.turns, 0)
+            host.on_click(SimpleNamespace(x=750, y=40))
+            self.assertIs(host._management_turn_thread, thread)
+            thread.run()
+            self.assertEqual(gameplay.turns, 0)
+            host._poll_original_management_turn()
+            self.assertEqual(gameplay.turns, 1)
+            self.assertIsNone(host._management_turn_thread)
+            self.assertEqual(host.management_next_flags, 2)
+            self.assertIn('2000-08-01', host.last_status)
+
+    def test_next_failure_leaves_live_state_retryable_and_owns_all_pointer_input(self):
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+            management_thread_factory=DeferredThread, error_reporter=lambda text: None)
+        live.session.gameplay = StubBackend()
+        live.session.gameplay.turns = 0
+
+        def advance(staged):
+            staged.turns += 1
+            raise RuntimeError('unresolved native event')
+
+        with patch.object(StubBackend, 'advance_original_management', advance, create=True), \
+                patch.object(host, 'redraw'), patch('sys.stderr'):
+            host._begin_original_management_turn()
+            with patch.object(host, '_normalize_pointer_event', side_effect=AssertionError('input leaked')):
+                host.on_click(None)
+                host.on_fixture_report_press(None)
+                host.on_script_arrow_release(None)
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+            self.assertEqual(live.session.gameplay.turns, 0)
+            self.assertIn('unresolved native event', host.last_status)
+            self.assertEqual(host.management_next_flags, 2)
+            self.assertIsNone(host._management_turn_thread)
+
+    def test_next_thread_start_failure_releases_busy_state(self):
+        live = presenter()
+        live.session.gameplay = SimpleNamespace(advance_original_management=lambda: None)
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+            management_thread_factory=lambda **kwargs: SimpleNamespace(
+                start=lambda: (_ for _ in ()).throw(RuntimeError('thread unavailable'))))
+        with self.assertRaisesRegex(RuntimeError, 'thread unavailable'):
+            host._begin_original_management_turn()
+        self.assertIsNone(host._management_turn_queue)
+        self.assertIsNone(host._management_turn_thread)
+        self.assertEqual(host.management_next_flags, 2)
+        self.assertEqual(host.root.values['configure']['cursor'], '')
+
+    def test_rgba_photo_cache_precedes_encoding_and_tracks_content_geometry(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        pixels = bytes((1, 2, 3, 255)) * 2
+        with patch('original_game_host.encode_rgba_png', wraps=encode_rgba_png) as encoder:
+            first = host._rgba_photo(2, 1, pixels)
+            self.assertIs(first, host._rgba_photo(2, 1, pixels))
+            self.assertEqual(encoder.call_count, 1)
+            self.assertIsNot(first, host._rgba_photo(1, 2, pixels))
+            self.assertIsNot(first, host._rgba_photo(2, 1, bytes((3, 2, 1, 255))*2))
+            self.assertEqual(encoder.call_count, 3)
+        self.assertIn(first, host._photos)  # Own lifetime beyond canvas redraw.
+        host.on_window_configure(SimpleNamespace(widget=host.root, width=400, height=300))
+        host.root.run_timer()
+        self.assertIsNot(first, host._rgba_photo(2, 1, pixels))
+
+    def test_window_resize_rebuilds_scaled_images_and_pointer_mapping(self):
+        root = LargeFakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        old_background = host._first_screen_photo_cache[(FrontEndScreen.START_MENU, 'background')]
+        host._generic_photo_cache[b'old scale'] = object()
+        host.on_window_configure(SimpleNamespace(widget=root, width=640, height=480))
+        root.run_timer()
+        self.assertEqual((host.display_scale_num, host.display_scale_den), (4, 5))
+        self.assertEqual((host.canvas.kwargs['width'], host.canvas.kwargs['height']), (640, 480))
+        new_background = host._first_screen_photo_cache[(FrontEndScreen.START_MENU, 'background')]
+        self.assertIsNot(new_background, old_background)
+        self.assertEqual((new_background.width, new_background.height), (640, 480))
+        self.assertEqual(host._generic_photo_cache, {})
+        native = host._normalize_pointer_event(SimpleNamespace(widget=host.canvas,
+            x=host._native_to_display(141), y=host._native_to_display(512)))
+        self.assertEqual((native.x, native.y), (141, 512))
+        host.on_window_configure(SimpleNamespace(widget=host.canvas, width=2, height=2))
+        self.assertIsNone(host._viewport_resize_idle)
+
+    def test_startup_resize_scales_black_field_without_drawing_menu(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        host._startup_media_active = True
+        host._startup_media_backdrop = 42
+        before = host.canvas.delete_count
+        host.on_window_configure(SimpleNamespace(widget=root, width=1000, height=750))
+        root.run_timer()
+        self.assertEqual((host.display_width, host.display_height), (1000, 750))
+        self.assertEqual(host.canvas.values['coords'][42], (0, 0, 1000, 750))
+        self.assertEqual(host.canvas.delete_count, before)
+        self.assertEqual(host._first_screen_photo_cache, {})
+
     def test_fullhd_fullscreen_fills_height_without_vertical_bars(self):
         root = FullHDFakeRoot()
         host = OriginalGameTkHost(presenter(), root, FakeTk)
@@ -495,12 +686,12 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual((background.width, background.height), (1920, 1440))
         self.assertEqual(getattr(background, "zoom_factor", 1), 1)
         event = SimpleNamespace(
-            x=host._native_to_display(7),
-            y=host._native_to_display(478),
+            x=host._native_to_display(141),
+            y=host._native_to_display(512),
             widget=host.canvas,
         )
         native = host._normalize_pointer_event(event)
-        self.assertEqual((native.x, native.y), (7, 478))
+        self.assertEqual((native.x, native.y), (141, 512))
 
     def test_direct_scaler_never_builds_an_oversized_intermediate_surface(self):
         width, height, rgba = _scaled_rgba(
@@ -648,7 +839,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_resource_loader=None,
             management_thread_factory=thread_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         with patch.object(host, "redraw"):
             host.on_click(SimpleNamespace(x=426, y=301))
@@ -743,7 +934,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_resource_loader=loader,
             management_thread_factory=thread_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
 
         with patch.object(host, "redraw") as redraw:
@@ -800,7 +991,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_thread_factory=thread_factory,
             error_reporter=messages.append,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
 
         with patch.object(host, "redraw") as redraw:
@@ -841,7 +1032,7 @@ class OriginalGameHostTests(unittest.TestCase):
             management_resource_loader=loader,
             management_thread_factory=thread_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         host.on_click(SimpleNamespace(x=426, y=301))
         self.assertEqual(len(threads), 1)
@@ -895,7 +1086,7 @@ class OriginalGameHostTests(unittest.TestCase):
         # later route family. The initial Squad decode is completed under a
         # redraw stub because this test exercises loading/error lifecycle, not
         # bitmap rendering of the deliberately minimal object payload.
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         with patch.object(host, "redraw"):
             host.on_click(SimpleNamespace(x=426, y=301))
@@ -949,6 +1140,23 @@ class OriginalGameHostTests(unittest.TestCase):
         host.toggle_fullscreen()
         self.assertTrue(host._fullscreen)
         self.assertTrue(root.values["attributes"]["-fullscreen"])
+
+    def test_startup_escape_forwards_native_input_without_geometry_change(self):
+        root = FakeRoot()
+        host = OriginalGameTkHost(presenter(), root, FakeTk)
+        requests = []
+        host._startup_media_active = True
+        host._startup_native_input = lambda *args: requests.append(args)
+        self.assertEqual(host.leave_fullscreen(), 'break')
+        self.assertEqual(requests, [(0x100, 0x1B)])
+        host.toggle_fullscreen()
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values['attributes']['-fullscreen'])
+        self.assertEqual(requests, [(0x100, 0x1B)])
+        host._startup_media_active = False
+        host.leave_fullscreen()
+        self.assertFalse(host._fullscreen)
+        self.assertEqual(requests, [(0x100, 0x1B)])
 
     def test_escape_fails_closed_during_unrecovered_startup_input_semantics(self):
         root = FakeRoot()
@@ -1073,7 +1281,7 @@ class OriginalGameHostTests(unittest.TestCase):
         messages = []
         host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
                                   error_reporter=messages.append)
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.session.choose_club(999)
         def reject(club_id):
             raise ValueError(f"club {club_id} is not in the Premier League")
@@ -1101,7 +1309,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
 
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
 
@@ -1144,7 +1352,7 @@ class OriginalGameHostTests(unittest.TestCase):
                              host.on_script_arrow_release.__func__)
             self.assertEqual(len(host.canvas.images), 9)
 
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             self.assertIs(live.session.navigation.screen, FrontEndScreen.TEAM_SELECT)
             self.assertEqual(len(host.canvas.images), 3)
 
@@ -1154,16 +1362,17 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
             self.assertFalse(host.pmenu_popup_active)
-            self.assertEqual(len(host.canvas.images), 11)
-            # Six top-control overlays precede the five first-row text overlays.
+            self.assertEqual(len(host.canvas.images), 18)
+            # Six top controls, three original populated cell backgrounds,
+            # and four native column headings precede row text.
             # Role/name remain first in that row-text group; the three new
             # PSCF numeric controls follow them.
-            self.assertEqual(host.canvas.images[6][:2], (77, 234))
-            self.assertEqual(host.canvas.images[7][:2], (113, 234))
+            self.assertEqual(host.canvas.images[13][:2], (77, 234))
+            self.assertEqual(host.canvas.images[14][:2], (113, 234))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
             self.assertIn("source PMenu rows rendered", host.last_status)
-            self.assertIn("11 source panel bitmaps rendered", host.last_status)
+            self.assertIn("18 source panel bitmaps rendered", host.last_status)
             self.assertIn("surrounding management background unresolved", host.last_status)
 
             before = host.management_presenter.snapshot()
@@ -1175,7 +1384,7 @@ class OriginalGameHostTests(unittest.TestCase):
             after = host.management_presenter.snapshot()
             self.assertEqual(after.panel_code, 0xCE)
             self.assertEqual(after.menu.selected_child_id, 0xCE)
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
 
             # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
             # matching the recovered SelectBmp +0x6C input virtual.
@@ -1184,7 +1393,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(native.panel_code, 0xCE)
             self.assertEqual(native.menu.selected_root_id, 0x259)
             self.assertIn("expand_root 0x259", host.last_status)
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
 
             accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
             self.assertTrue(accepted.action.accepted)
@@ -1193,12 +1402,12 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
             self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
             self.assertIn("source-accepted PMenu action", host.last_status)
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
 
             host.on_click(SimpleNamespace(x=100, y=120))
             self.assertIn("no source-bounded PMenu candidate row", host.last_status)
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
 
     def test_management_header_draws_exact_two_bitmaps_plus_menu_caption(self):
         host = OriginalGameTkHost(
@@ -1217,6 +1426,21 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[0][:2], (599, 0))
         self.assertEqual(host.canvas.images[1][:2], (629, 0))
         self.assertEqual(host.canvas.images[2][:2], (681, 62))
+
+    def test_management_header_binds_fresh_club_caption_to_native_control(self):
+        from dataclasses import replace
+        from original_management_club_caption import load_verified_management_club_font
+        source = Path(__file__).resolve().parents[1] / 'original_assets/source'
+        resources = replace(fake_management_header_resources(),
+                            club_font=load_verified_management_club_font(source))
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk,
+                                  management_header_resources=resources)
+        host.canvas.delete('all')
+        club = ClubHeaderView(1, 'Southport', 'Southport', date(2000, 7, 1),
+                              native_user_club_caption='')
+        self.assertEqual(host._draw_management_header(club), 4)
+        self.assertEqual(host.canvas.images[-1][:2], (460, 1))
+        self.assertEqual(host._draw_management_header(replace(club, native_user_club_caption=None)), 3)
 
     def test_management_header_redraw_reuses_cached_native_pngs(self):
         _cached_runtime_png.cache_clear()
@@ -1450,13 +1674,18 @@ class OriginalGameHostTests(unittest.TestCase):
 
         count = host._draw_squad_rows(frame)
 
-        self.assertEqual(count, 5)
-        self.assertEqual(len(host.canvas.images), 5)
-        self.assertEqual(host.canvas.images[0][:2], (77, 234))
-        self.assertEqual(host.canvas.images[1][:2], (113, 234))
+        self.assertEqual(count, 9)
+        self.assertEqual(len(host.canvas.images), 9)
+        for item, left in zip(host.canvas.images[:4], (275, 298, 321, 344)):
+            self.assertGreaterEqual(item[0], left)
+            self.assertLess(item[0], left + 22)
+            self.assertGreaterEqual(item[1], 123)
+            self.assertLessEqual(item[1] + item[2]["image"].height, 222)
+        self.assertEqual(host.canvas.images[4][:2], (77, 234))
+        self.assertEqual(host.canvas.images[5][:2], (113, 234))
         # PSCFRow controls are centered inside native screen x ranges
         # 300..318, 323..341 and 346..364 respectively.
-        for item, left in zip(host.canvas.images[2:], (300, 323, 346)):
+        for item, left in zip(host.canvas.images[6:], (300, 323, 346)):
             self.assertGreaterEqual(item[0], left)
             self.assertLess(item[0], left + 19)
             self.assertGreaterEqual(item[1], 234)
@@ -1493,8 +1722,8 @@ class OriginalGameHostTests(unittest.TestCase):
 
         count = host._draw_squad_rows(frame)
 
-        self.assertEqual(count, 6)
-        self.assertEqual(len(host.canvas.images), 6)
+        self.assertEqual(count, 10)
+        self.assertEqual(len(host.canvas.images), 10)
         self.assertEqual(host.canvas.images[-1][:2], (277, 234))
         status_photo = host.canvas.images[-1][2]["image"]
         self.assertEqual((status_photo.width, status_photo.height), (18, 14))
@@ -1513,7 +1742,7 @@ class OriginalGameHostTests(unittest.TestCase):
                     squad=SimpleNamespace(rows=(qualified,)),
                 )
             )
-            self.assertEqual(host._draw_squad_rows(qualified_frame), 6)
+            self.assertEqual(host._draw_squad_rows(qualified_frame), 10)
             self.assertEqual(host.canvas.images[-1][:2], (277, 234))
             status_photo = host.canvas.images[-1][2]["image"]
             self.assertEqual((status_photo.width, status_photo.height), (18, 14))
@@ -1571,11 +1800,11 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.on_click(SimpleNamespace(x=600, y=1))
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
 
             activation = host.apply_source_accepted_squad_view(4)
             self.assertEqual(activation.transition.control_id, 4)
@@ -1596,7 +1825,7 @@ class OriginalGameHostTests(unittest.TestCase):
 
             restored = host.apply_source_accepted_squad_view(3)
             self.assertEqual(restored.transition.control_id, 3)
-            self.assertEqual(len(host.canvas.images), 12)
+            self.assertEqual(len(host.canvas.images), 19)
 
     def test_native_league_fixtures_grid_left_press_uses_exact_source_control(self):
         live = presenter()
@@ -1613,7 +1842,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.management_presenter.navigate(0x25C)
@@ -1651,7 +1880,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources(),
             )
-            host.on_click(SimpleNamespace(x=7, y=478))
+            host.on_click(SimpleNamespace(x=141, y=512))
             live.choose_club(12)
             host.on_click(SimpleNamespace(x=426, y=301))
             host.management_presenter.navigate(0x25C)
@@ -1669,7 +1898,7 @@ class OriginalGameHostTests(unittest.TestCase):
         # Enter MANAGEMENT through the same source-backed Start route as the
         # application host. Do not fabricate navigation state that violates the
         # completed-TeamSelect invariant enforced by the management canvas.
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         # Start must still run through the real host/session transition, but the
         # test backend intentionally lacks the unrelated management source-data
@@ -1925,7 +2154,7 @@ class OriginalGameHostTests(unittest.TestCase):
             FakeTk,
             management_presenter_factory=management_factory,
         )
-        host.on_click(SimpleNamespace(x=7, y=478))
+        host.on_click(SimpleNamespace(x=141, y=512))
         live.choose_club(12)
         with self.assertRaisesRegex(
             OriginalGameHostError,
@@ -2049,6 +2278,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 built = build_original_game_presenter(game_dir)
 
         self.assertIs(built.session, fake_session)
+        self.assertIsNone(built.settings_resources)
         bundle_dir, kwargs = calls["derivative"]
         self.assertEqual(bundle_dir, DEFAULT_PSTARTMENU_DERIVATIVE_ROOT)
         self.assertEqual(
@@ -2095,6 +2325,8 @@ class OriginalGameHostTests(unittest.TestCase):
                 built._ensure_team_select_resources()
 
         self.assertIs(built.session, fake_session)
+        self.assertIsNone(built.settings_resources)
+        self.assertNotIn("settings", calls)
         self.assertEqual(
             calls["menu"]["original_executable"],
             game_dir / "FOOTBAL.EXE",

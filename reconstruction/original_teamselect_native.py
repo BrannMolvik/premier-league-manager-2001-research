@@ -19,7 +19,8 @@ from enum import Enum, IntEnum
 from hashlib import sha256
 from typing import Iterable, Mapping
 
-from ea444_decoder import EA444DecodedImage, decode_ea444
+from ea444_decoder import EA444DecodedImage
+from gate13_ea444_staged_rasters import decode_staged_or_original as decode_ea444
 from ea444_quantization import EA444Quantization
 from ea444_tables import EA444Tables
 from ea_font import EAFont, EATextMask

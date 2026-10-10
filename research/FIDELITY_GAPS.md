@@ -1,10 +1,41 @@
 # Fidelity Gaps
 
+## 9 October local original-look acceptance priority
+
+Daniel reports selection-dependent blue Squad backgrounds and inbox/menu are
+still incorrect. Current top renderer repeats disabled row strips for every
+slot; original populated background/update ownership is not yet integrated.
+Do not replace missing state with guessed RGB or name-text selection colors.
+EAMail menu child65 exists but has no integrated original content presenter.
+No further exact overall-menu root cause or worker-caused regression is proven.
+Shirt-number correction alone does not fix these defects. Gate13 stays open;
+see `GATE13_LOCAL_PLAYTEST_HANDOFF_2026-10-09.md` for the bounded next trace.
+
 This file tracks **known differences or unresolved fidelity boundaries** between the clean-room reconstruction and the analyzed FM2001 release.
 
 Historical uncertainty that has since been resolved should be moved to the resolved section rather than left as a live gap.
 
 ## Active gaps
+
+9 October Squad number correction: populated club-relative number text is
+now source-bound in both native owners, rather than silently absent. Primary
+club bytes render with the exact recovered control/font/flags; unresolved
+alternate/loan byte contexts stay blank. See `GATE13_SQUAD_NUMBER_TEXT.md`.
+The old immutable170970e5 playtest lacks this correction. Ordinary NEXT/live
+pre-match/modal and manual original-look playability remain unresolved; the
+following historical first-20 wording is not the current paired-list behavior.
+
+Recovery-branch update, 8 October 2026: the old first-20/top-controls-only
+Squad notes below are historical for this branch. Source-qualified paired
+first/reserve owners now present all Southport/Liverpool players, native
+row-name drops are connected, and retained human inputs preserve an eligible
+underfilled bench. The untouched XI11/bench2 survives disk/fresh reload and
+calculates Southport's first Conference fixture in background checks.
+Ordinary `PBg::NextGameBtn` day/pre-match/UI binding and normal Windows
+playability acceptance remain open; no new original-look playable build is
+claimed. Cursor surface/font geometry is qualified but destination-format
+fill/blend is still bounded. See `GATE13_SQUAD_ROW_DROP.md` and
+`GATE13_ORDINARY_ADVANCE_BOUNDARY.md`; shared font semantics are not changed.
 
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |

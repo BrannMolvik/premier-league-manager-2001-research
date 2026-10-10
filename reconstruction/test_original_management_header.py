@@ -96,8 +96,8 @@ class FakeClubNameFont:
 
 
 class FakeDateFont:
-    atlas_width = 1366
-    atlas_height = 19
+    atlas_width = 1261
+    atlas_height = 17
 
     def measure_text(self, text):
         return 100
@@ -153,12 +153,12 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(HEADER_CLUB_NAME_FONT_OBJECT_VA, 0x8F21B0)
         self.assertEqual(
             HEADER_CLUB_NAME_FONT_SOURCE_PATH,
-            "Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+            "Fonts/Zurich_BdXCn_BT_32pixel.fnt",
         )
-        self.assertEqual(HEADER_CLUB_NAME_FONT_BYTE_SIZE, 155_544)
+        self.assertEqual(HEADER_CLUB_NAME_FONT_BYTE_SIZE, 136_128)
         self.assertEqual(
             HEADER_CLUB_NAME_FONT_SHA256,
-            "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df",
+            "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36",
         )
         self.assertEqual(HEADER_DATE_RECT, (172, 68, 378, 16))
         self.assertEqual(HEADER_CENTRAL_TEXT_RAW_STYLE, 0x2102)
@@ -171,13 +171,13 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(HEADER_DATE_FONT_OBJECT_VA, 0x8CAB80)
         self.assertEqual(
             HEADER_DATE_FONT_SOURCE_PATH,
-            "Fonts/Zurich_XCn_BT_18pixel.fnt",
+            "Fonts/Zurich_XCn_BT_16pixel.fnt",
         )
 
     def test_exact_staged_club_name_font_verifies_source_bytes_and_two_clubs(self):
         source_root = Path(__file__).resolve().parent.parent / "original_assets" / "source"
         font = validate_management_header_club_name_font(source_root)
-        self.assertEqual((font.atlas_width, font.atlas_height), (2678, 38))
+        self.assertEqual((font.atlas_width, font.atlas_height), (2422, 34))
         for club_name in ("Southport", "Arsenal"):
             with self.subTest(club=club_name):
                 overlay = management_header_club_name_overlay(font, club_name)
@@ -193,7 +193,7 @@ class OriginalManagementHeaderTests(unittest.TestCase):
                 self.assertTrue(any(overlay.rgba[3::4]))
 
         with tempfile.TemporaryDirectory() as temp:
-            dest = Path(temp) / "Fonts" / "Zurich_BdXCn_BT_36pixel.fnt"
+            dest = Path(temp) / HEADER_CLUB_NAME_FONT_SOURCE_PATH
             dest.parent.mkdir()
             source = source_root / HEADER_CLUB_NAME_FONT_SOURCE_PATH
             dest.write_bytes(source.read_bytes()[:-1])
@@ -220,7 +220,7 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(overlay.native_color_16, 0xFFFF)
         self.assertEqual(
             overlay.font_source_path,
-            "Fonts/Zurich_BdXCn_BT_36pixel.fnt",
+            "Fonts/Zurich_BdXCn_BT_32pixel.fnt",
         )
         self.assertEqual(overlay.rgba[:4], b"\xff\xff\xff\xff")
         self.assertEqual(len(overlay.rgba), 160 * 28 * 4)
@@ -259,7 +259,7 @@ class OriginalManagementHeaderTests(unittest.TestCase):
         self.assertEqual(overlay.native_color_16, 0xFFFF)
         self.assertEqual(
             overlay.font_source_path,
-            "Fonts/Zurich_XCn_BT_18pixel.fnt",
+            "Fonts/Zurich_XCn_BT_16pixel.fnt",
         )
         self.assertEqual(overlay.rgba[:4], b"\xff\xff\xff\xff")
         self.assertEqual(len(overlay.rgba), 100 * 9 * 4)

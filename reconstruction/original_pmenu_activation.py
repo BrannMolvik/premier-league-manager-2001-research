@@ -188,6 +188,13 @@ def resolve_pmenu_row_action(
             reason="source_bit1_set",
         )
 
+    if menu_id == 0x323:
+        # 47C928 creates PStartMenu and returns null; 47ADC5 skips row/stack refresh.
+        return OriginalPMenuRowAction(
+            row_kind, menu_id, source_flags, True, 'return_to_pstartmenu',
+            source_flags, False, PMENU_MANAGEMENT_PANEL_FACTORY_VA,
+            (menu_id, 0), None, None)
+
     return OriginalPMenuRowAction(
         row_kind=row_kind,
         menu_id=menu_id,

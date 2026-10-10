@@ -249,10 +249,18 @@ analysis source-closes a current-club name control at
 independently refreshed current-date control at `(172,68,378,16)`.
 
 The club-name control uses exact original
-`Fonts/Zurich_BdXCn_BT_36pixel.fnt`; the ordinary supporting lines use the
+`Fonts/Zurich_BdXCn_BT_32pixel.fnt`; the ordinary supporting lines use the
 already staged `Fonts/Zurich_XCn_BT_18pixel.fnt`. Exact language templates
 for the two conditional match lines and bottom date line are recorded in
 `research/GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
+
+Local 8 October verification corrects the earlier 36px ownership claim:
+`6043AA -> string 839E94 -> font object 8F21B0`, also passed at `430651`,
+proves 32px. The 36px file's valid hash is not control ownership evidence.
+The recovery branch retains the verified 32px club-caption rendering alongside
+main's independent date-line correction. Native paired Squad normalization,
+ordering and both list mappings remain required; default reserve-state zero
+alone does not prove that the Squad constructor leaves those flags untouched.
 
 Current host code draws the `back_2_<variant>.444` central bitmap but no
 central dynamic text layer. Daniel's blank Southport header is therefore

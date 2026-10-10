@@ -17,7 +17,7 @@ synthesize a recovered manager-home renderer.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable
 
 from front_end_session import FrontEndSession, FrontEndSessionOutcome
@@ -34,7 +34,8 @@ from original_button_frames import (
 from original_front_end_input import dispatch_original_pointer
 from original_front_end_layout import (
     OriginalRect,
-    PSTARTMENU_ACTIONS,
+    PSTARTMENU_SCREEN_ACTIONS,
+    PSTARTMENU_BACKGROUND_RECT,
     TEAMSELECT_BACK_EVENT,
     TEAMSELECT_BACK_RECT,
     TEAMSELECT_START_EVENT,
@@ -133,10 +134,16 @@ class OriginalFirstScreenPresenter:
                     action.event,
                     action.rect,
                     self.start_menu.button_atlas,
-                    caption,
+                    replace(
+                        caption,
+                        control_rect=action.rect,
+                        clip_rect=action.rect,
+                        line_origin_x=caption.line_origin_x + PSTARTMENU_BACKGROUND_RECT.x,
+                        line_origin_y=caption.line_origin_y + PSTARTMENU_BACKGROUND_RECT.y,
+                    ),
                 )
                 for action, caption in zip(
-                    PSTARTMENU_ACTIONS, self.start_menu.captions, strict=True
+                    PSTARTMENU_SCREEN_ACTIONS, self.start_menu.captions, strict=True
                 )
             ]
             if self.settings_resources is not None:

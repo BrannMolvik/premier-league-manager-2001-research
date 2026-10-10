@@ -20,6 +20,501 @@
 
 **Recovery 470 new highest-value audit finding (10 October 2026 KST):** [Original NEXT eligible Event vs Cup post-match date-only certainty leak](GATE13_NEXT_CUP_POSTMATCH_DATE_LOOKUP_CERTAINTY_LEAK_RECOVERY470.md). Codex's current shadow `next_match_date` fails to check linked/unknown wrappers yet `GameState._preflight_domestic_cup_post_match_dates` treats the result as **exact** and conditionally performs RNG-consuming incidents/morale work. Original 0x615C50 skips linked Event and gates payload bits and Side revalidation. This is a **confirmed cross-code provenance/eligibility mismatch with conditional gameplay impact**, not merely a future UI shortcut; test linked/unknown preflight and refuse unsupported before RNG. Codex retains implementation, worker audit-only. No fresh private binary verification: shell/Python ClientError. **Next independent source audit:** original Cup 0x5127A0 producer/consumer and exact event link state conditions versus runtime Cup consumer and linked shadow, then PBg ID3 input if source-backed. Main remains research-only, Gate13 OPEN.
 
+# Playable-core priority — 10 October 2026 KST
+
+**Usage-reserve Inbox checkpoint:** Menu repair is pushed atb36276e4. Native
+4022D0/403660 and426090/4151C0/415870 now establish the real recipient key:
+fresh single-human Southport uses spare manager0, not imported195 or club349.
+Seven canonical binding cases passed. Fresh select_club retains that runtime
+key; transfer-request production captures key and active/loan sender-club
+context without extra RNG. Schema48 saves retain both; old absent fields stay
+unknown.245 focused tests and withdrawn real Windows/Tk1x/1.5x passed; asset
+policy/diff clean. See `GATE13_INBOX_OWNERSHIP_2026-10-10.md`.
+
+**Exact next task:** integrate ordered user+6B4 delivered ownership at the actual
+global MPMEAMail dispatch phase (613EE0/5CFA20/413020), preserving scheduled
+order/recipient/readiness/expiry. Existing pending queues are NOT Inbox data.
+Transfer metadata retention is not a complete delivered record; recover its
+remaining caption/context/lazy body inputs and actual renewal sender20/type1
+staff ownership before promoting payloads. Then connect direct PBg ID1 and
+PMenu65 to genuine PEAMail row/detail rendering and normal pointer input.
+Reuse private eamail-source-audit fixtures and current-menu proof; do not
+retrace already-qualified owners or start NEXT/cosmetic/later-gate work first.
+Gate13 OPEN; no new playable folder/visible acceptance/full-suite claim,
+original launch, user-save mutation, main merge or agent-runtime change.
+
+**Daniel's current priority is both missing Inbox and broken MENU actions/art.**
+Return-to-Main child323 now follows its native null-panel/PStartMenu route;
+Continue retains the live game. Dropdown rows now consume47ACF0 mask8 and
+existing6527F0/frame helpers on the shared idle pass, updating existing bitmap
+items rather than rebuilding Squad.96 canonical row callbacks/832 title updates,
+148 focused tests/24.198s, withdrawn real Windows/Tk at1x/1.5x passed (30-player
+owner unchanged, Return/Continue, no hover snapshots/items/reference growth).
+Visible capture was unreliable; no physical-mouse acceptance is claimed. See
+`GATE13_MENU_RECOVERY_2026-10-10.md`. Inbox remains absent: next connect original
+PBg ID1 and PMenu65 to the genuine per-user mailbox/delivery/row/detail owner,
+not a placeholder or pending-queue merge. Then resume pre-match/NEXT work below.
+Gate13 OPEN; no original launch, main merge, runtime-owner or later-gate change.
+
+**Native postponement + ordinary NEXT binding:** actual canonical12-case
+priority/tie/completion/conflict execution and256-case concrete Back5 input
+execution qualify the smallest wrapper and ID3 integrations. Canonical Southport
+now continues past August23 through August26 (1–1) and September2 (0–1), with
+actual disk roundtrips retaining the postponed event and results. NEXT runs off
+Tk and only successful staged state publishes on Tk; busy input/refusal/start
+failure covered.276 focused tests/36.722s passed. This is NOT a complete playable
+loop: pending fixtures still need actual pre-match/modal/calculation/return;
+no physical-mouse Windows acceptance or complete-report claim. Intermediate
+full regression3127/25skips retains known Gate17 package-lock3 failures+1 error;
+one sandbox-only subprocess path failure passes outside sandbox. See
+`GATE13_NEXT_EVENT_LIFECYCLE_2026-10-10.md`. Gate13 OPEN; no original process,
+main merge, agent-runtime or later-gate implementation change. Continue the
+normal pre-match slice, then Windows acceptance, not cosmetic research.
+
+**Ordinary selector integration checkpoint:** reconciled audit-only main41d5946d.
+Actual canonical constructors/selector passed1536 direct cases and4 symbolic
+Side cases. Retain native selector bits/cache and constructed calendar end
+through disk save, with unknown legacy state kept unknown. Existing generic
+backends now own all source-emitted primary Cup/League entries (including the
+previously omitted Cup84). Canonical Southport reaches August19 via actual
+ordinary selector, saves pending state, calculates0–0 in a fresh process, then
+saves/reloads the completed state again. Complete report count0; no visible
+UI action, report/popup acceptance or playable build is claimed. NEXT afterward
+refuses an August23 Cup9/League27 Side conflict. Follow that exact native
+postponement/linked-payload dependency, then bind ordinary ID3/pre-match/return.
+See `GATE13_NEXT_EVENT_LIFECYCLE_2026-10-10.md`. No original process, main merge,
+agent-runtime or later-gate implementation change; Gate13 remains OPEN.
+203 focused tests/14.996s, asset policy and diff checks passed. No new full-suite
+or Windows normal-click acceptance claim.
+
+Daniel now prioritizes ordinary NEXT/MATCH gameplay, then formations, real Inbox,
+essential navigation/save-load and measured responsiveness. Cosmetic research
+is deferred unless it blocks those actions. See
+`GATE13_PLAYABLE_CORE_NEXT_HANDOFF_2026-10-10.md` for the exact resume boundary.
+Reconciled audited main fc857236 into the existing recovery branch. Bounded NEXT
+now stages the whole controller graph and publishes only on success, preserving
+live state on a later refusal; unknown wrappers and selector guards are unchanged.
+111 focused tests passed in8.697s, including calendar-hook ownership; asset
+policy passed. Three deliberate red snapshot failures establish the
+previous partial-mutation defect. No new playable UI action, Windows acceptance
+or build is claimed. Next implement source-qualified event/wrapper lifecycle,
+ordinary ID3 input, pre-match/results/return with the existing engine. Gate13
+OPEN; no main merge, agent-runtime change or later-gate work.
+
+# Local recovery integration — 9 October 2026
+
+**Live direct-font correction:** independent canonical loader/lifecycle review
+disproved8CAB80=18px. It is16px; adjacent8BD970 owns18px. Corrected shared Squad
+numbers/headings and header date/match font verification, retaining the separate
+Bold18 name/number owner and all existing geometry/state.144 focused tests in
+23.940s/1 expected licensed skip and asset policy passed. Withdrawn real Windows/
+Tk at1x/1.5x checked99 controls per scale against an independent original16px
+atlas decoder (18,358/43,144 pixel transparency/RGB reads), all30 players/90
+cells and disk/fresh-process row preservation. Not visible acceptance or a
+complete playable build. Private receipts:
+9ebe948d2beddf1a1f2e1b7c8af8ee89903710d6b324140a2eedd81b0285838c /
+aeb895763d2f2d766fbf35fc81fb74591cbad0348c8d73deedd130a96a130092.
+Next continue ordinary pitch/refresh normalization and Inbox/NEXT. No original
+process, old delivered-folder overwrite, main merge, worker protocol or later-
+gate change. Gate13 OPEN; established full-suite Gate17 failures below remain.
+
+**Independent formation-owner correction:** actual constructors distinguish
+FormationBtn7C5644 (11/1/1; selected source y176) from FormationText7C5700
+(2/1/1; selected y32). The old shared bar rule was wrong for the form atlas.
+Corrected resource ownership, explicit-class frame helper and both source
+trace anchors; red-before-green regression, primary re-execution of8,704
+canonical update/offset cases,92 focused tests/26.700s/1 expected licensed
+skip, asset policy and diff checks passed. See `GATE13_SQUAD_RESOURCE_CORRELATION.md`.
+This is a source-contract repair, not live formation activation. Continue the
+ordinary pitch producer/render/input chain, then Inbox/NEXT. Independent
+Inbox loader/owner/text checks are retained privately; no fabricated inbox
+queue or UI is wired. Gate13 OPEN; no original process, main merge or worker
+protocol/later-gate change. Full-suite status below remains NOT green.
+
+**Post-restart continuation:**8f31fe5e and private evidence survived. Its full
+regression completed:3,101 tests/339.633s/25 skips, only the recorded disjoint
+Gate17 package-lock three failures/one error; full suite NOT green. Independent
+source audit and primary re-execution now establish the DBRUser180..186 fresh
+binding/reset and raw save/load lifecycle. Those actual per-human bytes are
+retained at select_club and through disk/fresh-process reload; older schema48
+files lacking the additive nullable field retain UNKNOWN, not fabricated50.
+Both original float conversions matched512 cases.192 focused tests passed.
+See `GATE13_USER_SHAPE_LIFECYCLE.md`. Crucial reachability correction: ordinary
+Squad tab/release passes mode0, so5F0BD0 uses base coordinates, not affine shape
+values. Complete pitch/overlap/control rendering remains to integrate. Cursor
+contract is recorded in `GATE13_SQUAD_NAME_CURSOR.md`, but runtime packed-color
+transport remains unresolved and no guessed live cursor is bound. Inbox source
+owner/filter/order/lifecycle is under independent audit; no modern queue merge.
+Continue these required controls and NEXT; Gate13 OPEN. No original launch,
+main merge, worker-protocol or later-gate implementation change.
+
+**Approved independent-reference recovery is now active:** read
+`GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md` and the hard audit gate in
+`ORIGINAL_BEHAVIOR_FIRST_POLICY.md`. Unverified findings are unsafe dependencies;
+SOURCE-VERIFIED, INTEGRATION-VERIFIED and VISIBLE-ACCEPTED are separate.
+Independent challenge found a real Reserve-XI goalkeeper guard omitted by the
+port; the original target-side count applies to both XIs. The smallest repair
+is integrated, with three red-before-green regressions and264/264 bounded native
+comparisons. Fresh Southport reached the guard via three ordinary row-name
+gestures (Reserve GK to empty First bench, unselected Morley to empty Reserve
+XI, First GK to Reserve non-GK). Real withdrawn Windows/Tk at1x/1.5x matched
+native bytes and retained all30 players; disk save/fresh-process reload retained
+bytes/order/rows/human IDs.276 focused tests and asset policy passed. See
+`GATE13_SQUAD_DROP_REAUDIT.md` for inputs, independent review and explicit
+emulation leaves. Not Daniel's exact physical-mouse sequence or full playable
+acceptance. Next: source-close original drag-name cursor and required formation/
+Inbox/NEXT ownership; a cursor packed-color/runtime-format ambiguity is not
+silently replaced with conventional RGB. Gate13 OPEN; no original process,
+main merge, later-gate implementation, agent-runtime or security changes.
+
+**Further local original-control repair:** source-closed Squad tab update
+vft7BE814 ->6527F0, lengths11/1/1 and physical row bases0/11/22.
+The combined-view selected tab stays at11; ordinary unselected tabs now
+hover0..10 and retreat on the existing management idle pass, alongside the
+header. No guessed timer, tab activation, roster split or formation shape.
+6,656 canonical bounded update/offset comparisons passed. The final focused
+recheck passed all 171 tests in 19.026s, including the shared-pass regression.
+Asset policy and diff checks passed. Withdrawn
+real Windows/Tk at1x/1.5x verified240 actual tab bitmap reads,40 updates per
+scale, no snapshots/redraws/item or photo-reference growth, and all30 Southport
+owners. See `GATE13_SQUAD_TAB_UPDATE.md` for exact original contract and the
+formation producer dependencies recovered next. Existing installed originals
+at C:\Games\FM2001 and the private canonical exe are present; executable hash
+reverified. Daniel need not extract the authorized ZIP again. No original
+process, main merge, agent-runtime or security change. Formation activation,
+Inbox and ordinary NEXT remain unfinished; Gate13 is OPEN. This focused
+repair does not supersede the non-green full-suite receipt below.
+Technical checkpoint:3744bae73cc4fdef572a9cbe4ac6cb7dd2857dbe (pushed).
+New immutable local test folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-3744bae7`.
+Its actual source snapshot passed the same withdrawn Windows/Tk tab and
+populated-cell checks plus disk/fresh-process reload (30 owners/90 cells).
+Quick Squad launcher explicitly skips intros; ordinary launcher retains them.
+Private wrapper stays windowed; older test folder and user saves are unchanged.
+This is a presentation test, NOT a complete playable original-look release.
+
+**Local repair resumed:** merged current audited `origin/main` a3c93648 into
+`codex/gate13-windows-playability-recovery`, preserving the audit-only worker's
+research. Confirmed and corrected resident Fixtures art causing full Squad/
+Tables snapshots on every mouse-motion pager check; native Fixtures ownership,
+events and input guards are unchanged. See `GATE13_LOCAL_INPUT_PERFORMANCE_FIX.md`.
+The original populated number/role/name cells are now restored in both lists:
+normal blue RGB57,130,171; enabled-hover blue16,95,162; exact native cell and
+parent geometry, preserving empty slots and independent player text colours.
+Canonical bounded draw/state code passed6,144 comparisons. Palette8000's
+owner-local producer remains unresolved and is NOT guessed from lineup flags.
+See `GATE13_SQUAD_CELL_BACKGROUNDS.md`. Header-only animation now changes
+existing bitmap items without rebuilding the entire active-panel snapshot;
+source frames and idle cadence are unchanged.161 focused tests and asset
+policy passed. Real withdrawn Windows/Tk at1x/1.5x verified30 players/90
+cells, exact blue pixels,300 motion events per scale with0 snapshots, header
+cycles without snapshots/reference growth, and disk/fresh-process reload.
+These are background widget checks, not visible/audio acceptance. Full-suite
+recheck:3,088 tests/340.340s/25 skips; existing Gate17 package-lock3 failures+
+1 error and a sandbox subprocess-path failure (that test passed when rerun
+outside the sandbox); full suite not green. No new
+Squad/host failure. New fixed-source presentation test folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-5270f58c`;
+technical checkpoint5270f58c12cee04c923aa3f8492b0ddbf8d04839. Its actual
+snapshot passed the same withdrawn Tk/fresh-process checks; original-launcher
+startup media was not visibly/audibly requalified in this run. Earlier folders
+and Daniel's train save remain unchanged. NEXT, formation views and Inbox remain unfinished;
+Gate13 OPEN. No original-game launch, main merge or worker-protocol change.
+
+**Prior 4% reserve handoff (superseded by the repairs above):** Daniel's latest priority is the missing original
+selection-dependent blue row backgrounds and incomplete inbox/menu, not merely
+shirt numbers. Current host repeats disabled strips across every slot; actual
+populated row background ownership/selection must be traced via final vft7C57BC
+and4B56B9/4B7FD0, not guessed RGB. EAMail child65 has no integrated presenter.
+No additional specific overall-menu cause or worker-caused regression is proven.
+See `GATE13_LOCAL_PLAYTEST_HANDOFF_2026-10-09.md` for exact next actions.
+New immutable f48238da test folder passed all30 numbers and fresh-process reload;
+old170970e5 folder unchanged. NEXT remains unfinished; Gate13 OPEN.
+Before Daniel's reprioritization, isolated5E3CC0 season guard was source-closed
+and passed20,480 canonical comparisons/11 regressions. It does not produce live
+events, qualify wrapper-link absence or bind NEXT. New source investigation is
+paused for reserve/handoff; no native launch or main merge.
+
+**Latest Squad correction:** original populated number control+1E8 now renders
+in both native list owners.41E3F0/41E3D0 primary/alternate context, signed club
+ID, 18px font, `(1,1,22,14)`, flags24, `%N`, whiteFFFF are source-qualified.
+1,024 canonical bounded comparisons and real withdrawn Windows/Tk Southport
+30-number rendering at1x/1.5x plus disk/fresh-process reload passed.228
+focused tests passed; asset policy passed. Full suite3,070 /166.821s /25 skips
+has the existing three Gate17 package-lock failures/one error plus one
+sandbox-only subprocess path failure (that unchanged test passed outside
+the sandbox). Full suite not green. See `GATE13_SQUAD_NUMBER_TEXT.md`.
+No native original launch, main merge, save-schema or Gate14 implementation
+change. The older delivered170970e5 folder is immutable and lacks this fix.
+
+**Daniel's worker assignment:** autonomous ChatGPT worker is now AUDIT ONLY
+until Daniel explicitly lifts it: no reconstruction implementation, feature,
+asset/schema/save changes or Gate14+ coding. Triple-check original identity,
+owner/caller/CFG/producer semantics and original visible/input/timing behavior;
+report confirmed/probable/unresolved findings, do not implement corrections.
+Role/active-task restriction persisted on `agent-runtime` at
+`0d8f9bab512fbab87ae646de72487da46d4f8435`, with ownership/mode unchanged.
+Direction was also sent to “Recover FM2001 State”; no actual audit result or
+live acknowledgement has yet been observed. Codex keeps the recovery branch
+implementation; ordinary NEXT/modal and normal manual acceptance remain open.
+
+**Requested local playtest delivered:** fixed source snapshot `170970e5` is at
+`C:\Users\Brann\Documents\Codex\FM2001-Playtest-20261009-170970e5`.
+It includes normal intros, an explicitly separate quick/no-intro diagnostic
+launcher, and the already-approved generic gameplay fallback. Installed Python
+3.13 passed 73 targeted snapshot tests; withdrawn real Windows/Tk production
+menu/management-loader/Squad checks showed all 30 Southport players and public
+row press/drop; disk save/fresh-process reload retained XI11/bench5. Separate
+fallback calculated Southport/Telford on 19 August, saved and freshly reloaded.
+Both intro derivatives passed actual-user cache verification. No visible/audio
+or ordinary NEXT/MATCH acceptance is claimed: original-look NEXT remains
+unbound. This is a presentation/lineup test plus separate developer fallback,
+not a complete playable original-look release. Private `VALIDATION.txt` and logs
+retain the exact scope. No native original, security change, main merge or
+agent-runtime change.
+
+**9 October continuation:** native bounded NEXT day-owner integration now
+preserves the actual two-pass primary League order (all accepted AI first,
+human modal second). 320 bounded canonical executions matched. Canonical
+fresh Southport 4 -> 11 July retained XI11/bench2/roles through disk save and
+separate-process reload. Ten day-owner regressions include pending-owner disk
+roundtrip/no AI replay and unknown current-day wrapper rejection. 375 final
+focused tests passed /23.425s/no skips; asset policy passed. Final full run at
+`f2121146b94e18e5d6161b98b5115adab53dbd69`: 3,064 /206.311s/18 skips,
+with only the previously recorded Gate17 package-lock three failures/one error.
+The final full suite is not green.
+NEXT remains unbound in normal UI pending current-day wrapper/Side producer
+qualification and live pre-match calculator/input/modal binding. Exact next
+source points: `4A7280 -> 4A7B30 -> 4A7F50/4A801F`, and `5E3A2E ->
+5E3B20/5E3C34`, alongside `62ABD0 -> Match+34 -> 533120`.
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md`. No playable build or Gate13 closure
+claimed; no native launch, main merge, agent-runtime or Gate14 implementation
+change. Unknown wrapper state is not promoted from date/score/completion.
+Follow-up trace identifies `5E3B20` as the double-zero branch reached by
+`AogPitchWaterLogged` and drainage/heating failure actions, guarded by the
+DBRUser+6A8 pitch-installation state. Exact vft/COL/TD and input byte gates are
+recorded in the advance-boundary note. All three +C virtual slots return the
+source double zero via `42CB70`; event/state producers remain unresolved,
+not presumed absent. No additional production behavior was guessed.
+
+**Current-main integration:** recovery branch integrates canonical
+`95c9609f388f23729bb7e5302db88c6b32f23d4c`, preserving independent worker
+changes and opt-in WPF transport receipts together with the live viewport
+fix. Native club-caption ownership remains verified 32px; incoming 36px
+resource bytes are preserved, not promoted to this owner. 372 focused tests
+passed /39.421s/no skips (seven repeated Squad presenter tests).
+No main merge or runtime ownership change. Ordinary day/modal binding and
+hands-on original-look build acceptance remain open.
+
+**NEXT presentation/entry milestone:** exact `back_5` bitmap and original
+NEXT/MATCH caption now draw in the normal management loader/host, including
+native hover state. 768 canonical frame-selector comparisons and real
+withdrawn Windows/Tk four-row/caption geometry passed. 338 integrated tests
+passed / 41.606s / one absent-executable skip; the five caption tests then
+passed separately with canonical executable supplied. Asset policy passed.
+The exact ordinary entry now joins PBg event3 -> bounded date processing ->
+LeagueMatch `513010 -> 533120 -> PPreMatchPanel(499C30)` modal, before
+calculation and Match Detail dispatch. `4C3280` is PStartMenu after persistent
+user exit/sacking, **not pre-match**. Do not treat DBRUser+10D8 as a fixture.
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md`. Next: connect the single-user day
+owner and live retained calculator/primary fixture inputs to the existing
+source-qualified modal, then ordinary calculation/save/reload and a real
+original-look acceptance build. Button presentation and target alone do not
+make this branch hands-on playable. No Gate14 code/main/runtime writes.
+
+**NEXT target checkpoint:** `original_management_advance.py` now preserves the
+canonical `4A83F0` pre-match stop, explicit `5155B0` seven-day default and
+ordered increment-before-processing dates. 105 bounded canonical native
+comparisons and six target regressions passed. The primary terminal branch's
+increment is not a common extra day. Original `TURNLENGTH` was inspected
+read-only (seven); no registry or original-process execution occurred.
+Exact `back_5.444` was recovered again from the hash-verified authorized archive
+(100x380, four 95px rows); native action is parent +10 **on press**.
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md`. Next: bind this control's verified
+art/state and the queued-user/pre-match lifecycle, without converting an
+unknown selector into native null or calling prototype skip/autofill. This
+target-only checkpoint is not an ordinary-gameplay or playable-build claim.
+
+**Ordinary match-input correction:** the native `PBg::NextGameBtn` trace
+establishes `407C00(0)` accepts eligible substitutes **<= quota**, not exact
+quota. The primary bridge preserves underfilled benches plus the native
+role-one occupancy==1 guard. 280 bounded native guard comparisons passed.
+Untouched canonical Southport XI11/bench2 survived disk save/fresh-process
+reload and calculated its 19 August Conference fixture, with no autofill or
+role reassignment. 325 integrated focused tests passed / 33.275s; expanded
+disk-roundtrip regression also passed separately (25 row-drop tests / .504s).
+See `GATE13_ORDINARY_ADVANCE_BOUNDARY.md` for the actual event3 background
+control, NEXT/MATCH caption source, outstanding day/UI binding and bounded
+cursor trace. No normal on-screen match/build acceptance is claimed.
+
+**Latest row-interaction checkpoint:** default paired Squad row-name press/drop
+now runs the canonical `4B9350` producer and `4B7500` refresh, rather than a
+toggle/dropdown or autofill. Four hundred bounded native state comparisons
+match selection/current/reserve bytes, roster-word swaps and acceptance.
+The host uses original 226x17 row-owner hits, parent y79 / x37,418, native holes
+and strict role-column boundaries. Loan side effects remain fail-closed.
+The native human match-input branch reads actual live flags/role/aux in +244
+order (`510CD0`); it no longer clears these and zips players to AI slots.
+
+Real canonical Southport/Liverpool owner gestures filled the three initial
+bench holes, yielding retained XI11/bench5 through disk save and separate
+reload. Withdrawn real Windows/Tk public press/release callbacks and production
+draw methods passed both clubs, all 30/35 players and image bounds. A fresh
+Southport reload advanced to and calculated its first Conference fixture on
+2000-08-19, then saved. These are background widget/backend checks, **not a
+normal launched-game/audio/on-screen match or playable-package acceptance**.
+See `GATE13_SQUAD_ROW_DROP.md`; 323 integrated focused tests passed in 17.966s,
+plus the new disk-roundtrip regression (24 row-drop tests / 0.436s).
+Full regression: 3,026 tests / 291.933s / 18 expected skips; the same three
+failures and one error remain confined to the previously recorded Gate17
+FFmpeg complete-package-lock digest drift. No Gate13 test failed; the full
+suite is not green. The subsequently added disk-roundtrip test passes.
+
+**Next:** qualify/render the native name-drag cursor and ordinary management
+advance/pre-match input, then verify actual original-look startup, user-driven
+lineup/advance/match/save/load and build the hands-on candidate. Shirt-number
+drag and controls 4/5 remain explicitly bounded; do not label this checkpoint
+a playable build or Gate13 completion. Incoming `origin/main` was inspected at
+`8be624df35c449fd3d3d766eec2d1dd93061a8e5`; no main or agent-runtime writes.
+The older read-only/drag-unconnected notes below are superseded.
+
+**Latest live binding:** canonical fresh backend creation now runs the proven
+primary startup selector. Selecting an ordinary club runs `408500`'s bounded
+exact next-match quota, constructor preparation and native ordering. The
+normal management presenter/host now draws both original list owners with
+the recovered +381 translation, not database-first20. Recreated UI after
+save/load rebuilds constructor membership without rerunning startup selection.
+Southport's 30 and Liverpool's 35 players all survive separate-process disk
+reload and map exactly once; no scrolling or fabricated bench fill is added.
+Real withdrawn Windows/Tk draw checks passed source top/text resources and
+all image bounds in native 800x600 for both clubs. This was background widget
+validation, **not a normal launched-game or playable-build acceptance**.
+
+Focused integration: **300 tests / 19.243 seconds / zero failures or skips**.
+Private log: `paired-live-binding-focused.log`, SHA-256
+`5ed0c49fdb79d26e0129bd5ae977bd2512e20de1b9b30cc79728319d10fcb772`.
+Exact next required work: bind the native `4B8E70 -> 4B9350` human row drag/drop
+and retained human match-lineup inputs, including filling the three initially
+empty first-bench slots through real accepted interaction. Then verify
+normal original-look startup, lineup/advance/match/save/load and build a
+hands-on candidate. Do not call the current read-only paired display playable.
+Controls 4/5 and unrelated source boundaries remain explicitly fail-closed.
+This supersedes the older "not connected" resume notes below.
+
+Full reconstruction run at code checkpoint `479ffe44`: **3,003 tests /
+220.842 seconds / 18 skips**, with the same pre-existing Gate-17 FFmpeg
+package-lock digest drift producing **3 failures + 1 error**; no additional
+failures. Do not report the full suite green or alter the disjoint Gate-17
+toolchain to hide that result. Private log `paired-live-full-suite.log`, SHA-256
+`13c86c74e82c7c7003a4a9749651ba8f443a0d5e183e18a278e91c7ca01a92b7`.
+Asset policy and whitespace checks pass. No normal FMV acceptance or frozen
+package/real match acceptance was performed at this checkpoint.
+
+**Latest startup correction:** `404110(1)` does produce the primary first XI
+before human setup. Primary `616620(1)` precedes secondary scheduling; its
+temporary-category-2 lookup therefore sees source-initialized empty secondary
+buckets, yielding class 0 and guarded restriction limit 11. Sixty bounded
+canonical selector comparisons and twelve native context cases pass. The
+isolated startup adapter also corrects the retained-last-XI-pointer bench
+behavior; it does not alter the later-gate shared selector. An explicit
+GameState producer retains exact selection/role outputs and first formation;
+schema 48 persists that formation without reselection. **Not yet connected to
+normal startup/host; no new playable build.** Latest producer/state/lineup
+verification: 161 tests / 10.400 seconds / zero failures or skips.
+
+Continue by binding this proven producer at fresh backend creation (not save
+load/advanced state), source-close `408500`'s ordinary constructor quota, then
+connect paired rendering and native drag/drop. See
+`GATE13_SQUAD_STARTUP_SELECTION.md`. This supersedes the older statement below
+that the startup auto-XI producer was merely a hypothesis.
+
+Latest recovery checkpoint now reconciles `origin/main`
+`e05c71c11e50b6f5b42bfee1e9054bd7c4dab7e8` (integration commit
+`79d441a33703fd28cebc9996e2184f92b62079e4`), preserving the worker's header
+link/cache work. The incoming erroneous 36px club-caption claim remains
+superseded by the canonical 32px correction below. No main merge or runtime
+ownership change is made.
+
+The primary `4B7BD0 -> 40AB40/4067B0` Squad preparation is implemented and
+matches 100 bounded canonical-function comparisons. GameState adapters retain
+reserve formation and role-byte swaps; schema 47 persists these through disk
+save/reload. The explicit paired presenter preserves native slot holes and
+identity, and its complete-selection regression displays all 30 members across
+the two original owners. Native `First Team` / `Reserves` title/grid/text
+rendering is recovered at the exact 381-pixel parent translation. **These
+adapters are not yet connected to the normal host, and no new playable build
+has been delivered.** Daniel correctly requires original first/reserve setup
+and actual lineup interaction, not a read-only database-first-20 display.
+
+**Exact next work:** bind `408500`'s actual source-qualified next-match quota
+and constructor preparation to the live paired host; complete the required
+empty-row resource chain and source-qualified human row-selection controls.
+The real Southport/Liverpool offline state check still has incomplete first-XI
+state after this bounded preparation. Trace the startup/manual-selection
+lifecycle; do not infer an original startup auto-XI producer from that symptom,
+use prototype autofill, silently hide unmapped IDs or invent a scrolling split.
+Then prove ordinary paired management interaction and match/save/load before
+handing Daniel a build labeled playable. See
+`GATE13_SQUAD_PREPARATION_PRODUCER.md`.
+
+Latest focused verification: **287 tests / 34.568 seconds / zero failures or
+skips**, including live state adapters, schema-47 disk roundtrip, paired
+presentation contracts and integrated management/startup tests. Asset policy
+and whitespace checks pass. No original process was launched. No new live
+Windows acceptance, package release or Gate-13 completion is claimed. The
+earlier full-suite limitation below remains recorded rather than overwritten.
+
+---
+
+Recovery branch `codex/gate13-windows-playability-recovery` reconciles canonical
+main `36335b97fa7e395d685624c212f89663ffe7d5a2`, preserving the worker's
+Cup-Tied date-model removal, source reserve state and central date header.
+No main merge, ownership update, original launch or acceptance build is made.
+
+**Source correction:** `6043AA` pushes path pointer `839E94`, whose exact
+string is `Fonts/Zurich_BdXCn_BT_32pixel.fnt`; the same loader binds
+`8F21B0` at `6043F2`, and constructor `430651` passes that object.
+The earlier 36px club-caption mapping is false. Retain the staged verified
+32px font and right-aligned Southport x=460, not the proposed 36px/x=451
+replacement. See the correction atop the central-header source trace and
+the new opt-in canonical-byte regression. Club accessor `40DA50` retains
+its human-caption override before the `+8` fallback.
+
+Native paired Squad setup remains required: `4B8240 -> 4B7BD0 -> 4B7500`
+prepares selection and ordered membership before the two list mappers.
+The renderer's current database-first-20 view is not the original paired view.
+Continue that source-backed producer integration and the private startup-FMV
+transport receipt; do not duplicate the parallel header-link task below.
+Gate 13 and the retrospective audit exit remain open. Integration verification:
+165 focused tests pass, including the opt-in canonical font-loader byte check.
+The subsequent bounded Squad ordering/slot module passes six more regressions
+and offline comparison of 100 canonical-function preparation cases / 4,000
+slots. It deliberately remains disconnected until the preceding reserve/overflow
+producer supplies source-qualified live state. See the paired-producer receipt.
+
+Broad integration run: 2,954 tests, 6 failures / 43 errors / 34 skips with
+Capstone absent from that subprocess environment. Rerunning all failed modules
+with the existing private Capstone path yielded 104 tests and only the known
+unchanged Gate-17 package-lock failures (3 failures / 1 error / 1 skip).
+The full suite is **not green**; this reconciliation does not claim otherwise.
+No later-gate production code is changed.
+
+A later 171-test focused run hit seven tool-sandbox temporary-directory write/
+cleanup denials. Those are recorded separately from application failures. The
+same tests now **pass: 171 tests / 69.269 seconds / zero skips**, using an
+explicitly authorized workspace-local temporary directory. Receipt:
+`work/recovery-membership-integration-focused-qualified-temp.log` outside Git.
+Do not count the earlier denied run as a successful validation.
+---
+
+Historical incoming main checkpoint (its 36px font claim is superseded by
+the canonical-byte correction above):
+---
+
+The following current-main worker checkpoints are retained verbatim as
+disjoint history. The local recovery boundary above takes precedence for this
+branch's Gate13 work; no worker Gate14 implementation or agent-runtime change.
+
 # Immediate audit priority — original first-team, inbox and PMenu functions
 
 **Recovery 466 GUI acceptance distinction (10 October 2026 KST):** [Backend Gate17 receipts do not exercise the normal Windows11 management mouse/keyboard workflow](GATE13_GATE17_BACKEND_SMOKE_VS_NATIVE_GUI_RECEIPT_AUDIT_RECOVERY466.md). The source `new_game_management_loop` runner calls prototype backend `advance_to_next_user_fixture` and `play_user_fixture`, not the missing PBg NEXT click; internal `.fm2k` save smoke does not press original PSaveGame. The final gate separately requires full-original-scope/clean-install evidence. Stale 5 October Gate17 readiness prose has been aligned with the Roadmap's 6 October Gate13 reopening. **Implementation, not further cosmetic audits, remains the bottleneck; Codex alone owns fixes.**
@@ -352,6 +847,155 @@ Do **not** resume Gate-17 work-ahead or create another acceptance artifact until
 
 ---
 
+
+# Historical local recovery checkpoints (reconciled on 8 October)
+
+# Current local task - original-style build restoration
+
+Fetched canonical main e4a60f0a on 7 October 2026. Its mandatory retrospective
+audit and original-behavior-first freeze apply to this recovery branch.
+No new acceptance build or guessed gameplay/presentation is permitted until
+the audit exit criteria pass. Retain the local verified repairs below as
+auditable evidence, not as automatic original-behavior approval. The temporary
+travel fallback is separate and is not the target normal interface.
+
+Local audit correction: default original PStartMenu now excludes the
+non-original Settings extension and no longer depends on its resource loader.
+Explicit research presenters preserve that extension separately. Package smoke
+requires the four original event IDs/rectangles and rejects added controls,
+without weakening resource/media provenance. The native paired Squad +D8
+receiver, constructor/refresh producer and reserve-normalization caller are
+now qualified; `40AB40` is distinct from first-team autofill, and `4067B0`
+repairs selection overflow rather than sorting. Actual paired-list integration
+still awaits exact state/role dependencies and the mandatory retrospective
+audit. See GATE13_PAIRED_SQUAD_PRODUCER.md and
+POST_482_LOCAL_AUDIT_PROGRESS.md. No new actual-build acceptance claim.
+
+Validation after menu isolation: 90 focused tests pass / one opt-in skip;
+full reconstruction runs 2,954 tests / 24 skips with the same three failures
+and one error in Gate-17 package-lock fixtures. Asset policy and diff checks
+pass. No original execution, security change, main merge, or agent-runtime
+change. Next: complete source audit and native paired-list preparation,
+then bind/verify original-style ordinary gameplay before a new play-test build.
+
+# Local source-runtime recovery - 7 October 2026
+
+Daniel explicitly authorized installed-Python development testing independently
+of the denied unsigned frozen executable. No security policy, signing, MOTW,
+original game binary or agent-runtime ownership is changed. Frozen distribution
+acceptance remains separate; source development is not blocked by that denial.
+
+Current recovery branch fixes a demonstrated normal WPF child-teardown race:
+the child disappears after MediaEnded before PowerShell exits. The host now
+waits for the actual verified player exit, retaining failure/timeout/foreign-owner
+checks. A real source launch completed BOTH clips naturally and reached the
+menu (private source-windowed-playtest-5 receipts). Native bit-0 startup input
+registration is qualified at 461900/461BB0/461C10/461C70; EA remains unskippable,
+Premier accepts the registered messages, and startup Escape cannot resize the
+game. Parent Escape forwarding is integrated; full parent input parity and
+native transition timing are not claimed. Native Squad column headings now
+render with recovered owner transform, rotation, English strings and clipping.
+97 focused startup/host/Squad tests pass. The preceding full run had 2,924 tests,
+24 skips and the same four baseline Gate-17 Windows lock-fixture failures; it
+is not a passing full-suite claim. No overall Gate-13 closure is claimed.
+
+Historical comparison establishes the current ordinary host switched from the
+development notebook at 62a1bbcd. The first original-style Squad presenter
+(2673bc0e) already limited its initial viewport to 20 rows. Southport has 30
+database players; the missing ten are not lost data, but incomplete paired-list
+production/presentation. Ordinary advance/play is also unbound. Daniel accepted a clearly
+labeled, separate development fallback for the train while original-style
+interaction remains unfinished. Historical next action was fallback validation
+and integration of main; those are completed below. The newer original-first
+audit/isolation above supersedes the default Settings integration target.
+
+Follow-on: canonical main f2772868 is integrated on the recovery branch at
+e0e3ef59, preserving Settings and all disjoint worker changes. The separate
+development fallback passed actual Take Control/Auto Fill/Advance/Play buttons,
+Southport's 30-player roster and Conference table, and fresh-controller reload
+of Daniel's supplied save followed by two further calculated/save/reload
+fixtures. See GATE13_DEVELOPMENT_TRAVEL_PLAYTEST.md. Original roster repair
+must use the paired first/reserve native mapper, not inferred scrolling or a
+guessed 20/10 membership split. The native context+D8 producer/order lifecycle
+and ordinary source-host gameplay bindings remain real requirements.
+
+Travel handoff: the independent a91ad35e source snapshot and launcher are at
+`C:\Users\Brann\Documents\Codex\FM2001-Train-Playtest`. The exact launcher opens;
+the snapshot loads Daniel's supplied train-playtest.fm2k and passes a fresh
+disk roundtrip with all 30 Southport players. Focused validation passed 106
+tests, then 14 targeted tests / one opt-in skip. Final reconstruction ran 2,953
+tests / 24 skips with the same three failures and one error in Gate-17 package
+lock fixtures. Asset policy passes; no full-suite or original-UI closure claim.
+Use the separate fallback for local acceptance while completing the native
+paired-list producer/order and ordinary original-host gameplay controls.
+
+---
+
+# Local Gate-13 recovery resumed - 7 October 2026
+
+Dedicated branch `codex/gate13-windows-playability-recovery` integrates current
+main `1a580ea7f38a0fba608237b21dd9e21d9f5661e3` with the verified local
+startup/DPI/menu/Squad checkpoints through `01f866bf`. Daniel's current
+assignment is playability recovery only; the worker's Settings and later-gate
+work remains preserved but outside this local task. The previously denied
+unsigned extracted executable is not retried through another launch route.
+
+Checkpoint `723d189b` fixes measured synchronous cold EA444 decode and repeated
+PNG encoding before cache lookup using a hash-pinned, lossless 33-resource
+derivative. Inert-widget production-path profiling: New Game 19.027 -> 0.844s,
+first Squad draw 15.881 -> 0.076s, redraw 0.139–0.193 -> 0.017–0.018s.
+These are not frozen/Tk acceptance timings. The follow-on source-qualified
+application+2A4 club title binds the exact original 32px Zurich font and
+fresh-user+D0 constructor state. Unknown imported/custom context stays closed.
+See `GATE13_WINDOWS_PLAYABILITY_RECOVERY.md` for proof, validation and remaining
+ordinary management interaction/Windows trust blockers. Gate 13 remains open.
+
+Final implementation/build checkpoint `dd6bf304acd70911990c0f4a85bed7f75c70504b`:
+172 focused tests pass; full reconstruction runs 2,915 tests / 24 skips with
+four unchanged Gate-17 Windows package-lock fixture failures, reproduced from
+the exact main baseline. Asset policy passes. The actual frozen package is
+built and all 1,210 release payload hashes verified, but is not executed after
+the Windows trust denial. Prepared folder:
+`C:\Users\Brann\Documents\Codex\FM2001-Recovery-dd6bf304\FM2001-Windows11-local-dd6bf304`.
+No passing full-suite/frozen acceptance or Gate-13 closure is claimed. Next:
+source-qualified ordinary management controls/Conference panel contexts and an
+approved trust/distribution route for real executable acceptance. No signing,
+security exception, source-GUI bypass or Gate-14/17 implementation is attempted.
+
+---
+
+# Local Gate-13 play-test follow-up - 7 October 2026
+
+Integration branch `codex/gate13-working-windows-build` preserves the newer
+disjoint main work; no main merge or agent-runtime modification was performed.
+Checkpoint `2dc760e172b2383535f33f721fab550caa0799ac` fixes the demonstrated
+mixed-DPI intro cropping and makes the owned 800x600 viewport follow window
+size while preserving the startup hotkey guard, media order/audio/verification
+and original timeout. Normal frozen startup completed both clips and reached
+the centered menu, then ordinary Conference/Southport selection and populated
+name rows. Full regression: 2,859 tests, 24 expected skips, passed.
+
+The follow-on native Squad trace restores the exact First Team title and twenty
+cropped row-picture strips, with original asset provenance and focused tests.
+Final regression: 2,861 tests passed, with 24 expected skips (359.642s).
+The final atlas-validation change also passed its five focused tests.
+It does not claim a complete Squad screen or normal advance/play binding.
+Evidence and the exact remaining UI boundary are recorded in
+`research/GATE13_PLAYTEST_RENDERING_DIAGNOSIS.md`.
+
+New local acceptance blocker: the extracted unsigned local-2dc760e1 package
+fails Windows Code Integrity policy `{0283ac0f-fff1-49ae-ada1-8a933130cad6}`
+(3033/3077), despite all 1,205 package-file hashes passing. No bypass, alternate
+execution route, security/policy change or paid signing work is attempted.
+Further packaged Windows acceptance requires an approved trust/distribution
+route. Offline source/rendering tests remain available. Gate 13 remains open;
+the missing ordinary management presentation/interaction is not documented away.
+
+Local work is paused at Daniel's explicit usage-reserve request. No further
+launches or investigations are running. Resume with the remaining ordinary
+Squad presentation/interaction, preserving the proven startup fix; packaged
+acceptance remains blocked by the recorded Windows trust-policy denial.
+---
 # Mandatory retrospective audit before further implementation
 
 _Added 7 October 2026._

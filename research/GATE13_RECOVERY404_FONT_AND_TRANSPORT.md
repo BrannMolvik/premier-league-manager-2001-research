@@ -2,6 +2,22 @@
 
 _8 October 2026 KST. Gate 13, original-behavior-only freeze._
 
+## Local integration correction
+
+The verified 36px asset acquisition below is preserved, but is not proof of
+the ordinary management club-caption owner. Canonical `430651` loads global
+`8F21B0`, populated at `6043F2` from the **32px** resource. The recovery branch
+retains the verified 32px font (2422x34, line height37) and the original
+user-caption/fallback producer; see `GATE13_MANAGEMENT_CENTRAL_HEADER_SOURCE_TRACE.md`.
+The standalone validator and its regressions now use that same owner identity.
+No shared font rasterization or native presentation rectangle was changed.
+
+Integration onto main `95c9609f388f23729bb7e5302db88c6b32f23d4c` preserves
+the opt-in transport receipts alongside the proven live viewport/startup-input
+fix. 372 focused tests passed in 39.421s (including a repeated seven-test
+Squad presenter module); no skips. These are automated integration checks,
+not a manual playable-build or visual/audio acceptance claim.
+
 ## Verified source acquisition
 
 Canonical private Library archive: `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`. Size **511,121,336 bytes**; SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`. Inside: ZIP member `F.A. Premier League Football Manager 2001/famg2001.bin`, **631,627,248 bytes**; original raw CD-ROM MODE1/2352 stream.

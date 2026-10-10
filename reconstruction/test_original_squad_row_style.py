@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import unittest
 
 from original_squad_row_style import (
+    build_first_roster_column_heading_overlays, _rotate_heading_mask,
     OriginalSquadRowStyleError,
     SQUAD_NAME_DEFAULT_RGB,
     SQUAD_NAME_FIRST_TEAM_ACTIVE_RGB,
@@ -23,6 +24,8 @@ from original_squad_row_style import (
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
     build_first_roster_scf_numeric_overlays,
+    build_first_roster_shirt_number_overlays,
+    select_squad_shirt_number,
     format_squad_display_name,
     format_squad_recent_form,
     format_squad_whole_number,
@@ -36,6 +39,85 @@ from original_squad_row_style import (
 
 
 class OriginalSquadRowStyleTests(unittest.TestCase):
+    def test_direct_scf_font_owner_does_not_use_adjacent_18px_font(self):
+        # 6044AC/6044F4/6044F9 bind 16px to 8CAB80; 18px binds 8BD970.
+        self.assertEqual(SQUAD_SCF_FONT_SOURCE_PATH, 'Fonts/Zurich_XCn_BT_16pixel.fnt')
+        self.assertEqual(SQUAD_SCF_FONT_ATLAS_SIZE, (1261, 17))
+        resources = load_verified_squad_row_text_resources(
+            Path(__file__).resolve().parents[1] / 'original_assets/source')
+        self.assertEqual((resources.scf_font.atlas_width, resources.scf_font.atlas_height),
+                         (1261, 17))
+
+    def test_shirt_selector_preserves_primary_and_alternate_native_context(self):
+        self.assertEqual(select_squad_shirt_number(registered_club_id=5,
+            represented_club_id=5, primary_number=12, alternate_number=29), 12)
+        self.assertEqual(select_squad_shirt_number(registered_club_id=5,
+            represented_club_id=7, primary_number=12, alternate_number=29), 29)
+        self.assertIsNone(select_squad_shirt_number(registered_club_id=5,
+            represented_club_id=7, primary_number=12))
+        for byte in (0, 40, 255):
+            self.assertEqual(select_squad_shirt_number(registered_club_id=-1,
+                represented_club_id=-1, primary_number=byte), byte)
+        for value in (-1, 256, True, 12.0, '12'):
+            with self.assertRaises(OriginalSquadRowStyleError):
+                select_squad_shirt_number(registered_club_id=5,
+                    represented_club_id=5, primary_number=value)
+        with self.assertRaises(OriginalSquadRowStyleError):
+            select_squad_shirt_number(registered_club_id=65535,
+                represented_club_id=-1, primary_number=12)
+
+    def test_shirt_number_raster_uses_original_font_centering_and_clip(self):
+        from original_squad_row_style import _clip_mask, _rgb_rgba
+        resources = load_verified_squad_row_text_resources(
+            Path(__file__).resolve().parents[1] / 'original_assets/source')
+        for value in (0, 9, 40, 255):
+            with self.subTest(value=value):
+                actual, = build_first_roster_shirt_number_overlays(
+                    (SimpleNamespace(y=154, club_relative_assignment=value),), resources)
+                text = str(value)
+                font = resources.font
+                x = 38 + 22 // 2 - font.measure_text(text) // 2
+                y = 234 + 14 // 2 - font.native_line_height() // 2
+                clipped = _clip_mask(font.render_text_alpha(text), line_x=x,
+                    line_y=y, rect=(38, 234, 22, 14))
+                self.assertEqual((actual.x, actual.y, actual.width, actual.height), clipped[:4])
+                self.assertEqual(actual.rgba, _rgb_rgba(clipped[4], (255, 255, 255)))
+                self.assertEqual(actual.text, text)
+                self.assertEqual(actual.font_source_path, SQUAD_ROW_FONT_SOURCE_PATH)
+
+    def test_shirt_numbers_withhold_unknown_context_and_reject_invalid_bytes(self):
+        resources = load_verified_squad_row_text_resources(
+            Path(__file__).resolve().parents[1] / 'original_assets/source')
+        self.assertEqual(build_first_roster_shirt_number_overlays(
+            (SimpleNamespace(y=154), SimpleNamespace(y=171, club_relative_assignment=None)),
+            resources), ())
+        for value in (True, -1, 256, 12.0):
+            with self.assertRaises(OriginalSquadRowStyleError):
+                build_first_roster_shirt_number_overlays(
+                    (SimpleNamespace(y=154, club_relative_assignment=value),), resources)
+
+    def test_rotated_heading_pixels_follow_native_decreasing_y(self):
+        from ea_font import EATextMask
+        rotated = _rotate_heading_mask(EATextMask(3, 2, bytes((1,2,3,4,5,6))))
+        self.assertEqual((rotated.width, rotated.height, rotated.alpha),
+                         (2, 3, bytes((3,6,2,5,1,4))))
+
+    def test_native_headings_use_exact_language_font_owner_and_clipping(self):
+        root = Path(__file__).resolve().parents[1] / 'original_assets/source'
+        resources = load_verified_squad_row_text_resources(root)
+        headings = build_first_roster_column_heading_overlays(resources)
+        self.assertEqual([h.text for h in headings], ['Status','Condition','Form','Skill'])
+        for local_x, heading in zip((0,23,46,69), headings):
+            self.assertEqual(heading.font_source_path, SQUAD_SCF_FONT_SOURCE_PATH)
+            self.assertEqual(heading.source_rgb, (255,255,255))
+            self.assertGreaterEqual(heading.x, 275 + local_x)
+            self.assertLessEqual(heading.x + heading.width, 297 + local_x)
+            self.assertGreaterEqual(heading.y, 101)
+            self.assertEqual(heading.y + heading.height,
+                             200 - resources.scf_font.glyph_for_byte(32).width)
+        with self.assertRaises(OriginalSquadRowStyleError):
+            build_first_roster_column_heading_overlays(None)
+
     def test_native_style_zero_display_name_formatter(self):
         self.assertEqual(format_squad_display_name("David", "Beckham"), "D. Beckham")
         self.assertEqual(format_squad_display_name("-Alias", "Ronaldo"), "Ronaldo")
@@ -100,7 +182,7 @@ class OriginalSquadRowStyleTests(unittest.TestCase):
             SQUAD_NAME_DEFAULT_RGB,
         )
 
-    def test_exact_imported_18px_squad_fonts_are_verified(self):
+    def test_distinct_18px_name_and_16px_scf_fonts_are_verified(self):
         source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
         resources = load_verified_squad_row_text_resources(source_root)
         self.assertEqual(

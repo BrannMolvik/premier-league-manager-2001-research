@@ -36,7 +36,7 @@ from original_teamselect_hierarchy_art import (
     OriginalTeamSelectHierarchyArt, split_hierarchy_source_strip,
 )
 from original_front_end_layout import (
-    PSTARTMENU_ACTIONS,
+    PSTARTMENU_SCREEN_ACTIONS,
     TEAMSELECT_BACK_EVENT,
     TEAMSELECT_BACK_RECT,
     TEAMSELECT_HIERARCHY_ROW_ORIGINS,
@@ -71,6 +71,18 @@ class StubBackend:
 
 
 class OriginalFirstScreenPresenterTests(unittest.TestCase):
+    def test_menu_parent_translation_applies_to_art_caption_and_hit_testing(self):
+        presenter, _backend = self.presenter()
+        from original_front_end_layout import PSTARTMENU_ACTIONS
+        view = presenter.snapshot()
+        for local, control, caption in zip(PSTARTMENU_ACTIONS, view.controls,
+                                           self.menu.captions, strict=True):
+            self.assertEqual(control.rect.x, local.rect.x + 134)
+            self.assertEqual(control.rect.y, local.rect.y + 34)
+            self.assertEqual(control.caption.clip_rect, control.rect)
+            self.assertEqual(control.caption.line_origin_x, caption.line_origin_x + 134)
+            self.assertEqual(control.caption.line_origin_y, caption.line_origin_y + 34)
+
     @classmethod
     def setUpClass(cls):
         global_bg = solid(800, 600, (2, 3, 4, 255))
@@ -191,7 +203,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         self.assertEqual(tuple(x.event for x in view.controls), (1, 2, 3, 4))
         self.assertEqual(
             tuple(x.rect for x in view.controls),
-            tuple(action.rect for action in PSTARTMENU_ACTIONS),
+            tuple(action.rect for action in PSTARTMENU_SCREEN_ACTIONS),
         )
         self.assertEqual(
             tuple(x.caption.original_text for x in view.controls),
@@ -282,7 +294,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         self.assertEqual(loads, [])
         self.assertIsNone(presenter.team_select)
 
-        presenter.pointer(7, 478)  # recovered New Game event
+        presenter.pointer(141, 512)  # recovered New Game event
         self.assertEqual(loads, [])
         team = presenter.snapshot()
         self.assertIs(team.screen, FrontEndScreen.TEAM_SELECT)
@@ -334,7 +346,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         )
         presenter = OriginalFirstScreenPresenter(session, self.menu, self.team)
 
-        presenter.pointer(7, 478)
+        presenter.pointer(141, 512)
         self.assertIsNone(session.gameplay)
         self.assertIs(session.team_select_catalog, catalog)
         self.assertEqual(gameplay_builds, [])
@@ -360,16 +372,16 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
     def test_pointer_integrates_menu_teamselect_and_manager_start_boundary(self):
         presenter, built = self.presenter()
         for x, y, command in (
-            (181, 478, FrontEndCommand.CONTINUE_GAME),
-            (355, 478, FrontEndCommand.LOAD_GAME),
-            (181, 508, FrontEndCommand.QUIT_TO_WINDOWS),
+            (315, 512, FrontEndCommand.CONTINUE_GAME),
+            (489, 512, FrontEndCommand.LOAD_GAME),
+            (315, 542, FrontEndCommand.QUIT_TO_WINDOWS),
         ):
             result = presenter.pointer(x, y)
             self.assertIs(result.transition.command, command)
             self.assertIs(presenter.snapshot().screen, FrontEndScreen.START_MENU)
         self.assertEqual(built, [])
         self.assertIsNone(presenter.pointer(0, 0))
-        presenter.pointer(7, 478)  # proven event 2: New Game
+        presenter.pointer(141, 512)  # proven event 2: New Game
         self.assertEqual(len(built), 1)
         view = presenter.snapshot()
         self.assertIs(view.screen, FrontEndScreen.TEAM_SELECT)
@@ -400,7 +412,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
 
     def test_native_club_row_toggle_uses_row_club_identity_and_preserves_users(self):
         presenter, built = self.presenter()
-        presenter.pointer(7, 478)
+        presenter.pointer(141, 512)
         countries = {
             key: SimpleNamespace(id=key, name=name)
             for key, name in (
@@ -450,7 +462,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
 
     def test_back_returns_to_original_menu_without_hidden_backend_reset(self):
         presenter, built = self.presenter()
-        presenter.pointer(7, 478)
+        presenter.pointer(141, 512)
         original_backend = presenter.session.gameplay
         presenter.choose_club(12)
         outcome = presenter.pointer(225, 301)

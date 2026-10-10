@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 import unittest
@@ -97,6 +97,21 @@ def _pmenu_resources():
 
 
 class OriginalManagementCanvasTests(unittest.TestCase):
+    def test_live_arrow_subframe_and_hover_background_reach_actual_compositor(self):
+        from original_pmenu_presenter import OriginalPMenuAnimation
+        frame = build_management_canvas_frame(OriginalManagementPresenter(
+            started_session(), bridge_factory=Bridge))
+        live = OriginalPMenuAnimation()
+        live.observe(frame.presentation.menu, (600, 155))
+        for _ in range(7):
+            live.update()
+        frame = replace(frame, presentation=replace(frame.presentation, menu=live.snapshot()))
+        render = build_management_pmenu_render(frame, _pmenu_resources())
+        stats = {o.role: o for o in render.overlays if o.menu_id == 0xCA}
+        self.assertEqual(stats['arrow'].source_index, 7)
+        self.assertEqual(stats['background'].source_index, 1)
+        self.assertEqual(stats['text'].native_color_16, 0)
+
     def test_fresh_management_host_preserves_exact_fixed_geometry_and_open_pixels(self):
         presenter = OriginalManagementPresenter(
             started_session(), bridge_factory=Bridge

@@ -188,6 +188,10 @@ class RuntimePlayer:
     match_performance_history_write_index: int = 0
     current_position: int = 0
     position_aux_code: int = 0
+    # Explicit database-import writes 0x418F83/0x418F8A, then the native
+    # 0x418220 swap retains the other first/reserve role-byte pair here.
+    saved_reserve_role_152: int = 0
+    saved_reserve_aux_153: int = 0
     balance_position_code: int = 10
     injured: bool = False
     suspended: bool = False
@@ -474,29 +478,45 @@ class RuntimePlayer:
         """Mirror DBRPlayer +0x14 bit-4 setter 0x4182F0."""
         self.match_active = True
         self.match_substitute_available = False
-        self.reserve_active = False
+        self._clear_reserve_active()
         self.reserve_substitute = False
 
     def set_match_substitute_available(self) -> None:
         """Mirror DBRPlayer +0x14 bit-5 setter 0x4182C0."""
         self.match_substitute_available = True
         self.match_active = False
-        self.reserve_active = False
+        self._clear_reserve_active()
         self.reserve_substitute = False
+        self.reset_match_position()
+
+    def _swap_reserve_position(self) -> None:
+        role, auxiliary = self.current_position, self.position_aux_code
+        self.current_position = int(self.saved_reserve_role_152) & 31
+        self.position_aux_code = int(self.saved_reserve_aux_153) & 15
+        self.saved_reserve_role_152 = int(role) & 255
+        self.saved_reserve_aux_153 = int(auxiliary) & 255
+
+    def _clear_reserve_active(self) -> None:
+        if self.reserve_active:
+            self._swap_reserve_position()
+            self.reserve_active = False
 
     def set_reserve_active(self) -> None:
         """Mirror DBRPlayer +0x174 bit-0 setter 0x4181E0."""
         self.match_active = False
         self.match_substitute_available = False
-        self.reserve_active = True
+        if not self.reserve_active:
+            self._swap_reserve_position()
+            self.reserve_active = True
         self.reserve_substitute = False
 
     def set_reserve_substitute(self) -> None:
         """Mirror DBRPlayer +0x174 bit-1 setter 0x418280."""
         self.match_active = False
         self.match_substitute_available = False
-        self.reserve_active = False
+        self._clear_reserve_active()
         self.reserve_substitute = True
+        self.reset_match_position()
 
     def clear_match_selection(self, *, reset_position: bool = False) -> None:
         """Mirror 0x4181B0 by clearing all four selection branches.
@@ -506,7 +526,7 @@ class RuntimePlayer:
         """
         self.match_active = False
         self.match_substitute_available = False
-        self.reserve_active = False
+        self._clear_reserve_active()
         self.reserve_substitute = False
         if reset_position:
             self.reset_match_position()

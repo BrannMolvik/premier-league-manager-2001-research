@@ -2,20 +2,23 @@
 
 This module keeps recovered ordinary Squad row styling separate from viewport
 membership/filtering. The canonical executable proves the player role/name
-controls plus the paired PSCFRow Condition, recent-form and current-role-rating
-numeric controls. Reserve-team selection flags are source-closed and represented
-by the clean-room gameplay model; bounded legacy fixtures may still omit them,
-in which case the partial-state helper continues to fail closed.
+controls and club-relative shirt number plus the paired PSCFRow Condition, recent-form and current-role-rating
+numeric controls. Runtime callers retain the independent reserve-selection
+flags initialized by the original constructor. Bounded/legacy adapters lacking
+those states still withhold an unproven color rather than inventing one.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from hashlib import sha256
 from math import ceil, floor, isfinite
 from pathlib import Path
 
 from ea_font import EAFont, EATextMask
-from original_squad_resources import SQUAD_FIRST_ROSTER_RECT, SQUAD_PANEL_RECT
+from ea_language_strings import parse_language_pair
+from original_squad_resources import (
+    SQUAD_FIRST_ROSTER_RECT, SQUAD_RESERVE_ROSTER_RECT, SQUAD_PANEL_RECT,
+)
 
 
 class OriginalSquadRowStyleError(ValueError):
@@ -46,12 +49,12 @@ SQUAD_CONDITION_THRESHOLD_VA = 0x821814
 SQUAD_CONDITION_THRESHOLD = 75
 SQUAD_SCF_LIST_LOCAL_X = 239
 SQUAD_SCF_FONT_OBJECT_VA = 0x8CAB80
-SQUAD_SCF_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_18pixel.fnt"
+SQUAD_SCF_FONT_SOURCE_PATH = "Fonts/Zurich_XCn_BT_16pixel.fnt"
 SQUAD_SCF_FONT_SHA256 = (
-    "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a"
+    "e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18"
 )
-SQUAD_SCF_FONT_BYTE_SIZE = 79_734
-SQUAD_SCF_FONT_ATLAS_SIZE = (1366, 19)
+SQUAD_SCF_FONT_BYTE_SIZE = 75_217
+SQUAD_SCF_FONT_ATLAS_SIZE = (1261, 17)
 SQUAD_SCF_TEXT_FLAGS = 0x24
 SQUAD_CONDITION_RECT = (24, 1, 19, 14)
 SQUAD_RECENT_FORM_RECT = (47, 1, 19, 14)
@@ -60,8 +63,21 @@ SQUAD_CONDITION_HIGH_RGB = (255, 255, 255)
 SQUAD_CONDITION_LOW_RGB = (0, 45, 255)
 SQUAD_SCF_NUMERIC_RGB = (255, 255, 255)
 
+# PSquadList +A54 wraps +8C at (238,22); 48A590 constructs four 22x99
+# controls in that owner. 651F00 receives raw flags 2050 and font 8CAB80.
+SQUAD_COLUMN_HEADINGS = (
+    (0, 0x984554, 169, 'Status'),
+    (23, 0x984550, 170, 'Condition'),
+    (46, 0x98454C, 171, 'Form'),
+    (69, 0x982910, 1978, 'Skill'),
+)
+
 SQUAD_ROLE_RECT = (28, 1, 38, 14)
 SQUAD_ROLE_TEXT_FLAGS = 0x24
+SQUAD_SHIRT_NUMBER_RECT = (1, 1, 22, 14)
+SQUAD_SHIRT_NUMBER_TEXT_FLAGS = 0x24
+SQUAD_SHIRT_NUMBER_RGB = (255, 255, 255)
+SQUAD_SHIRT_NUMBER_SELECTOR_VA = 0x41E3F0
 SQUAD_NAME_RECT = (76, 1, 144, 14)
 SQUAD_NAME_TEXT_FLAGS = 0x21
 
@@ -126,6 +142,11 @@ def load_verified_squad_row_text_resources(
     source_root: str | Path,
 ) -> OriginalSquadRowTextResources:
     root = Path(source_root)
+    strings, indices = parse_language_pair((root / 'English.str').read_bytes(),
+                                          (root / 'English.idx').read_bytes())
+    if any(indices.resolve(strings, index) != text
+           for _, _, index, text in SQUAD_COLUMN_HEADINGS):
+        raise OriginalSquadRowStyleError('Squad column language binding mismatch')
     return OriginalSquadRowTextResources(
         _load_verified_font(
             root,
@@ -162,6 +183,29 @@ def format_squad_whole_number(value: int) -> str:
     if type(value) is not int:
         raise OriginalSquadRowStyleError("Squad whole-number value must be an integer")
     return str(value)
+
+
+def select_squad_shirt_number(
+    *, registered_club_id: int, represented_club_id: int,
+    primary_number: int | None, alternate_number: int | None = None,
+) -> int | None:
+    """Mirror 41E3F0 -> 41E3D0; never borrow the primary byte on mismatch.
+
+    The original compares DBRPlayer's signed +10 word with the represented
+    club's +4 identity, then reads +70 or +76 respectively. An adapter that
+    has not retained the selected byte withholds the text rather than making
+    an unresolved loan/secondary context display the primary number (or zero).
+    """
+    if type(registered_club_id) is not int or type(represented_club_id) is not int:
+        raise OriginalSquadRowStyleError("Squad shirt selector requires source club IDs")
+    if not -0x8000 <= registered_club_id <= 0x7FFF:
+        raise OriginalSquadRowStyleError("Squad registered club ID must preserve the signed source word")
+    number = primary_number if registered_club_id == represented_club_id else alternate_number
+    if number is None:
+        return None
+    if type(number) is not int or not 0 <= number <= 0xFF:
+        raise OriginalSquadRowStyleError("Squad shirt number must be a source byte")
+    return number
 
 
 def format_squad_recent_form(value: int | float) -> str:
@@ -345,6 +389,107 @@ def _rgb_rgba(alpha: bytes, rgb: tuple[int, int, int]) -> bytes:
     return bytes(rgba)
 
 
+def _rotate_heading_mask(mask: EATextMask) -> EATextMask:
+    # Native 6570F0 flag 40: x grows with source y, y decreases with
+    # source x (rotation token 5A), without scaling/interpolation.
+    alpha = bytearray(len(mask.alpha))
+    for y in range(mask.height):
+        for x in range(mask.width):
+            alpha[(mask.width - 1 - x) * mask.height + y] = mask.alpha[y * mask.width + x]
+    return EATextMask(mask.height, mask.width, bytes(alpha))
+
+
+def build_first_roster_column_heading_overlays(
+    resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Render exact owner-local Status/Condition/Form/Skill, not guessed labels."""
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError('Squad headings require verified font resources')
+    font = resources.scf_font
+    parent_x = SQUAD_PANEL_RECT[0] + SQUAD_FIRST_ROSTER_RECT.x + 238
+    parent_y = SQUAD_PANEL_RECT[1] + SQUAD_FIRST_ROSTER_RECT.y + 22
+    overlays = []
+    for local_x, _global, _index, text in SQUAD_COLUMN_HEADINGS:
+        rect = (parent_x + local_x, parent_y, 22, 99)
+        mask = _rotate_heading_mask(font.render_text_alpha(text))
+        # 65215A..65219E centers by native line height on the rotated X.
+        # 6521CA..6521F8/65232F anchor Y at control bottom; 6572B4
+        # starts advance at the space glyph WIDTH, not a guessed padding.
+        line_x = rect[0] + 22 // 2 - font.native_line_height() // 2
+        line_y = rect[1] + 99 - font.glyph_for_byte(32).width - mask.height
+        clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+        if clipped is None:
+            continue
+        x, y, width, height, alpha = clipped
+        overlays.append(OriginalSquadRowTextOverlay(text, x, y, width, height,
+            _rgb_rgba(alpha, (255, 255, 255)), (255, 255, 255), SQUAD_SCF_FONT_SOURCE_PATH))
+    return tuple(overlays)
+
+
+def build_paired_roster_text_overlays(paired, resources):
+    """Render both explicitly mapped owners through their shared child setup.
+
+    4B8240 constructs identical PSquadList objects at +130/+1030;
+    the original parent transforms are x=37/x=418, y=0. This adds no
+    selection semantics, empty-row artwork or arbitrary player-list split.
+    """
+    from original_squad_paired_presenter import OriginalPairedSquadSnapshot
+    if not isinstance(paired, OriginalPairedSquadSnapshot):
+        raise OriginalSquadRowStyleError('Native paired Squad snapshot is required')
+    def local(snapshot):
+        return (
+            *build_first_roster_column_heading_overlays(resources),
+            *build_first_roster_shirt_number_overlays(snapshot.rows, resources),
+            *build_first_roster_role_overlays(snapshot.rows, resources),
+            *build_first_roster_name_overlays(snapshot.rows, resources),
+            *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
+        )
+    dx = SQUAD_RESERVE_ROSTER_RECT.x - SQUAD_FIRST_ROSTER_RECT.x
+    dy = SQUAD_RESERVE_ROSTER_RECT.y - SQUAD_FIRST_ROSTER_RECT.y
+    return (*local(paired.first), *(replace(o, x=o.x + dx, y=o.y + dy)
+                                   for o in local(paired.reserve)))
+
+
+def build_first_roster_shirt_number_overlays(
+    rows, resources: OriginalSquadRowTextResources,
+) -> tuple[OriginalSquadRowTextOverlay, ...]:
+    """Raster populated PSquadPlayerRow +1E8, not a new numbering scheme.
+
+    4897B2..4897F3 supplies the unsigned selected byte, format %N, 94758C
+    font, 0x24 alignment and color 0xFFFF to the (1,1,22,14) control.
+    Native empty owners have no number child; the viewport preserves them by
+    omitting their rows. Zero is a valid retained byte, not an empty sentinel.
+    """
+    if not isinstance(resources, OriginalSquadRowTextResources):
+        raise OriginalSquadRowStyleError("Squad numbers require verified font resources")
+    panel_x, panel_y, _width, _height = SQUAD_PANEL_RECT
+    roster = SQUAD_FIRST_ROSTER_RECT
+    font = resources.font
+    overlays = []
+    for row in tuple(rows):
+        number = getattr(row, "club_relative_assignment", None)
+        if number is None:
+            continue
+        if type(number) is not int or not 0 <= number <= 0xFF:
+            raise OriginalSquadRowStyleError("Squad shirt number must be a source byte")
+        row_y = getattr(row, "y", None)
+        if type(row_y) is not int:
+            raise OriginalSquadRowStyleError("Squad row y must be an integer")
+        x, y, width, height = SQUAD_SHIRT_NUMBER_RECT
+        rect = (panel_x + roster.x + x, panel_y + roster.y + row_y + y, width, height)
+        text = format_squad_whole_number(number)
+        mask = font.render_text_alpha(text)
+        line_x = rect[0] + width // 2 - font.measure_text(text) // 2
+        line_y = rect[1] + height // 2 - font.native_line_height() // 2
+        clipped = _clip_mask(mask, line_x=line_x, line_y=line_y, rect=rect)
+        if clipped is not None:
+            left, top, out_width, out_height, alpha = clipped
+            overlays.append(OriginalSquadRowTextOverlay(
+                text, left, top, out_width, out_height,
+                _rgb_rgba(alpha, SQUAD_SHIRT_NUMBER_RGB), SQUAD_SHIRT_NUMBER_RGB))
+    return tuple(overlays)
+
+
 def build_first_roster_role_overlays(
     rows,
     resources: OriginalSquadRowTextResources,
@@ -429,8 +574,8 @@ def build_first_roster_name_overlays(
                 "Squad row display name must be source-resolved"
             )
         if rgb is None:
-            # The clean-room runtime does not currently model native reserve
-            # selection flags. Do not render a guessed default/reserve color.
+            # Legacy/bounded adapters may lack retained reserve-selection
+            # flags. Do not render a guessed default/reserve color.
             continue
         rect = (
             panel_x + roster.x + name_x,

@@ -14,8 +14,9 @@ capture stay fail-closed; the host does not invent a replacement skin.
 from __future__ import annotations
 
 from base64 import b64encode
+from copy import copy
+from dataclasses import replace
 from functools import lru_cache
-from math import gcd
 from pathlib import Path
 from queue import Empty, Queue
 from threading import Thread
@@ -89,6 +90,7 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_club_caption import management_club_caption_pixels
 from original_management_text import (
     OriginalManagementTextResources,
     league_tables_row_text_overlays,
@@ -104,7 +106,7 @@ from original_pmatchinfo_presenter import (
 )
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_popup import pmenu_open_press, pmenu_app_pointer_dismiss
-from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
+from original_pmenu_presenter import candidate_pmenu_row_at_screen_point, OriginalPMenuAnimation
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from gate13_pstartmenu_derivative import (
     PSTARTMENU_SOURCE_ORIGINALS,
@@ -121,15 +123,22 @@ from original_squad_top_controls import (
     OriginalSquadTopResources,
     build_fresh_squad_top_render,
     load_verified_squad_top_resources,
+    squad_button_frame_png,
 )
+from original_squad_tab_animation import OriginalSquadTabAnimation
 from original_squad_row_style import (
+    build_first_roster_column_heading_overlays,
+    build_first_roster_shirt_number_overlays,
     OriginalSquadRowTextResources,
     build_first_roster_name_overlays,
     build_first_roster_role_overlays,
     build_first_roster_scf_numeric_overlays,
+    build_paired_roster_text_overlays,
     load_verified_squad_row_text_resources,
 )
 from startup_fmv_presentation import ORIGINAL_STARTUP_FMV_PRESENTATION
+from startup_media_input import WM_KEYDOWN, VK_ESCAPE
+from original_window_viewport import window_fit_scale
 from startup_media_playback import (
     load_and_play_verified_startup_sequence,
     play_verified_startup_sequence,
@@ -338,6 +347,10 @@ def build_original_game_presenter(
             original_executable=executable,
         )
 
+    # Canonical original-behavior audit: 4C1BA0 creates only the four recovered
+    # PStartMenu actions. Keep the non-original Settings extension available to
+    # explicit research presenters, but absent from the normal/default host.
+    # It must not be a resource-loading dependency of the original baseline.
     return OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(game_dir),
         menu,
@@ -372,6 +385,7 @@ class OriginalGameTkHost:
         error_reporter=None,
         management_background=None,
         management_header_resources=None,
+        management_next_art=None,
         management_text_resources=None,
         management_resource_loader=None,
         management_thread_factory=Thread,
@@ -390,6 +404,9 @@ class OriginalGameTkHost:
         self.fixtures_pager_flags = {-1: 0x183, 1: 0x183}
         # PMenu is pushed by application event 2, not a permanent panel layer.
         self.pmenu_popup_active = False
+        self._pmenu_animation = OriginalPMenuAnimation()
+        self._pmenu_frame = None
+        self._pmenu_items = []
         self.squad_top_resources = squad_top_resources
         self.squad_row_text_resources = squad_row_text_resources
         self.squad_status_resources = squad_status_resources
@@ -401,6 +418,11 @@ class OriginalGameTkHost:
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.management_header_resources = management_header_resources
+        self.management_next_art = management_next_art
+        self.management_next_flags = 2
+        self._management_turn_queue = None
+        self._management_turn_thread = None
+        self._management_turn_poll = None
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
         if not callable(management_thread_factory):
@@ -421,8 +443,18 @@ class OriginalGameTkHost:
         self._management_load_poll = None
         self.management_header_state = OriginalManagementHeaderState()
         self._management_header_idle = None
+        self._management_header_items = {}
+        self._management_header_draw_resources = None
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
+        self._squad_drag_source = None
+        self._squad_tab_animation = OriginalSquadTabAnimation()
+        self._squad_tab_items = {}
+        self._squad_tab_draw_resources = None
+        self._squad_background_rows = ()
+        self._squad_background_items = {}
+        self._squad_background_photos = {}
+        self._squad_background_hover = None
         self.last_league_fixtures_grid_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_context = None
@@ -442,7 +474,12 @@ class OriginalGameTkHost:
         self.last_fastview_window = None
 
         self.root.title("Premier League Manager 2001")
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
+        if callable(getattr(self.root, "minsize", None)):
+            self.root.minsize(320, 240)
+        self._viewport_resize_idle = None
+        self._pending_viewport_size = None
+        self._windowed_size = SCREEN_SIZE
         self._fullscreen = False
         screen_width = (
             int(self.root.winfo_screenwidth())
@@ -454,29 +491,9 @@ class OriginalGameTkHost:
             if hasattr(self.root, "winfo_screenheight")
             else SCREEN_SIZE[1]
         )
-        # Fill the available display height as closely as practical while
-        # preserving FM2001's native 4:3 aspect ratio. A small rational scale
-        # keeps Tk's nearest-neighbour zoom/subsample path deterministic without
-        # falling all the way back to 1x on 16:9 displays such as 1920x1080.
-        fit_scale = max(
-            1.0,
-            min(
-                screen_width / SCREEN_SIZE[0],
-                screen_height / SCREEN_SIZE[1],
-            ),
+        self.display_scale_num, self.display_scale_den = window_fit_scale(
+            screen_width, screen_height
         )
-        # Choose the largest small rational that never exceeds the physical
-        # display. Direct final-size scaling means we can represent common
-        # ratios such as 9/5 exactly without creating a large Tk intermediate.
-        candidates = []
-        for denominator in range(1, 17):
-            numerator = max(1, int(fit_scale * denominator))
-            if numerator / denominator <= fit_scale:
-                candidates.append((numerator / denominator, numerator, denominator))
-        _ratio, numerator, denominator = max(candidates)
-        divisor = gcd(int(numerator), int(denominator))
-        self.display_scale_num = int(numerator) // divisor
-        self.display_scale_den = int(denominator) // divisor
         self.display_scale = self.display_scale_num / self.display_scale_den
         self.display_width = (
             SCREEN_SIZE[0] * self.display_scale_num + self.display_scale_den - 1
@@ -497,6 +514,7 @@ class OriginalGameTkHost:
         # canvas is centered rather than stretched, avoiding interpolation and
         # preserving every recovered pointer rectangle exactly.
         self.canvas.pack(expand=True)
+        self.root.bind("<Configure>", self.on_window_configure)
         self.root.bind("<F11>", self.toggle_fullscreen)
         self.root.bind("<Alt-Return>", self.toggle_fullscreen)
         self.root.bind("<Escape>", self.leave_fullscreen)
@@ -507,6 +525,38 @@ class OriginalGameTkHost:
         self.canvas.bind("<Motion>", self.on_fixtures_pager_motion)
         self.canvas.bind("<Leave>", self.on_fixtures_pager_leave)
         self.redraw()
+
+    def on_window_configure(self, event) -> None:
+        if getattr(event, "widget", None) is not self.root:
+            return  # Child/configure events are not the available game client.
+        width, height = int(event.width), int(event.height)
+        if width < 320 or height < 240:
+            return  # Ignore construction/minimization, not a usable viewport.
+        self._pending_viewport_size = (width, height)
+        if self._viewport_resize_idle is None:
+            self._viewport_resize_idle = self.root.after(50, self._resize_viewport)
+
+    def _resize_viewport(self) -> None:
+        self._viewport_resize_idle = None
+        width, height = self._pending_viewport_size
+        numerator, denominator = window_fit_scale(width, height)
+        if (numerator, denominator) == (self.display_scale_num, self.display_scale_den):
+            return
+        self.display_scale_num, self.display_scale_den = numerator, denominator
+        self.display_scale = numerator / denominator
+        self.display_width = self._native_to_display(SCREEN_SIZE[0])
+        self.display_height = self._native_to_display(SCREEN_SIZE[1])
+        self.canvas.configure(width=self.display_width, height=self.display_height)
+        # All cached PhotoImages carry the previous viewport scale. Retaining
+        # them would mix sizes and break both visuals and pointer rectangles.
+        self._first_screen_photo_cache.clear()
+        self._generic_photo_cache.clear()
+        self._photos = []
+        if getattr(self, "_startup_media_active", False):
+            self.canvas.coords(self._startup_media_backdrop, 0, 0,
+                               self.display_width, self.display_height)
+        else:
+            self.redraw()
 
     def startup_media_child_binding(self) -> dict[str, int]:
         """Return the game-owned child-HWND rectangle for source-faithful FMVs."""
@@ -572,21 +622,31 @@ class OriginalGameTkHost:
             raise OriginalGameHostError("Game window closed during startup media")
 
     def _set_fullscreen(self, enabled: bool) -> None:
+        if enabled and not self._fullscreen and callable(getattr(self.root, "winfo_width", None)):
+            size = (self.root.winfo_width(), self.root.winfo_height())
+            if size[0] >= 320 and size[1] >= 240:
+                self._windowed_size = size
         self._fullscreen = bool(enabled)
         self.presenter.session.settings.fullscreen = self._fullscreen
         self.root.attributes("-fullscreen", self._fullscreen)
+        if not enabled and callable(getattr(self.root, "geometry", None)):
+            # Do not restore a monitor-sized requested canvas into a decorated
+            # window; preserve the last actual windowed client instead.
+            self.root.geometry(f"{self._windowed_size[0]}x{self._windowed_size[1]}")
 
     def toggle_fullscreen(self, event=None):
+        if getattr(self, "_startup_media_active", False):
+            return "break"  # The live WPF child owns the fixed presentation rect.
         self._set_fullscreen(not self._fullscreen)
         if self.presenter.session.navigation.screen is FrontEndScreen.SETTINGS:
             self.redraw()
         return "break"
 
     def leave_fullscreen(self, event=None):
-        # Startup input semantics are not recovered. While the verified movie
-        # sequence is active, fail closed instead of letting Escape trigger the
-        # compatibility fullscreen control.
         if getattr(self, "_startup_media_active", False):
+            request = getattr(self, '_startup_native_input', None)
+            if callable(request):
+                request(WM_KEYDOWN, VK_ESCAPE)
             return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
@@ -662,7 +722,7 @@ class OriginalGameTkHost:
         messagebox.showerror("FM2001 port: action could not complete", message,
                              parent=self.root)
 
-    def _photo(self, png: bytes):
+    def _photo(self, png: bytes, *, retain: bool = True):
         # All host-generated management/report PNGs use the reconstruction's
         # deterministic RGBA/filter-0 encoder. Decode once, scale directly to
         # the final rational display size, and retain the Tk image by source
@@ -687,10 +747,27 @@ class OriginalGameTkHost:
                 format="png",
             )
             self._generic_photo_cache[png] = photo
-        self._photos.append(photo)
+        if retain:
+            self._photos.append(photo)
         return photo
 
+    def _rgba_photo(self, width: int, height: int, rgba: bytes):
+        """Cache before PNG encoding, not after an unchanged image is compressed.
+
+        Content and dimensions identify the pixels; a changed value never reuses
+        stale text/art. The existing viewport invalidation clears this cache too.
+        """
+        return self._photo_from_rgba(('management-rgba', width, height, rgba),
+                                     width, height, rgba)
+
     def _draw_first_screen(self) -> None:
+        self._squad_tab_items = {}
+        self._squad_tab_draw_resources = None
+        self._management_header_items = {}
+        self._management_header_draw_resources = None
+        self._squad_background_rows = ()
+        self._squad_background_items = {}
+        self._squad_background_hover = None
         if self._management_header_idle is not None:
             self.root.after_cancel(self._management_header_idle)
             self._management_header_idle = None
@@ -1034,6 +1111,8 @@ class OriginalGameTkHost:
             )
         for name in required:
             setattr(self, name, loaded[name])
+        if "management_next_art" in loaded:
+            self.management_next_art = loaded["management_next_art"]
         if family == "squad":
             self._management_pmenu_render_cache.clear()
         self._management_resource_families_loaded.add(family)
@@ -1128,11 +1207,71 @@ class OriginalGameTkHost:
             traceback.print_exc(file=sys.stderr)
             self.error_reporter(self.last_status)
 
+    def _begin_original_management_turn(self) -> None:
+        """Run the existing transactional NEXT without starving Tk's message pump."""
+        if self._management_turn_thread is not None:
+            return
+        gameplay = self.presenter.session.gameplay
+        if not callable(getattr(gameplay, 'advance_original_management', None)):
+            raise OriginalGameHostError('Ordinary NEXT requires the native event-aware controller')
+        result_queue = Queue()
+        self._management_turn_queue = result_queue
+        self.management_next_flags |= 0x14
+        self._squad_drag_source = None
+        self.root.configure(cursor='watch')
+
+        def worker():
+            try:
+                # advance_original_management stages its graph; publish only on Tk's thread.
+                staged = copy(gameplay)
+                outcome = staged.advance_original_management()
+                result_queue.put(('ok', staged, outcome))
+            except Exception as exc:
+                result_queue.put(('error', exc, traceback.format_exc()))
+
+        try:
+            self._management_turn_thread = self.management_thread_factory(target=worker, daemon=True)
+            self._management_turn_thread.start()
+        except Exception:
+            self._management_turn_queue = None
+            self._management_turn_thread = None
+            self.management_next_flags = 2
+            self.root.configure(cursor='')
+            raise
+        self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
+        self.redraw()
+
+    def _poll_original_management_turn(self) -> None:
+        self._management_turn_poll = None
+        try:
+            status, payload, outcome = self._management_turn_queue.get_nowait()
+        except Empty:
+            self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
+            return
+        self._management_turn_queue = None
+        self._management_turn_thread = None
+        self.management_next_flags = 2
+        self.root.configure(cursor='')
+        if status == 'error':
+            self.last_status = f'{type(payload).__name__}: {payload}'
+            print(outcome, file=sys.stderr, flush=True)
+            self.error_reporter(self.last_status)
+            self.redraw()
+            return
+        gameplay = self.presenter.session.gameplay
+        gameplay.__dict__.update(payload.__dict__)
+        self.redraw()
+        self.last_status = ('Original NEXT reached pending pre-match event '
+                            f'{outcome.pending_primary_entry!r}' if outcome.pending_primary_entry
+                            else f'Original NEXT advanced to {gameplay.state.calendar.current_date}')
+
     def _schedule_management_header_update(self) -> None:
         if (
-            isinstance(self.management_header_resources, OriginalManagementHeaderResources)
-            and self._management_header_idle is None
-            and self.management_header_state.pending()
+            self._management_header_idle is None
+            and ((isinstance(self.management_header_resources, OriginalManagementHeaderResources)
+                  and self.management_header_state.pending())
+                 or (self._squad_tabs_live() and self._squad_tab_animation.pending())
+                 or (self.pmenu_popup_active and self._pmenu_animation.pending()))
         ):
             self._management_header_idle = self.root.after_idle(
                 self._advance_management_header
@@ -1142,10 +1281,92 @@ class OriginalGameTkHost:
         self._management_header_idle = None
         if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
             return
-        if self.management_header_state.update():
-            self.redraw()
+        # The same serialized visible-owner update pass advances both concrete
+        # owners. Squad vft7BE814 is NOT the first-screen Button@ease class.
+        header_changed = (isinstance(self.management_header_resources, OriginalManagementHeaderResources)
+                          and self.management_header_state.update())
+        tabs_changed = self._squad_tabs_live() and self._squad_tab_animation.update()
+        menu_changed = self.pmenu_popup_active and self._pmenu_animation.update()
+        if header_changed or tabs_changed or menu_changed:
+            if ((header_changed and not self._update_management_header_layers())
+                    or (tabs_changed and not self._update_squad_tab_layers())
+                    or (menu_changed and not self._update_pmenu_layers())):
+                self.redraw()
+            else:
+                self._schedule_management_header_update()
 
-    def _draw_management_header(self) -> int:
+    def _render_live_pmenu(self):
+        menu = self._pmenu_animation.snapshot()
+        key = (id(self.management_pmenu_resources), menu)
+        render = self._management_pmenu_render_cache.get(key)
+        if render is None:
+            frame = replace(self._pmenu_frame,
+                presentation=replace(self._pmenu_frame.presentation, menu=menu))
+            render = build_management_pmenu_render(frame, self.management_pmenu_resources)
+            if len(self._management_pmenu_render_cache) >= 128:
+                self._management_pmenu_render_cache.clear()
+            self._management_pmenu_render_cache[key] = render
+        return render
+
+    def _update_pmenu_layers(self) -> bool:
+        render = self._render_live_pmenu()
+        if len(render.overlays) != len(self._pmenu_items):
+            return False
+        for overlay, (_item, old) in zip(render.overlays, self._pmenu_items):
+            if (overlay.role, overlay.menu_id, overlay.x, overlay.y) != (
+                    old.role, old.menu_id, old.x, old.y):
+                return False
+        for index, (overlay, (item, old)) in enumerate(zip(render.overlays, self._pmenu_items)):
+            if overlay.png != old.png:
+                self.canvas.itemconfigure(item, image=self._photo(overlay.png, retain=False))
+                self._pmenu_items[index] = item, overlay
+        return True
+
+    def _squad_tabs_live(self) -> bool:
+        from original_management_shell import SQUAD_PANEL_CODE
+        return bool(self._squad_tab_items
+            and self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+            and self.management_presenter is not None
+            and self.management_presenter.selected_child_id == SQUAD_PANEL_CODE
+            and self.management_presenter.squad_view_control_id == 3
+            and self.active_pmatchinfo_art is None and not self.pmenu_popup_active)
+
+    def _update_squad_tab_layers(self) -> bool:
+        resources = self.squad_top_resources
+        if (not isinstance(resources, OriginalSquadTopResources)
+                or resources is not self._squad_tab_draw_resources
+                or self._squad_tab_items.keys() != {3, 4, 5}):
+            return False
+        for control_id, source_index in zip((3, 4, 5), self._squad_tab_animation.frames()):
+            item, previous_index = self._squad_tab_items[control_id]
+            if source_index != previous_index:
+                self.canvas.itemconfigure(item, image=self._photo(
+                    squad_button_frame_png(resources, source_index), retain=False))
+                self._squad_tab_items[control_id] = item, source_index
+        return True
+
+    def _update_management_header_layers(self) -> bool:
+        resources = self.management_header_resources
+        if (not isinstance(resources, OriginalManagementHeaderResources)
+                or resources is not self._management_header_draw_resources):
+            return False
+        overlays = management_header_overlays(resources, self.management_header_state.source_frame())
+        if {o.role for o in overlays} != self._management_header_items.keys():
+            return False
+        for overlay in overlays:
+            item, rect = self._management_header_items[overlay.role]
+            if rect != (overlay.x, overlay.y, overlay.width, overlay.height):
+                return False
+        for overlay in overlays:
+            item, _rect = self._management_header_items[overlay.role]
+            image = self._photo(_cached_runtime_png(overlay.width, overlay.height, overlay.rgba),
+                                retain=False)
+            self.canvas.itemconfigure(item, image=image)
+        return True
+
+    def _draw_management_header(self, club=None) -> int:
+        self._management_header_items = {}
+        self._management_header_draw_resources = None
         resources = self.management_header_resources
         if resources is None:
             return 0
@@ -1163,13 +1384,17 @@ class OriginalGameTkHost:
                 overlay.height,
                 overlay.rgba,
             )
-            self._create_native_image(
+            item = self._create_native_image(
                 overlay.x,
                 overlay.y,
                 image=self._photo(png),
                 anchor=self.tk.NW,
             )
+            self._management_header_items[overlay.role] = (
+                item, (overlay.x, overlay.y, overlay.width, overlay.height))
             count += 1
+
+        self._management_header_draw_resources = resources
 
         caption = management_header_caption_overlay(resources)
         self._create_native_image(
@@ -1185,6 +1410,16 @@ class OriginalGameTkHost:
             anchor=self.tk.NW,
         )
         count += 1
+        if club is not None and resources.club_font is not None:
+            pixels = management_club_caption_pixels(
+                resources.club_font, club.name, club.native_user_club_caption
+            )
+            if pixels is not None:
+                x, y, width, height, rgba = pixels
+                self._create_native_image(
+                    x, y, image=self._rgba_photo(width, height, rgba), anchor=self.tk.NW
+                )
+                count += 1
         self._schedule_management_header_update()
         return count
 
@@ -1279,8 +1514,36 @@ class OriginalGameTkHost:
             count += 1
         return count
 
+    def _draw_management_next_control(self, frame) -> int:
+        """Draw PBg +524/574 from exact source rows and retained caption date.
+
+        This is presentation, not acceptance of the still-bounded day/user
+        callback. A supplied-resource test host may intentionally omit the art.
+        The normal production resource loader requires and verifies it.
+        """
+        from original_management_next import native_next_bitmap_pixels, native_next_caption_pixels
+        art = getattr(self, 'management_next_art', None)
+        if art is None:
+            return 0
+        resources = self.management_header_resources
+        if not isinstance(resources, OriginalManagementHeaderResources):
+            raise OriginalGameHostError('NEXT caption lost its verified source font')
+        x,y,w,h,rgba = native_next_bitmap_pixels(art, self.management_next_flags)
+        self._create_native_image(x,y,image=self._rgba_photo(w,h,rgba),anchor=self.tk.NW)
+        controller = self.presenter.session.gameplay
+        if controller is None:
+            raise OriginalGameHostError('NEXT caption lost its ordinary calendar owner')
+        match = getattr(frame.presentation, 'header_match', None)
+        x,y,w,h,rgba = native_next_caption_pixels(resources.font,
+            controller.state.calendar.current_date,
+            None if match is None else match.scheduled_date)
+        self._create_native_image(x,y,image=self._rgba_photo(w,h,rgba),anchor=self.tk.NW)
+        return 2
+
     def _draw_squad_top_controls(self, frame) -> int:
         """Draw only the exact native fresh PSquadScreen top-control state."""
+        self._squad_tab_items = {}
+        self._squad_tab_draw_resources = None
         if frame.presentation.panel_class != "PSquadScreen":
             return 0
         transition = frame.presentation.squad_view_transition
@@ -1298,18 +1561,78 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Squad landing renderer requires verified original top-control resources"
             )
-        rendered = build_fresh_squad_top_render(resources)
+        rendered = build_fresh_squad_top_render(
+            resources, include_reserve=getattr(frame.presentation, 'paired_squad', None) is not None,
+            source_frames=self._squad_tab_animation.frames())
         count = 0
         for overlay in rendered.overlays:
             image = self._photo(overlay.png)
-            self._create_native_image(
+            item = self._create_native_image(
                 overlay.x,
                 overlay.y,
                 image=image,
                 anchor=self.tk.NW,
             )
+            if overlay.role == 'button':
+                self._squad_tab_items[overlay.control_id] = item, overlay.source_index
             count += 1
+        self._squad_tab_draw_resources = resources
+        self._squad_tab_animation.observe(
+            self._first_screen_pointer if self._squad_tabs_live() else None)
+        self._schedule_management_header_update()
         return count
+
+    def _draw_squad_backgrounds(self, frame) -> int:
+        from original_squad_row_background import build_squad_row_backgrounds
+        self._squad_background_rows = ()
+        self._squad_background_items = {}
+        self._squad_background_photos = {}
+        self._squad_background_hover = None
+        transition = getattr(frame.presentation, 'squad_view_transition', None)
+        if (frame.presentation.panel_class != 'PSquadScreen'
+                or transition is None or transition.control_id != 3):
+            return 0
+        paired = getattr(frame.presentation, 'paired_squad', None)
+        first = frame.presentation.squad if paired is None else paired.first
+        self._squad_background_rows = build_squad_row_backgrounds(
+            first, None if paired is None else paired.reserve)
+        for row in self._squad_background_rows:
+            items = []
+            for x, y, w, h in row.cells:
+                # Retain both images once: hover never appends image references
+                # or rebuilds the model/text on every mouse-motion event.
+                for hovered in (False, True):
+                    self._squad_cell_photo(w, h, hovered)
+                items.append((self._create_native_image(x, y,
+                    image=self._squad_cell_photo(w, h, False), anchor=self.tk.NW), w, h))
+            self._squad_background_items[row.key] = tuple(items)
+        self._update_squad_background_hover(*(self._first_screen_pointer or (-1, -1)))
+        return len(self._squad_background_rows) * 3
+
+    def _squad_cell_photo(self, width, height, hovered):
+        from original_squad_row_background import SQUAD_CELL_NORMAL_RGB, SQUAD_CELL_HOVER_RGB
+        key = width, height, hovered
+        photo = self._squad_background_photos.get(key)
+        if photo is None:
+            rgb = SQUAD_CELL_HOVER_RGB if hovered else SQUAD_CELL_NORMAL_RGB
+            photo = self._rgba_photo(width, height, bytes((*rgb, 255)) * (width * height))
+            self._squad_background_photos[key] = photo
+        return photo
+
+    def _update_squad_background_hover(self, x, y):
+        from original_squad_row_background import squad_row_at_point
+        target = None
+        if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+                and self.active_pmatchinfo_art is None and not self.pmenu_popup_active):
+            target = squad_row_at_point(self._squad_background_rows, x, y)
+        previous = self._squad_background_hover
+        if previous == target:
+            return
+        for key, hovered in ((previous, False), (target, True)):
+            for item, width, height in self._squad_background_items.get(key, ()):
+                self.canvas.itemconfigure(item,
+                    image=self._squad_background_photos[width, height, hovered])
+        self._squad_background_hover = target
 
     def _draw_squad_rows(self, frame) -> int:
         """Draw source-closed first-roster text plus source-qualified PSCF status."""
@@ -1336,7 +1659,10 @@ class OriginalGameTkHost:
             raise OriginalGameHostError(
                 "Squad landing renderer requires verified original row font resources"
             )
-        overlays = (
+        paired = getattr(frame.presentation, 'paired_squad', None)
+        overlays = build_paired_roster_text_overlays(paired, resources) if paired is not None else (
+            *build_first_roster_column_heading_overlays(resources),
+            *build_first_roster_shirt_number_overlays(snapshot.rows, resources),
             *build_first_roster_role_overlays(snapshot.rows, resources),
             *build_first_roster_name_overlays(snapshot.rows, resources),
             *build_first_roster_scf_numeric_overlays(snapshot.rows, resources),
@@ -1361,29 +1687,31 @@ class OriginalGameTkHost:
             row for row in snapshot.rows
             if getattr(row, "native_status_frame_index", None) is not None
         )
-        if source_qualified_status_rows:
+        status_groups = [(0, source_qualified_status_rows)]
+        if paired is not None:
+            status_groups.append((381, tuple(r for r in paired.reserve.rows
+                if getattr(r, 'native_status_frame_index', None) is not None)))
+        if any(rows for _, rows in status_groups):
             status_resources = self.squad_status_resources
             if not isinstance(status_resources, OriginalSquadStatusResources):
                 raise OriginalGameHostError(
                     "Squad source-qualified status renderer requires verified original status resources"
                 )
-            for overlay in build_first_roster_direct_status_overlays(
-                source_qualified_status_rows,
-                status_resources,
-            ):
-                self._create_native_image(
-                    overlay.x,
-                    overlay.y,
-                    image=self._photo(
-                        _cached_runtime_png(
-                            overlay.width,
-                            overlay.height,
-                            overlay.rgba,
-                        )
-                    ),
-                    anchor=self.tk.NW,
-                )
-                count += 1
+            for dx, rows in status_groups:
+                for overlay in build_first_roster_direct_status_overlays(rows, status_resources):
+                    self._create_native_image(
+                        overlay.x + dx,
+                        overlay.y,
+                        image=self._photo(
+                            _cached_runtime_png(
+                                overlay.width,
+                                overlay.height,
+                                overlay.rgba,
+                            )
+                        ),
+                        anchor=self.tk.NW,
+                    )
+                    count += 1
         return count
 
     def _draw_league_fixtures_grid_art(self, frame) -> int:
@@ -1481,10 +1809,12 @@ class OriginalGameTkHost:
         return len(overlays)
 
     def _fixtures_page_controls(self):
+        from original_management_navigation import LEAGUE_FIXTURES_PANEL
         if (self.active_pmatchinfo_art is not None
                 or self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
                 or self.management_presenter is None
-                or not isinstance(self.fixtures_pager_art, OriginalFixturesPagerArt)):
+                or not isinstance(self.fixtures_pager_art, OriginalFixturesPagerArt)
+                or self.management_presenter.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id):
             return ()
         snapshot = self.management_presenter.snapshot()
         if snapshot.panel_class != 'PLeagueFixtures' or snapshot.league_fixtures is None:
@@ -1504,6 +1834,7 @@ class OriginalGameTkHost:
             return
         event = self._normalize_pointer_event(event)
         self._first_screen_pointer = (int(event.x), int(event.y))
+        self._update_squad_background_hover(int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
                 FrontEndScreen.START_MENU,
                 FrontEndScreen.SETTINGS,
@@ -1514,6 +1845,8 @@ class OriginalGameTkHost:
             self._schedule_first_screen_update(view)
             return
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            self._squad_tab_animation.observe(
+                self._first_screen_pointer if self._squad_tabs_live() else None)
             x, y, width, height = HEADER_COMPOUND_RECT
             inside_header = (
                 x <= int(event.x) < x + width
@@ -1521,8 +1854,18 @@ class OriginalGameTkHost:
             )
             self.management_header_state.set_pointer_inside(inside_header)
             self.management_header_state.set_selected(self.pmenu_popup_active)
+            if self.pmenu_popup_active and self.active_pmatchinfo_art is None and self._pmenu_frame is not None:
+                self._pmenu_animation.observe(self._pmenu_frame.presentation.menu,
+                    self._first_screen_pointer)
             self._schedule_management_header_update()
         changed = False
+        if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
+                and getattr(self, 'management_next_art', None) is not None):
+            from original_management_next import native_next_at_point
+            old = self.management_next_flags
+            inside = native_next_at_point(int(event.x), int(event.y))
+            self.management_next_flags = old | 8 if inside else old & ~8
+            changed |= old != self.management_next_flags
         if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
                 and self.active_pmatchinfo_art is None and self.pmenu_popup_active
                 and pmenu_app_pointer_dismiss(int(event.x), int(event.y))):
@@ -1629,16 +1972,12 @@ class OriginalGameTkHost:
             )
 
         menu_render = None
+        self._pmenu_frame = frame
+        self._pmenu_items = []
         if self.pmenu_popup_active:
-            menu_key = (id(self.management_pmenu_resources), frame.presentation.menu)
-            menu_render = self._management_pmenu_render_cache.get(menu_key)
-            if menu_render is None:
-                with timed_stage("management.pmenu.render"):
-                    menu_render = build_management_pmenu_render(
-                        frame,
-                        self.management_pmenu_resources,
-                    )
-                self._management_pmenu_render_cache[menu_key] = menu_render
+            self._pmenu_animation.observe(frame.presentation.menu, self._first_screen_pointer)
+            with timed_stage("management.pmenu.render"):
+                menu_render = self._render_live_pmenu()
         self.canvas.delete("all")
         self._photos = []
 
@@ -1647,11 +1986,12 @@ class OriginalGameTkHost:
                 photo = self._photo(_cached_runtime_png(image.width, image.height, image.rgba))
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
-        header_image_count = self._draw_management_header()
-        header_image_count += self._draw_management_club_name(frame)
+        header_image_count = self._draw_management_header(frame.presentation.club)
+        header_image_count += self._draw_management_next_control(frame)
         header_image_count += self._draw_management_match_lines(frame)
         header_image_count += self._draw_management_current_date(frame)
         squad_image_count = self._draw_squad_top_controls(frame)
+        squad_image_count += self._draw_squad_backgrounds(frame)
         squad_image_count += self._draw_squad_rows(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         fixture_image_count += self._draw_fixtures_pager()
@@ -1664,12 +2004,15 @@ class OriginalGameTkHost:
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in (() if menu_render is None else menu_render.overlays):
             art = self._photo(overlay.png)
-            self._create_native_image(
+            item = self._create_native_image(
                 menu_x + overlay.x,
                 menu_y + overlay.y,
                 image=art,
                 anchor=self.tk.NW,
             )
+            self._pmenu_items.append((item, overlay))
+
+        self._schedule_management_header_update()
 
         dialog_image_count = self._draw_pmatchinfo_dialog()
 
@@ -1789,6 +2132,17 @@ class OriginalGameTkHost:
             source_flags,
         )
         self.last_pmenu_activation = result
+        if result.action.action_kind == 'return_to_pstartmenu':
+            self.presenter.session.source_accepted_return_to_start_menu()
+            self.pmenu_popup_active = False
+            self.management_presenter = None
+            self._squad_drag_source = None
+            self.management_header_state.set_selected(False)
+            self.presenter.hierarchy = None
+            self.first_screen_animation = OriginalFirstScreenAnimation()
+            self.redraw()
+            self.last_status = 'Returned to original main menu; live game retained for Continue'
+            return result
         family = self._management_resource_family(result.presentation.panel_class)
         if family not in self._management_resource_families_loaded:
             self._begin_management_resource_load(family)
@@ -1920,7 +2274,8 @@ class OriginalGameTkHost:
         self.last_status = "Closed source-accepted PMatchInfo popup"
 
     def on_fixture_report_press(self, event) -> None:
-        if getattr(self, "_startup_media_active", False):
+        if (getattr(self, "_startup_media_active", False)
+                or self._management_turn_thread is not None):
             return
         event = self._normalize_pointer_event(event)
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
@@ -1962,9 +2317,12 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_script_arrow_release(self, event) -> None:
-        if getattr(self, "_startup_media_active", False):
+        if (getattr(self, "_startup_media_active", False)
+                or self._management_turn_thread is not None):
             return
         event = self._normalize_pointer_event(event)
+        if self._release_original_squad_row(event):
+            return
         pager_changed = any(flags & 0x10 for flags in self.fixtures_pager_flags.values())
         self.fixtures_pager_flags = {direction: flags & ~0x10
                                     for direction, flags in self.fixtures_pager_flags.items()}
@@ -1975,9 +2333,73 @@ class OriginalGameTkHost:
             self.pmatchinfo_script_pressed = None
             self.redraw()
 
+    def _ordinary_squad_drag_owner(self):
+        if (self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
+                or self.active_pmatchinfo_art is not None or self.pmenu_popup_active
+                or self.management_presenter is None):
+            return None
+        snapshot = self.management_presenter.snapshot()
+        if (snapshot.panel_class != 'PSquadScreen' or snapshot.paired_squad is None
+                or self.management_presenter.squad_view_control_id != 3):
+            return None
+        gameplay = self.presenter.session.gameplay
+        if getattr(gameplay, 'original_squad_membership', None) is None:
+            return None
+        return gameplay
+
+    def _press_original_squad_row(self, event) -> bool:
+        from original_squad_pointer import original_squad_row_at_point
+        self._squad_drag_source = None
+        gameplay = self._ordinary_squad_drag_owner()
+        if gameplay is None:
+            return False
+        hit = original_squad_row_at_point(gameplay.original_squad_membership,
+                                          int(event.x), int(event.y), press=True)
+        if hit is None:
+            return False
+        if hit.shirt_number:
+            self.last_status = 'Native shirt-number drag remains source-rendering bounded'
+            return True
+        # Preserve the owner's retained index and identity until release.
+        self._squad_drag_source = (hit.ordered_index,
+            gameplay.original_squad_membership.members[hit.ordered_index].player_id,
+            gameplay.original_squad_membership)
+        self.last_status = 'Native Squad row-name drag retained'
+        return True
+
+    def _release_original_squad_row(self, event) -> bool:
+        from original_squad_pointer import original_squad_row_at_point
+        source = getattr(self, '_squad_drag_source', None)
+        self._squad_drag_source = None
+        if source is None:
+            return False
+        gameplay = self._ordinary_squad_drag_owner()
+        if gameplay is None or gameplay.original_squad_membership is not source[2]:
+            self.last_status = 'Squad drag cancelled: original owner changed'
+            return True
+        hit = original_squad_row_at_point(gameplay.original_squad_membership,
+                                          int(event.x), int(event.y))
+        if hit is None:
+            self.last_status = 'Squad drag cancelled outside an original row owner'
+            return True
+        try:
+            accepted = gameplay.drop_original_squad_row(source[0], hit.ordered_index,
+                empty_row_index=hit.visible_index if hit.empty_owner else None)
+        except Exception as exc:
+            self.last_status = f'{type(exc).__name__}: {exc}'
+            self.error_reporter(self.last_status)
+            return True
+        if accepted:
+            self.redraw()
+        self.last_status = ('Native Squad row drop applied' if accepted else
+                            'Native Squad role-capacity guard rejected drop')
+        return True
+
     def on_click(self, event) -> None:
         if getattr(self, "_startup_media_active", False):
             return  # Startup skip/menu semantics are not inferred from input.
+        if self._management_turn_thread is not None:
+            return  # PResults/native progression owns input until management reentry.
         event = self._normalize_pointer_event(event)
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self._management_load_thread is not None:
@@ -2023,10 +2445,21 @@ class OriginalGameTkHost:
                     self.presenter.session
                 )
             frame = build_management_canvas_frame(self.management_presenter)
+            from original_management_next import native_next_press
+            if not self.pmenu_popup_active and native_next_press(
+                    int(event.x), int(event.y), self.management_next_flags):
+                try:
+                    self._begin_original_management_turn()
+                except Exception as exc:
+                    self.last_status = f'{type(exc).__name__}: {exc}'
+                    self.error_reporter(self.last_status)
+                return
             if pmenu_open_press(int(event.x), int(event.y), active=self.pmenu_popup_active):
                 self.pmenu_popup_active = True
                 self.redraw()
                 self.last_status += '; native application event 2: PMenu popup opened'
+                return
+            if self._press_original_squad_row(event):
                 return
             page = (None if self.pmenu_popup_active else fixtures_page_press(
                 self._fixtures_page_controls(), int(event.x), int(event.y)))
@@ -2086,17 +2519,11 @@ class OriginalGameTkHost:
                     self.last_status = "PMenu pointer press rejected by source control gates"
                     return
                 try:
-                    result = self.management_presenter.source_accepted_pmenu_action(
+                    result = self.apply_source_accepted_pmenu_action(
                         candidate.row_kind,
                         candidate.menu_id,
                         source_flags,
                     )
-                    self.last_pmenu_activation = result
-                    family = self._management_resource_family(result.presentation.panel_class)
-                    if family not in self._management_resource_families_loaded:
-                        self._begin_management_resource_load(family)
-                    else:
-                        self.redraw()
                     self.last_status = (
                         "PMenu source pointer press: "
                         f"{result.action.action_kind} {candidate.menu_id:#x}"
@@ -2261,6 +2688,10 @@ def run_original_game_ui(
                     resolved_source_root,
                     original_executable,
                 )
+            with timed_stage("management.resources.next"):
+                from original_management_next import load_verified_management_next_art
+                management_next_art = load_verified_management_next_art(
+                    resolved_source_root, original_executable)
             return {
                 "management_pmenu_resources": pmenu_resources,
                 "squad_top_resources": squad_top_resources,
@@ -2268,6 +2699,7 @@ def run_original_game_ui(
                 "squad_status_resources": squad_status_resources,
                 "management_background": management_background,
                 "management_header_resources": management_header_resources,
+                "management_next_art": management_next_art,
             }
 
         if family == "fixtures":
@@ -2345,6 +2777,9 @@ def run_original_game_ui(
 
     import tkinter as tk
 
+    from windows_display_context import initialize_windows_display_context
+    initialize_windows_display_context()
+
     with timed_stage("startup.tk_root"):
         root = tk.Tk()
     host = OriginalGameTkHost(
@@ -2363,6 +2798,7 @@ def run_original_game_ui(
         management_resource_loader=load_management_resources,
     )
     if startup_media_backend is not None:
+        host._startup_native_input = getattr(startup_media_backend, 'request_native_input', None)
         host.show_startup_media_backdrop()
         try:
             bind_pump = getattr(startup_media_backend, "bind_event_pump", None)
@@ -2380,6 +2816,9 @@ def run_original_game_ui(
                     width=binding["width"],
                     height=binding["height"],
                 )
+            bind_geometry = getattr(startup_media_backend, "bind_presentation_geometry", None)
+            if callable(bind_geometry):
+                bind_geometry(host.startup_media_child_binding)
             with timed_stage("startup.media"):
                 play_configured_startup_media(
                     receipt_path=startup_media_receipt,
@@ -2388,6 +2827,7 @@ def run_original_game_ui(
                     derivatives=startup_media_derivatives,
                 )
         finally:
+            host._startup_native_input = None
             host.hide_startup_media_backdrop()
     else:
         with timed_stage("startup.media"):

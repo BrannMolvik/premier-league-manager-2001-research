@@ -110,6 +110,16 @@ class PlayerTransferRequest:
     player_id: int
     queued_on: date
     due_on: date
+    recipient_manager_key: int | None = None
+    sender_club_id: int | None = None
+
+    def __post_init__(self):
+        context = (self.recipient_manager_key, self.sender_club_id)
+        if context == (None, None):
+            return
+        if any(type(value) is not int or not 0 <= value <= 0x7FFFFFFF
+               for value in context):
+            raise ValueError('Transfer-request recipient/sender context must be complete')
 
     @property
     def event_class(self) -> str:

@@ -31,7 +31,7 @@ from gate14_first_screen_button_audio import (
     BUTTON_PRESS_STATE_VALUE,
 )
 from gate14_windows_menu_pcm_backend import WindowsMemoryWaveMenuPcmBackend
-from original_front_end_layout import PSTARTMENU_ACTIONS
+from original_front_end_layout import PSTARTMENU_SCREEN_ACTIONS
 from original_game_host import run_original_game_ui
 
 
@@ -142,7 +142,7 @@ def _human_confirmation(confirmer: Callable[[str], str]) -> bool:
 
 
 def _start_new_game_action():
-    matches = tuple(item for item in PSTARTMENU_ACTIONS if item.event == START_NEW_GAME_EVENT)
+    matches = tuple(item for item in PSTARTMENU_SCREEN_ACTIONS if item.event == START_NEW_GAME_EVENT)
     if len(matches) != 1:
         raise Gate14WindowsBoundFirstScreenAudioAuditError(
             "canonical Start New Game action is not uniquely defined"

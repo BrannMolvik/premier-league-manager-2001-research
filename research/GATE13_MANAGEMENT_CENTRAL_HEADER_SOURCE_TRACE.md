@@ -2,6 +2,50 @@
 
 _Recovery 396, 8 October 2026._
 
+## Authoritative local correction — 8 October 2026
+
+**Additional9October correction:** the supporting font ownership below was
+also wrong. Direct object `8CAB80` is16px, not18px: the canonical sequential
+loader pushes path839E30 at6044AC, sets ECX=8CAB80 at6044F4, then calls657650
+at6044F9. The following18px resource is bound to8BD970. Header setup passes
+8CAB80 directly at4306D8/43075C/4307DA. Use the staged
+`Fonts/Zurich_XCn_BT_16pixel.fnt`,75,217bytes,
+SHA-256`e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`,
+atlas1261x17/native lineheight18. The minimal repair changes only that binding
+and its verification/tests; geometry, formatting and input semantics stay put.
+See `GATE13_SQUAD_RESOURCE_CORRELATION.md` for independent lifecycle challenge.
+The historical18px claims below are superseded, not implementation authority.
+
+The **36-pixel font mapping below is disproved** by a fresh, hash-gated read
+of the canonical executable. The exact `0x6043AA` instruction pushes
+`0x839E94`; that string is `Fonts\\Zurich_BdXCn_BT_32pixel.fnt`, including
+the native terminating zero. The same loader block sets ECX to `0x8F21B0`
+at `0x6043F2` and invokes `0x657650` at `0x6043F7`. Constructor
+`0x430651` passes that exact font object into the club-caption control.
+The 36px asset identity is real, but does **not** establish this ownership.
+Do not import or substitute it for this control.
+
+The staged, byte-identical **32px** font is 136,128 bytes, SHA-256
+`27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36`,
+atlas 2422x34, native line height 37. `Southport` measures 90 pixels,
+right-aligned at x=460 in the unchanged `(172,1,378,32)` control.
+`test_original_management_club_caption.py` now checks the path reference,
+font binding and constructor argument against an opt-in canonical executable,
+as well as the real staged font and clipped pixels without private binaries.
+
+Accessor `0x40DA50` is also conditional: it first calls `0x403600`; only a
+null result falls back to `DBRClub+8`. The local caption contract preserves
+the nonempty human-user caption override and the explicit fresh empty caption
+proved at `0x424F3F`; unknown user context remains withheld.
+
+Implementation evidence: original behavior is the existing 32px source control;
+the proposed 36px replacement would be a reconstruction regression. Minimum
+repair is to retain the verified loader/font and reconcile the conflicting
+research. Geometry, source color/style, simulation and RNG are unchanged.
+Conditional match-line ownership and startup-FMV transport remain separate.
+The following Recovery-396/398 text is retained as historical evidence and
+must be read with these two corrections.
+
 ## Scope and evidence boundary
 
 This note closes the ordinary **central** management-header text controls that

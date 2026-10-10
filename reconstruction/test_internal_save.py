@@ -87,6 +87,58 @@ class CupDatabase(Database):
 
 
 class InternalSaveTests(unittest.TestCase):
+    def test_native_user_shape_fresh_binding_and_arbitrary_bytes_survive_disk(self):
+        from original_user_shape import NativeUserShapeState
+        original = self.build_controller()
+        self.assertEqual(original.human.native_shape.bytes_180_186,
+                         (50, 50, 50, 50, 50, 0, 0))
+        # Counterexample to resetting a loaded user to fresh50. This pattern
+        # comes from the independent canonical buffered serializer replay.
+        original.human.native_shape = NativeUserShapeState((255, 36, 73, 110, 147, 184, 221))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'shape.fm2k'
+            save_human_gameplay(original, path)
+            restored = load_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), path)
+        self.assertEqual(restored.human.native_shape, original.human.native_shape)
+        self.assertEqual(snapshot_human_gameplay(restored), snapshot_human_gameplay(original))
+
+    def test_older_schema48_user_shape_absence_stays_unknown_across_resave(self):
+        original = self.build_controller()
+        snapshot = snapshot_human_gameplay(original)
+        del snapshot['controller']['human']['native_shape_bytes_180_186']
+        restored = restore_human_gameplay(
+            Database(), coefficient_matrix(), coefficient_matrix(), snapshot)
+        self.assertIsNone(restored.human.native_shape)
+        self.assertIsNone(snapshot_human_gameplay(restored)['controller']['human']
+                          ['native_shape_bytes_180_186'])
+
+    def test_malformed_saved_user_shape_fails_closed_without_integer_coercion(self):
+        snapshot = snapshot_human_gameplay(self.build_controller())
+        for raw in ([0] * 6, [0] * 8, [256] + [0] * 6, [True] + [0] * 6,
+                    [50.0] + [0] * 6, ['50'] + [0] * 6, 'abcdefg', {}):
+            snapshot['controller']['human']['native_shape_bytes_180_186'] = raw
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                restore_human_gameplay(
+                    Database(), coefficient_matrix(), coefficient_matrix(), snapshot)
+
+    def test_native_reserve_formation_and_swap_bytes_survive_disk_reload(self):
+        original = self.build_controller()
+        club_id = original.human.club_id
+        player = original.squad()[0]
+        player.saved_reserve_role_152 = 19
+        player.saved_reserve_aux_153 = 2
+        original.state.native_squad_reserve_formations[club_id] = 22
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'paired.fm2k'
+            save_human_gameplay(original, path)
+            restored = load_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), path)
+        loaded = restored.state.players[player.index]
+        self.assertEqual((loaded.saved_reserve_role_152, loaded.saved_reserve_aux_153), (19, 2))
+        self.assertEqual(restored.state.native_squad_reserve_formations[club_id], 22)
+        self.assertEqual(snapshot_human_gameplay(original), snapshot_human_gameplay(restored))
+
     def test_explicit_capacity_allocation_bytes_and_provenance_survive_reload(self):
         from native_club_capacity_state import RetainedClubAllocationCapacities
         controller = self.build_controller()
@@ -175,6 +227,26 @@ class InternalSaveTests(unittest.TestCase):
         controller.select_club(1)
         controller.autofill_lineup(0)
         return controller
+
+    def test_reserve_selection_flags_survive_save_and_feed_name_renderer(self):
+        from original_squad_row_style import squad_name_rgb_from_available_state
+        original = self.build_controller()
+        players = tuple(original.squad())
+        players[0].clear_match_selection()
+        players[0].reserve_active = True
+        players[1].clear_match_selection()
+        players[1].reserve_substitute = True
+        restored = loads_human_gameplay(Database(), coefficient_matrix(),
+                                       coefficient_matrix(), dumps_human_gameplay(original))
+        by_id = {player.index: player for player in restored.squad()}
+        for player, expected in ((players[0], (176, 176, 176)),
+                                 (players[1], (185, 167, 131))):
+            saved = by_id[player.index]
+            self.assertEqual(squad_name_rgb_from_available_state(
+                first_team_active=saved.match_active,
+                first_team_substitute=saved.match_substitute_available,
+                reserve_active=saved.reserve_active,
+                reserve_substitute=saved.reserve_substitute), expected)
 
     def build_controller_with_playable_scope_policy(self):
         controller = self.build_controller()

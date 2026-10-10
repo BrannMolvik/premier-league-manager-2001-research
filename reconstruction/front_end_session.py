@@ -188,6 +188,13 @@ class FrontEndSession:
         """Clear all TeamSelect user choices without changing gameplay state."""
         self.set_club_selections(())
 
+    def source_accepted_return_to_start_menu(self) -> None:
+        """47C928 ->4C3280 removes the menu stack, not the live game."""
+        if (self.navigation.screen is not FrontEndScreen.MANAGEMENT
+                or not self.started or self.gameplay is None):
+            raise FrontEndSessionError('Return to Main requires active management')
+        self.navigation.screen = FrontEndScreen.START_MENU
+
     def dispatch(self, control_id: int) -> FrontEndSessionOutcome:
         """Dispatch only recovered controls and preserve retryable failures."""
         control = int(control_id)
@@ -195,6 +202,13 @@ class FrontEndSession:
 
         if self.started and control == int(TeamSelectControl.START_CONTINUE):
             raise FrontEndSessionError("TeamSelect Start has already completed.")
+
+        if (screen is FrontEndScreen.START_MENU and control == StartMenuControl.CONTINUE
+                and self.started and self.gameplay is not None):
+            # 4C37B6 calls PMenu without new-game construction or simulation reset.
+            self.navigation.screen = FrontEndScreen.MANAGEMENT
+            return FrontEndSessionOutcome(FrontEndTransition(
+                FrontEndScreen.MANAGEMENT, FrontEndCommand.CONTINUE_GAME))
 
         if screen is FrontEndScreen.SETTINGS:
             transition = self.navigation.dispatch(control)

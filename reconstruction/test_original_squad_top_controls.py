@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from dataclasses import replace
 import unittest
 
 from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
+from original_squad_row_style import load_verified_squad_row_text_resources
+from gate13_original_pixel_preview import encode_rgba_png
 from original_squad_top_controls import (
     OriginalSquadTopControlsError,
     OriginalSquadTopResources,
@@ -34,6 +37,57 @@ def fixture_resources() -> OriginalSquadTopResources:
 
 
 class OriginalSquadTopControlsTests(unittest.TestCase):
+    def test_native_reserve_owner_reuses_setup_at_its_exact_translation(self):
+        render = build_fresh_squad_top_render(self.chrome_resources(), include_reserve=True)
+        titles = [o for o in render.overlays if o.role == 'roster_title']
+        self.assertEqual([(o.original_text, o.x, o.y) for o in titles],
+                         [('First Team', 37, 205), ('Reserves', 418, 205)])
+        reserve_text = next(o for o in render.overlays
+                            if o.role == 'roster_title_text' and o.control_id == 1)
+        self.assertEqual(reserve_text.original_text, 'Reserves')
+        self.assertEqual(reserve_text.x, 424)
+        first = [o for o in render.overlays if o.role == 'roster_grid' and o.control_id == 0]
+        reserve = [o for o in render.overlays if o.role == 'roster_grid' and o.control_id == 1]
+        self.assertEqual(len(reserve), 20)
+        self.assertEqual([(o.x, o.y) for o in reserve], [(o.x + 381, o.y) for o in first])
+        self.assertEqual([o.png for o in reserve], [o.png for o in first])
+        with self.assertRaisesRegex(OriginalSquadTopControlsError, 'visibility'):
+            build_fresh_squad_top_render(self.chrome_resources(), include_reserve=None)
+
+    def chrome_resources(self):
+        root = Path(__file__).resolve().parents[1] / 'original_assets/source'
+        title = EA444DecodedImage(226, 20, bytes((1, 2, 3, 255)) * (226*20), 0, 0)
+        row = bytes((4, 5, 6, 255))*328 + bytes((99, 99, 99, 255))*(729-328)
+        grid = EA444DecodedImage(729, 16, row*16, 0, 0)
+        return replace(fixture_resources(), first_roster_title=title,
+            first_roster_grid=grid,
+            first_roster_title_font=load_verified_squad_row_text_resources(root).font)
+
+    def test_native_first_roster_chrome_is_rendered_before_row_text(self):
+        render = build_fresh_squad_top_render(self.chrome_resources())
+        title, caption = render.overlays[:2]
+        self.assertEqual((title.x, title.y, title.width, title.height), (37, 205, 226, 20))
+        self.assertEqual(caption.original_text, 'First Team')
+        self.assertEqual(caption.x, 43)  # Native six-pixel inset, not visual centering.
+        self.assertEqual(caption.native_color_16, 0xffff)
+        self.assertLessEqual(caption.x+caption.width, 263)
+        self.assertLessEqual(caption.y+caption.height, 225)
+        rows = [o for o in render.overlays if o.role == 'roster_grid']
+        self.assertEqual(len(rows), 20)
+        self.assertEqual([o.y for o in rows], list(range(233, 557, 17)))
+        for row in rows:
+            self.assertEqual((row.x, row.width, row.height), (37, 328, 16))
+            self.assertEqual(row.png, encode_rgba_png(328,16,bytes((4,5,6,255))*(328*16)))
+
+    def test_partial_or_wrong_sized_chrome_fails_closed(self):
+        resources = self.chrome_resources()
+        with self.assertRaisesRegex(OriginalSquadTopControlsError, 'Incomplete'):
+            replace(resources, first_roster_grid=None)
+        with self.assertRaisesRegex(OriginalSquadTopControlsError, 'grid geometry'):
+            replace(resources, first_roster_grid=resources.first_roster_title)
+        with self.assertRaisesRegex(OriginalSquadTopControlsError, 'title font'):
+            replace(resources, first_roster_title_font=resources.font)
+
     def test_fresh_state_uses_native_selected_and_normal_source_frames(self):
         self.assertEqual(SQUAD_BUTTON_TEXT_STYLE, 0)
         self.assertEqual(SQUAD_BUTTON_INITIAL_GROUPS, (1, 0, 0))

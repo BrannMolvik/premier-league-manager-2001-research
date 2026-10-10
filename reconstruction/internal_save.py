@@ -35,6 +35,7 @@ from gate_receipts import GateAttendanceCell, GateReceiptResult
 from native_club_report_state import ClubAttendanceCounter
 from complete_fixture_report import snapshot_report, restore_report, validate_report_owner, report_language_from_database
 from human_gameplay import HumanGameplayController, HumanManagerState
+from original_user_shape import NativeUserShapeState
 from primary_schedule_shadow import PrimaryScheduleShadowState
 from procedural_league_state import LiveProceduralLeagueState
 from match_engine_rng import MatchEngineRng
@@ -78,7 +79,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 46
+SAVE_SCHEMA_VERSION = 48
 
 
 def _snapshot_playable_country_allocation_plan(plan):
@@ -404,6 +405,8 @@ PLAYER_RECORD_FIELDS = (
     "live_surname",
     "live_nationality_id",
     "live_date_of_birth",
+    "saved_reserve_role_152",
+    "saved_reserve_aux_153",
 )
 
 
@@ -437,7 +440,6 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_STATUS_BIT_3
     if player.wanted:
         flags |= _PLAYER_FLAG_WANTED
-
     training = [int(v) for v in player.training_modifiers]
     return [
         int(player.index),
@@ -507,6 +509,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         str(player.surname),
         int(player.nationality_id),
         _iso(player.date_of_birth),
+        int(player.saved_reserve_role_152),
+        int(player.saved_reserve_aux_153),
     ]
 
 
@@ -528,6 +532,8 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         club_id=int(value[1]),
         nationality_id=int(value[48]),
         date_of_birth=_date(value[49]),
+        saved_reserve_role_152=int(value[50]),
+        saved_reserve_aux_153=int(value[51]),
         shirt_number=int(value[2]),
         height_cm=int(source.height_cm),
         weight_kg=int(source.weight_kg),
@@ -1316,6 +1322,14 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(int(club_id)): [int(v) for v in values]
             for club_id, values in sorted(state.club_roster_order.items())
         },
+        "native_squad_reserve_formations": {
+            str(club_id): value
+            for club_id, value in sorted(state.native_squad_reserve_formations.items())
+        },
+        "native_squad_first_formations": {
+            str(club_id): value
+            for club_id, value in sorted(state.native_squad_first_formations.items())
+        },
         "club_competition_membership": {
             str(int(club_id)): int(competition_id)
             for club_id, competition_id
@@ -1430,6 +1444,8 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
         "primary_schedule_shadow": state.primary_schedule_shadow.snapshot(),
+        "primary_schedule_end_date": (None if state.primary_schedule_end_date is None
+                                      else state.primary_schedule_end_date.isoformat()),
         "primary_matchday_order": {
             on_date.isoformat(): [
                 (
@@ -1455,6 +1471,8 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
                 "player_id": int(value.player_id),
                 "queued_on": value.queued_on.isoformat(),
                 "due_on": value.due_on.isoformat(),
+                "recipient_manager_key": value.recipient_manager_key,
+                "sender_club_id": value.sender_club_id,
             }
             for value in state.player_transfer_requests
         ],
@@ -1512,6 +1530,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             if state.user_controlled_club_id is None
             else int(state.user_controlled_club_id)
         ),
+        "native_user_recipient_key": state.native_user_recipient_key,
         "user_youth": _snapshot_youth_state(state.user_youth),
         "user_sacking_reason": (
             None
@@ -1660,6 +1679,14 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             int(club_id): [int(v) for v in values]
             for club_id, values in snapshot["club_roster_order"].items()
         },
+        native_squad_reserve_formations={
+            int(club_id): int(value)
+            for club_id, value in snapshot.get("native_squad_reserve_formations", {}).items()
+        },
+        native_squad_first_formations={
+            int(club_id): int(value)
+            for club_id, value in snapshot.get("native_squad_first_formations", {}).items()
+        },
         clubs=clubs,
         managers=managers,
         competitions=competitions,
@@ -1708,6 +1735,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             if snapshot["user_controlled_club_id"] is None
             else int(snapshot["user_controlled_club_id"])
         ),
+        native_user_recipient_key=snapshot.get("native_user_recipient_key"),
         user_youth=_restore_youth_state(snapshot.get("user_youth")),
         user_sacking_reason=(
             None
@@ -1850,6 +1878,8 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         primary_schedule_shadow=PrimaryScheduleShadowState.restore(
             snapshot.get("primary_schedule_shadow", {})
         ),
+        primary_schedule_end_date=(None if snapshot.get('primary_schedule_end_date') is None
+                                   else date.fromisoformat(snapshot['primary_schedule_end_date'])),
         primary_matchday_order={
             date.fromisoformat(on_date): tuple(
                 (
@@ -1876,6 +1906,8 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
                 player_id=int(value["player_id"]),
                 queued_on=date.fromisoformat(value["queued_on"]),
                 due_on=date.fromisoformat(value["due_on"]),
+                recipient_manager_key=value.get("recipient_manager_key"),
+                sender_club_id=value.get("sender_club_id"),
             )
             for value in snapshot.get("player_transfer_requests", ())
         ],
@@ -2021,6 +2053,12 @@ def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, An
             "formation_id": int(human.formation_id),
             "starter_ids": [int(v) for v in human.starter_ids],
             "substitute_ids": [int(v) for v in human.substitute_ids],
+            # Additive schema48 input: absent old state is unknown, not a fresh
+            # 4258D0 reset. Never synthesize these bytes from formation_id.
+            "native_shape_bytes_180_186": (
+                None if human.native_shape is None
+                else list(human.native_shape.bytes_180_186)
+            ),
             "team_orders": {
                 "captain": [int(v) for v in human.team_orders.captain],
                 "penalty": [int(v) for v in human.team_orders.penalty],
@@ -2120,11 +2158,15 @@ def restore_human_gameplay(
     human = control["human"]
     if human is not None:
         orders = human["team_orders"]
+        raw_shape = human.get("native_shape_bytes_180_186")
+        if raw_shape is not None and type(raw_shape) is not list:
+            raise ValueError('Saved native user shape requires a seven-byte array')
         controller.human = HumanManagerState(
             club_id=int(human["club_id"]),
             formation_id=int(human["formation_id"]),
             starter_ids=tuple(int(v) for v in human["starter_ids"]),
             substitute_ids=tuple(int(v) for v in human["substitute_ids"]),
+            native_shape=(None if raw_shape is None else NativeUserShapeState(tuple(raw_shape))),
             team_orders=TeamOrderPriorities(
                 captain=tuple(int(v) for v in orders["captain"]),
                 penalty=tuple(int(v) for v in orders["penalty"]),

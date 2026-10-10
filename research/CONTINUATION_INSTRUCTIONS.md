@@ -77,6 +77,17 @@ A reusable prompt for a fresh session is stored in `research/HANDOFF_PROMPT.md`.
 
 ## Cross-worker ownership locks
 
+**Daniel's 9 October assignment overrides automatic implementation recovery:**
+the autonomous ChatGPT worker is audit-only until Daniel explicitly lifts the
+restriction. Its role is to verify original executable/resource identities,
+exact owner/caller/CFG producer semantics, and original visible/input/timing
+behavior, then report evidence-backed discrepancies and correction advice.
+It must not implement reconstruction changes or reconcile the active Codex
+recovery branch. Preserve historical independent later-gate work; do not
+continue later-gate coding. Codex retains the actual original-look Windows
+fixes. The runtime role/task restriction is checkpointed at0d8f9bab; an old
+generic recovery prompt does not lift this user-directed scope.
+
 Before choosing work from the earliest incomplete gate, read
 `research/WORK_OWNERSHIP.json`.
 
@@ -180,6 +191,13 @@ Clearly separate:
 A chat conclusion is provisional until it is persisted with enough evidence that another session can reproduce it.
 
 ### Mandatory implementation evidence check
+
+Daniel's hard audit gate in `ORIGINAL_BEHAVIOR_FIRST_POLICY.md` applies to old
+and new findings alike. Unverified claims are unsafe implementation dependencies.
+Keep bounded source proof, real integration verification and visible acceptance
+as separate statuses. Counterexamples reopen the claim and dependent acceptance;
+do not keep working in affected files on the disputed assumption. Follow the
+approved `GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md` before further cosmetic work.
 
 Before every behavior-changing implementation, explicitly record:
 - the original behavior being reproduced;

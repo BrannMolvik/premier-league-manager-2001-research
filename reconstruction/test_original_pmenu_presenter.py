@@ -4,6 +4,7 @@ import unittest
 
 from original_pmenu_presenter import (
     OriginalPMenuPresentationError,
+    OriginalPMenuAnimation,
     build_fresh_pmenu_snapshot,
     build_pmenu_snapshot,
     candidate_pmenu_row_at_screen_point,
@@ -11,6 +12,40 @@ from original_pmenu_presenter import (
 
 
 class OriginalPMenuPresenterTests(unittest.TestCase):
+    def test_live_row_hover_updates_both_masks_without_selecting_or_recoloring(self):
+        menu = build_fresh_pmenu_snapshot()
+        live = OriginalPMenuAnimation()
+        live.observe(menu, (600, 155))  # Unselected Stats, not a click.
+        before = live.snapshot().rows[2]
+        self.assertEqual((before.arrow_state_bits, before.background_state_bits), (10, 10))
+        self.assertEqual((before.selected, before.text_color_16, before.arrow_frame), (False, 0, 0))
+        for frame in range(1, 11):
+            self.assertTrue(live.pending())
+            self.assertTrue(live.update())
+            self.assertEqual(live.snapshot().rows[2].arrow_frame, frame)
+        self.assertFalse(live.pending())
+        live.observe(menu, (700, 598))
+        for frame in range(9, -1, -1):
+            live.update()
+            row = live.snapshot().rows[2]
+            self.assertEqual((row.arrow_frame, row.background_state_bits), (frame, 2))
+        self.assertFalse(live.pending())
+        self.assertEqual(live.snapshot().selected_child_id, 0xCE)
+
+    def test_title_selected_partition_and_factory_refresh_reset(self):
+        menu = build_fresh_pmenu_snapshot()
+        live = OriginalPMenuAnimation()
+        live.observe(menu, (600, 96))
+        live.update()
+        self.assertEqual(live.snapshot().rows[0].arrow_frame, 0)
+        self.assertEqual(live.snapshot().rows[0].background_state_bits, 0x800A)
+        live.observe(menu, (600, 299))  # Transfers title.
+        for _ in range(10):
+            live.update()
+        self.assertEqual(live.snapshot().rows[7].arrow_frame, 10)
+        live.observe(build_pmenu_snapshot(0xCE, expanded_root_id=3), None)
+        self.assertTrue(all(row.arrow_frame == 0 for row in live.snapshot().rows))
+
     def test_fresh_route_is_team_then_six_children_then_remaining_roots(self):
         snapshot = build_fresh_pmenu_snapshot()
 

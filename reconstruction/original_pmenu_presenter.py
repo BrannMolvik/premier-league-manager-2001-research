@@ -7,7 +7,7 @@ meanings for the remaining neutral animation bits.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from original_pmenu_chrome import (
     PMENU_CHILDREN_BY_ARRAY_VA,
@@ -27,6 +27,8 @@ from original_pmenu_chrome import (
     PMENU_TITLE_TEXT_LAYOUT,
     OriginalPMenuNode,
     pmenu_static_row_state,
+    pmenu_arrow_state_from_bits,
+    pmenu_arrow_update,
 )
 
 
@@ -52,6 +54,7 @@ class OriginalPMenuVisibleRow:
     arrow_state_bits: int
     background_state_bits: int
     text_color_16: int
+    arrow_frame: int = 0
 
 
 @dataclass(frozen=True)
@@ -65,6 +68,46 @@ class OriginalPMenuSnapshot:
     font_source_paths: tuple[str, str]
     resource_source_paths: tuple[str, ...]
     rows: tuple[OriginalPMenuVisibleRow, ...]
+
+
+class OriginalPMenuAnimation:
+    """47ACF0 row flags and one shared6527F0 visible-owner update."""
+
+    def __init__(self):
+        self.base = None
+        self.rows = ()
+        self.dirty = False
+
+    def observe(self, snapshot: OriginalPMenuSnapshot, pointer) -> None:
+        if snapshot != self.base:
+            self.base = snapshot
+            self.rows = snapshot.rows
+            self.dirty = True
+        candidate = (None if pointer is None else
+                     candidate_pmenu_row_at_screen_point(snapshot, *pointer))
+        rows = tuple(replace(row,
+            arrow_state_bits=(row.arrow_state_bits & ~8) | (8 if row is candidate else 0),
+            background_state_bits=(row.background_state_bits & ~8) | (8 if row is candidate else 0),
+            arrow_frame=old.arrow_frame)
+            for row, old in zip(snapshot.rows, self.rows))
+        self.dirty |= rows != self.rows
+        self.rows = rows
+
+    def _next(self, row):
+        return pmenu_arrow_update(pmenu_arrow_state_from_bits(row.arrow_state_bits),
+            row.arrow_frame, row.arrow_state_bits, title=row.row_kind == 'title')[1]
+
+    def pending(self) -> bool:
+        return self.dirty or any(self._next(row) != row.arrow_frame for row in self.rows)
+
+    def update(self) -> bool:
+        rows = tuple(replace(row, arrow_frame=self._next(row)) for row in self.rows)
+        changed = self.dirty or rows != self.rows
+        self.rows, self.dirty = rows, False
+        return changed
+
+    def snapshot(self) -> OriginalPMenuSnapshot:
+        return replace(self.base, rows=self.rows)
 
 
 def _children(root: OriginalPMenuNode) -> tuple[OriginalPMenuNode, ...]:

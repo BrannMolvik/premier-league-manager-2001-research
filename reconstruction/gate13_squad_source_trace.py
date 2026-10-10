@@ -24,6 +24,7 @@ from gate13_button_vtable_xref_candidates import (
 )
 from original_squad_resources import (
     CBASE_PLAYER_LIST_VFTABLE_VA,
+    FORMATION_BUTTON_VFTABLE_VA,
     FORMATION_TEXT_BAR_SETUP_VA,
     FORMATION_TEXT_FORM_SETUP_VA,
     FORMATION_TEXT_VFTABLE_VA,
@@ -37,6 +38,7 @@ from original_squad_resources import (
 
 SQUAD_VTABLE_SEEDS = (
     ("CBasePlayerList class vtable", CBASE_PLAYER_LIST_VFTABLE_VA),
+    ("FormationBtn class vtable", FORMATION_BUTTON_VFTABLE_VA),
     ("FormationText class vtable", FORMATION_TEXT_VFTABLE_VA),
     ("PSquadPitch class vtable", SQUAD_PITCH_VFTABLE_VA),
     ("PSquadScreen class vtable", SQUAD_SCREEN_VFTABLE_VA),
@@ -53,6 +55,14 @@ PSCF_ROW_SETUP_VA = 0x489B40
 SQUAD_PLAYER_COLOR_PREDICATE_VA = 0x4EA3F0
 SQUAD_PLAYER_INDEX_HELPER_VA = 0x4EA3C0
 SQUAD_PLAYER_NAME_CONTROL_SETUP_VA = 0x5D6C50
+SQUAD_SCREEN_CONSTRUCTOR_VA = 0x4B8240
+SQUAD_LIST_ROW_MAPPER_VA = 0x4B6FE0
+SQUAD_LIST_PREPARE_ORDER_VA = 0x4B7500
+SQUAD_RESERVE_SELECTION_NORMALIZER_VA = 0x4B7BD0
+SQUAD_LIST_REFRESH_VA = 0x4B8C50
+SQUAD_RESERVE_SELECTOR_VA = 0x40AB40
+SQUAD_RESERVE_ROSTER_GUARD_VA = 0x40B360
+SQUAD_SELECTION_OVERFLOW_REPAIR_VA = 0x4067B0
 
 SQUAD_TRACE_WINDOWS = (
     ("PSquadPitch setup / FormationText row construction", SQUAD_PITCH_SETUP_VA, 0x500),
@@ -65,6 +75,14 @@ SQUAD_TRACE_WINDOWS = (
     ("PSquadPlayerRow branch predicate helper", SQUAD_PLAYER_COLOR_PREDICATE_VA, 0x180),
     ("PSquadPlayerRow player-index helper", SQUAD_PLAYER_INDEX_HELPER_VA, 0x180),
     ("PSquadPlayerRow display-name control helper", SQUAD_PLAYER_NAME_CONTROL_SETUP_VA, 0x280),
+    ("PSquadScreen constructor / context producer", SQUAD_SCREEN_CONSTRUCTOR_VA, 0x4B0),
+    ("Paired Squad visible-slot mapper", SQUAD_LIST_ROW_MAPPER_VA, 0x190),
+    ("Squad roster ordering / boundary output producer", SQUAD_LIST_PREPARE_ORDER_VA, 0x6D0),
+    ("Squad reserve-selection normalization", SQUAD_RESERVE_SELECTION_NORMALIZER_VA, 0x110),
+    ("Squad refresh / boundary recomputation", SQUAD_LIST_REFRESH_VA, 0x130),
+    ("Squad reserve XI / bench selector", SQUAD_RESERVE_SELECTOR_VA, 0x420),
+    ("Squad reserve roster-size guard", SQUAD_RESERVE_ROSTER_GUARD_VA, 0x20),
+    ("Squad selection overflow repair", SQUAD_SELECTION_OVERFLOW_REPAIR_VA, 0x1A0),
 )
 
 SQUAD_CODE_SEEDS = tuple((label, va) for label, va, _ in SQUAD_TRACE_WINDOWS)

@@ -13,7 +13,7 @@ from __future__ import annotations
 from front_end_session import FrontEndSession, FrontEndSessionOutcome
 from front_end_state import FrontEndScreen
 from original_front_end_layout import (
-    PSTARTMENU_ACTIONS,
+    PSTARTMENU_SCREEN_ACTIONS,
     SCREEN_SIZE,
     TEAMSELECT_BACK_EVENT,
     TEAMSELECT_BACK_RECT,
@@ -41,7 +41,7 @@ def candidate_original_event(
     if not 0 <= x < SCREEN_SIZE[0] or not 0 <= y < SCREEN_SIZE[1]:
         return None
     if screen is FrontEndScreen.START_MENU:
-        for action in PSTARTMENU_ACTIONS:
+        for action in PSTARTMENU_SCREEN_ACTIONS:
             if _inside(action.rect, x, y):
                 return action.event
         return None

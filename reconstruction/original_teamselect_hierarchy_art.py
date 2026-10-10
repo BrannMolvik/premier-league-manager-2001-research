@@ -14,7 +14,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
 
-from ea444_decoder import EA444DecodedImage, decode_ea444
+from ea444_decoder import EA444DecodedImage
+from gate13_ea444_staged_rasters import decode_staged_or_original as decode_ea444
 from ea444_quantization import EA444Quantization
 from ea444_tables import EA444Tables
 from original_button_frames import OriginalButtonFrame

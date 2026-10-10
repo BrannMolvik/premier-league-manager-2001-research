@@ -184,7 +184,7 @@ class OriginalLiveDebugTests(unittest.TestCase):
         )
         self.assertEqual(
             [(o.rect.x, o.rect.y) for o in debug.original_source_frame_overlays],
-            [(181, 478), (7, 478), (355, 478), (181, 508)],
+            [(315, 512), (141, 512), (489, 512), (315, 542)],
         )
         self.assertEqual(
             [o.source_label_not_positioned for o in debug.original_source_frame_overlays],
@@ -233,7 +233,7 @@ class OriginalLiveDebugTests(unittest.TestCase):
 
     def test_teamselect_debug_source_frames_are_not_hierarchy_interactions(self):
         live = presenter()
-        live.pointer(7, 478)
+        live.pointer(141, 512)
         debug = build_original_debug_frame(live.snapshot(), 22)
         self.assertIs(debug.screen, FrontEndScreen.TEAM_SELECT)
         self.assertEqual(len(debug.original_source_frame_overlays), 2)
@@ -266,7 +266,7 @@ class OriginalLiveDebugTests(unittest.TestCase):
         self.assertEqual(len(window.canvas.images), 9)
         self.assertEqual(
             [(x, y) for x, y, _ in window.canvas.images[1:5]],
-            [(181, 478), (7, 478), (355, 478), (181, 508)],
+            [(315, 512), (141, 512), (489, 512), (315, 542)],
         )
         self.assertEqual(
             [(x, y) for x, y, _ in window.canvas.images[5:]],
@@ -280,7 +280,7 @@ class OriginalLiveDebugTests(unittest.TestCase):
         window.on_original_click(SimpleNamespace(x=20, y=78))
         self.assertIs(live.snapshot().screen, FrontEndScreen.START_MENU)
         self.assertEqual(len(window.canvas.images), 9)
-        window.on_original_click(SimpleNamespace(x=7, y=478))
+        window.on_original_click(SimpleNamespace(x=141, y=512))
         self.assertIs(live.snapshot().screen, FrontEndScreen.TEAM_SELECT)
         self.assertEqual(len(window.canvas.images), 3)
         window.on_original_click(SimpleNamespace(x=20, y=78))

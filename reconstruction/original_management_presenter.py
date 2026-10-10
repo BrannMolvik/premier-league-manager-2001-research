@@ -59,6 +59,7 @@ from original_squad_resources import (
     SQUAD_VISIBLE_ROW_COUNT,
     squad_view_transition,
 )
+from original_squad_paired_presenter import OriginalPairedSquadSnapshot
 
 
 class OriginalManagementPresentationError(ValueError):
@@ -74,6 +75,7 @@ class OriginalFreshManagementSnapshot:
     squad_view_transition: OriginalSquadViewTransition
     source_squad_count: int
     rows_beyond_initial_viewport: int
+    paired_squad: OriginalPairedSquadSnapshot | None = None
 
 
 @dataclass(frozen=True)
@@ -92,6 +94,7 @@ class OriginalManagementPanelSnapshot:
     fixtures_in_source_order: tuple[FixtureRowView, ...] = ()
     league_fixtures: OriginalLeagueFixturesSnapshot | None = None
     league_tables: OriginalLeagueTablesSnapshot | None = None
+    paired_squad: OriginalPairedSquadSnapshot | None = None
 
 
 @dataclass(frozen=True)
@@ -188,16 +191,20 @@ def build_management_panel_snapshot(
             raise OriginalManagementPresentationError(str(exc)) from exc
         source_rows = tuple(bridge.squad_rows())
         visible_rows = source_rows[:SQUAD_VISIBLE_ROW_COUNT]
+        paired_resolver = getattr(bridge, 'original_paired_squad', None)
+        paired = paired_resolver(source_rows) if callable(paired_resolver) else None
         return OriginalManagementPanelSnapshot(
             club=club,
             menu=menu,
             header_match=header_match,
             panel_code=SQUAD_PANEL_CODE,
             panel_class=SQUAD_PANEL_CLASS,
-            squad=build_squad_row_viewport(visible_rows),
+            squad=paired.first if paired is not None else build_squad_row_viewport(visible_rows),
+            paired_squad=paired,
             squad_view_transition=view_transition,
             source_squad_count=len(source_rows),
-            rows_beyond_initial_viewport=max(0, len(source_rows) - len(visible_rows)),
+            rows_beyond_initial_viewport=(len(paired.unpresented_player_ids) if paired is not None
+                                         else max(0, len(source_rows) - len(visible_rows))),
         )
 
     if selected_child_id == LEAGUE_FIXTURES_PANEL.menu_id:
@@ -260,6 +267,7 @@ def build_fresh_management_snapshot(
         squad_view_transition=snapshot.squad_view_transition,
         source_squad_count=snapshot.source_squad_count,
         rows_beyond_initial_viewport=snapshot.rows_beyond_initial_viewport,
+        paired_squad=snapshot.paired_squad,
     )
 
 
@@ -279,6 +287,17 @@ class OriginalManagementPresenter:
     expanded_root_id: int | None = None
     squad_view_control_id: int = 3
     league_fixtures_column_offset: int = 0
+
+    def __post_init__(self):
+        # Recreated UI after source save/load still runs its real constructor;
+        # never rerun the first-season selector or fall back to database-first20.
+        gameplay = self.session.gameplay
+        state = getattr(gameplay, 'state', None)
+        human = getattr(gameplay, 'human', None)
+        club_id = getattr(human, 'club_id', None)
+        retained = getattr(state, 'native_squad_first_formations', {})
+        if club_id in retained and getattr(gameplay, 'original_squad_membership', None) is None:
+            gameplay.original_squad_membership = state.construct_original_primary_squad_membership(club_id)
 
     def snapshot(self) -> OriginalManagementPanelSnapshot:
         return build_management_panel_snapshot(
@@ -333,6 +352,9 @@ class OriginalManagementPresenter:
 
         action = resolve_pmenu_row_action(row_kind, menu_id, source_flags)
         if not action.accepted:
+            return OriginalManagementPMenuActivation(action, current)
+
+        if action.action_kind == 'return_to_pstartmenu':
             return OriginalManagementPMenuActivation(action, current)
 
         if action.action_kind == "expand_root":

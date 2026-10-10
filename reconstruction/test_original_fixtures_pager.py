@@ -1,6 +1,6 @@
 import unittest
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from original_fixtures_pager import (
     fixtures_page_controls, fixtures_page_press, OriginalFixturesPagerArt,
 )
@@ -41,7 +41,8 @@ class FixturesPagerTests(unittest.TestCase):
         host.fixtures_pager_art=OriginalFixturesPagerArt((b'\0'*(27*18*4),)*4,(b'\0'*(27*18*4),)*4)
         calls=[]
         panel=SimpleNamespace(panel_class='PLeagueFixtures',league_fixtures=SimpleNamespace(member_club_ids=tuple(range(20))))
-        owner=SimpleNamespace(league_fixtures_column_offset=0,snapshot=lambda:panel)
+        owner=SimpleNamespace(selected_child_id=0x25C,
+                              league_fixtures_column_offset=0,snapshot=lambda:panel)
         def accepted(direction):
             calls.append(direction)
             owner.league_fixtures_column_offset=8 if direction==1 else 0
@@ -73,7 +74,7 @@ class FixturesPagerTests(unittest.TestCase):
                 management_pmenu_resources=object(),
                 squad_top_resources=fake_squad_top_resources(),
                 squad_row_text_resources=fake_squad_row_text_resources())
-            host.on_click(SimpleNamespace(x=7,y=478)); live.choose_club(12)
+            host.on_click(SimpleNamespace(x=141,y=512)); live.choose_club(12)
             host.on_click(SimpleNamespace(x=426,y=301))
             host.management_presenter.navigate(0x25C)
             # Synthetic source bridge has four clubs; qualify only this test's
@@ -90,6 +91,46 @@ class FixturesPagerTests(unittest.TestCase):
                 self.assertFalse(host.fixtures_pager_flags[1]&0x10)
         host.active_pmatchinfo_art=object()
         self.assertEqual(host._fixtures_page_controls(),())
+
+    def test_retained_fixtures_art_does_not_rebuild_other_panels_on_motion(self):
+        from original_game_host import OriginalGameTkHost
+        from test_original_game_host import presenter, FakeRoot, FakeTk
+        from front_end_state import FrontEndScreen
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        # Decoded Fixtures resources remain resident after navigating away.
+        host.fixtures_pager_art = OriginalFixturesPagerArt((), ())
+        owner = SimpleNamespace(selected_child_id=0xCE, snapshot=Mock())
+        host.management_presenter = owner
+        with patch.object(host, '_schedule_management_header_update'), \
+                patch.object(host, 'redraw') as redraw:
+            for child_id in (0xCE, 0x25A):
+                owner.selected_child_id = child_id
+                for _ in range(100):
+                    host.on_fixtures_pager_motion(SimpleNamespace(x=0, y=0))
+                self.assertEqual(host._draw_fixtures_pager(), 0)
+            owner.snapshot.assert_not_called()
+            redraw.assert_not_called()
+
+    def test_active_fixtures_still_reads_live_snapshot_and_modal_short_circuits(self):
+        from original_game_host import OriginalGameTkHost
+        from test_original_game_host import presenter, FakeRoot, FakeTk
+        from front_end_state import FrontEndScreen
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.fixtures_pager_art = OriginalFixturesPagerArt((), ())
+        panel = SimpleNamespace(panel_class='PLeagueFixtures',
+            league_fixtures=SimpleNamespace(member_club_ids=tuple(range(20))))
+        owner = SimpleNamespace(selected_child_id=0x25C,
+            league_fixtures_column_offset=0, snapshot=Mock(return_value=panel))
+        host.management_presenter = owner
+        self.assertEqual(tuple(c.event_id for c in host._fixtures_page_controls()), (39, 40))
+        owner.snapshot.assert_called_once_with()
+        host.active_pmatchinfo_art = object()
+        self.assertEqual(host._fixtures_page_controls(), ())
+        self.assertEqual(owner.snapshot.call_count, 1)
 
 
 if __name__=='__main__': unittest.main()

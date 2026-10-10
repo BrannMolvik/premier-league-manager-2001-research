@@ -24,6 +24,41 @@ Acceptable evidence includes, as appropriate:
 
 Unit tests, current reconstructed behavior, prior worker assumptions, generic UI conventions, modern best practices, visual similarity, or a previous reconstruction are **not** evidence of original behavior by themselves.
 
+## Hard audit gate: unverified means unsafe to build on
+
+Daniel's 9 October instruction applies equally to existing research, prior
+closure claims, sub-agent findings and new work: a finding is NOT established
+until fully verified for its exact claimed scope. Repetition, agent agreement
+and passing reconstruction tests do not establish original behaviour.
+
+"100% certain" means no unresolved assumption required by the bounded behaviour
+being implemented, not absolute certainty about the whole game. Unknown is not
+proven false; it is untrusted and cannot be an implementation dependency.
+
+Before accepting a finding, require:
+
+1. Verified original identity, applicable context, owner, actual producer,
+   caller/reachability and lifecycle; distinguish native behaviour from probe
+   adaptations, injected fixture inputs and emulated/stubbed leaves.
+2. Reproducible original evidence and expected outputs, including relevant
+   boundary cases. Expected outputs must not come from the implementation
+   being audited.
+3. Independent challenge/reproduction and a deliberate search for counterexamples.
+   Repeating the same unsupported statement is not independent verification.
+4. Actual application input/output ownership and ordinary interaction/render/
+   persistence checks for integration acceptance. A bounded function proof
+   does not certify an integrated or visible path.
+5. A record of scope, evidence, assumptions/unknowns, dependent files/behaviours,
+   reviewer and status. Keep SOURCE-VERIFIED, INTEGRATION-VERIFIED and
+   VISIBLE-ACCEPTED separate; never silently promote one into another.
+
+On conflicting evidence, counterexamples or unresolved required inputs: mark
+the claim disputed/unverified, stop dependent work and quarantine its acceptance.
+Preserve user changes and the last verified snapshot. Recheck the original and
+affected dependency chain before proceeding; do not patch around the symptom
+or perform a broad rollback without evidence. Independently verified unaffected
+work may continue. See `GATE13_ORIGINAL_BEHAVIOUR_RECOVERY_PLAN.md`.
+
 ## Unknown means unknown
 
 If original behavior is not yet established:

@@ -75,6 +75,19 @@ PSTARTMENU_ACTIONS = (
     OriginalMenuAction(4, 6, OriginalRect(181, 508, 169, 25)),
 )
 
+# The above rectangles are owner-local, not screen coordinates. PStartMenu
+# registers at (134,34) through 0x5312A8 -> 0x653320. Its shared draw owner
+# 0x6533A0 adds +0x0C/+0x10; pointer dispatch 0x653480 subtracts those values.
+# Keep derivative captions/asset metadata local and translate only at the
+# live presentation/input boundary.
+PSTARTMENU_SCREEN_ACTIONS = tuple(
+    OriginalMenuAction(action.event, action.language_index, OriginalRect(
+        action.rect.x + PSTARTMENU_BACKGROUND_RECT.x,
+        action.rect.y + PSTARTMENU_BACKGROUND_RECT.y,
+        action.rect.width, action.rect.height,
+    )) for action in PSTARTMENU_ACTIONS
+)
+
 # 0x4D7D82..0x4D80BF constructs sixteen hierarchy rows by repeatedly
 # calling 0x4D8C60 with x=20 and y=78+30*i. 0x4D8C60 in turn binds the
 # original choice_league animation/bar resources.

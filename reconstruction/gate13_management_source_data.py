@@ -34,6 +34,7 @@ class ClubHeaderView:
     graphics_directory: str = ''
     fan_base_index: int = 0
     competition_id: int = -1
+    native_user_club_caption: str | None = None
 
 
 @dataclass(frozen=True)
@@ -80,6 +81,8 @@ class SquadRowView:
     non_eu: bool = False
     non_eu_registration_expired: bool | None = None
     cup_tied_positive: bool = False
+    # Selected by 41E3F0 -> 41E3D0 for the represented club, not simply +70.
+    club_relative_assignment: int | None = None
 
 
 @dataclass(frozen=True)
@@ -994,6 +997,11 @@ class ManagementSourceDataBridge:
             ),
             fan_base_index=getattr(club, 'fan_base_index', 0),
             competition_id=getattr(club, 'competition_id', -1),
+            # Native fresh-user constructor 424F3F writes byte +D0 = 0;
+            # setup 4258D0 and registration 426090 preserve that buffer.
+            # The ordinary reconstructed host has no user-club rename/import
+            # producer. Do not infer this for arbitrary legacy view fixtures.
+            native_user_club_caption='',
         )
 
     def management_header_match(self) -> ManagementHeaderMatchView | None:
@@ -1079,8 +1087,17 @@ class ManagementSourceDataBridge:
         """Return proven ordered-roster/selection backend metadata only."""
         return SQUAD_PRESENTATION_CONTRACT
 
+    def original_paired_squad(self, rows):
+        """Read retained constructor output; never choose or mutate a lineup."""
+        membership = getattr(self.controller, 'original_squad_membership', None)
+        if membership is None:
+            return None
+        from original_squad_paired_presenter import build_paired_squad_snapshot
+        return build_paired_squad_snapshot(membership, rows)
+
     def squad_rows(self) -> tuple[SquadRowView, ...]:
-        self._human_club_id()
+        represented_club_id = self._human_club_id()
+        from original_squad_row_style import select_squad_shirt_number
         squad = getattr(self.controller, "squad", None)
         if not callable(squad):
             raise ManagementPresentationError("Controlled-club roster is unavailable")
@@ -1259,13 +1276,27 @@ class ManagementSourceDataBridge:
                         except (KeyError, TypeError, ValueError, RuntimeError):
                             cup_tied_positive = False
 
+            primary_number = getattr(player, "shirt_number", None)
+            if type(primary_number) is not int or not 0 <= primary_number <= 0xFF:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no valid source shirt-number byte")
+            try:
+                assignment = select_squad_shirt_number(
+                    registered_club_id=registered_club_id,
+                    represented_club_id=represented_club_id,
+                    primary_number=primary_number,
+                    alternate_number=getattr(player, "alternate_shirt_number", None))
+            except ValueError as exc:
+                raise ManagementPresentationError(str(exc)) from exc
+
             rows.append(SquadRowView(
                 source_roster_index=source_index,
                 player_id=player_id,
                 first_name=first_name,
                 surname=surname,
                 full_name=self._player_name(player),
-                shirt_number=int(getattr(player, "shirt_number", 0)),
+                shirt_number=primary_number,
+                club_relative_assignment=assignment,
                 positions=positions,
                 current_position=current_position,
                 assigned_role_abbreviation=abbreviation,

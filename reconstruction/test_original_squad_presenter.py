@@ -36,6 +36,42 @@ class Row:
 
 
 class OriginalSquadPresenterTests(unittest.TestCase):
+    def test_source_qualified_shirt_bytes_resolve_only_the_number_column(self):
+        from types import SimpleNamespace
+        from dataclasses import asdict
+        row = SimpleNamespace(**(asdict(self.row()) | {'club_relative_assignment': 0}))
+        view = build_squad_row_viewport((row, None, row))
+        self.assertEqual([r.club_relative_assignment for r in view.rows], [0, 0])
+        self.assertEqual([r.visible_index for r in view.rows], [0, 2])
+        self.assertTrue(view.player_columns[0].value_resolved)
+        self.assertEqual(view.unresolved_value_columns, ('native_status_icon',))
+        unknown = SimpleNamespace(**(asdict(self.row(1)) | {'club_relative_assignment': None}))
+        view = build_squad_row_viewport((row, unknown))
+        self.assertFalse(view.player_columns[0].value_resolved)
+        self.assertIn('club_relative_assignment', view.unresolved_value_columns)
+        for value in (True, -1, 256, '1'):
+            row.club_relative_assignment = value
+            with self.assertRaises(OriginalSquadPresentationError):
+                build_squad_row_viewport((row,))
+
+    def test_retained_reserve_flags_render_unselected_names_without_guesses(self):
+        from types import SimpleNamespace
+        from dataclasses import asdict
+        row = SimpleNamespace(**(asdict(self.row(2)) | {
+            'reserve_active': False, 'reserve_substitute': False,
+        }))
+        self.assertEqual(build_squad_row_viewport((row,)).rows[0].display_name_rgb,
+                         (217, 210, 62))
+        row.reserve_active = True
+        self.assertEqual(build_squad_row_viewport((row,)).rows[0].display_name_rgb,
+                         (176, 176, 176))
+        row.reserve_active = False
+        row.reserve_substitute = True
+        self.assertEqual(build_squad_row_viewport((row,)).rows[0].display_name_rgb,
+                         (185, 167, 131))
+        row.reserve_substitute = None
+        self.assertIsNone(build_squad_row_viewport((row,)).rows[0].display_name_rgb)
+
     def row(self, index=0):
         return Row(
             index,
