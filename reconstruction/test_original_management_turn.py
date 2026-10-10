@@ -9,6 +9,7 @@ import unittest
 
 from game_state import GameCalendar
 from human_gameplay import HumanGameplayController
+from match_detail_mode import MatchDetailMode
 from primary_schedule_shadow import PrimaryScheduleShadowState, PrimaryScheduleShadowEntry
 from competition_schedule import direct_club_ref
 
@@ -78,6 +79,12 @@ class OriginalManagementTurnTests(unittest.TestCase):
         c = self.controller(self.today + timedelta(days=1), (before, human, after))
         result = self.advance(c, self.today + timedelta(days=1))
         self.assertEqual(result.pending_primary_entry, human)
+        self.assertEqual(
+            (result.results_progress.processed_count,
+             result.results_progress.total_count,
+             result.results_progress.native_width),
+            (2, 3, 530),
+        )
         self.assertEqual(result.processed_dates, (self.today + timedelta(days=1),))
         self.assertEqual([call.args[0] for call in c.state.simulate_primary_ai_entry.call_args_list],
                          [before, after])
@@ -92,6 +99,26 @@ class OriginalManagementTurnTests(unittest.TestCase):
         self.assertEqual(repeated.processed_dates, ())
         self.assertEqual(repeated.pending_primary_entry, human)
         self.assertEqual(c.state.simulate_primary_ai_entry.call_count, 2)
+
+    def test_public_next_refuses_pending_match_before_mutable_selector(self):
+        human = ('premier_league', 7)
+        c = self.controller(self.today, (human,))
+        c.state.primary_schedule_end_date = self.end
+        c.pending_primary_entry = human
+        before_days = dict(c.state.primary_schedule_shadow.days)
+        with patch.object(
+            c.state.primary_schedule_shadow,
+            'ordinary_next_candidate',
+            side_effect=AssertionError('mutable Side selector entered'),
+        ):
+            result = c.advance_original_management()
+        self.assertEqual(result.processed_dates, ())
+        self.assertEqual(result.pending_primary_entry, human)
+        self.assertEqual(result.target.current_date, self.today)
+        self.assertEqual(result.target.target_date, self.today)
+        self.assertEqual(c.state.primary_schedule_shadow.days, before_days)
+        c.current_selection.assert_not_called()
+        c.state.simulate_primary_ai_entry.assert_not_called()
 
     def test_current_day_and_zero_length_do_not_reprocess_today(self):
         for next_date, length in ((self.today, 7), (None, 0)):
@@ -199,8 +226,12 @@ class OriginalManagementTurnTests(unittest.TestCase):
         self.assertEqual(flags, {entry[1]: int(entry != human) for entry in due})
         self.assertEqual(tuple(entry for entry, _ in restored._pending_prior_primary_results), ai_order)
         self.assertEqual(restored._pending_after_primary_entries, ())
-        outcome = restored.play_original_user_primary_match()
+        outcome = restored.play_original_user_primary_match(MatchDetailMode.QUICK_MATCH)
         self.assertEqual(tuple(entry for entry, _ in outcome.matchday_results), ai_order + (human,))
+        self.assertEqual(outcome.source_mode_preparation.mode, MatchDetailMode.QUICK_MATCH)
+        self.assertFalse(outcome.source_mode_preparation.clears_context_byte_1145)
+        self.assertEqual(outcome.results_progress.processed_count,
+                         outcome.results_progress.total_count)
         self.assertEqual(len(restored.state.premier_league.results), 10)
         self.assertIsNone(restored.pending_primary_entry)
         self.assertTrue(all(e.payload_filter_bits == 1

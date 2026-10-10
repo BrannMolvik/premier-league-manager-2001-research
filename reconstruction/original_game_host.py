@@ -60,7 +60,12 @@ from gate14_live_first_screen_audio import (
 from gate14_match_detail_route_source import (
     MatchPresentationRoute,
     source_match_detail_dispatch,
+    source_requires_prematch_modal,
 )
+from match_detail_mode import MatchDetailMode
+from original_button_frames import OriginalButtonState
+from original_prematch_panel import PREMATCH_SELECTORS, prematch_selector_at_point
+from gate14_prematch_compositor_source import prematch_selector_caption_color16
 from gate14_fastview_human_tk_window import open_human_fastview_tk_window
 from original_first_screen_presenter import (
     OriginalFirstScreenPresenter,
@@ -388,6 +393,7 @@ class OriginalGameTkHost:
         management_next_art=None,
         management_text_resources=None,
         management_resource_loader=None,
+        prematch_resource_loader=None,
         management_thread_factory=Thread,
     ):
         self.presenter = presenter
@@ -423,8 +429,15 @@ class OriginalGameTkHost:
         self._management_turn_queue = None
         self._management_turn_thread = None
         self._management_turn_poll = None
+        self.prematch_surface = None
+        self._prematch_selector_states = {
+            int(selector.mode): OriginalButtonState() for selector in PREMATCH_SELECTORS
+        }
+        self._prematch_idle = None
+        self.last_results_progress = None
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
+        self.prematch_resource_loader = prematch_resource_loader
         if not callable(management_thread_factory):
             raise OriginalGameHostError("management_thread_factory must be callable")
         self.management_thread_factory = management_thread_factory
@@ -1209,7 +1222,7 @@ class OriginalGameTkHost:
 
     def _begin_original_management_turn(self) -> None:
         """Run the existing transactional NEXT without starving Tk's message pump."""
-        if self._management_turn_thread is not None:
+        if self._original_match_input_owner() is not None:
             return
         gameplay = self.presenter.session.gameplay
         if not callable(getattr(gameplay, 'advance_original_management', None)):
@@ -1225,9 +1238,17 @@ class OriginalGameTkHost:
                 # advance_original_management stages its graph; publish only on Tk's thread.
                 staged = copy(gameplay)
                 outcome = staged.advance_original_management()
-                result_queue.put(('ok', staged, outcome))
+                prematch_surface = None
+                if (outcome.pending_primary_entry is not None
+                        and source_requires_prematch_modal(
+                            self.presenter.session.match_detail_settings_owner_present,
+                            self.presenter.session.match_detail_mode)
+                        and self.prematch_resource_loader is not None):
+                    prematch_surface = self.prematch_resource_loader(
+                        staged, outcome.pending_primary_entry)
+                result_queue.put(('ok', staged, outcome, prematch_surface))
             except Exception as exc:
-                result_queue.put(('error', exc, traceback.format_exc()))
+                result_queue.put(('error', exc, traceback.format_exc(), None))
 
         try:
             self._management_turn_thread = self.management_thread_factory(target=worker, daemon=True)
@@ -1241,12 +1262,60 @@ class OriginalGameTkHost:
         self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
         self.redraw()
 
+    def _begin_original_human_match(self, mode: MatchDetailMode) -> None:
+        dispatch = source_match_detail_dispatch(mode)
+        if dispatch.route is not MatchPresentationRoute.QUICK_MATCH:
+            raise OriginalGameHostError(
+                "Selected Match Detail mode requires an unfinished source renderer; "
+                "the human match was not calculated"
+            )
+        gameplay = self.presenter.session.gameplay
+        if not callable(getattr(gameplay, 'play_original_user_primary_match', None)):
+            raise OriginalGameHostError(
+                "Pending match requires the native event-aware controller")
+        result_queue = Queue()
+        self._management_turn_queue = result_queue
+        self.prematch_surface = None
+        self.root.configure(cursor='watch')
+
+        def worker():
+            try:
+                staged = copy(gameplay)
+                outcome = staged.play_original_user_primary_match(mode)
+                result_queue.put(('progress', outcome.results_progress, None, None))
+                result_queue.put(('match_ok', staged, outcome, mode))
+            except Exception as exc:
+                result_queue.put(('error', exc, traceback.format_exc(), None))
+
+        try:
+            self._management_turn_thread = self.management_thread_factory(
+                target=worker, daemon=True)
+            self._management_turn_thread.start()
+        except Exception:
+            self._management_turn_queue = None
+            self._management_turn_thread = None
+            self.root.configure(cursor='')
+            raise
+        self._management_turn_poll = self.root.after(
+            25, self._poll_original_management_turn)
+        self.redraw()
+
     def _poll_original_management_turn(self) -> None:
         self._management_turn_poll = None
         try:
-            status, payload, outcome = self._management_turn_queue.get_nowait()
+            status, payload, outcome, auxiliary = self._management_turn_queue.get_nowait()
         except Empty:
             self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
+            return
+        if status == 'progress':
+            self.last_results_progress = payload
+            self.last_status = (
+                "Original PResults event progress "
+                f"{payload.processed_count}/{payload.total_count}; "
+                f"native width {payload.native_width}"
+            )
+            self._management_turn_poll = self.root.after(
+                25, self._poll_original_management_turn)
             return
         self._management_turn_queue = None
         self._management_turn_thread = None
@@ -1260,10 +1329,53 @@ class OriginalGameTkHost:
             return
         gameplay = self.presenter.session.gameplay
         gameplay.__dict__.update(payload.__dict__)
+        self.last_results_progress = getattr(outcome, 'results_progress', None)
+        if status == 'match_ok':
+            self._prematch_selector_states = {
+                int(selector.mode): OriginalButtonState()
+                for selector in PREMATCH_SELECTORS
+            }
+            self.present_completed_match_by_source_mode(outcome, auxiliary)
+            self.redraw()
+            score = getattr(outcome.user_result, 'score', None)
+            self.last_status = (
+                f"Original Quick Match completed {outcome.match_entry!r}"
+                + ("" if score is None else f" score {tuple(score)!r}")
+                + "; PResults returned to management"
+            )
+            return
+        self.prematch_surface = auxiliary
+        if outcome.pending_primary_entry is not None:
+            try:
+                needs_modal = source_requires_prematch_modal(
+                    self.presenter.session.match_detail_settings_owner_present,
+                    self.presenter.session.match_detail_mode)
+            except Exception as exc:
+                self.last_status = f'{type(exc).__name__}: {exc}'
+                self.error_reporter(self.last_status)
+                return
+            if not needs_modal:
+                self._begin_original_human_match(
+                    self.presenter.session.match_detail_mode)
+                return
+            self.redraw()
+            self.last_status = (
+                "Original NEXT reached conditional PPreMatch event "
+                f"{outcome.pending_primary_entry!r}"
+            )
+            return
         self.redraw()
-        self.last_status = ('Original NEXT reached pending pre-match event '
-                            f'{outcome.pending_primary_entry!r}' if outcome.pending_primary_entry
-                            else f'Original NEXT advanced to {gameplay.state.calendar.current_date}')
+        self.last_status = (
+            f'Original NEXT advanced to {gameplay.state.calendar.current_date}')
+
+    def _original_match_input_owner(self) -> str | None:
+        """Return the source owner that excludes ordinary background input."""
+        if self._management_turn_thread is not None:
+            return 'results'
+        gameplay = self.presenter.session.gameplay
+        if getattr(gameplay, 'pending_primary_entry', None) is not None:
+            return 'prematch'
+        return None
 
     def _schedule_management_header_update(self) -> None:
         if (
@@ -1833,6 +1945,19 @@ class OriginalGameTkHost:
         if getattr(self, "_startup_media_active", False):
             return
         event = self._normalize_pointer_event(event)
+        owner = self._original_match_input_owner()
+        if owner == 'results':
+            return
+        if owner == 'prematch':
+            if self.prematch_surface is None:
+                return
+            x, y = int(event.x), int(event.y)
+            for selector in self.prematch_surface.selectors:
+                rect = selector.rect
+                self._prematch_selector_states[int(selector.mode)].set_pointer_inside(
+                    rect.x <= x < rect.right and rect.y <= y < rect.bottom)
+            self._schedule_prematch_update()
+            return
         self._first_screen_pointer = (int(event.x), int(event.y))
         self._update_squad_background_hover(int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
@@ -2043,9 +2168,74 @@ class OriginalGameTkHost:
             f"{panel_status}{dialog_status}{header_status}; {shell_status}"
         )
 
+    def _draw_prematch(self) -> None:
+        """Draw only the already source-verified partial 800x600 panel layers."""
+        boundary = self.prematch_surface
+        if boundary is None:
+            self.last_status = "PPreMatch owns input; verified panel resources unavailable"
+            return
+        self.canvas.delete("all")
+        self._photos = []
+
+        def draw(layer):
+            photo = self._rgba_photo(
+                layer.rect.width, layer.rect.height, layer.rgba)
+            self._create_native_image(
+                layer.rect.x, layer.rect.y, image=photo, anchor=self.tk.NW)
+
+        draw(boundary.background)
+        static = {layer.role: layer for layer in boundary.static_layers}
+        draw(static.pop("top_bar"))
+        draw(static.pop("pitch"))
+        for layer in boundary.team_badges:
+            draw(layer)
+        for layer in static.values():
+            draw(layer)
+
+        for selector in boundary.selectors:
+            state = self._prematch_selector_states[int(selector.mode)]
+            frame = selector.atlas.frame_for_state(state)
+            photo = self._rgba_photo(frame.width, frame.height, frame.rgba)
+            self._create_native_image(
+                selector.rect.x, selector.rect.y,
+                image=photo, anchor=self.tk.NW)
+            mask = boundary.font.render_text_alpha(selector.label)
+            color = prematch_selector_caption_color16(state.source_frame_index)
+            caption = self._rgba_photo(
+                mask.width, mask.height, endpoint_text_rgba(mask.alpha, color))
+            x = selector.rect.x + (selector.rect.width - mask.width) // 2
+            y = selector.rect.y + (
+                selector.rect.height - boundary.font.native_line_height()) // 2
+            self._create_native_image(x, y, image=caption, anchor=self.tk.NW)
+        self.last_status = (
+            "Original conditional PPreMatch owns input; source selector active; "
+            "unresolved child pixels remain omitted"
+        )
+
+    def _schedule_prematch_update(self) -> None:
+        if self._prematch_idle is None:
+            self._prematch_idle = self.root.after(16, self._update_prematch_controls)
+
+    def _update_prematch_controls(self) -> None:
+        self._prematch_idle = None
+        if self._original_match_input_owner() != 'prematch':
+            return
+        changed = False
+        for state in self._prematch_selector_states.values():
+            changed |= state.update()
+        if changed:
+            self._draw_prematch()
+            self._schedule_prematch_update()
+
     def redraw(self) -> None:
         if getattr(self, "_startup_media_active", False):
             return  # Keep the black source movie field above the menu.
+        owner = self._original_match_input_owner()
+        if owner == 'prematch':
+            self._draw_prematch()
+            return
+        if owner == 'results':
+            return  # Retain the last source-owned frame; no invented PResults pixels.
         screen = self.presenter.session.navigation.screen
         if screen in (
             FrontEndScreen.START_MENU,
@@ -2275,7 +2465,7 @@ class OriginalGameTkHost:
 
     def on_fixture_report_press(self, event) -> None:
         if (getattr(self, "_startup_media_active", False)
-                or self._management_turn_thread is not None):
+                or self._original_match_input_owner() is not None):
             return
         event = self._normalize_pointer_event(event)
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
@@ -2318,7 +2508,7 @@ class OriginalGameTkHost:
 
     def on_script_arrow_release(self, event) -> None:
         if (getattr(self, "_startup_media_active", False)
-                or self._management_turn_thread is not None):
+                or self._original_match_input_owner() is not None):
             return
         event = self._normalize_pointer_event(event)
         if self._release_original_squad_row(event):
@@ -2398,9 +2588,27 @@ class OriginalGameTkHost:
     def on_click(self, event) -> None:
         if getattr(self, "_startup_media_active", False):
             return  # Startup skip/menu semantics are not inferred from input.
-        if self._management_turn_thread is not None:
-            return  # PResults/native progression owns input until management reentry.
+        owner = self._original_match_input_owner()
+        if owner == 'results':
+            return
         event = self._normalize_pointer_event(event)
+        if owner == 'prematch':
+            if self.prematch_surface is None:
+                self.last_status = (
+                    "PPreMatch owns input; verified panel resources unavailable")
+                return
+            selector = prematch_selector_at_point(int(event.x), int(event.y))
+            if selector is None:
+                self.last_status = "PPreMatch owns input; no selector at this point"
+                return
+            try:
+                selected = self.presenter.session.source_accepted_match_detail_selection(
+                    selector.mode)
+                self._begin_original_human_match(selected)
+            except Exception as exc:
+                self.last_status = f'{type(exc).__name__}: {exc}'
+                self.error_reporter(self.last_status)
+            return
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self._management_load_thread is not None:
                 self.last_status = (
@@ -2775,6 +2983,25 @@ def run_original_game_ui(
             f"Unsupported management resource family: {family!r}"
         )
 
+    def load_prematch_resources(gameplay, entry):
+        from gate14_prematch_surface import build_verified_prematch_surface_boundary
+
+        pair = gameplay._primary_entry_clubs(entry)
+        if pair is None:
+            raise OriginalGameHostError(
+                "PPreMatch participant ownership is unresolved")
+        with timed_stage("prematch.resources"):
+            return build_verified_prematch_surface_boundary(
+                match_date=gameplay.state.calendar.current_date,
+                clubs=gameplay.state.clubs,
+                countries=gameplay.state.countries,
+                home_club_id=pair[0],
+                away_club_id=pair[1],
+                background_club_override_id=None,
+                source_root=resolved_source_root,
+                original_executable=original_executable,
+            )
+
     import tkinter as tk
 
     from windows_display_context import initialize_windows_display_context
@@ -2796,6 +3023,7 @@ def run_original_game_ui(
             ),
         ),
         management_resource_loader=load_management_resources,
+        prematch_resource_loader=load_prematch_resources,
     )
     if startup_media_backend is not None:
         host._startup_native_input = getattr(startup_media_backend, 'request_native_input', None)

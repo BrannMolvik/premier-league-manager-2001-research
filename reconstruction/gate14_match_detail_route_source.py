@@ -51,6 +51,9 @@ THREED_PRESENTATION_WRAPPER_VA = 0x533D80
 MODE_DISPATCH_BRANCH_VA = 0x51325D
 FASTVIEW_CALLSITE_VA = 0x513272
 THREED_CALLSITE_VA = 0x51328C
+MODE_PREPARATION_BRANCH_VA = 0x51312F
+MODE_THREED_PRECLEAR_VA = 0x632B50
+MODE_SHARED_PREPARATION_VA = 0x632B20
 
 
 class MatchPresentationRoute(Enum):
@@ -90,6 +93,42 @@ class SourceMatchDetailDispatch:
             self.wrapper_variant,
         ) != expected:
             raise ValueError("dispatch does not match source mode branch")
+
+
+@dataclass(frozen=True)
+class SourceMatchModePreparation:
+    mode: MatchDetailMode
+    clears_context_byte_1145: bool
+    shared_preparation_va: int = MODE_SHARED_PREPARATION_VA
+
+
+def source_requires_prematch_modal(
+    settings_owner_present: bool | None,
+    mode: int | MatchDetailMode | None,
+) -> bool:
+    """Mirror 0x513010's exact owner-null OR sentinel-5 predicate."""
+    if settings_owner_present is not None and type(settings_owner_present) is not bool:
+        raise ValueError("Match Detail settings-owner state must be bool or None")
+    if mode is None:
+        return True
+    coerce_match_detail_mode(mode)
+    if settings_owner_present is None:
+        raise RuntimeError("Match Detail settings-owner availability is unknown")
+    return not settings_owner_present
+
+
+def source_match_mode_preparation(
+    mode: int | MatchDetailMode,
+) -> SourceMatchModePreparation:
+    """Return the proven pre-calculator branch without naming unknown effects."""
+    selected = coerce_match_detail_mode(mode)
+    return SourceMatchModePreparation(
+        mode=selected,
+        clears_context_byte_1145=selected in (
+            MatchDetailMode.THREE_D_MATCH,
+            MatchDetailMode.THREE_D_HIGHLIGHTS,
+        ),
+    )
 
 
 def source_match_detail_dispatch(
@@ -142,6 +181,9 @@ def match_detail_route_source_contract() -> dict:
         "sentinel": MATCH_DETAIL_SENTINEL,
         "fastview_wrapper_va": FASTVIEW_PRESENTATION_WRAPPER_VA,
         "three_d_wrapper_va": THREED_PRESENTATION_WRAPPER_VA,
+        "mode_preparation_branch_va": MODE_PREPARATION_BRANCH_VA,
+        "mode_three_d_preclear_va": MODE_THREED_PRECLEAR_VA,
+        "mode_shared_preparation_va": MODE_SHARED_PREPARATION_VA,
         "mode_routes": tuple(
             (
                 int(mode),
