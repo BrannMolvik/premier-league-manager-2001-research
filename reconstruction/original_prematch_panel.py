@@ -486,6 +486,17 @@ PREMATCH_SELECTORS = (
     ),
 )
 
+
+def prematch_selector_at_point(x: int, y: int) -> PrematchSelectorSpec | None:
+    """Return the native four-button owner at one 800x600 client point."""
+    if type(x) is not int or type(y) is not int:
+        raise OriginalPrematchPanelError("pre-match pointer coordinates must be integers")
+    for selector in PREMATCH_SELECTORS:
+        rect = selector.rect
+        if rect.x <= x < rect.right and rect.y <= y < rect.bottom:
+            return selector
+    return None
+
 PREMATCH_STATIC_PLACEMENTS = (
     PrematchPlacement("top_bar", PREMATCH_TOP_BAR, OriginalRect(0, 0, 800, 95)),
     PrematchPlacement("pitch", PREMATCH_PITCH, OriginalRect(269, 152, 261, 374)),

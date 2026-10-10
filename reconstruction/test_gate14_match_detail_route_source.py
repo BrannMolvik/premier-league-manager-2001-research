@@ -8,6 +8,8 @@ from gate14_match_detail_route_source import (
     THREED_PRESENTATION_WRAPPER_VA,
     match_detail_route_source_contract,
     source_match_detail_dispatch,
+    source_match_mode_preparation,
+    source_requires_prematch_modal,
 )
 from match_detail_mode import MatchDetailMode
 
@@ -75,6 +77,25 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                 (3, "quick_match", None, None),
             ),
         )
+
+    def test_modal_predicate_keeps_settings_owner_unknown_distinct(self):
+        self.assertTrue(source_requires_prematch_modal(None, None))
+        self.assertTrue(source_requires_prematch_modal(False, MatchDetailMode.QUICK_MATCH))
+        self.assertTrue(source_requires_prematch_modal(True, None))
+        self.assertFalse(source_requires_prematch_modal(
+            True, MatchDetailMode.QUICK_MATCH))
+        with self.assertRaisesRegex(RuntimeError, "owner availability is unknown"):
+            source_requires_prematch_modal(None, MatchDetailMode.QUICK_MATCH)
+
+    def test_mode_preparation_preserves_three_d_preclear_boundary(self):
+        for mode in MatchDetailMode:
+            with self.subTest(mode=mode):
+                preparation = source_match_mode_preparation(mode)
+                self.assertEqual(
+                    preparation.clears_context_byte_1145,
+                    mode in (MatchDetailMode.THREE_D_MATCH,
+                             MatchDetailMode.THREE_D_HIGHLIGHTS),
+                )
 
 
 if __name__ == "__main__":

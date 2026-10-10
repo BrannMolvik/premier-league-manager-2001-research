@@ -76,6 +76,7 @@ class FrontEndSession:
     selected_club_ids: tuple[int, ...] = ()
     started: bool = False
     match_detail_mode: MatchDetailMode | None = None
+    match_detail_settings_owner_present: bool | None = None
     settings: FrontEndSettings = field(default_factory=FrontEndSettings)
 
     @property
@@ -147,6 +148,9 @@ class FrontEndSession:
             gameplay_factory=make_gameplay,
             team_select_catalog_factory=make_catalog,
             gameplay_from_catalog_factory=make_gameplay_from_catalog,
+            # This port has not constructed a native persisted-settings owner.
+            # Its absence is known; a valid mode therefore still reprompts.
+            match_detail_settings_owner_present=False,
         )
 
     def set_club_selections(self, club_ids) -> None:

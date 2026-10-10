@@ -13,6 +13,8 @@ from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
+from human_gameplay import OriginalResultsProgress
+from match_detail_mode import MatchDetailMode
 from gate13_management_source_data import (
     ClubHeaderView,
     LeagueFixturesGridSourceView,
@@ -596,6 +598,101 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertIn('unresolved native event', host.last_status)
             self.assertEqual(host.management_next_flags, 2)
             self.assertIsNone(host._management_turn_thread)
+
+    def test_pending_match_owns_every_background_pointer_path_after_poll(self):
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+            management_thread_factory=DeferredThread)
+        live.session.gameplay = StubBackend()
+        live.session.gameplay.pending_primary_entry = ('premier_league', 7)
+        host._squad_drag_source = ('retained',)
+        before = (
+            host.pmenu_popup_active,
+            host.management_next_flags,
+            dict(host.fixtures_pager_flags),
+            host._squad_drag_source,
+        )
+        event = SimpleNamespace(x=640, y=30)
+        host.on_click(event)
+        host.on_fixture_report_press(event)
+        host.on_script_arrow_release(event)
+        host.on_fixtures_pager_motion(event)
+        host._begin_original_management_turn()
+        self.assertIsNone(host._management_turn_thread)
+        self.assertEqual((
+            host.pmenu_popup_active,
+            host.management_next_flags,
+            host.fixtures_pager_flags,
+            host._squad_drag_source,
+        ), before)
+
+    def test_explicit_quick_selector_calculates_once_and_returns_to_management(self):
+        live = presenter()
+        host = OriginalGameTkHost(
+            live, FakeRoot(), FakeTk,
+            management_thread_factory=DeferredThread,
+            prematch_resource_loader=lambda staged, pending: SimpleNamespace(),
+        )
+        gameplay = StubBackend()
+        live.session.gameplay = gameplay
+        live.session.started = True
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        live.session.match_detail_settings_owner_present = False
+        gameplay.pending_primary_entry = None
+        gameplay.matches = 0
+        gameplay.turns = 0
+        entry = ('premier_league', 7)
+        pending_progress = OriginalResultsProgress(2, 3)
+        final_progress = OriginalResultsProgress(3, 3)
+
+        def advance(staged):
+            staged.turns += 1
+            staged.pending_primary_entry = entry
+            return SimpleNamespace(
+                pending_primary_entry=entry,
+                results_progress=pending_progress,
+            )
+
+        def play(staged, mode):
+            self.assertEqual(mode, MatchDetailMode.QUICK_MATCH)
+            staged.matches += 1
+            staged.pending_primary_entry = None
+            return SimpleNamespace(
+                match_entry=entry,
+                user_result=SimpleNamespace(score=(2, 1)),
+                results_progress=final_progress,
+            )
+
+        with patch.object(StubBackend, 'advance_original_management', advance, create=True), \
+                patch.object(StubBackend, 'play_original_user_primary_match', play, create=True), \
+                patch.object(host, 'redraw'):
+            host._begin_original_management_turn()
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+            self.assertEqual(gameplay.turns, 1)
+            self.assertEqual(gameplay.pending_primary_entry, entry)
+            self.assertIsNotNone(host.prematch_surface)
+            host.on_click(SimpleNamespace(x=640, y=30))
+            self.assertIsNone(host._management_turn_thread)
+            host.on_click(SimpleNamespace(x=520, y=110))
+            self.assertEqual(live.session.match_detail_mode,
+                             MatchDetailMode.QUICK_MATCH)
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+            self.assertIs(host.last_results_progress, final_progress)
+            self.assertEqual(gameplay.matches, 0)
+            host._poll_original_management_turn()
+            self.assertEqual(gameplay.matches, 1)
+            self.assertIsNone(gameplay.pending_primary_entry)
+            host._begin_original_management_turn()
+            self.assertIsNotNone(host._management_turn_thread)
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+        self.assertEqual(gameplay.matches, 1)
+        self.assertEqual(gameplay.turns, 2)
+        self.assertEqual(gameplay.pending_primary_entry, entry)
+        self.assertIsNone(host._management_turn_thread)
+        self.assertIn('conditional PPreMatch', host.last_status)
 
     def test_next_thread_start_failure_releases_busy_state(self):
         live = presenter()

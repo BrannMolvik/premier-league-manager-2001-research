@@ -21,6 +21,10 @@ from original_management_advance import (
     original_management_advance_target,
 )
 from match_engine_rng import MatchEngineRng
+from gate14_match_detail_route_source import (
+    SourceMatchModePreparation,
+    source_match_mode_preparation,
+)
 from match_lineup import AI_FORMATIONS, AiLineupCoreResult, StarterAssignment
 from match_orders import TeamOrderPriorities
 from match_participants import collect_match_participants
@@ -96,6 +100,8 @@ class HumanPrimaryMatchdayOutcome:
     user_result: object
     matchday_results: tuple[tuple[tuple, object], ...]
     table: tuple[object, ...]
+    source_mode_preparation: SourceMatchModePreparation | None = None
+    results_progress: "OriginalResultsProgress | None" = None
 
 
 @dataclass(frozen=True)
@@ -113,6 +119,25 @@ class OriginalManagementTurnOutcome:
     target: OriginalManagementAdvanceTarget
     processed_dates: tuple[date, ...]
     pending_primary_entry: tuple | None
+    results_progress: "OriginalResultsProgress | None" = None
+
+
+@dataclass(frozen=True)
+class OriginalResultsProgress:
+    """Immutable source-event progress receipt for the active PResults owner."""
+
+    processed_count: int
+    total_count: int
+
+    def __post_init__(self) -> None:
+        if (type(self.processed_count) is not int or self.processed_count < 0
+                or type(self.total_count) is not int or self.total_count < 0):
+            raise ValueError("Original Results progress counts must be nonnegative integers")
+
+    @property
+    def native_width(self) -> int:
+        return (0 if self.total_count == 0 else
+                10 * ((80 * self.processed_count) // self.total_count))
 
 
 class HumanGameplayController:
@@ -1639,6 +1664,14 @@ class HumanGameplayController:
         """Ordinary NEXT entry: stage the native mutable selector and day walk."""
         if self.human is None:
             raise RuntimeError('select a human club first')
+        if self.pending_primary_entry is not None:
+            current_date = self.state.calendar.current_date
+            target = OriginalManagementAdvanceTarget(
+                current_date, current_date, current_date,
+                NATIVE_DEFAULT_TURN_LENGTH)
+            return OriginalManagementTurnOutcome(
+                target, (), self.pending_primary_entry,
+                self.original_results_progress())
         if self.state.clubs[self.human.club_id].team_category_code != 1:
             raise RuntimeError('Original NEXT secondary calendar is not integrated')
         if self.state.primary_schedule_end_date is None:
@@ -1660,10 +1693,11 @@ class HumanGameplayController:
         self.__dict__.update(staged.__dict__)
         return outcome
 
-    def play_original_user_primary_match(self) -> HumanPrimaryMatchdayOutcome:
+    def play_original_user_primary_match(self, mode) -> HumanPrimaryMatchdayOutcome:
         """Publish native calculation flags/results only after a complete match."""
         if self.pending_primary_entry is None:
             raise RuntimeError('advance to a user primary match first')
+        preparation = source_match_mode_preparation(mode)
         staged = deepcopy(self, {id(self.attack_matrix): self.attack_matrix,
                                  id(self.defence_matrix): self.defence_matrix})
         owner = staged._original_primary_entry_owner(staged.pending_primary_entry)
@@ -1671,7 +1705,22 @@ class HumanGameplayController:
         staged.state.primary_schedule_shadow.retain_ordinary_completion(
             staged.state.calendar.current_date, owner.node_token)
         self.__dict__.update(staged.__dict__)
-        return outcome
+        return replace(
+            outcome,
+            source_mode_preparation=preparation,
+            results_progress=OriginalResultsProgress(
+                len(outcome.matchday_results), len(outcome.matchday_results)),
+        )
+
+    def original_results_progress(self) -> OriginalResultsProgress | None:
+        """Project only already-processed qualified entries while a match waits."""
+        if self.pending_primary_entry is None:
+            return None
+        processed = len(self._pending_prior_primary_results)
+        return OriginalResultsProgress(
+            processed,
+            processed + 1 + len(self._pending_after_primary_entries),
+        )
 
     def advance_original_management_turn(
         self, *, next_match_date: date | None, selector_source_qualified: bool,
@@ -1692,7 +1741,9 @@ class HumanGameplayController:
             container_end_date=container_end_date, turn_length=turn_length,
         )
         if self.pending_primary_entry is not None:
-            return OriginalManagementTurnOutcome(target, (), self.pending_primary_entry)
+            return OriginalManagementTurnOutcome(
+                target, (), self.pending_primary_entry,
+                self.original_results_progress())
         # Unsupported native dependencies must not publish a partial turn.
         # Keep the live controller owner; its presentation bridge reads state
         # through this owner rather than retaining the staged graph.
@@ -1725,6 +1776,7 @@ class HumanGameplayController:
                 break
         return OriginalManagementTurnOutcome(
             target, tuple(processed), self.pending_primary_entry,
+            self.original_results_progress(),
         )
 
     def advance_to_next_user_primary_match(self):
