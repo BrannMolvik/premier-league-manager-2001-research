@@ -199,7 +199,7 @@ class OriginalLeagueFixturesPreparedMembersTests(unittest.TestCase):
             state=state, human=SimpleNamespace(club_id=349)
         ))
         with self.assertRaisesRegex(
-            ManagementPresentationError, "source.*unavailable"
+            ManagementPresentationError, "Source League member preparation tables are unavailable"
         ):
             bridge.original_nonpl_league_fixtures_prepared_members()
 
