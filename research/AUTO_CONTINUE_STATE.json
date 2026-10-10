@@ -19,7 +19,7 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "Recovery492, Gate13 audit only. Main d541058b and Codex e166ae4d unchanged. NEXT: review a new Codex R1 original-NEXT/PPreMatch/Quick3/PResults/return implementation if it appears; otherwise perform original read-only source research when shell execution recovers. This recovery reproduced caas.internal.errors.ClientError for both basic shell and Python, so no new executable trace or Windows acceptance. Existing detailed Codex handoff: research/GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md. No new code/tests/CI. Gate13 open and Gate14–17 incomplete.",
+  "active_task": "RECOVERY493, GATE13 AUDIT_ONLY. Verified main d541058b2b395d0028a1afd381b6f98896fd195b and Codex codex/gate13-windows-playability-recovery e166ae4d70c32b41f8dcef86b3d3d42b19a24262; no implementation delta, no new PR or Windows acceptance evidence. Canonical NEXT/pending modal/prematch/Quick3/PResults/return gap and Codex implementation handoff fully documented in research/GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md and issue482 comment6098622303. Exact external blocker: container.exec bash trivial echo/ls returned caas.internal.errors.ClientError, as did python.exec simple print; authorized private source ZIP is located by research/ORIGINAL_SOURCE_LOCATOR.md and was materialized in Recovery491 but extraction, checksum revalidation and read-only PE disassembly cannot execute. Fresh native-source audit therefore blocked. No new audit topic worth committing without new source evidence or Codex change; avoid duplicate microaudits and cosmetic research. NEXT ACTION: check latest heads first; if Codex moved, independently audit its R1 functionality against original proven source and tests, then real Windows 11 receipt; if unchanged, verify local execution once and resume original-source critical path only if restored. No game code, CI, merge, gate closure or fake completion. Stay mode continuous, status working, worker_role audit_only, implementation_allowed false. Gate13 OPEN and Gates14–17 Windows11 release pending.",
   "last_known_main_head": "d541058b2b395d0028a1afd381b6f98896fd195b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -31,7 +31,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 493,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery493: main and Codex heads rechecked unchanged from Recovery492. Worker remains audit-only. Checking local execution viability before novel original-source research, rather than repeating prior microaudits.",
+  "note": "Recovery493: original-source audit blocked by repeatable trivial shell and Python ClientError. GitHub main and Codex heads/PRs have no new gameplay implementation. Work is externally blocked, not Gate completion. Keep exact next action; avoid redundant audit reports and CI. Last meaningful technical checkpoint on main remains Recovery490 d541058b.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
