@@ -11,6 +11,7 @@ from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
     LeagueFixturesGridSourceView,
+    ManagementPresentationError,
     ManagementHeaderMatchView,
 )
 from original_league_fixtures_resources import LEAGUE_FIXTURES_RESOURCES
@@ -140,6 +141,13 @@ class WideBridge(Bridge):
             schedule_cycle_count=2,
             matrix_layer_count=1,
             fixtures_in_source_order=(),
+        )
+
+
+class UnintegratedLeagueFixturesBridge(Bridge):
+    def league_fixtures_grid_source(self):
+        raise ManagementPresentationError(
+            "League 27 is not integrated; refusing Premier League fallback"
         )
 
 
@@ -353,6 +361,28 @@ class OriginalManagementPresenterTests(unittest.TestCase):
 
         self.assertEqual(presenter.selected_child_id, 0xCE)
         self.assertEqual(presenter.snapshot().panel_class, "PSquadScreen")
+
+    def test_league_fixtures_source_refusal_preserves_presenter_state(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=UnintegratedLeagueFixturesBridge,
+        )
+        self.assertEqual(presenter.snapshot().panel_class, "PSquadScreen")
+        presenter.league_fixtures_column_offset = 8
+        previous_child_id = presenter.selected_child_id
+        previous_column_offset = presenter.league_fixtures_column_offset
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "League 27 is not integrated",
+        ):
+            presenter.navigate(0x25C)
+
+        self.assertEqual(presenter.selected_child_id, previous_child_id)
+        self.assertEqual(
+            presenter.league_fixtures_column_offset,
+            previous_column_offset,
+        )
 
     def test_source_accepted_squad_view_transition_tracks_only_proven_container_state(self):
         presenter = OriginalManagementPresenter(
