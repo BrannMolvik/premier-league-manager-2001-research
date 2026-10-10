@@ -279,6 +279,14 @@ class HumanGameplayController:
             game_dir / "FOOTBAL.EXE"
         )
         primary_schedule = reconstruct_canonical_primary_schedule(database)
+        from domestic_cup_state import ENGLISH_DOMESTIC_CUP_IDS, EUROPEAN_CUP_IDS
+        # 6168C0 walks the whole primary calendar, not only qualification sources.
+        primary_nodes = tuple(node for bucket in primary_schedule.buckets for node in bucket)
+        other_primary_cup_ids = tuple(sorted({node.competition_id for node in primary_nodes
+            if node.node_kind in ('cup_match', 'first_leg_match', 'second_leg_match')}
+            - ENGLISH_DOMESTIC_CUP_IDS - EUROPEAN_CUP_IDS))
+        live_procedural_league_ids = tuple(dict.fromkeys(live_procedural_league_ids + tuple(
+            node.competition_id for node in primary_nodes if node.node_kind == 'league_match')))
         state = GameState.from_database(
             database,
             start_date,
@@ -310,11 +318,13 @@ class HumanGameplayController:
         state.install_qualification_cup_primary_schedule(
             primary_schedule.buckets,
             season_year=2000,
+            competition_ids=other_primary_cup_ids,
         )
         state.install_primary_matchday_order(
             primary_schedule.buckets,
             season_year=2000,
             procedural_league_ids=live_procedural_league_ids,
+            qualification_cup_ids=other_primary_cup_ids,
         )
         state.install_primary_schedule_shadow(
             primary_schedule.buckets,
@@ -1505,21 +1515,14 @@ class HumanGameplayController:
         if native_primary_order and due_order:
             # 6168EA/952 also gate on wrapper+8. A date/score search is NOT
             # proof that the native wrapper stayed unlinked after 4A7280.
-            shadow = self.state.primary_schedule_shadow
-            owners = shadow.days.get(self.state.calendar.current_date, ())
             for entry in due_order:
-                matches = tuple(owner for owner in owners if (
-                    owner.node_kind == 'fixed_league_match' and entry[0] == 'premier_league'
-                    and owner.competition_id == 0 and owner.competition_context == 0
-                    and len(owner.node_token) == 4 and owner.node_token[-1] == entry[1]
-                ) or (
-                    owner.node_kind == 'league_match' and entry[0] == 'procedural_league'
-                    and owner.node_token == tuple(entry[1])
-                ))
-                if len(matches) != 1 or matches[0].wrapper_link_state != 'clear':
+                owner = self._original_primary_entry_owner(entry)
+                if owner.wrapper_link_state != 'clear':
                     raise RuntimeError('Original NEXT current-day wrapper lifecycle is unresolved')
-                direct = tuple(ref.direct_club_id for ref in matches[0].refs)
-                if None in direct or direct != self._primary_entry_clubs(entry):
+                if owner.payload_filter_bits is None or owner.payload_filter_bits & 0x61:
+                    raise RuntimeError('Original NEXT current-day payload flags are unresolved')
+                if owner.side_club_cache is None or None in owner.side_club_cache \
+                        or owner.side_club_cache != self._primary_entry_clubs(entry):
                     raise RuntimeError('Original NEXT current-day Side ownership is unresolved')
         human_due = []
         for entry in due_order:
@@ -1527,8 +1530,6 @@ class HumanGameplayController:
             if pair is None:
                 raise RuntimeError(f"Primary participant ownership is unresolved: {entry!r}")
             if native_primary_order:
-                if entry[0] not in ('premier_league', 'procedural_league'):
-                    raise RuntimeError('Original NEXT non-League day owner is not integrated')
                 if any(getattr(self.state.clubs.get(club_id), 'team_category_code', None) != 1
                        for club_id in pair):
                     raise RuntimeError('Original NEXT requires source-qualified primary club sides')
@@ -1540,10 +1541,12 @@ class HumanGameplayController:
                 f"{self.state.calendar.current_date}, got {human_due}"
             )
         if not human_due:
-            results = self.state.simulate_due_primary_ai_entries(
+            results = (tuple((entry, self._simulate_original_primary_ai_entry(entry))
+                             for entry in due_order) if native_primary_order else
+                       self.state.simulate_due_primary_ai_entries(
                 self.attack_matrix, self.defence_matrix, self.match_rng,
                 match_engine_rng=self.match_engine_rng,
-            )
+            ))
             self._finish_shared_primary_day(bool(results))
             return None
 
@@ -1557,7 +1560,8 @@ class HumanGameplayController:
         ai_entries = (tuple(entry for entry in due_order if entry != human_entry)
                       if native_primary_order else due_order[:split])
         prior = tuple(
-            (entry, self.state.simulate_primary_ai_entry(
+            (entry, self._simulate_original_primary_ai_entry(entry)
+             if native_primary_order else self.state.simulate_primary_ai_entry(
                 entry, self.attack_matrix, self.defence_matrix, self.match_rng,
                 match_engine_rng=self.match_engine_rng,
             ))
@@ -1568,6 +1572,72 @@ class HumanGameplayController:
         self._pending_after_primary_entries = (() if native_primary_order
                                                else tuple(due_order[split + 1:]))
         return human_entry
+
+    def _original_primary_entry_owner(self, entry):
+        matches = tuple(owner for owner in self.state.primary_schedule_shadow.days.get(
+            self.state.calendar.current_date, ()) if (
+                entry[0] == 'premier_league' and owner.node_kind == 'fixed_league_match'
+                and owner.competition_id == 0 and owner.competition_context == 0
+                and owner.node_token == ('fixed_league_match', 0, 0, entry[1])
+            ) or (entry[0] in ('procedural_league', 'domestic_cup', 'european_cup',
+                              'qualification_cup') and type(entry[1]) is tuple
+                  and owner.node_token == entry[1]))
+        if len(matches) != 1:
+            raise RuntimeError('Original NEXT current-day wrapper lifecycle is unresolved')
+        return matches[0]
+
+    def _simulate_original_primary_ai_entry(self, entry):
+        owner = self._original_primary_entry_owner(entry)
+        result = self.state.simulate_primary_ai_entry(
+            entry, self.attack_matrix, self.defence_matrix, self.match_rng,
+            match_engine_rng=self.match_engine_rng)
+        # The staged turn publishes the completed event and its native flag together.
+        self.state.primary_schedule_shadow.retain_ordinary_completion(
+            self.state.calendar.current_date, owner.node_token)
+        return result
+
+    def _original_side_registration_required(self, entry):
+        competition = self.state.competitions.get(entry.competition_id)
+        if competition is None:
+            raise RuntimeError('Original NEXT Side competition owner is unresolved')
+        return competition.runtime_kind in ('cup', 'dummy_league') \
+            and competition.cup_restriction_mode == 1
+
+    def advance_original_management(self) -> OriginalManagementTurnOutcome:
+        """Ordinary NEXT entry: stage the native mutable selector and day walk."""
+        if self.human is None:
+            raise RuntimeError('select a human club first')
+        if self.state.clubs[self.human.club_id].team_category_code != 1:
+            raise RuntimeError('Original NEXT secondary calendar is not integrated')
+        if self.state.primary_schedule_end_date is None:
+            raise RuntimeError('Original NEXT calendar boundary is unresolved')
+        staged = deepcopy(self, {id(self.attack_matrix): self.attack_matrix,
+                                 id(self.defence_matrix): self.defence_matrix})
+        candidate = staged.state.primary_schedule_shadow.ordinary_next_candidate(
+            staged.human.club_id, staged.state.calendar.current_date,
+            staged.state.cup_results.resolve_club_ref,
+            staged._original_side_registration_required)
+        target = original_management_advance_target(
+            staged.state.calendar.current_date,
+            next_match_date=None if candidate is None else candidate[0],
+            selector_source_qualified=True,
+            container_end_date=staged.state.primary_schedule_end_date)
+        outcome = staged._advance_original_management_turn(target)
+        self.__dict__.update(staged.__dict__)
+        return outcome
+
+    def play_original_user_primary_match(self) -> HumanPrimaryMatchdayOutcome:
+        """Publish native calculation flags/results only after a complete match."""
+        if self.pending_primary_entry is None:
+            raise RuntimeError('advance to a user primary match first')
+        staged = deepcopy(self, {id(self.attack_matrix): self.attack_matrix,
+                                 id(self.defence_matrix): self.defence_matrix})
+        owner = staged._original_primary_entry_owner(staged.pending_primary_entry)
+        outcome = staged.play_user_primary_match()
+        staged.state.primary_schedule_shadow.retain_ordinary_completion(
+            staged.state.calendar.current_date, owner.node_token)
+        self.__dict__.update(staged.__dict__)
+        return outcome
 
     def advance_original_management_turn(
         self, *, next_match_date: date | None, selector_source_qualified: bool,
@@ -1609,9 +1679,11 @@ class HumanGameplayController:
         processed = []
         for on_date in target.processing_dates:
             self.state.calendar.increment_one_day()
-            self.state.invalidate_primary_schedule_wrapper_links()
             if self.state.calendar.current_date != on_date:
                 raise RuntimeError("Original NEXT day owner diverged from its retained target")
+            self.state.primary_schedule_shadow.prepare_ordinary_day(
+                on_date, self.state.cup_results.resolve_club_ref,
+                self._original_side_registration_required)
             pending = self._process_current_primary_day(native_primary_order=True)
             processed.append(on_date)
             if pending is not None or self.human is None:

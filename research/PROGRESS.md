@@ -1,3 +1,16 @@
+### 10 October 2026 KST — ordinary event-selector/backend milestone, not UI acceptance
+
+Reconciled audit-only main41d5946d; actual canonical direct1536/symbolic4 cases
+challenge blanket wrapper invalidation. Native filter/cache/calendar retention
+and existing primary Cup/League owner coverage now permit canonical Southport
+July4→August19 without an explicit date/selector seam. Actual disk/fresh-process
+pending reload calculates0–0; second disk/fresh-process reload retains result
+and cleared pending. Complete report count0, normal NEXT unbound, no playable
+claim. Continue exact August23 Cup9/League27 native Side conflict/postponement,
+then physical ID3/pre-match/results/return. Gate13 OPEN; no original process,
+main merge, worker protocol or later-gate implementation change. See
+`GATE13_NEXT_EVENT_LIFECYCLE_2026-10-10.md`.
+
 ### 9 October 2026 KST — actual direct-font ownership restored
 
 Canonical6044AC/6044F4/6044F9 binds16px8CAB80, not adjacent18px8BD970.

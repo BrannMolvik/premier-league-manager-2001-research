@@ -1444,6 +1444,8 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
         "primary_schedule_shadow": state.primary_schedule_shadow.snapshot(),
+        "primary_schedule_end_date": (None if state.primary_schedule_end_date is None
+                                      else state.primary_schedule_end_date.isoformat()),
         "primary_matchday_order": {
             on_date.isoformat(): [
                 (
@@ -1872,6 +1874,8 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         primary_schedule_shadow=PrimaryScheduleShadowState.restore(
             snapshot.get("primary_schedule_shadow", {})
         ),
+        primary_schedule_end_date=(None if snapshot.get('primary_schedule_end_date') is None
+                                   else date.fromisoformat(snapshot['primary_schedule_end_date'])),
         primary_matchday_order={
             date.fromisoformat(on_date): tuple(
                 (

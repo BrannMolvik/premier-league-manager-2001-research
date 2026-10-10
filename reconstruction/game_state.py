@@ -257,6 +257,7 @@ class GameState:
     ] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
+    primary_schedule_end_date: date | None = None
     primary_schedule_shadow: PrimaryScheduleShadowState = field(
         default_factory=lambda: PrimaryScheduleShadowState(days={})
     )
@@ -3156,6 +3157,7 @@ class GameState:
         self.qualification_cups = new_qualification
         self.procedural_leagues = new_procedural
         self.primary_schedule_shadow = new_shadow
+        self.primary_schedule_end_date = season_weekday_date(season_year, 0, 1) + timedelta(days=len(buckets))
         self.primary_matchday_order = new_primary_order
         self.premier_league_scheduler_order = new_scheduler_order
         self.prepared_match_environments = {}
@@ -3468,6 +3470,8 @@ class GameState:
         season_year: int,
     ) -> PrimaryScheduleShadowState:
         """Retain all primary-container participants for 0x615D10 lookups."""
+        buckets = tuple(tuple(bucket) for bucket in buckets)
+        self.primary_schedule_end_date = season_weekday_date(int(season_year), 0, 1) + timedelta(days=len(buckets))
         self.primary_schedule_shadow = (
             PrimaryScheduleShadowState.from_primary_schedule_buckets(
                 buckets,
@@ -3735,6 +3739,7 @@ class GameState:
         *,
         season_year: int,
         procedural_league_ids: tuple[int, ...] = (14, 167),
+        qualification_cup_ids: tuple[int, ...] = (19, 23, 33, 91, 98, 101),
     ) -> dict[date, tuple[tuple, ...]]:
         """Persist exact shuffled live Gate-12 primary order by date."""
         from primary_schedule import gate12_primary_matchday_order
@@ -3746,6 +3751,7 @@ class GameState:
                 procedural_league_ids=tuple(
                     int(value) for value in procedural_league_ids
                 ),
+                qualification_cup_ids=qualification_cup_ids,
             )
         )
         return self.primary_matchday_order
@@ -3878,6 +3884,7 @@ class GameState:
         buckets,
         *,
         season_year: int,
+        competition_ids=None,
     ) -> DomesticCupScheduleState:
         """Attach Cups required solely as annual type-3 qualification sources."""
         from domestic_cup_state import ANNUAL_QUALIFICATION_CUP_IDS
@@ -3886,7 +3893,8 @@ class GameState:
             DomesticCupScheduleState.from_primary_schedule_buckets(
                 buckets,
                 season_year=int(season_year),
-                competition_ids=ANNUAL_QUALIFICATION_CUP_IDS,
+                competition_ids=(ANNUAL_QUALIFICATION_CUP_IDS if competition_ids is None
+                                 else competition_ids),
             )
         )
         return self.qualification_cups

@@ -24,6 +24,10 @@ WRAPPER_LINK_STATES = frozenset((
     WRAPPER_LINK_LINKED,
     WRAPPER_LINK_UNKNOWN,
 ))
+NATIVE_MATCH_KINDS = frozenset((
+    'fixed_league_match', 'league_match', 'cup_match', 'first_leg_match',
+    'second_leg_match', 'replay_match',
+))
 
 
 class PrimaryScheduleResolutionPending(RuntimeError):
@@ -49,10 +53,26 @@ class PrimaryScheduleShadowEntry:
     participant_0_candidates: frozenset[int]
     participant_1_candidates: frozenset[int]
     wrapper_link_state: str = WRAPPER_LINK_CLEAR
+    # Only the three 615C50 filter bits, not reconstructed Cup rule flags.
+    payload_filter_bits: int | None = None
+    side_club_cache: tuple[int | None, int | None] | None = None
 
     def __post_init__(self) -> None:
         if self.wrapper_link_state not in WRAPPER_LINK_STATES:
             raise ValueError("primary schedule wrapper-link state is invalid")
+        if self.payload_filter_bits is not None and (
+            type(self.payload_filter_bits) is not int
+            or self.payload_filter_bits < 0 or self.payload_filter_bits & ~0x61
+        ):
+            raise ValueError("primary payload filter bits are invalid")
+        if self.side_club_cache is not None and (
+            type(self.side_club_cache) is not tuple or len(self.side_club_cache) != 2
+            or any(value is not None and (type(value) is not int or value < 0)
+                   for value in self.side_club_cache)
+            or any(ref.direct_club_id is not None and cache != ref.direct_club_id
+                   for ref, cache in zip(self.refs, self.side_club_cache))
+        ):
+            raise ValueError("primary Side cache is invalid")
 
     @property
     def refs(self) -> tuple[CupClubRefDescriptor, CupClubRefDescriptor]:
@@ -176,10 +196,134 @@ class PrimaryScheduleShadowState:
                     participant_1_candidates=current_ref_candidates(
                         node.participant_1_ref
                     ),
+                    payload_filter_bits=(0 if node.node_kind in NATIVE_MATCH_KINDS else None),
+                    side_club_cache=((node.participant_0_ref.direct_club_id,
+                                      node.participant_1_ref.direct_club_id)
+                                     if node.node_kind in NATIVE_MATCH_KINDS else None),
                 )
                 for node in bucket
             )
         return cls(days=days)
+
+    def _replace_entry(self, on_date: date, index: int, **values):
+        entries = list(self.days[on_date])
+        entries[index] = replace(entries[index], **values)
+        self.days[on_date] = tuple(entries)
+        return entries[index]
+
+    def resolve_ordinary_side(self, on_date, index, side, resolve_ref,
+                              registration_required):
+        """510320, bounded to cached references or a conflict-free resolution.
+
+        Cache publication precedes the recursive 616020 peer query, as in
+        4F28A0. A required postponement/registration is refused, not invented.
+        Callers stage this mutable lookup with the rest of the NEXT turn.
+        """
+        entry = self.days[on_date][index]
+        if entry.side_club_cache is None:
+            raise RuntimeError('Original NEXT Side cache lifecycle is unresolved')
+        cached = entry.side_club_cache[side]
+        if cached is not None:
+            return cached
+        resolved = resolve_ref(entry.refs[side])
+        if resolved is None:
+            return None
+        if registration_required(entry):
+            raise RuntimeError('Original NEXT resolved Side registration is not integrated')
+        cache = list(entry.side_club_cache)
+        cache[side] = int(resolved)
+        self._replace_entry(on_date, index, side_club_cache=tuple(cache))
+        # 615F40: same bucket (self skipped), then previous, then next.
+        for peer_date in (on_date, on_date - timedelta(days=1),
+                          on_date + timedelta(days=1)):
+            for peer_index in range(len(self.days.get(peer_date, ()))):
+                peer = self.days[peer_date][peer_index]
+                if peer.payload_filter_bits is None:
+                    raise RuntimeError('Original NEXT peer payload flags are unresolved')
+                if peer.payload_filter_bits & 0x20:
+                    continue
+                matches = any(self.resolve_ordinary_side(
+                    peer_date, peer_index, peer_side, resolve_ref,
+                    registration_required) == resolved for peer_side in (0, 1))
+                if matches and (peer_date, peer_index) != (on_date, index):
+                    raise RuntimeError('Original NEXT Side conflict requires native postponement: '
+                                       f'{on_date} {entry.node_token!r} vs '
+                                       f'{peer_date} {peer.node_token!r}')
+        return int(resolved)
+
+    def ordinary_next_candidate(self, club_id, from_date, resolve_ref,
+                                registration_required):
+        """615D10/615C50 ordinary manager query; never a display-header lookup."""
+        for on_date in sorted(value for value in self.days if value >= from_date):
+            for index in range(len(self.days[on_date])):
+                entry = self.days[on_date][index]
+                if entry.payload_filter_bits is None:
+                    raise RuntimeError('Original NEXT payload flags are unresolved')
+                if entry.payload_filter_bits & 0x20:
+                    continue
+                matches = any(self.resolve_ordinary_side(
+                    on_date, index, side, resolve_ref, registration_required
+                ) == club_id for side in (0, 1))
+                if not matches:
+                    continue
+                entry = self.days[on_date][index]
+                if entry.wrapper_link_state == WRAPPER_LINK_LINKED:
+                    continue
+                if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
+                    raise RuntimeError('Original NEXT wrapper lifecycle is unresolved')
+                if entry.payload_filter_bits & 0x41:
+                    continue
+                # 514520 invokes both sides, even when the manager matched side 0.
+                for side in (0, 1):
+                    self.resolve_ordinary_side(on_date, index, side, resolve_ref,
+                                               registration_required)
+                return on_date, self.days[on_date][index]
+        return None
+
+    def prepare_ordinary_day(self, on_date, resolve_ref, registration_required):
+        """4A7280: current 615C10 readiness, then tomorrow's 616600/514520."""
+        for current in (on_date, on_date + timedelta(days=1)):
+            for index in range(len(self.days.get(current, ()))):
+                entry = self.days[current][index]
+                if entry.payload_filter_bits is None:
+                    raise RuntimeError('Original NEXT current-day payload flags are unresolved')
+                if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
+                    raise RuntimeError('Original NEXT current-day wrapper lifecycle is unresolved')
+                if entry.payload_filter_bits & (1 if current == on_date else 0x60):
+                    continue
+                pair = tuple(self.resolve_ordinary_side(
+                    current, index, side, resolve_ref, registration_required
+                ) for side in (0, 1))
+                prior_complete = True
+                if current == on_date and entry.node_kind == 'second_leg_match':
+                    # The recovered constructor links +54 to this emitted first leg.
+                    prior = [item for bucket in self.days.values() for item in bucket
+                             if item.node_kind == 'first_leg_match'
+                             and item.competition_id == entry.competition_id
+                             and item.competition_context == entry.competition_context
+                             and item.node_token == ('cup_first_leg',) + entry.node_token[1:]]
+                    if len(prior) != 1 or prior[0].payload_filter_bits is None:
+                        raise RuntimeError('Original NEXT prior-leg lifecycle is unresolved')
+                    prior_complete = bool(prior[0].payload_filter_bits & 1)
+                if current == on_date and (entry.payload_filter_bits & 0x20
+                                            or None in pair or not prior_complete):
+                    raise RuntimeError(f'Original NEXT unready current-day event requires postponement: '
+                                       f'{current} {entry.node_token!r}')
+
+    def retain_ordinary_completion(self, on_date, node_token):
+        """Retain 511381's bit 0 after actual calculation, never from a score lookup."""
+        matches = [i for i, entry in enumerate(self.days.get(on_date, ()))
+                   if entry.node_token == tuple(node_token)]
+        if len(matches) != 1:
+            raise RuntimeError('Original NEXT calculator event owner is unresolved')
+        index = matches[0]
+        entry = self.days[on_date][index]
+        if entry.wrapper_link_state != WRAPPER_LINK_CLEAR or entry.payload_filter_bits is None:
+            raise RuntimeError('Original NEXT calculator flags/link are unresolved')
+        if entry.payload_filter_bits & 0x61:
+            raise RuntimeError('Original NEXT calculator event is not eligible')
+        self._replace_entry(on_date, index,
+                            payload_filter_bits=entry.payload_filter_bits | 1)
 
     @staticmethod
     def _dynamic_node_conflicts_entry(node, entry: PrimaryScheduleShadowEntry) -> bool:
@@ -262,6 +406,10 @@ class PrimaryScheduleShadowState:
             participant_1_ref=node.participant_1_ref,
             participant_0_candidates=candidates(node.participant_0_ref),
             participant_1_candidates=candidates(node.participant_1_ref),
+            payload_filter_bits=(0 if node.node_kind in NATIVE_MATCH_KINDS else None),
+            side_club_cache=((node.participant_0_ref.direct_club_id,
+                              node.participant_1_ref.direct_club_id)
+                             if node.node_kind in NATIVE_MATCH_KINDS else None),
         )
         self.days[on_date] = (entry,) + tuple(self.days.get(on_date, ()))
         return entry
@@ -394,6 +542,9 @@ class PrimaryScheduleShadowState:
                     "participant_0_candidates": sorted(entry.participant_0_candidates),
                     "participant_1_candidates": sorted(entry.participant_1_candidates),
                     "wrapper_link_state": entry.wrapper_link_state,
+                    "payload_filter_bits": entry.payload_filter_bits,
+                    "side_club_cache": (None if entry.side_club_cache is None
+                                        else list(entry.side_club_cache)),
                 }
                 for entry in entries
             ]
@@ -448,6 +599,9 @@ class PrimaryScheduleShadowState:
                         wrapper_link_state=str(
                             raw.get("wrapper_link_state", WRAPPER_LINK_UNKNOWN)
                         ),
+                        payload_filter_bits=raw.get('payload_filter_bits'),
+                        side_club_cache=(None if raw.get('side_club_cache') is None
+                                         else tuple(raw['side_club_cache'])),
                     )
                     for raw in entries
                 )

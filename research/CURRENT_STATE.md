@@ -1,5 +1,21 @@
 # Playable-core priority — 10 October 2026 KST
 
+**Ordinary selector integration checkpoint:** reconciled audit-only main41d5946d.
+Actual canonical constructors/selector passed1536 direct cases and4 symbolic
+Side cases. Retain native selector bits/cache and constructed calendar end
+through disk save, with unknown legacy state kept unknown. Existing generic
+backends now own all source-emitted primary Cup/League entries (including the
+previously omitted Cup84). Canonical Southport reaches August19 via actual
+ordinary selector, saves pending state, calculates0–0 in a fresh process, then
+saves/reloads the completed state again. Complete report count0; no visible
+UI action, report/popup acceptance or playable build is claimed. NEXT afterward
+refuses an August23 Cup9/League27 Side conflict. Follow that exact native
+postponement/linked-payload dependency, then bind ordinary ID3/pre-match/return.
+See `GATE13_NEXT_EVENT_LIFECYCLE_2026-10-10.md`. No original process, main merge,
+agent-runtime or later-gate implementation change; Gate13 remains OPEN.
+203 focused tests/14.996s, asset policy and diff checks passed. No new full-suite
+or Windows normal-click acceptance claim.
+
 Daniel now prioritizes ordinary NEXT/MATCH gameplay, then formations, real Inbox,
 essential navigation/save-load and measured responsiveness. Cosmetic research
 is deferred unless it blocks those actions. See

@@ -30,6 +30,7 @@ class OriginalManagementTurnTests(unittest.TestCase):
             primary_entries_due_today=Mock(),
             simulate_due_primary_ai_entries=Mock(return_value=()),
             simulate_primary_ai_entry=Mock(side_effect=lambda entry, *a, **k: ('result', entry)),
+            cup_results=SimpleNamespace(resolve_club_ref=lambda ref: ref.direct_club_id),
         )
         state.primary_entries_due_today.side_effect = partial(due_entries, state, due_date, entries)
         c = HumanGameplayController(state, 'attack', 'defence', 'rng', 'engine_rng')
@@ -44,7 +45,8 @@ class OriginalManagementTurnTests(unittest.TestCase):
                 direct_club_ref(1 if entry[1] == 7 else 3),
                 direct_club_ref(2 if entry[1] == 7 else 4),
                 frozenset((1 if entry[1] == 7 else 3,)),
-                frozenset((2 if entry[1] == 7 else 4,)))
+                frozenset((2 if entry[1] == 7 else 4,)), payload_filter_bits=0,
+                side_club_cache=(1 if entry[1] == 7 else 3, 2 if entry[1] == 7 else 4))
             for entry in entries)
         return c
 
@@ -60,7 +62,7 @@ class OriginalManagementTurnTests(unittest.TestCase):
         self.assertEqual(result.processed_dates, expected)
         self.assertEqual(c.state.calendar.current_date, expected[-1])
         self.assertIsNone(result.pending_primary_entry)
-        self.assertEqual(c.state.invalidate_primary_schedule_wrapper_links.call_count, 7)
+        c.state.invalidate_primary_schedule_wrapper_links.assert_not_called()
         self.assertEqual(c._finish_shared_primary_day.call_count, 7)
         c.current_selection.assert_not_called()
 
@@ -164,6 +166,7 @@ class OriginalManagementTurnTests(unittest.TestCase):
         }
         match_date = min(c.state.primary_matchday_order)
         c.state.calendar.current_date = match_date - timedelta(days=1)
+        c.state.primary_schedule_end_date = self.end
         due = c.state.primary_matchday_order[match_date]
         c.state.primary_schedule_shadow.days[match_date] = tuple(
             PrimaryScheduleShadowEntry('fixed_league_match', 0, 0,
@@ -171,16 +174,15 @@ class OriginalManagementTurnTests(unittest.TestCase):
                 direct_club_ref(c.state.premier_league.fixtures[entry[1]].home_club_id),
                 direct_club_ref(c.state.premier_league.fixtures[entry[1]].away_club_id),
                 frozenset((c.state.premier_league.fixtures[entry[1]].home_club_id,)),
-                frozenset((c.state.premier_league.fixtures[entry[1]].away_club_id,)))
+                frozenset((c.state.premier_league.fixtures[entry[1]].away_club_id,)),
+                payload_filter_bits=0,
+                side_club_cache=(c.state.premier_league.fixtures[entry[1]].home_club_id,
+                                 c.state.premier_league.fixtures[entry[1]].away_club_id))
             for entry in due)
-        # Supplied phase boundary for this synthetic integration regression.
-        # Production invalidation is NOT disabled; native post-start sources
-        # must qualify current-day wrappers before an ordinary UI can use them.
-        c.state.invalidate_primary_schedule_wrapper_links = Mock()
+        # Actual direct-cache phase: no mocked wrapper invalidation seam.
         human = ('premier_league', 0)
         ai_order = tuple(entry for entry in due if entry != human)
-        result = c.advance_original_management_turn(next_match_date=match_date,
-            selector_source_qualified=True, container_end_date=self.end)
+        result = c.advance_original_management()
         self.assertEqual(result.pending_primary_entry, human)
         self.assertEqual(tuple(entry for entry, _ in c._pending_prior_primary_results), ai_order)
         self.assertEqual(len(c.state.premier_league.results), 9)
@@ -191,12 +193,18 @@ class OriginalManagementTurnTests(unittest.TestCase):
             save_human_gameplay(c, path)
             restored = load_human_gameplay(PrimaryDatabase(), c.attack_matrix, c.defence_matrix, path)
         self.assertEqual(restored.pending_primary_entry, human)
+        self.assertEqual(restored.state.primary_schedule_end_date, self.end)
+        flags = {e.node_token[-1]: e.payload_filter_bits
+                 for e in restored.state.primary_schedule_shadow.days[match_date]}
+        self.assertEqual(flags, {entry[1]: int(entry != human) for entry in due})
         self.assertEqual(tuple(entry for entry, _ in restored._pending_prior_primary_results), ai_order)
         self.assertEqual(restored._pending_after_primary_entries, ())
-        outcome = restored.play_user_primary_match()
+        outcome = restored.play_original_user_primary_match()
         self.assertEqual(tuple(entry for entry, _ in outcome.matchday_results), ai_order + (human,))
         self.assertEqual(len(restored.state.premier_league.results), 10)
         self.assertIsNone(restored.pending_primary_entry)
+        self.assertTrue(all(e.payload_filter_bits == 1
+                            for e in restored.state.primary_schedule_shadow.days[match_date]))
 
     def test_unknown_current_day_wrapper_cannot_be_promoted_from_due_date(self):
         from dataclasses import replace
@@ -204,7 +212,7 @@ class OriginalManagementTurnTests(unittest.TestCase):
         owners = c.state.primary_schedule_shadow.days[self.today + timedelta(days=1)]
         c.state.primary_schedule_shadow.days[self.today + timedelta(days=1)] = (
             replace(owners[0], wrapper_link_state='unknown'),)
-        with self.assertRaisesRegex(RuntimeError, 'wrapper lifecycle'):
+        with self.assertRaisesRegex(RuntimeError, 'wrapper lifecycle|Side ownership'):
             self.advance(c, self.today + timedelta(days=1))
         self.assertIsNone(c.pending_primary_entry)
         c.state.simulate_primary_ai_entry.assert_not_called()
