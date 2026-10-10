@@ -2321,7 +2321,9 @@ class ManagementSourceDataBridge:
                 played=fixture.played,
                 home_goals=fixture.home_goals,
                 away_goals=fixture.away_goals,
-                source_node_token=fixture.node_token,
+                # Original fixed Premier0 grid permits integer fixture ID only;
+                # retained 373-head token remains internal source audit evidence.
+                source_node_token=None,
             ))
         return LeagueFixturesGridSourceView(
             competition_id=qualified.competition_id,

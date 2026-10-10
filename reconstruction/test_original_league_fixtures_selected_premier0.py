@@ -96,6 +96,7 @@ class OriginalSelectedPremier0FixturesTests(unittest.TestCase):
         self.assertEqual(view.competition_id, 0)
         self.assertEqual(len(view.fixtures_in_source_order), 380)
         self.assertEqual(view.fixtures_in_source_order[0].fixture_id, 0)
+        self.assertIsNone(view.fixtures_in_source_order[0].source_node_token)
         self.assertEqual(view.fixtures_in_source_order[0].scheduled_date,
                          date(2000, 8, 2))
         snapshot = build_league_fixtures_snapshot(view)
