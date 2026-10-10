@@ -101,7 +101,10 @@ class OriginalSelectedPremier0FixturesTests(unittest.TestCase):
         snapshot = build_league_fixtures_snapshot(view)
         self.assertEqual(snapshot.competition_id, 0)
         self.assertEqual(len(snapshot.member_club_ids), 20)
-        self.assertTrue(any(cell.text == "2:1" for cell in snapshot.cells))
+        # Native 12-column viewport hides the away club at the far right;
+        # select the source-available second page rather than forging visibility.
+        paged = build_league_fixtures_snapshot(view, column_offset=8)
+        self.assertTrue(any(cell.text == "2:1" for cell in paged.cells))
         self.assertEqual(bridge(state).league_fixtures_grid_source().competition_id, 7)
 
     def test_original_373_head_encounter_order_precedes_fixture_id_order(self):
@@ -142,7 +145,7 @@ class OriginalSelectedPremier0FixturesTests(unittest.TestCase):
         with self.assertRaisesRegex(SourceSelectedPremierFixturesError, "lacks fixed"):
             source(state, context)
         state.primary_schedule_shadow.days[day] = original + (original[0],)
-        with self.assertRaisesRegex(SourceSelectedPremierFixturesError, "Duplicate"):
+        with self.assertRaisesRegex(SourceSelectedPremierFixturesError, "duplicat"):
             source(state, context)
         state.primary_schedule_shadow.days[day] = original
         foreign = SimpleNamespace(**vars(original[0]))
