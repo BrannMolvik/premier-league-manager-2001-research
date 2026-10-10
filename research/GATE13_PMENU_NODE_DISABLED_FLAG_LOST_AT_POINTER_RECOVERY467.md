@@ -16,6 +16,19 @@ _10 October 2026 KST. Strict audit-only cross-branch source/code inspection. No 
 3. The ordinary management `on_click` path on `main` at `original_game_host.py:2074–2093`, and on Codex at `original_game_host.py:2385–2404`, computes `source_flags = 1 if candidate.selected else 0`, then passes the fabricated value to `resolve_pmenu_pointer_press` and `source_accepted_pmenu_action`. Its bit1 can **never be set**. The recovered resolver's bit1 gate therefore cannot be exercised through those user-visible pointer routes, even though the isolated helper test passes.
 4. This is a representation/integration gap, **not a verified report of a particular disabled button misfiring**. The original runtime producer/conditions for +0x14 bit1 per concrete menu row, any frame-by-frame disabled transitions, and Windows11 effects require source/live evidence. Do not set all nodes disabled, assume all enabled, or use the isolated guard-test result to certify the host.
 
+## Fresh canonical-original binary verification and source boundary
+
+Recovery467 subsequently materialized the authorized private Library ZIP at the recorded `/FM2001/Original Source/` location, read its MODE1/2352 Joliet level-3 root at disc sector 17, and extracted root `footballmanager.exe;1` from LBA **260425**, **4,714,541 bytes**. The freshly computed SHA-256 is exactly **`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`**. Only temporary private local copies were made, with no original bytes checked into Git.
+
+Read-only original `objdump -D -M intel` confirms the following:
+
+- **Initial source node bit1 is CLEAR**: `0x60C9C0: mov [eax+0x14],0` at `0x60C9C8` and `0x60C9D2`, with the parallel leaf initializer `0x60C9F0` writing zero at `0x60CA04/0x60CA0E`. Source root construction `0x60C710–0x60C896` copies these 0x18-byte initialized nodes to the nine-root tree at `0x947638..`. This does not establish later dynamic source flags.
+- **Original child gate independently corroborated**: `0x47AD9B` rejects bit0; `0x47ADA5` loads `[ebp+0x14]`, `0x47ADA8` shifts right one, and `0x47ADAA` tests its low bit; guarded jump at `0x47ADAD` exits before `0x47ADB9` factory call. Thus the separate bit1 is real source code rather than solely a legacy research interpretation.
+- **Relevant native PMenu selection reset observed**: `0x482960` (PMenu-linked caller identified via `[ebx+0xb4]` pointing at root `0x947638`) clears *bit0* from row nodes under the positive parameter branch at `0x4829AC/0x4829E0`, and chooses saved Squad `0xCE` or League Tables `0x25A` in another branch at `0x482A0B–0x482A8A`. These observed instructions do not establish a bit1 producer.
+- A broad disassembly grep is **not a complete aligned reachability/alias proof** of all possible source bit1 writers. The producer, conditions, and dynamic source states remain **UNRESOLVED**. No original GUI was run.
+
+**Updated priority:** Because initial original nodes are demonstrably unguarded, classify this as a **P1 conditional state-propagation fidelity gap**, not a demonstrated P0 blocker of ordinary opening menu clicks. Codex should retain the guards but prioritize missing P0 Inbox/NEXT/Squad/Save/Return integration. Do not "fix" the issue by assuming bit1 set in any particular row.
+
 ## Codex-only minimum correction recommendation
 
 Preserve source node `+0x14` flags (or a source-proven derived equivalent) through menu model → row snapshot → visual disabled styling → actual pointer callback. Verify title versus child guard order, selected/expanded behavior, and dynamically guarded child refusals against original node-state producers. Add **ordinary on_click path** regression for a child whose source bit1 is set and a source-qualified enabled counterpart; assert gated child cannot open a panel or mutate selection. Recheck multi-club/state behavior and interaction frames on Windows before claiming original-fidelity.
