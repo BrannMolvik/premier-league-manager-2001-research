@@ -265,7 +265,7 @@ def build_management_panel_snapshot(
         # country/DIVISION event chooses a different source-backed League.
         table_rows = (bridge.league_table_rows()
                       if league_tables_selection is None else
-                      bridge.source_selected_nonpl_league_table_rows(
+                      bridge.source_selected_league_table_rows(
                           league_tables_selection))
         table = build_league_tables_snapshot(
             table_rows,
