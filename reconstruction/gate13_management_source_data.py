@@ -2539,6 +2539,108 @@ class ManagementSourceDataBridge:
             ))
         return tuple(rows)
 
+    def original_league_tables_selection_context(self):
+        """Build PLeagueTables' eight-country/FIVE-division source selector."""
+        from original_league_tables_selector_context import (
+            OriginalLeagueTablesSelectorError,
+            build_original_league_tables_selection_context,
+        )
+        state = self.state
+        clubs = getattr(state, "clubs", None)
+        membership = getattr(state, "club_competition_membership", None)
+        definitions = getattr(state, "competitions", None)
+        if not (hasattr(clubs, "get") and hasattr(membership, "get")
+                and hasattr(definitions, "values")):
+            raise ManagementPresentationError(
+                "Original table country/DIVISION source catalogs are unavailable"
+            )
+        try:
+            return build_original_league_tables_selection_context(
+                human_club_id=self._human_club_id(),
+                clubs=clubs,
+                membership=membership,
+                competitions=definitions.values(),
+            )
+        except OriginalLeagueTablesSelectorError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+
+    def source_selected_nonpl_league_table_rows(
+        self, selector_context,
+    ) -> tuple[LeagueTableRowView, ...]:
+        """Real source-selected *other* root League Position standings, never PL fallbacks.
+
+        This is a read-only data source; no live original mouse event acceptance
+        or Current Form qsort 0x4F4A10 semantics are claimed.
+        """
+        from original_league_tables_selector_context import (
+            OriginalLeagueTablesSelectionContext,
+        )
+        from original_league_tables_live_source import (
+            SourceProceduralLeagueTableError,
+            source_qualified_selected_procedural_league_table,
+        )
+        state = self.state
+        membership = getattr(state, "club_competition_membership", None)
+        clubs = getattr(state, "clubs", None)
+        definitions = getattr(state, "competitions", None)
+        live = getattr(state, "procedural_leagues", None)
+        if not (hasattr(membership, "get") and hasattr(clubs, "get")
+                and hasattr(definitions, "get") and hasattr(live, "get")):
+            raise ManagementPresentationError(
+                "Source-selected League Tables live state is unavailable"
+            )
+        authenticated = self.original_league_tables_selection_context()
+        selection = selector_context
+        if (type(selection) is not OriginalLeagueTablesSelectionContext
+                or selection.division_candidates != authenticated.division_candidates
+                or selection.human_country_index != authenticated.human_country_index
+                or selection.human_competition_id != authenticated.human_competition_id
+                or type(selection.active_country_index) is not int
+                or not 0 <= selection.active_country_index < 8
+                or type(selection.selected_division_index) is not int
+                or not 0 <= selection.selected_division_index < len(
+                    authenticated.division_candidates[selection.active_country_index])
+                or type(selection.sort_state) is not int
+                or selection.sort_state != 0):
+            raise ManagementPresentationError(
+                "Original selected League Position country/DIVISION/sort is unqualified"
+            )
+        competition_id = selection.selected_competition_id
+        if competition_id == 0:
+            raise ManagementPresentationError(
+                "Alternate Premier League 0 table requires its distinct fixed source path"
+            )
+        try:
+            ordered = source_qualified_selected_procedural_league_table(
+                selected_country_id=selection.active_country_id,
+                competition_id=competition_id,
+                membership=membership,
+                clubs=clubs,
+                competitions=definitions,
+                procedural_leagues=live,
+            )
+        except SourceProceduralLeagueTableError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+        rows = []
+        for position, result in enumerate(ordered, start=1):
+            cid = result.club_id
+            club = self._source_club(cid)
+            rows.append(LeagueTableRowView(
+                position=position,
+                club_id=cid,
+                club_name=club.name,
+                short_name=club.short_name,
+                played=int(result.played),
+                wins=int(result.wins),
+                draws=int(result.draws),
+                losses=int(result.losses),
+                goals_for=int(result.goals_for),
+                goals_against=int(result.goals_against),
+                goal_difference=int(result.goal_difference),
+                points=int(result.points),
+            ))
+        return tuple(rows)
+
     def snapshot(self) -> ManagementSourceDataSnapshot:
         return ManagementSourceDataSnapshot(
             club=self.club_header(),
