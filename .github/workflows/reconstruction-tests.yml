@@ -55,6 +55,9 @@ on:
       - "reconstruction/test_gate13_pstartmenu_derivative.py"
       - "reconstruction/original_pmenu_presenter.py"
       - "reconstruction/test_original_pmenu_presenter.py"
+      # Recovery507: source constructor initializes eight native League selection slots.
+      - "reconstruction/original_league_fixtures_selector_context.py"
+      - "reconstruction/test_original_league_fixtures_selector_context.py"
       - "reconstruction/original_management_presenter.py"
       - "reconstruction/test_original_management_presenter.py"
       - "reconstruction/original_game_host.py"

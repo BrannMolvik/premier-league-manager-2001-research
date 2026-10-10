@@ -57,7 +57,7 @@ class LeagueFixturesSelectorContextTests(unittest.TestCase):
         context = open_context()
         self.assertEqual(context.active_country_id, 26)
         self.assertEqual(context.selected_competition_id, 0)
-        self.assertEqual(context.selected_league_indices, (0,) + (None,) * 7)
+        self.assertEqual(context.selected_league_indices, (0,) * 8)
         self.assertEqual(
             [(r.event_id, r.league_identity, r.caption, r.selected)
              for r in context.active_league_radios()],
@@ -84,8 +84,11 @@ class LeagueFixturesSelectorContextTests(unittest.TestCase):
         original = open_context()
         germany = original.accept_native_radio_event(2)
         self.assertEqual(germany.active_country_id, 33)
-        self.assertIsNone(germany.selected_competition_id)
-        self.assertIsNone(germany.active_league_radios())
+        self.assertEqual(germany.selected_competition_id, 100)
+        self.assertEqual(
+            [(radio.event_id, radio.selected) for radio in germany.active_league_radios()],
+            [(9, True), (10, False)],
+        )
         selected = germany.accept_native_radio_event(10)
         self.assertEqual(selected.selected_competition_id, 101)
         england = selected.accept_native_radio_event(1)
@@ -93,7 +96,20 @@ class LeagueFixturesSelectorContextTests(unittest.TestCase):
         again = england.accept_native_radio_event(2)
         self.assertEqual(again.selected_competition_id, 101)
         self.assertEqual(original.active_country_id, 26)
-        self.assertEqual(original.selected_league_indices[1], None)
+        self.assertEqual(original.selected_league_indices[1], 0)
+
+    def test_noncurrent_country_first_league_is_exact_original_constructor_zero(self):
+        context = open_context(country=33, league=101)
+        self.assertEqual(context.selected_league_indices, (0, 1, 0, 0, 0, 0, 0, 0))
+        england = context.accept_native_radio_event(1)
+        self.assertEqual(england.selected_competition_id, 0)
+        self.assertEqual(
+            [(row.league_identity, row.selected) for row in england.active_league_radios()],
+            [(0, True), (42, False)],
+        )
+        germany = england.accept_native_radio_event(2)
+        self.assertEqual(germany.selected_competition_id, 101)
+        self.assertEqual(context.selected_league_indices, (0, 1, 0, 0, 0, 0, 0, 0))
 
     def test_original_six_radio_limit_and_inactive_radio_do_not_mutate(self):
         context = open_context()

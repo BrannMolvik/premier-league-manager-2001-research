@@ -3,8 +3,9 @@
 This is NOT a substitute for the original prepared-member vector (0x4F4940),
 373-head fixture-chain order, date/status filters, control hit rectangles or
 rendered GUI. It is an independent, immutable selector state over canonical
-DBRClub and DBRCompetition metadata. Unknown per-country native initial
-selection is represented as None, never guessed as League zero.
+DBRClub and DBRCompetition metadata. Recovery507 original constructor
+0x46D5FC..0x46D60C proves all eight per-country selection slots start at zero;
+0x46B01F..0x46B028 replaces the managed club's slot with its actual League.
 """
 
 from __future__ import annotations
@@ -31,14 +32,16 @@ class LeagueFixturesSelectorContextError(ValueError):
 class LeagueFixturesSelectionContext:
     """Original +0x64 active country and +0x68[8] per-country indexes.
 
-    None is an unresolved initial index, NOT a hidden/guessed native zero.
+    Native constructor 0x46D5FC writes eight zero indexes, then current-club
+    0x46B028 replaces only the active country's index. Other countries start
+    at their first source League until the user selects another radio.
     Stored competition IDs are original DBRCompetition identities. Display
     captions are canonical English.str/Static.dat names, whose equality to
     the native League+0x14 runtime captions still needs a separate check.
     """
 
     active_country_index: int
-    selected_league_indices: tuple[int | None, ...]
+    selected_league_indices: tuple[int, ...]
     league_candidates: tuple[tuple[tuple[int, str], ...], ...]
 
     @property
@@ -46,16 +49,12 @@ class LeagueFixturesSelectionContext:
         return LEAGUE_FIXTURES_COUNTRY_SELECTORS[self.active_country_index].country_id
 
     @property
-    def selected_competition_id(self) -> int | None:
+    def selected_competition_id(self) -> int:
         selected = self.selected_league_indices[self.active_country_index]
-        if selected is None:
-            return None
         return self.league_candidates[self.active_country_index][selected][0]
 
-    def active_league_radios(self) -> tuple[LeagueFixturesLeagueSelector, ...] | None:
+    def active_league_radios(self) -> tuple[LeagueFixturesLeagueSelector, ...]:
         selected = self.selected_league_indices[self.active_country_index]
-        if selected is None:
-            return None
         return league_fixtures_league_selectors(
             self.league_candidates[self.active_country_index],
             selected_index=selected,
@@ -146,7 +145,10 @@ def build_league_fixtures_selection_context(
             )
         country_rows.append(tuple(rows))
 
-    selected: list[int | None] = [None] * len(LEAGUE_FIXTURES_COUNTRY_SELECTORS)
+    # Original PLeagueFixtures constructor: xor eax,eax; ecx=8;
+    # lea edi,[panel+0x68]; rep stosd (0x46D5FC..0x46D60C).
+    # The managed club's native League index overwrites only its country.
+    selected: list[int] = [0] * len(LEAGUE_FIXTURES_COUNTRY_SELECTORS)
     try:
         selected[current_country.index] = league_fixtures_selected_league_index(
             competition_id,
