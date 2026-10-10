@@ -188,6 +188,16 @@ class SourceProceduralLeagueTableTests(unittest.TestCase):
         with self.assertRaisesRegex(SourceProceduralLeagueTableError, "country identity"):
             exact_rows(s)
 
+    def test_live_fixture_outside_native_members_fails_before_table_accumulation(self):
+        s = source()
+        fixture = next(iter(s.procedural_leagues[(31, 0)].fixtures))
+        s.procedural_leagues[(31, 0)].fixtures[fixture] = SimpleNamespace(
+            node_token=fixture, home_club_id=999, away_club_id=11)
+        with self.assertRaisesRegex(
+            SourceProceduralLeagueTableError, "outside current source members"
+        ):
+            exact_rows(s)
+
     def test_no_live_nonpl_source_never_calls_premier_league_projection(self):
         s = source()
         s.procedural_leagues = {}
