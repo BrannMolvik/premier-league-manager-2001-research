@@ -138,10 +138,10 @@ class OriginalPremier0SelectedTableTests(unittest.TestCase):
 
     def test_missing_original_premier_definition_refuses_source(self):
         state = prepared_state()
+        selected = select_premier(state)
         state.competitions[0].country_region_id = 33
         with self.assertRaises(ManagementPresentationError):
-            source_bridge(state).source_selected_league_table_rows(
-                select_premier(state))
+            source_bridge(state).source_selected_league_table_rows(selected)
 
 
 if __name__ == "__main__":
