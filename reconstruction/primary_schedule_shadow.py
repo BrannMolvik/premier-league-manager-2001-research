@@ -56,10 +56,20 @@ class PrimaryScheduleShadowEntry:
     # Only the three 615C50 filter bits, not reconstructed Cup rule flags.
     payload_filter_bits: int | None = None
     side_club_cache: tuple[int | None, int | None] | None = None
+    postponed_from_date: date | None = None
+    postponement_reason: int | None = None
 
     def __post_init__(self) -> None:
         if self.wrapper_link_state not in WRAPPER_LINK_STATES:
             raise ValueError("primary schedule wrapper-link state is invalid")
+        if self.postponed_from_date is not None and type(self.postponed_from_date) is not date:
+            raise ValueError('primary postponed-event parent date is invalid')
+        if self.postponed_from_date is not None and (
+            type(self.postponement_reason) is not int or self.postponement_reason not in (0, 1, 2)
+        ):
+            raise ValueError('primary postponed-event reason is invalid')
+        if self.postponed_from_date is None and self.postponement_reason is not None:
+            raise ValueError('primary root event cannot have a postponement reason')
         if self.payload_filter_bits is not None and (
             type(self.payload_filter_bits) is not int
             or self.payload_filter_bits < 0 or self.payload_filter_bits & ~0x61
@@ -211,12 +221,45 @@ class PrimaryScheduleShadowState:
         self.days[on_date] = tuple(entries)
         return entries[index]
 
+    def _entry_index(self, on_date, node_token):
+        matches = [i for i, entry in enumerate(self.days.get(on_date, ()))
+                   if entry.node_token == node_token]
+        if len(matches) != 1:
+            raise RuntimeError('Original NEXT event identity is unresolved')
+        return matches[0]
+
+    def _replace_payload(self, on_date, index, **values):
+        entry = self.days[on_date][index]
+        if entry.postponed_from_date is None and entry.wrapper_link_state == WRAPPER_LINK_CLEAR:
+            return self._replace_entry(on_date, index, **values)
+        # PostponedEvent+18 delegates to the original payload, not a copy.
+        for day, entries in tuple(self.days.items()):
+            self.days[day] = tuple(replace(item, **values) if item.node_token == entry.node_token
+                                   else item for item in entries)
+        return self.days[on_date][index]
+
+    def _terminal_event(self, on_date, index):
+        visited = set()
+        while True:
+            entry = self.days[on_date][index]
+            if on_date in visited:
+                raise RuntimeError('Original NEXT postponed-event cycle')
+            visited.add(on_date)
+            if entry.wrapper_link_state == WRAPPER_LINK_CLEAR:
+                return on_date, index
+            children = [(day, i) for day, entries in self.days.items()
+                        for i, item in enumerate(entries) if item.node_token == entry.node_token
+                        and item.postponed_from_date == on_date]
+            if entry.wrapper_link_state != WRAPPER_LINK_LINKED or len(children) != 1:
+                raise RuntimeError('Original NEXT terminal wrapper lifecycle is unresolved')
+            on_date, index = children[0]
+
     def resolve_ordinary_side(self, on_date, index, side, resolve_ref,
-                              registration_required):
-        """510320, bounded to cached references or a conflict-free resolution.
+                              registration_required, *, postpone=None, priority=None):
+        """510320 Side cache and native first-peer conflict dispatch.
 
         Cache publication precedes the recursive 616020 peer query, as in
-        4F28A0. A required postponement/registration is refused, not invented.
+        4F28A0. Required registration or an absent postponement producer refuses.
         Callers stage this mutable lookup with the rest of the NEXT turn.
         """
         entry = self.days[on_date][index]
@@ -232,11 +275,14 @@ class PrimaryScheduleShadowState:
             raise RuntimeError('Original NEXT resolved Side registration is not integrated')
         cache = list(entry.side_club_cache)
         cache[side] = int(resolved)
-        self._replace_entry(on_date, index, side_club_cache=tuple(cache))
+        self._replace_payload(on_date, index, side_club_cache=tuple(cache))
+        on_date, index = self._terminal_event(on_date, index)
+        entry = self.days[on_date][index]
         # 615F40: same bucket (self skipped), then previous, then next.
         for peer_date in (on_date, on_date - timedelta(days=1),
                           on_date + timedelta(days=1)):
-            for peer_index in range(len(self.days.get(peer_date, ()))):
+            for original_peer in self.days.get(peer_date, ()):
+                peer_index = self._entry_index(peer_date, original_peer.node_token)
                 peer = self.days[peer_date][peer_index]
                 if peer.payload_filter_bits is None:
                     raise RuntimeError('Original NEXT peer payload flags are unresolved')
@@ -244,28 +290,44 @@ class PrimaryScheduleShadowState:
                     continue
                 matches = any(self.resolve_ordinary_side(
                     peer_date, peer_index, peer_side, resolve_ref,
-                    registration_required) == resolved for peer_side in (0, 1))
-                if matches and (peer_date, peer_index) != (on_date, index):
-                    raise RuntimeError('Original NEXT Side conflict requires native postponement: '
-                                       f'{on_date} {entry.node_token!r} vs '
-                                       f'{peer_date} {peer.node_token!r}')
+                    registration_required, postpone=postpone,
+                    priority=priority) == resolved for peer_side in (0, 1))
+                if matches and (peer_date, peer.node_token) != (on_date, entry.node_token):
+                    if postpone is None or priority is None:
+                        raise RuntimeError('Original NEXT Side conflict requires native postponement: '
+                                           f'{on_date} {entry.node_token!r} vs '
+                                           f'{peer_date} {peer.node_token!r}')
+                    peer = self.days[peer_date][self._entry_index(peer_date, peer.node_token)]
+                    own_priority, peer_priority = priority(entry), priority(peer)
+                    selected = ((on_date, self._entry_index(on_date, entry.node_token))
+                                if peer_priority > own_priority or (
+                                    peer_priority == own_priority and peer.payload_filter_bits & 1)
+                                else (peer_date, self._entry_index(peer_date, peer.node_token)))
+                    postpone(*selected, 0)
+                    return int(resolved)
         return int(resolved)
 
     def ordinary_next_candidate(self, club_id, from_date, resolve_ref,
-                                registration_required):
+                                registration_required, *, postpone=None, priority=None,
+                                container_end_date=None):
         """615D10/615C50 ordinary manager query; never a display-header lookup."""
-        for on_date in sorted(value for value in self.days if value >= from_date):
-            for index in range(len(self.days[on_date])):
+        end = container_end_date or max(self.days, default=from_date) + timedelta(days=1)
+        on_date = from_date
+        while on_date < end:
+            for original in self.days.get(on_date, ()):
+                index = self._entry_index(on_date, original.node_token)
                 entry = self.days[on_date][index]
                 if entry.payload_filter_bits is None:
                     raise RuntimeError('Original NEXT payload flags are unresolved')
                 if entry.payload_filter_bits & 0x20:
                     continue
                 matches = any(self.resolve_ordinary_side(
-                    on_date, index, side, resolve_ref, registration_required
+                    on_date, index, side, resolve_ref, registration_required,
+                    postpone=postpone, priority=priority
                 ) == club_id for side in (0, 1))
                 if not matches:
                     continue
+                index = self._entry_index(on_date, original.node_token)
                 entry = self.days[on_date][index]
                 if entry.wrapper_link_state == WRAPPER_LINK_LINKED:
                     continue
@@ -275,40 +337,67 @@ class PrimaryScheduleShadowState:
                     continue
                 # 514520 invokes both sides, even when the manager matched side 0.
                 for side in (0, 1):
+                    index = self._entry_index(on_date, original.node_token)
+                    if self.days[on_date][index].wrapper_link_state == WRAPPER_LINK_LINKED:
+                        break
                     self.resolve_ordinary_side(on_date, index, side, resolve_ref,
-                                               registration_required)
-                return on_date, self.days[on_date][index]
+                                               registration_required, postpone=postpone,
+                                               priority=priority)
+                entry = self.days[on_date][self._entry_index(on_date, original.node_token)]
+                if entry.wrapper_link_state == WRAPPER_LINK_CLEAR:
+                    return on_date, entry
+            on_date += timedelta(days=1)
         return None
 
-    def prepare_ordinary_day(self, on_date, resolve_ref, registration_required):
+    def prepare_ordinary_day(self, on_date, resolve_ref, registration_required, *,
+                             postpone=None, priority=None):
         """4A7280: current 615C10 readiness, then tomorrow's 616600/514520."""
         for current in (on_date, on_date + timedelta(days=1)):
-            for index in range(len(self.days.get(current, ()))):
+            for original in self.days.get(current, ()):
+                index = self._entry_index(current, original.node_token)
                 entry = self.days[current][index]
                 if entry.payload_filter_bits is None:
                     raise RuntimeError('Original NEXT current-day payload flags are unresolved')
-                if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
+                if entry.wrapper_link_state == WRAPPER_LINK_UNKNOWN:
                     raise RuntimeError('Original NEXT current-day wrapper lifecycle is unresolved')
-                if entry.payload_filter_bits & (1 if current == on_date else 0x60):
+                if current != on_date:
+                    # 514520 skips linked/20/40 and rechecks the link between Sides.
+                    if entry.wrapper_link_state == WRAPPER_LINK_LINKED or entry.payload_filter_bits & 0x60:
+                        continue
+                    self.resolve_ordinary_side(current, index, 0, resolve_ref,
+                        registration_required, postpone=postpone, priority=priority)
+                    index = self._entry_index(current, original.node_token)
+                    if self.days[current][index].wrapper_link_state == WRAPPER_LINK_CLEAR:
+                        self.resolve_ordinary_side(current, index, 1, resolve_ref,
+                            registration_required, postpone=postpone, priority=priority)
                     continue
-                pair = tuple(self.resolve_ordinary_side(
-                    current, index, side, resolve_ref, registration_required
-                ) for side in (0, 1))
+                if entry.payload_filter_bits & 1:
+                    continue
+                ready = False
+                if not entry.payload_filter_bits & 0x20:
+                    ready = self.resolve_ordinary_side(current, index, 0, resolve_ref,
+                        registration_required, postpone=postpone, priority=priority) is not None
+                    if ready:
+                        index = self._entry_index(current, original.node_token)
+                        ready = self.resolve_ordinary_side(current, index, 1, resolve_ref,
+                            registration_required, postpone=postpone, priority=priority) is not None
                 prior_complete = True
-                if current == on_date and entry.node_kind == 'second_leg_match':
+                if ready and entry.node_kind == 'second_leg_match':
                     # The recovered constructor links +54 to this emitted first leg.
                     prior = [item for bucket in self.days.values() for item in bucket
                              if item.node_kind == 'first_leg_match'
+                             and item.postponed_from_date is None
                              and item.competition_id == entry.competition_id
                              and item.competition_context == entry.competition_context
                              and item.node_token == ('cup_first_leg',) + entry.node_token[1:]]
                     if len(prior) != 1 or prior[0].payload_filter_bits is None:
                         raise RuntimeError('Original NEXT prior-leg lifecycle is unresolved')
                     prior_complete = bool(prior[0].payload_filter_bits & 1)
-                if current == on_date and (entry.payload_filter_bits & 0x20
-                                            or None in pair or not prior_complete):
-                    raise RuntimeError(f'Original NEXT unready current-day event requires postponement: '
-                                       f'{current} {entry.node_token!r}')
+                if not ready or not prior_complete:
+                    if postpone is None:
+                        raise RuntimeError('Original NEXT unready current-day event requires postponement: '
+                                           f'{current} {entry.node_token!r}')
+                    postpone(current, self._entry_index(current, original.node_token), 1)
 
     def retain_ordinary_completion(self, on_date, node_token):
         """Retain 511381's bit 0 after actual calculation, never from a score lookup."""
@@ -322,8 +411,76 @@ class PrimaryScheduleShadowState:
             raise RuntimeError('Original NEXT calculator flags/link are unresolved')
         if entry.payload_filter_bits & 0x61:
             raise RuntimeError('Original NEXT calculator event is not eligible')
-        self._replace_entry(on_date, index,
-                            payload_filter_bits=entry.payload_filter_bits | 1)
+        self._replace_payload(on_date, index,
+                              payload_filter_bits=entry.payload_filter_bits | 1)
+
+    def postpone_ordinary_event(self, on_date, index, *, current_date, container_end_date,
+                               resolve_ref, registration_required, postpone, priority, reason):
+        """510BA0/615A60: linked old event, delegated payload, +7/head insertion."""
+        original = self.days[on_date][index]
+        if original.wrapper_link_state == WRAPPER_LINK_LINKED:
+            return None
+        if original.wrapper_link_state != WRAPPER_LINK_CLEAR or original.payload_filter_bits is None:
+            raise RuntimeError('Original NEXT postponement guard is unresolved')
+        if original.payload_filter_bits & 0x40:
+            return None
+        self._replace_entry(on_date, index, wrapper_link_state=WRAPPER_LINK_LINKED)
+        candidate = max(on_date + timedelta(days=7), current_date + timedelta(days=1))
+        while candidate < container_end_date:
+            conflict = None
+            for peer_date in (candidate - timedelta(days=1), candidate, candidate + timedelta(days=1)):
+                for peer_original in self.days.get(peer_date, ()):
+                    peer_index = self._entry_index(peer_date, peer_original.node_token)
+                    peer = self.days[peer_date][peer_index]
+                    if peer.wrapper_link_state == WRAPPER_LINK_LINKED:
+                        continue
+                    if peer.wrapper_link_state != WRAPPER_LINK_CLEAR or peer.payload_filter_bits is None:
+                        raise RuntimeError('Original NEXT insertion peer lifecycle is unresolved')
+                    if peer.payload_filter_bits & 0x40:
+                        continue
+                    for peer_side in (0, 1):
+                        for own_side in (0, 1):
+                            # 510A80 invokes candidate equality against each existing Side.
+                            own_index = self._entry_index(on_date, original.node_token)
+                            payload = self.days[on_date][own_index]
+                            if payload.side_club_cache is None:
+                                raise RuntimeError('Original NEXT insertion Side cache is unresolved')
+                            own_value = payload.side_club_cache[own_side]
+                            if own_value is None:
+                                # New terminal wrapper still has +10=-1: 510320 skips615F40.
+                                own_value = resolve_ref(payload.refs[own_side])
+                                if own_value is not None:
+                                    if registration_required(payload):
+                                        raise RuntimeError('Original NEXT resolved Side registration is not integrated')
+                                    cache = list(payload.side_club_cache)
+                                    cache[own_side] = int(own_value)
+                                    self._replace_payload(on_date, own_index, side_club_cache=tuple(cache))
+                            peer_index = self._entry_index(peer_date, peer_original.node_token)
+                            peer_value = self.resolve_ordinary_side(
+                                peer_date, peer_index, peer_side, resolve_ref, registration_required,
+                                postpone=postpone, priority=priority)
+                            own_ref, peer_ref = original.refs[own_side], peer_original.refs[peer_side]
+                            matches = (own_value == peer_value if own_value is not None
+                                       and peer_value is not None else own_value is None
+                                       and peer_value is None and club_refs_conflict(own_ref, peer_ref))
+                            if matches:
+                                conflict = peer_date
+                                break
+                        if conflict is not None:
+                            break
+                    if conflict is not None:
+                        break
+                if conflict is not None:
+                    break
+            if conflict is None:
+                source_index = self._entry_index(on_date, original.node_token)
+                payload = self.days[on_date][source_index]
+                wrapper = replace(payload, wrapper_link_state=WRAPPER_LINK_CLEAR,
+                                  postponed_from_date=on_date, postponement_reason=reason)
+                self.days[candidate] = (wrapper,) + self.days.get(candidate, ())
+                return candidate
+            candidate = conflict + timedelta(days=2)
+        raise RuntimeError('Original NEXT postponement exceeds retained calendar')
 
     @staticmethod
     def _dynamic_node_conflicts_entry(node, entry: PrimaryScheduleShadowEntry) -> bool:
@@ -545,6 +702,9 @@ class PrimaryScheduleShadowState:
                     "payload_filter_bits": entry.payload_filter_bits,
                     "side_club_cache": (None if entry.side_club_cache is None
                                         else list(entry.side_club_cache)),
+                    "postponed_from_date": (None if entry.postponed_from_date is None
+                                            else entry.postponed_from_date.isoformat()),
+                    "postponement_reason": entry.postponement_reason,
                 }
                 for entry in entries
             ]
@@ -580,7 +740,7 @@ class PrimaryScheduleShadowState:
                 ),
             )
 
-        return cls(
+        state = cls(
             days={
                 date.fromisoformat(on_date): tuple(
                     PrimaryScheduleShadowEntry(
@@ -602,9 +762,35 @@ class PrimaryScheduleShadowState:
                         payload_filter_bits=raw.get('payload_filter_bits'),
                         side_club_cache=(None if raw.get('side_club_cache') is None
                                          else tuple(raw['side_club_cache'])),
+                        postponed_from_date=(None if raw.get('postponed_from_date') is None
+                                             else date.fromisoformat(raw['postponed_from_date'])),
+                        postponement_reason=raw.get('postponement_reason'),
                     )
                     for raw in entries
                 )
                 for on_date, entries in value.items()
             }
         )
+        children = set()
+        for on_date, entries in state.days.items():
+            for entry in entries:
+                if entry.postponed_from_date is None:
+                    continue
+                parent_key = (entry.postponed_from_date, entry.node_token)
+                if parent_key in children:
+                    raise ValueError('primary postponed-event parent has multiple children')
+                children.add(parent_key)
+                parents = [item for item in state.days.get(entry.postponed_from_date, ())
+                           if item.node_token == entry.node_token]
+                if len(parents) != 1 or entry.postponed_from_date >= on_date:
+                    raise ValueError('primary postponed-event parent is invalid')
+                parent = parents[0]
+                if parent.wrapper_link_state != WRAPPER_LINK_LINKED or (
+                    parent.refs, parent.side_club_cache, parent.payload_filter_bits,
+                    parent.node_kind, parent.competition_id, parent.competition_context
+                ) != (
+                    entry.refs, entry.side_club_cache, entry.payload_filter_bits,
+                    entry.node_kind, entry.competition_id, entry.competition_context
+                ):
+                    raise ValueError('primary postponed-event delegated payload is inconsistent')
+        return state

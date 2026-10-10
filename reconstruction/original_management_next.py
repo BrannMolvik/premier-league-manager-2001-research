@@ -38,6 +38,14 @@ def native_next_at_point(x: int, y: int) -> bool:
     return 700 <= x < 800 and 0 <= y < 95
 
 
+def native_next_press(x: int, y: int, flags: int) -> bool:
+    """Concrete Back5 ->64F7A0; PBg7BEE8C's parent guard is42DE00 (true)."""
+    if type(x) is not int or type(y) is not int:
+        raise ValueError('Original NEXT requires exact pointer coordinates')
+    native_next_source_row(flags)  # Shared DWORD boundary validation.
+    return native_next_at_point(x, y) and bool(flags & 2) and not flags & 0x10
+
+
 def native_next_caption(current_date: date, retained_match_date: date | None) -> str:
     if type(current_date) is not date or (
             retained_match_date is not None and type(retained_match_date) is not date):

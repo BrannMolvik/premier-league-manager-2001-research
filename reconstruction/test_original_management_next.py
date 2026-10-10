@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from ea444_decoder import EA444DecodedImage
 from original_management_next import (
-    native_next_source_row, native_next_at_point, native_next_caption,
+    native_next_source_row, native_next_at_point, native_next_press, native_next_caption,
     native_next_bitmap_pixels, native_next_caption_pixels,
     load_verified_management_next_art, NEXT_RECT, NEXT_SOURCE_PATH,
 )
@@ -14,6 +14,16 @@ from original_management_header import validate_management_header_font
 
 
 class NativeNextControlTests(unittest.TestCase):
+    def test_concrete_back5_press_matches_native_flags_and_half_open_geometry(self):
+        for flags in range(128):
+            self.assertEqual(native_next_press(700, 0, flags),
+                             bool(flags & 2) and not bool(flags & 0x10))
+            self.assertFalse(native_next_press(800, 0, flags))
+            self.assertFalse(native_next_press(700, 95, flags))
+        for x, y, flags in ((True, 0, 2), (700, 0.0, 2), (700, 0, -1)):
+            with self.assertRaises(ValueError):
+                native_next_press(x, y, flags)
+
     def test_exact_source_row_priority_not_generic_bitmap_selector(self):
         for flags, row in ((0,3),(8,3),(16,3),(26,2),(10,1),(2,0),(0x22,0),(0x8002,0)):
             self.assertEqual(native_next_source_row(flags), row)

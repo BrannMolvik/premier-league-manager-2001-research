@@ -110,6 +110,89 @@ class OriginalNextEventTests(unittest.TestCase):
             state.prepare_ordinary_day(self.today, lambda ref: ref.direct_club_id,
                                        lambda entry: False)
 
+    def test_native_postponement_priority_tie_and_insertion_matrix(self):
+        symbolic = CupClubRefDescriptor(type_code=1, selector=0, reference_token=('prior',))
+        for own_priority, peer_priority in ((-2, -1), (-1, -2), (-1, -1)):
+            for completed in (False, True):
+                for occupied in (False, True):
+                    with self.subTest(priorities=(own_priority, peer_priority),
+                                      completed=completed, occupied=occupied):
+                        own = self.node(1, left=symbolic)
+                        peer = replace(self.node(2), competition_id=8)
+                        buckets = [()] * 32
+                        buckets[10] = (own, peer)
+                        if occupied:
+                            buckets[17] = (self.node(3),)
+                        state = self.state(*buckets)
+                        source_day = self.today + timedelta(days=10)
+                        entries = state.days[source_day]
+                        state.days[source_day] = (entries[0], replace(entries[1],
+                                                                      payload_filter_bits=int(completed)))
+                        resolve = lambda ref: 1 if ref.direct_club_id is None else ref.direct_club_id
+                        priority = lambda entry: own_priority if entry.competition_id == 7 else peer_priority
+                        def postpone(day, index, reason):
+                            return state.postpone_ordinary_event(day, index,
+                                current_date=self.today + timedelta(days=6),
+                                container_end_date=self.today + timedelta(days=32),
+                                resolve_ref=resolve, registration_required=lambda entry: False,
+                                postpone=postpone, priority=priority, reason=reason)
+                        self.assertEqual(state.resolve_ordinary_side(source_day, 0, 0, resolve,
+                            lambda entry: False, postpone=postpone, priority=priority), 1)
+                        chosen = 0 if peer_priority > own_priority or (
+                            peer_priority == own_priority and completed) else 1
+                        self.assertEqual(state.days[source_day][chosen].wrapper_link_state, 'linked')
+                        self.assertEqual(state.days[source_day][1 - chosen].wrapper_link_state, 'clear')
+                        target = self.today + timedelta(days=19 if occupied else 17)
+                        wrapper = state.days[target][0]
+                        self.assertEqual(wrapper.node_token, state.days[source_day][chosen].node_token)
+                        self.assertEqual(wrapper.postponed_from_date, source_day)
+                        self.assertEqual(wrapper.postponement_reason, 0)
+                        restored = PrimaryScheduleShadowState.restore(state.snapshot())
+                        self.assertEqual(restored.snapshot(), state.snapshot())
+                        corrupted = state.snapshot()
+                        corrupted[target.isoformat()][0]['side_club_cache'] = [1, 99]
+                        with self.assertRaises(ValueError):
+                            PrimaryScheduleShadowState.restore(corrupted)
+                        if not wrapper.payload_filter_bits & 1:
+                            restored.retain_ordinary_completion(target, wrapper.node_token)
+                            self.assertEqual(restored.days[source_day][chosen].payload_filter_bits, 1)
+
+    def test_postponed_backend_order_and_cup_date_survive_save_codec(self):
+        from test_human_gameplay import HumanGameplayControllerTests, Database
+        from internal_save import snapshot_game_state, restore_game_state
+        c = HumanGameplayControllerTests().build_controller()
+        node = replace(self.node(kind='cup_match'), competition_id=84, round_id=628,
+                       extra_time_capable=False, decisive_tiebreak=True, auxiliary_flag=False)
+        c.state.install_qualification_cup_primary_schedule(((node,),), season_year=2000,
+                                                          competition_ids=(84,))
+        tag = ('qualification_cup', node.node_token)
+        c.state.primary_matchday_order = {self.today: (tag,)}
+        new_date = self.today + timedelta(days=7)
+        c.state.retain_postponed_primary_entry(tag, from_date=self.today, to_date=new_date)
+        restored = restore_game_state(Database(), snapshot_game_state(c.state))
+        self.assertEqual(restored.primary_matchday_order[self.today], ())
+        self.assertEqual(restored.primary_matchday_order[new_date], (tag,))
+        self.assertEqual(restored.qualification_cups.node(node.node_token).scheduled_date, new_date)
+
+    def test_readiness_short_circuits_but_tomorrow_update_rechecks_link_between_sides(self):
+        from unittest.mock import Mock
+        symbolic = CupClubRefDescriptor(type_code=1, selector=0, reference_token=('source',))
+        node = self.node(left=symbolic, right=symbolic)
+        state = self.state((node,))
+        resolve = Mock(return_value=None)
+        with self.assertRaisesRegex(RuntimeError, 'unready'):
+            state.prepare_ordinary_day(self.today, resolve, lambda entry: False)
+        self.assertEqual(resolve.call_count, 1)
+        state = self.state((), (node,))
+        tomorrow = self.today + timedelta(days=1)
+        def resolve_then_link(ref):
+            entry = state.days[tomorrow][0]
+            state.days[tomorrow] = (replace(entry, wrapper_link_state='linked'),)
+            return None
+        resolve = Mock(side_effect=resolve_then_link)
+        state.prepare_ordinary_day(self.today, resolve, lambda entry: False)
+        self.assertEqual(resolve.call_count, 1)
+
     def test_corrupt_filter_and_cache_fields_are_rejected(self):
         for field, value in (('payload_filter_bits', True), ('payload_filter_bits', 2),
                              ('side_club_cache', [1, 2]), ('side_club_cache', (2, 1))):

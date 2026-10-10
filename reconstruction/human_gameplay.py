@@ -1603,6 +1603,37 @@ class HumanGameplayController:
         return competition.runtime_kind in ('cup', 'dummy_league') \
             and competition.cup_restriction_mode == 1
 
+    def _original_event_priority(self, entry):
+        competition = self.state.competitions.get(entry.competition_id)
+        if competition is None:
+            raise RuntimeError('Original NEXT event competition is unresolved')
+        return -int(competition.initialization_order_value)
+
+    def _original_postpone_event(self, on_date, index, reason):
+        shadow = self.state.primary_schedule_shadow
+        owner = shadow.days[on_date][index]
+        entries = [entry for entry in self.state.primary_matchday_order.get(on_date, ())
+                   if type(entry[1]) is tuple and entry[1] == owner.node_token]
+        if owner.wrapper_link_state == 'linked' or (
+                owner.payload_filter_bits is not None and owner.payload_filter_bits & 0x40):
+            return None
+        if owner.node_kind == 'fixed_league_match':
+            raise RuntimeError('Original NEXT postponed fixed-League date owner is not integrated')
+        if len(entries) != 1:
+            raise RuntimeError('Original NEXT postponed event execution owner is unresolved')
+        entry = entries[0]
+        new_date = shadow.postpone_ordinary_event(
+            on_date, index, current_date=self.state.calendar.current_date,
+            container_end_date=self.state.primary_schedule_end_date,
+            resolve_ref=self.state.cup_results.resolve_club_ref,
+            registration_required=self._original_side_registration_required,
+            postpone=self._original_postpone_event, priority=self._original_event_priority,
+            reason=reason)
+        if new_date is None:
+            return None
+        self.state.retain_postponed_primary_entry(entry, from_date=on_date, to_date=new_date)
+        return new_date
+
     def advance_original_management(self) -> OriginalManagementTurnOutcome:
         """Ordinary NEXT entry: stage the native mutable selector and day walk."""
         if self.human is None:
@@ -1616,7 +1647,9 @@ class HumanGameplayController:
         candidate = staged.state.primary_schedule_shadow.ordinary_next_candidate(
             staged.human.club_id, staged.state.calendar.current_date,
             staged.state.cup_results.resolve_club_ref,
-            staged._original_side_registration_required)
+            staged._original_side_registration_required,
+            postpone=staged._original_postpone_event, priority=staged._original_event_priority,
+            container_end_date=staged.state.primary_schedule_end_date)
         target = original_management_advance_target(
             staged.state.calendar.current_date,
             next_match_date=None if candidate is None else candidate[0],
@@ -1683,7 +1716,8 @@ class HumanGameplayController:
                 raise RuntimeError("Original NEXT day owner diverged from its retained target")
             self.state.primary_schedule_shadow.prepare_ordinary_day(
                 on_date, self.state.cup_results.resolve_club_ref,
-                self._original_side_registration_required)
+                self._original_side_registration_required,
+                postpone=self._original_postpone_event, priority=self._original_event_priority)
             pending = self._process_current_primary_day(native_primary_order=True)
             processed.append(on_date)
             if pending is not None or self.human is None:

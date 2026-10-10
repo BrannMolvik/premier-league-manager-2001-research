@@ -472,6 +472,79 @@ class FullHDFakeRoot(FakeRoot):
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_next_press_runs_off_tk_and_publishes_only_after_successful_poll(self):
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk,
+            management_presenter_factory=management_factory,
+            management_thread_factory=DeferredThread)
+        host.on_click(SimpleNamespace(x=141, y=512))
+        live.choose_club(12)
+        with patch.object(host, 'redraw'):
+            host.on_click(SimpleNamespace(x=426, y=301))
+        gameplay = live.session.gameplay
+        gameplay.turns = 0
+        gameplay.state = SimpleNamespace(calendar=SimpleNamespace(current_date=date(2000, 8, 1)))
+
+        def advance(staged):
+            staged.turns += 1
+            return SimpleNamespace(pending_primary_entry=None)
+
+        with patch.object(StubBackend, 'advance_original_management', advance, create=True), \
+                patch.object(host, 'redraw'):
+            host.on_click(SimpleNamespace(x=750, y=40))
+            thread = host._management_turn_thread
+            self.assertTrue(thread.started)
+            self.assertEqual(host.management_next_flags & 0x10, 0x10)
+            self.assertEqual(gameplay.turns, 0)
+            host.on_click(SimpleNamespace(x=750, y=40))
+            self.assertIs(host._management_turn_thread, thread)
+            thread.run()
+            self.assertEqual(gameplay.turns, 0)
+            host._poll_original_management_turn()
+            self.assertEqual(gameplay.turns, 1)
+            self.assertIsNone(host._management_turn_thread)
+            self.assertEqual(host.management_next_flags, 2)
+            self.assertIn('2000-08-01', host.last_status)
+
+    def test_next_failure_leaves_live_state_retryable_and_owns_all_pointer_input(self):
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+            management_thread_factory=DeferredThread, error_reporter=lambda text: None)
+        live.session.gameplay = StubBackend()
+        live.session.gameplay.turns = 0
+
+        def advance(staged):
+            staged.turns += 1
+            raise RuntimeError('unresolved native event')
+
+        with patch.object(StubBackend, 'advance_original_management', advance, create=True), \
+                patch.object(host, 'redraw'), patch('sys.stderr'):
+            host._begin_original_management_turn()
+            with patch.object(host, '_normalize_pointer_event', side_effect=AssertionError('input leaked')):
+                host.on_click(None)
+                host.on_fixture_report_press(None)
+                host.on_script_arrow_release(None)
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+            self.assertEqual(live.session.gameplay.turns, 0)
+            self.assertIn('unresolved native event', host.last_status)
+            self.assertEqual(host.management_next_flags, 2)
+            self.assertIsNone(host._management_turn_thread)
+
+    def test_next_thread_start_failure_releases_busy_state(self):
+        live = presenter()
+        live.session.gameplay = SimpleNamespace(advance_original_management=lambda: None)
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+            management_thread_factory=lambda **kwargs: SimpleNamespace(
+                start=lambda: (_ for _ in ()).throw(RuntimeError('thread unavailable'))))
+        with self.assertRaisesRegex(RuntimeError, 'thread unavailable'):
+            host._begin_original_management_turn()
+        self.assertIsNone(host._management_turn_queue)
+        self.assertIsNone(host._management_turn_thread)
+        self.assertEqual(host.management_next_flags, 2)
+        self.assertEqual(host.root.values['configure']['cursor'], '')
+
     def test_rgba_photo_cache_precedes_encoding_and_tracks_content_geometry(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
         pixels = bytes((1, 2, 3, 255)) * 2

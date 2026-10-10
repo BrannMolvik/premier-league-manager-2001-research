@@ -41,6 +41,25 @@ calendar/non-registration context. No semantic routine is replaced. The
 conflict experiment stops on entry to510BA0, not after fabricating a wrapper.
 Raw PE/windows and reports remain private, outside Git.
 
+Further private challenge `next-postponement-proof.py` executes actual615F40,
+510BA0,615790/615890/615A60 and7C9FE8 delegation:12 priority/tie/completion/
+occupied-target cases pass. Only668140 allocation is supplied as explicit
+nonzero A5-filled memory; no scheduling/equality routine is stubbed. The first
+matching same/previous/next peer determines the choice. Larger signed
+competition+18 wins; on equal priority an already-completed peer also wins.
+510BA0 guards event+8 and payload40, links a1C-byte wrapper to the old event,
+requests old relative day+7, clamps current+1, displaces conflicts to+2 and
+head-inserts. Wrapper vft+18 delegates the payload, including Side cache/flags.
+Runtime competition+18 is the negated packed initialization_order_value.
+
+Private `next-input-proof.py` independently executes concreteBack5 vft7BEED8
+5D39C0 and PBg7BEE8C actual constant-true guard/432690 dispatcher:256 low7-flag/
+notify cases pass. Accepted requires2 and not10; source sets dirty4 on every
+invocation and pressed10 on acceptance. ID3 reaches432190(0) only on notify.
+The game action is intercepted AFTER actual dispatch and5329D0 repaint is
+intercepted; null UI-service/empty-child-list fixtures are explicit. This
+qualifies bounded press acceptance, not the complete live UI lifecycle.
+
 ## Smallest integration and remaining boundaries
 
 Retain only the three selector bits and actual Side cache, separately from
@@ -71,10 +90,30 @@ NEXT after that reload refuses at August23: `('cup_result',9,200,0)` and
 `('league_match',27,0,18)` require native Side conflict/postponement handling.
 Continue that exact dependency, including first-peer priority and linked
 payload ownership; do not discard either fixture or manufacture a result.
-Canonical successful turns measured8.05–12.82 seconds; latency is not fixed.
-Focused validation:203 tests/14.996 seconds, all passed; repository asset policy
-and diff checks passed. Full regression/Windows normal-click acceptance has not
-been rerun for this component checkpoint.
+
+That dependency is now integrated: known wrappers retain their old linked
+event and shared payload/cache/flags, reason, new date and native head order.
+The existing Cup backend date and primary execution order move with the
+terminal wrapper. Disk restore validates the delegated parent graph. Fixed
+League date-owner relocation, registration and unknown producers still refuse.
+Canonical continuation from the completed August19 save now reaches August25,
+calculates August26 (1–1), reaches September1 and calculates September2 (0–1).
+Actual disk save/reload snapshots match after each turn and match, with one
+retained postponed wrapper. No fixture was discarded or result fabricated.
+These remain backend probes; complete report/visible acceptance is not claimed.
+
+Ordinary concrete NEXT presses now call the transactional controller on a worker
+thread; only Tk's thread publishes successful state. Duplicate, right-click and
+release input is blocked while progression owns input. Rejection or thread-start
+failure releases the busy state without publishing the staged graph. At a
+pending fixture the host currently stops with a status message: the actual
+pre-match modal/calculation/return connection is the next required slice.
+Canonical continuation turns measured9.62–14.94 seconds; latency is not fixed.
+Focused validation:276 tests/36.722 seconds passed. Intermediate full regression:
+3127 tests/331.247 seconds/25 skips, four failures/one error. Three failures/one
+error are the established disjoint Gate17 package-lock mismatch; the additional
+subprocess source-path failure passes when rerun outside the sandbox. That run
+predates the final host edits and is not final-code/full-green acceptance.
 
 Pending: full supported ordinary NEXT/match flow, physical ID3, actual pre-match
 modal/results/return, Windows input acceptance and measured latency. Existing

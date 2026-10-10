@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from time import time
 from typing import Callable, Iterable
@@ -3827,6 +3827,26 @@ class GameState:
             ):
                 due.append(entry)
         return tuple(due)
+
+    def retain_postponed_primary_entry(self, entry, *, from_date, to_date):
+        """Keep backend due ownership aligned with the native terminal event."""
+        if self.primary_matchday_order.get(from_date, ()).count(entry) != 1 \
+                or entry in self.primary_matchday_order.get(to_date, ()):
+            raise RuntimeError('Original NEXT postponed execution order is inconsistent')
+        owners = {'domestic_cup': self.domestic_cups, 'european_cup': self.european_cups,
+                  'qualification_cup': self.qualification_cups}
+        if entry[0] in owners:
+            owner = owners[entry[0]]
+            node = owner.node(entry[1])
+            if node.scheduled_date != from_date:
+                raise RuntimeError('Original NEXT postponed Cup date is inconsistent')
+            owner.nodes = tuple(replace(item, scheduled_date=to_date) if item.node_token == entry[1]
+                                else item for item in owner.nodes)
+        elif entry[0] != 'procedural_league':
+            raise RuntimeError('Original NEXT postponed calendar owner is not integrated')
+        self.primary_matchday_order[from_date] = tuple(
+            item for item in self.primary_matchday_order[from_date] if item != entry)
+        self.primary_matchday_order[to_date] = (entry,) + self.primary_matchday_order.get(to_date, ())
 
     def install_domestic_cup_schedule_nodes(
         self,

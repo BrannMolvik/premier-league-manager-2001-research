@@ -1,3 +1,15 @@
+### 10 October 2026 KST — native postponement + NEXT host integration
+
+Canonical12-case postponement/256-case concrete Back5 execution qualifies
+wrapper ownership/priority/head insertion and ordinary ID3. Existing backend
+Southport continuation calculates August26 (1–1)/September2 (0–1), preserving
+actual disk roundtrips and the postponed payload. Tk worker publication is
+transactional and busy pointer input blocked.276 focused/36.722s passed. Actual
+pre-match/calculation/return UI remains unfinished; no playable acceptance.
+Intermediate full3127/25 skips retains disjoint Gate17 package-lock failures
+and a sandbox subprocess-path failure which passes outside sandbox. No original
+process, main merge, agent-runtime or later-gate implementation change.
+
 ### 10 October 2026 KST — ordinary event-selector/backend milestone, not UI acceptance
 
 Reconciled audit-only main41d5946d; actual canonical direct1536/symbolic4 cases

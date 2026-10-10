@@ -1,5 +1,20 @@
 # Playable-core priority — 10 October 2026 KST
 
+**Native postponement + ordinary NEXT binding:** actual canonical12-case
+priority/tie/completion/conflict execution and256-case concrete Back5 input
+execution qualify the smallest wrapper and ID3 integrations. Canonical Southport
+now continues past August23 through August26 (1–1) and September2 (0–1), with
+actual disk roundtrips retaining the postponed event and results. NEXT runs off
+Tk and only successful staged state publishes on Tk; busy input/refusal/start
+failure covered.276 focused tests/36.722s passed. This is NOT a complete playable
+loop: pending fixtures still need actual pre-match/modal/calculation/return;
+no physical-mouse Windows acceptance or complete-report claim. Intermediate
+full regression3127/25skips retains known Gate17 package-lock3 failures+1 error;
+one sandbox-only subprocess path failure passes outside sandbox. See
+`GATE13_NEXT_EVENT_LIFECYCLE_2026-10-10.md`. Gate13 OPEN; no original process,
+main merge, agent-runtime or later-gate implementation change. Continue the
+normal pre-match slice, then Windows acceptance, not cosmetic research.
+
 **Ordinary selector integration checkpoint:** reconciled audit-only main41d5946d.
 Actual canonical constructors/selector passed1536 direct cases and4 symbolic
 Side cases. Retain native selector bits/cache and constructed calendar end

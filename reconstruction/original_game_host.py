@@ -14,6 +14,7 @@ capture stay fail-closed; the host does not invent a replacement skin.
 from __future__ import annotations
 
 from base64 import b64encode
+from copy import copy
 from functools import lru_cache
 from pathlib import Path
 from queue import Empty, Queue
@@ -415,6 +416,9 @@ class OriginalGameTkHost:
         self.management_header_resources = management_header_resources
         self.management_next_art = management_next_art
         self.management_next_flags = 2
+        self._management_turn_queue = None
+        self._management_turn_thread = None
+        self._management_turn_poll = None
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
         if not callable(management_thread_factory):
@@ -1198,6 +1202,64 @@ class OriginalGameTkHost:
             self.last_status = f"{type(exc).__name__}: {exc}"
             traceback.print_exc(file=sys.stderr)
             self.error_reporter(self.last_status)
+
+    def _begin_original_management_turn(self) -> None:
+        """Run the existing transactional NEXT without starving Tk's message pump."""
+        if self._management_turn_thread is not None:
+            return
+        gameplay = self.presenter.session.gameplay
+        if not callable(getattr(gameplay, 'advance_original_management', None)):
+            raise OriginalGameHostError('Ordinary NEXT requires the native event-aware controller')
+        result_queue = Queue()
+        self._management_turn_queue = result_queue
+        self.management_next_flags |= 0x14
+        self._squad_drag_source = None
+        self.root.configure(cursor='watch')
+
+        def worker():
+            try:
+                # advance_original_management stages its graph; publish only on Tk's thread.
+                staged = copy(gameplay)
+                outcome = staged.advance_original_management()
+                result_queue.put(('ok', staged, outcome))
+            except Exception as exc:
+                result_queue.put(('error', exc, traceback.format_exc()))
+
+        try:
+            self._management_turn_thread = self.management_thread_factory(target=worker, daemon=True)
+            self._management_turn_thread.start()
+        except Exception:
+            self._management_turn_queue = None
+            self._management_turn_thread = None
+            self.management_next_flags = 2
+            self.root.configure(cursor='')
+            raise
+        self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
+        self.redraw()
+
+    def _poll_original_management_turn(self) -> None:
+        self._management_turn_poll = None
+        try:
+            status, payload, outcome = self._management_turn_queue.get_nowait()
+        except Empty:
+            self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
+            return
+        self._management_turn_queue = None
+        self._management_turn_thread = None
+        self.management_next_flags = 2
+        self.root.configure(cursor='')
+        if status == 'error':
+            self.last_status = f'{type(payload).__name__}: {payload}'
+            print(outcome, file=sys.stderr, flush=True)
+            self.error_reporter(self.last_status)
+            self.redraw()
+            return
+        gameplay = self.presenter.session.gameplay
+        gameplay.__dict__.update(payload.__dict__)
+        self.redraw()
+        self.last_status = ('Original NEXT reached pending pre-match event '
+                            f'{outcome.pending_primary_entry!r}' if outcome.pending_primary_entry
+                            else f'Original NEXT advanced to {gameplay.state.calendar.current_date}')
 
     def _schedule_management_header_update(self) -> None:
         if (
@@ -2165,7 +2227,8 @@ class OriginalGameTkHost:
         self.last_status = "Closed source-accepted PMatchInfo popup"
 
     def on_fixture_report_press(self, event) -> None:
-        if getattr(self, "_startup_media_active", False):
+        if (getattr(self, "_startup_media_active", False)
+                or self._management_turn_thread is not None):
             return
         event = self._normalize_pointer_event(event)
         """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
@@ -2207,7 +2270,8 @@ class OriginalGameTkHost:
             self.redraw()
 
     def on_script_arrow_release(self, event) -> None:
-        if getattr(self, "_startup_media_active", False):
+        if (getattr(self, "_startup_media_active", False)
+                or self._management_turn_thread is not None):
             return
         event = self._normalize_pointer_event(event)
         if self._release_original_squad_row(event):
@@ -2287,6 +2351,8 @@ class OriginalGameTkHost:
     def on_click(self, event) -> None:
         if getattr(self, "_startup_media_active", False):
             return  # Startup skip/menu semantics are not inferred from input.
+        if self._management_turn_thread is not None:
+            return  # PResults/native progression owns input until management reentry.
         event = self._normalize_pointer_event(event)
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self._management_load_thread is not None:
@@ -2332,6 +2398,15 @@ class OriginalGameTkHost:
                     self.presenter.session
                 )
             frame = build_management_canvas_frame(self.management_presenter)
+            from original_management_next import native_next_press
+            if not self.pmenu_popup_active and native_next_press(
+                    int(event.x), int(event.y), self.management_next_flags):
+                try:
+                    self._begin_original_management_turn()
+                except Exception as exc:
+                    self.last_status = f'{type(exc).__name__}: {exc}'
+                    self.error_reporter(self.last_status)
+                return
             if pmenu_open_press(int(event.x), int(event.y), active=self.pmenu_popup_active):
                 self.pmenu_popup_active = True
                 self.redraw()
