@@ -115,7 +115,7 @@ class SourceProceduralLeagueTableTests(unittest.TestCase):
     def test_career_current_manager_competition_must_match_source_record(self):
         s = source()
         s.club_competition_membership[10] = 0
-        with self.assertRaisesRegex(SourceProceduralLeagueTableError, "current"):
+        with self.assertRaisesRegex(SourceProceduralLeagueTableError, "Current manager"):
             exact_rows(s)
         c = SimpleNamespace(state=s, human=SimpleNamespace(club_id=10))
         # The PL path is distinct; here the sentinel is deliberately hostile.
