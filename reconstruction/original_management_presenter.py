@@ -26,6 +26,7 @@ from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
     ManagementHeaderMatchView,
+    ManagementPresentationError,
     ManagementSourceDataBridge,
 )
 from original_league_fixtures_selector_context import (
@@ -33,6 +34,7 @@ from original_league_fixtures_selector_context import (
     LeagueFixturesSelectorContextError,
 )
 from original_league_fixtures_presenter import (
+    OriginalLeagueFixturesPresentationError,
     OriginalLeagueFixturesSnapshot,
     build_league_fixtures_snapshot,
 )
