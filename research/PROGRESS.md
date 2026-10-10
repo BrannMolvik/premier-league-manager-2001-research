@@ -12657,3 +12657,8 @@ continues with ordinary Squad row display-name/color helpers.
 ## 10 October 2026 KST — Recovery472 Save Game0x321 still unwired after Return0x323
 
 Verified original source 0x321 PSaveGame 760x500 and event6 write/event7 delete+compact against Codex b36276e4 which now implements 0x323 Return/Continue only. Latest Save menu routes to unsupported presenter; no actual Save UI. Original writer loops all registered managers, unlike current single-human internal snapshot. Checkpoint research/GATE13_GAME_OPTIONS_SAVE321_VS_RETURN323_RECOVERY472.md and ledger; audit-only/no native process/test/CI. Gate13 OPEN.
+
+## 10 October 2026 KST — Recovery472 existing PPreMatch and native presentation handoff
+
+- Crosschecked latest Codex original host pending NEXT against earlier source-proven Gate14 PPreMatch 182-child rendering/Match Detail mode modules. Normal on_click invokes staged NEXT and only displays pending fixture status; no actual original PPreMatch modal owner, match mode action or PResults/return. Existing original_prematch_panel.py, gate14_prematch_surface.py, gate14_match_detail_route_source.py already preserve valuable native assets/geometry and route modes0..3, but incomplete native16/3D must not be promoted.
+- Audit checkpoint research/GATE13_PREMATCH_READY_SOURCE_MODULES_VS_MISSING_GUI_HANDOFF_RECOVERY472.md defines Codex-only handoff integrating pending owner and source mode selection before exactly one match, with original PResults event-driven progress and source Stack return (not decorative waiting strip). Earlier original PE source evidence only; trivial sandbox ClientError prevents fresh source disassembly, CI or Windows11 playtest. No code change. Gate13 OPEN.
