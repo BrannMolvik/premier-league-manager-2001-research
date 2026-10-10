@@ -2314,13 +2314,60 @@ class ManagementSourceDataBridge:
         return LEAGUE_TABLE_PRESENTATION_CONTRACT
 
     def league_table_rows(self) -> tuple[LeagueTableRowView, ...]:
-        table = getattr(self.state, "premier_league_table", None)
-        if not callable(table):
+        """Default PLeagueTables League Position for the *current* manager.
+
+        PL keeps its existing source-qualified projection. A different real
+        League may render only when its current live results, country/root
+        identity, and entire retained participant set have been proven.
+        Never substitute Premier League 0 for an unintegrated League.
+        """
+        state = self.state
+        membership = getattr(state, "club_competition_membership", None)
+        if not hasattr(membership, "get"):
             raise ManagementPresentationError(
-                "Recovered Premier League table projection is unavailable"
+                "Current-manager League membership source is unavailable"
             )
+        competition_id = membership.get(self._human_club_id())
+        if type(competition_id) is not int or competition_id < 0:
+            raise ManagementPresentationError(
+                "Current manager has no recovered League-table identity"
+            )
+        if competition_id != 0:
+            # This adapter is strictly read-only. There is no calendar/event
+            # materialization, participation guessing or ID-based sorting.
+            from original_league_tables_live_source import (
+                SourceProceduralLeagueTableError,
+                source_qualified_procedural_league_table,
+            )
+            clubs = getattr(state, "clubs", None)
+            definitions = getattr(state, "competitions", None)
+            live = getattr(state, "procedural_leagues", None)
+            if (not hasattr(clubs, "get") or not hasattr(definitions, "get")
+                    or not hasattr(live, "get")):
+                raise ManagementPresentationError(
+                    "Source-qualified current League result tables are unavailable"
+                )
+            try:
+                ordered = source_qualified_procedural_league_table(
+                    human_club_id=self._human_club_id(),
+                    competition_id=competition_id,
+                    membership=membership,
+                    clubs=clubs,
+                    competitions=definitions,
+                    procedural_leagues=live,
+                )
+            except SourceProceduralLeagueTableError as exc:
+                raise ManagementPresentationError(str(exc)) from exc
+        else:
+            table = getattr(state, "premier_league_table", None)
+            if not callable(table):
+                raise ManagementPresentationError(
+                    "Recovered Premier League table projection is unavailable"
+                )
+            ordered = tuple(table())
+
         rows = []
-        for position, row in enumerate(tuple(table()), start=1):
+        for position, row in enumerate(ordered, start=1):
             club_id = int(row.club_id)
             club = self._source_club(club_id)
             rows.append(LeagueTableRowView(
