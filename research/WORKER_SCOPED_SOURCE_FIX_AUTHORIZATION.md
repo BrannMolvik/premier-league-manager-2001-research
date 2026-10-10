@@ -28,3 +28,20 @@ Review ready external worker/Devin fixes without distracting Codex; do not blind
 At each recovery: verify main and Codex heads, read CURRENT_STATE, source-first policy, original-reference completeness protocol, this division-of-work policy, and active ownership; choose the **highest-impact actionable missing feature**, not the easiest fix. Inspect existing PRs first if relevant. When one evidence-backed milestone is done, continue the next major missing piece, checkpoint only substantive progress. If native-source tool execution fails, try independent existing verified evidence and cloud-safe repo review; use PR CI for honest remote verification where suitable, not blind commits. When no safe progress possible, record one precise blocker/next trigger rather than repeated administrative heartbeats.
 
 Never declare Gate13 done after Quick3 alone, or the mission done until full original-feature scope through Gate17 and Windows11 release audit pass. Do not narrow original selectable countries, leagues, managers or presentation modes in order to close a gate.
+
+
+## Immediate integration and legacy PR triage (11 October 2026)
+
+**First:** Review PR #563 at its live exact head, original source evidence and full relevant CI. The reported stale-club-membership counterexample was addressed by Devin at ea203782; independently verify it is correctly closed, and check merge base/current main and file ownership again. If still safe, merge routinely under the safeguards above without consuming Codex. Record merged SHA and continue; if anything is disputed, leave open with a precise blocker. The PR prevents a wrong Premier League fallback; it **does not** implement the original non-PL fixtures.
+
+**Second:** Perform ONE systematic but bounded triage of every historical open pull request, not an indiscriminate merge marathon. For each record PR number, feature/user value, source evidence, branch ahead/behind, touched files, whether current main already includes the effective behavior, checks/conflicts, and disposition:
+- **Already incorporated/superseded:** do not merge; document commit/evidence and close only when verified safe and no preservation concern.
+- **Still valuable + source-qualified + disjoint + readily testable:** port/cherry-pick only the genuinely missing minimal delta onto fresh current main, run tests and use a fresh PR; do not blindly merge hundreds-of-commits-stale branches.
+- **Important but incomplete/unknown or high-risk:** capture as a precise major-feature follow-up or specialist Codex handoff, not an invented or cosmetic 'fix'.
+- **Explicit build-only / do-not-merge / deferred-modernization:** preserve its intended purpose and do not merge it as gameplay code.
+
+Initial likely triage candidates include #555 (header font), #541 (reserve states), #488 (Squad row), #548/#546 (header), #115 (League Fixtures resources), #478 (startup), and open Gate14–17 work-ahead. Existing main already contains some corresponding 32/16px font, reserve-state, and Squad-name features: **verify actual behavior before marking any branch outstanding**. PR #561 is explicitly **build-only DO NOT MERGE**.
+
+**Third and primary:** Immediately resume high-impact complete-original-game implementation, starting with source-backed current-manager League Fixtures selectors/fixtures and League Tables, without waiting to exhaust stale low-priority PRs. As other major features are implemented, fold in only relevant verified old work. Keep active Codex R1 NEXT→PPreMatch→Quick3→PResults→return files untouched. Do not spend Codex usage on routine merge handling.
+
+Record triage in one durable inventory or focused checkpoint, and avoid running CI merely for stale historical comparisons.
