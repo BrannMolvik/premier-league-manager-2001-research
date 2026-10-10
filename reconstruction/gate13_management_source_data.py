@@ -2146,6 +2146,38 @@ class ManagementSourceDataBridge:
             return None
         return SourceFixtureMatchInfoContext(fixture_id, word, report)
 
+    def original_league_fixtures_selection_context(self):
+        """Resolve original current-human country/League selection without a fake matrix.
+
+        This deliberately does not call league_fixtures_grid_source(): that
+        legacy data provider is still PL-only. The source selector context
+        can be used separately by the future eight-country/six-League panel.
+        """
+        # Load the disjoint source selector owner only when PLeagueFixtures
+        # needs it; retain the management bridge's backend-agnostic import seam.
+        from original_league_fixtures_selector_context import (
+            LeagueFixturesSelectorContextError,
+            build_league_fixtures_selection_context,
+        )
+        state = self.state
+        clubs = getattr(state, "clubs", None)
+        membership = getattr(state, "club_competition_membership", None)
+        competitions = getattr(state, "competitions", None)
+        if (not hasattr(clubs, "get") or not hasattr(membership, "get")
+                or not hasattr(competitions, "values")):
+            raise ManagementPresentationError(
+                "Original current-club League selector source tables are missing"
+            )
+        try:
+            return build_league_fixtures_selection_context(
+                club_id=self._human_club_id(),
+                clubs=clubs,
+                membership=membership,
+                competitions=competitions.values(),
+            )
+        except LeagueFixturesSelectorContextError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
         """Return the Premier League source only for the manager's live League 0.
 
