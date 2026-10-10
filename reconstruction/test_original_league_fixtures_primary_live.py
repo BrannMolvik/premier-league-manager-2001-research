@@ -15,6 +15,7 @@ from original_league_fixtures_presenter import (
     OriginalLeagueFixturesPresentationError,
     build_league_fixtures_snapshot,
 )
+from original_league_fixtures_prepared_members import original_current_league_fixtures_prepared_members
 from original_league_fixtures_primary_live import (
     SourcePrimaryLeagueFixturesError,
     qualified_primary_league_fixtures,
@@ -64,10 +65,16 @@ def live_conference_fixture_state():
 
 
 def live_candidates(state):
-    member = (200, 349)  # native source CP1252 member/ranking order at kickoff
+    member = original_current_league_fixtures_prepared_members(
+        human_club_id=349,
+        membership=state.club_competition_membership,
+        clubs=state.clubs,
+        competitions=state.competitions,
+        procedural_leagues=state.procedural_leagues,
+    )
     return qualified_primary_league_fixtures(
         competition_id=7,
-        member_club_ids=member,
+        member_club_ids=member.member_club_ids,
         scheduled_matchday_count=state.competitions[7].scheduled_matchday_count,
         live=state.procedural_leagues[(7, 0)],
         days=state.primary_schedule_shadow.days,
@@ -79,7 +86,7 @@ class SourceLiveConferenceFixturesTests(unittest.TestCase):
         state = live_conference_fixture_state()
         result = live_candidates(state)
         self.assertEqual(result.competition_id, 7)
-        self.assertEqual(result.member_club_ids, (200, 349))
+        self.assertEqual(result.member_club_ids, (349, 200))
         self.assertEqual(result.schedule_cycle_count, 2)
         self.assertEqual(result.matrix_layer_count, 1)
         self.assertEqual(
@@ -107,7 +114,7 @@ class SourceLiveConferenceFixturesTests(unittest.TestCase):
         bridge = ManagementSourceDataBridge(controller)
         source_view = bridge.league_fixtures_grid_source()
         self.assertEqual(source_view.competition_id, 7)
-        self.assertEqual(source_view.member_club_ids, (200, 349))
+        self.assertEqual(source_view.member_club_ids, (349, 200))
         self.assertEqual(
             tuple(row.source_fixture_index for row in source_view.fixtures_in_source_order),
             (1, 2),
@@ -124,13 +131,14 @@ class SourceLiveConferenceFixturesTests(unittest.TestCase):
         self.assertEqual(surface.competition_id, 7)
         self.assertTrue(surface.exact_art_staged)
         cells = {(cell.row, cell.column): cell for cell in surface.cells}
-        # Source native ordering: row0=club200, row1=Southport349.
-        self.assertIsNone(cells[(0, 1)].fixture_id)
-        self.assertEqual(cells[(0, 1)].source_node_token, ("fixture", 1))
-        self.assertEqual(cells[(0, 1)].text, "19.08")
+        # Native standings reorder the selected League after a 2:1 result:
+        # source row0=Southport349, row1=club200.
         self.assertIsNone(cells[(1, 0)].fixture_id)
-        self.assertEqual(cells[(1, 0)].source_node_token, ("fixture", 0))
-        self.assertEqual(cells[(1, 0)].text, "2:1")
+        self.assertEqual(cells[(1, 0)].source_node_token, ("fixture", 1))
+        self.assertEqual(cells[(1, 0)].text, "19.08")
+        self.assertIsNone(cells[(0, 1)].fixture_id)
+        self.assertEqual(cells[(0, 1)].source_node_token, ("fixture", 0))
+        self.assertEqual(cells[(0, 1)].text, "2:1")
         self.assertEqual(cells[(0, 0)].resource_name, "red_fixtures_box")
 
     def test_right_click_cannot_forge_native_numeric_report_pointer(self):
