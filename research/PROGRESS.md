@@ -1,3 +1,16 @@
+### 10 October 2026 KST — captured Inbox recipient/context dependency
+
+Canonical reader/import prefixes and seven actual426090 binding/selection/
+release cases source-close human recipient ownership. Fresh Southport routes
+to spare-manager0, not imported195 or club349. Retain the runtime key at
+select_club and capture recipient/active sender-club at the existing transfer
+request producer sink without extra RNG. Schema48 persistence preserves values;
+old absent inputs stay unknown and malformed contexts reject.245 focused tests,
+withdrawn Windows/Tk1x/1.5x (actual key0/menu/30-player owner) and asset policy
+passed. Inbox UI and delivered ownership remain absent, not accepted. Exact
+resume is in CURRENT_STATE/GATE13_INBOX_OWNERSHIP_2026-10-10.md. No original
+process, user-save change, main merge, runtime-owner or later-gate change.
+
 ### 10 October 2026 KST — ordinary MENU repair and changed playability priority
 
 Daniel clarified both Inbox missing and dropdown/actions broken. Reproduced and

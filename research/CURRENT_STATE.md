@@ -1,5 +1,26 @@
 # Playable-core priority — 10 October 2026 KST
 
+**Usage-reserve Inbox checkpoint:** Menu repair is pushed atb36276e4. Native
+4022D0/403660 and426090/4151C0/415870 now establish the real recipient key:
+fresh single-human Southport uses spare manager0, not imported195 or club349.
+Seven canonical binding cases passed. Fresh select_club retains that runtime
+key; transfer-request production captures key and active/loan sender-club
+context without extra RNG. Schema48 saves retain both; old absent fields stay
+unknown.245 focused tests and withdrawn real Windows/Tk1x/1.5x passed; asset
+policy/diff clean. See `GATE13_INBOX_OWNERSHIP_2026-10-10.md`.
+
+**Exact next task:** integrate ordered user+6B4 delivered ownership at the actual
+global MPMEAMail dispatch phase (613EE0/5CFA20/413020), preserving scheduled
+order/recipient/readiness/expiry. Existing pending queues are NOT Inbox data.
+Transfer metadata retention is not a complete delivered record; recover its
+remaining caption/context/lazy body inputs and actual renewal sender20/type1
+staff ownership before promoting payloads. Then connect direct PBg ID1 and
+PMenu65 to genuine PEAMail row/detail rendering and normal pointer input.
+Reuse private eamail-source-audit fixtures and current-menu proof; do not
+retrace already-qualified owners or start NEXT/cosmetic/later-gate work first.
+Gate13 OPEN; no new playable folder/visible acceptance/full-suite claim,
+original launch, user-save mutation, main merge or agent-runtime change.
+
 **Daniel's current priority is both missing Inbox and broken MENU actions/art.**
 Return-to-Main child323 now follows its native null-panel/PStartMenu route;
 Continue retains the live game. Dropdown rows now consume47ACF0 mask8 and

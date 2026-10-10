@@ -290,6 +290,8 @@ class GameState:
     ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
     country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
     user_controlled_club_id: int | None = None
+    # Runtime DBRClub+40 after426090 human binding, not imported AI manager_id.
+    native_user_recipient_key: int | None = None
     # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
     # independent of club_roster_order until 0x61E3D0 promotion.
     user_youth: YouthTeamState | None = None
@@ -306,6 +308,27 @@ class GameState:
     # consumes it to show the reason-specific message and leave management.
     user_sacking_reason: int | None = None
     rng: MsvcCrtRng | None = None
+
+    def __post_init__(self):
+        key = self.native_user_recipient_key
+        if key is not None and (type(key) is not int or key not in self.managers):
+            raise ValueError('Native human recipient key must be an explicit manager index')
+
+    def bind_original_user_mail_recipient(self, club_id: int) -> None:
+        """426090/4151C0, bounded to the currently supported single human."""
+        self.native_user_recipient_key = None
+        club = self.clubs[club_id]
+        old_key = getattr(club, 'manager_id', None)
+        managers = tuple(self.managers.get(i) for i in range(len(self.managers)))
+        if (type(old_key) is not int or not (0 <= old_key < len(managers) or old_key == 0xFFFFFFFF)
+                or any(manager is None or not isinstance(
+                    getattr(manager, 'first_name', None), str) for manager in managers)):
+            return
+        # The new user is already registered:4151C0 excludes its imported key.
+        self.native_user_recipient_key = next(
+            (i for i, manager in enumerate(managers)
+             if i != old_key and manager.first_name.startswith('!')),
+            None if old_key == 0xFFFFFFFF else old_key)
 
     def _resolve_rng(self, rng=None):
         if rng is not None:
@@ -748,6 +771,17 @@ class GameState:
         )
         return active_club_id == int(controlled)
 
+    def _retain_player_transfer_request(self, request: PlayerTransferRequest) -> None:
+        """Capture41B63F recipient and sender context at production, not opening."""
+        player = self.players[request.player_id]
+        active_club_id = (player.club_id if player.loan_club_id is None
+                          else player.loan_club_id)
+        if (self.native_user_recipient_key is not None
+                and active_club_id == self.user_controlled_club_id):
+            request = replace(request, recipient_manager_key=self.native_user_recipient_key,
+                              sender_club_id=int(active_club_id))
+        self.player_transfer_requests.append(request)
+
     def _persist_premier_league_morale_form_and_requests(
         self,
         club_id: int,
@@ -772,7 +806,7 @@ class GameState:
             rng,
             club_user_controlled=club_user_controlled,
             active_club_user_controlled=self._player_active_club_is_user_controlled,
-            transfer_request_sink=self.player_transfer_requests.append,
+            transfer_request_sink=self._retain_player_transfer_request,
         )
 
     def due_player_transfer_requests(

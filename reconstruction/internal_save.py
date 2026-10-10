@@ -1471,6 +1471,8 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
                 "player_id": int(value.player_id),
                 "queued_on": value.queued_on.isoformat(),
                 "due_on": value.due_on.isoformat(),
+                "recipient_manager_key": value.recipient_manager_key,
+                "sender_club_id": value.sender_club_id,
             }
             for value in state.player_transfer_requests
         ],
@@ -1528,6 +1530,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             if state.user_controlled_club_id is None
             else int(state.user_controlled_club_id)
         ),
+        "native_user_recipient_key": state.native_user_recipient_key,
         "user_youth": _snapshot_youth_state(state.user_youth),
         "user_sacking_reason": (
             None
@@ -1732,6 +1735,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             if snapshot["user_controlled_club_id"] is None
             else int(snapshot["user_controlled_club_id"])
         ),
+        native_user_recipient_key=snapshot.get("native_user_recipient_key"),
         user_youth=_restore_youth_state(snapshot.get("user_youth")),
         user_sacking_reason=(
             None
@@ -1902,6 +1906,8 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
                 player_id=int(value["player_id"]),
                 queued_on=date.fromisoformat(value["queued_on"]),
                 due_on=date.fromisoformat(value["due_on"]),
+                recipient_manager_key=value.get("recipient_manager_key"),
+                sender_club_id=value.get("sender_club_id"),
             )
             for value in snapshot.get("player_transfer_requests", ())
         ],

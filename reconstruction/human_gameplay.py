@@ -633,6 +633,7 @@ class HumanGameplayController:
             membership = self.state.construct_original_primary_squad_membership(club_id)
         self.human = HumanManagerState(
             club_id=club_id, native_shape=NativeUserShapeState.fresh_club_binding())
+        self.state.bind_original_user_mail_recipient(club_id)
         self.original_squad_membership = membership
         if membership is not None:
             self.human.formation_id = self.state.native_squad_first_formations[club_id]
