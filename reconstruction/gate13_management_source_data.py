@@ -2178,6 +2178,40 @@ class ManagementSourceDataBridge:
         except LeagueFixturesSelectorContextError as exc:
             raise ManagementPresentationError(str(exc)) from exc
 
+    def original_nonpl_league_fixtures_prepared_members(self):
+        """Read source-ordered non-PL members; NEVER fabricate their fixtures.
+
+        The native 0x4F4940 -> vtable+0x38 -> 0x4F4720 qsort(0x4F45E0)
+        path is now verified against the canonical original executable.
+        The separate native 373-head fixture traversal is not yet connected,
+        so this source data must not be called a live full fixture matrix.
+        """
+        from original_league_fixtures_prepared_members import (
+            OriginalLeagueFixturesMembersError,
+            original_current_league_fixtures_prepared_members,
+        )
+        state = self.state
+        clubs = getattr(state, "clubs", None)
+        membership = getattr(state, "club_competition_membership", None)
+        definitions = getattr(state, "competitions", None)
+        live = getattr(state, "procedural_leagues", None)
+        if (not hasattr(clubs, "get") or not hasattr(membership, "get")
+                or not hasattr(definitions, "get")
+                or not hasattr(live, "get")):
+            raise ManagementPresentationError(
+                "Source League member preparation tables are unavailable"
+            )
+        try:
+            return original_current_league_fixtures_prepared_members(
+                human_club_id=self._human_club_id(),
+                membership=membership,
+                clubs=clubs,
+                competitions=definitions,
+                procedural_leagues=live,
+            )
+        except OriginalLeagueFixturesMembersError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
         """Return the Premier League source only for the manager's live League 0.
 
