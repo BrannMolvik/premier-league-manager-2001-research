@@ -665,7 +665,7 @@ class OriginalGameTkHost:
         # owner-local event 7 as its cross button. Consume that modal event
         # before the Windows-compatibility fullscreen escape shortcut.
         # A pending human-match owner still blocks unrelated modal actions.
-        if self.active_pmatchinfo_art is not None:
+        if getattr(self, 'active_pmatchinfo_art', None) is not None:
             if self._original_match_input_owner() is None:
                 self.apply_source_accepted_pmatchinfo_exit()
             return "break"
