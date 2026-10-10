@@ -29,9 +29,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 490,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery490 main d541058b2b395d0028a1afd381b6f98896fd195b now contains research/GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md (R0 present, R1 genuine selected Quick3 pre-mode prep/PResults/return first visible slice, R2 Inbox/MenuSave/formations/current-league, R3 all modes/countries/multiuser Win11 acceptance). Current Codex e166ae4d70c3 unchanged, no implementation. Original PE previously rehashed Recovery488, local container echo still caas.internal.errors.ClientError. Only research+runtime edits.",
+  "recovery_generation": 491,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery491 verified main d541058b2b395d0028a1afd381b6f98896fd195b and Recovery490 source-backed playable-slice handoff. Audit-only implementation freeze remains. Re-evaluating latest Codex changes before any further research; avoid duplicate P0 microaudits or excess GitHub Actions.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
