@@ -17,8 +17,8 @@
   ],
   "audit_only_boundaries": "Read-only source/code/test review and non-mutating diagnostics. Report exact file/address/evidence/user impact and the minimum correction recommendation. No runtime/features/assets/schema/save changes, Gate14+ implementation, Gate13 closure/state rewrites, recovery-branch edits, main merges, or unapproved native-original launches. Concise isolated audit-only checkpoints are permitted; preserve existing work and ownership.",
   "active_gate": 13,
-  "active_task": "STRICT AUDIT ONLY. Recovery467 verified main fc857236c64b4a99feea10d9fc7e2eb5454f8944. Canonical original ZIP recovered privately from /FM2001/Original Source, original root footballmanager.exe at Joliet LBA260425 size4714541 and independent SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. New original disassembly confirms PMenu 0x60C9C0/0x60C9F0 zero-initialize node+0x14, and 0x47AD9B-0x47ADAD separately checks selected bit0 and guard bit1 before factory. Both main/Codex host mouse paths lose bit1 through source_flags=(1 if candidate.selected else 0). Dynamic original bit1 producer and GUI manifestation UNRESOLVED; therefore reclassified P1 conditional state fidelity (do not displace P0 NEXT/MATCH, EAMail, first-team, Save/Return, multi-manager). research/GATE13_PMENU_NODE_DISABLED_FLAG_LOST_AT_POINTER_RECOVERY467.md, fidelity ledger and PROGRESS updated. Next independent audit: prioritize source-backed P0-A/P0-B actual original management end-to-end control ownership/pathing, original EAMail inbox and Squad tab/formation, compare both branch versions and report Codex handoff; bit1 producer only if directly relevant. Codex implementation branch 0ae745d1b56f45cade460f03cd893849a2f53b45 unchanged at check. No game code/CI/Codex edits, no Windows GUI receipt, no gate closure. Gate13 OPEN, Gates14-17 incomplete; Windows11 full scope release unverified. Continue audit-only until user explicitly lifts restriction.",
-  "last_known_main_head": "fc857236c64b4a99feea10d9fc7e2eb5454f8944",
+  "active_task": "STRICT AUDIT ONLY, recovery468. Audited actual normal PBg header controls (ID1 EAMail, ID2 PMenu, ID3 NEXT), core PMenu EAMail/Save/Return, Squad 3/4/5, and multi-manager Start across main fc857236 and Codex 0ae745d; new audit+ledger at main 41d5946. Confirmed ID1/ID3 unwired, Save/Return absent, Squad tab UI unwired, 25/28 menu children unintegrated; conditional P1 MENU ID2 geometry-only acceptance. Original disc ZIP in Library materialized but trivial shell/Python failed ClientError; no fresh native disassembly or Windows GUI. NEXT exact next audit priority: original EAMail source record/row input/lifecycle or qualified original NEXT user-route versus on_click; verify both branch host/dispatcher and produce ranked Codex handoff. DO NOT modify Codex/game, merge or run CI. Original Gate13 still OPEN, Gates14-17 incomplete. Preserve source evidence and audit-only until Daniel explicitly lifts restriction.",
+  "last_known_main_head": "41d5946dd68c5a1e96b898063a791ca29add46de",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -29,7 +29,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 468,
   "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery 468 initiated 2026-10-10: main HEAD fc857236c64b4a99feea10d9fc7e2eb5454f8944; continuing strict audit-only P0 original-management source verification. No implementation or Codex branch mutation authorized.",
+  "note": "Recovery468: main 41d5946dd68c5a1e96b898063a791ca29add46de contains cross-branch core physical input audit and ledger, Codex remains 0ae745d..., container echo/Python ClientError. Working means recovery eligibility, not background execution.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
