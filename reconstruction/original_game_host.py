@@ -2602,6 +2602,15 @@ class OriginalGameTkHost:
                 self.last_status = "PPreMatch owns input; no selector at this point"
                 return
             try:
+                # Until native modes 0-2 are implemented, reject them before
+                # updating the retained Match Detail selection. Otherwise a
+                # failed renderer launch would persist an unsupported mode.
+                if (source_match_detail_dispatch(selector.mode).route
+                        is not MatchPresentationRoute.QUICK_MATCH):
+                    raise OriginalGameHostError(
+                        "Selected Match Detail mode requires an unfinished source "
+                        "renderer; the human match was not calculated"
+                    )
                 selected = self.presenter.session.source_accepted_match_detail_selection(
                     selector.mode)
                 self._begin_original_human_match(selected)
