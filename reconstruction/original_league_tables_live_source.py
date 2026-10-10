@@ -65,6 +65,49 @@ def source_qualified_procedural_league_table(
             "Selected source competition is not the current club's root League"
         )
 
+    return source_qualified_selected_procedural_league_table(
+        selected_country_id=human_country_id,
+        competition_id=competition_id,
+        membership=membership,
+        clubs=clubs,
+        competitions=competitions,
+        procedural_leagues=procedural_leagues,
+    )
+
+
+def source_qualified_selected_procedural_league_table(
+    *,
+    selected_country_id: int,
+    competition_id: int,
+    membership: Mapping[int, int],
+    clubs: Mapping[int, object],
+    competitions: Mapping[int, object],
+    procedural_leagues: Mapping[tuple[int, int], object],
+) -> tuple[object, ...]:
+    """Source-proven League Position rows for a selected foreign real League.
+
+    The native PLeagueFixtures 0x46D950 owner selects a League object, not
+    just the managed club's membership. This reuses the original strict
+    points/played/GD/GF/GA/CP1252 qsort order and real live results without
+    manufacturing a different manager or accepting a partial League roster.
+    """
+    if type(selected_country_id) is not int or selected_country_id < 0:
+        raise SourceProceduralLeagueTableError(
+            "Original selected-country identity is unavailable"
+        )
+    if type(competition_id) is not int or competition_id <= 0:
+        raise SourceProceduralLeagueTableError(
+            "Selected non-Premier root League identity is missing"
+        )
+    competition = competitions.get(competition_id)
+    if (competition is None
+            or type(getattr(competition, "runtime_kind_code", None)) is not int
+            or competition.runtime_kind_code != 1
+            or getattr(competition, "parent_competition_id", object()) is not None
+            or getattr(competition, "country_region_id", None) != selected_country_id):
+        raise SourceProceduralLeagueTableError(
+            "Selected source competition is not a root League in its country"
+        )
     keys = tuple(key for key in procedural_leagues
                  if (type(key) is tuple and len(key) == 2
                      and type(key[0]) is int and key[0] == competition_id))
@@ -89,7 +132,10 @@ def source_qualified_procedural_league_table(
         cid for cid, league_id in membership.items()
         if type(cid) is int and league_id == competition_id
     }
-    if set(member_ids) != roster or human_club_id not in roster:
+    # Native selected-other-League views need the complete live League member
+    # set, not an unrelated human club in this foreign roster. The existing
+    # managed-club wrapper already enforced that club's own League identity.
+    if set(member_ids) != roster:
         raise SourceProceduralLeagueTableError(
             "Live League participants disagree with current source club memberships"
         )
@@ -98,7 +144,7 @@ def source_qualified_procedural_league_table(
     source_names = {}
     for cid in member_ids:
         club = clubs.get(cid)
-        if club is None or getattr(club, "country_id", None) != human_country_id:
+        if club is None or getattr(club, "country_id", None) != selected_country_id:
             raise SourceProceduralLeagueTableError(
                 "Live League participant lacks a matching source club/country"
             )

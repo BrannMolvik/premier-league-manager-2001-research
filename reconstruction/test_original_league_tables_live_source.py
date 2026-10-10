@@ -11,6 +11,7 @@ from gate13_management_source_data import (
 from original_league_tables_live_source import (
     SourceProceduralLeagueTableError,
     source_qualified_procedural_league_table,
+    source_qualified_selected_procedural_league_table,
 )
 from procedural_league_state import LiveProceduralLeagueState, ProceduralLeagueFixture
 
@@ -74,6 +75,41 @@ class SourceProceduralLeagueTableTests(unittest.TestCase):
                          (1, 2, 1))
         self.assertEqual(s.procedural_leagues[(31, 0)].club_ids, (11, 12, 10))
         self.assertEqual(len(s.procedural_leagues[(31, 0)].results), 2)
+
+    def test_foreign_selection_uses_actual_source_league_not_a_fake_manager(self):
+        s = source()
+        s.clubs[99] = SimpleNamespace(
+            name="Other Division", short_name="Other Division", country_id=26)
+        s.club_competition_membership[99] = 44
+        s.competitions[44] = SimpleNamespace(
+            id=44, country_region_id=26, parent_competition_id=None,
+            runtime_kind_code=1)
+        foreign = source_qualified_selected_procedural_league_table(
+            selected_country_id=26, competition_id=31,
+            membership=s.club_competition_membership,
+            clubs=s.clubs,
+            competitions=s.competitions,
+            procedural_leagues=s.procedural_leagues,
+        )
+        self.assertEqual(tuple(row.club_id for row in foreign), (10, 12, 11))
+        self.assertEqual(tuple(row.club_id for row in exact_rows(s)), (10, 12, 11))
+        self.assertNotIn(99, tuple(row.club_id for row in foreign))
+        with self.assertRaisesRegex(SourceProceduralLeagueTableError, "root League"):
+            source_qualified_selected_procedural_league_table(
+                selected_country_id=33, competition_id=31,
+                membership=s.club_competition_membership, clubs=s.clubs,
+                competitions=s.competitions, procedural_leagues=s.procedural_leagues,
+            )
+
+    def test_foreign_selection_refuses_incomplete_roster_and_unknown_result(self):
+        s = source()
+        s.club_competition_membership[12] = 44
+        with self.assertRaisesRegex(SourceProceduralLeagueTableError, "participants disagree"):
+            source_qualified_selected_procedural_league_table(
+                selected_country_id=26, competition_id=31,
+                membership=s.club_competition_membership, clubs=s.clubs,
+                competitions=s.competitions, procedural_leagues=s.procedural_leagues,
+            )
 
     def test_bridge_projects_real_nonpl_league_rows_with_original_header_data(self):
         s = source()
