@@ -661,6 +661,14 @@ class OriginalGameTkHost:
             if callable(request):
                 request(WM_KEYDOWN, VK_ESCAPE)
             return "break"
+        # Original PMatchInfo::0x488C60 maps Escape (0x1B) to the same
+        # owner-local event 7 as its cross button. Consume that modal event
+        # before the Windows-compatibility fullscreen escape shortcut.
+        # A pending human-match owner still blocks unrelated modal actions.
+        if self.active_pmatchinfo_art is not None:
+            if self._original_match_input_owner() is None:
+                self.apply_source_accepted_pmatchinfo_exit()
+            return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
             if self.presenter.session.navigation.screen is FrontEndScreen.SETTINGS:
