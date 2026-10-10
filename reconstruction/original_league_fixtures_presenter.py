@@ -41,6 +41,7 @@ class OriginalLeagueFixturesCellSnapshot:
     text: str | None
     resource_name: str
     selected: bool
+    source_node_token: tuple | None = None  # not a native PMatchInfo identity
 
 
 @dataclass(frozen=True)
@@ -80,10 +81,10 @@ def build_league_fixtures_snapshot(
 
     The source object must already carry the exact ordinary-League member order
     produced by 0x4F4940/0x4F45E0 and the 0x616F40-derived repeat-layer count.
-    Fixture rows are the current fixed/procedural Premier League rows in their
-    persisted source order. The clean-room PL runtime has no modeled 0x20
-    exclusion state, so every row in this already-scoped PL sequence is a
-    matrix candidate; completion maps only to the independently recovered bit 0.
+    Premier League 0 retains source-owned integer fixture identifiers. Non-PL
+    primary Leagues provide source-accepted linked-order opaque tuple tokens:
+    these never authorize native PMatchInfo link lookup. Fixture status-bit0x20
+    exclusion has already been checked by the qualified live source provider.
     """
     competition_id = _source_int(
         getattr(source, "competition_id", None), label="competition_id"
@@ -266,6 +267,22 @@ def build_league_fixtures_snapshot(
                 fixture_status_bits=status_bits,
                 selected=is_selected,
             )
+            fixture_public_id = getattr(fixture, "fixture_id", None)
+            fixture_source_token = getattr(fixture, "source_node_token", None)
+            if competition_id == 0:
+                fixture_public_id = _source_int(
+                    fixture_public_id, label="fixture_id")
+                if fixture_source_token is not None:
+                    raise OriginalLeagueFixturesPresentationError(
+                        "Premier League native fixture cannot carry a procedural token"
+                    )
+            elif (fixture_public_id is not None
+                    or type(fixture_source_token) is not tuple
+                    or not fixture_source_token):
+                raise OriginalLeagueFixturesPresentationError(
+                    "Non-PL fixture needs an opaque source token, not a "
+                    "fabricated native numeric fixture ID"
+                )
             cells.append(
                 OriginalLeagueFixturesCellSnapshot(
                     row=row,
@@ -273,9 +290,8 @@ def build_league_fixtures_snapshot(
                     matrix_slot=slot,
                     row_club_id=row_club_id,
                     column_club_id=column_club_id,
-                    fixture_id=_source_int(
-                        getattr(fixture, "fixture_id", None), label="fixture_id"
-                    ),
+                    fixture_id=fixture_public_id,
+                    source_node_token=fixture_source_token,
                     fixture_source_index=_source_int(
                         getattr(fixture, "source_fixture_index", None),
                         label="fixture_source_index",

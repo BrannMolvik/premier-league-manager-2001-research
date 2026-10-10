@@ -189,8 +189,8 @@ FIXTURES_PRESENTATION_CONTRACT = FixturesPresentationContract(
 @dataclass(frozen=True)
 class FixtureRowView:
     source_fixture_index: int
-    fixture_id: int
-    round_index: int
+    fixture_id: int | None
+    round_index: int | None
     scheduled_date: date | None
     home_club_id: int
     home_club_name: str
@@ -199,6 +199,7 @@ class FixtureRowView:
     played: bool
     home_goals: int | None
     away_goals: int | None
+    source_node_token: tuple | None = None  # Opaque, not a native match pointer.
 
 
 @dataclass(frozen=True)
@@ -2213,13 +2214,12 @@ class ManagementSourceDataBridge:
             raise ManagementPresentationError(str(exc)) from exc
 
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
-        """Return the Premier League source only for the manager's live League 0.
+        """Project original managed-club League fixture candidates.
 
-        This is intentionally stricter than the generic display-table helper:
-        ambiguous source-name ties fail closed rather than falling back to club
-        IDs, because PLeagueFixtures consumes the competition's prepared member
-        list after 0x4F4940. Other Leagues fail closed per Recovery485; the
-        membership map is the DBRClub+0x10 analogue.
+        Premier League 0 keeps its recovered fixed-source path. Other source-
+        qualified root Leagues require complete original-ranked club members,
+        a validated primary 373-head source sequence, and actual live results.
+        Native match-info fixture IDs are NOT fabricated from symbolic tokens.
         """
         club_id = self._human_club_id()
         membership = getattr(self.state, "club_competition_membership", None)
@@ -2233,9 +2233,63 @@ class ManagementSourceDataBridge:
                 f"Current-manager club {club_id} has no recovered League identity"
             )
         if current_league != 0:
-            raise ManagementPresentationError(
-                f"PLeagueFixtures for current-manager League {current_league} is not "
-                "integrated; refusing Premier League competition 0 fallback"
+            from original_league_fixtures_primary_live import (
+                SourcePrimaryLeagueFixturesError,
+                qualified_primary_league_fixtures,
+            )
+            prepared = self.original_nonpl_league_fixtures_prepared_members()
+            state = self.state
+            definitions = getattr(state, "competitions", None)
+            live_states = getattr(state, "procedural_leagues", None)
+            shadow = getattr(state, "primary_schedule_shadow", None)
+            if (not hasattr(definitions, "get")
+                    or not hasattr(live_states, "get")
+                    or not hasattr(getattr(shadow, "days", None), "items")):
+                raise ManagementPresentationError(
+                    "Original non-PL native primary fixture source is unavailable"
+                )
+            competition = definitions.get(prepared.competition_id)
+            live = live_states.get((prepared.competition_id, 0))
+            if competition is None or live is None:
+                raise ManagementPresentationError(
+                    "Selected original League has no materialized match source"
+                )
+            try:
+                ordered = qualified_primary_league_fixtures(
+                    competition_id=prepared.competition_id,
+                    member_club_ids=prepared.member_club_ids,
+                    scheduled_matchday_count=getattr(
+                        competition, "scheduled_matchday_count", None),
+                    live=live,
+                    days=shadow.days,
+                )
+            except SourcePrimaryLeagueFixturesError as exc:
+                raise ManagementPresentationError(str(exc)) from exc
+            rows = []
+            for fixture in ordered.fixtures_in_source_order:
+                home = self._source_club(fixture.home_club_id)
+                away = self._source_club(fixture.away_club_id)
+                rows.append(FixtureRowView(
+                    source_fixture_index=fixture.native_encounter_index,
+                    fixture_id=None,  # Original +0x40 PMatchInfo link unproven.
+                    round_index=None,
+                    scheduled_date=fixture.scheduled_date,
+                    home_club_id=fixture.home_club_id,
+                    home_club_name=home.name,
+                    away_club_id=fixture.away_club_id,
+                    away_club_name=away.name,
+                    played=fixture.played,
+                    home_goals=fixture.home_goals,
+                    away_goals=fixture.away_goals,
+                    source_node_token=fixture.node_token,
+                ))
+            return LeagueFixturesGridSourceView(
+                competition_id=ordered.competition_id,
+                member_club_ids=ordered.member_club_ids,
+                scheduled_matchday_count=ordered.scheduled_matchday_count,
+                schedule_cycle_count=ordered.schedule_cycle_count,
+                matrix_layer_count=ordered.matrix_layer_count,
+                fixtures_in_source_order=tuple(rows),
             )
 
         league = getattr(self.state, "premier_league", None)
