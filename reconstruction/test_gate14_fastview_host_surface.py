@@ -110,9 +110,23 @@ class Gate14FastViewHostSurfaceTests(unittest.TestCase):
                 self.assertNotIn(forbidden, source)
 
         host_source = Path(original_game_host.__file__).read_text(encoding="utf-8")
+        # R1 now source-qualifies one match-completion dispatch from the
+        # asynchronous PResults/Quick Match owner. The original declaration is
+        # the other occurrence; no arbitrary management click may dispatch.
         self.assertEqual(
             host_source.count("present_completed_match_by_source_mode("),
-            1,
+            2,
+        )
+        completed = inspect.getsource(
+            OriginalGameTkHost._poll_original_management_turn
+        )
+        self.assertIn(
+            "self.present_completed_match_by_source_mode(outcome, auxiliary)",
+            completed,
+        )
+        self.assertNotIn(
+            "self.present_completed_match_by_source_mode(",
+            inspect.getsource(OriginalGameTkHost.on_click),
         )
         self.assertEqual(
             host_source.count("present_completed_match_fastview("),
