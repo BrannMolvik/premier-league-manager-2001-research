@@ -71,6 +71,8 @@ on:
       # Recovery507: source constructor initializes eight native League selection slots.
       - "reconstruction/original_league_fixtures_selector_context.py"
       - "reconstruction/test_original_league_fixtures_selector_context.py"
+      - "reconstruction/original_league_tables_radio_layout.py"
+      - "reconstruction/test_original_league_tables_radio_layout.py"
       - "reconstruction/original_league_tables_live_source.py"
       - "reconstruction/test_original_league_tables_live_source.py"
       - "reconstruction/original_management_presenter.py"
