@@ -29,6 +29,9 @@ class SourceSelectedTablesBridge(AuthenticSelectedLeagueBridge):
     def source_selected_nonpl_league_table_rows(self, selection):
         return self.source.source_selected_nonpl_league_table_rows(selection)
 
+    def source_selected_league_table_rows(self, selection):
+        return self.source.source_selected_league_table_rows(selection)
+
 
 class OriginalLeagueTablesNativeEventsTests(unittest.TestCase):
     def presenter(self):
