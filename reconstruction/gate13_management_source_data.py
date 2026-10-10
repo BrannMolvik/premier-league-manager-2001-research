@@ -2278,6 +2278,80 @@ class ManagementSourceDataBridge:
             fixtures_in_source_order=tuple(rows),
         )
 
+    def source_selected_premier_league_fixtures_grid_source(
+        self, selection_context,
+    ) -> LeagueFixturesGridSourceView:
+        """Select the *real* fixed Premier0 League calendar under another manager.
+
+        The source context, original member ranking, full live season, 373-head
+        dates and status exclusions must agree. No unrelated manager fixture
+        row or generated original PMatchInfo report is substituted.
+        """
+        from original_league_fixtures_selected_premier0 import (
+            SourceSelectedPremierFixturesError,
+            source_qualified_selected_premier0_league_fixtures,
+        )
+        state = self.state
+        shadow = getattr(state, "primary_schedule_shadow", None)
+        try:
+            qualified = source_qualified_selected_premier0_league_fixtures(
+                human_club_id=self._human_club_id(),
+                selection=selection_context,
+                clubs=getattr(state, "clubs", None),
+                membership=getattr(state, "club_competition_membership", None),
+                competitions=getattr(state, "competitions", None),
+                premier_league=getattr(state, "premier_league", None),
+                days=getattr(shadow, "days", None),
+            )
+        except SourceSelectedPremierFixturesError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+        rows = []
+        for fixture in qualified.fixtures_in_source_order:
+            home = self._source_club(fixture.home_club_id)
+            away = self._source_club(fixture.away_club_id)
+            rows.append(FixtureRowView(
+                source_fixture_index=fixture.native_encounter_index,
+                fixture_id=fixture.fixture_id,
+                round_index=fixture.round_index,
+                scheduled_date=fixture.scheduled_date,
+                home_club_id=fixture.home_club_id,
+                home_club_name=home.name,
+                away_club_id=fixture.away_club_id,
+                away_club_name=away.name,
+                played=fixture.played,
+                home_goals=fixture.home_goals,
+                away_goals=fixture.away_goals,
+                source_node_token=fixture.node_token,
+            ))
+        return LeagueFixturesGridSourceView(
+            competition_id=qualified.competition_id,
+            member_club_ids=qualified.member_club_ids,
+            scheduled_matchday_count=qualified.scheduled_matchday_count,
+            schedule_cycle_count=qualified.schedule_cycle_count,
+            matrix_layer_count=qualified.matrix_layer_count,
+            fixtures_in_source_order=tuple(rows),
+        )
+
+    def source_selected_league_fixtures_grid_source(
+        self, selection_context,
+    ) -> LeagueFixturesGridSourceView:
+        """Route radio-selected Premier0 to its own fixed, not procedural, owner."""
+        from original_league_fixtures_selector_context import LeagueFixturesSelectionContext
+        selection = selection_context
+        if (type(selection) is not LeagueFixturesSelectionContext
+                or type(selection.active_country_index) is not int
+                or not 0 <= selection.active_country_index < 8):
+            raise ManagementPresentationError(
+                "Source-selected League Fixtures radio context is malformed")
+        try:
+            competition_id = selection.selected_competition_id
+        except (IndexError, TypeError, ValueError) as exc:
+            raise ManagementPresentationError(
+                "Selected original League fixture identity is malformed") from exc
+        if competition_id == 0:
+            return self.source_selected_premier_league_fixtures_grid_source(selection)
+        return self.source_selected_nonpl_league_fixtures_grid_source(selection)
+
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
         """Project original managed-club League fixture candidates.
 

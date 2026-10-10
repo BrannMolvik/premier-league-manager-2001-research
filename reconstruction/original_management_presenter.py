@@ -242,7 +242,7 @@ def build_management_panel_snapshot(
         # source-accepted native radio event selects another real League.
         source = (bridge.league_fixtures_grid_source()
                   if league_fixtures_selection is None else
-                  bridge.source_selected_nonpl_league_fixtures_grid_source(
+                  bridge.source_selected_league_fixtures_grid_source(
                       league_fixtures_selection))
         fixtures = build_league_fixtures_snapshot(
             source,
