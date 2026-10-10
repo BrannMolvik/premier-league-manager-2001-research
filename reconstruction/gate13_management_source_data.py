@@ -2641,6 +2641,154 @@ class ManagementSourceDataBridge:
             ))
         return tuple(rows)
 
+    def source_selected_premier_league_table_rows(
+        self, selector_context,
+    ) -> tuple[LeagueTableRowView, ...]:
+        """Only the distinct fixed/annual Premier0 owner, strict source qsort.
+
+        Native selected DIVISION0 does not use the procedural nonPL producer.
+        Do NOT use GameState.premier_league_table() here: that user-visible
+        helper explicitly contains a documented numeric-ID tie fallback and
+        cannot certify original League::0x4F45E0 source ordering.
+        """
+        from competition_state import PremierLeagueState
+        from original_league_tables_selector_context import (
+            OriginalLeagueTablesSelectionContext,
+        )
+        selection = selector_context
+        authenticated = self.original_league_tables_selection_context()
+        if (type(selection) is not OriginalLeagueTablesSelectionContext
+                or selection.division_candidates != authenticated.division_candidates
+                or selection.human_country_index != authenticated.human_country_index
+                or selection.human_competition_id != authenticated.human_competition_id
+                or type(selection.active_country_index) is not int
+                or selection.active_country_index != 0
+                or type(selection.selected_division_index) is not int
+                or selection.selected_division_index != 0
+                or type(selection.sort_state) is not int
+                or selection.sort_state != 0
+                or selection.selected_competition_id != 0):
+            raise ManagementPresentationError(
+                "Original Premier0 League Position source selector is unqualified"
+            )
+        state = self.state
+        defs = getattr(state, "competitions", None)
+        clubs = getattr(state, "clubs", None)
+        membership = getattr(state, "club_competition_membership", None)
+        original = getattr(state, "premier_league", None)
+        if not (hasattr(defs, "get") and hasattr(clubs, "get")
+                and hasattr(membership, "items")
+                and type(original) is PremierLeagueState):
+            raise ManagementPresentationError(
+                "Distinct Premier0 fixed/annual live League owner is unavailable"
+            )
+        source_definition = defs.get(0)
+        if (source_definition is None
+                or getattr(source_definition, "runtime_kind_code", None) != 1
+                or getattr(source_definition, "parent_competition_id", object()) is not None
+                or getattr(source_definition, "country_region_id", None) != 26):
+            raise ManagementPresentationError(
+                "Canonical Premier0 root League source definition is missing"
+            )
+        members = getattr(original, "club_ids", None)
+        fixtures = getattr(original, "fixtures", None)
+        if (type(members) is not tuple or len(members) != 20
+                or any(type(cid) is not int or cid < 0 for cid in members)
+                or len(set(members)) != 20
+                or not hasattr(fixtures, "values") or len(fixtures) != 380):
+            raise ManagementPresentationError(
+                "Original Premier0 requires its complete 20-team 380-fixture live owner"
+            )
+        member_set = set(members)
+        source_members = {
+            cid for cid, comp in membership.items()
+            if type(cid) is int and type(comp) is int and comp == 0
+        }
+        if source_members != member_set:
+            raise ManagementPresentationError(
+                "Premier0 live members disagree with the actual DBRClub League roster"
+            )
+        # Original PL fixture schedule is a double round robin of 20 clubs;
+        # ensure the source-ranked rows are not borrowed from a partial test
+        # schedule or another country's competition.
+        directed_pairs = []
+        for fixture in fixtures.values():
+            home = getattr(fixture, "home_club_id", None)
+            away = getattr(fixture, "away_club_id", None)
+            if (type(home) is not int or type(away) is not int
+                    or home == away or home not in member_set
+                    or away not in member_set):
+                raise ManagementPresentationError(
+                    "Premier0 fixture references an unavailable source club"
+                )
+            directed_pairs.append((home, away))
+        if len(set(directed_pairs)) != 380:
+            raise ManagementPresentationError(
+                "Premier0 live fixture pairs are not the original double round robin"
+            )
+        source_names = {}
+        for cid in members:
+            club = clubs.get(cid)
+            name = getattr(club, "short_name", None)
+            if (getattr(club, "country_id", None) != 26
+                    or not isinstance(name, str) or not name):
+                raise ManagementPresentationError(
+                    "Premier0 participant lacks original English short-name data"
+                )
+            try:
+                source_names[cid] = name.encode("cp1252")
+            except UnicodeEncodeError as exc:
+                raise ManagementPresentationError(
+                    "Premier0 original short-name sort key is not CP1252"
+                ) from exc
+        try:
+            ranked = tuple(original.table(source_names.get))
+        except (ValueError, KeyError) as exc:
+            raise ManagementPresentationError(
+                "Premier0 native source-name qsort is unavailable; ID fallback forbidden"
+            ) from exc
+        row_ids = tuple(getattr(row, "club_id", None) for row in ranked)
+        if len(row_ids) != 20 or set(row_ids) != member_set or len(set(row_ids)) != 20:
+            raise ManagementPresentationError(
+                "Premier0 standings rows disagree with source club members"
+            )
+        return tuple(
+            LeagueTableRowView(
+                position=index,
+                club_id=row.club_id,
+                club_name=self._source_club(row.club_id).name,
+                short_name=self._source_club(row.club_id).short_name,
+                played=int(row.played),
+                wins=int(row.wins),
+                draws=int(row.draws),
+                losses=int(row.losses),
+                goals_for=int(row.goals_for),
+                goals_against=int(row.goals_against),
+                goal_difference=int(row.goal_difference),
+                points=int(row.points),
+            )
+            for index, row in enumerate(ranked, start=1)
+        )
+
+    def source_selected_league_table_rows(self, selector_context) -> tuple[LeagueTableRowView, ...]:
+        """Route exactly to native Premier0 or source-qualified other root League."""
+        from original_league_tables_selector_context import (
+            OriginalLeagueTablesSelectionContext,
+        )
+        candidate = selector_context
+        if (type(candidate) is not OriginalLeagueTablesSelectionContext
+                or type(candidate.active_country_index) is not int
+                or not 0 <= candidate.active_country_index < 8
+                or type(candidate.selected_division_index) is not int
+                or not 0 <= candidate.selected_division_index < len(
+                    candidate.division_candidates[candidate.active_country_index])):
+            raise ManagementPresentationError(
+                "Selected original League Table country/DIVISION indices are invalid"
+            )
+        if candidate.selected_competition_id == 0:
+            return self.source_selected_premier_league_table_rows(candidate)
+        return self.source_selected_nonpl_league_table_rows(candidate)
+
     def snapshot(self) -> ManagementSourceDataSnapshot:
         return ManagementSourceDataSnapshot(
             club=self.club_header(),
