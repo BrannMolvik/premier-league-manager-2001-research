@@ -112,7 +112,7 @@ class SourceSelectedRadioEventPresenterTests(unittest.TestCase):
     def test_event_outside_original_league_fixtures_panel_refuses_action(self):
         panel = self.presenter()
         with self.assertRaisesRegex(
-            OriginalManagementPresentationError, "requires the integrated"
+            OriginalManagementPresentationError, "require the integrated"
         ):
             panel.source_accepted_league_fixtures_radio_event(10)
         self.assertEqual(panel.selected_child_id, 0xCE)
