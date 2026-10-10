@@ -15,7 +15,10 @@ from original_league_fixtures_presenter import (
     OriginalLeagueFixturesPresentationError,
     build_league_fixtures_snapshot,
 )
-from original_league_fixtures_prepared_members import original_current_league_fixtures_prepared_members
+from original_league_fixtures_prepared_members import (
+    OriginalLeagueFixturesMembersError,
+    original_current_league_fixtures_prepared_members,
+)
 from original_league_fixtures_primary_live import (
     SourcePrimaryLeagueFixturesError,
     qualified_primary_league_fixtures,
@@ -221,7 +224,7 @@ class SourceLiveConferenceFixturesTests(unittest.TestCase):
             node_token=("fixture", 0), home_club_id=999, away_club_id=200,
         )
         with self.assertRaisesRegex(
-            SourcePrimaryLeagueFixturesError, "do not resolve"
+            OriginalLeagueFixturesMembersError, "outside current source members"
         ):
             live_candidates(state)
 

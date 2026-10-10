@@ -1586,7 +1586,7 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             ManagementPresentationError,
-            "League 27 is not integrated",
+            "Source League member preparation tables are unavailable",
         ):
             ManagementSourceDataBridge(controller).league_fixtures_grid_source()
 

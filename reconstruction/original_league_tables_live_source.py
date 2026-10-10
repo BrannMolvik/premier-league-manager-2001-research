@@ -94,6 +94,7 @@ def source_qualified_procedural_league_table(
             "Live League participants disagree with current source club memberships"
         )
 
+    by_members = set(member_ids)
     source_names = {}
     for cid in member_ids:
         club = clubs.get(cid)
@@ -112,6 +113,25 @@ def source_qualified_procedural_league_table(
             raise SourceProceduralLeagueTableError(
                 "Original club short-name sort key is not CP1252"
             ) from exc
+
+    # 0x4F4940's live table must never consume fixtures referencing clubs
+    # outside its actual League member vector. Corrupt/incomplete original
+    # source results fail closed, rather than throwing a KeyError during
+    # points accumulation or fabricating a replacement participant.
+    fixtures = getattr(live, "fixtures", None)
+    if not hasattr(fixtures, "values"):
+        raise SourceProceduralLeagueTableError(
+            "Live League source fixture collection is unavailable"
+        )
+    for fixture in fixtures.values():
+        left = getattr(fixture, "home_club_id", None)
+        right = getattr(fixture, "away_club_id", None)
+        if (type(left) is not int or type(right) is not int
+                or left == right or left not in by_members
+                or right not in by_members):
+            raise SourceProceduralLeagueTableError(
+                "Live League fixture participant is outside current source members"
+            )
 
     if not callable(getattr(live, "table", None)) or not callable(
         getattr(live, "exact_ranking", None)
