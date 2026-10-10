@@ -93,7 +93,8 @@ class OriginalLeagueTablesNativeEventsTests(unittest.TestCase):
             "requires the integrated PLeagueTables",
         ):
             presenter.source_accepted_league_tables_radio_event(10)
-        presenter.navigate(0x25A)
+        initial = presenter.navigate(0x25A)
+        initial_clubs = tuple(row.club_id for row in initial.league_tables.rows)
         presenter.source_accepted_league_tables_radio_event(10)
         self.assertIsNotNone(presenter.league_tables_selection)
         presenter.navigate(0x25C)
@@ -101,7 +102,7 @@ class OriginalLeagueTablesNativeEventsTests(unittest.TestCase):
         again = presenter.navigate(0x25A)
         self.assertIsNone(again.league_tables_selection)
         self.assertEqual(tuple(row.club_id for row in again.league_tables.rows),
-                         tuple(row.club_id for row in presenter.snapshot().league_tables.rows))
+                         initial_clubs)
 
 
 if __name__ == "__main__":
