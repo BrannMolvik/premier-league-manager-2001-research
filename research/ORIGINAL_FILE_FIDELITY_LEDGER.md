@@ -2,6 +2,8 @@
 
 This ledger is the worker's primary queue while the original-file fidelity sweep is active.
 
+**Recovery468 cross-branch physical-click checkpoint:** [PBg ID1 mail / ID2 MENU / ID3 NEXT, PMenu EAMail, Squad tabs, Save/Return, multi-human owner matrix](GATE13_CORE_CONTROL_CLICK_OWNERSHIP_CROSS_BRANCH_RECOVERY468.md). Both normal hosts still lack ID1/ID3 dispatch; MENU ID2 opens from geometry/pop-up state alone rather than carrying all source input/owner flags, **P1 conditional pending a proven disabled original state**. Both hosts' motion-dismiss *is* implemented, and Codex Squad dragging is correctly suppressed while PMenu is open. No fresh original disassembly was possible because the recovered container process allocation failed trivial echo/Python after ZIP materialization. P0 playable routes and Codex-only ownership unchanged.
+
 ## Urgent order — Daniel's core-functionality priority (9 Oct 2026)
 
 Follow `research/GATE13_CORE_MENU_FUNCTIONALITY_AUDIT_PRIORITY_2026-10-09.md` **ahead of the general P0/P1/P2 ordering below**. The next audit is not another isolated row-bitmap/font trace; it is the original **menu-to-function graph** and end-to-end playability path. This changes **work ordering only**, not the evidence/status claims in historical research or the independent Codex implementation ownership.
