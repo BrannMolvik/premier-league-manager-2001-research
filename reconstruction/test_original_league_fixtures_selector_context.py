@@ -106,6 +106,30 @@ class LeagueFixturesSelectorContextTests(unittest.TestCase):
             context.accept_native_radio_event(True)
         self.assertEqual(context.selected_league_indices[0], 0)
 
+    def test_real_management_bridge_projects_manager_context_without_pl_fallback(self):
+        from gate13_management_source_data import (
+            ManagementPresentationError,
+            ManagementSourceDataBridge,
+        )
+        source = SimpleNamespace(
+            clubs={349: SimpleNamespace(country_id=33)},
+            club_competition_membership={349: 101},
+            competitions={item.id: item for item in canonical_shaped_definitions()},
+        )
+        controller = SimpleNamespace(
+            human=SimpleNamespace(club_id=349), state=source
+        )
+        context = ManagementSourceDataBridge(
+            controller
+        ).original_league_fixtures_selection_context()
+        self.assertEqual(context.selected_competition_id, 101)
+        self.assertEqual(context.active_country_id, 33)
+        source.club_competition_membership[349] = 999
+        with self.assertRaises(ManagementPresentationError):
+            ManagementSourceDataBridge(
+                controller
+            ).original_league_fixtures_selection_context()
+
     def test_another_actual_club_competition_is_used_not_unrelated_calendar_event(self):
         context = open_context(country=33, league=101)
         self.assertEqual(context.active_country_id, 33)
