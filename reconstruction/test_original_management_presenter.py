@@ -151,6 +151,43 @@ class UnintegratedLeagueFixturesBridge(Bridge):
         )
 
 
+class SourceSelectedFixtureBridge(Bridge):
+    """Two source divs; current controlled mock is Premier0, other is League2."""
+
+    def original_league_fixtures_selection_context(self):
+        from original_league_fixtures_selector_context import LeagueFixturesSelectionContext
+        countries = (
+            ((0, "Premier League"), (2, "First Division")),
+        ) + tuple((((300 + i), "Other League"),) for i in range(1, 8))
+        return LeagueFixturesSelectionContext(
+            active_country_index=0,
+            selected_league_indices=(0,) * 8,
+            league_candidates=countries,
+        )
+
+    def source_selected_nonpl_league_fixtures_grid_source(self, selection):
+        if selection.selected_competition_id != 2:
+            raise ManagementPresentationError(
+                "Foreign source selected League has no complete fixture calendar"
+            )
+        return LeagueFixturesGridSourceView(
+            competition_id=2,
+            member_club_ids=(10, 11),
+            scheduled_matchday_count=2,
+            schedule_cycle_count=2,
+            matrix_layer_count=1,
+            fixtures_in_source_order=(
+                FixtureRowView(
+                    source_fixture_index=1, fixture_id=None, round_index=None,
+                    scheduled_date=date(2000, 8, 19),
+                    home_club_id=10, home_club_name="Alpha",
+                    away_club_id=11, away_club_name="Beta", played=True,
+                    home_goals=2, away_goals=1, source_node_token=("alt", 1),
+                ),
+            ),
+        )
+
+
 class OriginalManagementPresenterTests(unittest.TestCase):
     def test_integration_presenter_has_no_direct_simulation_import(self):
         source = Path(__file__).with_name("original_management_presenter.py").read_text(
@@ -195,6 +232,60 @@ class OriginalManagementPresenterTests(unittest.TestCase):
             tuple(row.player_id for row in snapshot.squad.rows),
             tuple(range(1000, 1020)),
         )
+
+    def test_source_accepted_real_league_radio_refreshes_selected_other_source_grid(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=SourceSelectedFixtureBridge)
+        self.assertEqual(presenter.navigate(0x25C).league_fixtures.competition_id, 0)
+        new = presenter.source_accepted_league_fixtures_radio_event(10)
+        self.assertEqual(new.league_fixtures.competition_id, 2)
+        self.assertEqual(
+            tuple(row.source_node_token for row in new.fixtures_in_source_order),
+            (("alt", 1),))
+        self.assertEqual(presenter.snapshot().league_fixtures.competition_id, 2)
+        self.assertEqual(presenter.league_fixtures_selection_context.selected_competition_id, 2)
+        self.assertEqual(
+            presenter.source_accepted_league_fixtures_page(1).presentation
+            .league_fixtures.competition_id, 2)
+
+    def test_native_league_radio_rejects_unavailable_division_transactionally(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=SourceSelectedFixtureBridge)
+        presenter.navigate(0x25C)
+        selected = presenter.source_accepted_league_fixtures_radio_event(10)
+        prior = presenter.league_fixtures_selection_context
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError, "complete fixture calendar"
+        ):
+            presenter.source_accepted_league_fixtures_radio_event(2)
+        self.assertEqual(presenter.league_fixtures_selection_context, prior)
+        self.assertEqual(presenter.snapshot().league_fixtures, selected.league_fixtures)
+        with self.assertRaises(OriginalManagementPresentationError):
+            presenter.source_accepted_league_fixtures_radio_event(14)
+        self.assertEqual(presenter.league_fixtures_selection_context, prior)
+
+    def test_radio_state_returns_to_native_constructor_on_panel_reentry(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=SourceSelectedFixtureBridge)
+        presenter.navigate(0x25C)
+        presenter.source_accepted_league_fixtures_radio_event(10)
+        self.assertEqual(presenter.navigate(0xCE).panel_code, 0xCE)
+        self.assertIsNone(presenter.league_fixtures_selection_context)
+        self.assertEqual(presenter.navigate(0x25C).league_fixtures.competition_id, 0)
+
+    def test_unsupported_radio_without_source_or_outside_fixtures_fails_closed(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=Bridge)
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError, "requires integrated"
+        ):
+            presenter.source_accepted_league_fixtures_radio_event(10)
+        presenter.navigate(0x25C)
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError, "source selection is unavailable"
+        ):
+            presenter.source_accepted_league_fixtures_radio_event(10)
+        self.assertIsNone(presenter.league_fixtures_selection_context)
 
     def test_management_snapshot_carries_source_header_match_without_requerying_host(self):
         snapshot = build_fresh_management_snapshot(

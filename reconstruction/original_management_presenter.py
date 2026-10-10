@@ -28,6 +28,10 @@ from gate13_management_source_data import (
     ManagementHeaderMatchView,
     ManagementSourceDataBridge,
 )
+from original_league_fixtures_selector_context import (
+    LeagueFixturesSelectionContext,
+    LeagueFixturesSelectorContextError,
+)
 from original_league_fixtures_presenter import (
     OriginalLeagueFixturesSnapshot,
     build_league_fixtures_snapshot,
@@ -161,6 +165,7 @@ def build_management_panel_snapshot(
     expanded_root_id: int | None = None,
     squad_view_control_id: int = 3,
     league_fixtures_column_offset: int = 0,
+    league_fixtures_selection_context: LeagueFixturesSelectionContext | None = None,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -208,7 +213,21 @@ def build_management_panel_snapshot(
         )
 
     if selected_child_id == LEAGUE_FIXTURES_PANEL.menu_id:
-        source = bridge.league_fixtures_grid_source()
+        if league_fixtures_selection_context is None:
+            source = bridge.league_fixtures_grid_source()
+        else:
+            initial = bridge.original_league_fixtures_selection_context()
+            selected = league_fixtures_selection_context
+            if (type(selected) is not LeagueFixturesSelectionContext
+                    or selected.league_candidates != initial.league_candidates):
+                raise OriginalManagementPresentationError(
+                    "Selected native League radio options disagree with source"
+                )
+            if (selected.active_country_id == initial.active_country_id
+                    and selected.selected_competition_id == initial.selected_competition_id):
+                source = bridge.league_fixtures_grid_source()
+            else:
+                source = bridge.source_selected_nonpl_league_fixtures_grid_source(selected)
         fixtures = build_league_fixtures_snapshot(
             source,
             column_offset=league_fixtures_column_offset,
@@ -287,6 +306,7 @@ class OriginalManagementPresenter:
     expanded_root_id: int | None = None
     squad_view_control_id: int = 3
     league_fixtures_column_offset: int = 0
+    league_fixtures_selection_context: LeagueFixturesSelectionContext | None = None
 
     def __post_init__(self):
         # Recreated UI after source save/load still runs its real constructor;
@@ -309,6 +329,7 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=self.league_fixtures_column_offset,
+            league_fixtures_selection_context=self.league_fixtures_selection_context,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -324,6 +345,8 @@ class OriginalManagementPresenter:
         )
         self.selected_child_id = selected_child_id
         self.league_fixtures_column_offset = 0
+        # Native PLeagueFixtures constructor reinitializes radio indexes on entry.
+        self.league_fixtures_selection_context = None
         return snapshot
 
     def source_accepted_pmenu_action(
@@ -378,6 +401,7 @@ class OriginalManagementPresenter:
         )
         self.selected_child_id = menu_id
         self.league_fixtures_column_offset = 0
+        self.league_fixtures_selection_context = None
         return OriginalManagementPMenuActivation(action, snapshot)
 
     def source_accepted_squad_view_transition(
@@ -411,6 +435,53 @@ class OriginalManagementPresenter:
         )
         self.squad_view_control_id = transition.control_id
         return OriginalManagementSquadViewActivation(transition, snapshot)
+
+    def source_accepted_league_fixtures_radio_event(
+        self, event_id: int,
+    ) -> OriginalManagementPanelSnapshot:
+        """Apply a native 1..14 PLeagueFixtures radio callback transactionally.
+
+        Original 0x46E040 country (events 1..8) and League (9..14)
+        callbacks rebuild 0x46D840 source League candidates, 0x46D950
+        fixture matrix and 0x46DCD0 refresh. This API requires *prior*
+        native control acceptance and DOES NOT infer a Tk pointer hit.
+        """
+        if self.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id:
+            raise OriginalManagementPresentationError(
+                "League radio event requires integrated PLeagueFixtures panel"
+            )
+        bridge = _bridge(self.session, self.bridge_factory)
+        supplier = getattr(bridge, "original_league_fixtures_selection_context", None)
+        if not callable(supplier):
+            raise OriginalManagementPresentationError(
+                "Original country/League source selection is unavailable"
+            )
+        try:
+            previous = (
+                self.league_fixtures_selection_context
+                if self.league_fixtures_selection_context is not None
+                else supplier()
+            )
+            proposed = previous.accept_native_radio_event(event_id)
+            snapshot = build_management_panel_snapshot(
+                self.session,
+                LEAGUE_FIXTURES_PANEL.menu_id,
+                bridge_factory=self.bridge_factory,
+                staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
+                staged_league_table_resource_names=self.staged_league_table_resource_names,
+                expanded_root_id=self.expanded_root_id,
+                squad_view_control_id=self.squad_view_control_id,
+                league_fixtures_column_offset=0,
+                league_fixtures_selection_context=proposed,
+            )
+        except (LeagueFixturesSelectorContextError, ManagementPresentationError,
+                OriginalLeagueFixturesPresentationError, AttributeError, IndexError) as exc:
+            raise OriginalManagementPresentationError(str(exc)) from exc
+        # Commit only after the selected actual League's full source matrix
+        # is qualified; never paint another League under a newly clicked caption.
+        self.league_fixtures_selection_context = proposed
+        self.league_fixtures_column_offset = 0
+        return snapshot
 
     def source_accepted_league_fixtures_page(
         self,
@@ -454,6 +525,7 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=updated,
+            league_fixtures_selection_context=self.league_fixtures_selection_context,
         )
         self.league_fixtures_column_offset = updated
         return OriginalManagementLeagueFixturesPageActivation(
