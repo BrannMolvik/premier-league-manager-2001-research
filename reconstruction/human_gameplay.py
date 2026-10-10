@@ -7,6 +7,7 @@ through GameState's reconstructed Premier League simulation backend.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
@@ -1588,10 +1589,22 @@ class HumanGameplayController:
         )
         if self.pending_primary_entry is not None:
             return OriginalManagementTurnOutcome(target, (), self.pending_primary_entry)
+        # Unsupported native dependencies must not publish a partial turn.
+        # Keep the live controller owner; its presentation bridge reads state
+        # through this owner rather than retaining the staged graph.
+        staged = deepcopy(self, {id(self.attack_matrix): self.attack_matrix,
+                                 id(self.defence_matrix): self.defence_matrix})
+        outcome = staged._advance_original_management_turn(target)
+        self.__dict__.update(staged.__dict__)
+        return outcome
+
+    def _advance_original_management_turn(
+        self, target: OriginalManagementAdvanceTarget,
+    ) -> OriginalManagementTurnOutcome:
         # PBg's proven pre-match input guard is for tomorrow's fixture, not
         # permission to block a distant fixture-free turn on its current XI.
         # Warning acceptance remains separate; a rejection consumes no RNG.
-        if next_match_date == self.state.calendar.current_date + timedelta(days=1):
+        if target.next_match_date == self.state.calendar.current_date + timedelta(days=1):
             self.current_selection()
         processed = []
         for on_date in target.processing_dates:

@@ -12735,3 +12735,18 @@ ordinary advance/pre-match control integration, then actual hands-on acceptance.
 - Persisted `research/GATE13_PMENU_NODE_DISABLED_FLAG_LOST_AT_POINTER_RECOVERY467.md` and fidelity ledger row. Codex-only minimum fix is source-backed flag round-trip and normal-click guarded/unguarded route tests, subordinated to existing P0 functionality. Next independent audit: original bit1 node-state producer/lifecycle or another P0 core-route fidelity gap if private source inaccessible.
 
 - **Recovery 467 original-source addendum:** independently materialized authorized private 511,121,336-byte ZIP, extracted actual root `footballmanager.exe;1` from MODE1/2352 Joliet LBA 260425, 4,714,541 bytes; fresh SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Original disassembly directly confirms node initializers zero +0x14 (`0x60C9C8/0x60C9D2`; leaf `0x60CA04/0x60CA0E`) and separate child bit1 gate before factory `0x47ADA5–0x47ADAD`. The dynamic producer is unproven, so ledger priority lowered to P1 conditional mismatch; do not displace broken P0 core routes. Original bytes remain private.
+
+## 10 October 2026 KST — playable-core NEXT integrity checkpoint
+
+Daniel reprioritized ordinary NEXT/MATCH gameplay above isolated presentation.
+Reconciled audit-only main fc857236 without losing either branch's work.
+The existing bounded NEXT now stages the complete controller graph and publishes
+only on success, retaining controller identity and correctly rebound calendar
+hooks. Refusal leaves date, results, lineup, RNGs, pending state and transient
+receipts untouched. Two new fault-test methods reproduce three snapshot failures
+without staging, including a real AI result followed by a later-day refusal.
+Final focused111 tests/8.697s and asset policy passed; no full-suite green claim.
+This is backend integrity, not a completed player action: NEXT selector/wrapper
+lifecycle, ordinary click and pre-match/results/return still need integration.
+See `GATE13_PLAYABLE_CORE_NEXT_HANDOFF_2026-10-10.md`. Gate13 OPEN; no new Windows
+acceptance/build, original process, main merge or agent-runtime change.

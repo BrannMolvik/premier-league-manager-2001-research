@@ -1,15 +1,20 @@
 """Bounded day-owner integration, independently of unrecovered live modal UI."""
 from datetime import date, timedelta
+from functools import partial
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import unittest
 
 from game_state import GameCalendar
 from human_gameplay import HumanGameplayController
 from primary_schedule_shadow import PrimaryScheduleShadowState, PrimaryScheduleShadowEntry
 from competition_schedule import direct_club_ref
+
+
+def due_entries(state, due_date, entries):
+    return entries if state.calendar.current_date == due_date else ()
 
 
 class OriginalManagementTurnTests(unittest.TestCase):
@@ -26,8 +31,7 @@ class OriginalManagementTurnTests(unittest.TestCase):
             simulate_due_primary_ai_entries=Mock(return_value=()),
             simulate_primary_ai_entry=Mock(side_effect=lambda entry, *a, **k: ('result', entry)),
         )
-        state.primary_entries_due_today.side_effect = lambda: (
-            entries if state.calendar.current_date == due_date else ())
+        state.primary_entries_due_today.side_effect = partial(due_entries, state, due_date, entries)
         c = HumanGameplayController(state, 'attack', 'defence', 'rng', 'engine_rng')
         c.human = SimpleNamespace(club_id=1)
         c.current_selection = Mock()
@@ -122,10 +126,14 @@ class OriginalManagementTurnTests(unittest.TestCase):
 
     def test_original_exit_during_maintenance_does_not_advance_more_days(self):
         c = self.controller()
-        c._finish_shared_primary_day.side_effect = lambda _: setattr(c, 'human', None)
+        c._finish_shared_primary_day.side_effect = partial(self.remove_human, c)
         result = self.advance(c, None)
         self.assertEqual(len(result.processed_dates), 1)
         self.assertIsNone(result.pending_primary_entry)
+
+    @staticmethod
+    def remove_human(controller, _):
+        controller.human = None
 
     def test_nonprimary_or_nonleague_owner_is_not_assumed_to_use_primary_two_passes(self):
         for category, kind in ((2, 'premier_league'), (1, 'domestic_cup')):
@@ -200,6 +208,84 @@ class OriginalManagementTurnTests(unittest.TestCase):
             self.advance(c, self.today + timedelta(days=1))
         self.assertIsNone(c.pending_primary_entry)
         c.state.simulate_primary_ai_entry.assert_not_called()
+
+    def test_actual_due_wrapper_refusal_preserves_full_live_snapshot_and_owners(self):
+        import test_human_gameplay as fixtures
+        from internal_save import snapshot_human_gameplay
+        for club_id in (1, 3):
+            with self.subTest(club_id=club_id):
+                helper = fixtures.HumanGameplayControllerTests()
+                c = helper.build_controller()
+                c.select_club(club_id)
+                helper.set_available_lineup(c)
+                c.state.primary_matchday_order = {
+                    c.state.premier_league.round_date(round_id):
+                        tuple(('premier_league', fixture_id) for fixture_id in ids)
+                    for round_id, ids in c.state.premier_league_scheduler_order.items()
+                }
+                match_date = min(c.state.primary_matchday_order)
+                c.state.calendar.current_date = match_date - timedelta(days=1)
+                before = snapshot_human_gameplay(c)
+                state, human, rng = c.state, c.human, c.match_rng
+                with self.assertRaisesRegex(RuntimeError, 'wrapper lifecycle'):
+                    self.advance(c, None)
+                self.assertEqual(snapshot_human_gameplay(c), before)
+                self.assertIs(c.state, state)
+                self.assertIs(c.human, human)
+                self.assertIs(c.match_rng, rng)
+
+    def test_later_failure_discards_ai_result_rng_and_transient_mutations(self):
+        import test_human_gameplay as fixtures
+        from internal_save import snapshot_human_gameplay
+        from match_engine_rng import MatchEngineRng
+        helper = fixtures.HumanGameplayControllerTests()
+        c = helper.build_controller()
+        c.select_club(1)
+        helper.set_available_lineup(c)
+        c.match_engine_rng = MatchEngineRng(123)
+        c.state.calendar.current_date = c.state.premier_league.round_date(0) - timedelta(days=1)
+        before = snapshot_human_gameplay(c)
+        live_state, live_human = c.state, c.human
+        processed = []
+
+        def fail_second_day(staged, *, native_primary_order):
+            self.assertTrue(native_primary_order)
+            processed.append(staged.state.calendar.current_date)
+            if len(processed) == 2:
+                raise RuntimeError('unsupported later event')
+            staged.state.simulate_primary_ai_entry(
+                ('premier_league', 1), staged.attack_matrix, staged.defence_matrix,
+                staged.match_rng, match_engine_rng=staged.match_engine_rng)
+            self.assertIn(1, staged.state.premier_league.results)
+            staged.last_transfer_executions = ('staged transfer receipt',)
+            staged.human.starter_ids = ()
+            return None
+
+        with patch.object(HumanGameplayController, '_process_current_primary_day', fail_second_day), \
+                patch.object(HumanGameplayController, '_finish_shared_primary_day'):
+            with self.assertRaisesRegex(RuntimeError, 'unsupported later event'):
+                self.advance(c, None)
+        self.assertEqual(len(processed), 2)
+        self.assertEqual(snapshot_human_gameplay(c), before)
+        self.assertEqual(c.last_transfer_executions, ())
+        self.assertIs(c.state, live_state)
+        self.assertIs(c.human, live_human)
+
+    def test_success_publishes_once_through_the_same_controller_bridge(self):
+        import test_human_gameplay as fixtures
+        from gate13_management_source_data import ManagementSourceDataBridge
+        c = fixtures.HumanGameplayControllerTests().build_controller()
+        c.select_club(1)
+        bridge = ManagementSourceDataBridge(c)
+        previous = c.state
+        outcome = self.advance(c, None, turn_length=1)
+        self.assertEqual(outcome.processed_dates, (previous.calendar.current_date + timedelta(days=1),))
+        self.assertIs(bridge.controller, c)
+        self.assertIs(bridge.state, c.state)
+        self.assertIsNot(c.state, previous)
+        self.assertEqual(previous.calendar.current_date, date(2000, 6, 30))
+        for hook in c.state.calendar.daily_hooks + c.state.calendar.monthly_hooks:
+            self.assertIs(hook.__self__, c.state)
 
 
 if __name__ == '__main__':

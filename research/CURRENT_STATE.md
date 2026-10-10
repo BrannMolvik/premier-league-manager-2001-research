@@ -1,3 +1,19 @@
+# Playable-core priority — 10 October 2026 KST
+
+Daniel now prioritizes ordinary NEXT/MATCH gameplay, then formations, real Inbox,
+essential navigation/save-load and measured responsiveness. Cosmetic research
+is deferred unless it blocks those actions. See
+`GATE13_PLAYABLE_CORE_NEXT_HANDOFF_2026-10-10.md` for the exact resume boundary.
+Reconciled audited main fc857236 into the existing recovery branch. Bounded NEXT
+now stages the whole controller graph and publishes only on success, preserving
+live state on a later refusal; unknown wrappers and selector guards are unchanged.
+111 focused tests passed in8.697s, including calendar-hook ownership; asset
+policy passed. Three deliberate red snapshot failures establish the
+previous partial-mutation defect. No new playable UI action, Windows acceptance
+or build is claimed. Next implement source-qualified event/wrapper lifecycle,
+ordinary ID3 input, pre-match/results/return with the existing engine. Gate13
+OPEN; no main merge, agent-runtime change or later-gate work.
+
 # Local recovery integration — 9 October 2026
 
 **Live direct-font correction:** independent canonical loader/lifecycle review
