@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from base64 import b64encode
 from copy import copy
+from dataclasses import replace
 from functools import lru_cache
 from pathlib import Path
 from queue import Empty, Queue
@@ -105,7 +106,7 @@ from original_pmatchinfo_presenter import (
 )
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_popup import pmenu_open_press, pmenu_app_pointer_dismiss
-from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
+from original_pmenu_presenter import candidate_pmenu_row_at_screen_point, OriginalPMenuAnimation
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from gate13_pstartmenu_derivative import (
     PSTARTMENU_SOURCE_ORIGINALS,
@@ -403,6 +404,9 @@ class OriginalGameTkHost:
         self.fixtures_pager_flags = {-1: 0x183, 1: 0x183}
         # PMenu is pushed by application event 2, not a permanent panel layer.
         self.pmenu_popup_active = False
+        self._pmenu_animation = OriginalPMenuAnimation()
+        self._pmenu_frame = None
+        self._pmenu_items = []
         self.squad_top_resources = squad_top_resources
         self.squad_row_text_resources = squad_row_text_resources
         self.squad_status_resources = squad_status_resources
@@ -1266,7 +1270,8 @@ class OriginalGameTkHost:
             self._management_header_idle is None
             and ((isinstance(self.management_header_resources, OriginalManagementHeaderResources)
                   and self.management_header_state.pending())
-                 or (self._squad_tabs_live() and self._squad_tab_animation.pending()))
+                 or (self._squad_tabs_live() and self._squad_tab_animation.pending())
+                 or (self.pmenu_popup_active and self._pmenu_animation.pending()))
         ):
             self._management_header_idle = self.root.after_idle(
                 self._advance_management_header
@@ -1281,12 +1286,41 @@ class OriginalGameTkHost:
         header_changed = (isinstance(self.management_header_resources, OriginalManagementHeaderResources)
                           and self.management_header_state.update())
         tabs_changed = self._squad_tabs_live() and self._squad_tab_animation.update()
-        if header_changed or tabs_changed:
+        menu_changed = self.pmenu_popup_active and self._pmenu_animation.update()
+        if header_changed or tabs_changed or menu_changed:
             if ((header_changed and not self._update_management_header_layers())
-                    or (tabs_changed and not self._update_squad_tab_layers())):
+                    or (tabs_changed and not self._update_squad_tab_layers())
+                    or (menu_changed and not self._update_pmenu_layers())):
                 self.redraw()
             else:
                 self._schedule_management_header_update()
+
+    def _render_live_pmenu(self):
+        menu = self._pmenu_animation.snapshot()
+        key = (id(self.management_pmenu_resources), menu)
+        render = self._management_pmenu_render_cache.get(key)
+        if render is None:
+            frame = replace(self._pmenu_frame,
+                presentation=replace(self._pmenu_frame.presentation, menu=menu))
+            render = build_management_pmenu_render(frame, self.management_pmenu_resources)
+            if len(self._management_pmenu_render_cache) >= 128:
+                self._management_pmenu_render_cache.clear()
+            self._management_pmenu_render_cache[key] = render
+        return render
+
+    def _update_pmenu_layers(self) -> bool:
+        render = self._render_live_pmenu()
+        if len(render.overlays) != len(self._pmenu_items):
+            return False
+        for overlay, (_item, old) in zip(render.overlays, self._pmenu_items):
+            if (overlay.role, overlay.menu_id, overlay.x, overlay.y) != (
+                    old.role, old.menu_id, old.x, old.y):
+                return False
+        for index, (overlay, (item, old)) in enumerate(zip(render.overlays, self._pmenu_items)):
+            if overlay.png != old.png:
+                self.canvas.itemconfigure(item, image=self._photo(overlay.png, retain=False))
+                self._pmenu_items[index] = item, overlay
+        return True
 
     def _squad_tabs_live(self) -> bool:
         from original_management_shell import SQUAD_PANEL_CODE
@@ -1820,6 +1854,9 @@ class OriginalGameTkHost:
             )
             self.management_header_state.set_pointer_inside(inside_header)
             self.management_header_state.set_selected(self.pmenu_popup_active)
+            if self.pmenu_popup_active and self.active_pmatchinfo_art is None and self._pmenu_frame is not None:
+                self._pmenu_animation.observe(self._pmenu_frame.presentation.menu,
+                    self._first_screen_pointer)
             self._schedule_management_header_update()
         changed = False
         if (self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT
@@ -1935,16 +1972,12 @@ class OriginalGameTkHost:
             )
 
         menu_render = None
+        self._pmenu_frame = frame
+        self._pmenu_items = []
         if self.pmenu_popup_active:
-            menu_key = (id(self.management_pmenu_resources), frame.presentation.menu)
-            menu_render = self._management_pmenu_render_cache.get(menu_key)
-            if menu_render is None:
-                with timed_stage("management.pmenu.render"):
-                    menu_render = build_management_pmenu_render(
-                        frame,
-                        self.management_pmenu_resources,
-                    )
-                self._management_pmenu_render_cache[menu_key] = menu_render
+            self._pmenu_animation.observe(frame.presentation.menu, self._first_screen_pointer)
+            with timed_stage("management.pmenu.render"):
+                menu_render = self._render_live_pmenu()
         self.canvas.delete("all")
         self._photos = []
 
@@ -1971,12 +2004,15 @@ class OriginalGameTkHost:
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in (() if menu_render is None else menu_render.overlays):
             art = self._photo(overlay.png)
-            self._create_native_image(
+            item = self._create_native_image(
                 menu_x + overlay.x,
                 menu_y + overlay.y,
                 image=art,
                 anchor=self.tk.NW,
             )
+            self._pmenu_items.append((item, overlay))
+
+        self._schedule_management_header_update()
 
         dialog_image_count = self._draw_pmatchinfo_dialog()
 
@@ -2096,6 +2132,17 @@ class OriginalGameTkHost:
             source_flags,
         )
         self.last_pmenu_activation = result
+        if result.action.action_kind == 'return_to_pstartmenu':
+            self.presenter.session.source_accepted_return_to_start_menu()
+            self.pmenu_popup_active = False
+            self.management_presenter = None
+            self._squad_drag_source = None
+            self.management_header_state.set_selected(False)
+            self.presenter.hierarchy = None
+            self.first_screen_animation = OriginalFirstScreenAnimation()
+            self.redraw()
+            self.last_status = 'Returned to original main menu; live game retained for Continue'
+            return result
         family = self._management_resource_family(result.presentation.panel_class)
         if family not in self._management_resource_families_loaded:
             self._begin_management_resource_load(family)
@@ -2472,17 +2519,11 @@ class OriginalGameTkHost:
                     self.last_status = "PMenu pointer press rejected by source control gates"
                     return
                 try:
-                    result = self.management_presenter.source_accepted_pmenu_action(
+                    result = self.apply_source_accepted_pmenu_action(
                         candidate.row_kind,
                         candidate.menu_id,
                         source_flags,
                     )
-                    self.last_pmenu_activation = result
-                    family = self._management_resource_family(result.presentation.panel_class)
-                    if family not in self._management_resource_families_loaded:
-                        self._begin_management_resource_load(family)
-                    else:
-                        self.redraw()
                     self.last_status = (
                         "PMenu source pointer press: "
                         f"{result.action.action_kind} {candidate.menu_id:#x}"

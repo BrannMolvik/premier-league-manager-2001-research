@@ -295,9 +295,9 @@ def _row_art(
 
     arrow_state = pmenu_arrow_state_from_bits(row.arrow_state_bits)
     if title:
-        arrow_index = pmenu_title_arrow_source_row(arrow_state, 0)
+        arrow_index = pmenu_title_arrow_source_row(arrow_state, row.arrow_frame)
     else:
-        arrow_index = pmenu_child_arrow_source_row(arrow_state, 0)
+        arrow_index = pmenu_child_arrow_source_row(arrow_state, row.arrow_frame)
     arrow_x, arrow_y, arrow_w, arrow_h = PMENU_ROW_ARROW_RECT
     arrow_rgba = _crop_rgba(
         arrow_image,

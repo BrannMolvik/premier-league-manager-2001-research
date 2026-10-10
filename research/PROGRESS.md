@@ -1,3 +1,16 @@
+### 10 October 2026 KST — ordinary MENU repair and changed playability priority
+
+Daniel clarified both Inbox missing and dropdown/actions broken. Reproduced and
+fixed Return323's null-panel/PStartMenu branch, retaining the live game for
+Continue. Reused native row hover masks and existing arrow update/frame helpers
+on the serialized management pass; only existing menu bitmap items change.
+Canonical96 row-event/832 title-update comparisons and148 focused tests passed.
+Withdrawn real Windows/Tk1x/1.5x passed30-player retention, hover without app
+snapshots/item/photo growth and Return/Continue. Window capture was unreliable;
+no physical-mouse acceptance or playable build is claimed. Inbox still absent;
+continue genuine delivered user-owner/data/row/detail integration. See
+GATE13_MENU_RECOVERY_2026-10-10.md. No original process/main merge/runtime change.
+
 ### 10 October 2026 KST — native postponement + NEXT host integration
 
 Canonical12-case postponement/256-case concrete Back5 execution qualifies

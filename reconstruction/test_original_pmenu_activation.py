@@ -35,6 +35,16 @@ from original_pmenu_activation import (
 
 
 class OriginalPMenuActivationTests(unittest.TestCase):
+    def test_return_main_is_a_null_factory_side_effect_not_a_selected_content_panel(self):
+        action = resolve_pmenu_pointer_press('child', 0x323, 0, 40, 10)
+        self.assertTrue(action.accepted)
+        self.assertEqual(action.action_kind, 'return_to_pstartmenu')
+        self.assertEqual(action.source_flags_after, 0)
+        self.assertEqual(action.panel_factory_arguments, (0x323, 0))
+        self.assertIsNone(action.owner_refresh_vtable_offset)
+        for flags in (1, 2, 3):
+            self.assertFalse(resolve_pmenu_pointer_press('child', 0x323, flags, 40, 10).accepted)
+
     def test_recovered_action_ownership_addresses_are_locked(self):
         self.assertEqual(PMENU_ROW_ACTION_VTABLE_OFFSET, 0x10)
         self.assertEqual(PMENU_BASE_ROW_ACTION_PURECALL_VA, 0x668766)

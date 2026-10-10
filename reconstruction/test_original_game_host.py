@@ -472,6 +472,71 @@ class FullHDFakeRoot(FakeRoot):
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_normal_menu_motion_uses_shared_idle_and_only_updates_existing_bitmaps(self):
+        from test_original_management_canvas import _pmenu_resources
+        live, root = presenter(), FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk,
+            management_presenter_factory=management_factory,
+            management_pmenu_resources=_pmenu_resources(),
+            squad_top_resources=fake_squad_top_resources(),
+            squad_row_text_resources=fake_squad_row_text_resources())
+        host.on_click(SimpleNamespace(x=141, y=512))
+        live.choose_club(12)
+        host.on_click(SimpleNamespace(x=426, y=301))
+        host.on_click(SimpleNamespace(x=640, y=30))
+        counts = host.canvas.delete_count, len(host.canvas.images), len(host._photos)
+        with patch.object(host.management_presenter, 'snapshot', side_effect=AssertionError('hover snapshot')), \
+                patch.object(host, 'redraw', side_effect=AssertionError('hover redraw')):
+            host.on_fixtures_pager_motion(SimpleNamespace(x=640, y=155))
+            for frame in range(1, 11):
+                root.run_idle()
+                self.assertEqual(host._pmenu_animation.snapshot().rows[2].arrow_frame, frame)
+            self.assertFalse(root.values['idle'])
+            self.assertEqual(host._pmenu_animation.snapshot().rows[2].background_state_bits, 10)
+            host.on_fixtures_pager_motion(SimpleNamespace(x=790, y=598))
+            for frame in range(9, -1, -1):
+                root.run_idle()
+                self.assertEqual(host._pmenu_animation.snapshot().rows[2].arrow_frame, frame)
+            self.assertFalse(root.values['idle'])
+        self.assertEqual((host.canvas.delete_count, len(host.canvas.images), len(host._photos)), counts)
+        self.assertGreater(host.canvas.itemconfigure_count, 0)
+        self.assertEqual(host.management_presenter.selected_child_id, 0xCE)
+
+    def test_normal_game_options_return_main_and_continue_preserve_live_game(self):
+        for club_id in (12, 13):
+            with self.subTest(club_id=club_id), patch(
+                    'original_game_host.build_management_pmenu_render',
+                    side_effect=lambda *_: fake_pmenu_render()):
+                live = presenter()
+                host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+                    management_presenter_factory=management_factory,
+                    management_pmenu_resources=object(),
+                    squad_top_resources=fake_squad_top_resources(),
+                    squad_row_text_resources=fake_squad_row_text_resources())
+                host.on_click(SimpleNamespace(x=141, y=512))
+                live.choose_club(club_id)
+                host.on_click(SimpleNamespace(x=426, y=301))
+                gameplay = live.session.gameplay
+                host.on_click(SimpleNamespace(x=640, y=30))
+                menu = host.management_presenter.snapshot().menu
+                options = next(row for row in menu.rows if row.row_kind == 'title' and row.menu_id == 8)
+                host.on_click(SimpleNamespace(x=640, y=96 + options.y + 10))
+                menu = host.management_presenter.snapshot().menu
+                back = next(row for row in menu.rows if row.menu_id == 0x323)
+                host.on_click(SimpleNamespace(x=640, y=96 + back.y + 10))
+                self.assertIs(live.session.navigation.screen, FrontEndScreen.START_MENU)
+                self.assertIs(live.session.gameplay, gameplay)
+                self.assertTrue(live.session.started)
+                self.assertFalse(host.pmenu_popup_active)
+                self.assertIsNone(host.management_presenter)
+                self.assertEqual(gameplay.selections, [club_id])
+                control = next(c for c in live.snapshot().controls if int(c.event) == 1)
+                host.on_click(SimpleNamespace(x=control.rect.x + 5, y=control.rect.y + 5))
+                self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+                self.assertIs(live.session.gameplay, gameplay)
+                self.assertEqual(gameplay.selections, [club_id])
+                self.assertEqual(host.management_presenter.selected_child_id, 0xCE)
+
     def test_next_press_runs_off_tk_and_publishes_only_after_successful_poll(self):
         live = presenter()
         root = FakeRoot()

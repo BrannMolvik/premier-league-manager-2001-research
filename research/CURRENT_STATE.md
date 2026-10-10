@@ -1,5 +1,18 @@
 # Playable-core priority — 10 October 2026 KST
 
+**Daniel's current priority is both missing Inbox and broken MENU actions/art.**
+Return-to-Main child323 now follows its native null-panel/PStartMenu route;
+Continue retains the live game. Dropdown rows now consume47ACF0 mask8 and
+existing6527F0/frame helpers on the shared idle pass, updating existing bitmap
+items rather than rebuilding Squad.96 canonical row callbacks/832 title updates,
+148 focused tests/24.198s, withdrawn real Windows/Tk at1x/1.5x passed (30-player
+owner unchanged, Return/Continue, no hover snapshots/items/reference growth).
+Visible capture was unreliable; no physical-mouse acceptance is claimed. See
+`GATE13_MENU_RECOVERY_2026-10-10.md`. Inbox remains absent: next connect original
+PBg ID1 and PMenu65 to the genuine per-user mailbox/delivery/row/detail owner,
+not a placeholder or pending-queue merge. Then resume pre-match/NEXT work below.
+Gate13 OPEN; no original launch, main merge, runtime-owner or later-gate change.
+
 **Native postponement + ordinary NEXT binding:** actual canonical12-case
 priority/tie/completion/conflict execution and256-case concrete Back5 input
 execution qualify the smallest wrapper and ID3 integrations. Canonical Southport

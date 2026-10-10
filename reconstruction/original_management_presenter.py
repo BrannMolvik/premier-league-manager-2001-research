@@ -354,6 +354,9 @@ class OriginalManagementPresenter:
         if not action.accepted:
             return OriginalManagementPMenuActivation(action, current)
 
+        if action.action_kind == 'return_to_pstartmenu':
+            return OriginalManagementPMenuActivation(action, current)
+
         if action.action_kind == "expand_root":
             self.expanded_root_id = menu_id
             return OriginalManagementPMenuActivation(action, self.snapshot())
