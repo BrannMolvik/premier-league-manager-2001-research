@@ -132,7 +132,10 @@ def source_qualified_selected_procedural_league_table(
         cid for cid, league_id in membership.items()
         if type(cid) is int and league_id == competition_id
     }
-    if set(member_ids) != roster or human_club_id not in roster:
+    # Native selected-other-League views need the complete live League member
+    # set, not an unrelated human club in this foreign roster. The existing
+    # managed-club wrapper already enforced that club's own League identity.
+    if set(member_ids) != roster:
         raise SourceProceduralLeagueTableError(
             "Live League participants disagree with current source club memberships"
         )
