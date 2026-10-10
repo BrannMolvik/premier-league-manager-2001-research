@@ -1,5 +1,8 @@
 # Original-File Fidelity Ledger
 
+**Recovery490 cross-audit first-playable acceptance matrix:** [GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md](GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md). NO new executable/code feature; reconciles original source + merged runtime Recoveries470–489 with exact first player path: PBg NEXTID3→modal PPreMatch choice (source owner/mode5)→original mode3 pre-calculation and common postcallbacks→PResults event ticks/return, then real Inbox/Save/formation, current-country League controls, PMatchInfo tabs and all original gameplay country/manager scope. Audits remain separately bounded; current initial quick mode path is only R1 intermediate. Highest Codex next change: central pending match owner and early public NEXT guard **before** mutable Side selector. Original verified prior sources, no current PE command; no game-code/CI. Gate13 OPEN.
+
+
 This ledger is the worker's primary queue while the original-file fidelity sweep is active.
 
 **Recovery468 cross-branch physical-click checkpoint:** [PBg ID1 mail / ID2 MENU / ID3 NEXT, PMenu EAMail, Squad tabs, Save/Return, multi-human owner matrix](GATE13_CORE_CONTROL_CLICK_OWNERSHIP_CROSS_BRANCH_RECOVERY468.md). Both normal hosts still lack ID1/ID3 dispatch; MENU ID2 opens from geometry/pop-up state alone rather than carrying all source input/owner flags, **P1 conditional pending a proven disabled original state**. Both hosts' motion-dismiss *is* implemented, and Codex Squad dragging is correctly suppressed while PMenu is open. No fresh original disassembly was possible because the recovered container process allocation failed trivial echo/Python after ZIP materialization. P0 playable routes and Codex-only ownership unchanged.
