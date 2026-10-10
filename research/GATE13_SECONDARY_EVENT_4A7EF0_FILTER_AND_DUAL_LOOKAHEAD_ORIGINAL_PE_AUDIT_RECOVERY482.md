@@ -81,3 +81,32 @@ objdump -d -M intel --start-address=0x613ec0 --stop-address=0x613edd footballman
 **Codex-only immediate next source task:** identify RTTI/vft and exact field/constructor behavior of payload `0x54B610` and `0x550830` (and confirm what +0x68 owner stores), then source-qualify class readiness/recipient predicates, source-generated future-dated envelope and real one/two-user delivered mail. No fake welcome notices, global broadcasting, silent untyped +0x68 updates, or early merging of the three queues. Negative tests: ineligible source manager, +3 prior+0x68≠-1 (write but no message), eligible qualified source manager, +14 matching second side, source linked/unknown event, later due delivery, internal save/reload. Preserve urgent human pre-match/results/return implementation priority and actual Windows11 normal action acceptance.
 
 **Evidence:** complete call/branch/pointer/alloc/queue relation from **fresh canonical original PE read-only disassembly**; resulting MPM record class/meaning, +0x68 semantic, specific player-visible effects and Win11 integration **UNRESOLVED**. Current clean-room does not generate these source messages or the secondary subsystem. Worker remains strict AUDIT ONLY; no game implementation, original execution, CI or Gate13 closure.
+
+## Recovery482 third firsthand pass — exact EAM class identity via original RTTI
+
+_Fresh direct RTTI/constructor evidence against same SHA256-verified original executable. This source proof upgrades the **class identity** portion of the preceding report from UNKNOWN to ORIGINAL-SOURCE VERIFIED. It does **not** prove the particular text, records' final delivery/expiry choice, actual match simulation effect or Windows11 normal Inbox GUI._
+
+The two path-specific initializer functions do not construct an arbitrary anonymous `0x1C44` message. They write **different original C++ polymorphic object vtables**, whose MSVC RTTI Complete Object Locator (COL) and TypeDescriptor names are directly present in the authorized original binary:
+
+| Dated producer and per-user initializer | Constructor vft write instruction | Vft-4 COL pointer | COL TypeDescriptor pointer at +0x0C | Original MSVC class TypeDescriptor text |
+|---|---|---|---|---|
+| Secondary `current+14→0x50EE00→0x413660→0x426FF0→0x54B610` | **`0x54B677: [EBX] = 0x7CF028`** | **`[0x7CF024]=0x7EFBC8`** | **`[0x7EFBD4]=0x82C4F0`** | **`EAMFAInternationalSquadAnnounceM`** (`.?AVEAMFAInternationalSquadAnnounceM@@`) |
+| Secondary `current+3→0x50F3C0→0x4136C0→0x427120→0x550830` | **`0x550897: [EBX] = 0x7CE8D8`** | **`[0x7CE8D4]=0x7EF3C8`** | **`[0x7EF3D4]=0x82C1A0`** | **`EAMInternationalSquadCallupM`** (`.?AVEAMInternationalSquadCallupM@@`) |
+
+**Read-only independent proof steps:**
+```
+objdump -d -M intel --start-address=0x54b610 --stop-address=0x54b683 footballmanager.exe
+objdump -d -M intel --start-address=0x550830 --stop-address=0x5508a3 footballmanager.exe
+objdump -s --start-address=0x7cf018 --stop-address=0x7cf040 footballmanager.exe
+objdump -s --start-address=0x7ce8c8 --stop-address=0x7ce8f4 footballmanager.exe
+objdump -s --start-address=0x7ef3c8 --stop-address=0x7ef3f0 footballmanager.exe
+objdump -s --start-address=0x7efbc8 --stop-address=0x7efbf0 footballmanager.exe
+objdump -s --start-address=0x82c1a0 --stop-address=0x82c1d0 footballmanager.exe
+objdump -s --start-address=0x82c4f0 --stop-address=0x82c520 footballmanager.exe
+```
+
+Further bounded exact constructor fields: **both** initializers set message record `+0x04 = -1`, `+0x08 = 4`, `+0x0C = 9`, clear `+0x28/+0x2C/+0x30` and populate `+0x10/+0x1C` from `0x5CE660` results. Those are actual original initialization values, but **do not name +0x08=4 an "unread" flag or +0x0C=9 a "message type" without tracing readers**. Each message-specific constructor writes its distinct vft before further string/context assembly. Source user methods `0x426FF0/0x427120` stamp the pending envelope with native current date, install envelope vft `0x7BD564`, and queue it to `0x947AA8` via `0x613EC0`.
+
+**Integration implications:** the earlier unknown "`0x1C44` payload" is now **two concrete EAM classes**, not one generic source reminder. Source event date+14 and date+3 pathways must retain class-specific behavior, one/two-manager eligibility predicates and pending MPM delivery lifecycle. The long-term original Inbox must display source-qualified international squad announcement/callup messages **when the native scheduler actually produces and delivers them**; never emit a synthetic message solely because a fixture is within 14 or 3 days. A separate source-class-specific readiness/expiry/recipient audit is still needed before writing any generation or UI code. The above RTTI is independent original PE evidence, not a reconstructed class name inferred from the app's Python code.
+
+**Classification:** vtable, COL, TypeDescriptor class names and constructor initial bytes = **NEW ORIGINAL SOURCE VERIFIED**; source chain into pending MPM list = **NEW ORIGINAL SOURCE VERIFIED** in preceding section; exact player/FA message content, eventual Inbox appearance, source manager qualification, national squad side effects and Win11 play outcomes = **PARTIAL/UNKNOWN**. No original game process launched. Codex solely implements; Gate13 OPEN, Gates14–17/final Windows11 release incomplete.
