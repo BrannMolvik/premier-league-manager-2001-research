@@ -156,6 +156,7 @@ class FakeState:
         }
         self.calendar = SimpleNamespace(current_date=date(2000, 8, 20))
         self.premier_league = FakeLeague()
+        self.club_competition_membership = {10: 0, 11: 0}
         self.team_tactics = {
             10: SimpleNamespace(
                 play_style=2,
@@ -1570,6 +1571,75 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             tuple(row.fixture_id for row in source.fixtures_in_source_order),
             (17, 3),
         )
+
+    def test_league_fixtures_grid_source_refuses_pl_fallback_for_non_pl_manager(self):
+        controller = FakeController()
+        controller.state.premier_league.club_ids = (10, 11)
+        table_calls = []
+        controller.state.premier_league.table = (
+            lambda name_key: table_calls.append(name_key) or controller.state._table
+        )
+        controller.state.competitions = {
+            0: SimpleNamespace(scheduled_matchday_count=2)
+        }
+        controller.state.club_competition_membership = {10: 27, 11: 0}
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "League 27 is not integrated",
+        ):
+            ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+        self.assertEqual(table_calls, [])
+
+    def test_league_fixtures_grid_source_fails_closed_without_manager_league_identity(self):
+        controller = FakeController()
+        controller.state.premier_league.club_ids = (10, 11)
+        controller.state.premier_league.table = (
+            lambda name_key: controller.state._table
+        )
+        controller.state.competitions = {
+            0: SimpleNamespace(scheduled_matchday_count=2)
+        }
+        controller.state.club_competition_membership = {11: 0}
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "no recovered League identity",
+        ):
+            ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+        for invalid_identity in (None, "0"):
+            with self.subTest(invalid_identity=invalid_identity):
+                controller.state.club_competition_membership = {
+                    10: invalid_identity,
+                    11: 0,
+                }
+                with self.assertRaisesRegex(
+                    ManagementPresentationError,
+                    "no recovered League identity",
+                ):
+                    ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+    def test_league_fixtures_grid_source_fails_closed_without_membership_table(self):
+        controller = FakeController()
+        del controller.state.club_competition_membership
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "membership .*unavailable",
+        ):
+            ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+    def test_league_fixtures_grid_source_requires_human_club(self):
+        controller = FakeController()
+        controller.human = None
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "Select a human-managed club",
+        ):
+            ManagementSourceDataBridge(controller).league_fixtures_grid_source()
 
     def test_league_fixtures_grid_source_fails_closed_on_ambiguous_name_bytes(self):
         controller = FakeController()

@@ -2147,13 +2147,31 @@ class ManagementSourceDataBridge:
         return SourceFixtureMatchInfoContext(fixture_id, word, report)
 
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
-        """Return the exact current Premier League member/matrix source contract.
+        """Return the Premier League source only for the manager's live League 0.
 
         This is intentionally stricter than the generic display-table helper:
         ambiguous source-name ties fail closed rather than falling back to club
         IDs, because PLeagueFixtures consumes the competition's prepared member
-        list after 0x4F4940.
+        list after 0x4F4940. Other Leagues fail closed per Recovery485; the
+        membership map is the DBRClub+0x10 analogue.
         """
+        club_id = self._human_club_id()
+        membership = getattr(self.state, "club_competition_membership", None)
+        if not hasattr(membership, "get"):
+            raise ManagementPresentationError(
+                "Current-manager League membership (DBRClub+0x10) is unavailable"
+            )
+        current_league = membership.get(club_id)
+        if type(current_league) is not int:
+            raise ManagementPresentationError(
+                f"Current-manager club {club_id} has no recovered League identity"
+            )
+        if current_league != 0:
+            raise ManagementPresentationError(
+                f"PLeagueFixtures for current-manager League {current_league} is not "
+                "integrated; refusing Premier League competition 0 fallback"
+            )
+
         league = getattr(self.state, "premier_league", None)
         if league is None:
             raise ManagementPresentationError("Premier League state is unavailable")
