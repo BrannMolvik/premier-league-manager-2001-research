@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 470,
+  "recovery_generation": 471,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery470 main checkpoints ee668325, fc3078e, a8a9800. Original 0x615D10/5127A0 link/flag certainty leaks in GameState Cup and procedural League post-match (four callers); latest Codex dd69b6a8 has staged ordinary NEXT selector, distinct and improved, local canonical Southport August19 save/reload and 203 tests, but separate cup preflight remains date-only. Next Codex blocker August23 Cup9/League27 native postponement. Container/Python ClientError, no worker tests/Win11 GUI.",
+  "note": "Recovery471: verified main a8a980049aeb, Codex dd69b6a8cf60, audit-only; continue original 0x511370/0x5112E0 & Side/postponement at Aug23. Local container even trivial echo returns caas.internal.errors.ClientError; GitHub research available.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
