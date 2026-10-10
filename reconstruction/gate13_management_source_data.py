@@ -18,10 +18,6 @@ from datetime import date
 from original_fixture_match_info_link import (
     SourceFixtureMatchInfoContext, resolve_source_match_info_link,
 )
-from original_league_fixtures_selector_context import (
-    LeagueFixturesSelectorContextError,
-    build_league_fixtures_selection_context,
-)
 
 
 class ManagementPresentationError(ValueError):
@@ -2157,6 +2153,12 @@ class ManagementSourceDataBridge:
         legacy data provider is still PL-only. The source selector context
         can be used separately by the future eight-country/six-League panel.
         """
+        # Load the disjoint source selector owner only when PLeagueFixtures
+        # needs it; retain the management bridge's backend-agnostic import seam.
+        from original_league_fixtures_selector_context import (
+            LeagueFixturesSelectorContextError,
+            build_league_fixtures_selection_context,
+        )
         state = self.state
         clubs = getattr(state, "clubs", None)
         membership = getattr(state, "club_competition_membership", None)
