@@ -137,6 +137,38 @@ class OriginalSelectedPremier0FixturesTests(unittest.TestCase):
         self.assertNotIn(flagged.node_token[-1],
                          tuple(row.fixture_id for row in result.fixtures_in_source_order))
 
+    def test_annual_premier0_native_league_match_tokens_use_true_live_owner(self):
+        """Second-season original procedural League0 emits league_match IDs."""
+        state = complete_state()
+        for day, bucket in tuple(state.primary_schedule_shadow.days.items()):
+            updated = []
+            for entry in bucket:
+                if entry.competition_id == 0:
+                    node = SimpleNamespace(**vars(entry))
+                    node.node_kind = "league_match"
+                    node.node_token = ("league_match", 0, 0, entry.node_token[-1])
+                    updated.append(node)
+                else:
+                    updated.append(entry)
+            state.primary_schedule_shadow.days[day] = tuple(updated)
+        annual = source(state, selected(state))
+        self.assertEqual(len(annual.fixtures_in_source_order), 380)
+        self.assertEqual(annual.fixtures_in_source_order[0].node_token[0],
+                         "league_match")
+        self.assertEqual(annual.fixtures_in_source_order[0].fixture_id, 0)
+        # A single season cannot claim two mutually incompatible native node
+        # producers without stronger original evidence.
+        first_day = date(2000, 8, 2)
+        first_bucket = list(state.primary_schedule_shadow.days[first_day])
+        bad = SimpleNamespace(**vars(first_bucket[0]))
+        bad.node_kind = "fixed_league_match"
+        bad.node_token = ("fixed_league_match", 0, 0, bad.node_token[-1])
+        first_bucket[0] = bad
+        state.primary_schedule_shadow.days[first_day] = tuple(first_bucket)
+        with self.assertRaisesRegex(SourceSelectedPremierFixturesError,
+                                    "mixes incompatible"):
+            source(state, selected(state))
+
     def test_missing_duplicate_foreign_or_bad_status_source_cannot_fake_full_calendar(self):
         state = complete_state()
         context = selected(state)

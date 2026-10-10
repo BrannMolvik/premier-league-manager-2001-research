@@ -172,6 +172,7 @@ def source_qualified_selected_premier0_league_fixtures(
     ordered_days = tuple(sorted(keys))
     row_index = {cid: index for index, cid in enumerate(ranked_ids)}
     occupied = [False] * 400
+    seen_kinds: set[str] = set()
     seen_ids: set[int] = set()
     seen_tokens: set[tuple] = set()
     rows = []
@@ -185,12 +186,14 @@ def source_qualified_selected_premier0_league_fixtures(
             if getattr(entry, "competition_id", None) != 0:
                 encounter += 1
                 continue
-            if (getattr(entry, "node_kind", None) != "fixed_league_match"
+            kind = getattr(entry, "node_kind", None)
+            if (kind not in ("fixed_league_match", "league_match")
                     or getattr(entry, "competition_context", None) != 0):
                 raise SourceSelectedPremierFixturesError(
                     "Selected Premier0 bucket has unexpected fixture kind/context")
             token = getattr(entry, "node_token", None)
             if (type(token) is not tuple or len(token) != 4
+                    or token[0:3] != (kind, 0, 0)
                     or token in seen_tokens or type(token[-1]) is not int
                     or token[-1] not in fixtures):
                 raise SourceSelectedPremierFixturesError(
@@ -201,6 +204,7 @@ def source_qualified_selected_premier0_league_fixtures(
                     "Duplicate fixed Premier0 source fixture in the primary calendar")
             seen_ids.add(fid)
             seen_tokens.add(token)
+            seen_kinds.add(kind)
             fixture = fixtures[fid]
             home, away = fixture.home_club_id, fixture.away_club_id
             refs = (getattr(entry, "participant_0_ref", None),
@@ -247,6 +251,9 @@ def source_qualified_selected_premier0_league_fixtures(
                     played=result is not None, home_goals=hg, away_goals=ag,
                 ))
             encounter += 1
+    if len(seen_kinds) != 1:
+        raise SourceSelectedPremierFixturesError(
+            "Original Premier0 fixed/annual calendar mixes incompatible League node kinds")
     if seen_ids != set(ids):
         raise SourceSelectedPremierFixturesError(
             "Original 373-head primary calendar lacks fixed Premier0 fixtures")
