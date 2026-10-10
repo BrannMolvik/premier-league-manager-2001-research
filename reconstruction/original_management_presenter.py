@@ -28,6 +28,10 @@ from gate13_management_source_data import (
     ManagementHeaderMatchView,
     ManagementSourceDataBridge,
 )
+from original_league_fixtures_selector_context import (
+    LeagueFixturesSelectionContext,
+    LeagueFixturesSelectorContextError,
+)
 from original_league_fixtures_presenter import (
     OriginalLeagueFixturesSnapshot,
     build_league_fixtures_snapshot,
@@ -93,6 +97,7 @@ class OriginalManagementPanelSnapshot:
     rows_beyond_initial_viewport: int = 0
     fixtures_in_source_order: tuple[FixtureRowView, ...] = ()
     league_fixtures: OriginalLeagueFixturesSnapshot | None = None
+    league_fixtures_selection: LeagueFixturesSelectionContext | None = None
     league_tables: OriginalLeagueTablesSnapshot | None = None
     paired_squad: OriginalPairedSquadSnapshot | None = None
 
@@ -120,6 +125,15 @@ class OriginalManagementLeagueFixturesPageActivation:
     direction: int
     previous_offset: int
     column_offset: int
+    presentation: OriginalManagementPanelSnapshot
+
+
+@dataclass(frozen=True)
+class OriginalManagementLeagueFixturesRadioActivation:
+    """An original event1..14 state change, not inferred mouse acceptance."""
+
+    event_id: int
+    selection: LeagueFixturesSelectionContext
     presentation: OriginalManagementPanelSnapshot
 
 
@@ -161,6 +175,7 @@ def build_management_panel_snapshot(
     expanded_root_id: int | None = None,
     squad_view_control_id: int = 3,
     league_fixtures_column_offset: int = 0,
+    league_fixtures_selection: LeagueFixturesSelectionContext | None = None,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -208,7 +223,12 @@ def build_management_panel_snapshot(
         )
 
     if selected_child_id == LEAGUE_FIXTURES_PANEL.menu_id:
-        source = bridge.league_fixtures_grid_source()
+        # The legacy current-manager path stays untouched until an independently
+        # source-accepted native radio event selects another real League.
+        source = (bridge.league_fixtures_grid_source()
+                  if league_fixtures_selection is None else
+                  bridge.source_selected_nonpl_league_fixtures_grid_source(
+                      league_fixtures_selection))
         fixtures = build_league_fixtures_snapshot(
             source,
             column_offset=league_fixtures_column_offset,
@@ -222,6 +242,7 @@ def build_management_panel_snapshot(
             panel_class=LEAGUE_FIXTURES_PANEL.panel_class,
             fixtures_in_source_order=tuple(source.fixtures_in_source_order),
             league_fixtures=fixtures,
+            league_fixtures_selection=league_fixtures_selection,
         )
 
     if selected_child_id == LEAGUE_TABLES_PANEL.menu_id:
@@ -287,6 +308,7 @@ class OriginalManagementPresenter:
     expanded_root_id: int | None = None
     squad_view_control_id: int = 3
     league_fixtures_column_offset: int = 0
+    league_fixtures_selection: LeagueFixturesSelectionContext | None = None
 
     def __post_init__(self):
         # Recreated UI after source save/load still runs its real constructor;
@@ -309,6 +331,7 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=self.league_fixtures_column_offset,
+            league_fixtures_selection=self.league_fixtures_selection,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -324,6 +347,7 @@ class OriginalManagementPresenter:
         )
         self.selected_child_id = selected_child_id
         self.league_fixtures_column_offset = 0
+        self.league_fixtures_selection = None  # A newly constructed panel resets radios.
         return snapshot
 
     def source_accepted_pmenu_action(
@@ -378,6 +402,7 @@ class OriginalManagementPresenter:
         )
         self.selected_child_id = menu_id
         self.league_fixtures_column_offset = 0
+        self.league_fixtures_selection = None  # Source PMenu constructs a fresh panel.
         return OriginalManagementPMenuActivation(action, snapshot)
 
     def source_accepted_squad_view_transition(
@@ -411,6 +436,58 @@ class OriginalManagementPresenter:
         )
         self.squad_view_control_id = transition.control_id
         return OriginalManagementSquadViewActivation(transition, snapshot)
+
+    def source_accepted_league_fixtures_radio_event(
+        self, event_id: int,
+    ) -> OriginalManagementLeagueFixturesRadioActivation:
+        """Commit native PLeagueFixtures events1..14 only after valid data builds.
+
+        Source 0x46E040 owns these event IDs and Recovery507 owns all eight
+        per-country indices. This method intentionally accepts no screen
+        coordinates and grants no fmRadioTextSm click-hit permission. Unsupported
+        Premier0 and incomplete alternate calendar source fail transactionally.
+        """
+        if self.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id:
+            raise OriginalManagementPresentationError(
+                "League Fixtures radio events require the integrated PLeagueFixtures panel"
+            )
+        if type(event_id) is not int:
+            raise OriginalManagementPresentationError(
+                "Original League Fixtures radio event ID must be an integer"
+            )
+        initial = self.league_fixtures_selection
+        if initial is None:
+            bridge = _bridge(self.session, self.bridge_factory)
+            resolver = getattr(bridge, "original_league_fixtures_selection_context", None)
+            if not callable(resolver):
+                raise OriginalManagementPresentationError(
+                    "Original League Fixtures selector source is unavailable"
+                )
+            initial = resolver()
+        try:
+            next_selection = initial.accept_native_radio_event(event_id)
+        except LeagueFixturesSelectorContextError as exc:
+            raise OriginalManagementPresentationError(str(exc)) from exc
+        # Do not mutate visible selection/page until the exact selected League
+        # has a qualified native calendar, source ranking, and presenter matrix.
+        snapshot = build_management_panel_snapshot(
+            self.session,
+            LEAGUE_FIXTURES_PANEL.menu_id,
+            bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
+            staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=self.expanded_root_id,
+            squad_view_control_id=self.squad_view_control_id,
+            league_fixtures_column_offset=0,
+            league_fixtures_selection=next_selection,
+        )
+        self.league_fixtures_selection = next_selection
+        self.league_fixtures_column_offset = 0
+        return OriginalManagementLeagueFixturesRadioActivation(
+            event_id=event_id,
+            selection=next_selection,
+            presentation=snapshot,
+        )
 
     def source_accepted_league_fixtures_page(
         self,
@@ -454,6 +531,7 @@ class OriginalManagementPresenter:
             expanded_root_id=self.expanded_root_id,
             squad_view_control_id=self.squad_view_control_id,
             league_fixtures_column_offset=updated,
+            league_fixtures_selection=self.league_fixtures_selection,
         )
         self.league_fixtures_column_offset = updated
         return OriginalManagementLeagueFixturesPageActivation(
