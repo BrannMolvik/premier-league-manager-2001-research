@@ -27,9 +27,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 468,
-  "last_recovery_reason": "stale-repository-activity-missing-worker-tab",
-  "note": "Recovery468: main 41d5946dd68c5a1e96b898063a791ca29add46de contains cross-branch core physical input audit and ledger, Codex remains 0ae745d..., container echo/Python ClientError. Working means recovery eligibility, not background execution.",
+  "recovery_generation": 469,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery469: main 41d5946dd68c5a1e96b898063a791ca29add46de; Codex implementation branch advanced to 5413dd35f7bfd57a4f90131f477227227c4a2734 since Recovery468. Audit-only restriction held; investigate new Codex changes and EAMail physical-route/lifecycle next.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
