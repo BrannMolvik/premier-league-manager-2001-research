@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery541 original native Inbox specialist vtable and preview first-click source correction
+
+- Reused the existing local private exact 4,714,541-byte original `footballmanager.exe`, SHA256 canonical `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; no original executable launched. Actual `0x471DD5..0x471E7D` initializes each message-row eCText with specialist vft `0x7BFAC8`, including draw +0x64→`0x5D7360`, event +0x6C→`0x5D7380`, event +0x78→`0x5D73E0`, selected-state +0x14→`0x64F430`. Rechecked original `0x6570F0` per-glyph clip/intersection path. This corrects an incomplete earlier reliance on generic eCText `0x7BE340`.
+- Static original `0x471620` (called by 0x471B80 on first neutral row selection) *also* changes preview native bitmap pointer `0x945B70/0x945B30`, source preview text pointer and original eight-line scroll controls. Current host only paints row selection; native preview on selection is CONFIRMED MISSING. Bitmap pointer mapping/coordinates and final glyph RGB/clip are not yet proven. Full reproduction, source-vs-implementation audit and next actions in [Recovery541](GATE13_EAM_INBOX_TEXT_SPECIALIST_VFT_PREVIEW_RECOVERY541.md). Gate13–17 remain open; no new test claims.
+
 ### 12 October 2026 KST — Recovery540 exact-head typed P/C merge and original native event-gate source audit
 
 - PR633 exact head `e0b0091dc206a24c658dca307b74e09c4fff409f`: focused Gate13 38178776486 SUCCESS, full reconstruction 38178776484 SUCCESS, asset policy 38178776496 SUCCESS, zero review comments/threads; squash merged `05fd7961e8a6c4d5a51cc38123eb0c51ce7aa8e7` after checking unchanged main HEAD.
