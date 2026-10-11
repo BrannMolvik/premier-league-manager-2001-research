@@ -31,6 +31,12 @@ class NativeEAMPlayerTaggedMaskTests(TestCase):
         self.assertEqual((runs[0].start_byte, runs[0].end_byte),
                          (5, 5 + len(native_name)))
         self.assertFalse(runs[0].final_color_and_placement_verified)
+        self.assertEqual(runs[0].source_hit_selector_byte, ord("P"))
+        self.assertFalse(runs[0].native_hit_target_and_action_verified)
+        self.assertEqual(runs[0].native_child_forward_callback_va, 0x471B80)
+        self.assertFalse(runs[0].native_child_callback_is_neutral_row_activation)
+        self.assertEqual(runs[0].native_secondary_parent_callback_va, 0x471C60)
+        self.assertEqual(runs[0].native_source_link_kind, "player")
         self.assertTrue(any(runs[0].glyph_alpha.alpha))
 
     def test_original_positive_club_format_preserves_all_source_runs(self):
@@ -45,6 +51,16 @@ class NativeEAMPlayerTaggedMaskTests(TestCase):
                          ["player", "separator", "club"])
         self.assertEqual([run.source_text for run in runs],
                          ["K. Larsen", " @ ", "Arsenal Football Club"])
+        self.assertEqual([run.source_hit_selector_byte for run in runs],
+                         [ord("P"), 0, ord("C")])
+        self.assertTrue(all(not run.native_hit_target_and_action_verified for run in runs))
+        self.assertTrue(all(run.native_child_forward_callback_va == 0x471B80
+                            and not run.native_child_callback_is_neutral_row_activation
+                            for run in runs))
+        self.assertEqual([run.native_secondary_parent_callback_va for run in runs],
+                         [0x471C60] * 3)
+        self.assertEqual([run.native_source_link_kind for run in runs],
+                         ["player", None, "club"])
         for run in runs:
             self.assertEqual(
                 text[run.start_byte:run.end_byte],
@@ -68,6 +84,11 @@ class NativeEAMPlayerTaggedMaskTests(TestCase):
                          visible.native_rows[0].original_internal_node_serial)
         self.assertEqual(rows[0].screen_control_rect, (271, 178, 215, 16))
         self.assertEqual(rows[0].raw_original_label, native_text)
+        self.assertEqual(rows[0].fragments[0].source_hit_selector_byte, ord("P"))
+        if len(rows[0].fragments) == 3:
+            self.assertEqual([frag.source_hit_selector_byte
+                              for frag in rows[0].fragments],
+                             [ord("P"), 0, ord("C")])
         self.assertFalse(rows[0].native_final_draw_verified)
         self.assertTrue(all(not fragment.final_color_and_placement_verified
                             for fragment in rows[0].fragments))

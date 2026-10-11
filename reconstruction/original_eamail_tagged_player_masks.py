@@ -40,7 +40,26 @@ class OriginalEAMPlayerSourceFragmentMask:
     end_byte: int
     native_font_object_va: int
     glyph_alpha: EATextMask
+    # Original eCText::0x5D7855 -> 0x5D78BD -> 0x5D79F2
+    # returns this source control selector as AL on a qualified native
+    # text-point query. It is NOT yet a verified player/club action.
+    source_hit_selector_byte: int = 0
+    # eCText 0x5D7380 may forward its non-null OWN pointer as the first
+    # argument to parent PMessageRow::0x471B80, which rejects nonzero.
+    # This says nothing about the complete mouse event routing through
+    # the underlying PMessageRow bitmap owner.
+    native_child_forward_callback_va: int = 0x471B80
+    native_child_callback_is_neutral_row_activation: bool = False
+    # Separate original eCText 0x5D73E0 on its qualified release path
+    # forwards via parent vft+0x20 = 0x471C60. For ID2 0x5CF7B0
+    # resolves P to a player reference and C to a club reference, then
+    # 0x471C60 follows original player/club detail entrypoints.
+    # The actual *pointer event*, source record target ID, and full detail
+    # return UI are not yet accepted in the modern ordinary host.
+    native_secondary_parent_callback_va: int = 0x471C60
+    native_source_link_kind: str | None = None
     final_color_and_placement_verified: bool = False
+    native_hit_target_and_action_verified: bool = False
 
 
 def native_player_markup_fragment_masks(
@@ -93,6 +112,19 @@ def native_player_markup_fragment_masks(
         raise OriginalEAMTaggedMaskError("Nested or empty original player template fragment")
     font = resources.league_tables_row_font
     output = []
+    # T+P activates ASCII P until T- resets to NUL; the untagged
+    # separator is zero.  T+C then activates ASCII C until next T-.
+    # 0x5D73A8 stores the return byte in eCText+0x114.  Source row
+    # child setup calls inherited vft+8 = 0x64F3C0(2,parent); this binds
+    # the real PMessageRow vft 0x7C266C. Its +0x10 is 0x471B80, whose
+    # first-argument nonzero branch returns without selection.  The
+    # child's first forwarding is NOT a neutral row select. Independently,
+    # 0x5D73E0 forwards native eCText release to parent vft+0x20:
+    # PMessageRow::0x471C60 uses ID2's returned selector at row+0x490,
+    # resolves P/C through 0x5CF7B0 and dispatches original player/club
+    # detail targets. The source target ID and real input bounds/return
+    # are NOT yet qualified for the Windows host.
+    source_selector_by_role = {"player": ord("P"), "separator": 0, "club": ord("C")}
     for role, text, start in data:
         try:
             mask = font.render_text_alpha(text)
@@ -104,6 +136,11 @@ def native_player_markup_fragment_masks(
             start_byte=start, end_byte=end,
             native_font_object_va=ORIGINAL_EAMAIL_TEXT_FONT_OBJECT_VA,
             glyph_alpha=mask,
+            source_hit_selector_byte=source_selector_by_role[role],
+            native_source_link_kind=(
+                "player" if role == "player" else
+                "club" if role == "club" else None
+            ),
         ))
     return tuple(output)
 
