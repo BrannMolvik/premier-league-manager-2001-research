@@ -5,6 +5,7 @@ only, with selected real user's delivered initial transfer subtype.
 """
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -170,6 +171,7 @@ class OriginalInboxHostRouteTests(TestCase):
         host.pmenu_popup_active = False
         host.eamail_row_art = art
         host._eamail_selected_node_serial = None
+        host._eamail_selected_row_token = None
         redraws = []
         host.redraw = lambda: redraws.append(host._eamail_selected_node_serial)
         self.assertTrue(host._press_original_eamail_row(SimpleNamespace(x=234, y=179), frame))
@@ -182,6 +184,24 @@ class OriginalInboxHostRouteTests(TestCase):
         self.assertEqual(redraws[-1], second.original_internal_node_serial)
         self.assertFalse(host._press_original_eamail_row(SimpleNamespace(x=234, y=196), frame))
         self.assertEqual(len(redraws), 2)
+        # Native pointer comparison cannot depend on Python integer identity:
+        # node serials can grow beyond the small-integer interning range.
+        high = replace(first, original_internal_node_serial=1000)
+        high_rows = replace(rows, native_rows=(high,))
+        high_frame = SimpleNamespace(
+            presentation=SimpleNamespace(panel_class="PEAMail", eamail=high_rows),
+        )
+        host._eamail_selected_node_serial = None
+        host._eamail_selected_row_token = None
+        self.assertTrue(host._press_original_eamail_row(
+            SimpleNamespace(x=234, y=179), high_frame,
+        ))
+        count_after_select = len(redraws)
+        self.assertTrue(host._press_original_eamail_row(
+            SimpleNamespace(x=234, y=179), high_frame,
+        ))
+        self.assertEqual(host._eamail_selected_node_serial, 1000)
+        self.assertEqual(len(redraws), count_after_select)
         # A second press cannot manufacture a dialog or mutate delivered data.
         self.assertEqual(
             session.gameplay.state.original_delivered_mailboxes.delivered_for_manager(0),
