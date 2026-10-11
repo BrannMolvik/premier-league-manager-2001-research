@@ -1,0 +1,17 @@
+# Recovery530 — complete original EAMail graphical control source inventory
+
+11 October 2026 KST. Authenticated original extracted-game art. Gate13 remains OPEN. Original PE 4,714,541 bytes SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, independently checked locally. Art comes from private source extracted `FM2001/FM2001_Art/Generic/EAMail/`, not a recreated UI.
+
+## New authenticated game assets
+
+All **14** previously missing EAMail `.444` files have been staged byte-identical at `original_assets/source/FM2001_Art/Generic/EAMail/`: del_mail_button (38x84), mail_reply_popup (710x420), mail_tog (22x80), next_mail_button (18x84), prev_mail_button (18x84), preview_panel (532x187), preview_panel_disabled (532x187), read_mail_icon (18x12), recieved_tog (73x60), send_mail_button (46x84), subject_tog (217x80), unread_mail_icon (18x12), urgent_icon (8x16), urgent_tog (12x80). Total **114036 bytes** across 14 original assets. The earlier four separately SHA-authenticated original 532x18 `text_grid_nor/sel/high/des.444` resources remain unchanged. **18 actual original EA444 EAMail art files are now available.**
+
+Each new item has its own exact source path, byte count and SHA-256 in `original_assets/MANIFEST.md`; its binary Git blob was compared to the original Drive-fetched bytes using the proper `blob <size>\0` SHA-1 hash. The strict validator `reconstruction/original_eamail_control_art.py` hashes, verifies source geometry and descriptor `64ff00ff`, and rejects any omitted/modified source file. A focused Gate13 test validates the full source set plus the four original row-strip assets, dimensions and corruption/absence rejection. This is original content, no output photos, no EXE, ISO or large private archive added.
+
+## Actual native owner proof and remaining work
+
+- `PMessageRow::0x46E680..0x46E883` creates native bitmap and three text-child controls. Its background state loads `0x945E30` at `0x46E705`, while original `0x5F5A40` uses literal `0x836184 = fm2001_art\generic\eamail\read_mail_icon.444` through bitmap loader `0x64D750` and `0x5F5AD0` uses `0x8361B4 = fm2001_art\generic\eamail\unread_mail_icon.444`. Both original icons are now exactly staged. Bitmap strips and text-child ID2/3/0 source geometry are already bound separately in `original_eamail_source_contract.py`.
+- `0x5F59B0` original resource literal `0x836158` resolves `recieved_tog.444`. Other native literal/owner mappings require full source audit before deciding which original icon to render in each record status or control state; file names are **not** evidence for 0x06 bit read/unread meaning.
+- Native PEAMail modal constructor `0x474B10`, list builder `0x471D20`, text renderer and event owner `0x471B80` require exact original coordinates, fonts, condition and action mapping. The original 18 resources are input assets, **not** proof that current port paints or accepts GUI.
+
+**Source-verified assets/geometry:** original 14 new images + 4 prior row strips, exact byte hashes, source icon loader references and original row control inventory. **Integration-verified:** asset loader/validators only after exact-head CI passes. **Visible-accepted:** NO. Gate13–17 / true Win11 GUI release remain OPEN. NEXT P0: recover original PMessageRow font, three native row source texts, icon/status predicate, physical PBg header ID1/PMenu child0x65 open/return and PEAMMessage modal/actions; implement real GUI and test under a genuine Windows11 human workflow. Preserve whole original career/match R1/multi-league scope.
