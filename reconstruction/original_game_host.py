@@ -1391,7 +1391,7 @@ class OriginalGameTkHost:
         """Return the source owner that excludes ordinary background input."""
         if getattr(self, '_management_turn_thread', None) is not None:
             return 'results'
-        gameplay = self.presenter.session.gameplay
+        gameplay = getattr(self.presenter.session, 'gameplay', None)
         if getattr(gameplay, 'pending_primary_entry', None) is not None:
             return 'prematch'
         return None
