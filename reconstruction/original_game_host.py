@@ -2198,6 +2198,27 @@ class OriginalGameTkHost:
         self.last_status = "Native PBg ID1 -> PEAMail direct factory 0x65; original header idle sprite loaded"
         return True
 
+    def _source_assign_eam_reason_on_first_click(self, node_serial: int):
+        """Native 0x471B80 first neutral selection reaches body virtual+0x1C(0).
+
+        This does NOT claim the original body is rendered: it preserves the
+        original one-shot +0x3C reason and exact *shared* CRT RNG advancement.
+        Never draw a separate random number for mailbox/row presentation.
+        """
+        session = self.presenter.session
+        if not isinstance(session, FrontEndSession) or session.gameplay is None:
+            raise OriginalGameHostError("Original started game session required for Inbox")
+        game = session.gameplay
+        state = game.state
+        key = getattr(state, "native_user_recipient_key", None)
+        if type(key) is not int:
+            raise OriginalGameHostError("Original selected Inbox manager key unavailable")
+        owner = state.original_delivered_mailboxes
+        return owner.source_first_transfer_preview_reason(
+            key, node_serial, qualified_first_row_select=True,
+            shared_crt_rng=game.match_rng,
+        )
+
     def _press_original_eamail_row(self, event, frame) -> bool:
         """Handle only the native neutral first-select branch; no invented dialog.
 
@@ -2241,6 +2262,10 @@ class OriginalGameTkHost:
                 "PEAMMessage modal; unresolved choice effects rejected"
             )
             return True
+        # Original PMessageRow 0x471B80 calls record+0x1C(0) at this exact
+        # first-select boundary, before repaint. That body chooses/stores
+        # its raw native reason once and consumes the live CRT RNG if -1.
+        self._source_assign_eam_reason_on_first_click(row_token)
         self._eamail_selected_node_serial = row_token
         self._eamail_selected_row_token = dispatch.selected_row_token
         self.redraw()
