@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery517 native radio pointer source gates
+
+Rehashed original authorized 4,714,541-byte executable; `0x64FB20/0x64FB80/0x64FBE0` prove inclusive-left/exclusive-right native pointer rectangles, exact enabled/visible flag and virtual gate, two global owner caches. Parent `0x5D4790` forwards virtual event to radio only *after a separate selection*, and `0x5D4680` is clip-region intersection; did not conflate those with OS click acceptance. Source evidence appended to `GATE13_FMRADIOTEXTSM_INPUT_RECOVERY515.md`; physical original Win11 click and root WM event binding still unknown. No unapproved executable run, no gameplay/host changes. Gate13–17 open.
+
 ### 11 October 2026 KST — Correction: source EBP reloaded to native radio event9
 
 **Retraction:** Recovery516 first-pass disassembly saw EBP clear in PLeagueFixtures setup but missed `mov ebp,9` at `0x46AF15` immediately before first League radio. The first child callback value is event9, not null, and subsequent native League callback IDs10–14. Child vtable+8 `0x5D48C0→0x64F3C0` sets event +0x20 and PLeagueFixtures callback +0x24, vtable+0x10 invokes `0x46E040`. Original physical GUI mouse hit/clip path and Windows11 confirmation remain unverified. Source memo Recovery516 corrected; PR581 main integration unchanged; Gate13 and release open. Earlier Recovery516 note below is superseded.
