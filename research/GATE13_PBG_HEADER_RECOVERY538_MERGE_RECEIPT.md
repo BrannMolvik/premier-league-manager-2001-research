@@ -1,0 +1,7 @@
+# Recovery 538 — Original direct Inbox idle header now rendered
+
+PR #631 merged on 2026-10-12 KST at `1a2acf49a49df46f070634fe345e4c2da5dae8bf` from exact PR head `cd5cbb7f90e3739a9d8373c8c56f79211f921b69`. Focused Gate13 CI 38174991182 completed SUCCESS (950 tests), full reconstruction 38174991190 SUCCESS, Windows package 38174991195 SUCCESS, asset-policy 38174991200 SUCCESS. No unresolved review comments.
+
+Original source: authenticated shipped executable 4,714,541 bytes, SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3, static disassembly only. Original back_3.444 5,932 bytes SHA256 f369e73c2a7f9149661d66cf3c781ddc8eabf01f80ef924b423d46d57cf628e6. Original native loader 0x5FA5C0 binds crop (0,0,40,95) from 40x380 atlas in wrapper 0x943B10. Native control child ID1 (558,0,40,95); eCControl 0x64F300 initializes 0x183 and frame selector 0x64FDB0 yields frame0. The normal management host now loads, crops and draws exact original idle sprite. Dynamic hover/pressed/disabled mapping still missing and must not be invented.
+
+**Source-verified and test-verified, not real Win11 GUI accepted.** The original program has not been launched. Gate13–17 remain OPEN. Next highest P0: trace eCText 0x5D75B0→0x5D7500→0x6570F0 native text colors/P/C/T markup/geometry and actual visible Inbox ID2/ID3/ID0, then preview/PEAMMessage modal actions/Escape/read/return; PBg hover states and complete original NEXT/PPreMatch 4 modes/PResults/return, Squad, Save/Load, 2–6 humans, all original leagues/countries and actual Win11 release audit.
