@@ -71,11 +71,11 @@ class OriginalCurrentFormTests(unittest.TestCase):
             D-timedelta(days=3): (m(20, hg=3, ag=0),),
             D-timedelta(days=6): (m(30, hg=0, ag=4),),
         }
-        rows = run(dates)
-        self.assertEqual(rows[0].form_result_labels, (" ", " ", " ", "L", "W", "D"))
-        self.assertEqual(rows[1].form_result_labels, (" ", " ", " ", "W", "L", "D"))
-        self.assertEqual(rows[0].score, 4)
+        rows = {row.club_id: row for row in run(dates)}
+        self.assertEqual(rows[1].form_result_labels, (" ", " ", " ", "L", "W", "D"))
+        self.assertEqual(rows[2].form_result_labels, (" ", " ", " ", "W", "L", "D"))
         self.assertEqual(rows[1].score, 4)
+        self.assertEqual(rows[2].score, 4)
 
     def test_future_fixture_ignored(self):
         self.assertEqual([r.score for r in run({D+timedelta(days=1): (m(1,hg=2,ag=0),)})], [0,0])
