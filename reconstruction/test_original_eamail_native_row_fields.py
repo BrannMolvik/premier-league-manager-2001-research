@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from dataclasses import replace
 from pathlib import Path
 from unittest import TestCase, main
 
@@ -16,6 +17,7 @@ from original_eamail_native_row_fields import (
 )
 from original_eamail_language import (
     ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE,
+    OriginalEAMailLanguageError,
     load_verified_original_eamail_language,
 )
 from original_eamail_native_small_window import (
@@ -98,6 +100,49 @@ class OriginalNativeEAMRowFieldsTests(TestCase):
             self.assertFalse(row.native_full_text_and_art_rendered)
         self.assertFalse(data.original_gui_accepted)
         self.assertEqual(game.state.original_delivered_mailboxes.snapshot(), previous)
+
+    def test_only_preassigned_native_reason_is_projected_without_rng_or_mutation(self):
+        game = live_delivered((1, 2))
+        owner = game.state.original_delivered_mailboxes
+        before = owner.snapshot()
+        fresh = build_selected_user_original_eam_source_rows(
+            ManagementSourceDataBridge(game), original_source_root=SOURCE_ROOT,
+            filter_index=5, sort_index=3,
+        )
+        self.assertEqual(len(fresh.native_rows), 2)
+        self.assertTrue(all(
+            row.source_original_resolved_reason_phrase is None
+            for row in fresh.native_rows
+        ))
+        self.assertEqual(owner.snapshot(), before)
+        # A previously source-assigned and saved value can be read safely.
+        original_record = owner.mailboxes[0][0]
+        owner.mailboxes[0][0] = replace(
+            original_record, original_preview_reason_native_i32=3
+        )
+        selected_before = owner.snapshot()
+        prepared = build_selected_user_original_eam_source_rows(
+            ManagementSourceDataBridge(game), original_source_root=SOURCE_ROOT,
+            filter_index=5, sort_index=3,
+        )
+        self.assertTrue(
+            prepared.native_rows[0].source_original_resolved_reason_phrase.startswith(
+                "I feel I've achieved all I can"
+            )
+        )
+        self.assertIsNone(prepared.native_rows[1].source_original_resolved_reason_phrase)
+        self.assertEqual(owner.snapshot(), selected_before)
+        self.assertFalse(prepared.original_gui_accepted)
+        owner.mailboxes[0][0] = replace(
+            original_record, original_preview_reason_native_i32=8
+        )
+        with self.assertRaisesRegex(
+            OriginalEAMailLanguageError, "Unassigned or invalid"
+        ):
+            build_selected_user_original_eam_source_rows(
+                ManagementSourceDataBridge(game), original_source_root=SOURCE_ROOT,
+                filter_index=5, sort_index=3,
+            )
 
     def test_source_owner_pending_other_manager_not_promoted_to_native_rows(self):
         game = controller()

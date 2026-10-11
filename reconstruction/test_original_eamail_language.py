@@ -20,6 +20,12 @@ from original_eamail_language import (
     ORIGINAL_TRANSFER_LIST_BODY_NATIVE_IDX_ORDINAL,
     ORIGINAL_TRANSFER_LIST_BODY_STRING_ID,
     ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE,
+    ORIGINAL_TRANSFER_REASON_DISPATCH_VA,
+    ORIGINAL_TRANSFER_REASON_TOKEN_LITERAL_VA,
+    ORIGINAL_TRANSFER_REASON_FIRST_SLOT_VA,
+    ORIGINAL_TRANSFER_REASON_FIRST_IDX_ORDINAL,
+    ORIGINAL_TRANSFER_REASON_STRING_IDS,
+    native_transfer_reason_from_crt_draw,
     load_verified_original_eamail_language,
 )
 
@@ -98,6 +104,55 @@ class OriginalEAMLanguageSourceTests(TestCase):
         ))
         with self.assertRaisesRegex(OriginalEAMailLanguageError, "body template"):
             replace(resource, strings=changed_strings).original_player_asks_transfer_list_body_template()
+
+    def test_native_seven_transfer_reason_slots_are_actual_original_strings(self):
+        from dataclasses import replace
+        res = load_verified_original_eamail_language(ORIGINAL_ROOT)
+        self.assertEqual(ORIGINAL_TRANSFER_REASON_DISPATCH_VA, 0x60FE40)
+        self.assertEqual(ORIGINAL_TRANSFER_REASON_TOKEN_LITERAL_VA, 0x8327FC)
+        self.assertEqual(ORIGINAL_TRANSFER_REASON_FIRST_SLOT_VA, 0x87A70C)
+        self.assertEqual(ORIGINAL_TRANSFER_REASON_FIRST_IDX_ORDINAL, 327)
+        self.assertEqual(ORIGINAL_TRANSFER_REASON_STRING_IDS, tuple(range(326, 333)))
+        phrases = tuple(res.original_player_asks_transfer_list_reason_phrase(k)
+                        for k in range(1, 8))
+        self.assertEqual(len(set(phrases)), 7)
+        self.assertTrue(phrases[0].startswith("I've enjoyed my time"))
+        self.assertTrue(phrases[-1].startswith("The atmosphere about the place"))
+        for i, phrase in enumerate(phrases):
+            self.assertEqual(
+                res.index.string_ids[327 + i], ORIGINAL_TRANSFER_REASON_STRING_IDS[i]
+            )
+            self.assertEqual(phrase, res.strings[326 + i])
+        for bad in (-1, 0, 8, 10, True, "2", None):
+            with self.assertRaises(OriginalEAMailLanguageError):
+                res.original_player_asks_transfer_list_reason_phrase(bad)
+        damaged_index = replace(res.index, string_ids=(
+            res.index.string_ids[:329] + (942,) + res.index.string_ids[330:]
+        ))
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "slot mismatch"):
+            replace(res, index=damaged_index).original_player_asks_transfer_list_reason_phrase(3)
+
+    def test_native_crt_draw_to_reason_matches_signed_magic_for_all_32768_values(self):
+        # Independently reproduce original 0x80010003 signed multiply-high,
+        # signed >>14, negative correction and zero-to-one: do not derive
+        # expected from the implementation's simplified integer division.
+        def signed32(v):
+            return (v & 0xFFFFFFFF) - (0x100000000 if v & 0x80000000 else 0)
+
+        counts = {v: 0 for v in range(1, 8)}
+        for raw in range(32768):
+            product = signed32(raw * 7)
+            hi = signed32((signed32(0x80010003) * product) >> 32)
+            quotient = signed32(hi + product) >> 14
+            quotient += (quotient & 0xFFFFFFFF) >> 31
+            expected = quotient if quotient else 1
+            self.assertEqual(native_transfer_reason_from_crt_draw(raw), expected)
+            counts[expected] += 1
+        self.assertEqual(counts, {1: 9362, 2: 4681, 3: 4681,
+                                  4: 4681, 5: 4681, 6: 4681, 7: 1})
+        for invalid in (-1, 32768, True, None, 0.5, "7"):
+            with self.assertRaisesRegex(OriginalEAMailLanguageError, "15-bit"):
+                native_transfer_reason_from_crt_draw(invalid)
 
     def test_verified_resource_absence_and_altered_language_file_fail_closed(self):
         with TemporaryDirectory() as td:

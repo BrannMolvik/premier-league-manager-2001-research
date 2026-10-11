@@ -98,6 +98,9 @@ class OriginalEAMNativeRowSource:
     # This is the original source STR/IDX body TEMPLATE for +0x1C(arg0),
     # never an interpolated preview or a claim that body glyphs were painted.
     source_original_unexpanded_preview_template: str | None = None
+    # A native reason >=1 must have been set by genuine original body path.
+    # This is the exact original language PHRASE fragment, not final body.
+    source_original_resolved_reason_phrase: str | None = None
     native_full_text_and_art_rendered: bool = False
 
 
@@ -185,6 +188,18 @@ def project_original_native_eam_row_fields(
                     "Unverified original Inbox record body class"
                 )
             unexpanded_body = eam_language.original_player_asks_transfer_list_body_template()
+        qualified_reason = None
+        if eam_language is not None:
+            native_reason = getattr(record, "original_preview_reason_native_i32", -1)
+            if type(native_reason) is not int:
+                raise OriginalEAMailRowFieldSourceError(
+                    "Native transfer-preview reason must be a signed original integer"
+                )
+            if native_reason != -1:
+                # Never pick an RNG value in this read-only Inbox row projection.
+                qualified_reason = eam_language.original_player_asks_transfer_list_reason_phrase(
+                    native_reason
+                )
         result.append(OriginalEAMNativeRowSource(
             native_visible_ordinal=window.viewport.scroll_offset+i,
             original_internal_node_serial=record.node_serial,
@@ -194,6 +209,7 @@ def project_original_native_eam_row_fields(
             original_title=title,
             row_screen_rect=row_rect,
             source_original_unexpanded_preview_template=unexpanded_body,
+            source_original_resolved_reason_phrase=qualified_reason,
             original_text_fields=tuple(children),
         ))
     return OriginalEAMNativeVisibleRowsSource(
