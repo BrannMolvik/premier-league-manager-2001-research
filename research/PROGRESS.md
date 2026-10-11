@@ -1,3 +1,9 @@
+### 12 October 2026 KST — Recovery532 native EAM row date and club suffix integration verified and merged
+
+- Independently validated original 4,714,541-byte `footballmanager.exe` (`833bf95e...b7cc3`) and original English main STR/IDX source (369,644/5,428 bytes, source SHA). Native ordinal 200 / `0x9844D8` = `Football Club`, ordinal 2709 / `0x981DA4` = `%D/%M/%Yf`, native months IDX 125..136, native formatter `0x64D150` outputs e.g. `1/Aug/2000`.
+- [PR #622](https://github.com/BrannMolvik/premier-league-manager-2001-research/pull/622) source-backed original English main language module, SHA guards, date child ID0 of registered selected human's delivered-only native eight Inbox row projection and regression tests. Exact PR head `ab1cb8f91b61e3f8024742ca09b01193c9c00021`; Gate13 CI `38159936383` SUCCESS, asset-policy `38159936385` SUCCESS; zero unresolved review threads; squash merged as `e0553b39e91272c73dcf31b8ad5c5e4d34dbbd44`.
+- No original EXE GUI launched, no visible playable Inbox accepted, no Windows 11 GUI/installation claim. Original dynamic club-name override via `0x403600` depends on user context and remains unqualified before drawing positive EAM ID2; next P0 complete native menu/header->Inbox->detail/action/return, original R1 match lifecycle, all nations/managers/careers, Gates13–17.
+
 ### 12 October 2026 KST — Recovery531 original loan parent association source and live producer bugfix
 
 - Original private SHA-verified PE `0x41A9D0` preserves registered club in player+0x72 across a loan while +0x10 becomes temporary borrower; `0x41AA99` restores parent. Original `0x41B61E` EAM producer uses +0x72 club and manager. Prior port `GameState._retain_player_transfer_request` used active borrower and could misroute mail; historical Recovery473 text was wrong and now has prominent correction.
