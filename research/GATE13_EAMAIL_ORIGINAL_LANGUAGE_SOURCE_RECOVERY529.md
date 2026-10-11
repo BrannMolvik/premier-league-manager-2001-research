@@ -1,3 +1,5 @@
+**11 October 2026 Recovery530 corrective source note:** The historical #613 section near the end of this document mislabeled native `0x667E90` as `fwrite` and left `0x8797A4` source index unknown. Full native byte-direction/caller trace now proves **`fread`**, English original `englisheam.idx` selected at `0x50D55E`, exactly 2,877 native u16 index loads at `0x5B65A0..0x5CE3EA`, and `0x8797A4` = IDX ordinal **1313**, original string942 **Transfer List**. See [Recovery530 exact native original proof](GATE13_EAM_TRANSFER_LIST_TITLE_NATIVE_RECOVERY530.md). The old hypothesis below is retained only as a superseded research record; **do not rely on its fwrite/source-unknown claim**.
+
 # Recovery529: original EAM localization resource recovery and native message-text boundary
 
 11 October 2026 KST. **Gate13 remains OPEN.** Original .str/.idx file bytes were directly downloaded from Daniel's unshared extracted-disc filesystem in Google Drive. These are authorized targeted game source resources, not the 511 MB ZIP or 632 MB BIN, and not a replacement subtitle file. Nothing was executed.
