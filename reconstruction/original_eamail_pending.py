@@ -126,6 +126,11 @@ class OriginalPendingTransferEAMQueue:
                     "due_on": event.request.due_on.isoformat(),
                     "recipient_manager_key": event.request.recipient_manager_key,
                     "sender_club_id": event.request.sender_club_id,
+                    **({
+                        "verified_native_association_word_at_creation":
+                            event.request.verified_native_association_word_at_creation
+                    } if event.request.verified_native_association_word_at_creation
+                          is not None else {}),
                 }
                 for event in self.entries
             ],
@@ -142,10 +147,12 @@ class OriginalPendingTransferEAMQueue:
             raise OriginalPendingEAMSourceError("Pending source events must be ordered")
         events: list[OriginalPendingTransferEnvelope] = []
         for row in source["entries"]:
-            if type(row) is not dict or set(row) != {
+            required = {
                 "sequence", "player_id", "queued_on", "due_on",
                 "recipient_manager_key", "sender_club_id"
-            }:
+            }
+            allowed = required | {"verified_native_association_word_at_creation"}
+            if type(row) is not dict or not required <= set(row) or not set(row) <= allowed:
                 raise OriginalPendingEAMSourceError("Invalid serialized pending source node")
             try:
                 request = PlayerTransferRequest(
@@ -154,6 +161,9 @@ class OriginalPendingTransferEAMQueue:
                     due_on=date.fromisoformat(row["due_on"]),
                     recipient_manager_key=row["recipient_manager_key"],
                     sender_club_id=row["sender_club_id"],
+                    verified_native_association_word_at_creation=row.get(
+                        "verified_native_association_word_at_creation"
+                    ),
                 )
             except (TypeError, ValueError, KeyError) as exc:
                 raise OriginalPendingEAMSourceError("Invalid source EAM record") from exc

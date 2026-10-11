@@ -112,14 +112,23 @@ class PlayerTransferRequest:
     due_on: date
     recipient_manager_key: int | None = None
     sender_club_id: int | None = None
+    # Original 0x5CE660 captures the signed DBRPlayer+0x72 word into EAM
+    # type-2 descriptor+8 AT PRODUCTION. None means no verified native mirror,
+    # never an invitation to infer it later from current club/loan/sender.
+    verified_native_association_word_at_creation: int | None = None
 
     def __post_init__(self):
         context = (self.recipient_manager_key, self.sender_club_id)
-        if context == (None, None):
-            return
-        if any(type(value) is not int or not 0 <= value <= 0x7FFFFFFF
-               for value in context):
+        if context != (None, None) and any(
+            type(value) is not int or not 0 <= value <= 0x7FFFFFFF
+            for value in context
+        ):
             raise ValueError('Transfer-request recipient/sender context must be complete')
+        word = self.verified_native_association_word_at_creation
+        if word is not None and (
+            type(word) is not int or not -(1 << 15) <= word < (1 << 15)
+        ):
+            raise ValueError('Native EAM association snapshot must be signed 16-bit')
 
     @property
     def event_class(self) -> str:
