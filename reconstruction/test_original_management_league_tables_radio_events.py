@@ -32,6 +32,11 @@ class SourceSelectedTablesBridge(AuthenticSelectedLeagueBridge):
     def source_selected_league_table_rows(self, selection):
         return self.source.source_selected_league_table_rows(selection)
 
+    def source_selected_league_current_form_rows(self, selection):
+        # Legacy selector fixture deliberately lacks full native history;
+        # original Current Form cannot be populated without it.
+        return self.source.source_selected_league_current_form_rows(selection)
+
 
 class OriginalLeagueTablesNativeEventsTests(unittest.TestCase):
     def presenter(self):
