@@ -432,6 +432,31 @@ class OriginalManagementPresenter:
         self.league_tables_selection = None
         return snapshot
 
+    def source_accepted_pbg_direct_inbox_action(self) -> OriginalManagementPanelSnapshot | None:
+        """PBg header child ID1 -> 0x4326D6 -> 0x482BF0(0x65).
+
+        Unlike a PMenu row click, the source factory selects root 1 and
+        EAMail child 0x65 directly; 0x4326E0 guards an already-active Inbox.
+        Build the full delivered-only panel transactionally before updating
+        either menu tree state or the current child.
+        """
+        _require_started_session(self.session)
+        if self.selected_child_id == ORIGINAL_EAMAIL_MENU_CHILD_ID:
+            return None  # native top-panel singleton guard 0x4326E0
+        snapshot = build_management_panel_snapshot(
+            self.session, ORIGINAL_EAMAIL_MENU_CHILD_ID,
+            bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
+            staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=1,
+        )
+        self.selected_child_id = ORIGINAL_EAMAIL_MENU_CHILD_ID
+        self.expanded_root_id = 1
+        self.league_fixtures_column_offset = 0
+        self.league_fixtures_selection = None
+        self.league_tables_selection = None
+        return snapshot
+
     def source_accepted_pmenu_action(
         self,
         row_kind: str,
