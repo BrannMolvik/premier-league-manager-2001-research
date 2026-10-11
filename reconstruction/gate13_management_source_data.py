@@ -15,6 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from original_eamail_mailbox import (
+    OriginalDeliveredEAMail,
+    OriginalDeliveredEAMailboxes,
+    OriginalEAMailOwnerError,
+)
 from original_fixture_match_info_link import (
     SourceFixtureMatchInfoContext, resolve_source_match_info_link,
 )
@@ -1788,6 +1793,34 @@ class ManagementSourceDataBridge:
     def messages_presentation_contract() -> MessagesPresentationContract:
         """Return only source-proven manager-mail family identities/actions."""
         return MESSAGES_PRESENTATION_CONTRACT
+
+    def source_delivered_mailbox_for_selected_user(
+        self,
+    ) -> tuple[OriginalDeliveredEAMail, ...]:
+        """Read original user+0x6B4 append order, never the pending MPM queue.
+
+        This is a source-only *delivered owner*, NOT the original PEAMail+0x68
+        five-sort filtered display array and NOT row text/art or a GUI action.
+        The genuine selected user's effective runtime DBRClub+0x40 manager key
+        must be present, instead of using immutable imported club.manager_id.
+        """
+        self._human_club_id()
+        key = getattr(self.state, "native_user_recipient_key", None)
+        if type(key) is not int:
+            raise ManagementPresentationError(
+                "Current original user recipient identity is unverified"
+            )
+        source = getattr(self.state, "original_delivered_mailboxes", None)
+        if type(source) is not OriginalDeliveredEAMailboxes:
+            raise ManagementPresentationError(
+                "Original per-manager delivered-mail source is unavailable"
+            )
+        try:
+            return source.delivered_for_manager(key)
+        except OriginalEAMailOwnerError as exc:
+            raise ManagementPresentationError(
+                "Current original user has no source-registered mailbox"
+            ) from exc
 
     def message_source_queues(self) -> MessageSourceQueuesView:
         """Expose only the two manager-mail families materialized by GameState.
