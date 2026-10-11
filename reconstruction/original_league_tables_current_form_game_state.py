@@ -41,8 +41,10 @@ def source_qualified_primary_current_form_from_game_state(
         refuse("non-root/group competition context is not source-qualified")
     competition = getattr(state, "competitions", {}).get(competition_id)
     if (competition is None or getattr(competition, "runtime_kind", None) != "league"
+            or getattr(competition, "parent_competition_id", object()) is not None
+            or type(getattr(competition, "country_region_id", None)) is not int
             or getattr(competition, "uses_secondary_schedule_container", None) is not False):
-        refuse("original League class / native primary container not established")
+        refuse("original root League / country / native primary container not established")
 
     live = getattr(state, "procedural_leagues", {}).get((competition_id, 0))
     if live is None or (
@@ -67,6 +69,8 @@ def source_qualified_primary_current_form_from_game_state(
         if type(cid) is not int or cid not in raw_clubs:
             refuse("source club record missing")
         raw = raw_clubs[cid]
+        if getattr(raw, "country_id", None) != competition.country_region_id:
+            refuse("original League member country disagrees with source root")
         # 0x4022D0 Master.dat byte98 -> DBRClub+0x74 verified for initial load.
         mode = getattr(raw, "team_category_code", None)
         if type(mode) is not int or mode != 1:
