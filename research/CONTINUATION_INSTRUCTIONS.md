@@ -52,7 +52,8 @@ Use these files for different purposes:
 5. `research/PROGRESS.md` - chronological historical log, including old status statements that may have been superseded.
 6. `research/BACKLOG.md` - useful work deliberately deferred.
 7. `research/FIDELITY_GAPS.md` - known observable deviations/fallbacks.
-8. `research/ORIGINAL_SOURCE_LOCATOR.md` - durable private-source locator and mandatory recovery procedure for the authorized original FM2001 archive/disc image.
+8. `research/ORIGINAL_SOURCE_LOCATOR.md` - durable original source identities, checksum receipts and exact private Drive/Library paths.
+9. `research/ORIGINAL_DRIVE_SOURCE_WORKFLOW.md` - mandatory post-11-Oct-2026 source-first original extracted-files workflow; no redundant huge disc-image materialization.
 
 When an old milestone in `PROGRESS.md` conflicts with `CURRENT_STATE.md`, treat the old milestone as historical unless later evidence re-establishes it.
 
@@ -67,7 +68,7 @@ Before doing new work:
 5. Inspect commits newer than the technical baseline recorded in `CURRENT_STATE.md`.
 6. Read only the relevant `FINDINGS.md`, topic-specific research, and historical `PROGRESS.md` sections needed for the active task.
 7. Check the relevant test/CI state before claiming that current code passes.
-8. If the active task needs `FOOTBAL.EXE`, canonical game files, disc-image evidence, or another original binary resource, read `research/ORIGINAL_SOURCE_LOCATOR.md` and attempt its private Library recovery procedure before reporting that source material is unavailable.
+8. If the active task needs `FOOTBAL.EXE`, canonical game files, original art/data/fonts/FMV or another original binary resource, read `research/ORIGINAL_DRIVE_SOURCE_WORKFLOW.md` and `research/ORIGINAL_SOURCE_LOCATOR.md`. **FIRST search the newly verified extracted original `FM2001/` private Google Drive tree, fetch the required small file and verify identity.** The old large private Library ZIP is fallback, not the first mandatory step. Do not report source material unavailable solely because local container execution failed; distinguish connector byte access from local disassembly/GUI capabilities.
 9. Read `research/ORIGINAL_BEHAVIOR_FIRST_POLICY.md`. Before writing implementation code, identify the original shipped behavior and the evidence that proves it. If evidence is missing, the next task is source investigation—not implementation by assumption.
 10. State the active gate and exact next task, then continue from there.
 
