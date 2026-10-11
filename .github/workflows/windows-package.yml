@@ -10,6 +10,8 @@ on:
       - "reconstruction/gate13_pstartmenu_derivative.py"
       - "reconstruction/runtime_layout.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/original_pbg_mail_art.py"
+      - "reconstruction/test_original_pbg_mail_art.py"
       - "reconstruction/front_end_state.py"
       - "reconstruction/front_end_session.py"
       - "reconstruction/front_end_settings.py"
