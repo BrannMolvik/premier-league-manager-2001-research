@@ -786,7 +786,11 @@ class OriginalGameHostTests(unittest.TestCase):
                 start=lambda: (_ for _ in ()).throw(RuntimeError("thread unavailable"))),
         )
         host.prematch_surface = original
-        with self.assertRaisesRegex(RuntimeError, "thread unavailable"):
+        # The worker must pass the real controller-capability gate before
+        # testing the thread-start failure, which must not execute a match.
+        with (patch.object(StubBackend, "play_original_user_primary_match",
+                           lambda staged, mode: None, create=True),
+              self.assertRaisesRegex(RuntimeError, "thread unavailable")):
             host._begin_original_human_match(MatchDetailMode.QUICK_MATCH)
         self.assertIs(host.prematch_surface, original)
         self.assertIsNone(host._management_turn_thread)
