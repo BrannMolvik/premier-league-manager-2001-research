@@ -114,6 +114,8 @@ on:
       - "reconstruction/original_management_background.py"
       - "reconstruction/test_original_management_background.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/original_pbg_mail_art.py"
+      - "reconstruction/test_original_pbg_mail_art.py"
       - "reconstruction/startup_fmv_presentation.py"
       - "reconstruction/test_startup_fmv_presentation.py"
       - "reconstruction/original_startup_media.py"
@@ -283,6 +285,7 @@ jobs:
             test_original_management_header \
             test_original_management_background \
             test_original_pbg_back3_source \
+            test_original_pbg_mail_art \
             test_original_game_host \
             test_startup_media_windows_backend \
             test_startup_media_tk_integration \
