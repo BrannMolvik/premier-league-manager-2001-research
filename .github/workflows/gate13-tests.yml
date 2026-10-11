@@ -82,6 +82,8 @@ on:
       - "reconstruction/original_eamail_pending.py"
       - "reconstruction/original_eamail_native_filter.py"
       - "reconstruction/original_eamail_native_small_window.py"
+      - "reconstruction/original_eamail_native_row_fields.py"
+      - "reconstruction/test_original_eamail_native_row_fields.py"
       - "reconstruction/original_eamail_language.py"
       - "reconstruction/original_eamail_control_art.py"
       - "reconstruction/test_original_eamail_control_art.py"
@@ -263,6 +265,7 @@ jobs:
             test_original_eamail_pending \
             test_original_eamail_native_filter \
             test_original_eamail_native_small_window \
+            test_original_eamail_native_row_fields \
             test_original_eamail_language \
             test_original_eamail_control_art \
             test_original_eamail_source_contract \
