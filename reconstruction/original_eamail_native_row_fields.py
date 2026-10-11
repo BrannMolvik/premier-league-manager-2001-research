@@ -254,6 +254,7 @@ def build_selected_user_original_eam_source_rows(
             filter_index=filter_index,
             sort_index=sort_index,
             scroll_offset=scroll_offset,
+            verified_eam_language=eam_language,
         ),
         main_language=main_language,
         eam_language=eam_language,

@@ -13,6 +13,7 @@ from unittest import TestCase, main
 
 from gate13_management_source_data import ManagementSourceDataBridge
 from match_postmatch import PlayerTransferRequest
+from original_eamail_language import load_verified_original_eamail_language
 from original_eamail_native_filter import OriginalEAMailFilterSourceError
 from original_eamail_native_small_window import (
     ORIGINAL_EAMAIL_SORT_COMPARATORS, ORIGINAL_EAMAIL_SMALL_THRESHOLD,
@@ -55,6 +56,21 @@ class OriginalNativeSmallSortedWindowTests(TestCase):
             source, original_source_root=original_assets_root,
             filter_index=5, sort_index=3, scroll_offset=1,
         )
+        # The live row body and the caption must reuse one independently
+        # SHA-qualified EnglishEAM resource, not parse it twice per request.
+        shared_language = load_verified_original_eamail_language(original_assets_root)
+        with_shared_language = build_source_captioned_selected_user_initial_eamail_window(
+            source, original_source_root=original_assets_root,
+            filter_index=5, sort_index=3, scroll_offset=1,
+            verified_eam_language=shared_language,
+        )
+        self.assertEqual(with_shared_language, result)
+        with self.assertRaisesRegex(ValueError, "verified"):
+            build_source_captioned_selected_user_initial_eamail_window(
+                source, original_source_root=original_assets_root,
+                filter_index=5, sort_index=3,
+                verified_eam_language=object(),
+            )
         self.assertEqual(result.window.native_comparator_va, 0x472C00)
         self.assertEqual(result.window.original_sorted_rows, delivered)
         self.assertEqual(len(result.window.viewport.visible_rows), 8)
