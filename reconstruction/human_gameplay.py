@@ -124,7 +124,12 @@ class OriginalManagementTurnOutcome:
 
 @dataclass(frozen=True)
 class OriginalResultsProgress:
-    """Immutable source-event progress receipt for the active PResults owner."""
+    """Native PResults arithmetic for independently qualified event counters.
+
+    Source 0x4A7210 counts eligible dated event nodes, not match-result
+    entries. Construct this only when the original predicate, processing
+    phase and actual 0x4A71F0 ticks have been established.
+    """
 
     processed_count: int
     total_count: int
@@ -1718,19 +1723,22 @@ class HumanGameplayController:
         return replace(
             outcome,
             source_mode_preparation=preparation,
-            results_progress=OriginalResultsProgress(
-                len(outcome.matchday_results), len(outcome.matchday_results)),
+            # Matchday result cardinality is NOT 0x4A7210 event eligibility
+            # or the original 0x4A71F0 tick stream. Source-unqualified progress
+            # stays unavailable rather than displaying a fictional 800px bar.
+            results_progress=None,
         )
 
     def original_results_progress(self) -> OriginalResultsProgress | None:
-        """Project only already-processed qualified entries while a match waits."""
-        if self.pending_primary_entry is None:
-            return None
-        processed = len(self._pending_prior_primary_results)
-        return OriginalResultsProgress(
-            processed,
-            processed + 1 + len(self._pending_after_primary_entries),
-        )
+        """Do not confuse processed primary matches with native PResults ticks.
+
+        The original +0x64/+0x68 owner counts events after the source
+        0x4A7210 virtual, field and flag predicates. The current simulated
+        match-result list cannot establish those source predicates or the
+        second 0x947AF0 event container. Until both are recovered, the native
+        progress receipt is deliberately unavailable.
+        """
+        return None
 
     def advance_original_management_turn(
         self, *, next_match_date: date | None, selector_source_qualified: bool,
