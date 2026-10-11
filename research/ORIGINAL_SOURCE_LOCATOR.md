@@ -24,6 +24,43 @@ canonical private binary source store.
 
 - **SHA-256 of the actual authorized 511,121,336-byte Library ZIP:**\n  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`\n  (computed from the actual materialized original ZIP on 30 September 2026).\n- Nested raw `famg2001.bin`: **631,627,248 bytes**, MODE1/2352;\n  **268,549** physical sectors validated; the Joliet level-3 catalog\n  contains **2,456 files and 211 folders**. See\n  `research/GATE13_REAL_DISC_INVENTORY.md` for independently checked paths,\n  original-asset SHA-256 values and reproduction instructions.
 
+## Private Google Drive alternate source location — created 11 October 2026
+
+The project owner requested a clearly labeled Google Drive folder for separately
+uploaded original game bytes. The Drive connector **created and verified** the following
+**not-shared** directories. These are stable navigational pointers, not proofs that
+the original game files have been uploaded or are readable by the worker.
+
+- **Source root:** `FM2001 — ORIGINAL GAME SOURCE — PRIVATE — AUTOWORKER`
+  - Folder ID: `1gfuugjPoBsSp-AWuO5pOkEcTVNuvUirk`
+  - URL: https://drive.google.com/drive/folders/1gfuugjPoBsSp-AWuO5pOkEcTVNuvUirk
+- **01 — ORIGINAL DISC ARCHIVE ZIP — KEEP UNCHANGED:** untouched complete source
+  ZIP only. https://drive.google.com/drive/folders/1z5-I-BfxuEFnV77fg_2EC43hbCr2EqmT
+- **02 — EXTRACTED ORIGINAL GAME FILES — FOLDERS AND ASSETS:** original disc/game
+  filesystem directory tree, with internal filenames and relative paths preserved.
+  https://drive.google.com/drive/folders/1E6sIeKjeXEMCijxNRlNAb-Em_8WgRxnG
+- **03 — AUTOWORKER DIRECT ACCESS — ORIGINAL EXE AND NEEDED ASSETS:** standalone
+  executable and small individually needed resources (not another raw disc image).
+  https://drive.google.com/drive/folders/1xnQlXjOToK-e6WTgQ0Kwyb19Y07aANYA
+
+**Current evidence status:** all three Drive subfolders exist, were empty when
+checked on creation, and were reported by Google Drive as `shared=false` and
+`source_visibility_status=not_shared`. No original data has yet been uploaded.
+The old authorized ChatGPT Library ZIP remains the only verified source archive.
+Drive privacy must be preserved; do not make any folder or file public. URL
+knowledge alone does not grant access. Prefer the 03 standalone executable
+and a hash check once actually uploaded; then use 02 targeted files, 01 ZIP
+as a fallback. If the Drive connector cannot read/download bytes through the
+worker runtime, do not claim access. When new original files are uploaded,
+record actual filenames/size/SHA-256 and direct source IDs in this locator.
+
+**Do not confuse disc-image container extraction with original game files.**
+The original ZIP contains a disc-image `.bin`; a raw extracted `.bin` in
+folder 02 would not remedy the large-file access issue. Folder 02 should
+contain the game filesystem files from *inside* the disc image, not only the
+disc-image container. Keep originals unmodified and avoid duplicate full
+disc-image uploads.
+
 ## Small-file-first recovery and alternate private storage (11 October 2026)
 
 **Known problem:** the 511,121,336-byte archive is visible and materializable from Library, but container/Python may fail with `caas.internal.errors.ClientError`, sometimes even on trivial commands after materialization. Merely copying that ZIP to a different provider does not repair a broken execution sandbox.
