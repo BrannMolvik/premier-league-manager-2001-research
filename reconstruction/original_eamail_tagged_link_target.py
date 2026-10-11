@@ -51,9 +51,9 @@ def _native_i32(number: int, label: str) -> int:
 def original_eam_typed_link_index(
     source_selector_byte: int,
     *,
-    verified_descriptor_type: int,
-    verified_descriptor_word4: int,
-    verified_descriptor_word8: int,
+    verified_descriptor_type: int | None = None,
+    verified_descriptor_word4: int | None = None,
+    verified_descriptor_word8: int | None = None,
     qualified_original_assoc_table_club_at_index: Callable[[int], int] | None = None,
 ) -> OriginalEAMRawLinkTarget | None:
     """Exact static 0x5CF7B0 typed descriptor branch; no GUI action.
@@ -64,16 +64,17 @@ def original_eam_typed_link_index(
     """
     if type(source_selector_byte) is not int or not 0 <= source_selector_byte <= 255:
         raise OriginalEAMLinkSourceError("Native inline selector must be a byte")
-    kind = _native_i32(verified_descriptor_type, "Original descriptor kind")
-    ref4 = _native_i32(verified_descriptor_word4, "Original descriptor +4")
-    ref8 = _native_i32(verified_descriptor_word8, "Original descriptor +8")
     if source_selector_byte not in (ord("P"), ord("C")):
-        return None
+        return None  # original 0x5CF7BF branches before reading descriptor
     if source_selector_byte == ord("P"):
-        link_kind, index = "player", ref4
+        # P reads descriptor+4 only; demand neither type nor +8.
+        link_kind = "player"
+        index = _native_i32(verified_descriptor_word4, "Original descriptor +4")
     else:
+        kind = _native_i32(verified_descriptor_type, "Original descriptor kind")
         link_kind = "club"
         if kind == 1:
+            ref4 = _native_i32(verified_descriptor_word4, "Original descriptor +4")
             if ref4 < 0 or qualified_original_assoc_table_club_at_index is None:
                 raise OriginalEAMLinkSourceError(
                     "Original type1 club reference needs qualified 0x875628 association table"
@@ -85,9 +86,9 @@ def original_eam_typed_link_index(
                 "Original association table club +0x24",
             )
         elif kind in (2, 17):
-            index = ref8
+            index = _native_i32(verified_descriptor_word8, "Original descriptor +8")
         else:
-            index = ref4
+            index = _native_i32(verified_descriptor_word4, "Original descriptor +4")
     # Parent 0x471CB3 explicitly drops native -1 result. A different
     # negative club result can still select original fallback 0x874B94,
     # but this layer deliberately never constructs that source club object.
