@@ -51,6 +51,13 @@ class OriginalEAMailSourceContractTests(unittest.TestCase):
             "cb1fb08a99dfe204ea9b485f5102e808ab758f80aec96f69e17e9537d8eb2f70",
         ])
 
+    def test_committed_original_inbox_row_art_exact_hashes_and_dimensions(self):
+        root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        self.assertEqual(
+            src.validate_original_eamail_grid_resources(root),
+            src.ORIGINAL_EAMAIL_GRID_RESOURCES,
+        )
+
     def test_source_staging_requires_every_verified_byte_and_header(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

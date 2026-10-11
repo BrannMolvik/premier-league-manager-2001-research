@@ -79,22 +79,22 @@ class OriginalEAMailGridResource:
 # wrapper completion is intentionally left unknown.
 ORIGINAL_EAMAIL_GRID_RESOURCES = (
     OriginalEAMailGridResource(
-        "normal", "FM2001_Art/Generic/eamail/text_grid_nor.444", 8124,
+        "normal", "FM2001_Art/Generic/EAMail/text_grid_nor.444", 8124,
         "74676dce75532b781551cab6e8598f805fa4698b2e1b828c9f4ef15b3ff0816d",
         (532, 18), 105652, 0x836024, 0x5F5580, 0x945E30,
     ),
     OriginalEAMailGridResource(
-        "selected", "FM2001_Art/Generic/eamail/text_grid_sel.444", 7504,
+        "selected", "FM2001_Art/Generic/EAMail/text_grid_sel.444", 7504,
         "6b6ff7ce36b3c507df2d590ba7ad48b9253409757844acf4ec93204807bad556",
         (532, 18), 105656, 0x836050, 0x5F5620, 0x945DF0,
     ),
     OriginalEAMailGridResource(
-        "highlight", "FM2001_Art/Generic/eamail/text_grid_high.444", 6856,
+        "highlight", "FM2001_Art/Generic/EAMail/text_grid_high.444", 6856,
         "a13b413d13b5fa9c5f6a7b36f632c60342898de72bcff2ee73025bc92fdb68c8",
         (532, 18), 105648, 0x83607C, 0x5F56C0, 0x945DB0,
     ),
     OriginalEAMailGridResource(
-        "disabled", "FM2001_Art/Generic/eamail/text_grid_des.444", 7184,
+        "disabled", "FM2001_Art/Generic/EAMail/text_grid_des.444", 7184,
         "cb1fb08a99dfe204ea9b485f5102e808ab758f80aec96f69e17e9537d8eb2f70",
         (532, 18), 105644, 0x8360AC, 0x5F5760, 0x945D70,
     ),

@@ -25,6 +25,16 @@ from original_eamail_mailbox import (
     OriginalDeliveredEAMail,
     OriginalDeliveredEAMailboxes,
     OriginalEAMailOwnerError,
+    EAM_PLAYER_ASK_TRANSFER_LIST_CLASS,
+    EAM_PLAYER_ASK_TRANSFER_LIST_TYPEDESC_VA,
+    EAM_PLAYER_ASK_TRANSFER_LIST_COL_VA,
+    EAM_PLAYER_ASK_TRANSFER_LIST_VFTABLE_VA,
+    EAM_PLAYER_ASK_TRANSFER_LIST_READINESS_VIRTUAL_OFFSET,
+    EAM_PLAYER_ASK_TRANSFER_LIST_READINESS_VA,
+    EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_VIRTUAL_OFFSET,
+    EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_VA,
+    EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_NATIVE_DATE_UNITS,
+    source_player_ask_transfer_list_record_ready,
     source_known_eam_record_retained,
 )
 from test_human_gameplay import Database, coefficient_matrix
@@ -178,8 +188,35 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
             OriginalDeliveredEAMailboxes.restore(bad)
         self.assertEqual(inbox.delivered_for_manager(0), (row,))
 
-    def test_exact_source_retention_day_units_include_boundary_no_transfer_guess(self):
+    def test_native_transfer_readiness_and_exact_retention_without_due_dispatch(self):
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_CLASS, "EAMPlayerAskTransferListsub")
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_TYPEDESC_VA, 0x818F40)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_COL_VA, 0x7DF7C8)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_VFTABLE_VA, 0x7BDB1C)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_READINESS_VIRTUAL_OFFSET, 0x3C)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_READINESS_VA, 0x4093E0)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_VIRTUAL_OFFSET, 0x40)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_VA, 0x470CE0)
+        self.assertEqual(EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_NATIVE_DATE_UNITS, 365)
+        self.assertTrue(source_player_ask_transfer_list_record_ready(event().event_class))
+        for unsupported in ("EAMChairSeasonTicketssub", "MPMEAMail", "", None):
+            with self.subTest(unsupported=unsupported):
+                with self.assertRaisesRegex(OriginalEAMailOwnerError, "Only verified"):
+                    source_player_ask_transfer_list_record_ready(unsupported)
+        # A native ready response is NOT the scheduled envelope's date gate.
+        pending = event()
+        mailbox = OriginalDeliveredEAMailboxes()
+        mailbox.register_source_user(0)
+        with self.assertRaisesRegex(OriginalEAMailOwnerError, "not yet due"):
+            mailbox.deliver_source_ready_transfer_request(
+                pending, pending_identity="not-due", at_date=DAY-timedelta(days=1),
+                original_record_ready=source_player_ask_transfer_list_record_ready(
+                    pending.event_class),
+            )
+        self.assertEqual(mailbox.delivered_for_manager(0), ())
+
         for kind, offset in (
+            (EAM_PLAYER_ASK_TRANSFER_LIST_CLASS, 365),
             ("EAMChairSeasonTicketssub", 365),
             ("EAMChairSeasonTicketSetsub", 21),
         ):
@@ -192,7 +229,7 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
                 ))
         with self.assertRaisesRegex(OriginalEAMailOwnerError, "No original"):
             source_known_eam_record_retained(
-                "EAMPlayerAskTransferListsub",
+                "UnverifiedEAMClass",
                 source_record_day=500, source_current_day=501,
             )
         for wrong in (True, "500", -1, 500.0):
