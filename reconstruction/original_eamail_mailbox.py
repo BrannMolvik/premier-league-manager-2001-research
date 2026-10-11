@@ -11,10 +11,12 @@ message body or a playable Inbox screen.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date
 
 from match_postmatch import PlayerTransferRequest
+from match_schedule import MsvcCrtRng
+from original_eamail_language import native_transfer_reason_from_crt_draw
 
 
 # Independently traced native MSVC RTTI / PE vtable on the original
@@ -168,6 +170,40 @@ class OriginalDeliveredEAMailboxes:
         if manager_key not in self.mailboxes:
             raise OriginalEAMailOwnerError("Manager has no registered source mailbox")
         return tuple(self.mailboxes[manager_key])
+
+    def source_first_transfer_preview_reason(
+        self, manager_key: int, node_serial: int,
+        *, qualified_first_row_select: bool, shared_crt_rng: MsvcCrtRng,
+    ) -> OriginalDeliveredEAMail:
+        """0x471B80 -> 0x56FBA0(arg0) -> 0x56FD65 raw reason side effect.
+
+        Must be called ONLY after the genuine first neutral native row select
+        from the current registered user. The original formats its preview
+        immediately after choosing the reason. This method restores the
+        persistent RNG/record mutation, NOT the still missing visible body.
+        """
+        if type(qualified_first_row_select) is not bool or not qualified_first_row_select:
+            raise OriginalEAMailOwnerError("Source first-row selection is not qualified")
+        if type(shared_crt_rng) is not MsvcCrtRng:
+            raise OriginalEAMailOwnerError("Original shared CRT RNG state required")
+        _source_index(manager_key, "source recipient manager key")
+        if type(node_serial) is not int or node_serial < 1:
+            raise OriginalEAMailOwnerError("Native selected mailbox node serial required")
+        rows = self.mailboxes.get(manager_key)
+        if rows is None:
+            raise OriginalEAMailOwnerError("No original registered recipient mailbox")
+        for index, row in enumerate(rows):
+            if row.node_serial != node_serial:
+                continue
+            if row.recipient_manager_key != manager_key or row.event_class != EAM_PLAYER_ASK_TRANSFER_LIST_CLASS:
+                raise OriginalEAMailOwnerError("Original record/owner mismatch")
+            if row.original_preview_reason_native_i32 != -1:
+                return row  # source native branch does NOT draw again
+            reason = native_transfer_reason_from_crt_draw(shared_crt_rng.rand15())
+            assigned = replace(row, original_preview_reason_native_i32=reason)
+            rows[index] = assigned
+            return assigned
+        raise OriginalEAMailOwnerError("Native selected row not in delivered mailbox")
 
     def deliver_source_ready_transfer_request(
         self,
