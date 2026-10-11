@@ -28,3 +28,45 @@ objdump -d -M intel --start-address=0x472680 --stop-address=0x472cc5 footballman
 **Source-verified:** original initial transfer subtype category/flags, exact 10 filtering categories, five comparator function identities, **small-list** insertion tie rules, source viewport width/count/scroll. **Port tested:** only after exact PR-head CI passes. **Unimplemented / not VISIBLE-ACCEPTED:** original input PBg header ID1 and PMenu child0x65 navigation; actual raster of row/header/filter controls; original EAM record +0x1C and virtual+0x18 string construction, original source fonts and icons; interactive row selection/re-activation and PEAMMessage modal/action/Escape return; live status mutation; original >16 sort algorithm; class-specific expiry; other polymorphic inbox messages; full 2–6 human control and all countries, non-PL and secondary fixtures; native Windows11 mouse/render validation. This is a foundation for **completing those player-visible steps**, not another claim of an entirely restored screen.
 
 **Next:** source-close native original transfer-message text/field producer and rendering while integrating the authentic ten category and five order controls into the player-visible PEAMail menu/header journeys. Gates13–17 and the verified Windows11 release remain OPEN.
+
+
+## Independent follow-on source: exact original transfer row text producer
+
+The same unchanged canonical private executable supplies a separate and more concrete
+native record-text boundary:
+
+- RTTI-proven `EAMPlayerAskTransferListsub` vftable is `0x7BDB1C`.
+  Its **virtual +0x18** actually points to `0x56FB70` and **virtual +0x1C**
+  points to `0x56FBA0`. Do not confuse these two distinct original methods.
+- `0x56FB70..0x56FB9B` assembles the shared-string return using
+  source `0x8797A4` and buffer/language owner `0x947AA0`, via
+  original `0x659810` / `0x6590F0`. Neither the current returned
+  bytes nor source language selection has been recovered as a displayed row.
+- `0x56FAD0..0x56FB46` calls original typed string-reference
+  constructor `0x5CE660` twice. It stores a **kind-1
+  `(manager_key)` descriptor at record+0x10** and a **kind-2
+  `(player_id)` descriptor at record+0x1C**. Verified call
+  `0x41B63F..0x41B64D` passes the captured club's effective manager
+  key and current player ID, not an imported AI-manager guess.
+- `0x5CE660` writes descriptor type, object index and type2's native
+  player +0x72 association; original `0x5CE6A0` case2 is reached through
+  an explicit jump-table pointer `0x5CF720+4` to `0x5CE715`.
+  That case obtains the native player string using `0x417AE0`,
+  may compose association string through `0x40DA70`, then formats
+  through original `0x66876F` with static-language constants.
+  This is concrete **source ownership**, not permission to invent a
+  localized row caption from the class name.
+- `0x56FBA0` is a separate, much larger `+0x1C` message method,
+  whose calls may mutate record+0x3C (cached value) and rely on
+  original language/source/manager fields. It must not be used as the
+  simpler row `+0x18` text callback.
+
+Useful private reproducibility:
+```sh
+objdump -d -M intel --start-address=0x56fad0 --stop-address=0x56fba0 footballmanager.exe
+objdump -d -M intel --start-address=0x5ce660 --stop-address=0x5ce7b9 footballmanager.exe
+```
+Next source task: recover exact language buffer/case2 output, font/color and
+row rendering; only then give the original physical PMessageRow a genuine
+typed text and detail action. These newly recovered pointers do not change
+the limited <=16 native-sort acceptance above.
