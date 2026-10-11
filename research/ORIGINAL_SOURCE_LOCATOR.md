@@ -61,6 +61,42 @@ contain the game filesystem files from *inside* the disc image, not only the
 disc-image container. Keep originals unmodified and avoid duplicate full
 disc-image uploads.
 
+### Actual Drive upload inspection — 11 October 2026 (after owner upload)
+
+The Google Drive connector listed the private folders and returned these
+**actual stored files**, all shown as not shared and downloadable. This
+supersedes the earlier *empty at creation* observation above:
+
+- Folder **01** currently holds `FM2001-Windows11-rc-94a620839624f293c0d4343f7e42c9ddfb31d549.zip`
+  (71,319,074 bytes), Google Drive id `18DUzW9tNty0Huu_tzdyOMBDKTiUq4qWv`.
+  **This appears by filename/size to be the Windows 11 reconstruction release
+  candidate, NOT the original game/disc ZIP; classification is not a byte-content
+  verification. Do not mistake it for an original-source archive.**
+- Folder **02** has **no files or subfolders** in the listing.
+- Folder **03** holds `famg2001.bin` (631,627,248 bytes, Drive id
+  `1ABjHP8uGQSYFhFX0N32pO2D-k_bTL_8x`),
+  `famg2001.cue` (77 bytes, id `1wBAjDgEVb7mmtHdQMjZiwtkZy5Vx6o0L`), and
+  `fltfm2k.nfo` (5,081 bytes, id `12sMrFLq-5QWOdbPDqbpw3MBHVx2sObwW`).
+  The BIN size **matches** the previously inventoried nested original image,
+  but the BIN's actual SHA-256 is **not freshly verified**. Small CUE raw-byte
+  fetch succeeded and reads `FILE "F:\\FAMG2001.BIN" BINARY`,
+  `TRACK 01 MODE1/2352`, `INDEX 01 00:00:00`. The F: path is
+  a recorded image-creator drive path; treat it as a cue reference to the
+  paired BIN, not a path that exists in the worker environment.
+- **No separately uploaded original `FOOTBAL.EXE` or
+  `footballmanager.exe` was found in the target source folders;** small-file-first
+  executable verification cannot yet run. User should mount/extract actual
+  files *inside* BIN/CUE to folder 02 (preserving game paths), and separately
+  place the original executable file in folder 03. Original ZIP may be kept as
+  a preservation copy in folder 01, but the Library already holds the canonical
+  original ZIP.
+- A harmless `container.exec` health check returned
+  `caas.internal.errors.ClientError` even without materializing the BIN.
+  The upload resolves Drive discoverability but **does not establish byte-readable
+  local source analysis or Windows GUI gameplay testing**. Do not download the
+  632 MB BIN as a speculative fix; first establish a working execution sandbox.
+- No uploaded file has been moved, altered, executed or shared by the inspector.
+
 ## Small-file-first recovery and alternate private storage (11 October 2026)
 
 **Known problem:** the 511,121,336-byte archive is visible and materializable from Library, but container/Python may fail with `caas.internal.errors.ClientError`, sometimes even on trivial commands after materialization. Merely copying that ZIP to a different provider does not repair a broken execution sandbox.
