@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from time import time
@@ -71,6 +72,7 @@ from match_environment import (
 from match_injury_persistence import clear_expired_persistent_injury
 from match_schedule import MsvcCrtRng
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
+from original_eamail_pending import OriginalPendingTransferEAMQueue
 from match_preparation import (
     PreparedAiMatchSelection,
     PreparedPremierLeagueAiSide,
@@ -298,6 +300,11 @@ class GameState:
     # No automatic delivery or invented PEAMail screen is implied.
     original_delivered_mailboxes: OriginalDeliveredEAMailboxes = field(
         default_factory=OriginalDeliveredEAMailboxes
+    )
+    # Original global 0x947AA8 pending MPMEAMail envelope subset is distinct
+    # from both the active transfer-action request queue and delivered DBRUser mail.
+    original_pending_transfer_eam: OriginalPendingTransferEAMQueue = field(
+        default_factory=OriginalPendingTransferEAMQueue
     )
     # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
     # independent of club_roster_order until 0x61E3D0 promotion.
@@ -788,6 +795,26 @@ class GameState:
             request = replace(request, recipient_manager_key=self.native_user_recipient_key,
                               sender_club_id=int(active_club_id))
         self.player_transfer_requests.append(request)
+        # Source 0x41B679..0x41B6A6 only: store a distinct scheduled envelope
+        # when the native producer recipient and next-day date are qualified.
+        # Unsupported AI/legacy/context-free requests remain unpromoted.
+        if (request.recipient_manager_key is not None
+                and request.sender_club_id is not None
+                and request.due_on == request.queued_on + timedelta(days=1)):
+            self.original_pending_transfer_eam.append_original_transfer(request)
+
+    def process_original_eam_due_events(self, on_date: date) -> tuple[str, ...]:
+        """Source 0x613EE0 MPMEAMail subtype on NEXT/PResults (flag=1).
+
+        Publish the pending queue and per-user delivered owner together.
+        Do not touch other unqualified MPM event families or PEAMail sorting.
+        """
+        candidate_queue = deepcopy(self.original_pending_transfer_eam)
+        candidate_delivered = deepcopy(self.original_delivered_mailboxes)
+        consumed = candidate_queue.process_original_due(on_date, candidate_delivered)
+        self.original_pending_transfer_eam = candidate_queue
+        self.original_delivered_mailboxes = candidate_delivered
+        return consumed
 
     def _persist_premier_league_morale_form_and_requests(
         self,
@@ -848,6 +875,7 @@ class GameState:
             raise KeyError(int(request.player_id))
         apply_player_transfer_request_response(player, accept=bool(accept))
         del self.player_transfer_requests[stored_index]
+        self.original_pending_transfer_eam.remove_player_linked(int(request.player_id))
         return request
 
     def initialize_fresh_user_youth(
@@ -1014,6 +1042,7 @@ class GameState:
             for value in self.player_transfer_requests
             if int(value.player_id) != player_id
         ]
+        self.original_pending_transfer_eam.remove_player_linked(player_id)
 
     def _run_monthly_contract_maintenance(self, on_date: date) -> None:
         """Run 0x41ABC0/0x41BEE0 in exact club/roster RNG order.
