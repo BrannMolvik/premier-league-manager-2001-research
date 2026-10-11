@@ -66,7 +66,7 @@ class OriginalEAMailPlainGlyphTests(TestCase):
     def test_unqualified_plain_markup_or_geometry_fails_closed(self):
         rows, resources = source_rows_with_font()
         original = rows.native_rows[0]
-        for value in ("<T+P>Transfer List<T->", "Unsafe<", "Date>", "a\\x00b", ""):
+        for value in ("<T+P>Transfer List<T->", "Unsafe<", "Date>", "a" + chr(0) + "b", ""):
             text = original.original_text_fields[1]
             replaced_field = replace(text, source_verified_visible_text=value)
             fields = (original.original_text_fields[0], replaced_field,
