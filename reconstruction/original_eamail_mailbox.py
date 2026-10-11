@@ -264,7 +264,9 @@ def source_known_eam_record_retained(
     original_class: str, *, source_record_day: int, source_current_day: int
 ) -> bool:
     """Source numeric 0x9847FC date-units only; NOT Python calendar days."""
-    if original_class not in _SOURCE_KNOWN_RETENTION_OFFSETS:
+    if type(original_class) is not str or (
+        original_class not in _SOURCE_KNOWN_RETENTION_OFFSETS
+    ):
         raise OriginalEAMailOwnerError(
             "No original +0x40 retention period qualified for this EAM class"
         )
