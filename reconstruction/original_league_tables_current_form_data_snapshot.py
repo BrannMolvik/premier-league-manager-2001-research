@@ -31,9 +31,14 @@ class OriginalLeagueTablesCurrentFormDataSnapshot:
     native_mouse_event15_recovered: bool = False
 
     def __post_init__(self) -> None:
-        if self.sort_state != 1:
+        if type(self.sort_state) is not int or self.sort_state != 1:
             raise OriginalLeagueTablesCurrentFormDataError(
-                "Current Form data snapshot requires original sort state1"
+                "Current Form data snapshot requires original integer sort state1"
+            )
+        if (type(self.competition_id) is not int or self.competition_id < 0
+                or type(self.country_id) is not int):
+            raise OriginalLeagueTablesCurrentFormDataError(
+                "Current Form source competition/country identity is unavailable"
             )
         if self.native_alternate_row_geometry_recovered or self.native_mouse_event15_recovered:
             raise OriginalLeagueTablesCurrentFormDataError(
