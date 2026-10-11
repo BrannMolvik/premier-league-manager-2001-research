@@ -44,6 +44,12 @@ class OriginalEAMPlayerSourceFragmentMask:
     # returns this source control selector as AL on a qualified native
     # text-point query. It is NOT yet a verified player/club action.
     source_hit_selector_byte: int = 0
+    # eCText 0x5D7380 may forward its non-null OWN pointer as the first
+    # argument to parent PMessageRow::0x471B80, which rejects nonzero.
+    # This says nothing about the complete mouse event routing through
+    # the underlying PMessageRow bitmap owner.
+    native_child_forward_callback_va: int = 0x471B80
+    native_child_callback_is_neutral_row_activation: bool = False
     final_color_and_placement_verified: bool = False
     native_hit_target_and_action_verified: bool = False
 
@@ -100,8 +106,12 @@ def native_player_markup_fragment_masks(
     output = []
     # T+P activates ASCII P until T- resets to NUL; the untagged
     # separator is zero.  T+C then activates ASCII C until next T-.
-    # 0x5D73A8 stores the return byte in eCText+0x114, but native
-    # actionable pixel bounds and parent callback remain unqualified.
+    # 0x5D73A8 stores the return byte in eCText+0x114.  Source row
+    # child setup calls inherited vft+8 = 0x64F3C0(2,parent); this binds
+    # the real PMessageRow vft 0x7C266C. Its +0x10 is 0x471B80, whose
+    # first-argument nonzero branch returns without selection.  The
+    # child's forwarding is therefore NOT a neutral row select; the
+    # separate row background mouse target/dispatch remains to audit.
     source_selector_by_role = {"player": ord("P"), "separator": 0, "club": ord("C")}
     for role, text, start in data:
         try:
