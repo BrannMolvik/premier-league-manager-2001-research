@@ -75,30 +75,11 @@ Do **not** read the entire multi-thousand-line `PROGRESS.md` as a prerequisite u
 
 A reusable prompt for a fresh session is stored in `research/HANDOFF_PROMPT.md`.
 
-## Cross-worker ownership locks
+## Ownership and coordination — updated 11 October 2026
 
-**Revised user division of work (11 October 2026):** Read `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md`. The automatic worker primarily targets the biggest **missing or incorrect original-game functionality**, studies the actual original as evidence, and implements verified solutions where possible. Its task size need not be small. It may test and merge routine qualifying worker PRs itself after source/CI/conflict review; Codex should not be assigned routine PR merges. Codex is reserved for source-uncertain/architecturally hard/overlapping integration, and presently owns R1 NEXT→PPreMatch→Quick Match→PResults→return. The worker should concurrently own source-backed nonoverlapping high-impact management systems. Both must keep Gate13 and future release acceptance open until full original functionality works. `research/WORK_OWNERSHIP.json` records the active coordination; don't overwrite each other's work.
-Before choosing work from the earliest incomplete gate, read
-`research/WORK_OWNERSHIP.json`.
+Daniel explicitly removed every Codex-exclusive implementation assignment. The **ChatGPT autonomous worker owns all remaining FM2001 implementation through Gate 17, including the former R1 NEXT -> PPreMatch -> match -> PResults -> return subsystem**, with the same original-evidence, regression, review and Windows acceptance obligations. Codex is an optional specialist for independent verification, code review, difficult bug reproduction and genuine Windows 11 GUI playtesting **only when it has an actual interactive Windows environment and Daniel approves usage**. Do not block coding, merges or gate progress waiting for Codex.
 
-An active exclusive assignment in that file overrides the normal "continue the
-active gate" rule for workers that do not own the assignment. This is a
-coordination rule, not a scope reduction:
-
-- the named owner may continue the locked gate/subsystem;
-- every other worker must avoid modifying the locked implementation, tests,
-  status/audit documents and shared state files;
-- non-owning workers may continue independent later-gate work-ahead only when
-  it does not touch the locked files or behavior;
-- if no independent work exists, checkpoint and stop rather than duplicate the
-  owner's investigation;
-- do not rewrite or silently clear an active ownership lock merely because
-  `CURRENT_STATE.md` still names that gate as the earliest incomplete gate;
-- release or change the lock only through an explicit coordination update or
-  after the recorded release condition is satisfied.
-
-This rule exists to prevent ChatGPT continuous workers and Codex from solving
-the same reverse-engineering boundary on divergent branches.
+Read `research/WORK_OWNERSHIP.json` and `research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md`. Historical released Codex assignments are not active locks. Continue from the already-merged R1 slice (PR #565) on current main; do not remerge old Codex branches. Use reviewed worker branches for implementation, reconcile genuinely concurrent contributors, and obtain independent supervisor review for high-risk changes without making it dependent on Codex usage. No private original binaries in Git.
 
 ## One-gate rule
 
@@ -399,7 +380,7 @@ Local-model delegation has strict boundaries:
   completion judgments;
 - do not let the local model independently commit, push, alter canonical
   runtime state, or make unreviewed repository decisions;
-- GPT-6.1 Sol/Codex remains responsible for the task. Review the local model's
+- The autonomous primary worker remains responsible for the task. Review the local model's
   output, inspect the resulting diff, run the same appropriate tests/checks,
   and accept only changes that satisfy the repository's evidence and quality
   rules.
@@ -408,30 +389,9 @@ The purpose of local-model use is to conserve hosted Codex allowance on work
 that does not benefit materially from stronger reasoning. It must never lower
 the reconstruction's verification or fidelity standard.
 
-## Codex local/private ownership policy
+## Optional Codex testing and verification policy (11 October 2026)
 
-When `agent-runtime` names `work_owner = "codex"`, Codex owns the local/private
-Windows work queue until one of these handoff conditions is actually true:
+Codex no longer owns the local/private work queue or any code subsystem. Even if a historical runtime entry or old report says otherwise, the user-directed active worker owns full original-game implementation, including R1 match progression and cross-system integration. Do not automatically allocate Codex usage, assign it repetitive review/merges, or require its handoff for main progress.
 
-1. the next meaningful task is genuinely cloud-safe and no higher-priority
-   local/private/Windows-dependent task remains;
-2. available Codex usage has reached the reserved final 5-7% needed for tests,
-   checkpointing, state reconciliation and handoff; or
-3. a real blocker prevents further local/private progress.
+Use Codex only on explicit cost-aware assignment for optional independent QA, difficult failure diagnosis or Windows 11 acceptance when an actual testable graphical Windows 11 environment is available. Verify the exact code and game state it tested. A compiled artifact, headless CI or source trace is not a hands-on playtest. Keep the automatic worker working and ownership set to chatgpt through normal recovery.
 
-A successful trace, graphical audit, screen correlation, commit, or checkpoint
-is **not** by itself a handoff condition. After verifying and persisting one
-local/private subtask, Codex should immediately continue the next highest-priority
-local/private item from `CURRENT_STATE.md`, `FIDELITY_GAPS.md`, or the active
-gate's evidence ledger.
-
-Before handing back:
-
-- finish and test the current bounded task;
-- push a clean canonical `main`;
-- update `CURRENT_STATE.md` / `project_status.json` when the live boundary changed;
-- state the exact remaining local blocker and exact next cloud-safe task;
-- set runtime ownership back to `chatgpt`, `status = "working"`,
-  `mode = "continuous"`, and record the actual current main HEAD.
-
-Do not hand ownership back merely because a checkpoint is convenient.
