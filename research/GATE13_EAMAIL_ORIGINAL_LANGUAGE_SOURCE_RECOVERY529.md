@@ -26,3 +26,44 @@ Required next trace: follow `0x8797A4` initialization `0x5C1438` and language-lo
 `reconstruction/original_eamail_language.py` only authenticates/loads the exact source pair and exposes `source_selected_template(idx_entry,original_selector_proven=True)`. A caller may pass an index **only after independently proving that original native selector for the specific message**; otherwise it fails closed rather than guessing one of multiple transfer-related text strings or using an English modernization substitute. Automated source tests check original binary SHA/length/count/IDX linkage and corruption/unknown selector refusal; the original `.str` is source data, not a row-ready caption. No code here sends messages, modifies original saves or unlocks unsupported native sort modes. Original resource bytes are explicitly authored assets, not compiled executable, disc image, archive or whole-game extraction.
 
 **SOURCE-VERIFIED:** exact original resource identities, binary format, native typed manager/player record constructor and two text-provider virtual ownership addresses. **INTEGRATION-VERIFIED:** only if exact PR-head tests pass. **VISIBLE-ACCEPTED:** NO. Original Inbox actions, sorting >16, fonts/rows, navigation, PEAMMessage modal, 2–6 users, all-country/league game and Win11 release remain OPEN.
+
+
+## Follow-on source correction: native 0x8797A4 pointer-table owner is not proved to initialize EAM captions
+
+A deeper disassembly of the same authorized unchanged original executable
+identified an important counterexample to calling `0x5C1438` a *startup
+caption initialization* site merely because it assigns `0x8797A4`.
+
+- Native `0x64E320..0x64E335` reads a source pointer table at
+  `arg0+0x08`, masks a supplied `arg1` to **16 bits**, computes
+  `table_base+(index&0xFFFF)*4`, and stores the resulting **pointer**
+  in the destination object at `ECX`. The value in `0x8797A4` thus
+  references a pointer-table entry rather than proving an immediate
+  `EnglishEAM.idx` index/string literal.
+- The preceding original `0x5C1422..0x5C1444` invokes
+  `0x667E90` with an output file/stream handle. Independently
+  disassembled `0x667E90/0x667EBF` are CRT-style buffered
+  **write/fwrite** helpers, not a source localization lookup.
+  The enclosing owner may be a source persistence/serialization
+  path; its caller and whether this is load or save remain
+  **UNKNOWN** until the complete producer/consumer is traced.
+- The fact that `EAMPlayerAskTransferListsub` virtual
+  `+0x18→0x56FB70` later dereferences `0x8797A4` remains
+  **SOURCE-VERIFIED**. Its actual pointer-table base, constructor
+  category-label selection, data-file mapping and displayed
+  text bytes are **not yet established**. Do not hardcode a guessed
+  `EnglishEAM.idx` index or convert the write-path assignment
+  into fabricated new-game startup semantics.
+
+Reproduce privately:
+```sh
+objdump -d -M intel --start-address=0x64e320 --stop-address=0x64e338 footballmanager.exe
+objdump -d -M intel --start-address=0x5c1400 --stop-address=0x5c1466 footballmanager.exe
+objdump -d -M intel --start-address=0x667e90 --stop-address=0x667f80 footballmanager.exe
+```
+
+Next trace must inspect `0x5C14xx` *callers*, actual table owner/locale
+lookup and `0x8797A4` initialization before the first native EAM row,
+while preserving the verified original EnglishEAM byte assets separately.
+This audit corrects a potential false source inference, not a new port
+implementation, runtime observation or Windows11 acceptance.
