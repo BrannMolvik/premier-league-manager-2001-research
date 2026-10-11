@@ -15,11 +15,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from original_eamail_mailbox import (
-    OriginalDeliveredEAMail,
-    OriginalDeliveredEAMailboxes,
-    OriginalEAMailOwnerError,
-)
 from original_fixture_match_info_link import (
     SourceFixtureMatchInfoContext, resolve_source_match_info_link,
 )
@@ -1796,13 +1791,13 @@ class ManagementSourceDataBridge:
 
     def source_delivered_mailbox_for_selected_user(
         self,
-    ) -> tuple[OriginalDeliveredEAMail, ...]:
+    ) -> tuple[object, ...]:
         """Read original user+0x6B4 append order, never the pending MPM queue.
 
-        This is a source-only *delivered owner*, NOT the original PEAMail+0x68
-        five-sort filtered display array and NOT row text/art or a GUI action.
-        The genuine selected user's effective runtime DBRClub+0x40 manager key
-        must be present, instead of using immutable imported club.manager_id.
+        Keep this bridge backend type-agnostic: the real native registry owns
+        typed delivered records, while this source-only presentation reader
+        must not import the runtime model or simulation dependency graph.
+        It returns neither native PEAMail+0x68 sorting nor row pixels.
         """
         self._human_club_id()
         key = getattr(self.state, "native_user_recipient_key", None)
@@ -1811,16 +1806,32 @@ class ManagementSourceDataBridge:
                 "Current original user recipient identity is unverified"
             )
         source = getattr(self.state, "original_delivered_mailboxes", None)
-        if type(source) is not OriginalDeliveredEAMailboxes:
+        owner_reader = getattr(source, "delivered_for_manager", None)
+        if not callable(owner_reader):
             raise ManagementPresentationError(
                 "Original per-manager delivered-mail source is unavailable"
             )
         try:
-            return source.delivered_for_manager(key)
-        except OriginalEAMailOwnerError as exc:
+            rows = owner_reader(key)
+        except (ValueError, KeyError) as exc:
             raise ManagementPresentationError(
                 "Current original user has no source-registered mailbox"
             ) from exc
+        if type(rows) is not tuple:
+            raise ManagementPresentationError(
+                "Original delivered-mail owner must preserve immutable append order"
+            )
+        for row in rows:
+            if (type(getattr(row, "recipient_manager_key", None)) is not int
+                    or row.recipient_manager_key != key
+                    or type(getattr(row, "node_serial", None)) is not int
+                    or row.node_serial < 1
+                    or getattr(row, "event_class", None)
+                       != "EAMPlayerAskTransferListsub"):
+                raise ManagementPresentationError(
+                    "Invalid or misrouted original delivered source message"
+                )
+        return rows
 
     def message_source_queues(self) -> MessageSourceQueuesView:
         """Expose only the two manager-mail families materialized by GameState.
