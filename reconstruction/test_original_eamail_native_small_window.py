@@ -16,6 +16,7 @@ from original_eamail_native_filter import OriginalEAMailFilterSourceError
 from original_eamail_native_small_window import (
     ORIGINAL_EAMAIL_SORT_COMPARATORS, ORIGINAL_EAMAIL_SMALL_THRESHOLD,
     original_initial_transfer_eam_sorted_window,
+    build_selected_user_initial_eamail_window,
 )
 from test_original_eamail_live_user_bridge import controller
 
@@ -40,14 +41,34 @@ def deliver_source_records(game, offsets):
 
 
 class OriginalNativeSmallSortedWindowTests(TestCase):
+    def test_source_bridge_is_required_and_not_generic_pending_queues(self):
+        with self.assertRaisesRegex(OriginalEAMailFilterSourceError, "selected-human"):
+            build_selected_user_initial_eamail_window(
+                object(), filter_index=0, sort_index=4,
+            )
+        game = controller()
+        game.select_club(1)
+        state = game.state
+        pending = PlayerTransferRequest(
+            player_id=1, queued_on=DAY,
+            due_on=DAY+timedelta(days=1), recipient_manager_key=0,
+            sender_club_id=1,
+        )
+        state.player_transfer_requests.append(pending)
+        self.assertEqual(build_selected_user_initial_eamail_window(
+            ManagementSourceDataBridge(game), filter_index=0, sort_index=4,
+        ).original_sorted_rows, ())
+        self.assertEqual(len(state.player_transfer_requests), 1)
+
     def test_source_insert_date_descending_and_equal_day_append_order(self):
         game = controller()
         game.select_club(1)
         dates = (3, 1, 3, 2, 0, 3, 1, 4, 4, 2)
         delivered = deliver_source_records(game, dates)
         before = game.state.original_delivered_mailboxes.snapshot()
-        snapshot = original_initial_transfer_eam_sorted_window(
-            delivered, filter_index=5, sort_index=None,
+        snapshot = build_selected_user_initial_eamail_window(
+            ManagementSourceDataBridge(game),
+            filter_index=5, sort_index=None,
         )
         self.assertEqual(snapshot.native_comparator_va, 0x472C60)
         self.assertEqual(snapshot.selected_sort_index, 4)
