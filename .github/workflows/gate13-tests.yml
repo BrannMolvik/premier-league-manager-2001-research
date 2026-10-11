@@ -78,6 +78,8 @@ on:
       - "reconstruction/original_league_tables_live_source.py"
       - "reconstruction/test_original_league_tables_live_source.py"
       - "reconstruction/original_management_presenter.py"
+      - "reconstruction/original_league_tables_current_form_data_snapshot.py"
+      - "reconstruction/test_original_management_league_tables_current_form_selection.py"
       - "reconstruction/test_original_management_presenter.py"
       - "reconstruction/original_management_canvas.py"
       - "reconstruction/test_original_management_canvas.py"
@@ -237,6 +239,8 @@ jobs:
             test_original_management_shell \
             test_original_management_navigation \
             test_original_management_presenter \
+            test_original_management_league_tables_radio_events \
+            test_original_management_league_tables_current_form_selection \
             test_original_management_canvas \
             test_original_management_header \
             test_original_management_background \
