@@ -15,12 +15,13 @@ from front_end_session import FrontEndSession
 from front_end_state import StartMenuControl, TeamSelectControl
 from original_eamail_live_canvas import (
     OriginalEAMailRowArt, OriginalEAMailCanvasError,
-    source_original_eamail_row_backgrounds,
+    original_eamail_row_at_screen_point, source_original_eamail_row_backgrounds,
 )
 from original_eamail_source_contract import (
     ORIGINAL_EAMAIL_GRID_RESOURCES, ORIGINAL_EAMAIL_PANEL_RECT,
 )
 from original_management_canvas import build_management_canvas_frame
+from original_game_host import OriginalGameTkHost
 from original_management_presenter import OriginalManagementPresenter
 from original_eamail_native_row_fields import build_selected_user_original_eam_source_rows
 from gate13_management_source_data import ManagementSourceDataBridge
@@ -117,6 +118,72 @@ class OriginalInboxHostRouteTests(TestCase):
         self.assertTrue(rendered[0].png.startswith(b"\x89PNG\r\n\x1a\n"))
         self.assertFalse(rendered[0].native_full_text_and_art_rendered)
         self.assertFalse(rows.original_gui_accepted)
+
+    def test_native_row_selection_is_original_sprite_and_second_click_fails_closed(self):
+        session = ordinary_inbox()
+        delivered(session, player_id=1000)
+        delivered(session, player_id=1001)
+        presenter = OriginalManagementPresenter(session, bridge_factory=FixtureEAMBridge)
+        presenter.source_accepted_pmenu_action("title", 1, 0)
+        presenter.source_accepted_pmenu_action("child", 0x65, 0)
+        frame = build_management_canvas_frame(presenter)
+        rows = frame.presentation.eamail
+        self.assertEqual(len(rows.native_rows), 2)
+        first, second = rows.native_rows
+        self.assertEqual(original_eamail_row_at_screen_point(rows, 233, 178),
+                         first.original_internal_node_serial)
+        self.assertEqual(original_eamail_row_at_screen_point(rows, 764, 195),
+                         first.original_internal_node_serial)
+        self.assertIsNone(original_eamail_row_at_screen_point(rows, 765, 178))
+        self.assertIsNone(original_eamail_row_at_screen_point(rows, 233, 196))
+        self.assertIsNone(original_eamail_row_at_screen_point(rows, 233, 197))
+        self.assertEqual(original_eamail_row_at_screen_point(rows, 233, 198),
+                         second.original_internal_node_serial)
+
+        normal = EA444DecodedImage(
+            532, 18, bytes((31, 49, 72, 255)) * (532 * 18),
+            consumed_bits=0, transparent_pixels=0,
+        )
+        selected = EA444DecodedImage(
+            532, 18, bytes((69, 11, 20, 255)) * (532 * 18),
+            consumed_bits=0, transparent_pixels=0,
+        )
+        art = OriginalEAMailRowArt(normal, selected)
+        rendered = source_original_eamail_row_backgrounds(
+            rows, art, selected_node_serial=first.original_internal_node_serial,
+        )
+        self.assertTrue(rendered[0].native_selected)
+        self.assertEqual(rendered[0].source_path, ORIGINAL_EAMAIL_GRID_RESOURCES[1].source_path)
+        self.assertNotEqual(rendered[0].png, rendered[1].png)
+        self.assertFalse(rendered[1].native_selected)
+        with self.assertRaises(OriginalEAMailCanvasError):
+            source_original_eamail_row_backgrounds(rows, art, selected_node_serial=-100)
+        with self.assertRaises(OriginalEAMailCanvasError):
+            source_original_eamail_row_backgrounds(
+                rows, OriginalEAMailRowArt(normal),
+                selected_node_serial=first.original_internal_node_serial,
+            )
+
+        # Call the real host pointer handler without Tk, recording redraws.
+        host = object.__new__(OriginalGameTkHost)
+        host.pmenu_popup_active = False
+        host.eamail_row_art = art
+        host._eamail_selected_node_serial = None
+        redraws = []
+        host.redraw = lambda: redraws.append(host._eamail_selected_node_serial)
+        self.assertTrue(host._press_original_eamail_row(SimpleNamespace(x=234, y=179), frame))
+        self.assertEqual(redraws, [first.original_internal_node_serial])
+        self.assertTrue(host._press_original_eamail_row(SimpleNamespace(x=234, y=179), frame))
+        self.assertEqual(len(redraws), 1)
+        self.assertIn("unresolved", host.last_status)
+        # Switching row deselects the first; the strip is source-accurate.
+        self.assertTrue(host._press_original_eamail_row(SimpleNamespace(x=235, y=199), frame))
+        self.assertEqual(redraws[-1], second.original_internal_node_serial)
+        self.assertFalse(host._press_original_eamail_row(SimpleNamespace(x=234, y=196), frame))
+        self.assertEqual(len(redraws), 2)
+        # A second press cannot manufacture a dialog or mutate delivered data.
+        self.assertEqual(session.gameplay.state.original_delivered_mailboxes.mailbox_for_manager(0)
+                         .messages[0].original_status_bits, 0x6)
 
     def test_foreign_manager_pending_and_empty_inbox_never_draw_art_rows(self):
         session = ordinary_inbox()
