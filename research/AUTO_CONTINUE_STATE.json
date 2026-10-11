@@ -30,7 +30,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 527,
+  "recovery_generation": 528,
   "last_recovery_reason": "same-chat-recovery-no-progress, 33 stale minutes, fallback after 20 minutes, 11 October 2026 KST",
   "note": "Recovery528 checkpoint: independently verified private original EXE exact SHA and live disassembly; authored PR606 with source EAM envelope queue, atomic per-user dispatch, modern save and tests. Original executable never run/shared/committed; check PR CI before merge. Gate13 open.",
   "same_chat_fallback_minutes": 20,
