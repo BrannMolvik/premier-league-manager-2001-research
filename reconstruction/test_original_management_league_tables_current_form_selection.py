@@ -131,7 +131,7 @@ class SourceSelectedLeagueTablesCurrentFormPresentationTests(unittest.TestCase):
             replace(view, native_mouse_event15_recovered=True)
         with self.assertRaisesRegex(OriginalLeagueTablesCurrentFormDataError, "unproven"):
             replace(view, native_alternate_row_geometry_recovered=True)
-        with self.assertRaisesRegex(OriginalLeagueTablesCurrentFormDataError, "state"):
+        with self.assertRaisesRegex(OriginalLeagueTablesCurrentFormDataError, "native event15"):
             build_league_tables_current_form_data_snapshot(
                 selected.accept_native_radio_event(14), rows,
             )
