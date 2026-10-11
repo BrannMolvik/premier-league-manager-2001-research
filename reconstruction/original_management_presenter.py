@@ -7,6 +7,7 @@ well enough to integrate without inventing a replacement UI:
 * fresh Team -> Squad (PSquadScreen);
 * Calendar -> League Fixtures (PLeagueFixtures), including its recovered directed-pair grid;
 * TABLES -> League Tables (PLeagueTables), using the recovered table presenter.
+* EAMail child0x65 -> PEAMail, source qualified initial delivered eight-row viewport.
 
 It deliberately does not synthesize unresolved shell pixels, surrounding
 League Fixtures chrome, Current Form six-cell row pixels or gameplay mutations.
@@ -53,6 +54,12 @@ from original_league_tables_current_form_data_snapshot import (
     OriginalLeagueTablesCurrentFormDataSnapshot,
     build_league_tables_current_form_data_snapshot,
 )
+from original_eamail_source_contract import ORIGINAL_EAMAIL_MENU_CHILD_ID
+from original_eamail_native_row_fields import (
+    OriginalEAMNativeVisibleRowsSource,
+    build_selected_user_original_eam_source_rows,
+)
+from runtime_layout import bundled_source_root
 from original_management_navigation import (
     LEAGUE_FIXTURES_PANEL,
     LEAGUE_TABLES_PANEL,
@@ -110,6 +117,7 @@ class OriginalManagementPanelSnapshot:
     league_tables_current_form: OriginalLeagueTablesCurrentFormDataSnapshot | None = None
     league_tables_selection: OriginalLeagueTablesSelectionContext | None = None
     paired_squad: OriginalPairedSquadSnapshot | None = None
+    eamail: OriginalEAMNativeVisibleRowsSource | None = None
 
 
 @dataclass(frozen=True)
@@ -218,6 +226,25 @@ def build_management_panel_snapshot(
         selected_child_id,
         expanded_root_id=expanded_root_id,
     )
+
+    if selected_child_id == ORIGINAL_EAMAIL_MENU_CHILD_ID:
+        # Source original PMenu root1 child0x65 → PEAMail factory 0x47B1D0;
+        # this strictly projects the registered user's actually DELIVERED
+        # initial subtype, not pending MPM records or another user. The GUI
+        # status/fonts/detail remain separately incomplete.
+        rows = build_selected_user_original_eam_source_rows(
+            bridge,
+            original_source_root=bundled_source_root(),
+            filter_index=0, sort_index=None, scroll_offset=0,
+        )
+        return OriginalManagementPanelSnapshot(
+            club=club,
+            menu=menu,
+            header_match=header_match,
+            panel_code=ORIGINAL_EAMAIL_MENU_CHILD_ID,
+            panel_class="PEAMail",
+            eamail=rows,
+        )
 
     if selected_child_id == SQUAD_PANEL_CODE:
         try:
