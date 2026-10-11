@@ -101,6 +101,9 @@ class SourceSelectedLeagueTablesCurrentFormPresentationTests(unittest.TestCase):
         with self.assertRaisesRegex(ManagementPresentationError, "fixture count"):
             presenter.source_accepted_league_tables_radio_event(15)
         self.assertEqual(presenter.league_tables_selection, accepted.selection)
+        # Restore the deliberately corrupted backing source before rebuilding
+        # any *new* snapshot. A transactional event cannot repair live data.
+        state.competitions[2].scheduled_matchday_count = 2
         self.assertEqual(presenter.snapshot(), prior)
 
     def test_new_original_panel_discards_unpainted_current_form_state(self):
