@@ -8,7 +8,7 @@ includes qualified *unplayed* 0-0 matches when the original search would.
 
 Native provenance: original hash 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3
 0x403640/0x4079D0, 0x4F4970, 0x4F4A10/0x4F4A70, 0x615C50/0x615ED0,
-0x510300/0x510A20, LeagueMatch::0x513F70 and Match::0x5103D0.
+0x510300/0x510A20, LeagueMatch::0x513F70 and Match::0x5103D0.\n0x4481D9..0x4482EB native form-row 6-cell backward fill and space padding;\nEnglish.idx entries 1474..1476 -> English.str table 20875..20877: W, D, L.
 """
 from __future__ import annotations
 
@@ -54,6 +54,10 @@ class SourceCurrentFormRank:
     club_id: int
     score: int
     matching_tokens: tuple[tuple, ...]
+    # Six slots oldest -> newest, left-padded when the source has fewer than six.
+    # Original source English.idx[1474:1477] -> English.str: W, D, L.
+    # These are semantic cell labels, NOT uninitialized native 3-byte buffers.
+    form_result_labels: tuple[str, str, str, str, str, str]
 
 
 def _integer(value: object, label: str, *, minimum: int, maximum: int) -> int:
@@ -154,6 +158,7 @@ def source_qualified_current_form_ranking(
         calendar = secondary if club.source_calendar_mode in (2, 3) else primary
         score = 0
         consumed: list[tuple] = []
+        labels_newest_first: list[str] = []
         for day in sorted((day for day in calendar if day <= current_date), reverse=True):
             for fixture in calendar[day]:
                 if (fixture.competition_id != competition_id
@@ -169,14 +174,27 @@ def source_qualified_current_form_ranking(
                 # Winner accessor 0x513F70 does not check +0x44 played bit0.
                 if fixture.home_goals == fixture.away_goals:
                     score += 1
+                    label = "D"
                 elif (fixture.home_goals > fixture.away_goals) == (
                         fixture.home_club_id == club.club_id):
                     score += 3
+                    label = "W"
+                else:
+                    label = "L"
                 consumed.append(fixture.token)
+                labels_newest_first.append(label)
                 break
             if len(consumed) == 6:
                 break
-        out.append(SourceCurrentFormRank(club.club_id, score, tuple(consumed)))
+        # Native 0x4481D9 starts its three-byte text cells at row+0x83 and
+        # retreats three bytes per accepted match. The newest result is at
+        # the right; original 0x4482A8 pads missing older cells with space.
+        form_labels = (" ",) * (6 - len(labels_newest_first)) + tuple(
+            reversed(labels_newest_first)
+        )
+        out.append(SourceCurrentFormRank(
+            club.club_id, score, tuple(consumed), form_labels,
+        ))
     out.sort(key=lambda row: (-row.score, roster[row.club_id].cp1252_short_name))
     for previous, current in zip(out, out[1:]):
         if (previous.score == current.score and

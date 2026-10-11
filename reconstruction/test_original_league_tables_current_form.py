@@ -28,10 +28,16 @@ class OriginalCurrentFormTests(unittest.TestCase):
         rows = run({D: (m(1, hg=2, ag=1),), D-timedelta(days=2): (m(2, hg=1, ag=1),)})
         self.assertEqual([(r.club_id, r.score) for r in rows], [(1, 4), (2, 1)])
         self.assertEqual(rows[0].matching_tokens, (("native", 1), ("native", 2)))
+        self.assertEqual(rows[0].form_result_labels, (" ", " ", " ", " ", "D", "W"))
+        self.assertEqual(rows[1].form_result_labels, (" ", " ", " ", " ", "D", "L"))
         self.assertEqual([r.club_id for r in run()], [2, 1])
 
     def test_unplayed_0_0_eligible_and_not_automatically_skipped(self):
         self.assertEqual([r.score for r in run({D: (m(1, status=0),)})], [1, 1])
+        self.assertEqual(
+            [r.form_result_labels[-1] for r in run({D: (m(1, status=0),)})],
+            ["D", "D"],
+        )
 
     def test_secondary_uses_per_club_mode_not_global_mode(self):
         members = (Club(1, b"Beta", 2), Club(2, b"Alpha", 0))
@@ -49,11 +55,27 @@ class OriginalCurrentFormTests(unittest.TestCase):
         self.assertEqual([(r.club_id,r.score,len(r.matching_tokens)) for r in rows],
                          [(1,18,6),(2,0,6)])
         self.assertEqual(rows[0].matching_tokens, tuple(("native", i*2) for i in range(6)))
+        self.assertEqual(rows[0].form_result_labels, ("W",) * 6)
+        self.assertEqual(rows[1].form_result_labels, ("L",) * 6)
 
     def test_native_strict_flags_wrapper_and_other_competition(self):
         rows=run({D: (m(1, status=0x20),m(2,status=0x40),m(3,link=3),m(4,league=9),m(5,hg=0,ag=1))})
         self.assertEqual([(r.club_id,r.score) for r in rows], [(2,3),(1,0)])
         self.assertEqual(rows[1].matching_tokens, (("native",5),))
+
+    def test_original_native_wdl_alignment_after_broken_date_history(self):
+        # Original LeagueMatch winner getter, same calendar day exclusion,
+        # oldest-left six-cell buffer with missing leading slots as spaces.
+        dates = {
+            D: (m(10, hg=0, ag=0),),
+            D-timedelta(days=3): (m(20, hg=3, ag=0),),
+            D-timedelta(days=6): (m(30, hg=0, ag=4),),
+        }
+        rows = {row.club_id: row for row in run(dates)}
+        self.assertEqual(rows[1].form_result_labels, (" ", " ", " ", "L", "W", "D"))
+        self.assertEqual(rows[2].form_result_labels, (" ", " ", " ", "W", "L", "D"))
+        self.assertEqual(rows[1].score, 4)
+        self.assertEqual(rows[2].score, 4)
 
     def test_future_fixture_ignored(self):
         self.assertEqual([r.score for r in run({D+timedelta(days=1): (m(1,hg=2,ag=0),)})], [0,0])
