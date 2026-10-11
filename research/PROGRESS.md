@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery521 original LeagueMatch result-vtable/Current Form outcome source
+
+Direct private PE RTTI proves form lookup dynamic-casts Match→LeagueMatch, original class vtable at `0x7C4C24`, winner getter `0x513F70` (score signed words+0x3C/+0x3E). Winner getter returns real first/second club pointer based on comparison or null on equality, without checking completion bit0; null may thus represent unresolved unplayed zero score absent source scheduling proof, not just a genuine draw. Explicit new source caveat prevents incorrect modern `unplayed==draw` or unconditional filter assumptions. No original game run, no app implementation/test, no asset commit; Gates13–17 open.
+
 ### 11 October 2026 KST — Recovery520 original Current Form source date cursor closure
 
 Rechecked exact native form caller `0x4F4970` and schedule filters. `fixture::0x510A20` uses fixture-relative day + actual fixture-selected primary/secondary schedule base (`0x510300`, fixture+0x0C bit0), then form caller decrements absolute day by one, selecting at most six prior *distinct days*. Source lookup initial schedule comes independently from club-owner type+0x74 (`0x403640`). Prior missing native winner/result status, subtype ownership and GUI click remain explicitly unproven; no guessed code/test/player claims. Evidence appended to Recovery518 note; Gates13–17/release open.
