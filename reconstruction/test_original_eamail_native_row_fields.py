@@ -72,7 +72,11 @@ class OriginalNativeEAMRowFieldsTests(TestCase):
             self.assertEqual(
                 tuple(child.source_verified_visible_text
                       for child in row.original_text_fields),
-                (None, "Transfer List", None),
+                (None, "Transfer List", (
+                    f"{row.qualified_record_date.day}/"
+                    f"{row.qualified_record_date.strftime('%b')}/"
+                    f"{row.qualified_record_date.year}"
+                )),
             )
             self.assertEqual(row.original_title, "Transfer List")
             self.assertEqual(row.qualified_player_id, 3000+i+1)

@@ -9,8 +9,8 @@ Constructor 0x46E680 binds three native child rectangles, original row
 532x18, CMessageList eight visible rows pitched at 20 px.
 
 Only the first native title is text-exact for the initial transfer subclass.
-The player-specific native string and localized date bytes are unresolved;
-their typed provenance is retained, not replaced by guessed caption/date.
+The player-specific positive-association name remains unresolved; original
+English.str+idx now qualifies the date formatter when both resources match.
 Native GUI is NOT painted and event handlers are NOT asserted here.
 """
 from __future__ import annotations
@@ -19,6 +19,10 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from original_eamail_main_language import (
+    VerifiedOriginalMainEAMLanguage,
+    load_verified_original_main_eam_language,
+)
 from original_eamail_native_small_window import (
     OriginalInitialEAMailCaptionedWindow,
     build_source_captioned_selected_user_initial_eamail_window,
@@ -64,8 +68,8 @@ class OriginalEAMNativeTextField:
     source_kind: str
     source_rect_in_row: tuple[int, int, int, int]
     screen_rect: tuple[int, int, int, int]
-    # Only the source-verified original EnglishEAM title is available as
-    # visible CP1252; the other two MUST remain unrendered until exact proof.
+    # EnglishEAM title and optional SHA-verified English main date are proven;
+    # the player-specific club/name branch remains unknown for this record.
     source_verified_visible_text: str | None
 
 
@@ -94,6 +98,8 @@ class OriginalEAMNativeVisibleRowsSource:
 
 def project_original_native_eam_row_fields(
     captioned: OriginalInitialEAMailCaptionedWindow,
+    *,
+    main_language: VerifiedOriginalMainEAMLanguage | None = None,
 ) -> OriginalEAMNativeVisibleRowsSource:
     """Source-exact column assignment, without invented localization/layout."""
     if type(captioned) is not OriginalInitialEAMailCaptionedWindow:
@@ -132,13 +138,16 @@ def project_original_native_eam_row_fields(
                     "Native original PMessageRow column IDs do not match owner"
                 )
             x, y, width, height = rect
+            visible_text = title if child_id == 3 else None
+            if child_id == 0 and main_language is not None:
+                visible_text = main_language.original_mail_row_date(record.record_date)
             children.append(OriginalEAMNativeTextField(
                 child_id=child_id,
                 origin_va=origin_va,
                 source_kind=kind,
                 source_rect_in_row=rect,
                 screen_rect=(left+x, row_rect[1]+y, width, height),
-                source_verified_visible_text=title if child_id == 3 else None,
+                source_verified_visible_text=visible_text,
             ))
         result.append(OriginalEAMNativeRowSource(
             native_visible_ordinal=window.viewport.scroll_offset+i,
@@ -178,5 +187,6 @@ def build_selected_user_original_eam_source_rows(
             filter_index=filter_index,
             sort_index=sort_index,
             scroll_offset=scroll_offset,
-        )
+        ),
+        main_language=load_verified_original_main_eam_language(original_source_root),
     )
