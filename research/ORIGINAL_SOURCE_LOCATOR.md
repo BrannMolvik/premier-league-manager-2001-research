@@ -97,6 +97,38 @@ supersedes the earlier *empty at creation* observation above:
   632 MB BIN as a speculative fix; first establish a working execution sandbox.
 - No uploaded file has been moved, altered, executed or shared by the inspector.
 
+### VERIFIED standalone original source executable — 11 October 2026
+
+**Source recovered: YES (direct private Google Drive read, actual byte hash checked).**
+The user's IsoBuster user-data extraction of original disc-root
+`footballmanager.exe` was separately uploaded to the already registered
+private **03 — AUTOWORKER DIRECT ACCESS** folder:
+
+- Google Drive file ID: `1ejKHlLHqru7aCU-fKSFaby8KeQf6SB3Q`
+- Browser URL: https://drive.google.com/file/d/1ejKHlLHqru7aCU-fKSFaby8KeQf6SB3Q/view?usp=drivesdk
+- Drive folder ID: `1xnQlXjOToK-e6WTgQ0Kwyb19Y07aANYA`
+- Exact downloaded byte count: **4,714,541**
+- Independently recomputed **SHA-256:**
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+- Result: **EXACT MATCH** with independently recovered canonical disc-root
+  and crack/ executable evidence from `research/GATE13_REAL_DISC_INVENTORY.md`.
+- Checked file header is `4d5a9000` (`MZ`).
+- Drive `list_folder` returned `shared=false`,
+  `source_visibility_status=not_shared`; the user has not granted public access.
+
+Verification mechanism: connected Google Drive raw-file fetch returned
+4,714,541 actual executable bytes, decoded and hashed via independent
+pure-JavaScript SHA-256 inside the connector-capable execution environment,
+not based on filename or size alone. This **proves byte access via Drive
+connector**, despite a separate `container.exec` harmless command still
+failing `caas.internal.errors.ClientError`. Future workers should **first
+fetch this small exact file via the Google Drive connector** rather than
+materializing the 511 MB Library ZIP or 632 MB BIN. Check file metadata and
+hash if original file could have changed. File is available for static
+analysis through a suitable compatible execution/runtime; do not infer shell
+availability or a successful Windows original-game/port playtest from this
+verification. No original binary was committed to Git.
+
 ## Small-file-first recovery and alternate private storage (11 October 2026)
 
 **Known problem:** the 511,121,336-byte archive is visible and materializable from Library, but container/Python may fail with `caas.internal.errors.ClientError`, sometimes even on trivial commands after materialization. Merely copying that ZIP to a different provider does not repair a broken execution sandbox.
