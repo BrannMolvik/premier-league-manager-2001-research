@@ -1291,7 +1291,9 @@ class OriginalGameTkHost:
         result_queue = Queue()
         self._management_turn_queue = result_queue
         self.last_results_progress = None
-        self.prematch_surface = None
+        # Retain the authenticated PPreMatch owner until the staged match
+        # commits. If calculation fails, the still-pending human fixture must
+        # be able to reselect Quick; clearing now stranded modal input.
         self.root.configure(cursor='watch')
 
         def worker():
@@ -1350,6 +1352,9 @@ class OriginalGameTkHost:
         gameplay.__dict__.update(payload.__dict__)
         self.last_results_progress = getattr(outcome, 'results_progress', None)
         if status == 'match_ok':
+            # The match transaction has committed; the former modal owner is
+            # no longer live. A failed staged worker never reaches this branch.
+            self.prematch_surface = None
             self._prematch_selector_states = {
                 int(selector.mode): OriginalButtonState()
                 for selector in PREMATCH_SELECTORS
