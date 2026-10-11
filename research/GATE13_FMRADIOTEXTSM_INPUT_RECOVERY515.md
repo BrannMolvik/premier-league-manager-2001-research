@@ -18,3 +18,14 @@ It supports source-qualified read-only alternate Premier0 fixture grid, 20 real 
 ## Exact next action
 
 Trace `fmRadioTextSm` child callback `+0x24` predicate `vtable+0x0C` from the source-valid original registration and `0x5D4790` parent to screen-origin transform / hit / routing through `PLeagueFixtures::0x46E040`. Identify enabled/hidden controls, caption and art ownership. Once fully source-proven, add the smallest actual normal-host GUI radio press dispatcher on a disjoint worker branch with event/selection/visible integration tests; do not edit Codex R1 NEXT/PPreMatch/PResults files. Keep broader original Squad, Inbox, Save/Load, 2–6 human managers, all Leagues and full Windows11 playtest on the critical-path inventory.
+
+## Recovery 516: callback destination confirmed, actual native click still NOT established
+
+Additional disassembly of the same verified private original executable corrects and narrows the missing callback identity, **without asserting real mouse acceptance**:
+
+- `PLeagueFixtures::0x46AA70` initializes `ebp=0` at `0x46AA75`. In the child constructor at `0x46B02F..0x46B048` it passes `esi` (the panel instance) and `ebp` (initially null) into child vtable `+0x08`. The child's vtable `0x7D6AB8` resolves `+0x08` to `0x5D48C0`, which calls base `0x64F3C0`; that writes child `+0x20 = ebp` and `+0x24 = esi`. Thus the original panel is the nominal callback target, **but the initial callback enable argument is zero**. Do not treat a nominal vtable link as proof it fires on ordinary clicks.
+- Original `PLeagueFixtures` vtable `0x7C24B8` confirms `+0x0C → 0x42DE00` (returns 1) and `+0x10 → 0x46E040` (the panel event switch). Inside `fmRadioTextSm::0x5D4AC0`, `+0x20` must be nonzero to enter the `+0x24` callback branch. Whether and when the real UI supplies that enabling value is still UNKNOWN.
+- Base `0x64F3C0` writes both callback fields and source `0x64F380` places the original 182x18 child rect. Child vector entry masks and `0x64F570` bit0 gate at `0x5D4790` confirm dispatch plumbing, but **no closed mouse button → screen-local hit-tested control → radio state transition → PLeagueFixtures event trace yet exists**.
+- `PLeagueFixtures::0x46E040` is positively identified as the original panel event switch; it branches on original event ID from event `+0x20` (native country events1–8, League9–14). This proves effect dispatch only, not the original GUI mouse event producer.
+
+**Narrowed exact next step:** disassemble/trace root mouse-message processing, original control rectangle hit-test and any later assignment of `fmRadioTextSm+0x20` enabling callback before any host pointer integration. Specifically distinguish virtual child `+0x6C` routed by parent from ordinary WM_LBUTTON actions and confirm source input path to panel `0x46E040`; preserve fail-closed native GUI until positively verified. No code/CI/GUI claims from this addendum.
