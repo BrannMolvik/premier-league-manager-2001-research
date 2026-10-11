@@ -51,7 +51,7 @@ class OriginalNativeTransferFilterTests(TestCase):
         game.state.process_original_eam_due_events(START+timedelta(days=1))
         actual = bridge.source_delivered_mailbox_for_selected_user()
         self.assertEqual(len(actual), 1)
-        self.assertEqual(mailbox.delivered_for_manager(0), actual)
+        self.assertEqual(game.state.original_delivered_mailboxes.delivered_for_manager(0), actual)
         for index in range(10):
             result = original_filter_initial_transfer_mail(actual, index)
             self.assertEqual(result.selected_filter_index, index)
