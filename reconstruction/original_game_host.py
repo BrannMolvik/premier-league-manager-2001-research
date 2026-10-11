@@ -1389,7 +1389,7 @@ class OriginalGameTkHost:
 
     def _original_match_input_owner(self) -> str | None:
         """Return the source owner that excludes ordinary background input."""
-        if self._management_turn_thread is not None:
+        if getattr(self, '_management_turn_thread', None) is not None:
             return 'results'
         gameplay = self.presenter.session.gameplay
         if getattr(gameplay, 'pending_primary_entry', None) is not None:
