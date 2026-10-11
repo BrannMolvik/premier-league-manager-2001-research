@@ -25,6 +25,10 @@ import sys
 import traceback
 import zlib
 from types import SimpleNamespace
+from original_eamail_live_canvas import (
+    load_verified_original_eamail_row_art,
+    source_original_eamail_row_backgrounds,
+)
 from original_management_background import OriginalManagementBackground
 from original_management_header import (
     HEADER_COMPOUND_RECT,
@@ -177,6 +181,7 @@ MANAGEMENT_RESOURCE_FAMILY_BY_PANEL = {
     "PSquadScreen": "squad",
     "PLeagueFixtures": "fixtures",
     "PLeagueTables": "league_tables",
+    "PEAMail": "eamail",
 }
 MANAGEMENT_RESOURCE_FAMILIES = frozenset(MANAGEMENT_RESOURCE_FAMILY_BY_PANEL.values())
 
@@ -417,6 +422,7 @@ class OriginalGameTkHost:
         self.squad_row_text_resources = squad_row_text_resources
         self.squad_status_resources = squad_status_resources
         self.league_tables_header_art = league_tables_header_art
+        self.eamail_row_art = None
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
         self.pmatchinfo_nested_font = pmatchinfo_nested_font
@@ -1130,6 +1136,7 @@ class OriginalGameTkHost:
                 "management_text_resources",
                 "_league_table_resource_names",
             ),
+            "eamail": ("eamail_row_art",),
         }
         required = required_by_family[family]
         missing = [name for name in required if name not in loaded]
@@ -2100,6 +2107,27 @@ class OriginalGameTkHost:
                             image=self._photo(png), anchor=self.tk.NW)
         return 1
 
+    def _draw_eamail_rows(self, frame) -> int:
+        """Display actual original row *backgrounds* for the delivered Inbox.
+
+        Native row backgrounds initially use 0x945E30. This currently does
+        not draw the native font/status icons/preview/detail dialog, nor
+        attach guessed mouse actions or imply the Inbox is complete.
+        """
+        if frame.presentation.panel_class != "PEAMail":
+            return 0
+        if frame.presentation.eamail is None or self.eamail_row_art is None:
+            raise OriginalGameHostError("Real Inbox source rows and original art required")
+        drawn = 0
+        for row in source_original_eamail_row_backgrounds(
+            frame.presentation.eamail, self.eamail_row_art,
+        ):
+            self._create_native_image(
+                row.x, row.y, image=self._photo(row.png), anchor=self.tk.NW,
+            )
+            drawn += 1
+        return drawn
+
     def _draw_management_host(self) -> None:
         if self._first_screen_idle is not None:
             self.root.after_cancel(self._first_screen_idle)
@@ -2146,8 +2174,10 @@ class OriginalGameTkHost:
         fixture_image_count += self._draw_fixtures_pager()
         table_image_count = self._draw_league_tables_header_art(frame)
         table_text_count = self._draw_league_tables_row_text(frame)
+        inbox_image_count = self._draw_eamail_rows(frame)
         panel_image_count = (
-            squad_image_count + fixture_image_count + table_image_count + table_text_count
+            squad_image_count + fixture_image_count + table_image_count
+            + table_text_count + inbox_image_count
         )
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
@@ -2989,6 +3019,13 @@ def run_original_game_ui(
                     resource.name for resource in fixture_resources
                 ),
             }
+
+        if family == "eamail":
+            with timed_stage("management.resources.eamail_original_rows"):
+                art = load_verified_original_eamail_row_art(
+                    resolved_source_root, original_executable,
+                )
+            return {"eamail_row_art": art}
 
         if family == "league_tables":
             with timed_stage("management.resources.league_table_contracts"):
