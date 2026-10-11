@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery528 verified Match fixture-container bit producer and secondary schedule blocker
+
+Original `0x4F3B50` chooses secondary 0x947AF0 by source competition type2/3 (`0x4F3B70`); `0x510380` sets Match+0x0C bit0 from actual source container, used by `0x510300/0x510A20` previous-date lookup. Original primary shadow alone is insufficient for Master.dat category2/3 clubs selecting secondary via DBRClub+0x74. Native full form provider must source-qualify primary-only first, reject unresolved secondary and invent no default. Report added Recovery528; no original game launched, no production/CI changes. Gate13–17 remain open.
+
 ### 11 October 2026 KST — Recovery527 source original Master.dat club byte98 to DBRClub calendar mode +0x74
 
 Original `0x40B9C0→0x4022D0` native parser confirmed file byte counts: +0x70 from club record byte94 and +0x74 mode byte from original Master.dat byte98. `0x403660` copies native club +0x74 from record object to live club, native `0x403640` selects secondary primary based on 2/3. Clean-room `Club.team_category_code=r[98]` is now source-correct for initial load; no assumption of immutable mode across transient native mutations `0x404282/0x40428D`. PR583 97c7a9 original six W/D/L history both exact-head relevant CI SUCCESS (full 38104078960, asset 38104078993), safely squash merged 79eb1c42; no app GUI or original executable launch. Gates13-17 and release OPEN.
