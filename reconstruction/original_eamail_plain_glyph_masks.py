@@ -88,7 +88,8 @@ def original_eamail_plain_field_glyph_masks(
             text = field.source_verified_visible_text
             if text is None:
                 continue
-            if type(text) is not str or not text or any(ch in text for ch in "<>\\x00"):
+            if (type(text) is not str or not text
+                    or any(ch in text for ch in "<>") or chr(0) in text):
                 raise OriginalEAMailGlyphError(
                     "Only source-verified non-markup Inbox text can use plain glyphs"
                 )
