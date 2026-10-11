@@ -695,6 +695,109 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertIsNone(host._management_turn_thread)
         self.assertIn('conditional PPreMatch', host.last_status)
 
+    def test_failed_quick_calculation_retains_original_modal_and_allows_retry(self):
+        # Recovery527 / issue600: transactional failure must not strand an
+        # already source-accepted PPreMatch owner with its artwork removed.
+        live = presenter()
+        errors = []
+        host = OriginalGameTkHost(
+            live, FakeRoot(), FakeTk,
+            management_thread_factory=DeferredThread,
+            error_reporter=errors.append,
+        )
+        gameplay = StubBackend()
+        live.session.gameplay = gameplay
+        live.session.started = True
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        live.session.match_detail_settings_owner_present = False
+        pending = ("premier_league", 7)
+        gameplay.pending_primary_entry = pending
+        gameplay.completed = 0
+        gameplay.calendar_date = date(2000, 8, 1)
+        gameplay.score = None
+        old_surface = object()
+        host.prematch_surface = old_surface
+        calls = []
+
+        def play(staged, mode):
+            self.assertEqual(mode, MatchDetailMode.QUICK_MATCH)
+            calls.append(mode)
+            staged.completed += 1
+            staged.pending_primary_entry = None
+            staged.calendar_date = date(2000, 8, 2)
+            staged.score = (2, 1)
+            if len(calls) == 1:
+                raise RuntimeError("source event wrapper unresolved")
+            return SimpleNamespace(
+                match_entry=pending, user_result=SimpleNamespace(score=(2, 1)),
+                results_progress=None,
+            )
+
+        click = SimpleNamespace(x=520, y=110)  # exact original Quick event 1
+        outside = SimpleNamespace(x=640, y=30)
+        with (
+            patch.object(StubBackend, "play_original_user_primary_match",
+                         play, create=True),
+            patch.object(host, "redraw"),
+            patch.object(host, "present_completed_match_by_source_mode") as present,
+            patch("sys.stderr"),
+        ):
+            host.on_click(click)
+            self.assertEqual(host._original_match_input_owner(), "results")
+            self.assertIs(host.prematch_surface, old_surface)
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+            self.assertIs(host.prematch_surface, old_surface)
+            self.assertEqual(host._original_match_input_owner(), "prematch")
+            self.assertIsNone(host._management_turn_thread)
+            self.assertEqual(gameplay.completed, 0)
+            self.assertEqual(gameplay.pending_primary_entry, pending)
+            self.assertEqual(gameplay.calendar_date, date(2000, 8, 1))
+            self.assertIsNone(gameplay.score)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("source event wrapper unresolved", errors[0])
+            # Under modal ownership, this non-selector click cannot leak into
+            # MENU, NEXT, Squad, Fixtures or underlying management activity.
+            host.on_click(outside)
+            self.assertIs(host.prematch_surface, old_surface)
+            self.assertEqual(gameplay.pending_primary_entry, pending)
+            host.on_click(click)
+            self.assertIs(host.prematch_surface, old_surface)
+            host._management_turn_thread.run()
+            host._poll_original_management_turn()
+            present.assert_called_once()
+            self.assertIsNone(host.prematch_surface)
+            self.assertEqual(gameplay.completed, 1)
+            self.assertIsNone(gameplay.pending_primary_entry)
+            self.assertEqual(gameplay.calendar_date, date(2000, 8, 2))
+            self.assertEqual(gameplay.score, (2, 1))
+        self.assertEqual(len(calls), 2)
+        self.assertIsNone(host._management_turn_thread)
+
+    def test_quick_worker_start_failure_does_not_destroy_source_prematch_owner(self):
+        live = presenter()
+        gameplay = StubBackend()
+        live.session.gameplay = gameplay
+        gameplay.pending_primary_entry = ("premier_league", 7)
+        original = object()
+        host = OriginalGameTkHost(
+            live, FakeRoot(), FakeTk,
+            management_thread_factory=lambda **kwargs: SimpleNamespace(
+                start=lambda: (_ for _ in ()).throw(RuntimeError("thread unavailable"))),
+        )
+        host.prematch_surface = original
+        # The worker must pass the real controller-capability gate before
+        # testing the thread-start failure, which must not execute a match.
+        with (patch.object(StubBackend, "play_original_user_primary_match",
+                           lambda staged, mode: None, create=True),
+              self.assertRaisesRegex(RuntimeError, "thread unavailable")):
+            host._begin_original_human_match(MatchDetailMode.QUICK_MATCH)
+        self.assertIs(host.prematch_surface, original)
+        self.assertIsNone(host._management_turn_thread)
+        self.assertIsNone(host._management_turn_queue)
+        self.assertEqual(host._original_match_input_owner(), "prematch")
+        self.assertEqual(host.root.values["configure"]["cursor"], "")
+
     def test_unimplemented_prematch_modes_do_not_commit_selection_or_simulate(self):
         live = presenter()
         errors = []
