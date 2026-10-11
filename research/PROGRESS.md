@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery520 original Current Form source date cursor closure
+
+Rechecked exact native form caller `0x4F4970` and schedule filters. `fixture::0x510A20` uses fixture-relative day + actual fixture-selected primary/secondary schedule base (`0x510300`, fixture+0x0C bit0), then form caller decrements absolute day by one, selecting at most six prior *distinct days*. Source lookup initial schedule comes independently from club-owner type+0x74 (`0x403640`). Prior missing native winner/result status, subtype ownership and GUI click remain explicitly unproven; no guessed code/test/player claims. Evidence appended to Recovery518 note; Gates13–17/release open.
+
 ### 11 October 2026 KST — Recovery519 Current Form primary/secondary and League participant filter trace
 
 Confirmed source `0x4079D0→0x403640` is per-club-owner mode byte+0x74 (2/3 selects secondary), and `0x615ED0/0x615C50` selects source native League pointer/participant matches scanning backward, while skipping wrapper link+8 and fixture status bit6 under strict form lookup. Previous form six-result/source tie proof stands, with exact subtype and clean-room history correspondence unverified. Report appended; no invented Current Form code, CI, or Windows click claim. Gate13–17 open.
