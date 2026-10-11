@@ -117,7 +117,9 @@ class PrimaryGameStateCurrentFormTests(unittest.TestCase):
             bridge(state, competition_id=4)
         state, entry, live = scenario()
         live.fixtures[("missing",)] = Obj(node_token=("missing",), home_club_id=1, away_club_id=2)
-        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "do not equal"):
+        # An extra registry fixture fails the newly required source-season
+        # completeness check before the subsequent shadow identity check.
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "fixture count"):
             bridge(state, competition_id=4)
 
     def test_rejects_unknown_flags_and_wrapper_while_preserving_link_exclusion(self):
