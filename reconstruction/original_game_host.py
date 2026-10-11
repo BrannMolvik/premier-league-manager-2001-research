@@ -399,6 +399,7 @@ class OriginalGameTkHost:
         management_background=None,
         management_header_resources=None,
         management_next_art=None,
+        management_mail_art=None,
         management_text_resources=None,
         management_resource_loader=None,
         prematch_resource_loader=None,
@@ -438,6 +439,7 @@ class OriginalGameTkHost:
         self.management_background = management_background
         self.management_header_resources = management_header_resources
         self.management_next_art = management_next_art
+        self.management_mail_art = management_mail_art
         self.management_next_flags = 2
         self._management_turn_queue = None
         self._management_turn_thread = None
@@ -1155,6 +1157,8 @@ class OriginalGameTkHost:
             setattr(self, name, loaded[name])
         if "management_next_art" in loaded:
             self.management_next_art = loaded["management_next_art"]
+        if "management_mail_art" in loaded:
+            self.management_mail_art = loaded["management_mail_art"]
         if family == "squad":
             self._management_pmenu_render_cache.clear()
         self._management_resource_families_loaded.add(family)
@@ -1664,6 +1668,25 @@ class OriginalGameTkHost:
             count += 1
         return count
 
+    def _draw_management_mail_control(self) -> int:
+        """Render the genuine PBg child ID1 default (non-hover) native bitmap.
+
+        Original 0x5FA5C0 loads back_3.444 source crop x0/y0/40x95;
+        0x64F300 initializes object flags to 0x183 and virtual+0x90 at
+        0x64FDB0 selects frame zero. Hover/press/disabled flag transitions
+        still lack full original input proof and are not simulated here.
+        """
+        art = getattr(self, "management_mail_art", None)
+        if art is None:
+            return 0
+        from original_pbg_mail_art import native_pbg_mail_idle_bitmap_pixels
+        x, y, width, height, rgba = native_pbg_mail_idle_bitmap_pixels(art)
+        self._create_native_image(
+            x, y, image=self._rgba_photo(width, height, rgba),
+            anchor=self.tk.NW,
+        )
+        return 1
+
     def _draw_management_next_control(self, frame) -> int:
         """Draw PBg +524/574 from exact source rows and retained caption date.
 
@@ -2148,7 +2171,7 @@ class OriginalGameTkHost:
         Source PBg::0x4326D6 tests active PEAMail singleton, then calls
         PMenu::0x482BF0(0x65) and pushes the genuine panel; it does not
         navigate via a popup PMenu row callback. The exact 40x95 header
-        art remains separately missing, not simulated here.
+        art displays its verified initial frame; later states are unresolved.
         """
         x, y = int(event.x), int(event.y)
         # Reject foreign owner coordinates before inspecting the panel object.
@@ -2172,7 +2195,7 @@ class OriginalGameTkHost:
             self._begin_management_resource_load(family)
         else:
             self.redraw()
-        self.last_status = "Native PBg ID1 -> PEAMail direct factory 0x65; header original art missing"
+        self.last_status = "Native PBg ID1 -> PEAMail direct factory 0x65; original header idle sprite loaded"
         return True
 
     def _press_original_eamail_row(self, event, frame) -> bool:
@@ -2260,6 +2283,7 @@ class OriginalGameTkHost:
                 self._create_native_image(image.x, image.y, image=photo, anchor=self.tk.NW)
 
         header_image_count = self._draw_management_header(frame.presentation.club)
+        header_image_count += self._draw_management_mail_control()
         header_image_count += self._draw_management_next_control(frame)
         header_image_count += self._draw_management_match_lines(frame)
         header_image_count += self._draw_management_current_date(frame)
@@ -3068,6 +3092,10 @@ def run_original_game_ui(
                 from original_management_next import load_verified_management_next_art
                 management_next_art = load_verified_management_next_art(
                     resolved_source_root, original_executable)
+            with timed_stage("management.resources.mail_header"):
+                from original_pbg_mail_art import load_verified_original_pbg_mail_art
+                management_mail_art = load_verified_original_pbg_mail_art(
+                    resolved_source_root, original_executable)
             return {
                 "management_pmenu_resources": pmenu_resources,
                 "squad_top_resources": squad_top_resources,
@@ -3076,6 +3104,7 @@ def run_original_game_ui(
                 "management_background": management_background,
                 "management_header_resources": management_header_resources,
                 "management_next_art": management_next_art,
+                "management_mail_art": management_mail_art,
             }
 
         if family == "fixtures":
