@@ -1312,6 +1312,61 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertFalse(host._fullscreen)
         self.assertFalse(root.values["attributes"]["-fullscreen"])
 
+    def test_pending_prematch_and_live_results_own_fullscreen_shortcuts(self):
+        # The native Match Detail/PResults owner does not release background
+        # input to the host's Windows-only fullscreen compatibility shortcuts.
+        live = presenter()
+        root = FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk)
+        live.session.gameplay = StubBackend()
+        pending = ("premier_league", 7)
+        live.session.gameplay.pending_primary_entry = pending
+        self.assertTrue(host._fullscreen)
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertEqual(host.toggle_fullscreen(), "break")
+        self.assertTrue(host._fullscreen)
+        self.assertTrue(root.values["attributes"]["-fullscreen"])
+        live.session.gameplay.pending_primary_entry = None
+        host._management_turn_thread = object()  # Event-processing owner.
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertEqual(host.toggle_fullscreen(), "break")
+        self.assertTrue(host._fullscreen)
+        host._management_turn_thread = None
+        self.assertEqual(host.leave_fullscreen(), "break")
+        self.assertFalse(host._fullscreen)
+
+    def test_quick_without_eligible_event_receipt_does_not_emit_fake_progress(self):
+        live = presenter()
+        host = OriginalGameTkHost(
+            live, FakeRoot(), FakeTk, management_thread_factory=DeferredThread,
+        )
+        gameplay = StubBackend()
+        live.session.gameplay = gameplay
+        gameplay.pending_primary_entry = ("premier_league", 7)
+        gameplay.matches = 0
+        entry = gameplay.pending_primary_entry
+
+        def play(staged, mode):
+            self.assertEqual(mode, MatchDetailMode.QUICK_MATCH)
+            staged.pending_primary_entry = None
+            staged.matches += 1
+            return SimpleNamespace(match_entry=entry,
+                                   user_result=SimpleNamespace(score=(1, 0)),
+                                   results_progress=None)
+
+        with (patch.object(StubBackend, "play_original_user_primary_match",
+                           play, create=True),
+              patch.object(host, "redraw"),
+              patch.object(host, "present_completed_match_by_source_mode")):
+            host._begin_original_human_match(MatchDetailMode.QUICK_MATCH)
+            host._management_turn_thread.run()
+            self.assertEqual(host._management_turn_queue.qsize(), 1)
+            host._poll_original_management_turn()
+        self.assertIsNone(host.last_results_progress)
+        self.assertEqual(gameplay.matches, 1)
+        self.assertIsNone(gameplay.pending_primary_entry)
+        self.assertIsNone(host._management_turn_thread)
+
     def test_escape_exits_active_source_pmatchinfo_modal_before_fullscreen(self):
         # Original 0x488C60: Escape 0x1B posts PMatchInfo exit event 7.
         # The native popup owns the key even when the Tk compatibility shell

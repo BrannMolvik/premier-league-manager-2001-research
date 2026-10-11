@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import unittest
 
 from game_state import GameCalendar
-from human_gameplay import HumanGameplayController
+from human_gameplay import HumanGameplayController, OriginalResultsProgress
 from match_detail_mode import MatchDetailMode
 from primary_schedule_shadow import PrimaryScheduleShadowState, PrimaryScheduleShadowEntry
 from competition_schedule import direct_club_ref
@@ -79,12 +79,9 @@ class OriginalManagementTurnTests(unittest.TestCase):
         c = self.controller(self.today + timedelta(days=1), (before, human, after))
         result = self.advance(c, self.today + timedelta(days=1))
         self.assertEqual(result.pending_primary_entry, human)
-        self.assertEqual(
-            (result.results_progress.processed_count,
-             result.results_progress.total_count,
-             result.results_progress.native_width),
-            (2, 3, 530),
-        )
+        # The two AI match outcomes do not satisfy the native 0x4A7210
+        # scheduled-event eligibility predicate; no PResults counter claimed.
+        self.assertIsNone(result.results_progress)
         self.assertEqual(result.processed_dates, (self.today + timedelta(days=1),))
         self.assertEqual([call.args[0] for call in c.state.simulate_primary_ai_entry.call_args_list],
                          [before, after])
@@ -99,6 +96,16 @@ class OriginalManagementTurnTests(unittest.TestCase):
         self.assertEqual(repeated.processed_dates, ())
         self.assertEqual(repeated.pending_primary_entry, human)
         self.assertEqual(c.state.simulate_primary_ai_entry.call_count, 2)
+
+    def test_native_results_width_only_for_explicit_counters(self):
+        self.assertEqual(OriginalResultsProgress(0, 0).native_width, 0)
+        self.assertEqual(OriginalResultsProgress(2, 3).native_width, 530)
+        self.assertEqual(OriginalResultsProgress(3, 3).native_width, 800)
+        # Original 0x4A7210 denominator is independent from match cardinality.
+        for bad in ((-1, 1), (1, -1), (True, 2), (1, False)):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    OriginalResultsProgress(*bad)
 
     def test_public_next_refuses_pending_match_before_mutable_selector(self):
         human = ('premier_league', 7)
@@ -230,8 +237,9 @@ class OriginalManagementTurnTests(unittest.TestCase):
         self.assertEqual(tuple(entry for entry, _ in outcome.matchday_results), ai_order + (human,))
         self.assertEqual(outcome.source_mode_preparation.mode, MatchDetailMode.QUICK_MATCH)
         self.assertFalse(outcome.source_mode_preparation.clears_context_byte_1145)
-        self.assertEqual(outcome.results_progress.processed_count,
-                         outcome.results_progress.total_count)
+        # Ten completed matches do not imply ten source-qualified PResults
+        # event ticks; preserve Quick calculation without a fake progress bar.
+        self.assertIsNone(outcome.results_progress)
         self.assertEqual(len(restored.state.premier_league.results), 10)
         self.assertIsNone(restored.pending_primary_entry)
         self.assertTrue(all(e.payload_filter_bits == 1

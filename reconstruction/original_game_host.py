@@ -650,6 +650,8 @@ class OriginalGameTkHost:
     def toggle_fullscreen(self, event=None):
         if getattr(self, "_startup_media_active", False):
             return "break"  # The live WPF child owns the fixed presentation rect.
+        if self._original_match_input_owner() is not None:
+            return "break"  # Native PPreMatch/PResults owner retains the input phase.
         self._set_fullscreen(not self._fullscreen)
         if self.presenter.session.navigation.screen is FrontEndScreen.SETTINGS:
             self.redraw()
@@ -668,6 +670,11 @@ class OriginalGameTkHost:
         if getattr(self, 'active_pmatchinfo_art', None) is not None:
             if self._original_match_input_owner() is None:
                 self.apply_source_accepted_pmatchinfo_exit()
+            return "break"
+        if self._original_match_input_owner() is not None:
+            # No native PPreMatch Escape action has been source-qualified.
+            # Do not let the host compatibility shortcut modify fullscreen
+            # behind a pending human match or the live PResults worker.
             return "break"
         if self._fullscreen:
             self._set_fullscreen(False)
@@ -1283,6 +1290,7 @@ class OriginalGameTkHost:
                 "Pending match requires the native event-aware controller")
         result_queue = Queue()
         self._management_turn_queue = result_queue
+        self.last_results_progress = None
         self.prematch_surface = None
         self.root.configure(cursor='watch')
 
@@ -1290,7 +1298,10 @@ class OriginalGameTkHost:
             try:
                 staged = copy(gameplay)
                 outcome = staged.play_original_user_primary_match(mode)
-                result_queue.put(('progress', outcome.results_progress, None, None))
+                if outcome.results_progress is not None:
+                    # A real tick receipt must come from source-qualified
+                    # PResults event processing, not match-result counts.
+                    result_queue.put(('progress', outcome.results_progress, None, None))
                 result_queue.put(('match_ok', staged, outcome, mode))
             except Exception as exc:
                 result_queue.put(('error', exc, traceback.format_exc(), None))
@@ -1378,9 +1389,9 @@ class OriginalGameTkHost:
 
     def _original_match_input_owner(self) -> str | None:
         """Return the source owner that excludes ordinary background input."""
-        if self._management_turn_thread is not None:
+        if getattr(self, '_management_turn_thread', None) is not None:
             return 'results'
-        gameplay = self.presenter.session.gameplay
+        gameplay = getattr(self.presenter.session, 'gameplay', None)
         if getattr(gameplay, 'pending_primary_entry', None) is not None:
             return 'prematch'
         return None
