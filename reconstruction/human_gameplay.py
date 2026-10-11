@@ -1515,6 +1515,11 @@ class HumanGameplayController:
         raise ValueError(f"unsupported primary match entry {entry!r}")
 
     def _finish_shared_primary_day(self, had_results: bool) -> None:
+        # Native NEXT 0x43215E and PResults 0x4A8070 invoke 0x613EE0
+        # for due pending MPM events. This is only the independently
+        # source-qualified transfer EAM subtype, with transactional mailbox
+        # ownership; unrelated original event classes remain unresolved.
+        self.state.process_original_eam_due_events(self.state.calendar.current_date)
         if (
             had_results
             and self.state.premier_league is not None
