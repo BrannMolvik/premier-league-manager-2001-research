@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery519 Current Form primary/secondary and League participant filter trace
+
+Confirmed source `0x4079D0→0x403640` is per-club-owner mode byte+0x74 (2/3 selects secondary), and `0x615ED0/0x615C50` selects source native League pointer/participant matches scanning backward, while skipping wrapper link+8 and fixture status bit6 under strict form lookup. Previous form six-result/source tie proof stands, with exact subtype and clean-room history correspondence unverified. Report appended; no invented Current Form code, CI, or Windows click claim. Gate13–17 open.
+
 ### 11 October 2026 KST — Recovery518 original Current Form source selection and comparator
 
 Canonical private original executable disassembled without execution. Native `League::0x4F4A10` caches six-result form score and sorts via `0x4F4A70`, not league-position `0x4F45E0`; `0x4F4970` loops up to six match-context queries, assigns 3/1/0, searches back with `0x615ED0` and updates cursor with `0x510A20`. Original CP1252 short-name tie break established; missing historical-match status/primary-secondary cursor semantics explicitly NOT closed. Evidence persisted in `research/GATE13_LEAGUE_TABLES_CURRENT_FORM_SOURCE_RECOVERY518.md`; no guessed code, no original playtest; Gates13–17/release open.
