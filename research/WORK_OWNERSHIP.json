@@ -25,7 +25,7 @@
     {
       "scope": "Gate 13 R1 real match lifecycle",
       "owner": "codex",
-      "status": "active",
+      "status": "released",
       "created_date": "2026-10-11",
       "reason": "Reserve scarce Codex effort for complex end-to-end original match input, mode, result and return while worker develops high-impact disjoint original screens.",
       "protected_subsystems": [
@@ -35,23 +35,32 @@
         "mode-specific human match simulation and PResults lifecycle",
         "normal match return and repeated NEXT acceptance"
       ],
-      "non_owner_policy": "Autonomous worker may source-audit these but must not edit this active Codex implementation surface; take disjoint large source-backed management features instead. Codex is not responsible for routine reviewing or merging worker PRs.",
-      "release_condition": "R1 source-complete player-visible Windows 11 Quick3 match-to-results-to-return independently accepted and handoff completed, or explicit user reassignment."
+      "non_owner_policy": "Historical R1 lock RELEASED. Autonomous worker is authorized to implement and integrate original NEXT/PPreMatch/all four modes/PResults/return across shared code with source-first evidence, regression tests and review safeguards.",
+      "release_condition": "R1 source-complete player-visible Windows 11 Quick3 match-to-results-to-return independently accepted and handoff completed, or explicit user reassignment.",
+      "released_date": "2026-10-11",
+      "release_reason": "Daniel explicitly revoked all Codex-exclusive implementation ownership on 11 October 2026 to conserve usage. Codex may be used only as an optional verification/playtest/debugging specialist on request. Previously merged R1 work in PR #565 remains on main; no second merge."
     },
     {
-      "scope": "Gate 13 original management feature restoration outside R1",
+      "scope": "All remaining FM2001 reconstruction/port implementation through Gate 17, including R1",
       "owner": "chatgpt-autonomous-worker",
       "status": "active",
       "created_date": "2026-10-11",
-      "reason": "Worker prioritizes highest-impact missing original game systems rather than only isolated small defects.",
+      "reason": "Daniel explicitly assigned all original-game development, cross-cutting match integration and source research to the autonomous worker; Codex costs are reserved for optional validation/playtests.",
       "suggested_priority": [
-        "original current-manager League Fixtures and selectors",
-        "original current-manager League Tables and sort",
-        "PMatchInfo modal tabs and exit",
-        "other large nonoverlapping original management functionality"
+        "complete original player-visible NEXT->PPreMatch->match modes->PResults->return and repeated progression",
+        "complete source-authenticated Inbox delivery, controls, details and persistence",
+        "complete Squad first/reserve formations, source GUI input and original Save/Load",
+        "complete original Fixtures/Tables, all countries/leagues, multi-human and seasons",
+        "original match presentation, fidelity audits, stress tests and genuine Windows11 acceptance"
       ],
-      "non_owner_policy": "Do not overlap this work without an explicit coordination change. Codex can accept precise blocked/hard integration handoffs; no routine PR review requirement.",
-      "release_condition": "Reallocate a scope explicitly when another owner is better positioned; task otherwise continues through complete feature verification."
+      "non_owner_policy": "Autonomous worker owns implementation including previously protected Codex R1. Avoid concurrently editing an actively progressing external branch; use fresh-main reviewed PRs with source evidence and CI. Codex is OPTIONAL QA, not an owner/merge gate.",
+      "release_condition": "Only explicit user reassignment or completion of verified full original scope through Gate 17."
     }
-  ]
+  ],
+  "codex_advisory_role": {
+    "role": "optional_independent_testing_review_and_windows_playtesting",
+    "exclusive_implementation_ownership": false,
+    "requires_user_approval_for_usage": true,
+    "notes": "Codex is not a dependency for implementation or merges. Use only when useful and affordable, mainly for independent code/test review, reproducing bugs or real Windows GUI playtests in an environment actually capable of running them. Do not claim CI/headless runs are physical Windows acceptance."
+  }
 }
