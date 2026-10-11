@@ -3,10 +3,11 @@
 The original DBRUser+0x6B4 mailbox is an append-only ordered list of
 12-byte nodes (0x424E2E, 0x617D70), not the global 0x947AA8 pending event
 owner or PEAMail's separately sorted display array. This models only source
-qualified EAMPlayerAskTransferListsub delivery when the caller has already
-proved original +0x3C readiness and the event is actually due. No normal
-NEXT/PResults dispatch, original pointer/node serialization, speculative
-message body, GUI display or legacy save format is implied.
+qualified EAMPlayerAskTransferListsub delivery after the *caller* has proved
+the authentic native due-event dispatch. The original per-class readiness and
+retention virtuals are now independently traced, but do not establish
+NEXT/PResults queue execution, an original pointer/node serializer, native
+message body or a playable Inbox screen.
 """
 from __future__ import annotations
 
@@ -14,6 +15,34 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from match_postmatch import PlayerTransferRequest
+
+
+# Independently traced native MSVC RTTI / PE vtable on the original
+# 4,714,541-byte executable (SHA-256 833bf95e...5838b7cc3).
+# See research/GATE13_EAM_TRANSFER_READINESS_RETENTION_SOURCE_RECOVERY527.md.
+EAM_PLAYER_ASK_TRANSFER_LIST_CLASS = "EAMPlayerAskTransferListsub"
+EAM_PLAYER_ASK_TRANSFER_LIST_TYPEDESC_VA = 0x818F40
+EAM_PLAYER_ASK_TRANSFER_LIST_COL_VA = 0x7DF7C8
+EAM_PLAYER_ASK_TRANSFER_LIST_VFTABLE_VA = 0x7BDB1C
+EAM_PLAYER_ASK_TRANSFER_LIST_READINESS_VIRTUAL_OFFSET = 0x3C
+EAM_PLAYER_ASK_TRANSFER_LIST_READINESS_VA = 0x4093E0
+EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_VIRTUAL_OFFSET = 0x40
+EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_VA = 0x470CE0
+EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_NATIVE_DATE_UNITS = 0x16D
+
+
+def source_player_ask_transfer_list_record_ready(original_class: str) -> bool:
+    """Class-exact native +0x3C = 0x4093E0: mov eax,1; ret.
+
+    This callback does NOT confirm a scheduled MPM envelope is due or has
+    been visited by the original 0x613EE0 dispatcher. It is not a license to
+    create Inbox rows from unprocessed pending requests.
+    """
+    if original_class != EAM_PLAYER_ASK_TRANSFER_LIST_CLASS:
+        raise OriginalEAMailOwnerError(
+            "Only verified EAMPlayerAskTransferListsub native readiness is supported"
+        )
+    return True
 
 
 class OriginalEAMailOwnerError(ValueError):
@@ -133,8 +162,10 @@ class OriginalDeliveredEAMailboxes:
         """Explicit MPMEAMail::0x5CFA20 branch, not a daily/GUI auto-delivery.
 
         original_record_ready MUST come from the original EAM class virtual
-        +0x3C contract; the current port has not recovered that producer.
-        False skips append. None/unknown refuses any promotion to delivered.
+        +0x3C contract. Its verified constant-true result can be obtained via
+        source_player_ask_transfer_list_record_ready(request.event_class).
+        False skips append. None/unknown still refuses any promotion, because
+        this method must never run without a proven native due-event caller.
         The call MUST be made by the authentic due-event dispatcher; this
         method deliberately does not add itself to NEXT.
         """
@@ -255,6 +286,9 @@ class OriginalDeliveredEAMailboxes:
 
 
 _SOURCE_KNOWN_RETENTION_OFFSETS = {
+    # Native +0x40 directly resolves to 0x470CE0; checked anew on original PE.
+    EAM_PLAYER_ASK_TRANSFER_LIST_CLASS:
+        EAM_PLAYER_ASK_TRANSFER_LIST_RETENTION_NATIVE_DATE_UNITS,
     "EAMChairSeasonTicketssub": 365,  # +0x40 = 0x470CE0
     "EAMChairSeasonTicketSetsub": 21,   # +0x40 = 0x538530
 }
