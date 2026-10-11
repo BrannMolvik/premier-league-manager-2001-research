@@ -40,7 +40,12 @@ class OriginalEAMPlayerSourceFragmentMask:
     end_byte: int
     native_font_object_va: int
     glyph_alpha: EATextMask
+    # Original eCText::0x5D7855 -> 0x5D78BD -> 0x5D79F2
+    # returns this source control selector as AL on a qualified native
+    # text-point query. It is NOT yet a verified player/club action.
+    source_hit_selector_byte: int = 0
     final_color_and_placement_verified: bool = False
+    native_hit_target_and_action_verified: bool = False
 
 
 def native_player_markup_fragment_masks(
@@ -93,6 +98,11 @@ def native_player_markup_fragment_masks(
         raise OriginalEAMTaggedMaskError("Nested or empty original player template fragment")
     font = resources.league_tables_row_font
     output = []
+    # T+P activates ASCII P until T- resets to NUL; the untagged
+    # separator is zero.  T+C then activates ASCII C until next T-.
+    # 0x5D73A8 stores the return byte in eCText+0x114, but native
+    # actionable pixel bounds and parent callback remain unqualified.
+    source_selector_by_role = {"player": ord("P"), "separator": 0, "club": ord("C")}
     for role, text, start in data:
         try:
             mask = font.render_text_alpha(text)
@@ -104,6 +114,7 @@ def native_player_markup_fragment_masks(
             start_byte=start, end_byte=end,
             native_font_object_va=ORIGINAL_EAMAIL_TEXT_FONT_OBJECT_VA,
             glyph_alpha=mask,
+            source_hit_selector_byte=source_selector_by_role[role],
         ))
     return tuple(output)
 
