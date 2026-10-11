@@ -43,6 +43,7 @@ from original_pmenu_chrome import (
     validate_original_pmenu_row_fonts,
 )
 from original_pmenu_presenter import OriginalPMenuSnapshot, OriginalPMenuVisibleRow
+from original_eamail_source_contract import ORIGINAL_EAMAIL_PANEL_RECT
 from original_squad_resources import SQUAD_PANEL_RECT
 
 
@@ -152,9 +153,8 @@ def build_management_canvas_frame(
 
     snapshot = presenter.snapshot()
     panel_rect = (
-        SQUAD_PANEL_RECT
-        if snapshot.panel_class == "PSquadScreen"
-        else None
+        SQUAD_PANEL_RECT if snapshot.panel_class == "PSquadScreen"
+        else (ORIGINAL_EAMAIL_PANEL_RECT if snapshot.panel_class == "PEAMail" else None)
     )
     x, y = PMENU_LIST_SCREEN_ORIGIN
     width, height = PMENU_LIST_SIZE
