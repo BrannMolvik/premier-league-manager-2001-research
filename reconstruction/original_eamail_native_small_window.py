@@ -126,3 +126,30 @@ def original_initial_transfer_eam_sorted_window(
         original_sorted_rows=ordered,
         viewport=view,
     )
+
+
+def build_selected_user_initial_eamail_window(
+    source_bridge: object,
+    *,
+    filter_index: int,
+    sort_index: int | None,
+    scroll_offset: int = 0,
+) -> OriginalInitialEAMailSortedWindow:
+    """Build the native data+viewport from the actual selected human manager.
+
+    The supplied read-only presentation bridge must verify the actual
+    DBRUser+0x6B4 recipient, and reject pending MPM or another manager's mail.
+    No importing the gameplay runtime into its source-presentation bridge,
+    no substitute generic default (unregistered/unknown original user fails).
+    """
+    reader = getattr(source_bridge, "source_delivered_mailbox_for_selected_user", None)
+    if not callable(reader):
+        raise OriginalEAMailFilterSourceError(
+            "Original registered selected-human mailbox reader is required"
+        )
+    return original_initial_transfer_eam_sorted_window(
+        reader(),
+        filter_index=filter_index,
+        sort_index=sort_index,
+        scroll_offset=scroll_offset,
+    )
