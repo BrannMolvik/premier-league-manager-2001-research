@@ -54,7 +54,9 @@ class OriginalDeliveredEAMail:
             )
         if type(self.record_date) is not date:
             raise OriginalEAMailOwnerError("Source envelope date must be an original date")
-        if self.native_status_decoded or self.original_screen_rendered:
+        if (type(self.native_status_decoded) is not bool
+                or type(self.original_screen_rendered) is not bool
+                or self.native_status_decoded or self.original_screen_rendered):
             raise OriginalEAMailOwnerError(
                 "Delivered source record cannot claim unknown status or native GUI"
             )
@@ -88,10 +90,12 @@ class OriginalDeliveredEAMailboxes:
             if type(records) is not list:
                 raise OriginalEAMailOwnerError("Mailbox node owner must be an ordered list")
             seen_events: set[str] = set()
+            previous_serial = 0
             for record in records:
                 if (type(record) is not OriginalDeliveredEAMail
                         or record.recipient_manager_key != manager_key
                         or record.node_serial in seen_serials
+                        or record.node_serial <= previous_serial
                         or record.node_serial >= self.next_node_serial
                         or record.pending_identity in seen_events):
                     raise OriginalEAMailOwnerError(
@@ -99,6 +103,7 @@ class OriginalDeliveredEAMailboxes:
                     )
                 seen_serials.add(record.node_serial)
                 seen_events.add(record.pending_identity)
+                previous_serial = record.node_serial
 
     def register_source_user(self, manager_key: int) -> None:
         """0x424E2E: construct an empty user+0x6B4 owner (not an inbox row)."""
@@ -212,6 +217,10 @@ class OriginalDeliveredEAMailboxes:
         rows = value["mailboxes"]
         if type(keys) is not list or type(rows) is not list:
             raise OriginalEAMailOwnerError("Modern mailbox registry must be lists")
+        for key in keys:
+            _source_index(key, "saved registered manager key")
+        if len(set(keys)) != len(keys):
+            raise OriginalEAMailOwnerError("Duplicate saved original manager key")
         mailbox = cls(
             registered_manager_keys=tuple(keys),
             mailboxes={key: [] for key in keys},
