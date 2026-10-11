@@ -9,15 +9,17 @@ Longer lists enter 0x4729AB..0x472B4B hybrid partition/sort: NOT modeled.
 This source slice is restricted to initially delivered, unmodified,
 native-class-verified EAMPlayerAskTransferListsub records.
 
-It does not synthesize original +0x1C/virtual+0x18 strings, category labels,
+It does not synthesize original record+0x1C string, category labels,
 message status transitions, row fonts/bitmaps, detail dialog or GUI input.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 
 from original_eamail_mailbox import OriginalDeliveredEAMail
+from original_eamail_language import load_verified_original_eamail_language
 from original_eamail_native_filter import (
     OriginalEAMailFilterSourceError,
     original_filter_initial_transfer_mail,
@@ -75,8 +77,11 @@ def original_initial_transfer_eam_sorted_window(
     The date comparator uses the source scheduled envelope date (record+4)
     and original strict greater-than; the port's date is its source-backed
     chronological representation for these records. Equal-date rows preserve
-    original insertion order. The two string comparators have UNKNOWN
-    original bytes for this subclass; refuse >=2 rows, do not sort guesses.
+    original insertion order. Source-exact native +0x18 produces the SAME
+    'Transfer List' caption for every initial subtype record (IDX 1313),
+    so native sort3 is a strict tie and preserves original mailbox order.
+    Native record+0x1C descriptor resolves each specific player and is still
+    unknown in actual byte output: source sort2 refuses >=2 rows.
     """
     filtered = original_filter_initial_transfer_mail(
         selected_user_delivered, filter_index,
@@ -91,13 +96,16 @@ def original_initial_transfer_eam_sorted_window(
         raise OriginalEAMailFilterSourceError(
             "Native original >16 pointer hybrid sorter not yet source-qualified"
         )
-    if selected in (2, 3) and len(rows) > 1:
+    if selected == 2 and len(rows) > 1:
         raise OriginalEAMailFilterSourceError(
-            "Original record +0x1C / virtual +0x18 source string bytes unresolved"
+            "Original record +0x1C player-specific source string bytes unresolved"
         )
     # The initial class constructor/status producer gives every included
     # record status 0x06. Source comparator 0/1 thus returns false on all
-    # pairs; their insertion path is a stable original mailbox ordering.
+    # pairs; their insertion path is stable original mailbox ordering.
+    # The fourth/native sort3 compares identical source-qualified +0x18
+    # EnglishEAM.idx ordinal 1313 'Transfer List' for this one class,
+    # so strict text comparator 0x472C00 also returns false on all pairs.
     if selected == 4:
         for row in rows:
             if type(row.record_date) is not date:
@@ -152,4 +160,47 @@ def build_selected_user_initial_eamail_window(
         filter_index=filter_index,
         sort_index=sort_index,
         scroll_offset=scroll_offset,
+    )
+
+
+@dataclass(frozen=True)
+class OriginalInitialEAMailCaptionedWindow:
+    """Actual source-language title data for real visible selected-user rows.
+
+    The native row title resource has been proven for the initial
+    EAMPlayerAskTransferListsub ONLY. Original row child/font/render positions,
+    body/action/flag changes and GUI input are deliberately not synthesized.
+    """
+    window: OriginalInitialEAMailSortedWindow
+    visible_original_subjects: tuple[str, ...]
+
+
+def build_source_captioned_selected_user_initial_eamail_window(
+    source_bridge: object,
+    *,
+    original_source_root: str | Path,
+    filter_index: int,
+    sort_index: int | None,
+    scroll_offset: int = 0,
+) -> OriginalInitialEAMailCaptionedWindow:
+    """Project the real selected registered manager mailbox to source captions.
+
+    Load SHA-checked original EnglishEAM bytes, reproduce native filter and
+    <=16 native insertion order, then resolve only the source-proved
+    EAMPlayerAskTransferListsub +0x18 title through IDX ordinal 1313.
+    Never use pending events or generic English string fallback.
+    """
+    resource = load_verified_original_eamail_language(original_source_root)
+    title = resource.original_player_asks_transfer_list_subject()
+    window = build_selected_user_initial_eamail_window(
+        source_bridge,
+        filter_index=filter_index,
+        sort_index=sort_index,
+        scroll_offset=scroll_offset,
+    )
+    return OriginalInitialEAMailCaptionedWindow(
+        window=window,
+        visible_original_subjects=(
+            (title,) * len(window.viewport.visible_rows)
+        ),
     )

@@ -11,6 +11,10 @@ from original_eamail_language import (
     ORIGINAL_EAMAIL_IDX_SHA256,
     ORIGINAL_EAMAIL_STRING_COUNT,
     ORIGINAL_EAMAIL_INDEX_COUNT,
+    ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_SLOT_VA,
+    ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_VIRTUAL_VA,
+    ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_IDX_ORDINAL,
+    ORIGINAL_TRANSFER_LIST_SUBJECT_STRING_ID,
     load_verified_original_eamail_language,
 )
 
@@ -36,6 +40,23 @@ class OriginalEAMLanguageSourceTests(TestCase):
         for invalid in (-1, 2877, True):
             with self.assertRaises(OriginalEAMailLanguageError):
                 resources.source_selected_template(invalid, original_selector_proven=True)
+
+    def test_original_transfer_subject_exact_native_slot_and_language_bytes(self):
+        resource = load_verified_original_eamail_language(ORIGINAL_ROOT)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_SLOT_VA, 0x8797A4)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_VIRTUAL_VA, 0x56FB70)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_IDX_ORDINAL, 1313)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_SUBJECT_STRING_ID, 942)
+        self.assertEqual(resource.index.string_ids[1313], 942)
+        self.assertEqual(resource.original_player_asks_transfer_list_subject(), "Transfer List")
+        # Neighbouring genuine original entries are NOT identical and must
+        # never be chosen as the initial row caption by substring matching.
+        self.assertEqual(resource.strings[resource.index.string_ids[1312]],
+                         "Player Ask To Be Transfer Listed")
+        self.assertIn("{MANAGERNAME:1}", resource.strings[
+            resource.index.string_ids[1314]])
+        with self.assertRaises(OriginalEAMailLanguageError):
+            resource.source_selected_template(1314, original_selector_proven=False)
 
     def test_verified_resource_absence_and_altered_language_file_fail_closed(self):
         with TemporaryDirectory() as td:

@@ -33,6 +33,22 @@ ORIGINAL_EAMAIL_IDX_SHA256 = (
 ORIGINAL_EAMAIL_STRING_COUNT = 1609
 ORIGINAL_EAMAIL_INDEX_COUNT = 2877
 
+# Exact native +0x18 title source:
+# - 0x50D5A7/0x50D5B6 pass literal "englisheam.idx" to 0x5B65A0;
+# - it issues exactly 2,877 sequential 2-byte fread(0x667E90) calls;
+# - 0x64E320 binds pointer slots 0x87AC28, 0x87AC24 ... 0x877F38;
+# - 0x8797A4 is the 1,314th slot, zero-based index 1313;
+# - EAMPlayerAskTransferListsub virtual +0x18 = 0x56FB70,
+#   dereferencing that exact slot, then formatting from its string pointer.
+# - EnglishEAM.idx[1313] = original string 942 = "Transfer List".
+# SHA-qualified EnglishEAM source bytes are required; never hardcode a
+# modern translation or silently substitute that literal at rendering.
+ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_SLOT_VA = 0x8797A4
+ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_VIRTUAL_VA = 0x56FB70
+ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_IDX_ORDINAL = 1313
+ORIGINAL_TRANSFER_LIST_SUBJECT_STRING_ID = 942
+ORIGINAL_TRANSFER_LIST_SUBJECT_VERIFIED_TEXT = "Transfer List"
+
 
 @dataclass(frozen=True)
 class VerifiedOriginalEAMailLanguage:
@@ -55,6 +71,25 @@ class VerifiedOriginalEAMailLanguage:
         if type(index_entry) is not int or not 0 <= index_entry < len(self.index.string_ids):
             raise OriginalEAMailLanguageError("Native IDX selection is out of bounds")
         return self.index.resolve(self.strings, index_entry)
+
+    def original_player_asks_transfer_list_subject(self) -> str:
+        """Exact original EAMPlayerAskTransferListsub +0x18 caption.
+
+        Unlike arbitrary guessed EAM localized templates, this index was
+        traced through the original 2,877-call native EnglishEAM.idx loader,
+        per-pointer slot 0x8797A4, class vft +0x18 and the source IDX+STR.
+        Do not extrapolate this English caption to other languages/classes,
+        the +0x1C message body, or live mutable native read flags.
+        """
+        source_entry = ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_IDX_ORDINAL
+        expected_id = ORIGINAL_TRANSFER_LIST_SUBJECT_STRING_ID
+        if (self.index.string_ids[source_entry] != expected_id
+                or self.strings[expected_id]
+                != ORIGINAL_TRANSFER_LIST_SUBJECT_VERIFIED_TEXT):
+            raise OriginalEAMailLanguageError(
+                "Native PlayerAskTransferList subject lookup no longer matches original source"
+            )
+        return self.index.resolve(self.strings, source_entry)
 
 
 def load_verified_original_eamail_language(
