@@ -168,6 +168,34 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
         with self.assertRaisesRegex(OriginalEAMailOwnerError, "Only original"):
             replace(rec, event_class="EAMChairSeasonTicketssub")
 
+    def test_native_transfer_preview_reason_signed_save(self):
+        inbox = OriginalDeliveredEAMailboxes()
+        inbox.register_source_user(0)
+        row = inbox.deliver_source_ready_transfer_request(
+            event(), pending_identity="original-reason",
+            at_date=DAY, original_record_ready=True,
+        )
+        self.assertEqual(row.original_preview_reason_native_i32, -1)
+        initial = inbox.snapshot()
+        self.assertNotIn("original_preview_reason_native_i32",
+                         initial["mailboxes"][0]["records"][0])
+        self.assertEqual(OriginalDeliveredEAMailboxes.restore(initial).snapshot(), initial)
+        # Simulated prequalified native reason, NOT a newly implemented RNG.
+        assigned = replace(row, original_preview_reason_native_i32=3)
+        inbox.mailboxes[0][0] = assigned
+        saved = inbox.snapshot()
+        self.assertEqual(saved["mailboxes"][0]["records"][0]
+                         ["original_preview_reason_native_i32"], 3)
+        self.assertEqual(OriginalDeliveredEAMailboxes.restore(saved).snapshot(), saved)
+        for bad in (True, "3", None, 1 << 32, -(1 << 32)):
+            with self.assertRaisesRegex(OriginalEAMailOwnerError, "signed DWORD"):
+                replace(row, original_preview_reason_native_i32=bad)
+        for bad in (True, "3", 1 << 32):
+            altered = copy.deepcopy(saved)
+            altered["mailboxes"][0]["records"][0]["original_preview_reason_native_i32"] = bad
+            with self.assertRaisesRegex(OriginalEAMailOwnerError, "signed DWORD"):
+                OriginalDeliveredEAMailboxes.restore(altered)
+
     def test_multiuser_registration_and_node_identity_corruption_refused(self):
         inbox = OriginalDeliveredEAMailboxes()
         for manager in range(6):
@@ -258,7 +286,15 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
             due, pending_identity="real-source-envelope",
             at_date=DAY, original_record_ready=True,
         )
+        # State fixture: preserve the assigned native value through actual
+        # human gameplay save/reload; do not implement unverified RNG here.
+        delivered = replace(delivered, original_preview_reason_native_i32=3)
+        state.original_delivered_mailboxes.mailboxes[first_key][-1] = delivered
         saved = snapshot_human_gameplay(game)
+        self.assertEqual(
+            saved["game_state"]["original_delivered_mailboxes"]["mailboxes"][0]
+            ["records"][0]["original_preview_reason_native_i32"], 3
+        )
         self.assertEqual(
             saved["game_state"]["original_delivered_mailboxes"]["next_node_serial"], 2
         )
