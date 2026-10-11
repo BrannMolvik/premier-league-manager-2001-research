@@ -1833,6 +1833,68 @@ class ManagementSourceDataBridge:
                 )
         return rows
 
+    def source_eam_player_descriptor_name_and_club(
+        self, delivered: object,
+    ) -> tuple[str, str, str | None, str | None]:
+        """Resolve EAM kind2 name with its immutable native +0x72 snapshot.
+
+        Original 0x5CE715 obtains the live DBRPlayer first/surname and uses
+        the descriptor word snapshotted at message creation. 0x40DA70 uses
+        native DBRClub+0x0C SHORT-name unless 0x403600 finds a registered
+        human user controlling that club with nonempty DBRUser+0xD0 alias.
+        Only the port's fresh single human has an authenticated empty
+        +0xD0 string; other/multi-user imports must remain unprojected.
+        """
+        if delivered not in self.source_delivered_mailbox_for_selected_user():
+            raise ManagementPresentationError(
+                "EAM name record must belong to selected delivered human Inbox"
+            )
+        word = getattr(delivered, "verified_native_association_word_at_creation", None)
+        if type(word) is not int or not -(1 << 15) <= word < (1 << 15):
+            raise ManagementPresentationError(
+                "Original EAM producer association descriptor is unqualified"
+            )
+        player_id = getattr(delivered, "player_id", None)
+        players = getattr(self.state, "players", None)
+        if type(player_id) is not int or not hasattr(players, "get"):
+            raise ManagementPresentationError("EAM source player identity invalid")
+        player = players.get(player_id)
+        if player is None:
+            raise ManagementPresentationError("Original EAM source player no longer exists")
+        first = getattr(player, "first_name", None)
+        surname = getattr(player, "surname", None)
+        if type(first) is not str or type(surname) is not str:
+            raise ManagementPresentationError("Original EAM source player name unavailable")
+        if word < 0:
+            return first, surname, None, None
+
+        owner = getattr(self.state, "original_delivered_mailboxes", None)
+        manager_keys = getattr(owner, "registered_manager_keys", None)
+        current_key = getattr(self.state, "native_user_recipient_key", None)
+        human_club = self._human_club_id()
+        controlled = getattr(self.state, "user_controlled_club_id", None)
+        if (type(manager_keys) is not tuple or len(manager_keys) != 1
+                or current_key != manager_keys[0]
+                or type(controlled) is not int or controlled != human_club):
+            raise ManagementPresentationError(
+                "Original EAM 0x403600 club-name override requires proven single-user registry"
+            )
+        club = self._source_club(word)
+        if word == human_club:
+            # The original fresh DBRUser constructor 0x424F3F initializes
+            # +0xD0 to an empty CP1252 string. The current clean host cannot
+            # rename/import a user caption. Preserve that explicit boundary.
+            nickname = self.club_header().native_user_club_caption
+            if type(nickname) is not str:
+                raise ManagementPresentationError(
+                    "Native user club alias state has no source proof"
+                )
+        else:
+            # 0x413B40 finds no matching user among exactly the one
+            # registered human; 0x403600 is NULL -> +0x0C short fallback.
+            nickname = ""
+        return first, surname, club.short_name, nickname
+
     def message_source_queues(self) -> MessageSourceQueuesView:
         """Expose only the two manager-mail families materialized by GameState.
 
