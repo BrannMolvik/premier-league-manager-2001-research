@@ -9,8 +9,8 @@ well enough to integrate without inventing a replacement UI:
 * TABLES -> League Tables (PLeagueTables), using the recovered table presenter.
 
 It deliberately does not synthesize unresolved shell pixels, surrounding
-League Fixtures chrome, Current Form ordering, or gameplay mutations. PMatchInfo is
-exposed only through the already recovered fixture action gate.
+League Fixtures chrome, Current Form six-cell row pixels or gameplay mutations.
+PMatchInfo is exposed only through the recovered fixture action gate.
 """
 from __future__ import annotations
 
@@ -48,6 +48,10 @@ from original_league_tables_selector_context import (
 from original_league_tables_presenter import (
     OriginalLeagueTablesSnapshot,
     build_league_tables_snapshot,
+)
+from original_league_tables_current_form_data_snapshot import (
+    OriginalLeagueTablesCurrentFormDataSnapshot,
+    build_league_tables_current_form_data_snapshot,
 )
 from original_management_navigation import (
     LEAGUE_FIXTURES_PANEL,
@@ -103,6 +107,7 @@ class OriginalManagementPanelSnapshot:
     league_fixtures: OriginalLeagueFixturesSnapshot | None = None
     league_fixtures_selection: LeagueFixturesSelectionContext | None = None
     league_tables: OriginalLeagueTablesSnapshot | None = None
+    league_tables_current_form: OriginalLeagueTablesCurrentFormDataSnapshot | None = None
     league_tables_selection: OriginalLeagueTablesSelectionContext | None = None
     paired_squad: OriginalPairedSquadSnapshot | None = None
 
@@ -261,8 +266,33 @@ def build_management_panel_snapshot(
         )
 
     if selected_child_id == LEAGUE_TABLES_PANEL.menu_id:
-        # Preserve the normal current-manager table until a validated native
-        # country/DIVISION event chooses a different source-backed League.
+        # Source sort1 creates an independent 0x2B0/0x4480A0 row object, not
+        # a rearrangement of the seven-stat League Position row (0x447EA0).
+        # The data-only snapshot remains unpainted until original alternate
+        # row font/geometry and native WM_LBUTTON ownership are recovered.
+        if (league_tables_selection is not None
+                and league_tables_selection.sort_state == 1):
+            resolver = getattr(bridge, "source_selected_league_current_form_rows", None)
+            if not callable(resolver):
+                raise OriginalManagementPresentationError(
+                    "Original Current Form source-data bridge is unavailable"
+                )
+            source_rows = resolver(league_tables_selection)
+            current_form = build_league_tables_current_form_data_snapshot(
+                league_tables_selection, source_rows,
+            )
+            return OriginalManagementPanelSnapshot(
+                club=club,
+                menu=menu,
+                header_match=header_match,
+                panel_code=LEAGUE_TABLES_PANEL.menu_id,
+                panel_class=LEAGUE_TABLES_PANEL.panel_class,
+                league_tables_current_form=current_form,
+                league_tables_selection=league_tables_selection,
+            )
+
+        # Normal original sort0 remains the distinct seven-stat table with
+        # source-owned column geometry, not a Current Form fallback.
         table_rows = (bridge.league_table_rows()
                       if league_tables_selection is None else
                       bridge.source_selected_league_table_rows(
@@ -469,9 +499,10 @@ class OriginalManagementPresenter:
         """Native PLeagueTables 1..8 country, 9..13 DIVISION, 14/15 sort.
 
         This is an explicit NON-POINTER event-owner seam. The original
-        fmRadioTextSm click/hit dispatch and Current Form 0x4F4A10 ranking
-        are not yet qualified for normal GUI interaction. No state changes
-        unless an actual source table snapshot can be built successfully.
+        fmRadioTextSm click/hit dispatch is not yet qualified for normal GUI.
+        Current Form 0x4F4A10 source data is available as a distinct unpainted
+        alternate-row snapshot; never promote it to seven-stat original pixels.
+        No state change unless the selected source snapshot builds successfully.
         """
         if self.selected_child_id != LEAGUE_TABLES_PANEL.menu_id:
             raise OriginalManagementPresentationError(
