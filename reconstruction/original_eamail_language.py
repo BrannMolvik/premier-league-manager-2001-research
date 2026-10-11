@@ -64,6 +64,29 @@ ORIGINAL_TRANSFER_LIST_BODY_STRING_ID = 943
 ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE = "Dear {MANAGERNAME:1}<P><P>{PHRASE:PLAYERASKTRANSFERLISTREASON}<P><P><P>Yours Sincerely,<P><P>{PLAYERNAME:1}"
 
 
+# 0x56FD65 creates a PHRASE:PLAYERASKTRANSFERLISTREASON native token
+# with +0x10 = record+0x3C reason. Its +0x00 dispatcher table at 0x7D6200
+# selects 0x60FE40: cases 1..7 jump to native language slots
+# 0x87A70C, 0x87A708, ... 0x87A6F4 (EnglishEAM IDX 327..333).
+ORIGINAL_TRANSFER_REASON_DISPATCH_VA = 0x60FE40
+ORIGINAL_TRANSFER_REASON_TOKEN_LITERAL_VA = 0x8327FC
+ORIGINAL_TRANSFER_REASON_FIRST_SLOT_VA = 0x87A70C
+ORIGINAL_TRANSFER_REASON_FIRST_IDX_ORDINAL = 327
+ORIGINAL_TRANSFER_REASON_STRING_IDS = (326, 327, 328, 329, 330, 331, 332)
+
+
+def native_transfer_reason_from_crt_draw(rand15: int) -> int:
+    """Original 0x56FDD0..0x56FDF9 signed quotient, WITHOUT drawing RNG.
+
+    Original 0x66951C returns 0..32767. The native multiply-by-seven,
+    signed 0x80010003 quotient /32767 and zero->one substitution agree
+    for all 32768 inputs. Shared RNG ownership/call timing is separate.
+    """
+    if type(rand15) is not int or not 0 <= rand15 <= 0x7FFF:
+        raise OriginalEAMailLanguageError("Original EAM reason needs 15-bit CRT output")
+    return max(1, (rand15 * 7) // 32767)
+
+
 @dataclass(frozen=True)
 class VerifiedOriginalEAMailLanguage:
     strings: EAStringTable
@@ -85,6 +108,27 @@ class VerifiedOriginalEAMailLanguage:
         if type(index_entry) is not int or not 0 <= index_entry < len(self.index.string_ids):
             raise OriginalEAMailLanguageError("Native IDX selection is out of bounds")
         return self.index.resolve(self.strings, index_entry)
+
+    def original_player_asks_transfer_list_reason_phrase(self, native_reason: int) -> str:
+        """Source 0x60FE40 branch for original transfer-request PHRASE token.
+
+        Native reason must already have been assigned by the qualified
+        first-preview path. Never draw RNG or substitute PLAYER/MANAGER here.
+        """
+        if type(native_reason) is not int or not 1 <= native_reason <= 7:
+            raise OriginalEAMailLanguageError(
+                "Unassigned or invalid original transfer-preview reason"
+            )
+        offset = native_reason - 1
+        ordinal = ORIGINAL_TRANSFER_REASON_FIRST_IDX_ORDINAL + offset
+        expected_id = ORIGINAL_TRANSFER_REASON_STRING_IDS[offset]
+        expected_slot = ORIGINAL_TRANSFER_REASON_FIRST_SLOT_VA - 4 * offset
+        if ((0x87AC28 - expected_slot) // 4 != ordinal
+                or self.index.string_ids[ordinal] != expected_id):
+            raise OriginalEAMailLanguageError(
+                "Original transfer reason native language slot mismatch"
+            )
+        return self.index.resolve(self.strings, ordinal)
 
     def original_player_asks_transfer_list_body_template(self) -> str:
         """Source original +0x1C argument-zero template, NOT a rendered preview.
