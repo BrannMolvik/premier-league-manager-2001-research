@@ -28,10 +28,11 @@ def scenario(*, results=False):
                club_ids=(1, 2), fixtures={TOK: fixture},
                results={TOK: result} if results else {})
     state = Obj(
-        competitions={4: Obj(runtime_kind="league", uses_secondary_schedule_container=False)},
+        competitions={4: Obj(runtime_kind="league", parent_competition_id=None,
+                              country_region_id=26, uses_secondary_schedule_container=False)},
         procedural_leagues={(4, 0): live},
-        clubs={1: Obj(team_category_code=1, short_name="Zeta"),
-               2: Obj(team_category_code=1, short_name="Alpha")},
+        clubs={1: Obj(team_category_code=1, country_id=26, short_name="Zeta"),
+               2: Obj(team_category_code=1, country_id=26, short_name="Alpha")},
         club_competition_membership={1: 4, 2: 4},
         primary_schedule_shadow=Obj(days={D: (entry,)}),
         primary_schedule_end_date=D + timedelta(days=400),
@@ -72,6 +73,20 @@ class PrimaryGameStateCurrentFormTests(unittest.TestCase):
         state, _, _ = scenario()
         state.competitions[4].uses_secondary_schedule_container = True
         with self.assertRaisesRegex(OriginalCurrentFormSourceError, "primary container"):
+            bridge(state, competition_id=4)
+
+    def test_rejects_nonroot_and_cross_country_source_members(self):
+        state, _, _ = scenario()
+        state.competitions[4].parent_competition_id = 3
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "root League"):
+            bridge(state, competition_id=4)
+        state, _, _ = scenario()
+        state.clubs[1].country_id = 9
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "member country"):
+            bridge(state, competition_id=4)
+        state, _, _ = scenario()
+        state.competitions[4].country_region_id = None
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "root League"):
             bridge(state, competition_id=4)
 
     def test_rejects_missing_history_members_or_source_sides(self):
