@@ -1,8 +1,7 @@
-"""Source original EAMail eight-row normal bitmap compositing for live host.
+"""Source original EAMail eight-row normal/selected bitmap compositing for live host.
 
-Bounded first render: only default original 532x18 row graphic is source-exact.
-Original row/text native font/colors/bit-dependent icons/selection/detail and
-click actions remain unrecovered; those are intentionally NOT painted here.
+Selection is original 0x471B80 -> 0x470B40, normal 0x470B90; text,
+preview, status icons and detail/action dialog remain intentionally absent.
 """
 from __future__ import annotations
 
@@ -31,11 +30,12 @@ class OriginalEAMailCanvasError(ValueError):
 @dataclass(frozen=True)
 class OriginalEAMailRowArt:
     normal: EA444DecodedImage
+    selected: EA444DecodedImage | None = None
 
     def __post_init__(self) -> None:
-        if ((self.normal.width, self.normal.height) !=
-                ORIGINAL_EAMAIL_ROW_RECT[2:]):
-            raise OriginalEAMailCanvasError("Original native row grid geometry drifted")
+        for image in (self.normal, self.selected):
+            if image is not None and (image.width, image.height) != ORIGINAL_EAMAIL_ROW_RECT[2:]:
+                raise OriginalEAMailCanvasError("Original native row grid geometry drifted")
 
 
 @dataclass(frozen=True)
@@ -48,51 +48,82 @@ class OriginalEAMailCanvasRowOverlay:
     png: bytes
     source_path: str
     native_full_text_and_art_rendered: bool = False
+    native_selected: bool = False
 
 
 def load_verified_original_eamail_row_art(
     source_root: str | Path,
     original_executable: str | Path,
 ) -> OriginalEAMailRowArt:
-    """Decode only the SHA-authenticated first normal EAM row background.
+    """Decode original normal AND selected row bitmaps from verified source.
 
-    All other original EAM control and status graphics must exist unchanged;
-    loading them as decorative substitutions would be incorrect.
+    Other original EAM controls exist but are not drawn as decorative guesses.
     """
     root = Path(source_root)
     validate_original_eamail_grid_resources(root)
     validate_original_eamail_control_art(root)
-    original = ORIGINAL_EAMAIL_GRID_RESOURCES[0]
-    if original.name != "normal" or original.source_wrapper_va != 0x945E30:
-        raise OriginalEAMailCanvasError("Original normal row graphic mapping drifted")
+    normal, selected = ORIGINAL_EAMAIL_GRID_RESOURCES[:2]
+    if ((normal.name, normal.source_wrapper_va) != ("normal", 0x945E30)
+            or (selected.name, selected.source_wrapper_va) != ("selected", 0x945DF0)):
+        raise OriginalEAMailCanvasError("Original native row bitmap mapping drifted")
     executable = Path(original_executable).read_bytes()
     quant = quantization_from_verified_executable(executable)
     tables = tables_from_original_executable(executable)
-    bitmap = decode_staged_or_original(
-        (root / original.source_path).read_bytes(),
-        tables=tables,
-        quant=quant,
-    )
-    return OriginalEAMailRowArt(bitmap)
+
+    def decoded(resource):
+        return decode_staged_or_original(
+            (root / resource.source_path).read_bytes(), tables=tables, quant=quant,
+        )
+
+    return OriginalEAMailRowArt(decoded(normal), decoded(selected))
+
+
+def original_eamail_row_at_screen_point(
+    visible: OriginalEAMNativeVisibleRowsSource,
+    x: int,
+    y: int,
+) -> int | None:
+    """Hit-test the native eight displayed 532x18 row-owner rectangles.
+
+    0x46E680 constructs each row and 0x471B80 handles neutral row activation.
+    Panel-local list origin (233,30) plus screen panel y148 has been verified.
+    No mailbox/pending rows outside the projected native viewport are clickable.
+    """
+    if type(visible) is not OriginalEAMNativeVisibleRowsSource:
+        raise OriginalEAMailCanvasError("Original delivered Inbox viewport required")
+    if type(x) is not int or type(y) is not int:
+        raise OriginalEAMailCanvasError("Original row pointer coordinates must be integers")
+    for row in visible.native_rows:
+        rx, ry, width, height = row.row_screen_rect
+        if (width, height) != ORIGINAL_EAMAIL_ROW_RECT[2:]:
+            raise OriginalEAMailCanvasError("Original native row hit rectangle drifted")
+        if rx <= x < rx + width and ry <= y < ry + height:
+            return row.original_internal_node_serial
+    return None
 
 
 def source_original_eamail_row_backgrounds(
     visible: OriginalEAMNativeVisibleRowsSource,
     art: OriginalEAMailRowArt,
+    *,
+    selected_node_serial: int | None = None,
 ) -> tuple[OriginalEAMailCanvasRowOverlay, ...]:
-    """Produce original normal row bitmaps at exact native screen coordinates.
+    """Use original normal 0x945E30 or selected 0x945DF0 row bitmap.
 
-    Native PMessageRow ctor 0x46E705 initializes normal wrapper 0x945E30.
-    Source selection/hover/status changes follow different unimplemented
-    callbacks and must NOT be guessed here. Empty inbox yields no rows.
+    Hover/disabled/status effects and glyphs are unqualified for this renderer.
     """
     if type(visible) is not OriginalEAMNativeVisibleRowsSource or type(art) is not OriginalEAMailRowArt:
         raise OriginalEAMailCanvasError("Source original Inbox rows and art required")
     if len(visible.native_rows) > ORIGINAL_EAMAIL_VISIBLE_ROWS:
         raise OriginalEAMailCanvasError("Native CMessageList has eight visible slots")
     expected = ORIGINAL_EAMAIL_GRID_RESOURCES[0]
+    selected_resource = ORIGINAL_EAMAIL_GRID_RESOURCES[1]
+    if selected_node_serial is not None and art.selected is None:
+        raise OriginalEAMailCanvasError("Original selected bitmap is required")
     seen = set()
     png = encode_rgba_png(art.normal.width, art.normal.height, art.normal.rgba)
+    selected_png = (None if art.selected is None else
+                    encode_rgba_png(art.selected.width, art.selected.height, art.selected.rgba))
     layers = []
     for row in visible.native_rows:
         if (row.original_internal_node_serial in seen or
@@ -102,9 +133,14 @@ def source_original_eamail_row_backgrounds(
         x, y, w, h = row.row_screen_rect
         if (w, h) != ORIGINAL_EAMAIL_ROW_RECT[2:]:
             raise OriginalEAMailCanvasError("Original rendered row bounds mismatch")
+        selected = row.original_internal_node_serial == selected_node_serial
         layers.append(OriginalEAMailCanvasRowOverlay(
             native_node_serial=row.original_internal_node_serial,
-            x=x, y=y, width=w, height=h, png=png,
-            source_path=expected.source_path,
+            x=x, y=y, width=w, height=h,
+            png=selected_png if selected else png,
+            source_path=selected_resource.source_path if selected else expected.source_path,
+            native_selected=selected,
         ))
+    if selected_node_serial is not None and selected_node_serial not in seen:
+        raise OriginalEAMailCanvasError("Selected native row is not in delivered viewport")
     return tuple(layers)
