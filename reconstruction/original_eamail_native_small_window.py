@@ -19,7 +19,9 @@ from datetime import date
 from pathlib import Path
 
 from original_eamail_mailbox import OriginalDeliveredEAMail
-from original_eamail_language import load_verified_original_eamail_language
+from original_eamail_language import (
+    VerifiedOriginalEAMailLanguage, load_verified_original_eamail_language,
+)
 from original_eamail_native_filter import (
     OriginalEAMailFilterSourceError,
     original_filter_initial_transfer_mail,
@@ -182,6 +184,7 @@ def build_source_captioned_selected_user_initial_eamail_window(
     filter_index: int,
     sort_index: int | None,
     scroll_offset: int = 0,
+    verified_eam_language: VerifiedOriginalEAMailLanguage | None = None,
 ) -> OriginalInitialEAMailCaptionedWindow:
     """Project the real selected registered manager mailbox to source captions.
 
@@ -190,7 +193,13 @@ def build_source_captioned_selected_user_initial_eamail_window(
     EAMPlayerAskTransferListsub +0x18 title through IDX ordinal 1313.
     Never use pending events or generic English string fallback.
     """
-    resource = load_verified_original_eamail_language(original_source_root)
+    # Reuse the caller's already SHA-qualified original STR/IDX once; the
+    # native row projection needs both subject and body from that same pair.
+    # Without an explicit source, preserve the existing fail-closed loader.
+    if verified_eam_language is not None and type(verified_eam_language) is not VerifiedOriginalEAMailLanguage:
+        raise ValueError("Original selected Inbox source language must be verified")
+    resource = (verified_eam_language if verified_eam_language is not None
+                else load_verified_original_eamail_language(original_source_root))
     title = resource.original_player_asks_transfer_list_subject()
     window = build_selected_user_initial_eamail_window(
         source_bridge,

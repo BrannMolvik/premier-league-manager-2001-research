@@ -14,6 +14,10 @@ from original_eamail_native_row_fields import (
     build_selected_user_original_eam_source_rows,
     project_original_native_eam_row_fields,
 )
+from original_eamail_language import (
+    ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE,
+    load_verified_original_eamail_language,
+)
 from original_eamail_native_small_window import (
     OriginalInitialEAMailCaptionedWindow,
     build_source_captioned_selected_user_initial_eamail_window,
@@ -79,6 +83,15 @@ class OriginalNativeEAMRowFieldsTests(TestCase):
                 )),
             )
             self.assertEqual(row.original_title, "Transfer List")
+            self.assertEqual(row.native_record_class, "EAMPlayerAskTransferListsub")
+            self.assertEqual(
+                row.source_original_unexpanded_preview_template,
+                ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE,
+            )
+            self.assertIn(
+                "{PHRASE:PLAYERASKTRANSFERLISTREASON}",
+                row.source_original_unexpanded_preview_template,
+            )
             self.assertEqual(row.qualified_player_id, 3000+i+1)
             self.assertEqual(row.qualified_record_date, DAY+timedelta(
                 days=(5,1,2,6,9,0,2,8,7,10)[i+1]))
@@ -128,6 +141,24 @@ class OriginalNativeEAMRowFieldsTests(TestCase):
         )
         with self.assertRaisesRegex(OriginalEAMailRowFieldSourceError, "source-proven"):
             project_original_native_eam_row_fields(bad)
+        # Without the source-qualified EAM string mapping the pure row
+        # geometry projection must NOT invent body text or use title as body.
+        no_language = project_original_native_eam_row_fields(captioned)
+        self.assertTrue(no_language.native_rows)
+        self.assertTrue(all(
+            row.source_original_unexpanded_preview_template is None
+            for row in no_language.native_rows
+        ))
+        with self.assertRaisesRegex(OriginalEAMailRowFieldSourceError, "authenticated"):
+            project_original_native_eam_row_fields(captioned, eam_language=object())
+        source_language = load_verified_original_eamail_language(SOURCE_ROOT)
+        rows_with_source = project_original_native_eam_row_fields(
+            captioned, eam_language=source_language,
+        )
+        self.assertEqual(
+            rows_with_source.native_rows[0].source_original_unexpanded_preview_template,
+            ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE,
+        )
         with self.assertRaisesRegex(OriginalEAMailRowFieldSourceError, "eight-row"):
             project_original_native_eam_row_fields(
                 OriginalInitialEAMailCaptionedWindow(
