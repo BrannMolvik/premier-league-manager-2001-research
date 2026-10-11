@@ -81,7 +81,7 @@ class OriginalEAMailSourceContractTests(unittest.TestCase):
                 with patch.object(src, "ORIGINAL_EAMAIL_GRID_RESOURCES", patched):
                     with self.assertRaisesRegex(src.OriginalEAMailSourceError, "geometry"):
                         src.validate_original_eamail_grid_resources(root)
-                damaged.write_bytes(raw[:4] + b"invalid!" + raw[12:])
+                damaged.write_bytes(raw[:4] + b"ABCD" + raw[8:])
                 patched = tuple(replace(spec, sha256=sha256(
                     (root / spec.source_path).read_bytes()).hexdigest())
                     for spec in fake_assets)
