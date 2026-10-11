@@ -40,6 +40,7 @@ REQUIRED_BUNDLED_FILES = (
     "original_assets/source/FM2001_Art/Generic/match_report/info_popup.444",
     "original_assets/source/Fonts/Zurich_XCn_BT_16pixel.fnt",
     "original_assets/source/Fonts/Zurich_BdXCn_BT_20pixel.fnt",
+    "original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt",
     "original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt",
     "runtime_tools/ffmpeg.exe",
     "runtime_tools/ffmpeg.provenance.json",
@@ -50,6 +51,9 @@ REQUIRED_BUNDLED_FILES = (
 # Source-critical startup/management content must be present byte-for-byte,
 # not merely as a non-empty path. Preserve its canonical original identity.
 REQUIRED_EXACT_BUNDLED_SHA256 = {
+    # Native management club-name owner 0x8F21B0 loads 32px, not 36px.
+    # Pin the corrected source loader/content identity (Recovery406).
+    "original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt": "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36",
     "original_assets/source/Fonts/Zurich_BdXCn_BT_36pixel.fnt": "92a10c37d85a5bd23bab3ca8aee69779a570a47e5a8b25cbf0e5f0bf13c835df",
 }
 
