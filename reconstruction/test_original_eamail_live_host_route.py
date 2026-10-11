@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import TestCase, main
 
 from ea444_decoder import EA444DecodedImage
@@ -27,12 +28,26 @@ from match_postmatch import PlayerTransferRequest
 from test_original_eamail_live_user_bridge import controller
 
 
+class FixtureEAMBridge(ManagementSourceDataBridge):
+    # The source-shaped integration fixture has no scheduled original fixed-
+    # League header text yet; only assert the independently proven EAM path.
+    def management_header_match(self):
+        return None
+
+
 def ordinary_inbox():
     game = controller()
     session = FrontEndSession(lambda: game)
     session.dispatch(StartMenuControl.NEW_GAME)
     session.choose_club(1)
     session.dispatch(TeamSelectControl.START_CONTINUE)
+    # Synthetic canonical fixture's Club dataclass omits the original STR
+    # names, so provide distinct source-shaped full and short names.
+    state = session.gameplay.state
+    for index, club in tuple(state.clubs.items()):
+        state.clubs[index] = SimpleNamespace(
+            **vars(club), name=f"Full Club {index}", short_name=f"C{index}",
+        )
     return session
 
 
@@ -53,7 +68,7 @@ class OriginalInboxHostRouteTests(TestCase):
     def test_source_pmenu_root_and_child_navigate_real_delivered_owner(self):
         session = ordinary_inbox()
         delivered(session)
-        presenter = OriginalManagementPresenter(session)
+        presenter = OriginalManagementPresenter(session, bridge_factory=FixtureEAMBridge)
         root = presenter.source_accepted_pmenu_action("title", 1, 0)
         self.assertEqual(root.action.action_kind, "expand_root")
         self.assertEqual(presenter.expanded_root_id, 1)
@@ -74,7 +89,7 @@ class OriginalInboxHostRouteTests(TestCase):
     def test_normal_original_row_bitmap_layers_are_532x18_at_native_screen(self):
         session = ordinary_inbox()
         delivered(session)
-        presenter = OriginalManagementPresenter(session)
+        presenter = OriginalManagementPresenter(session, bridge_factory=FixtureEAMBridge)
         presenter.source_accepted_pmenu_action("title", 1, 0)
         rows = presenter.source_accepted_pmenu_action("child", 0x65, 0).presentation.eamail
         image = EA444DecodedImage(
@@ -92,7 +107,7 @@ class OriginalInboxHostRouteTests(TestCase):
 
     def test_foreign_manager_pending_and_empty_inbox_never_draw_art_rows(self):
         session = ordinary_inbox()
-        presenter = OriginalManagementPresenter(session)
+        presenter = OriginalManagementPresenter(session, bridge_factory=FixtureEAMBridge)
         presenter.source_accepted_pmenu_action("title", 1, 0)
         rows = presenter.source_accepted_pmenu_action("child", 0x65, 0).presentation.eamail
         self.assertEqual(rows.native_rows, ())
