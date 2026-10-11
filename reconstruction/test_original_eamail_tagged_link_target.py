@@ -69,7 +69,23 @@ class NativeEAMTaggedTargetTests(TestCase):
                 resolve(selector)
         for kind in (True, 1 << 32, -(1 << 32), "1"):
             with self.assertRaises(OriginalEAMLinkSourceError):
-                resolve(ord("P"),descriptor_type=kind)
+                resolve(ord("C"),descriptor_type=kind)
+        # The original P branch never reads type/+8, and C subtype2/17
+        # never reads +4. Preserve original reachability under partial
+        # source qualification, rather than refusing an unrelated field.
+        self.assertEqual(original_eam_typed_link_index(
+            ord("P"), verified_descriptor_word4=12).original_signed_index, 12)
+        self.assertEqual(original_eam_typed_link_index(
+            ord("C"), verified_descriptor_type=2,
+            verified_descriptor_word8=31).original_signed_index, 31)
+        self.assertEqual(original_eam_typed_link_index(
+            ord("C"), verified_descriptor_type=17,
+            verified_descriptor_word8=35).original_signed_index, 35)
+        self.assertIsNone(original_eam_typed_link_index(ord("Q")))
+        with self.assertRaisesRegex(OriginalEAMLinkSourceError, "descriptor \\+4"):
+            original_eam_typed_link_index(ord("P"))
+        with self.assertRaisesRegex(OriginalEAMLinkSourceError, "descriptor \\+8"):
+            original_eam_typed_link_index(ord("C"), verified_descriptor_type=2)
         # Original parent treats -1 as no action; other signed negatives
         # still select original fallback club path, which this helper
         # retains only as unexpanded source index.
