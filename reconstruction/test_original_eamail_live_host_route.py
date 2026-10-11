@@ -165,6 +165,7 @@ class OriginalInboxHostRouteTests(TestCase):
             )
 
         # Call the real host pointer handler without Tk, recording redraws.
+        before_delivered = session.gameplay.state.original_delivered_mailboxes.delivered_for_manager(0)
         host = object.__new__(OriginalGameTkHost)
         host.pmenu_popup_active = False
         host.eamail_row_art = art
@@ -182,8 +183,10 @@ class OriginalInboxHostRouteTests(TestCase):
         self.assertFalse(host._press_original_eamail_row(SimpleNamespace(x=234, y=196), frame))
         self.assertEqual(len(redraws), 2)
         # A second press cannot manufacture a dialog or mutate delivered data.
-        self.assertEqual(session.gameplay.state.original_delivered_mailboxes.mailbox_for_manager(0)
-                         .messages[0].original_status_bits, 0x6)
+        self.assertEqual(
+            session.gameplay.state.original_delivered_mailboxes.delivered_for_manager(0),
+            before_delivered,
+        )
 
     def test_foreign_manager_pending_and_empty_inbox_never_draw_art_rows(self):
         session = ordinary_inbox()
