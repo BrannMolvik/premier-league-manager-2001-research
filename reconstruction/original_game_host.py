@@ -2150,8 +2150,14 @@ class OriginalGameTkHost:
         navigate via a popup PMenu row callback. The exact 40x95 header
         art remains separately missing, not simulated here.
         """
+        x, y = int(event.x), int(event.y)
+        # Reject foreign owner coordinates before inspecting the panel object.
+        # PMenu popup tests also exercise a source-backed partial/mock frame;
+        # that frame must not be mistaken for a PBg mail-click owner.
+        if not (558 <= x < 598 and 0 <= y < 95):
+            return False
         if not original_pbg_direct_eamail_press(
-            int(event.x), int(event.y),
+            x, y,
             active_panel_class=frame.presentation.panel_class,
             pmenu_popup_active=self.pmenu_popup_active,
         ):
