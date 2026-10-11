@@ -24,6 +24,9 @@ from test_original_league_tables_selected_premier0 import prepared_state
 
 def complete_state():
     state = prepared_state()
+    # Synthetic selector definitions omit the original Premier0 calendar count;
+    # supply the verified 38-matchday source shape without relaxing production.
+    state.competitions[0].scheduled_matchday_count = 38
     start = date(2000, 8, 2)
     per_day = {}
     source = state.premier_league
