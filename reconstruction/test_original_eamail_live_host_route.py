@@ -101,7 +101,7 @@ class OriginalInboxHostRouteTests(TestCase):
         self.assertEqual((rendered[0].x, rendered[0].y, rendered[0].width,
                           rendered[0].height), (233, 178, 532, 18))
         self.assertEqual(rendered[0].source_path, ORIGINAL_EAMAIL_GRID_RESOURCES[0].source_path)
-        self.assertTrue(rendered[0].png.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+        self.assertTrue(rendered[0].png.startswith(b"\x89PNG\r\n\x1a\n"))
         self.assertFalse(rendered[0].native_full_text_and_art_rendered)
         self.assertFalse(rows.original_gui_accepted)
 
