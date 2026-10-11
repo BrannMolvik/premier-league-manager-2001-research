@@ -285,6 +285,7 @@ jobs:
             test_gate13_first_screen_manifest_readiness \
             test_gate13_pstartmenu_derivative \
             test_gate13_button_source_trace \
+            test_gate13_current_form_input_source_trace \
             test_gate13_button_vtable_xref_candidates \
             test_gate13_button_rtti_candidates \
             test_gate13_squad_source_trace \
