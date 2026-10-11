@@ -46,6 +46,9 @@ class AuthenticSelectedLeagueBridge(Bridge):
     def source_selected_nonpl_league_fixtures_grid_source(self, context):
         return self.source.source_selected_nonpl_league_fixtures_grid_source(context)
 
+    def source_selected_league_fixtures_grid_source(self, context):
+        return self.source.source_selected_league_fixtures_grid_source(context)
+
 
 def started_session():
     session = FrontEndSession(Backend)
