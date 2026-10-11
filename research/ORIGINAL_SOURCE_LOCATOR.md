@@ -1,5 +1,13 @@
 # Original FM2001 Source Locator
 
+**Worker workflow:** read `research/ORIGINAL_DRIVE_SOURCE_WORKFLOW.md` first.
+The original extracted game filesystem now exists in private connected Google
+Drive; historical sections describing an empty upload or pending standalone
+original executable are dated records only and are superseded by the
+newer verified-source receipts lower in this file. Prefer small, directly
+accessible original files and verify identity rather than reloading giant
+disc-image containers.
+
 ## Purpose
 
 This file records the durable private location of the authorized original
