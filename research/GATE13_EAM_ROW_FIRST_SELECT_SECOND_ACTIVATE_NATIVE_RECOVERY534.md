@@ -28,3 +28,19 @@ At `0x470B90` the deselection branch sets the original normal bitmap `0x945E30` 
 Main `d6f334e01d11e63a25464ec211ffd3b5a04b6162` contains read-only delivered EAM row projection, original normal row art, and real root1→child0x65 normal-host panel. The normal Inbox still **does not implement** selected versus unselected row state, native preview/detail open and modal choices. This is a **confirmed missing normal player GUI route**, not a test-pass claim.
 
 Next work must inspect the original `0x471270` choice-table cases and modal dismissal, then implement only qualified semantics through ordinary `original_game_host` input: first press changes selected sprite/text preview, same-row second press opens genuine original detail/actions, row switch deselects prior row, modal return refreshes delivered mailbox and selection, Escape returns using source-specific event handling. Add negative event, empty view and different-row tests, and verify actual Windows11 mouse and keyboard behavior separately. Preserve unverified message actions as UNKNOWN/fail-closed. Audit native eCText font/colors/markup separately before displaying glyphs. Gate 13 and 14–17 remain OPEN.
+
+## Follow-on static source mapping: action popup choice dispatch (Recovery 534)
+
+The original `0x4713B2..0x4713BE` switch dispatches **only** popup return codes 5 through 16 inclusive: subtract 5, unsigned compare with 11, jump through 12 DWORD entries at original VA `0x4715E8`. Reading the **raw original .text bytes** under image base `0x400000` and decoding 12 little-endian pointers yields this complete address dispatch table (code → target):
+
+| Code | Native jump target | Confirmed immediate branch effect |
+| --- | --- | --- |
+| 5 | `0x4715B0` | Calls record virtual +0x20 with argument 5 after dismissing popup |
+| 6 | `0x471564` | Dismisses popup, then recursively calls `0x471270` with previous record in filtered array (bounded by caller context) |
+| 7 | `0x47153A` | Dismisses popup, then recursively calls `0x471270` with following record in filtered array |
+| 8 | `0x47158E` | Calls record virtual +0x44 and `0x471150` after popup dismissed |
+| 9–11 | `0x4713DA` | Invokes record virtual +0x20 with (popup code − 9); conditional follow-on subtype popup and virtual +0x50/+0x54; can enqueue a typed EAM event via `0x613EC0` |
+| 12–15 | `0x4715C9` | Common modal cleanup; no extra action in this function |
+| 16 | `0x4713C5` | Dismiss popup via `0x5EB920`, then common modal cleanup |
+
+**Important:** These are native branch destinations and directly visible call effects, **not** player-facing option labels or general semantics. The exact modal/choice UI strings, success predicates, subtype record vft, previous/next constraints, Escape return code and eventual persist/delivery consequences require separate source mapping. In particular, do **not** assume 12–15 are globally inert actions or that 16 equals Escape: only their local dispatch in `0x471270` is confirmed. Do not implement generic destructive buttons based on this table alone.
