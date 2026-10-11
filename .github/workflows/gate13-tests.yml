@@ -276,6 +276,7 @@ jobs:
             test_original_management_canvas \
             test_original_management_header \
             test_original_management_background \
+            test_original_pbg_back3_source \
             test_original_game_host \
             test_startup_media_windows_backend \
             test_startup_media_tk_integration \
