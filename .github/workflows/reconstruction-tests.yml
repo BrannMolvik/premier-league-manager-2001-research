@@ -65,6 +65,8 @@ on:
       - "reconstruction/original_league_tables_live_source.py"
       - "reconstruction/original_league_tables_current_form.py"
       - "reconstruction/test_original_league_tables_current_form.py"
+      - "reconstruction/original_league_tables_current_form_game_state.py"
+      - "reconstruction/test_original_league_tables_current_form_game_state.py"
       - "reconstruction/test_original_league_tables_live_source.py"
       - "reconstruction/original_management_presenter.py"
       - "reconstruction/test_original_management_presenter.py"
