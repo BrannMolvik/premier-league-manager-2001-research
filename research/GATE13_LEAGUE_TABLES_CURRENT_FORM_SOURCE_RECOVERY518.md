@@ -53,3 +53,18 @@ The original `0x4F49A8..0x4F49C3` takes the returned source schedule wrapper, in
 - This direct RTTI and virtual dispatch proof resolves an important source class-identity gap from Recovery520, but does **not** establish the full original Current Form eligible roster/history, season rollover, or normal mouse activation. Source-vtable metadata and C++ RTTI are kept as textual evidence only, not copied private bytes.
 
 **Next:** original `LeagueMatch` constructor/score initialization and status-bit0 relation to `0x615ED0` form lookup, club subtype+0x74/secondary-calendar eligibility, then source-backed results-to-form adapter and complete presenter on a worker PR with original-derived negatives. Codex R1 protected. Gate13, Gates14–17 and verified Windows11 release OPEN.
+
+## Recovery522: original LeagueMatch constructor zero state and eligible-unplayed counterexample
+
+Source `LeagueMatch::0x5104F0..0x510517` invokes base `Match::0x5103D0`, then installs LeagueMatch vtable `0x7C4C24` at `0x51050E`. The base constructor unambiguously writes:
+
+- `0x5104BE–0x5104C4`: signed score words at `Match+0x3C` and `+0x3E` **both zero**.
+- `0x5104CF`: match `+0x44` completion/filter flags **zero**, i.e., not yet marked played.
+- `0x5104D2`: separate signed word at `+0x40 = -1` (do not invent its meaning).
+- This is independent of the later `0x513F70` winning-side vtable method, which examines only scores and resolves clubs without a played-bit check.
+
+**New verified conditional counterexample:** An original newly constructed LeagueMatch that remains 0–0/bit0-clear, retains both original club sides, matches original selected League, is scheduled on/before lookup date, and has wrapper+0x08==0 and source flags bit5==0/bit6==0 can qualify under `0x4F4970 → 0x615ED0 → 0x615C50`. The returned `0x513F70` winner is null; `0x4F4970` adds **one form point** to this not-yet-played match exactly as it would for a drawn match. The original query's inclusive current-date bound and nonplayed-bit absence make this technically possible, notably on a matchday before simulation, although full runtime prevalence is unobserved. This excludes both common invented substitutes: (a) counting only `live.results` matches, and (b) treating every missing result as a stored 0–0 match without a source-qualified calendar node and flags.
+
+**Mode-ownership caveat:** original `0x403640` is a predicate over the concrete object passed as `ECX` (byte `+0x74`). Source `0x43B940` contains mode writes 0/1 at this offset and `0x404282` temporarily sets 2 before `0x409B50`, then restores previous byte. Those are not evidence that `+0x74` is an intrinsic DBRClub type or always per-club identity; earlier shorthand 'club owner subtype' must be read as **the object returned by member virtual0, whose actual class and lifetime remain UNVERIFIED**. Before mapping to port state, trace this virtual owner concrete type and full original mode writes (including 3), and original `0x4079D0` caller input.
+
+**Release/integration consequence:** the original full Current Form display remains blocked by verifiable calendar/owner parity and normal mouse UI. Do not hide or fabricate the conditional unplayed count. Implement only after exact native search evidence is mapped to live source history, with negative tests including same-day unplayed and form-cache reset. No original game execution, build, CI or application code changes here. Gate13 and Gates14–17 / Windows11 release remain OPEN.

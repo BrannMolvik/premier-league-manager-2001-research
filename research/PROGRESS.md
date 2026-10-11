@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery522 original LeagueMatch initial result ambiguity resolved
+
+Validated native LeagueMatch constructor VFT `0x7C4C24` and base Match code `0x5103D0` writes 0 goals and 0 flags at creation. Current Form native score method has no bit0 played guard; an eligible same-day unplayed 0-0 source node can count as a draw point under original source gates. Also challenged prior label that mode byte owner+0x74 is a DBRClub subtype; concrete returned object's class/lifetime not established and mode writes indicate a transient mode2 elsewhere. Research memo amended and release/open-state preserved; no speculative port code or Windows11 acceptance.
+
 ### 11 October 2026 KST — Recovery521 original LeagueMatch result-vtable/Current Form outcome source
 
 Direct private PE RTTI proves form lookup dynamic-casts Match→LeagueMatch, original class vtable at `0x7C4C24`, winner getter `0x513F70` (score signed words+0x3C/+0x3E). Winner getter returns real first/second club pointer based on comparison or null on equality, without checking completion bit0; null may thus represent unresolved unplayed zero score absent source scheduling proof, not just a genuine draw. Explicit new source caveat prevents incorrect modern `unplayed==draw` or unconditional filter assumptions. No original game run, no app implementation/test, no asset commit; Gates13–17 open.
