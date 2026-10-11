@@ -95,7 +95,7 @@ class OriginalEAMNativePlayerLabelTests(TestCase):
                     **(args | {"verified_native_association_word": word}),
                     source_verified_user_caption="",
                 )
-        for caption in (None, True, 3, "💠", "nul\\x00unsafe"):
+        for caption in (None, True, 3, "💠", "nul\x00unsafe"):
             with self.assertRaises(OriginalEAMPlayerNameSourceError):
                 original_eam_player_positive_association_label(
                     **args, source_verified_user_caption=caption,
