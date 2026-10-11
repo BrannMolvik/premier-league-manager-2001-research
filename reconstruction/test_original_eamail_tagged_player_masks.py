@@ -1,4 +1,5 @@
 """Original shipped T+P/T+C transferred-player markup fragment alpha only."""
+from dataclasses import replace
 from pathlib import Path
 from unittest import TestCase, main
 
@@ -9,7 +10,7 @@ from original_eamail_player_name import (
 )
 from original_eamail_tagged_player_masks import (
     OriginalEAMTaggedMaskError,
-    native_player_markup_fragment_masks,
+    native_player_markup_fragment_masks, native_visible_player_fragment_masks,
 )
 from original_management_text import load_verified_management_text_resources
 
@@ -54,6 +55,40 @@ class NativeEAMPlayerTaggedMaskTests(TestCase):
             self.assertGreater(run.glyph_alpha.width, 0)
             self.assertEqual(len(run.glyph_alpha.alpha),
                              run.glyph_alpha.width * run.glyph_alpha.height)
+
+    def test_actual_registered_human_delivered_player_id2_fragment_owner(self):
+        from test_original_eamail_plain_glyph_masks import source_rows_with_font
+        visible, font = source_rows_with_font()
+        native_text = visible.native_rows[0].original_text_fields[0].source_verified_visible_text
+        self.assertIsNotNone(native_text)
+        self.assertTrue(native_text.startswith("<T+P>"))
+        rows = native_visible_player_fragment_masks(visible, font)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].native_node_serial,
+                         visible.native_rows[0].original_internal_node_serial)
+        self.assertEqual(rows[0].screen_control_rect, (271, 178, 215, 16))
+        self.assertEqual(rows[0].raw_original_label, native_text)
+        self.assertFalse(rows[0].native_final_draw_verified)
+        self.assertTrue(all(not fragment.final_color_and_placement_verified
+                            for fragment in rows[0].fragments))
+        self.assertEqual(native_visible_player_fragment_masks(
+            replace(visible, native_rows=(), original_filtered_count=0), font), ())
+
+    def test_real_owner_rejects_invalid_markup_and_geometry(self):
+        from test_original_eamail_plain_glyph_masks import source_rows_with_font
+        visible, font = source_rows_with_font()
+        native_row = visible.native_rows[0]
+        child = native_row.original_text_fields[0]
+        bad = replace(child, source_verified_visible_text="<T+P>No end")
+        changed = replace(visible, native_rows=(replace(
+            native_row, original_text_fields=(bad, *native_row.original_text_fields[1:])),))
+        with self.assertRaises(OriginalEAMTaggedMaskError):
+            native_visible_player_fragment_masks(changed, font)
+        bad = replace(child, screen_rect=(0, 0, 215, 16))
+        changed = replace(visible, native_rows=(replace(
+            native_row, original_text_fields=(bad, *native_row.original_text_fields[1:])),))
+        with self.assertRaisesRegex(OriginalEAMTaggedMaskError, "rectangle"):
+            native_visible_player_fragment_masks(changed, font)
 
     def test_alternate_native_markup_or_corrupt_values_are_rejected(self):
         font = original_font()
