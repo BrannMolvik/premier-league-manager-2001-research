@@ -9,8 +9,9 @@ Constructor 0x46E680 binds three native child rectangles, original row
 532x18, CMessageList eight visible rows pitched at 20 px.
 
 Only the first native title is text-exact for the initial transfer subclass.
-The player-specific positive-association name remains unresolved; original
-English.str+idx now qualifies the date formatter when both resources match.
+The player-specific name/club can now be projected when immutable native
+association and one-user override context are source-qualified. Unknown legacy
+records remain without that text. English.str+idx qualifies the native date.
 Native GUI is NOT painted and event handlers are NOT asserted here.
 """
 from __future__ import annotations
@@ -18,6 +19,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+from typing import Callable
+
+from original_eamail_player_name import (
+    original_eam_player_no_association_label,
+    original_eam_player_positive_association_label,
+)
 
 from original_eamail_main_language import (
     VerifiedOriginalMainEAMLanguage,
@@ -68,8 +75,8 @@ class OriginalEAMNativeTextField:
     source_kind: str
     source_rect_in_row: tuple[int, int, int, int]
     screen_rect: tuple[int, int, int, int]
-    # EnglishEAM title and optional SHA-verified English main date are proven;
-    # the player-specific club/name branch remains unknown for this record.
+    # Source-qualified title, date and optionally player/club name. The
+    # dynamic user nickname only qualifies for the fresh one-user path.
     source_verified_visible_text: str | None
 
 
@@ -100,6 +107,7 @@ def project_original_native_eam_row_fields(
     captioned: OriginalInitialEAMailCaptionedWindow,
     *,
     main_language: VerifiedOriginalMainEAMLanguage | None = None,
+    player_text_resolver: Callable[[object], str | None] | None = None,
 ) -> OriginalEAMNativeVisibleRowsSource:
     """Source-exact column assignment, without invented localization/layout."""
     if type(captioned) is not OriginalInitialEAMailCaptionedWindow:
@@ -141,6 +149,12 @@ def project_original_native_eam_row_fields(
             visible_text = title if child_id == 3 else None
             if child_id == 0 and main_language is not None:
                 visible_text = main_language.original_mail_row_date(record.record_date)
+            if child_id == 2 and player_text_resolver is not None:
+                visible_text = player_text_resolver(record)
+                if visible_text is not None and type(visible_text) is not str:
+                    raise OriginalEAMailRowFieldSourceError(
+                        "Original player text resolver returned non-source text"
+                    )
             children.append(OriginalEAMNativeTextField(
                 child_id=child_id,
                 origin_va=origin_va,
@@ -180,6 +194,35 @@ def build_selected_user_original_eam_source_rows(
     This is the layer immediately below a future native art/font renderer.
     No pending queue, inferred row statuses or imaginary click routes.
     """
+    main_language = load_verified_original_main_eam_language(original_source_root)
+    source_reader = getattr(
+        source_bridge, "source_eam_player_descriptor_name_and_club", None,
+    )
+
+    def resolve_original_player_text(record: object) -> str | None:
+        # Historical modern saves intentionally retain an unknown descriptor
+        # as None. Never infer +0x72 from today's mutable club membership.
+        word = getattr(record, "verified_native_association_word_at_creation", None)
+        if word is None:
+            return None
+        if not callable(source_reader):
+            raise OriginalEAMailRowFieldSourceError(
+                "Native EAM source player/club resolver is unavailable"
+            )
+        first, surname, short_name, nickname = source_reader(record)
+        if word < 0:
+            return original_eam_player_no_association_label(
+                first_name=first, surname=surname,
+                verified_native_association_word=word,
+            )
+        return original_eam_player_positive_association_label(
+            first_name=first, surname=surname,
+            verified_native_association_word=word,
+            source_club_short_name=short_name,
+            source_verified_user_caption=nickname,
+            verified_original_club_suffix=main_language.original_club_suffix(),
+        )
+
     return project_original_native_eam_row_fields(
         build_source_captioned_selected_user_initial_eamail_window(
             source_bridge,
@@ -188,5 +231,6 @@ def build_selected_user_original_eam_source_rows(
             sort_index=sort_index,
             scroll_offset=scroll_offset,
         ),
-        main_language=load_verified_original_main_eam_language(original_source_root),
+        main_language=main_language,
+        player_text_resolver=resolve_original_player_text,
     )
