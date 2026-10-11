@@ -115,8 +115,10 @@ class OriginalPremierCurrentFormTests(unittest.TestCase):
         state=scenario()
         state.primary_schedule_shadow.days[D][0].wrapper_link_state="linked"
         rows={row.club_id:row for row in form(state)}
-        self.assertEqual(rows[1000].score,0)
-        self.assertEqual(rows[1001].score,0)
+        # The synthetic full season has other same-day unplayed fixtures.
+        # The original source skips the linked match, not the whole day.
+        self.assertNotIn(("fixed_league_match",0,0,0),rows[1000].matching_tokens)
+        self.assertNotIn(("fixed_league_match",0,0,0),rows[1001].matching_tokens)
 
     def test_read_only_of_original_runtime_state(self):
         state=scenario()
