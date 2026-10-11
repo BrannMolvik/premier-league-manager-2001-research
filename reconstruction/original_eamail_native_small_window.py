@@ -16,8 +16,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 
 from original_eamail_mailbox import OriginalDeliveredEAMail
+from original_eamail_language import load_verified_original_eamail_language
 from original_eamail_native_filter import (
     OriginalEAMailFilterSourceError,
     original_filter_initial_transfer_mail,
@@ -158,4 +160,47 @@ def build_selected_user_initial_eamail_window(
         filter_index=filter_index,
         sort_index=sort_index,
         scroll_offset=scroll_offset,
+    )
+
+
+@dataclass(frozen=True)
+class OriginalInitialEAMailCaptionedWindow:
+    """Actual source-language title data for real visible selected-user rows.
+
+    The native row title resource has been proven for the initial
+    EAMPlayerAskTransferListsub ONLY. Original row child/font/render positions,
+    body/action/flag changes and GUI input are deliberately not synthesized.
+    """
+    window: OriginalInitialEAMailSortedWindow
+    visible_original_subjects: tuple[str, ...]
+
+
+def build_source_captioned_selected_user_initial_eamail_window(
+    source_bridge: object,
+    *,
+    original_source_root: str | Path,
+    filter_index: int,
+    sort_index: int | None,
+    scroll_offset: int = 0,
+) -> OriginalInitialEAMailCaptionedWindow:
+    """Project the real selected registered manager mailbox to source captions.
+
+    Load SHA-checked original EnglishEAM bytes, reproduce native filter and
+    <=16 native insertion order, then resolve only the source-proved
+    EAMPlayerAskTransferListsub +0x18 title through IDX ordinal 1313.
+    Never use pending events or generic English string fallback.
+    """
+    resource = load_verified_original_eamail_language(original_source_root)
+    title = resource.original_player_asks_transfer_list_subject()
+    window = build_selected_user_initial_eamail_window(
+        source_bridge,
+        filter_index=filter_index,
+        sort_index=sort_index,
+        scroll_offset=scroll_offset,
+    )
+    return OriginalInitialEAMailCaptionedWindow(
+        window=window,
+        visible_original_subjects=(
+            (title,) * len(window.viewport.visible_rows)
+        ),
     )
