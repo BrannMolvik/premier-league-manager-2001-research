@@ -1354,9 +1354,10 @@ class OriginalGameHostTests(unittest.TestCase):
                                    user_result=SimpleNamespace(score=(1, 0)),
                                    results_progress=None)
 
-        with patch.object(StubBackend, "play_original_user_primary_match",
-                          play, create=True), patch.object(host, "redraw"), \\
-                patch.object(host, "present_completed_match_by_source_mode"):
+        with (patch.object(StubBackend, "play_original_user_primary_match",
+                           play, create=True),
+              patch.object(host, "redraw"),
+              patch.object(host, "present_completed_match_by_source_mode")):
             host._begin_original_human_match(MatchDetailMode.QUICK_MATCH)
             host._management_turn_thread.run()
             self.assertEqual(host._management_turn_queue.qsize(), 1)
