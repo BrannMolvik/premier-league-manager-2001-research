@@ -69,6 +69,11 @@ class OriginalDeliveredEAMail:
     # Frozen constructor descriptor+8, not today's mutable player/club owner.
     # None survives historical modern saves where no native word was captured.
     verified_native_association_word_at_creation: int | None = None
+    # Original EAMPlayerAskTransferList source constructor 0x56FB3C sets
+    # native record+0x3C = -1 (not yet selected). The first qualified body
+    # preview may consume original RNG and persist a native signed reason.
+    # This is record DATA only, not an authorization to generate the reason.
+    original_preview_reason_native_i32: int = -1
     native_status_decoded: bool = False
     original_screen_rendered: bool = False
 
@@ -84,6 +89,13 @@ class OriginalDeliveredEAMail:
         ):
             raise OriginalEAMailOwnerError(
                 "Original EAM type-2 descriptor word must be signed 16-bit"
+            )
+        # Original 0x56F9F0 fread / 0x56FA60 fwrite preserve the raw 32-bit
+        # reason; do not reinterpret it as a modern status/choice or bool.
+        reason = self.original_preview_reason_native_i32
+        if type(reason) is not int or not -(1 << 31) <= reason < (1 << 31):
+            raise OriginalEAMailOwnerError(
+                "Original transfer preview reason must be native signed DWORD"
             )
         if type(self.pending_identity) is not str or not self.pending_identity:
             raise OriginalEAMailOwnerError("Source pending event identity is required")
@@ -245,6 +257,14 @@ class OriginalDeliveredEAMailboxes:
                                     row.verified_native_association_word_at_creation
                             } if row.verified_native_association_word_at_creation
                                   is not None else {}),
+                            # Preserve a real source-assigned native reason
+                            # through modern save; default -1 stays omitted
+                            # for compatibility with existing clean snapshots.
+                            **({
+                                "original_preview_reason_native_i32":
+                                    row.original_preview_reason_native_i32
+                            } if row.original_preview_reason_native_i32 != -1
+                                  else {}),
                         }
                         for row in self.mailboxes[key]
                     ],
@@ -289,7 +309,10 @@ class OriginalDeliveredEAMailboxes:
                     "node_serial", "pending_identity", "event_class",
                     "record_date", "player_id", "sender_club_id"
                 }
-                allowed = required | {"verified_native_association_word_at_creation"}
+                allowed = required | {
+                    "verified_native_association_word_at_creation",
+                    "original_preview_reason_native_i32",
+                }
                 if (type(source) is not dict or not required <= set(source)
                         or not set(source) <= allowed):
                     raise OriginalEAMailOwnerError("Invalid saved original EAM record")
@@ -303,6 +326,9 @@ class OriginalDeliveredEAMailboxes:
                     sender_club_id=source["sender_club_id"],
                     verified_native_association_word_at_creation=source.get(
                         "verified_native_association_word_at_creation"
+                    ),
+                    original_preview_reason_native_i32=source.get(
+                        "original_preview_reason_native_i32", -1
                     ),
                 ))
         mailbox.__post_init__()

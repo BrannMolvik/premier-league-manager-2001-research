@@ -168,6 +168,41 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
         with self.assertRaisesRegex(OriginalEAMailOwnerError, "Only original"):
             replace(rec, event_class="EAMChairSeasonTicketssub")
 
+    def test_native_reason_constructor_sentinel_and_exact_signed_save_roundtrip(self):
+        inbox = OriginalDeliveredEAMailboxes()
+        inbox.register_source_user(0)
+        record = inbox.deliver_source_ready_transfer_request(
+            event(), pending_identity="reason-original",
+            at_date=DAY, original_record_ready=True,
+        )
+        self.assertEqual(record.original_preview_reason_native_i32, -1)
+        initial = inbox.snapshot()
+        # Default modern saves remain unchanged; old modern records had
+        # no original preview formatter and therefore no assigned reason.
+        self.assertNotIn("original_preview_reason_native_i32",
+                         initial["mailboxes"][0]["records"][0])
+        self.assertEqual(OriginalDeliveredEAMailboxes.restore(initial).snapshot(), initial)
+        # Simulate only a separately verified future native preview mutation:
+        # saving/reloading signed field must not re-roll a reason or touch RNG.
+        assigned = replace(record, original_preview_reason_native_i32=3)
+        inbox.mailboxes[0][0] = assigned
+        assigned_save = inbox.snapshot()
+        self.assertEqual(assigned_save["mailboxes"][0]["records"][0]
+                         ["original_preview_reason_native_i32"], 3)
+        restored = OriginalDeliveredEAMailboxes.restore(assigned_save)
+        self.assertEqual(restored.delivered_for_manager(0), (assigned,))
+        self.assertEqual(restored.snapshot(), assigned_save)
+        for invalid in (True, "3", None, 1 << 32, -(1 << 32)):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(
+                OriginalEAMailOwnerError, "signed DWORD"
+            ):
+                replace(record, original_preview_reason_native_i32=invalid)
+        for invalid in (True, "3", 1 << 32):
+            bad = copy.deepcopy(assigned_save)
+            bad["mailboxes"][0]["records"][0]["original_preview_reason_native_i32"] = invalid
+            with self.assertRaisesRegex(OriginalEAMailOwnerError, "signed DWORD"):
+                OriginalDeliveredEAMailboxes.restore(bad)
+
     def test_multiuser_registration_and_node_identity_corruption_refused(self):
         inbox = OriginalDeliveredEAMailboxes()
         for manager in range(6):
@@ -258,7 +293,15 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
             due, pending_identity="real-source-envelope",
             at_date=DAY, original_record_ready=True,
         )
+        # State-only stand-in for a FUTURE qualified original GUI preview.
+        # Do not generate this reason via an unqualified Python RNG.
+        delivered = replace(delivered, original_preview_reason_native_i32=3)
+        state.original_delivered_mailboxes.mailboxes[first_key][-1] = delivered
         saved = snapshot_human_gameplay(game)
+        self.assertEqual(
+            saved["game_state"]["original_delivered_mailboxes"]["mailboxes"][0]
+            ["records"][0]["original_preview_reason_native_i32"], 3
+        )
         self.assertEqual(
             saved["game_state"]["original_delivered_mailboxes"]["next_node_serial"], 2
         )
