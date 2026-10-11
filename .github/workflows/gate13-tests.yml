@@ -79,6 +79,8 @@ on:
       - "reconstruction/test_original_league_tables_live_source.py"
       - "reconstruction/original_management_presenter.py"
       - "reconstruction/original_eamail_mailbox.py"
+      - "reconstruction/original_eamail_pending.py"
+      - "reconstruction/test_original_eamail_pending.py"
       - "reconstruction/original_eamail_source_contract.py"
       - "reconstruction/test_original_eamail_source_contract.py"
       - "reconstruction/test_original_eamail_mailbox.py"
@@ -247,6 +249,7 @@ jobs:
             test_original_management_league_tables_radio_events \
             test_original_management_league_tables_current_form_selection \
             test_original_eamail_mailbox \
+            test_original_eamail_pending \
             test_original_eamail_source_contract \
             test_original_eamail_live_user_bridge \
             test_original_management_canvas \
