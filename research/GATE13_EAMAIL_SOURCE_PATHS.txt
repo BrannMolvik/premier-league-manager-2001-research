@@ -1,0 +1,6 @@
+# Four hash-verified original PEAMail row-grid assets (Recovery450).
+# Pass to reconstruction/gate13_source_inventory.py --extract-path-file.
+FM2001_Art/Generic/eamail/text_grid_nor.444
+FM2001_Art/Generic/eamail/text_grid_sel.444
+FM2001_Art/Generic/eamail/text_grid_high.444
+FM2001_Art/Generic/eamail/text_grid_des.444
