@@ -117,6 +117,7 @@ from original_pmatchinfo_presenter import (
 )
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_popup import pmenu_open_press, pmenu_app_pointer_dismiss
+from original_pbg_direct_inbox import original_pbg_direct_eamail_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point, OriginalPMenuAnimation
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from gate13_pstartmenu_derivative import (
@@ -2141,6 +2142,33 @@ class OriginalGameTkHost:
             drawn += 1
         return drawn
 
+    def _press_original_pbg_direct_inbox(self, event, frame) -> bool:
+        """Dispatch original PBg header ID1 directly to PEAMail factory 0x65.
+
+        Source PBg::0x4326D6 tests active PEAMail singleton, then calls
+        PMenu::0x482BF0(0x65) and pushes the genuine panel; it does not
+        navigate via a popup PMenu row callback. The exact 40x95 header
+        art remains separately missing, not simulated here.
+        """
+        if not original_pbg_direct_eamail_press(
+            int(event.x), int(event.y),
+            active_panel_class=frame.presentation.panel_class,
+            pmenu_popup_active=self.pmenu_popup_active,
+        ):
+            return False
+        activation = self.management_presenter.source_accepted_pbg_direct_inbox_action()
+        if activation is None:
+            return True
+        self._eamail_selected_node_serial = None
+        self._eamail_selected_row_token = None
+        family = self._management_resource_family(activation.panel_class)
+        if family not in self._management_resource_families_loaded:
+            self._begin_management_resource_load(family)
+        else:
+            self.redraw()
+        self.last_status = "Native PBg ID1 -> PEAMail direct factory 0x65; header original art missing"
+        return True
+
     def _press_original_eamail_row(self, event, frame) -> bool:
         """Handle only the native neutral first-select branch; no invented dialog.
 
@@ -2791,6 +2819,8 @@ class OriginalGameTkHost:
                 except Exception as exc:
                     self.last_status = f'{type(exc).__name__}: {exc}'
                     self.error_reporter(self.last_status)
+                return
+            if self._press_original_pbg_direct_inbox(event, frame):
                 return
             if pmenu_open_press(int(event.x), int(event.y), active=self.pmenu_popup_active):
                 self.pmenu_popup_active = True
