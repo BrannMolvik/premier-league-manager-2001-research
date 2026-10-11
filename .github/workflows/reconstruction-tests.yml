@@ -57,6 +57,8 @@ on:
       - "reconstruction/test_original_eamail_plain_glyph_masks.py"
       - "reconstruction/original_eamail_tagged_player_masks.py"
       - "reconstruction/test_original_eamail_tagged_player_masks.py"
+      - "reconstruction/original_eamail_tagged_link_target.py"
+      - "reconstruction/test_original_eamail_tagged_link_target.py"
       - "reconstruction/original_pmenu_presenter.py"
       - "reconstruction/test_original_pmenu_presenter.py"
       # Recovery507: source constructor initializes eight native League selection slots.
