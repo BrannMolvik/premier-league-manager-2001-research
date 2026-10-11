@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Correction: source EBP reloaded to native radio event9
+
+**Retraction:** Recovery516 first-pass disassembly saw EBP clear in PLeagueFixtures setup but missed `mov ebp,9` at `0x46AF15` immediately before first League radio. The first child callback value is event9, not null, and subsequent native League callback IDs10–14. Child vtable+8 `0x5D48C0→0x64F3C0` sets event +0x20 and PLeagueFixtures callback +0x24, vtable+0x10 invokes `0x46E040`. Original physical GUI mouse hit/clip path and Windows11 confirmation remain unverified. Source memo Recovery516 corrected; PR581 main integration unchanged; Gate13 and release open. Earlier Recovery516 note below is superseded.
+
 ### 11 October 2026 KST — Recovery516: real radio callback target identified, mouse-enable remains unknown
 
 Original canonical PE static disassembly established PLeagueFixtures panel vtable+0x0C=>`0x42DE00` and +0x10=>`0x46E040`, and child+0x24 nominal callback target is panel `esi`, whereas initial child+0x20 callback-enable is **null** (`ebp=0` from `0x46AA75`). Parent child mask and event dispatch proved but **not** real mouse button and hit path. Evidence/corrective caveat appended to `research/GATE13_FMRADIOTEXTSM_INPUT_RECOVERY515.md`; no original GUI playtest, private bytes, game-code commits or new CI. Gate13 and release still OPEN.
