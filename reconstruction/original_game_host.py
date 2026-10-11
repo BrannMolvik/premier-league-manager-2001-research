@@ -428,6 +428,7 @@ class OriginalGameTkHost:
         # Native PMessageRow first press selects; a second requests PEAMMessage.
         # Retain only the present panel's displayed native row identity.
         self._eamail_selected_node_serial = None
+        self._eamail_selected_row_token = None  # per-panel native pointer surrogate
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
         self.pmatchinfo_nested_font = pmatchinfo_nested_font
@@ -2128,6 +2129,7 @@ class OriginalGameTkHost:
         }
         if self._eamail_selected_node_serial not in available:
             self._eamail_selected_node_serial = None
+            self._eamail_selected_row_token = None
         drawn = 0
         for row in source_original_eamail_row_backgrounds(
             frame.presentation.eamail, self.eamail_row_art,
@@ -2165,8 +2167,15 @@ class OriginalGameTkHost:
         }:
             current = None
             self._eamail_selected_node_serial = None
+            self._eamail_selected_row_token = None
+        # 0x471B97 compares the *row object's pointer*. Preserve a per-panel
+        # object identity rather than relying on Python integer interning for
+        # source mailbox node serials (which can exceed 256).
+        retained = self._eamail_selected_row_token
+        new_pointer = (retained if current == row_token and retained is not None
+                       else object())
         dispatch = original_eamail_neutral_row_dispatch(
-            row_token=row_token, currently_selected_row_token=current,
+            row_token=new_pointer, currently_selected_row_token=retained,
             native_event_argument=0,
         )
         if dispatch.requires_native_record_action:
@@ -2175,7 +2184,8 @@ class OriginalGameTkHost:
                 "PEAMMessage modal; unresolved choice effects rejected"
             )
             return True
-        self._eamail_selected_node_serial = dispatch.selected_row_token
+        self._eamail_selected_node_serial = row_token
+        self._eamail_selected_row_token = dispatch.selected_row_token
         self.redraw()
         self.last_status = "Original Inbox PMessageRow selected; preview text unresolved"
         return True
@@ -2432,6 +2442,7 @@ class OriginalGameTkHost:
             # An original panel factory creates new PMessageRow controls.
             # Never carry pointer identity from a previously opened panel.
             self._eamail_selected_node_serial = None
+            self._eamail_selected_row_token = None
         if result.action.action_kind == 'return_to_pstartmenu':
             self.presenter.session.source_accepted_return_to_start_menu()
             self.pmenu_popup_active = False
