@@ -262,6 +262,23 @@ LEAGUE_TABLE_PRESENTATION_CONTRACT = LeagueTablePresentationContract(
 
 
 @dataclass(frozen=True)
+class LeagueCurrentFormSourceRowView:
+    """Native 0x4F4A10 sorted source *data*, not a 0x4480A0 rendered row.
+
+    The original 0x2B0 alternate row geometry/font and mouse ownership are
+    intentionally unrepresented; do not use seven-column League Position art.
+    """
+
+    source_index: int
+    club_id: int
+    club_name: str
+    short_name: str
+    form_score: int
+    six_form_labels: tuple[str, str, str, str, str, str]
+    matching_source_tokens: tuple[tuple, ...]
+
+
+@dataclass(frozen=True)
 class LeagueTableRowView:
     position: int
     club_id: int
@@ -2864,6 +2881,100 @@ class ManagementSourceDataBridge:
         if candidate.selected_competition_id == 0:
             return self.source_selected_premier_league_table_rows(candidate)
         return self.source_selected_nonpl_league_table_rows(candidate)
+
+    def source_selected_league_current_form_rows(
+        self, selector_context,
+    ) -> tuple[LeagueCurrentFormSourceRowView, ...]:
+        """Source-authenticated Current Form result data for selected root League.
+
+        The original PLeagueTables event15 selects 0x4F4A10 and the separate
+        0x2B0/0x4480A0 row class. No native row coordinates, mouse acceptance,
+        or seven-stat League Position fallback are provided here.
+        """
+        from original_league_tables_selector_context import (
+            OriginalLeagueTablesSelectionContext,
+        )
+        from original_league_tables_current_form import (
+            OriginalCurrentFormSourceError,
+            SourceCurrentFormRank,
+        )
+        from original_league_tables_current_form_game_state import (
+            source_qualified_primary_current_form_from_game_state,
+        )
+        from original_league_tables_current_form_premier0 import (
+            source_qualified_premier0_current_form_from_game_state,
+        )
+
+        selected = selector_context
+        authenticated = self.original_league_tables_selection_context()
+        if (type(selected) is not OriginalLeagueTablesSelectionContext
+                or selected.division_candidates != authenticated.division_candidates
+                or selected.human_country_index != authenticated.human_country_index
+                or selected.human_competition_id != authenticated.human_competition_id
+                or type(selected.active_country_index) is not int
+                or not 0 <= selected.active_country_index < 8
+                or type(selected.selected_division_index) is not int
+                or not 0 <= selected.selected_division_index < len(
+                    authenticated.division_candidates[selected.active_country_index])
+                or type(selected.sort_state) is not int
+                or selected.sort_state != 1):
+            raise ManagementPresentationError(
+                "Original selected Current Form country/DIVISION/sort is unqualified"
+            )
+        competition_id = selected.selected_competition_id
+        state = self.state
+        definitions = getattr(state, "competitions", None)
+        source_comp = definitions.get(competition_id) if hasattr(definitions, "get") else None
+        if (source_comp is None
+                or getattr(source_comp, "runtime_kind_code", None) != 1
+                or getattr(source_comp, "parent_competition_id", object()) is not None
+                or getattr(source_comp, "country_region_id", None) != selected.active_country_id):
+            raise ManagementPresentationError(
+                "Original Current Form selected root country/League is unauthenticated"
+            )
+        try:
+            if competition_id == 0:
+                source_rows = source_qualified_premier0_current_form_from_game_state(state)
+                owner = getattr(state, "premier_league", None)
+            else:
+                source_rows = source_qualified_primary_current_form_from_game_state(
+                    state, competition_id=competition_id,
+                )
+                owners = getattr(state, "procedural_leagues", None)
+                owner = owners.get((competition_id, 0)) if hasattr(owners, "get") else None
+        except OriginalCurrentFormSourceError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+        member_ids = getattr(owner, "club_ids", None)
+        source_rows = tuple(source_rows)
+        if (type(member_ids) is not tuple
+                or len(source_rows) != len(member_ids)
+                or len({r.club_id for r in source_rows}) != len(member_ids)
+                or {r.club_id for r in source_rows} != set(member_ids)):
+            raise ManagementPresentationError(
+                "Original Current Form rows disagree with complete selected members"
+            )
+        projected = []
+        for index, row in enumerate(source_rows):
+            if (type(row) is not SourceCurrentFormRank
+                    or type(row.score) is not int
+                    or type(row.form_result_labels) is not tuple
+                    or len(row.form_result_labels) != 6
+                    or any(x not in ("W", "D", "L", " ") for x in row.form_result_labels)
+                    or type(row.matching_tokens) is not tuple):
+                raise ManagementPresentationError(
+                    "Original Current Form native six-result source is invalid"
+                )
+            club = self._source_club(row.club_id)
+            projected.append(LeagueCurrentFormSourceRowView(
+                source_index=index,
+                club_id=row.club_id,
+                club_name=club.name,
+                short_name=club.short_name,
+                form_score=row.score,
+                six_form_labels=row.form_result_labels,
+                matching_source_tokens=row.matching_tokens,
+            ))
+        return tuple(projected)
 
     def snapshot(self) -> ManagementSourceDataSnapshot:
         return ManagementSourceDataSnapshot(
