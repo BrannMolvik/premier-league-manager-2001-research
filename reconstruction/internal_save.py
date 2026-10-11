@@ -28,6 +28,7 @@ from contract_maintenance import (
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
+from original_eamail_pending import OriginalPendingTransferEAMQueue
 from gate17_country_allocation_scope import (
     PlayableCountryAllocationPlan,
     PlayableCountryAllocationScope,
@@ -1535,6 +1536,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         # Modern port-owned snapshot of original DBRUser+0x6B4 delivered lists.
         # Pending MPM events remain serialized in their separate arrays.
         "original_delivered_mailboxes": state.original_delivered_mailboxes.snapshot(),
+        "original_pending_transfer_eam": state.original_pending_transfer_eam.snapshot(),
         "user_youth": _snapshot_youth_state(state.user_youth),
         "user_sacking_reason": (
             None
@@ -1742,6 +1744,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         native_user_recipient_key=snapshot.get("native_user_recipient_key"),
         original_delivered_mailboxes=OriginalDeliveredEAMailboxes.restore(
             snapshot.get("original_delivered_mailboxes")
+        ),
+        original_pending_transfer_eam=OriginalPendingTransferEAMQueue.restore(
+            snapshot.get("original_pending_transfer_eam")
         ),
         user_youth=_restore_youth_state(snapshot.get("user_youth")),
         user_sacking_reason=(
