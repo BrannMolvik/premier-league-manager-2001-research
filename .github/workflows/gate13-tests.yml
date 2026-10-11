@@ -83,6 +83,9 @@ on:
       - "reconstruction/original_eamail_native_filter.py"
       - "reconstruction/original_eamail_native_small_window.py"
       - "reconstruction/original_eamail_language.py"
+      - "reconstruction/original_eamail_control_art.py"
+      - "reconstruction/test_original_eamail_control_art.py"
+      - "original_assets/source/FM2001_Art/Generic/EAMail/**"
       - "reconstruction/test_original_eamail_language.py"
       - "original_assets/source/EnglishEAM.idx"
       - "original_assets/source/EnglishEAM.str"
@@ -261,6 +264,7 @@ jobs:
             test_original_eamail_native_filter \
             test_original_eamail_native_small_window \
             test_original_eamail_language \
+            test_original_eamail_control_art \
             test_original_eamail_source_contract \
             test_original_eamail_live_user_bridge \
             test_original_management_canvas \
