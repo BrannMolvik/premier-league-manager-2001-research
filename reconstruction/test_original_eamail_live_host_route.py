@@ -29,8 +29,21 @@ from test_original_eamail_live_user_bridge import controller
 
 
 class FixtureEAMBridge(ManagementSourceDataBridge):
-    # The source-shaped integration fixture has no scheduled original fixed-
-    # League header text yet; only assert the independently proven EAM path.
+    # Fresh PMenu navigation first snapshots the source Squad screen.
+    # The source-shaped synthetic database's numeric positions do not have
+    # native player abbreviations. Give this test the already verified
+    # presentation-only Row fixtures instead of falsifying simulation data.
+    original_paired_squad = None
+
+    def squad_rows(self):
+        from test_original_management_presenter import Row
+        return tuple(
+            Row(i, 1000 + i, "Test", "Player", "Test Player")
+            for i in range(20)
+        )
+
+    # The test database has no shipped fixed-League header text; this route
+    # tests the real source-bound Inbox data and PMenu action separately.
     def management_header_match(self):
         return None
 
