@@ -66,6 +66,9 @@ class OriginalDeliveredEAMail:
     record_date: date
     player_id: int
     sender_club_id: int
+    # Frozen constructor descriptor+8, not today's mutable player/club owner.
+    # None survives historical modern saves where no native word was captured.
+    verified_native_association_word_at_creation: int | None = None
     native_status_decoded: bool = False
     original_screen_rendered: bool = False
 
@@ -75,6 +78,13 @@ class OriginalDeliveredEAMail:
         _source_index(self.recipient_manager_key, "recipient key")
         _source_index(self.player_id, "player ID")
         _source_index(self.sender_club_id, "sender club ID")
+        word = self.verified_native_association_word_at_creation
+        if word is not None and (
+            type(word) is not int or not -(1 << 15) <= word < (1 << 15)
+        ):
+            raise OriginalEAMailOwnerError(
+                "Original EAM type-2 descriptor word must be signed 16-bit"
+            )
         if type(self.pending_identity) is not str or not self.pending_identity:
             raise OriginalEAMailOwnerError("Source pending event identity is required")
         if self.event_class != "EAMPlayerAskTransferListsub":
@@ -205,6 +215,9 @@ class OriginalDeliveredEAMailboxes:
             record_date=request.due_on,
             player_id=request.player_id,
             sender_club_id=request.sender_club_id,
+            verified_native_association_word_at_creation=(
+                request.verified_native_association_word_at_creation
+            ),
         )
         self.mailboxes[manager_key].append(record)
         self.next_node_serial += 1
@@ -227,6 +240,11 @@ class OriginalDeliveredEAMailboxes:
                             "record_date": row.record_date.isoformat(),
                             "player_id": row.player_id,
                             "sender_club_id": row.sender_club_id,
+                            **({
+                                "verified_native_association_word_at_creation":
+                                    row.verified_native_association_word_at_creation
+                            } if row.verified_native_association_word_at_creation
+                                  is not None else {}),
                         }
                         for row in self.mailboxes[key]
                     ],
@@ -267,10 +285,13 @@ class OriginalDeliveredEAMailboxes:
                     or type(entry["records"]) is not list):
                 raise OriginalEAMailOwnerError("Invalid saved per-user mailbox order")
             for source in entry["records"]:
-                if type(source) is not dict or set(source) != {
+                required = {
                     "node_serial", "pending_identity", "event_class",
                     "record_date", "player_id", "sender_club_id"
-                }:
+                }
+                allowed = required | {"verified_native_association_word_at_creation"}
+                if (type(source) is not dict or not required <= set(source)
+                        or not set(source) <= allowed):
                     raise OriginalEAMailOwnerError("Invalid saved original EAM record")
                 mailbox.mailboxes[expected].append(OriginalDeliveredEAMail(
                     node_serial=source["node_serial"],
@@ -280,6 +301,9 @@ class OriginalDeliveredEAMailboxes:
                     record_date=date.fromisoformat(source["record_date"]),
                     player_id=source["player_id"],
                     sender_club_id=source["sender_club_id"],
+                    verified_native_association_word_at_creation=source.get(
+                        "verified_native_association_word_at_creation"
+                    ),
                 ))
         mailbox.__post_init__()
         return mailbox
