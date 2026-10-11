@@ -786,14 +786,34 @@ class GameState:
         return active_club_id == int(controlled)
 
     def _retain_player_transfer_request(self, request: PlayerTransferRequest) -> None:
-        """Capture41B63F recipient and sender context at production, not opening."""
+        """Native 0x41B61E producer: route by registered +0x72, not loan +0x10.
+
+        0x41A9D0 changes native +0x10 to the temporary loan club but leaves
+        registered +0x72 intact; 0x41AA99 copies it back after the loan.
+        This port deliberately represents +0x72 as RuntimePlayer.club_id
+        (transfer_workflow.py), and +0x10 during a loan as loan_club_id.
+        Only a present signed-short registered club with a known live source
+        owner can qualify the native descriptor+8 snapshot; never fabricate
+        it from the borrower's temporary club or a malformed sentinel.
+        """
         player = self.players[request.player_id]
-        active_club_id = (player.club_id if player.loan_club_id is None
-                          else player.loan_club_id)
-        if (self.native_user_recipient_key is not None
-                and active_club_id == self.user_controlled_club_id):
-            request = replace(request, recipient_manager_key=self.native_user_recipient_key,
-                              sender_club_id=int(active_club_id))
+        registered_club = getattr(player, "club_id", None)
+        if (type(registered_club) is int
+                and 0 <= registered_club < (1 << 15)
+                and registered_club in self.clubs
+                and self.native_user_recipient_key is not None
+                and registered_club == self.user_controlled_club_id):
+            previous_word = request.verified_native_association_word_at_creation
+            if previous_word is not None and previous_word != registered_club:
+                raise ValueError(
+                    "Supplied original EAM association conflicts with registered source owner"
+                )
+            request = replace(
+                request,
+                recipient_manager_key=self.native_user_recipient_key,
+                sender_club_id=registered_club,
+                verified_native_association_word_at_creation=registered_club,
+            )
         self.player_transfer_requests.append(request)
         # Source 0x41B679..0x41B6A6 only: store a distinct scheduled envelope
         # when the native producer recipient and next-day date are qualified.

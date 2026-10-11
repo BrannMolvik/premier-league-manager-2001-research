@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery531 original loan parent association source and live producer bugfix
+
+- Original private SHA-verified PE `0x41A9D0` preserves registered club in player+0x72 across a loan while +0x10 becomes temporary borrower; `0x41AA99` restores parent. Original `0x41B61E` EAM producer uses +0x72 club and manager. Prior port `GameState._retain_player_transfer_request` used active borrower and could misroute mail; historical Recovery473 text was wrong and now has prominent correction.
+- New scoped implementation branch routes by known registered signed short, captures original EAM typed descriptor word through merged PR620 pending/delivered/internal save, and refuses borrower matching or nonqualified sentinel rather than guessing. Regression covers borrower exclusion, parent delivery despite later mutation, modern save of queued parent message, and existing manager cases. Full original game GUI not launched or claimed; current P0 still Inbox native visible journey. Details [Recovery531 source correction](GATE13_EAM_LOAN_PARENT_ROUTING_SOURCE_CORRECTION_RECOVERY531.md).
+
 ### 12 October 2026 KST — Recovery531, authenticated original PE producer-time EAM club association source
 
 - Verified the private original 4,714,541-byte `footballmanager.exe` SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` and successfully used local `objdump` for an independent static check. This is **not** original runtime execution or Windows 11 GUI playtesting.

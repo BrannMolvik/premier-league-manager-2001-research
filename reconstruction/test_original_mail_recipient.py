@@ -61,9 +61,9 @@ class OriginalMailRecipientTests(unittest.TestCase):
         self.assertEqual(controller.state.native_user_recipient_key, next(i for i in range(len(controller.state.managers)) if i != old))
         self.assertEqual(controller.state.rng.state, before)
 
-    def queue(self, state):
+    def queue(self, state, *, controlled_club_id=1):
         state.native_user_recipient_key = 7
-        state.user_controlled_club_id = 1
+        state.user_controlled_club_id = controlled_club_id
         player = state.players[1000]
         player.club_id, player.loan_club_id = 2, 1
         player.morale, player.transfer_listed, player.wanted = 0, False, False
@@ -75,15 +75,35 @@ class OriginalMailRecipientTests(unittest.TestCase):
         self.assertEqual(draws, [30])
         return state.player_transfer_requests[-1]
 
-    def test_producer_captures_recipient_and_active_loan_club_not_later_selection(self):
+    def test_loan_borrower_does_not_steal_parent_club_mail(self):
         state = self.controller().state
-        request = self.queue(state)
+        request = self.queue(state, controlled_club_id=1)
+        self.assertEqual((request.recipient_manager_key, request.sender_club_id),
+                         (None, None))
+        self.assertIsNone(request.verified_native_association_word_at_creation)
+        self.assertEqual(state.original_pending_transfer_eam.entries, [])
+
+    def test_native_parent_club_retains_loan_producer_snapshot_through_delivery(self):
+        state = self.controller().state
+        request = self.queue(state, controlled_club_id=2)
+        self.assertEqual((request.recipient_manager_key, request.sender_club_id), (7, 2))
+        self.assertEqual(request.verified_native_association_word_at_creation, 2)
+        self.assertEqual(len(state.original_pending_transfer_eam.entries), 1)
+        state.original_delivered_mailboxes.register_source_user(7)
         state.native_user_recipient_key = 8
         state.user_controlled_club_id = 3
-        state.players[1000].loan_club_id = 3
-        self.assertEqual((request.recipient_manager_key, request.sender_club_id), (7, 1))
+        state.players[1000].club_id = 3
+        state.players[1000].loan_club_id = 4
+        self.assertEqual(state.process_original_eam_due_events(date(2000, 7, 1)), ())
+        self.assertEqual(len(state.original_delivered_mailboxes.delivered_for_manager(7)), 0)
+        state.process_original_eam_due_events(date(2000, 7, 2))
+        row = state.original_delivered_mailboxes.delivered_for_manager(7)[0]
+        self.assertEqual(row.sender_club_id, 2)
+        self.assertEqual(row.verified_native_association_word_at_creation, 2)
+        self.assertEqual(row.recipient_manager_key, 7)
+        self.assertEqual(state.original_pending_transfer_eam.entries, [])
 
-    def test_disk_codec_retains_captured_context_not_fresh_binding(self):
+    def test_disk_codec_retains_unqualified_borrower_context(self):
         controller = self.controller()
         controller.select_club(1)
         request = self.queue(controller.state)
@@ -92,6 +112,21 @@ class OriginalMailRecipientTests(unittest.TestCase):
         self.assertEqual(restored.state.native_user_recipient_key, 7)
         self.assertEqual(restored.state.player_transfer_requests, [request])
         self.assertEqual(restored.state.players[1000].loan_club_id, 1)
+        self.assertIsNone(restored.state.player_transfer_requests[0].sender_club_id)
+
+    def test_disk_codec_retains_parent_source_word_on_unprocessed_loan_mail(self):
+        controller = self.controller()
+        controller.select_club(2)
+        request = self.queue(controller.state, controlled_club_id=2)
+        restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                       dumps_human_gameplay(controller))
+        self.assertEqual(restored.state.player_transfer_requests, [request])
+        self.assertEqual(
+            restored.state.player_transfer_requests[0].
+            verified_native_association_word_at_creation, 2)
+        self.assertEqual(
+            restored.state.original_pending_transfer_eam.entries[0].request.
+            verified_native_association_word_at_creation, 2)
 
     def test_older_schema48_without_context_stays_unknown(self):
         controller = self.controller()

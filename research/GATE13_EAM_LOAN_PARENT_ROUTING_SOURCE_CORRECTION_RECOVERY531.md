@@ -1,0 +1,18 @@
+# Recovery531: original loan EAM transfer-mail parent-club routing correction
+
+**12 October 2026 KST, Gate13 OPEN.** Independent static first-party re-disassembly of private original `footballmanager.exe` 4,714,541 bytes SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` reveals a correctness error in the port's earlier source assertion. No original binary was launched, copied to Git, or presented as Windows11 game acceptance.
+
+## Native exact source
+
+- `DBRPlayer::0x41A9D0` source call at `0x41A9EE..0x41A9F6` reads new temporary club's `+0x04` and writes ONLY native player **+0x10**. It does NOT overwrite native signed-word **+0x72**, which retains the **parent/registered club** during the loan. The `+0x14` bit6 is set at `0x41AA18`.
+- `0x41AA50` loan return at `0x41AA99..0x41AAA3` copies preserved **+0x72** back to **+0x10**, clears bit6, and ends temporary club membership.
+- Source post-match transfer mail producer `0x41B580` at `0x41B61E` reads signed **+0x72**, checks negative fallback vs normal DBRClub index, loads the effective recipient manager **DBRClub+0x40** at `0x41B63F`, and constructs `EAMPlayerAskTransferListsub` at `0x41B64D`. Its underlying typed player association is separately snapshotted at original `0x5CE660`.
+- Port `reconstruction/transfer_workflow.py` **already models** the verified mapping: `RuntimePlayer.club_id` retains +0x72 parent/registered club; `RuntimePlayer.loan_club_id` holds temporary +0x10 borrower. A historical Recovery473 note incorrectly called the borrowing/active club the source-qualified original EAM recipient/sender. That historical line is explicitly corrected at its top, not erased.
+
+## Port correction and guardrails
+
+`GameState._retain_player_transfer_request` now uses **registered** `player.club_id` to qualify the original effective user recipient instead of `loan_club_id`. It requires a plain integer, valid signed nonnegative 16-bit native club index, an existing runtime club, and an exact controlled-club match. For the recognized owner it captures the immutable `verified_native_association_word_at_creation` introduced in merged PR620; if the caller presents a different supposedly verified word, it fails closed. It retains creation-time manager context through the pending MPM event, due dispatch, delivered user list, and modern save/restore. Borrower-only controlled clubs do **not** receive their parent club's mail. The registered parent is the original +0x72 owner, even if the player's temporary active club later changes.
+
+**Explicit limits:** no proof of all possible source-side +0x72 transient overrides, unmodeled player mutations, negative native fallback users, every loan/transfer condition, automatic native GUI, correct original date/club caption localization, or real Windows 11 graphical interaction. The port still suppresses some owner-side morale production when the relevant match-side filter is restricted to the borrowing club; this is a separate producer eligibility task, not silently repaired. Original source requires no fictional second-mail recipient; a loaned-out player under a borrower-controlled-only context must not be promoted to that human's Inbox. Tests are deterministic port-contract evidence only, not original game playtest.
+
+**Next P0:** subject branch to exact-head CI, review and merge if all gates pass. Continue audited native date/player/club text and source-authentic PBg header ID1 and PMenu child0x65 entrypoints, eight-row text/background, first/second activation/detail/responses/Escape, plus R1 NEXT/Quick modes/PResults integration and real native Win11 game lifecycle. Gate13 through Gate17 remain OPEN.
