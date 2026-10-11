@@ -659,6 +659,16 @@ class HumanGameplayController:
         self.human = HumanManagerState(
             club_id=club_id, native_shape=NativeUserShapeState.fresh_club_binding())
         self.state.bind_original_user_mail_recipient(club_id)
+        # Original 0x424E2E constructs an empty DBRUser+0x6B4 delivered
+        # mailbox with the newly registered human. 0x426090/0x4151C0
+        # source-binds the effective manager recipient; the immutable
+        # imported AI club.manager_id is not a valid fallback. Keep an
+        # already existing manager's delivered nodes across re-selection.
+        source_mail_key = self.state.native_user_recipient_key
+        if (source_mail_key is not None
+                and source_mail_key not in
+                self.state.original_delivered_mailboxes.registered_manager_keys):
+            self.state.original_delivered_mailboxes.register_source_user(source_mail_key)
         self.original_squad_membership = membership
         if membership is not None:
             self.human.formation_id = self.state.native_squad_first_formations[club_id]
