@@ -129,6 +129,68 @@ analysis through a suitable compatible execution/runtime; do not infer shell
 availability or a successful Windows original-game/port playtest from this
 verification. No original binary was committed to Git.
 
+### VERIFIED extracted original FM2001 game filesystem — 11 October 2026, 20:19 KST
+
+**Owner upload CONFIRMED; this newer inspection supersedes the earlier "folder 02 empty" note.**
+Connected Google Drive listed the actual extracted disc-file tree directly from
+**02 — EXTRACTED ORIGINAL GAME FILES**:
+
+- **Extracted root:** `FM2001`, Drive folder id
+  `1pQy4V8tq5COGhtIMgNPVSDFjSRqiqnTC`
+  https://drive.google.com/drive/folders/1pQy4V8tq5COGhtIMgNPVSDFjSRqiqnTC
+- Original root has **52 direct entries: 15 folders and 37 files**, including
+  `footballmanager.exe` (4,714,541 bytes, separate root Drive id
+  `10xq-q-y7IIzfnZnT5lQ-wGotAfOiGWM7`), `FOOTBALLMANAGER.ICD`,
+  `Master.dat` (3,391,446 bytes, id `1M3Ci2RUmkM-lK0_Qonq3fQ7zC08B97OR`),
+  `Static.dat`, `English.str`, `EnglishEAM.str`, `Resource.res`, and original
+  `FM2001_Art`, `Data`, `DataInGame`, `ArtInGame`, `FMV`, `Fonts`,
+  `FormationFiles`, `Games`, and other original folders.
+- Direct source folders:
+  - FM2001_Art:
+    https://drive.google.com/drive/folders/1XguguFvDXZoBQ6rNXuQn0bEY2e3Do8gI
+  - FM2001_Art/Generic:
+    https://drive.google.com/drive/folders/1DBkT3qeGvntkuObdkExViWpUh9ZFW-4D
+  - FM2001_Art/Generic/EAMail:
+    https://drive.google.com/drive/folders/1WhzWAPpa7j10wQKG-OItGRhC5YsUpmyX
+  - DataInGame (252 direct files):
+    https://drive.google.com/drive/folders/10Hbjmk-g8mHklkvcy90CHoQTzAmZ2yWl
+  - FMV (4 direct files including `premintro.tgq`):
+    https://drive.google.com/drive/folders/1iuVY7_LyINMR7983Qaid5avoVkxRr02u
+  - Fonts (18 direct files, original Zurich bitmap fonts):
+    https://drive.google.com/drive/folders/1sityvIVKKh0qK8_K7Ie6hw8exoiPSiRw
+  - FormationFiles (9 direct files):
+    https://drive.google.com/drive/folders/1eYpyro4HFB6HiETamrObsTq2Goh3lsk3
+
+**Original EAMail resource byte-level source verification:** downloaded these
+four raw original assets independently through the connected Drive file
+connector; independently computed SHA-256 and checked against
+`reconstruction/original_eamail_source_contract.py` (PR #595).
+**ALL FOUR EXACT HASH/SIZE MATCH:**
+
+| Native path under FM2001_Art/Generic/EAMail | Google Drive file ID | Size | Verified SHA-256 |
+|---|---|---:|---|
+| `text_grid_nor.444` | `1X0Tfr8l6zwdmZtX1WKQQJT7GQZa_tDqU` | 8124 | `74676dce75532b781551cab6e8598f805fa4698b2e1b828c9f4ef15b3ff0816d` |
+| `text_grid_sel.444` | `1C7exJFBL4SRBmy-7LycovGoOoSaolsCz` | 7504 | `6b6ff7ce36b3c507df2d590ba7ad48b9253409757844acf4ec93204807bad556` |
+| `text_grid_high.444` | `1_OxNRhbyxANNW3TL7sKW1Mi6vYvPNg_X` | 6856 | `a13b413d13b5fa9c5f6a7b36f632c60342898de72bcff2ee73025bc92fdb68c8` |
+| `text_grid_des.444` | `1qw1__CyAp6at0gBNjsmJVDjph2YqUeoe` | 7184 | `cb1fb08a99dfe204ea9b485f5102e808ab758f80aec96f69e17e9537d8eb2f70` |
+
+All sampled Drive source files and folders were shown not shared. This proves
+**a correct navigable original directory tree and sample original asset-byte
+retrieval**. A recursive attempt to enumerate all folders exceeded connector
+tool-call limits, so **the complete 2,456-file / 211-folder parity is not yet
+independently reverified**. Do not claim full-archive checksum parity, local
+shell health, live Windows 11 GUI acceptance, or successful original-game
+execution from this check. The previous 511 MB Library ZIP remains archival
+fallback, and the verified directly uploaded 4,714,541-byte executable in
+folder 03 remains available from the previous source-locator entry.
+
+**Worker next action:** Use the direct Drive folder/file IDs above as the
+first retrieval route for original artifacts needed by source reconstruction,
+including Inbox and management/match presentation. Fetch and hash only the
+required small file; do not rematerialize the huge disc image routinely.
+No further owner extraction should be needed for ordinary original source
+files already present in this tree.
+
 ## Small-file-first recovery and alternate private storage (11 October 2026)
 
 **Known problem:** the 511,121,336-byte archive is visible and materializable from Library, but container/Python may fail with `caas.internal.errors.ClientError`, sometimes even on trivial commands after materialization. Merely copying that ZIP to a different provider does not repair a broken execution sandbox.
