@@ -8,6 +8,7 @@ No original GUI, text, pointer-click, native >16 sort or invented status labels.
 from __future__ import annotations
 
 from datetime import date, timedelta
+from pathlib import Path
 from unittest import TestCase, main
 
 from gate13_management_source_data import ManagementSourceDataBridge
@@ -17,6 +18,7 @@ from original_eamail_native_small_window import (
     ORIGINAL_EAMAIL_SORT_COMPARATORS, ORIGINAL_EAMAIL_SMALL_THRESHOLD,
     original_initial_transfer_eam_sorted_window,
     build_selected_user_initial_eamail_window,
+    build_source_captioned_selected_user_initial_eamail_window,
 )
 from test_original_eamail_live_user_bridge import controller
 
@@ -41,6 +43,36 @@ def deliver_source_records(game, offsets):
 
 
 class OriginalNativeSmallSortedWindowTests(TestCase):
+    def test_real_manager_delivered_mail_is_captioned_from_original_game_bytes(self):
+        original_assets_root = (
+            Path(__file__).resolve().parent.parent / "original_assets" / "source"
+        )
+        game = controller()
+        game.select_club(1)
+        delivered = deliver_source_records(game, (4, 1, 2, 3, 5, 0, 6, 7, 8))
+        source = ManagementSourceDataBridge(game)
+        result = build_source_captioned_selected_user_initial_eamail_window(
+            source, original_source_root=original_assets_root,
+            filter_index=5, sort_index=3, scroll_offset=1,
+        )
+        self.assertEqual(result.window.native_comparator_va, 0x472C00)
+        self.assertEqual(result.window.original_sorted_rows, delivered)
+        self.assertEqual(len(result.window.viewport.visible_rows), 8)
+        self.assertEqual(result.visible_original_subjects, ("Transfer List",) * 8)
+        self.assertEqual(result.window.viewport.max_scroll_offset, 1)
+        rejected = build_source_captioned_selected_user_initial_eamail_window(
+            source, original_source_root=original_assets_root,
+            filter_index=2, sort_index=3,
+        )
+        self.assertEqual(rejected.window.original_filtered_count, 0)
+        self.assertEqual(rejected.visible_original_subjects, ())
+        from original_eamail_language import OriginalEAMailLanguageError
+        with self.assertRaises(OriginalEAMailLanguageError):
+            build_source_captioned_selected_user_initial_eamail_window(
+                source, original_source_root=original_assets_root / "nonexistent",
+                filter_index=5, sort_index=3,
+            )
+
     def test_source_bridge_is_required_and_not_generic_pending_queues(self):
         with self.assertRaisesRegex(OriginalEAMailFilterSourceError, "selected-human"):
             build_selected_user_initial_eamail_window(
