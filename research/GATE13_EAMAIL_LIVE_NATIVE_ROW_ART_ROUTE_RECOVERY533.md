@@ -1,0 +1,17 @@
+# Recovery533: first original EAMail bitmap rows through ordinary management host
+
+**12 October 2026 KST, Gate13–17 remain OPEN.** Built on verified main `c01df3cabf2279d0534b26c5322123ce3d44ae1a` after PR623. This is a **partial real normal application-host integration**, not a claim that the Inbox can already be read or acted upon. The shipped original PE `footballmanager.exe` is 4,714,541 bytes SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Original executable was not run.
+
+## Exact source and implemented segment
+
+Original source PMenu root1 EAMail child ID `0x65` dispatches panel factory `0x47AEC0→0x47B1D0` / PEAMail constructor `0x474B10`; panel owner source rect `(0,148,800,530)`. Native PEAMail list setup `0x46F511..0x46F557` sets local `(233,30,545,160)`, 8 slots with pitch20; `CMessageList::0x471D20` creates native `PMessageRow` 532×18 at local y20×index. Original normal row graphic wrapper **`0x945E30`** is the original EA444 `text_grid_nor.444` source asset (size8124, SHA256 `74676dce75532b781551cab6e8598f805fa4698b2e1b828c9f4ef15b3ff0816d`). Native constructor `0x46E705` initially binds normal wrapper; original callbacks `0x470B40/0x470B90/0x470BE0` later choose selected/normal/highlight variants, and record bit states can also alter icon controls.
+
+The clean original management presenter now recognizes **PMenu child0x65 → PEAMail** and source-projects only the actually *delivered* selected registered human's initial source-qualified records, using original eight-row filter/sorter/scroll projection and source-verified child ID2 player association, ID3 subject, ID0 date text. The normal original management canvas now records the actual PEAMail panel owner rect rather than an unknown fallback. The ordinary graphical host lazy-loads original 18 EA444 EAMail resources via the existing first-party SHA/geometry guards and original EXE-backed original image decoder, and draws only the true normal 532×18 row sprite for each actual visible delivered source record at `(233,178+20×index)`.
+
+**IMPORTANT UNRESOLVED player-visible pieces:** No native eCText row glyphs/colors or actual ID2/ID3/ID0 glyph raster have been drawn yet, despite source text strings being present; no bit-dependent read/unread/status, selection/hover replacement graphics, 10 native filter controls/five sort controls, >16 sorter, scrolling wheel/drag, preview panel, native `PMessageRow::0x471B80` first/re-activation event, `PEAMMessage::0x472CD0` detail/dialog/choice/Escape/return. PBg header ID1 shortcut remains absent. **The Inbox is NOT fully usable, and this is NOT Gate13 acceptance or original Windows11 GUI test.**
+
+## Source separation and immediate next step
+
+Tests exercise ordinary FrontEndSession New Game → Start/Continue → PMenu title root1 → child0x65 → actual selected human delivered one-message PEAMail projection, original canvas owner geometry, exact bitmap sprite destination/count, missing source records and rejecting invalid geometry. The normal source child route does not add any modern button/dialog or fabricated input transition. Continue in this same feature, source-qualifying `PMessageRow` text rendering via native `0x5D68D0→0x5D7350→0x5D75B0` default font object `0x9269F0` and markup/color dispatch, then status/selection/body/PEAMMessage and actual Win11 physical input. Never treat this first background-only pass as complete player journey.
+
+All original selectable nations, multi-user, R1 NEXT→all PPreMatch modes→PResults, Save/Load, and Gates13–17 release remain outstanding.
