@@ -28,12 +28,19 @@ Do not wait for Codex availability or spend its quota on routine implementation
 or PR review. Read research/WORK_OWNERSHIP.json and
 research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.
 
-For original game source recovery, first check the small independently staged
-files in research/ORIGINAL_SOURCE_LOCATOR.md when available. Avoid repeated
-511 MB archive materialization if a trivial shell/Python command is already
-failing; report the precise environment blocker and use existing verified
-original evidence for disjoint safe work. Do not interpret file access failure
-as missing original source.
+MANDATORY UPDATED ORIGINAL SOURCE WORKFLOW (11 Oct 2026): Read
+research/ORIGINAL_DRIVE_SOURCE_WORKFLOW.md and
+research/ORIGINAL_SOURCE_LOCATOR.md. Daniel has already uploaded the actual
+original extracted disc filesystem, including graphics/data/fonts/FMV, to
+a verified private Google Drive folder; the original 4.7 MB executable and
+all four required EAMail row sprites were independently byte-retrieved and
+SHA-256 validated. FETCH ONLY THE SMALL ORIGINAL FILES RELEVANT TO THE ACTIVE
+FEATURE directly from the connected Drive tree, checking hashes/provenance
+as required. Do not automatically process 511 MB ZIP or 632 MB BIN, or ask
+Daniel to extract these files again. The availability of original files
+does NOT mean an execution sandbox, native GUI, player interaction, or Win11
+acceptance has been verified. Continue source-first whole original player
+journeys instead of isolated research/adapter churn.
 
 Before working:
 1. Check the current main HEAD.
