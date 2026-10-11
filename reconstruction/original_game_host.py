@@ -27,8 +27,10 @@ import zlib
 from types import SimpleNamespace
 from original_eamail_live_canvas import (
     load_verified_original_eamail_row_art,
+    original_eamail_row_at_screen_point,
     source_original_eamail_row_backgrounds,
 )
+from original_eamail_source_contract import original_eamail_neutral_row_dispatch
 from original_management_background import OriginalManagementBackground
 from original_management_header import (
     HEADER_COMPOUND_RECT,
@@ -423,6 +425,9 @@ class OriginalGameTkHost:
         self.squad_status_resources = squad_status_resources
         self.league_tables_header_art = league_tables_header_art
         self.eamail_row_art = None
+        # Native PMessageRow first press selects; a second requests PEAMMessage.
+        # Retain only the present panel's displayed native row identity.
+        self._eamail_selected_node_serial = None
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
         self.pmatchinfo_nested_font = pmatchinfo_nested_font
@@ -2108,25 +2113,72 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_eamail_rows(self, frame) -> int:
-        """Display actual original row *backgrounds* for the delivered Inbox.
+        """Draw original normal/selected Inbox row graphics, not synthetic UI.
 
-        Native row backgrounds initially use 0x945E30. This currently does
-        not draw the native font/status icons/preview/detail dialog, nor
-        attach guessed mouse actions or imply the Inbox is complete.
+        0x471B80 selects on first press; 0x470B40 installs bitmap 0x945DF0.
+        Native glyphs, status icons, preview and popup still need source work.
         """
         if frame.presentation.panel_class != "PEAMail":
             return 0
         if frame.presentation.eamail is None or self.eamail_row_art is None:
             raise OriginalGameHostError("Real Inbox source rows and original art required")
+        available = {
+            row.original_internal_node_serial
+            for row in frame.presentation.eamail.native_rows
+        }
+        if self._eamail_selected_node_serial not in available:
+            self._eamail_selected_node_serial = None
         drawn = 0
         for row in source_original_eamail_row_backgrounds(
             frame.presentation.eamail, self.eamail_row_art,
+            selected_node_serial=self._eamail_selected_node_serial,
         ):
             self._create_native_image(
                 row.x, row.y, image=self._photo(row.png), anchor=self.tk.NW,
             )
             drawn += 1
         return drawn
+
+    def _press_original_eamail_row(self, event, frame) -> bool:
+        """Handle only the native neutral first-select branch; no invented dialog.
+
+        PMessageRow 0x471B80 distinguishes another row (preview selection)
+        from the selected row (0x471270 modal/action). Until that actual
+        dialog/choice semantics are available, same-row activation is retained
+        but cannot perform a fabricated action or mark a record as read.
+        """
+        if self.pmenu_popup_active or frame.presentation.panel_class != "PEAMail":
+            return False
+        visible = frame.presentation.eamail
+        if visible is None:
+            raise OriginalGameHostError("Native delivered Inbox viewport unavailable")
+        row_token = original_eamail_row_at_screen_point(
+            visible, int(event.x), int(event.y),
+        )
+        if row_token is None:
+            return False
+        if self.eamail_row_art is None or self.eamail_row_art.selected is None:
+            raise OriginalGameHostError("Native selected Inbox row art unavailable")
+        current = self._eamail_selected_node_serial
+        if current is not None and current not in {
+            row.original_internal_node_serial for row in visible.native_rows
+        }:
+            current = None
+            self._eamail_selected_node_serial = None
+        dispatch = original_eamail_neutral_row_dispatch(
+            row_token=row_token, currently_selected_row_token=current,
+            native_event_argument=0,
+        )
+        if dispatch.requires_native_record_action:
+            self.last_status = (
+                "Selected Inbox row native detail/action requires original "
+                "PEAMMessage modal; unresolved choice effects rejected"
+            )
+            return True
+        self._eamail_selected_node_serial = dispatch.selected_row_token
+        self.redraw()
+        self.last_status = "Original Inbox PMessageRow selected; preview text unresolved"
+        return True
 
     def _draw_management_host(self) -> None:
         if self._first_screen_idle is not None:
@@ -2376,6 +2428,10 @@ class OriginalGameTkHost:
             source_flags,
         )
         self.last_pmenu_activation = result
+        if result.action.action_kind in ('return_to_pstartmenu', 'open_panel'):
+            # An original panel factory creates new PMessageRow controls.
+            # Never carry pointer identity from a previously opened panel.
+            self._eamail_selected_node_serial = None
         if result.action.action_kind == 'return_to_pstartmenu':
             self.presenter.session.source_accepted_return_to_start_menu()
             self.pmenu_popup_active = False
@@ -2729,6 +2785,8 @@ class OriginalGameTkHost:
                 self.pmenu_popup_active = True
                 self.redraw()
                 self.last_status += '; native application event 2: PMenu popup opened'
+                return
+            if self._press_original_eamail_row(event, frame):
                 return
             if self._press_original_squad_row(event):
                 return
