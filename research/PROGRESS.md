@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery525 source Current Form text-label table and header geometry
+
+Native globals `0x9830E8/EC/F0` are built via `0x642314..375` dynamic table index resolver `0x667E90→0x64E320`, which writes address of 4-byte pointer cell into each global, not a hardcoded string. Original UI legend eCText controls use win/draw/loss pointer globals respectively at x561/x590/x619,y152 with 27x19 dimensions. No unsupported literal glyph or six-row child coordinates inferred; full alternative form-row implementation still blocked by data/provider/render exactness. Source research memo Recovery525 appended; no CI/gameplay changes.
+
 ### 11 October 2026 KST — Recovery524 actual original Current Form six-symbol alternate row source
 
 Original `PLeagueTables` event15 toggles seven stat headers and resets scroll/read list, but `CLeagueTableList::0x447820` branches: League Position uses `0x4F4940` + a 0x4A8-byte stat row; Current Form uses `0x4F4A10` + an entirely distinct 0x2B0-byte row with `0x4480A0` sourcing up to six original LeagueMatch outcome labels, 3-byte slots, space padding. Three native win/draw/loss label globals `0x9830E8/EC/F0` still dynamic, and exact alternate raster controls not closed. This makes backend-only rank kernel honest but not visible. Further source evidence recorded in Current Form Recovery518 note; no speculative GUI code, physical Windows test, or original asset commit. Gate13–17 OPEN.
