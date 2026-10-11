@@ -153,9 +153,15 @@ class OriginalCurrentFormInputPrivateTraceTests(unittest.TestCase):
             executable.write_bytes(local_source())
             with (
                 patch.object(OriginalPE32, "parse", return_value=pe),
-                patch("gate13_current_form_input_source_trace.CURRENT_FORM_INPUT_WINDOWS", WINDOWS),
-                patch("gate13_current_form_input_source_trace.GLOBAL_POINTER_LEADS", GLOBALS),
-                patch("gate13_current_form_input_source_trace.DIRECT_CALL_TARGETS", TARGETS),
+                # Default arguments bind at function definition, so patch the
+                # CLI boundary to supply the synthetic source-only windows.
+                patch(
+                    "gate13_current_form_input_source_trace.current_form_input_source_report",
+                    side_effect=lambda pe, **kwargs: current_form_input_source_report(
+                        pe, windows=WINDOWS, globals_to_find=GLOBALS,
+                        call_targets=TARGETS, **kwargs,
+                    ),
+                ),
                 patch.object(sys, "argv", [
                     "gate13_current_form_input_source_trace.py",
                     str(executable), "--output", str(output),
