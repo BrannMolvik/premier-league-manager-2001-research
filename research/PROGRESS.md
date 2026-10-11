@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery518 original Current Form source selection and comparator
+
+Canonical private original executable disassembled without execution. Native `League::0x4F4A10` caches six-result form score and sorts via `0x4F4A70`, not league-position `0x4F45E0`; `0x4F4970` loops up to six match-context queries, assigns 3/1/0, searches back with `0x615ED0` and updates cursor with `0x510A20`. Original CP1252 short-name tie break established; missing historical-match status/primary-secondary cursor semantics explicitly NOT closed. Evidence persisted in `research/GATE13_LEAGUE_TABLES_CURRENT_FORM_SOURCE_RECOVERY518.md`; no guessed code, no original playtest; Gates13–17/release open.
+
 ### 11 October 2026 KST — Recovery517 native radio pointer source gates
 
 Rehashed original authorized 4,714,541-byte executable; `0x64FB20/0x64FB80/0x64FBE0` prove inclusive-left/exclusive-right native pointer rectangles, exact enabled/visible flag and virtual gate, two global owner caches. Parent `0x5D4790` forwards virtual event to radio only *after a separate selection*, and `0x5D4680` is clip-region intersection; did not conflate those with OS click acceptance. Source evidence appended to `GATE13_FMRADIOTEXTSM_INPUT_RECOVERY515.md`; physical original Win11 click and root WM event binding still unknown. No unapproved executable run, no gameplay/host changes. Gate13–17 open.
