@@ -26,6 +26,10 @@ from original_eamail_player_name import (
     original_eam_player_positive_association_label,
 )
 
+from original_eamail_language import (
+    VerifiedOriginalEAMailLanguage, load_verified_original_eamail_language,
+)
+
 from original_eamail_main_language import (
     VerifiedOriginalMainEAMLanguage,
     load_verified_original_main_eam_language,
@@ -91,6 +95,9 @@ class OriginalEAMNativeRowSource:
     row_screen_rect: tuple[int, int, int, int]
     original_text_fields: tuple[OriginalEAMNativeTextField, ...]
     source_default_background_va: int = ORIGINAL_EAMAIL_ROW_INITIAL_BITMAP_VA
+    # This is the original source STR/IDX body TEMPLATE for +0x1C(arg0),
+    # never an interpolated preview or a claim that body glyphs were painted.
+    source_original_unexpanded_preview_template: str | None = None
     native_full_text_and_art_rendered: bool = False
 
 
@@ -107,12 +114,17 @@ def project_original_native_eam_row_fields(
     captioned: OriginalInitialEAMailCaptionedWindow,
     *,
     main_language: VerifiedOriginalMainEAMLanguage | None = None,
+    eam_language: VerifiedOriginalEAMailLanguage | None = None,
     player_text_resolver: Callable[[object], str | None] | None = None,
 ) -> OriginalEAMNativeVisibleRowsSource:
     """Source-exact column assignment, without invented localization/layout."""
     if type(captioned) is not OriginalInitialEAMailCaptionedWindow:
         raise OriginalEAMailRowFieldSourceError(
             "Native selected-user original captioned Inbox window is required"
+        )
+    if eam_language is not None and type(eam_language) is not VerifiedOriginalEAMailLanguage:
+        raise OriginalEAMailRowFieldSourceError(
+            "Original native EAM body requires authenticated language source"
         )
     window = captioned.window
     visible = window.viewport.visible_rows
@@ -163,6 +175,16 @@ def project_original_native_eam_row_fields(
                 screen_rect=(left+x, row_rect[1]+y, width, height),
                 source_verified_visible_text=visible_text,
             ))
+        # PMessageRow first click calls record virtual+0x1C(arg0) to
+        # format its *dynamic* body. This is only the original STR template;
+        # no manager/player/phrase placeholders are interpolated here.
+        unexpanded_body = None
+        if eam_language is not None:
+            if record.event_class != "EAMPlayerAskTransferListsub":
+                raise OriginalEAMailRowFieldSourceError(
+                    "Unverified original Inbox record body class"
+                )
+            unexpanded_body = eam_language.original_player_asks_transfer_list_body_template()
         result.append(OriginalEAMNativeRowSource(
             native_visible_ordinal=window.viewport.scroll_offset+i,
             original_internal_node_serial=record.node_serial,
@@ -171,6 +193,7 @@ def project_original_native_eam_row_fields(
             qualified_record_date=record.record_date,
             original_title=title,
             row_screen_rect=row_rect,
+            source_original_unexpanded_preview_template=unexpanded_body,
             original_text_fields=tuple(children),
         ))
     return OriginalEAMNativeVisibleRowsSource(
@@ -195,6 +218,7 @@ def build_selected_user_original_eam_source_rows(
     No pending queue, inferred row statuses or imaginary click routes.
     """
     main_language = load_verified_original_main_eam_language(original_source_root)
+    eam_language = load_verified_original_eamail_language(original_source_root)
     source_reader = getattr(
         source_bridge, "source_eam_player_descriptor_name_and_club", None,
     )
@@ -232,5 +256,6 @@ def build_selected_user_original_eam_source_rows(
             scroll_offset=scroll_offset,
         ),
         main_language=main_language,
+        eam_language=eam_language,
         player_text_resolver=resolve_original_player_text,
     )
