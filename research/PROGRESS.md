@@ -1,3 +1,10 @@
+### 12 October 2026 KST — Recovery533: source-faithful EAM ID2 player/club name real owner integration
+
+- Original private `footballmanager.exe` confirmed 4,714,541 bytes SHA256 `833bf95e...b7cc3`, native EAM `0x5CE715` uses *creation-time* signed descriptor +0x72 snapshot to choose 680-byte DBRClub, then `0x40DA70` short-name DBRClub+0x0C versus distinct `0x40DA50` full-name DBRClub+0x08; registered live DBRUser+0xD0 nonempty alias may override, only one fresh human with known empty caption is source-qualified. Original source name is first byte CP1252 + surname.
+- [PR #623](https://github.com/BrannMolvik/premier-league-manager-2001-research/pull/623) imported source-qualified positive markup through selected live manager's immutable delivered inbox, preserved legacy missing native association as None, fails closed on unknown club/player/2+ humans. Tests cover source full/short discrepancy, alias, negative descriptors, saved creation snapshot after player club mutation, other mailbox, unknown legacies and corruption. First draft test incorrectly wrote literal backslash NUL; corrected with true Python `\\x00` escape on exact PR head `de8ac0c52715e3164ee9e2e54eb764aa641d1813`.
+- Exact-head Gate13 `38162077360` SUCCESS, full suite `38162077352` SUCCESS, asset `38162077338` SUCCESS. Zero unresolved reviews, squash merged `d13180bbd31b232bdfaa7b994c9df8dee2f8c704`.
+- No actual original/port visible GUI acceptance. Next: complete authentic normal-host Inbox PMenu child0x65/PBg header ID1 -> PEAMail native art/row/font/control, select/reselect→PEAMMessage close/return, source alternate EAM classes and all remaining player journey/Gates13–17. 
+
 ### 12 October 2026 KST — Recovery532 native EAM row date and club suffix integration verified and merged
 
 - Independently validated original 4,714,541-byte `footballmanager.exe` (`833bf95e...b7cc3`) and original English main STR/IDX source (369,644/5,428 bytes, source SHA). Native ordinal 200 / `0x9844D8` = `Football Club`, ordinal 2709 / `0x981DA4` = `%D/%M/%Yf`, native months IDX 125..136, native formatter `0x64D150` outputs e.g. `1/Aug/2000`.
