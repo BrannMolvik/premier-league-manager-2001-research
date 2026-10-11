@@ -17,6 +17,24 @@ https://github.com/BrannMolvik/premier-league-manager-2001-research
 
 GitHub is canonical. Do not rely on previous chat state when it conflicts with the repository.
 
+LATEST USER OWNERSHIP DIRECTIVE (11 Oct 2026): The autonomous worker is
+the primary implementer of ALL unfinished FM2001 features, INCLUDING the
+previously Codex-owned R1 NEXT -> PPreMatch -> all modes -> PResults ->
+management return. R1 partial code in PR #565 already merged; continue from
+current main and DO NOT merge the stale Codex branch. Codex owns NO exclusive
+code subsystems; only optionally engage it for cost-approved independent QA,
+difficult bug reproduction and genuine Windows11 GUI playtesting when capable.
+Do not wait for Codex availability or spend its quota on routine implementation
+or PR review. Read research/WORK_OWNERSHIP.json and
+research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.
+
+For original game source recovery, first check the small independently staged
+files in research/ORIGINAL_SOURCE_LOCATOR.md when available. Avoid repeated
+511 MB archive materialization if a trivial shell/Python command is already
+failing; report the precise environment blocker and use existing verified
+original evidence for disjoint safe work. Do not interpret file access failure
+as missing original source.
+
 Before working:
 1. Check the current main HEAD.
 2. Read ROADMAP.md.
