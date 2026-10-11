@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery 515: PR581 verified and merged; original radio dispatcher traced (Gate13 OPEN)
+
+Revalidated canonical private original PE SHA `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` without launching it. PR581 synthetic-fixture test missing native Premier0 38-matchday count caused seven exact-head full-suite failures at `d8ca0999`; fixed test-only in `602abe2`. All exact-head Gate13 (`38098272215`), asset (`38098272311`) and full reconstruction (`38098272357`) checks **passed**; audited source, conflicts/ownership and merged via SHA guard as main `b8ab50fb657d4b466107847e5d143b2c2f4c9c59`. Native source `0x5D4790` iterates child mask4 and dispatches vtable+0x6C to original fmRadioTextSm `0x5D4AC0`; native callback/hit predicate, captions and full mouse acceptance remain UNPROVEN. See `research/GATE13_FMRADIOTEXTSM_INPUT_RECOVERY515.md`. Next: trace callback+0x24/vtable+0x0C and native PLeagueFixtures event owner before true GUI mouse wiring. Codex R1 protected, original features/Gate13–17 and physical Windows11 release remain OPEN.
+
 ### 10 October 2026 KST — captured Inbox recipient/context dependency
 
 Canonical reader/import prefixes and seven actual426090 binding/selection/
