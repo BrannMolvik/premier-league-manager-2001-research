@@ -45,7 +45,7 @@ def nonpl_ready():
             wrapper_link_state="clear",
         )
         state.primary_schedule_shadow.days[on_date] = (entry,)
-    state.calendar.current_date = first + timedelta(days=7)
+    state.calendar = Obj(current_date=first + timedelta(days=7))
     state.primary_schedule_end_date = first + timedelta(days=373)
     selected = context(state).accept_native_radio_event(10).accept_native_radio_event(15)
     return state, selected
@@ -57,7 +57,7 @@ def premier_ready():
     state.premier_league = source.premier_league
     state.primary_schedule_shadow = source.primary_schedule_shadow
     state.primary_schedule_end_date = source.primary_schedule_end_date
-    state.calendar.current_date = source.calendar.current_date
+    state.calendar = Obj(current_date=source.calendar.current_date)
     state.competitions[0].scheduled_matchday_count = 38
     state.competitions[0].uses_secondary_schedule_container = False
     for cid in state.premier_league.club_ids:
