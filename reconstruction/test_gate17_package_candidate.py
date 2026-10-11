@@ -4,6 +4,12 @@ import unittest
 import zipfile
 from pathlib import Path
 
+from original_management_header import (
+    HEADER_CLUB_NAME_FONT_BYTE_SIZE,
+    HEADER_CLUB_NAME_FONT_SHA256,
+    HEADER_CLUB_NAME_FONT_SOURCE_PATH,
+)
+
 from gate17_package_candidate import (
     PackageCandidateError,
     REQUIRED_BUNDLED_FILES,
@@ -73,6 +79,67 @@ class Gate17PackageCandidateTests(unittest.TestCase):
             with self.assertRaisesRegex(PackageCandidateError, "checksum mismatch"):
                 validate_distribution(dist, "FM2001-Windows11.exe")
 
+    def test_native_central_club_font_is_required_and_byte_identical(self):
+        # The original management header now loads the verified 32px face.
+        # Former release validation only pinned a 36px face and permitted
+        # a package missing the font the actual screen requires.
+        relative = "original_assets/source/" + HEADER_CLUB_NAME_FONT_SOURCE_PATH
+        self.assertEqual(relative,
+                         "original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt")
+        self.assertIn(relative, REQUIRED_BUNDLED_FILES)
+        self.assertEqual(REQUIRED_EXACT_BUNDLED_SHA256[relative],
+                         HEADER_CLUB_NAME_FONT_SHA256)
+        self.assertEqual(HEADER_CLUB_NAME_FONT_BYTE_SIZE, 136_128)
+        self.assertEqual(HEADER_CLUB_NAME_FONT_SHA256,
+                         "27b5e4c42518bef0e000a5878939f859c2c1b1e635e4fd200752e23c468c3e36")
+        with tempfile.TemporaryDirectory() as tmp:
+            dist = self._distribution(Path(tmp))
+            staged = dist / relative
+            exact = staged.read_bytes()
+            self.assertEqual(len(exact), HEADER_CLUB_NAME_FONT_BYTE_SIZE)
+            self.assertTrue(validate_distribution(dist, "FM2001-Windows11.exe"))
+
+            staged.unlink()
+            with self.assertRaisesRegex(PackageCandidateError,
+                                        "must resolve exactly once"):
+                validate_distribution(dist, "FM2001-Windows11.exe")
+            with self.assertRaisesRegex(PackageCandidateError,
+                                        "must resolve exactly once"):
+                build_release_candidate(
+                    dist_root=dist,
+                    output_dir=Path(tmp) / "missing-font-release",
+                    repo_root=Path(tmp) / "source",
+                    release_version="rc-check",
+                    repository_commit=COMMIT,
+                )
+
+            corrupt = bytearray(exact)
+            corrupt[0] ^= 1
+            staged.write_bytes(corrupt)
+            with self.assertRaisesRegex(PackageCandidateError, "checksum mismatch"):
+                validate_distribution(dist, "FM2001-Windows11.exe")
+            staged.write_bytes(exact)
+            self.assertTrue(validate_distribution(dist, "FM2001-Windows11.exe"))
+
+    def test_native_central_club_font_checked_in_pyinstaller_internal_layout(self):
+        relative = "original_assets/source/" + HEADER_CLUB_NAME_FONT_SOURCE_PATH
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            dist = self._distribution(root)
+            internal = dist / "_internal"
+            internal.mkdir()
+            (dist / "original_assets").rename(internal / "original_assets")
+            staged = internal / relative
+            exact = staged.read_bytes()
+            self.assertTrue(validate_distribution(dist, "FM2001-Windows11.exe"))
+
+            staged.unlink()
+            with self.assertRaisesRegex(PackageCandidateError,
+                                        "must resolve exactly once"):
+                validate_distribution(dist, "FM2001-Windows11.exe")
+            staged.write_bytes(exact)
+            self.assertTrue(validate_distribution(dist, "FM2001-Windows11.exe"))
+
     def test_distribution_rejects_user_owned_game_data(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -120,6 +187,9 @@ class Gate17PackageCandidateTests(unittest.TestCase):
                 self.assertTrue(any(name.endswith("/PACKAGE-MANIFEST.json") for name in names))
                 self.assertTrue(any(name.endswith("/README-RELEASE.txt") for name in names))
                 self.assertFalse(any(name.casefold().endswith("/master.dat") for name in names))
+                self.assertTrue(any(name.endswith(
+                    "/original_assets/source/Fonts/Zurich_BdXCn_BT_32pixel.fnt"
+                ) for name in names))
 
     def test_output_must_be_outside_repo_and_empty(self):
         with tempfile.TemporaryDirectory() as temp:
