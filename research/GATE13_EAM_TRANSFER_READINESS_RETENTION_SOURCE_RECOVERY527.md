@@ -29,3 +29,18 @@ These class-specific facts are backed by direct PE byte inspection now, not reco
 The source-proven underlying scheduled `MPMEAMail` envelope retains its native due date, class/record link and original queue owner `0x947AA8`, drained through `0x613EE0` and `0x5CFA20` during actual original NEXT/PResults. The current port stores `GameState.player_transfer_requests` as pending; there is not yet a complete **native-qualified** dispatcher translating actual distinct envelope/list-node identity and scheduled event tick into per-manager delivery. A timestamp or message in the game's `due_player_transfer_requests()` convenience query is not sufficient alone to assert that the original queue event was visited, removed and stamped. Next establish original pending envelope event identity and execution order across primary/secondary events, then wire actual source-approved per-user delivery and original PEAMail UI.
 
 Original standalone bytes are now reachable with the connected Drive connector, while local `container.exec` still fails harmless commands with `caas.internal.errors.ClientError`. Private source access does not establish a Windows 11 game playtest.
+
+## Recovered byte-identical original UI assets (same checkpoint)
+
+After the owner extracted the real Joliet game filesystem to the private Drive folder `02 — EXTRACTED ORIGINAL GAME FILES`, four native Inbox row strips were independently extracted, SHA-256 checked and compared with existing Recovery450 original source evidence. Git binary blob import via authenticated GitHub Git-data API (not UTF-8 reserialization) placed all four under the original disc spelling `original_assets/source/FM2001_Art/Generic/EAMail/`:
+
+| Original file | Original bytes | Source SHA-256 | Git blob SHA-1 |
+| --- | ---: | --- | --- |
+| `text_grid_nor.444` | 8124 | `74676dce75532b781551cab6e8598f805fa4698b2e1b828c9f4ef15b3ff0816d` | `3bc593437fab41cbd8820fdb6969b66de2a63eb7` |
+| `text_grid_sel.444` | 7504 | `6b6ff7ce36b3c507df2d590ba7ad48b9253409757844acf4ec93204807bad556` | `98feaa0ecbc68be1ab45027295b249e5ca7b7b38` |
+| `text_grid_high.444` | 6856 | `a13b413d13b5fa9c5f6a7b36f632c60342898de72bcff2ee73025bc92fdb68c8` | `83be732b133a8e7fb080893332e9d8b8519b29b1` |
+| `text_grid_des.444` | 7184 | `cb1fb08a99dfe204ea9b485f5102e808ab758f80aec96f69e17e9537d8eb2f70` | `56bb010339cb16da168c3881dae766ac740560e7` |
+
+Original direct Drive source file IDs and verification record are in `research/ORIGINAL_SOURCE_LOCATOR.md` under the extracted filesystem section. Each source image's original 532×18 dimensions and exact recovered byte SHA are enforced by `validate_original_eamail_grid_resources()`, and the Gate13 regression now verifies **committed source assets**, not only synthetic staging. Updated `original_assets/MANIFEST.md` carries provenance, original archive path, Joliet LBA and hash for each file.
+
+**Do not conflate source asset import with a rendered Inbox.** The code still lacks source-qualified `PEAMail+0x68` display sorting, list text/status raster generation, actual PBg ID1 and PMenu child0x65 navigation and message detail/modal actions. Original bytes have not been altered or converted; no proprietary whole-game executable, disc BIN/ISO or ZIP was imported.
