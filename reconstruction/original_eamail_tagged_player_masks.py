@@ -19,6 +19,8 @@ from original_eamail_player_name import (
     ORIGINAL_EAM_PLAYER_NO_ASSOCIATION_FORMAT,
 )
 from original_management_text import OriginalManagementTextResources
+from original_eamail_native_row_fields import OriginalEAMNativeVisibleRowsSource
+from original_eamail_source_contract import ORIGINAL_EAMAIL_VISIBLE_ROWS, ORIGINAL_EAMAIL_TEXT_CHILDREN
 from original_eamail_plain_glyph_masks import ORIGINAL_EAMAIL_TEXT_FONT_OBJECT_VA
 
 
@@ -104,3 +106,57 @@ def native_player_markup_fragment_masks(
             glyph_alpha=mask,
         ))
     return tuple(output)
+
+
+
+@dataclass(frozen=True)
+class OriginalEAMPlayerRowSourceFragments:
+    native_node_serial: int
+    screen_control_rect: tuple[int, int, int, int]
+    raw_original_label: str
+    fragments: tuple[OriginalEAMPlayerSourceFragmentMask, ...]
+    native_final_draw_verified: bool = False
+
+
+def native_visible_player_fragment_masks(
+    visible: OriginalEAMNativeVisibleRowsSource,
+    resources: OriginalManagementTextResources,
+) -> tuple[OriginalEAMPlayerRowSourceFragments, ...]:
+    """Prepare native ID2 source template fragments for current delivered rows.
+
+    Output is a source-data/glyph *staging* seam only; there are no claimed
+    original T+P / T+C colors, screen glyph baselines or popup actions.
+    """
+    if type(visible) is not OriginalEAMNativeVisibleRowsSource:
+        raise OriginalEAMTaggedMaskError("Original delivered Inbox viewport required")
+    if type(resources) is not OriginalManagementTextResources:
+        raise OriginalEAMTaggedMaskError("Original source font resources required")
+    if len(visible.native_rows) > ORIGINAL_EAMAIL_VISIBLE_ROWS:
+        raise OriginalEAMTaggedMaskError("Original Inbox has only eight visible row owners")
+    source_child_ids = tuple(x[0] for x in ORIGINAL_EAMAIL_TEXT_CHILDREN)
+    if source_child_ids != (2, 3, 0):
+        raise OriginalEAMTaggedMaskError("Native PMessageRow children drifted")
+    outputs = []
+    seen = set()
+    for row in visible.native_rows:
+        if row.original_internal_node_serial in seen:
+            raise OriginalEAMTaggedMaskError("Repeated native source Inbox row")
+        seen.add(row.original_internal_node_serial)
+        if tuple(f.child_id for f in row.original_text_fields) != source_child_ids:
+            raise OriginalEAMTaggedMaskError("Original player child ID2 owner mismatch")
+        field = row.original_text_fields[0]
+        text = field.source_verified_visible_text
+        if text is None:
+            continue
+        rx, ry, _, _ = row.row_screen_rect
+        if (field.screen_rect != (rx + 38, ry, 215, 16)
+                or field.source_rect_in_row != (38, 0, 215, 16)):
+            raise OriginalEAMTaggedMaskError("Native player child rectangle differs")
+        fragments = native_player_markup_fragment_masks(text, resources)
+        outputs.append(OriginalEAMPlayerRowSourceFragments(
+            native_node_serial=row.original_internal_node_serial,
+            screen_control_rect=field.screen_rect,
+            raw_original_label=text,
+            fragments=fragments,
+        ))
+    return tuple(outputs)
