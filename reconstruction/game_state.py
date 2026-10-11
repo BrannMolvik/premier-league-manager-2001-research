@@ -809,6 +809,8 @@ class GameState:
         Publish the pending queue and per-user delivered owner together.
         Do not touch other unqualified MPM event families or PEAMail sorting.
         """
+        if not self.original_pending_transfer_eam.entries:
+            return ()
         candidate_queue = deepcopy(self.original_pending_transfer_eam)
         candidate_delivered = deepcopy(self.original_delivered_mailboxes)
         consumed = candidate_queue.process_original_due(on_date, candidate_delivered)
