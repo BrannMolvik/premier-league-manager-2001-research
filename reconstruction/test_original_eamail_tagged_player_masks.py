@@ -35,6 +35,8 @@ class NativeEAMPlayerTaggedMaskTests(TestCase):
         self.assertFalse(runs[0].native_hit_target_and_action_verified)
         self.assertEqual(runs[0].native_child_forward_callback_va, 0x471B80)
         self.assertFalse(runs[0].native_child_callback_is_neutral_row_activation)
+        self.assertEqual(runs[0].native_secondary_parent_callback_va, 0x471C60)
+        self.assertEqual(runs[0].native_source_link_kind, "player")
         self.assertTrue(any(runs[0].glyph_alpha.alpha))
 
     def test_original_positive_club_format_preserves_all_source_runs(self):
@@ -55,6 +57,10 @@ class NativeEAMPlayerTaggedMaskTests(TestCase):
         self.assertTrue(all(run.native_child_forward_callback_va == 0x471B80
                             and not run.native_child_callback_is_neutral_row_activation
                             for run in runs))
+        self.assertEqual([run.native_secondary_parent_callback_va for run in runs],
+                         [0x471C60] * 3)
+        self.assertEqual([run.native_source_link_kind for run in runs],
+                         ["player", None, "club"])
         for run in runs:
             self.assertEqual(
                 text[run.start_byte:run.end_byte],
