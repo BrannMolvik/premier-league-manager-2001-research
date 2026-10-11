@@ -1,3 +1,7 @@
+### 11 October 2026 KST — Recovery526 recovered original English Current Form W/D/L strings
+
+Recovered and source-hashed original disc English.idx/English.str privately. Original PE index-global relation independently cross-checked via English table idx857 Sort By/858 Current Form; W,D,L globals map to idx1474/1475/1476 and English.str entries 20875–20877, not speculative glyphs. Corrected earlier false '0x667E90 context lookup' claim: actually CRT fread two-byte index, 0x64E320 then maps string pointer-cell. Original row fills six newest-right three-byte source slots and pads older with space literal; 0x448430/0x651F60 merely sets 16-bit child style colors, not geometry. Worker PR583 proposes semantic six source labels; asset CI green, full CI pending. Full GUI original Current Form, pointer clicks and Windows release remain open. No original PE/resources committed.
+
 ### 11 October 2026 KST — Recovery525 source Current Form text-label table and header geometry
 
 Native globals `0x9830E8/EC/F0` are built via `0x642314..375` dynamic table index resolver `0x667E90→0x64E320`, which writes address of 4-byte pointer cell into each global, not a hardcoded string. Original UI legend eCText controls use win/draw/loss pointer globals respectively at x561/x590/x619,y152 with 27x19 dimensions. No unsupported literal glyph or six-row child coordinates inferred; full alternative form-row implementation still blocked by data/provider/render exactness. Source research memo Recovery525 appended; no CI/gameplay changes.
