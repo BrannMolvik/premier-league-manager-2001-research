@@ -26,6 +26,10 @@ def nonpl_ready():
     state = state_two_source_leagues()
     state.clubs[10].team_category_code = 1
     state.clubs[11].team_category_code = 1
+    # Legacy selector fixture source omits these fields; the real production
+    # DBRCompetition resolves both from verified native source code.
+    state.competitions[2].runtime_kind = "league"
+    state.competitions[2].uses_secondary_schedule_container = False
     first = date(2000, 8, 17)
     for on_date, token, home, away, played in (
         (first, ("alt", 1), 11, 10, False),
@@ -55,6 +59,7 @@ def premier_ready():
     state.primary_schedule_end_date = source.primary_schedule_end_date
     state.calendar.current_date = source.calendar.current_date
     state.competitions[0].scheduled_matchday_count = 38
+    state.competitions[0].uses_secondary_schedule_container = False
     for cid in state.premier_league.club_ids:
         state.clubs[cid].team_category_code = 1
     return state, select_premier(state).accept_native_radio_event(15)
