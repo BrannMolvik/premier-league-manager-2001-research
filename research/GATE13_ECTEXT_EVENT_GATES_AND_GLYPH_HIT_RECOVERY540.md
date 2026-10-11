@@ -31,3 +31,19 @@ The modern `original_game_host.py::_press_original_eamail_row` currently dispatc
 PR633 exact head `e0b0091dc206a24c658dca307b74e09c4fff409f` passed Gate13 run 38178776486, full reconstruction 38178776484 and asset 38178776496; zero unresolved reviews. Squash merged on main as `05fd7961e8a6c4d5a51cc38123eb0c51ce7aa8e7`. This proves the bounded typed raw reference contract on that commit, **not** original link GUI, painted Inbox, physical input or Windows11 acceptance.
 
 **NEXT P0:** trace the native Inbox eCText draw caller/clip/palette/line advance from 0x5D7360 through 0x5D75B0, 0x5D7500, 0x6570F0 and 0x6503F0, then parent input veto/child pixel transform and original 0x605DC0/0x604900 detail return; implement only when source qualified, with actual visible row text/preview/action/ESC tests. Then complete R1 NEXT/PPreMatch all modes/PResults, Squad/Save/Load and every shipped nation/league and 2–6 human career; Gates13–17 and genuine Win11 GUI remain open.
+
+## Additional native source cross-check: row selection propagates to all three text children
+
+An independent read of the same hashed original executable resolves an important potential false relationship between Inbox selected-row text state and the two distinct click disable gates. Reproduce:
+```sh
+objdump -D -Mintel --start-address=0x470b40 --stop-address=0x470be0 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f430 --stop-address=0x64f450 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f710 --stop-address=0x64f792 footballmanager.exe
+```
+
+- `PMessageRow::0x470B40` selected first draws original `0x945DF0` selected strip, then calls each eCText child's virtual +0x14 with TRUE: child starts `row+0x37C` (ID2), `row+0x4AC` (ID3), `row+0x5DC` (ID0). `0x470B90` deselected draws normal original `0x945E30` and calls the same three virtual +0x14 methods with FALSE. All THREE receive the state transition, not only bitmap decoration.
+- The original eCText virtual +0x14 resolves `0x64F430` and on TRUE pushes **mask `0x4`** to `0x64F710`; on FALSE passes **mask `0x4`** to `0x64F750`. Native `0x64F710/0x64F750` set/clear only that bit in eCText+0x18, return unchanged when already in required state, and if matching object+0x1C subscription mask triggers parent+0x0C/invalidation via `0x64F600`. Therefore row selection sets/clears **bit 2, mask 0x4** in *each* native text control.
+- Crucially the two eCText input gate predicates previously proved at `0x64F7A0` and `0x64F960` test **mask 0x10 (bit 4)** and **mask 0x20 (bit 5)** respectively. The selected-mask `0x4` is a DIFFERENT bit. A design that equates selection with either of these disable gates would be original-inaccurate. This proof **does not** establish whether bit 0x4 ultimately changes glyph pixel RGB/style, merely that it changes native state/invalidation.
+- The current original-host `_draw_eamail_rows` paints normal/selected source bitmap only, without source-accepted child text or their selected state. This is explicitly an original-per-control **PARTIAL** implementation, not a visible parity result. Do not fabricate text colors or draw selected glyphs from mask 0x4 alone.
+
+**Next:** independently trace original eCText draw/output and palette, owner-local input coordinate conversion, glyph placement and the pixel effects of state mask 0x4, then source-qualify real Inbox labels/preview/details/modal return. Original executable was never launched; there was no native/Windows GUI acceptance.
