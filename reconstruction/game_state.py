@@ -70,6 +70,7 @@ from match_environment import (
 )
 from match_injury_persistence import clear_expired_persistent_injury
 from match_schedule import MsvcCrtRng
+from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from match_preparation import (
     PreparedAiMatchSelection,
     PreparedPremierLeagueAiSide,
@@ -292,6 +293,12 @@ class GameState:
     user_controlled_club_id: int | None = None
     # Runtime DBRClub+40 after426090 human binding, not imported AI manager_id.
     native_user_recipient_key: int | None = None
+    # Original DBRUser+0x6B4 delivered lists. Pending contract/transfer mail
+    # remains separate until the actual source +0x3C due-event dispatch.
+    # No automatic delivery or invented PEAMail screen is implied.
+    original_delivered_mailboxes: OriginalDeliveredEAMailboxes = field(
+        default_factory=OriginalDeliveredEAMailboxes
+    )
     # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
     # independent of club_roster_order until 0x61E3D0 promotion.
     user_youth: YouthTeamState | None = None
