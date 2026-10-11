@@ -15,6 +15,11 @@ from original_eamail_language import (
     ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_VIRTUAL_VA,
     ORIGINAL_TRANSFER_LIST_SUBJECT_NATIVE_IDX_ORDINAL,
     ORIGINAL_TRANSFER_LIST_SUBJECT_STRING_ID,
+    ORIGINAL_TRANSFER_LIST_BODY_NATIVE_SLOT_VA,
+    ORIGINAL_TRANSFER_LIST_BODY_NATIVE_VIRTUAL_VA,
+    ORIGINAL_TRANSFER_LIST_BODY_NATIVE_IDX_ORDINAL,
+    ORIGINAL_TRANSFER_LIST_BODY_STRING_ID,
+    ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE,
     load_verified_original_eamail_language,
 )
 
@@ -30,8 +35,8 @@ class OriginalEAMLanguageSourceTests(TestCase):
         self.assertEqual(resources.strings.payload_size, 292303)
         self.assertEqual(len(resources.index.string_ids), 2877)
         self.assertTrue(any("transfer" in row.lower() for row in resources.strings.strings))
-        # Test exact original native index mechanics only, NOT an unproven
-        # EAMPlayerAskTransferList message template choice.
+        # Generic unproven selectors remain fail-closed; only this exact
+        # argument-zero native body slot and title have separate proof.
         self.assertEqual(resources.source_selected_template(
             0, original_selector_proven=True),
             resources.strings.strings[resources.index.string_ids[0]])
@@ -57,6 +62,42 @@ class OriginalEAMLanguageSourceTests(TestCase):
             resource.index.string_ids[1314]])
         with self.assertRaises(OriginalEAMailLanguageError):
             resource.source_selected_template(1314, original_selector_proven=False)
+
+    def test_original_transfer_preview_template_exact_arg_zero_source_only(self):
+        resource = load_verified_original_eamail_language(ORIGINAL_ROOT)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_BODY_NATIVE_SLOT_VA, 0x8797A0)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_BODY_NATIVE_VIRTUAL_VA, 0x56FBA0)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_BODY_NATIVE_IDX_ORDINAL, 1314)
+        self.assertEqual(ORIGINAL_TRANSFER_LIST_BODY_STRING_ID, 943)
+        self.assertEqual((0x87AC28 - ORIGINAL_TRANSFER_LIST_BODY_NATIVE_SLOT_VA) // 4, 1314)
+        self.assertEqual(resource.index.string_ids[1314], 943)
+        self.assertEqual(resource.index.string_ids[1315], 943)
+        source_template = resource.original_player_asks_transfer_list_body_template()
+        self.assertEqual(source_template, ORIGINAL_TRANSFER_LIST_BODY_VERIFIED_TEMPLATE)
+        self.assertEqual(source_template, (
+            "Dear {MANAGERNAME:1}<P><P>{PHRASE:PLAYERASKTRANSFERLISTREASON}"
+            "<P><P><P>Yours Sincerely,<P><P>{PLAYERNAME:1}"
+        ))
+        self.assertNotEqual(source_template, resource.original_player_asks_transfer_list_subject())
+        # Runtime substitutions are NOT an independently validated message body.
+        self.assertIn("{PHRASE:PLAYERASKTRANSFERLISTREASON}", source_template)
+        self.assertIn("{PLAYERNAME:1}", source_template)
+        self.assertIn("{MANAGERNAME:1}", source_template)
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "not proven"):
+            resource.source_selected_template(1314, original_selector_proven=False)
+        # A forged IDX→different original message or altered STR body fails closed.
+        from dataclasses import replace
+        changed_idx = replace(resource.index, string_ids=(
+            resource.index.string_ids[:1314] + (942,) + resource.index.string_ids[1315:]
+        ))
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "body template"):
+            replace(resource, index=changed_idx).original_player_asks_transfer_list_body_template()
+        changed_strings = replace(resource.strings, strings=(
+            resource.strings.strings[:943] + ("Forged original body",)
+            + resource.strings.strings[944:]
+        ))
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "body template"):
+            replace(resource, strings=changed_strings).original_player_asks_transfer_list_body_template()
 
     def test_verified_resource_absence_and_altered_language_file_fail_closed(self):
         with TemporaryDirectory() as td:
