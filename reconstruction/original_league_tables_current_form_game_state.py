@@ -101,6 +101,15 @@ def source_qualified_primary_current_form_from_game_state(
         refuse("complete source fixture/result registry unavailable")
     if not set(results).issubset(fixtures):
         refuse("result without source fixture")
+    # Original DBRCompetition source byte18 is the native League round count.
+    # Source-complete history must have one fixture for each pair of clubs
+    # in each scheduled round; registry/shadow self-agreement is insufficient.
+    source_matchdays = getattr(competition, "scheduled_matchday_count", None)
+    if type(source_matchdays) is not int or source_matchdays <= 0:
+        refuse("original scheduled matchday count unavailable")
+    expected_sides = len(member_ids) * source_matchdays
+    if expected_sides % 2 or len(fixtures) != expected_sides // 2:
+        refuse("live fixture count contradicts original scheduled matchdays")
     observed = set()
     primary_days = {}
     for on_date, entries in days.items():

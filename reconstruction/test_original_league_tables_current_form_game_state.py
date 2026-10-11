@@ -29,7 +29,8 @@ def scenario(*, results=False):
                results={TOK: result} if results else {})
     state = Obj(
         competitions={4: Obj(runtime_kind="league", parent_competition_id=None,
-                              country_region_id=26, uses_secondary_schedule_container=False)},
+                              country_region_id=26, scheduled_matchday_count=1,
+                              uses_secondary_schedule_container=False)},
         procedural_leagues={(4, 0): live},
         clubs={1: Obj(team_category_code=1, country_id=26, short_name="Zeta"),
                2: Obj(team_category_code=1, country_id=26, short_name="Alpha")},
@@ -54,6 +55,22 @@ class PrimaryGameStateCurrentFormTests(unittest.TestCase):
         rows = bridge(state, competition_id=4)
         self.assertEqual([(row.club_id, row.score) for row in rows], [(1, 3), (2, 0)])
         self.assertEqual(rows[0].form_result_labels[-1], "W")
+
+    def test_refuses_truncated_but_self_consistent_league_history(self):
+        state, _, live = scenario(results=True)
+        # Same one fixture, same one source head and result, but original
+        # root League defines two scheduled rounds rather than one.
+        state.competitions[4].scheduled_matchday_count = 2
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "fixture count"):
+            bridge(state, competition_id=4)
+        state, _, _ = scenario()
+        del state.competitions[4].scheduled_matchday_count
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "scheduled matchday count"):
+            bridge(state, competition_id=4)
+        state, _, _ = scenario()
+        state.competitions[4].scheduled_matchday_count = True
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "scheduled matchday count"):
+            bridge(state, competition_id=4)
 
     def test_rejects_result_flag_divergence_in_both_directions(self):
         state, entry, live = scenario(results=True)
@@ -100,7 +117,9 @@ class PrimaryGameStateCurrentFormTests(unittest.TestCase):
             bridge(state, competition_id=4)
         state, entry, live = scenario()
         live.fixtures[("missing",)] = Obj(node_token=("missing",), home_club_id=1, away_club_id=2)
-        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "do not equal"):
+        # An extra registry fixture fails the newly required source-season
+        # completeness check before the subsequent shadow identity check.
+        with self.assertRaisesRegex(OriginalCurrentFormSourceError, "fixture count"):
             bridge(state, competition_id=4)
 
     def test_rejects_unknown_flags_and_wrapper_while_preserving_link_exclusion(self):
