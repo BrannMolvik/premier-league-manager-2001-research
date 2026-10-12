@@ -7,6 +7,7 @@ from original_supportstart_name_group_source import OriginalNameGroupCandidateRo
 from original_supportstart_initial_modal_rows import (
     OriginalSupportStartInitialRowsError,
     source_supportstart_initial_modal_rows,
+    source_supportstart_native_staging_transfers,
 )
 from original_supportstart_teamselect_user_birth import (
     replay_original_teamselect_user_birth_direct_rng,
@@ -95,6 +96,40 @@ class NativeSupportStartModalInitialRowsTests(unittest.TestCase):
     def test_requires_source_birth_receipt(self):
         with self.assertRaises(OriginalSupportStartInitialRowsError):
             source_supportstart_initial_modal_rows(None)
+
+
+    def test_original_staging_moves_six_staff_in_reverse_slot_order(self):
+        rng=SourceZeroRng()
+        birth=original_fixture_birth(rng)
+        rows=source_supportstart_initial_modal_rows(birth)
+        original_rng_length=len(rng.calls)
+        changes=source_supportstart_native_staging_transfers(rows)
+        self.assertEqual(len(changes),6)
+        self.assertEqual(
+            [transfer.original_staff_type for transfer in changes],
+            [13,5,4,3,2,1]
+        )
+        self.assertEqual([transfer.source_slot_index for transfer in changes],
+                         [5,4,3,2,1,0])
+        self.assertEqual([transfer.from_user_list_offset for transfer in changes],
+                         [0x5d0]*6)
+        self.assertEqual(
+            [transfer.to_user_inactive_list_offset for transfer in changes],
+            [0x5c4]+[0x5b8]*5
+        )
+        self.assertTrue(all(
+            transfer.source_checks_global_staff_list_for_removal
+            for transfer in changes
+        ))
+        self.assertEqual(len(rng.calls),original_rng_length)
+
+    def test_staging_plan_refuses_made_up_slot_movement(self):
+        rows=source_supportstart_initial_modal_rows(
+            original_fixture_birth(SourceZeroRng()))
+        for bad in (rows[:6],rows[::-1],(None,)+rows[1:]):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalSupportStartInitialRowsError):
+                    source_supportstart_native_staging_transfers(bad)
 
 
 if __name__=="__main__":
