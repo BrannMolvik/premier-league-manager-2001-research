@@ -109,7 +109,7 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
                 current_staff=self.staff[::-1], global_staff=self.staff),
             OriginalSupportStartLinkedLists(
                 current_staff=self.staff,
-                inactive_type_1_to_5=(self.staff[0],),
+                inactive_type_1_to_5=(SupportStaffState(1, 99, 3),),
             ),
         )
         for prior in wrong_prior:
