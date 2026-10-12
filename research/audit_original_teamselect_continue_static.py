@@ -360,6 +360,32 @@ def main(path: str) -> None:
     print("PASS injury conditional virtual gates and two event enqueue phases")
     print("WARNING no proof injury callback executes before first human creation")
 
+    # Original guarded Match/FriendlyMatch virtual+0x3C owns this injury
+    # producer, not native TeamSelect selected club callback.
+    original_match_virtuals = (
+        (0x7C4CE4, b".?AVMatch@@"),
+        (0x7C9E14, b".?AVFriendlyMatch@@"),
+    )
+    for vtable, name in original_match_virtuals:
+        target = struct.unpack_from("<I", binary, vtable - 0x400000 + 0x3C)[0]
+        col = struct.unpack_from("<I", binary, vtable - 0x400000 - 4)[0]
+        td = struct.unpack_from("<I", binary, col - 0x400000 + 12)[0]
+        pos = td - 0x400000 + 8
+        actual_name = binary[pos:binary.index(b"\x00", pos)]
+        if target != 0x511370 or actual_name != name:
+            raise AssertionError(("Original Match injury vtable changed", vtable))
+    match_edges = (
+        ("511434", "call   0x5112e0"),
+        ("511443", "call   0x5127a0"),
+        ("5128b8", "call   0x4197c0"),
+    )
+    for address, expected in match_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original Match injury call changed", address))
+    if direct_calls("5127a0") != ("511443",):
+        raise AssertionError("Match injury direct caller changed")
+    print("PASS guarded original Match/FriendlyMatch injury producer")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
