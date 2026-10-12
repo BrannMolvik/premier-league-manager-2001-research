@@ -116,3 +116,27 @@ Static disassembly of the same authenticated original further resolves the sourc
 - The stage-only port source component `reconstruction/original_supportstart_initial_modal_rows.py` projects the six **final (second-pass)** names and original row owner offsets, with an empty seventh row. Its `source_supportstart_native_staging_transfers` produces an ordered **unexecuted native list-change plan** for the six transfers (13,5,4,3,2,1), identifying current user+0x5D0 source, type-specific +0x5B8/+0x5C4 target and conditional global removal. It never mutates GameState or invents actual Cancel rollback. Dedicated focused regressions are staged but **NOT exact-head executed**.
 
 Reproduce: `objdump` 0x4C9C7E..0x4C9CAB, 0x617D70..0x617DA5, 0x4DA4F0..0x4DA59B, 0x4CA070..0x4CA0CF, 0x4D0830..0x4D093B. Original process not launched and no Windows GUI acceptance. This source stage closes initial name-and-slot ordering but does not close full modal lifecycle, linked-list persistence, exact shared CRT seed or Gate13.
+
+
+## Recovery559 continuation: original row first/second text semantics, localized type label origin
+
+Authenticated original x86 `0x4D06B0..0x4D07C9` corrects the initial row visual semantics, independently of source name-generator output:
+- The original PSupportStart row **FIRST** buffer `+0x70+0x80*i` receives a **localized staff role caption**. The code obtains each staff type from native CSupportStaff vft+0x14, passes it to `0x4CDCD0`, then copies that returned role string into the first buffer. It is **NOT the staff member's first name**.
+- The row **SECOND** buffer `+0x4F0+0x80*i` receives the staff's **complete combined name** from CSupportStaff vft+0x08, not its surname alone. Thus splitting the final source first/surname pair over both buffers would render source-wrong text.
+- If a source slot has no staff pointer, `0x4D07B0` copies original empty literal `0x874BA0` into both buffers and handles the selector state separately.
+- `0x4CDCD0` dispatches original staff types 1..16 through its actual jump table at `0x4CDD84`; types 1..12 use original localized data pointer slots `0x982AA4` down through `0x982A78`. **Type13 specifically reads `0x9821E4` instead of sequential `0x982A74`; types 14/15/16 use `0x982A70`, `0x982A64` and `0x982A60`. Do not assume a simple continuous 16-role-index lookup** based only on a similar-looking English.str list.
+- Source language loader `0x6458B0..0x645AF9` reads 2-byte string reference IDs from its selected original language index and calls `0x64E320` to produce pointers in the role-owner slots. `0x64E320` is just a 16-bit table index into its language resource owner pointer array; it does not independently establish every original role ID or every supported language.
+
+Authenticated original private `English.str` 369,644 bytes, SHA-256 `aa594a55ad95c672b69184e5f3ff8349e41fe95b48c5dcb3c8fcfe2bcdf5b601`, and `English.idx` 5,428 bytes, SHA-256 `98fcbe9e9eb5d1068739a58cc46aaaedab2749b2c65460861b18beeac7361db1`, were additionally targeted and raw-byte retrieved from the owner's private extracted Google Drive folder. Original English.str string IDs 21207..21222 contain candidate staff role terms, and English.idx positions 1877..1892 map to those source IDs in order. **But no proof yet establishes the reader's precise index-offset when populating these 16 role global pointers, nor the exception type13**, so a full source-complete type->role-label table is NOT currently authorized. Keep captions unresolved rather than embed guessed strings. No private proprietary binary bytes were committed.
+
+The updated `reconstruction/original_supportstart_initial_modal_rows.py` exposes `source_staff_full_name` as a combined string on the second text owner and `source_role_label=None` on first (pending true localized source resolution); its regression cases assert correct owner offsets and absence of invented captions. Still no live GTK/Tk mouse behavior, original process execution, exact-head Python tests or Win11 GUI acceptance.
+
+Reproduce via original static disassembly:
+```
+objdump -D -Mintel --start-address=0x4D06B0 --stop-address=0x4D07C9 footballmanager.exe
+objdump -D -Mintel --start-address=0x4CDCD0 --stop-address=0x4CDD82 footballmanager.exe
+objdump -D -Mintel --start-address=0x6458B0 --stop-address=0x645B00 footballmanager.exe
+objdump -D -Mintel --start-address=0x64E320 --stop-address=0x64E339 footballmanager.exe
+```
+
+**NEXT:** source-resolve localization pointer index offset and special type13 label; trace actual modal Cancel cleanup/restoration and input-owner hit/selection callbacks. Then integrate selected native human/staff birth and GUI on one true CRT. Gates13–17 and original/Win11 GUI acceptance remain OPEN.
