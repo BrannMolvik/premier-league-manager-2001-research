@@ -88,10 +88,9 @@ class OriginalCountryRootCandidatesTests(unittest.TestCase):
         ):
             with self.subTest(items=items, kwargs=kwargs):
                 with self.assertRaises(OriginalCompetitionPoolError):
-                    source_country_competition_candidates(
-                        items, require_shipped_count=False,
-                        country_count=9, **kwargs
-                    )
+                    params = {"require_shipped_count": False, "country_count": 9}
+                    params.update(kwargs)
+                    source_country_competition_candidates(items, **params)
 
     def test_original_shipped_corpus_count_guard(self):
         with self.assertRaisesRegex(OriginalCompetitionPoolError, "193"):
