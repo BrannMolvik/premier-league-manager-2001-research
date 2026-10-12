@@ -125,6 +125,37 @@ def main(path: str) -> None:
     print("PASS 3 enqueue -> immediate timed-process callsite pairs")
     print("WARNING no staff rollback or GUI fidelity follows from modal return")
 
+    # Source-identical 0x7BD564 native queued-event wrapper vtable.
+    # 0x40DFB0 returns zero; 0x404610 forwards virtual +0x24 of
+    # the INNER object at wrapper+0x08; timed +0x10 forwards inner+0x3C.
+    import struct
+    wrapper_vft_offset = 0x3BD000 + (0x7BD564 - 0x7BD000)
+    wrapper_vft = struct.unpack_from("<7I", binary, wrapper_vft_offset)
+    expected_vft = (
+        0x404620, 0x40DFB0, 0x5CE530, 0x5CE5E0,
+        0x5CFA20, 0x404600, 0x404610,
+    )
+    if wrapper_vft != expected_vft:
+        raise AssertionError(("Original native queued-event wrapper changed", wrapper_vft))
+    wrapper_edges = (
+        ("40dfb0", "xor    eax,eax"),
+        ("40dfb2", "ret"),
+        ("404610", "mov    ecx,DWORD PTR [ecx+0x8]"),
+        ("404615", "jmp    DWORD PTR [eax+0x24]"),
+        ("5cfa28", "call   DWORD PTR [eax+0x3c]"),
+        ("5cfa2b", "test   eax,eax"),
+        ("5cfa48", "call   0x413020"),
+        ("404623", "call   0x404640"),
+    )
+    for address, expected in wrapper_edges:
+        actual = instruction(address)
+        if expected not in actual:
+            raise AssertionError(("Native event wrapper target changed", address, actual))
+    print("PASS original event wrapper vtable seven native function pointers")
+    print("PASS original wrapper vft+4 zero; vft+18 forwards inner+0x24")
+    print("PASS original timed wrapper vft+0x10 forwards inner+0x3c")
+    print("WARNING inner event type/CRT/queue presence before first human UNKNOWN")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
