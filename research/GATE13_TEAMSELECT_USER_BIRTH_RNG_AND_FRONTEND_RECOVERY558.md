@@ -258,3 +258,17 @@ objdump -D -Mintel --start-address=0x412EF0 --stop-address=0x412F30 footballmana
 ```
 
 **Next source actions:** investigate owner global `0x947AA8` initialization and when it has queued nodes on normal TeamSelect user creation, original `0x4258D0` + `0x426090` virtual subcall reachability, and any post-Apply/Cancel movement in the TeamSelect main model. These must precede a source-exact shared CRT claim. The Windows 11 host currently lacks the immediate source user/event/modal transaction; its original fidelity is still incomplete, and no original GUI acceptance, exact-head new Python test result or Gate13 closure is claimed.
+
+
+## Recovery561 continued: identify concrete pre-staff queue producer and callbacks
+
+Native queue global `0x947AA8` is NOT an inert reserved pointer. Its enqueue method has been identified:
+
+- `0x613EC0` with ECX pointing to queue owner allocates 0x0C-byte linked-list node through `0x668140`, copies the incoming dynamic event object pointer into its first field, and appends through shared native list helper `0x617D70`. Its owning queue list is at **owner+0x04**. This is source-backed actual queue production, not merely a theoretical indirect dispatch.
+- Actual original source producer `0x4044F5..0x404503` pushes the constructed polymorphic object `ESI`, sets `ECX=0x947AA8` and **calls `0x613EC0`**. This gives one real source path that can populate the global list.
+- `0x613EE0` sets owner+0x0C=1 during event processing, iterates objects, invokes their virtual+0x10 to check eligibility, conditionally removes via `0x4EA190`, clears owner+0x0C, and invokes `0x614080` recursively if owner+0x10 deferred work is flagged. `0x614080` additionally invokes each queued object's virtual+0x04 and +0x18. These are actual potential indirect source side-effect routes, not a direct RNG call.
+- Original `0x425570` is a separate queue query by owner `0x947AA8 -> 0x614230`, searching event objects with virtual+0x14 tags 0x45/0x54 for a matching object member. This supports original queue's dynamic gameplay-event nature, not a locally empty UI placeholder.
+
+**What is NOT proven:** whether `0x4044F5` producer or any other enqueue route executes before normal first-user TeamSelect `0x412EF0`, whether a specific queued object virtual callback uses shared CRT, and whether a call at first-user selection sees queue owner+0x0C set/queue owner+0x04 nonempty. Consequently the prior 26+6-staff direct RNG ledger remains a lower bound, NOT an exact precompetition seed checkpoint. To finish, trace normal launcher -> DB load -> TeamSelect entry event queue state and instantiated event class virtuals on that path.
+
+Reproduction: `0x613EC0..0x613EDD`, `0x613EE0..0x613F4C`, `0x614080..0x6140EF`, `0x4044D3..0x40450C`, `0x425570..0x425581`. All independent original private static disassembly, no original process launched or normal Windows UI playtest.
