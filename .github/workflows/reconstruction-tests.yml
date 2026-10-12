@@ -43,6 +43,10 @@ on:
       # must receive comprehensive gameplay regressions, not just GUI smoke.
       - "reconstruction/support_staff.py"
       - "reconstruction/test_support_staff.py"
+      - "reconstruction/original_supportstart_pointer_observation.py"
+      - "reconstruction/test_original_supportstart_pointer_observation.py"
+      - "reconstruction/original_teamselect_queue_lifecycle.py"
+      - "reconstruction/test_original_teamselect_queue_lifecycle.py"
       - "reconstruction/original_supportstart_input.py"
       - "reconstruction/test_original_supportstart_input.py"
       - "reconstruction/original_supportstart_editor_projection.py"

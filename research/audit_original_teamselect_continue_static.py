@@ -887,6 +887,139 @@ def main(path: str) -> None:
             raise AssertionError(("Native mouse-up vft moved",hex(vft)))
     print("PASS native mouse-up all registered windows and row release bits")
 
+
+    # Recovery571 original optional global input observers: the source
+    # native 64F7A0 and 64F860 calls are NOT passive no-ops. 984814
+    # and 984818 track eligible control pointers through vft+50/+48.
+    source_global_input_observers_571 = (
+        ("64f7e1", "0x984810"),
+        ("64f7fe", "call   DWORD PTR [edi]"),
+        ("64f81f", "0x984818"),
+        ("64f82f", "call   0x64fb80"),
+        ("64f834", "0x984814"),
+        ("64f844", "call   0x64fb20"),
+        ("64f88d", "mov    eax,DWORD PTR [esi+0x20]"),
+        ("64f8a7", "call   DWORD PTR [eax+0x14]"),
+        ("64f8ba", "call   0x64fb80"),
+        ("64f8cf", "call   0x64fb20"),
+        ("64fb24", "mov    eax,DWORD PTR [esi+0x18]"),
+        ("64fb2a", "cmp    al,0x3"),
+        ("64fb3a", "cmp    eax,edi"),
+        ("64fb3e", "cmp    eax,DWORD PTR [esi+0x10]"),
+        ("64fb43", "cmp    edx,DWORD PTR [esi+0xc]"),
+        ("64fb48", "cmp    edx,DWORD PTR [esi+0x14]"),
+        ("64fb52", "call   DWORD PTR [edx+0x50]"),
+        ("64fb59", "mov    DWORD PTR ds:0x984814,esi"),
+        ("64fb6d", "mov    DWORD PTR ds:0x984814,0x0"),
+        ("64fb84", "mov    eax,DWORD PTR [esi+0x18]"),
+        ("64fb8a", "cmp    al,0x3"),
+        ("64fb9a", "cmp    eax,edi"),
+        ("64fb9e", "cmp    eax,DWORD PTR [esi+0x10]"),
+        ("64fba3", "cmp    edx,DWORD PTR [esi+0xc]"),
+        ("64fba8", "cmp    edx,DWORD PTR [esi+0x14]"),
+        ("64fbb2", "call   DWORD PTR [edx+0x48]"),
+        ("64fbb9", "mov    DWORD PTR ds:0x984818,esi"),
+        ("64fbcd", "mov    DWORD PTR ds:0x984818,0x0"),
+    )
+    for address, expected in source_global_input_observers_571:
+        if expected not in instruction(address):
+            raise AssertionError(("Original global input observer callback moved", address))
+    print("PASS native optional global input observers and hover-pointer gates")
+
+    # Recovery572: constructor BEFORE original 13 first/surname pairs.
+    # Restrict no-direct-CRT conclusions to the specified nested leaves.
+    dbruser_ctor_nested_frontier_572 = (
+        ("413c0e", "call   0x424ca0"),
+        ("413c54", "call   0x4258d0"),
+        ("4258f8", "call   0x42c400"),
+        ("424d39", "push   0x424f70"),
+        ("424d3e", "push   0x4"),
+        ("424d4e", "call   0x6687c1"),
+        ("424e6d", "push   0x424f90"),
+        ("424e74", "push   0xc8"),
+        ("424e7a", "call   0x6687c1"),
+        ("424edc", "push   0x61e480"),
+        ("424ee1", "push   0x100"),
+        ("424ee9", "call   0x6687c1"),
+        ("424ea7", "call   0x5ee970"),
+        ("424f45", "call   0x42c6b0"),
+        ("424fae", "call   0x4eab80"),
+        ("4eabbd", "call   0x4eb2a0"),
+        ("4eabe6", "call   0x64ce30"),
+        ("4eabfe", "call   0x64ce30"),
+        ("4eac1c", "call   0x64ce30"),
+        ("64ce99", "call   0x66a518"),
+        ("66a51f", "idiv   DWORD PTR [ebp+0xc]"),
+        ("5ee974", "mov    DWORD PTR [eax],0x1"),
+        ("5ee980", "ret"),
+        ("42c6b4", "mov    DWORD PTR [ecx+0x10e8],eax"),
+        ("42c6ba", "ret    0x4"),
+        ("61e4df", "call   0x4eab80"),
+        ("61e4fa", "call   0x61e540"),
+        ("61e544", "call   0x61e7a0"),
+        ("61e7a3", "jmp    0x4eab80"),
+        ("61e54d", "cmp    bx,0xffff"),
+        ("61e552", "je     0x61e5a0"),
+    )
+    for address, expected in dbruser_ctor_nested_frontier_572:
+        if expected not in instruction(address):
+            raise AssertionError(("Original DBRUser ctor callback changed",address))
+    # Exact CALL destination sets of carefully bounded original helpers.
+    # If any new caller appears, unqualified side effects must be audited.
+    source_ctor_direct_sets = (
+        (0x4eab80, 0x4eac38, (0x4eb2a0, 0x64ce30, 0x64ce30, 0x64ce30)),
+        (0x64ce30, 0x64cf05, (0x66a518,)),
+        (0x5ee970, 0x5ee981, ()),
+        (0x42c6b0, 0x42c6bd, ()),
+    )
+    for start, stop, expected in source_ctor_direct_sets:
+        block_calls = tuple(int(dest,16)
+            for ln in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):",ln))
+            and start <= int(m.group(1),16) < stop
+            for dest in re.findall(r"\bcall\s+0x([0-9a-f]+)",ln)
+        )
+        if block_calls != expected:
+            raise AssertionError(("Nested DBRUser ctor direct calls moved",hex(start),block_calls))
+    print("PASS source DBRUser init callback/formatter direct-call frontier")
+    print("WARNING other ctor branches, queue contents and first-click CRT remain unproven")
+
+    # Recovery572: original native binder 0x426090 supplies literal zero
+    # to 0x415870. That dispatch skips complex 0x405CF0/0x50FFC0.
+    source_first_human_binder_branch_572 = (
+        ("4261a9", "push   0x0"),
+        ("4261b3", "call   0x415870"),
+        ("415877", "cmp    al,0x1"),
+        ("41587c", "jne    0x4158c3"),
+        ("4158a5", "call   0x405cf0"),
+        ("4158be", "call   0x50ffc0"),
+        ("4151d5", "call   0x413b10"),
+        ("403e10", "mov    eax,DWORD PTR [ecx+0x40]"),
+        ("413b10", "mov    eax,DWORD PTR [ecx+0x9cc]"),
+        ("426177", "call   0x4151c0"),
+        ("42609b", "call   0x403e10"),
+        ("426195", "call   0x403e10"),
+    )
+    for address, expected in source_first_human_binder_branch_572:
+        if expected not in instruction(address):
+            raise AssertionError(("Original first-manager binder branch changed",address))
+    for start,stop,expected in (
+        (0x403e10,0x403e3d,()),
+        (0x413b10,0x413b36,()),
+        (0x4151c0,0x415209,(0x413b10,)),
+        (0x4158c3,0x415927,()),
+    ):
+        calls = tuple(int(v,16)
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):",line))
+            and start <= int(m.group(1),16) < stop
+            for v in re.findall(r"\bcall\s+0x([0-9a-f]+)",line))
+        if calls != expected:
+            raise AssertionError(("First-human binder bounded direct calls changed",
+                                  hex(start), calls))
+    print("PASS literal-zero first-human binder branch and bounded lookup callees")
+    print("WARNING binder pointer effects and dynamic original queue still unproven")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

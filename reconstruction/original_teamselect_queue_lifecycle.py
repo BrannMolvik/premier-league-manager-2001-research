@@ -133,3 +133,71 @@ def project_original_teamselect_continue_clear(
             owner.enabled_flag, (), owner.processing_flag, owner.deferred_flag
         ), (), owner.source_event_identities, ()
     )
+
+
+FIRST_HUMAN_NATIVE_QUEUE_OWNER_VA = 0x947AA8
+FIRST_HUMAN_FIRST_DRAIN_CALLSITE_VA = 0x4259B5
+FIRST_HUMAN_SECOND_DRAIN_CALLSITE_VA = 0x412F1F
+
+
+@dataclass(frozen=True)
+class SourceFirstHumanQueueSnapshot:
+    """Caller-supplied source observation, not live data captured by this code."""
+    instruction_va: int
+    queue_owner_va: int
+    owner: OriginalQueueOwnerProjection
+    separately_observed_in_native_runtime: bool
+
+
+@dataclass(frozen=True)
+class SourceFirstHumanEmptyDrainsPreflight:
+    first: OriginalQueueDrainProjection
+    second: OriginalQueueDrainProjection
+    # Other native constructor/binder and callback side effects are unknown.
+    source_queued_callback_count: int = 0
+    live_teamselect_startup_authorized: bool = False
+
+
+def preflight_original_first_human_two_empty_queue_drains(
+    first: SourceFirstHumanQueueSnapshot,
+    second: SourceFirstHumanQueueSnapshot,
+) -> SourceFirstHumanEmptyDrainsPreflight:
+    """Source 0x4259B5 and 0x412F1F both invoke 0x614080, separately.
+
+    Queue owner constructor 0x613E40 initially sets head to null,
+    but this does not establish queue content at EITHER later drain.
+    To certify the source zero-callback path, an external runtime
+    observer must provide both original queue snapshots, including
+    exact native owner identity, callsite and no active processing.
+    Merely setting the observed flag in a unit test establishes
+    hypothetical behavior, not genuine original runtime evidence.
+    This method never authorizes live user/manager creation.
+    """
+    for receipt,expected in (
+        (first,FIRST_HUMAN_FIRST_DRAIN_CALLSITE_VA),
+        (second,FIRST_HUMAN_SECOND_DRAIN_CALLSITE_VA),
+    ):
+        if type(receipt) is not SourceFirstHumanQueueSnapshot:
+            raise OriginalQueueLifecycleError("Two actual queue drain observations required")
+        if (type(receipt.instruction_va) is not int
+                or receipt.instruction_va != expected
+                or type(receipt.queue_owner_va) is not int
+                or receipt.queue_owner_va != FIRST_HUMAN_NATIVE_QUEUE_OWNER_VA
+                or type(receipt.separately_observed_in_native_runtime) is not bool
+                or not receipt.separately_observed_in_native_runtime):
+            raise OriginalQueueLifecycleError("Native queue origin/callsite unobserved")
+        owner = receipt.owner
+        if (type(owner) is not OriginalQueueOwnerProjection
+                or type(owner.enabled_flag) is not int
+                or owner.enabled_flag != 1
+                or type(owner.processing_flag) is not int
+                or owner.processing_flag != 0
+                or owner.source_event_identities != ()
+                or type(owner.deferred_flag) is bool
+                or owner.deferred_flag not in (None, 0)):
+            raise OriginalQueueLifecycleError("Cannot infer original queue head was empty")
+    a = project_original_queue_drain(first.owner, ())
+    b = project_original_queue_drain(second.owner, ())
+    if a.virtual_call_order or b.virtual_call_order:
+        raise OriginalQueueLifecycleError("Native zero-head path called unknown event")
+    return SourceFirstHumanEmptyDrainsPreflight(a,b)
