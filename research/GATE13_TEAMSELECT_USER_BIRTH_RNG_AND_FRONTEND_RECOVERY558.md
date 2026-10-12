@@ -74,3 +74,32 @@ The helper is a static x86/source receipt only; no current GitHub branch code wa
 Canonical main FrontEndSession currently preserves team selection only as IDs while the source event constructs an actual linked DBRUser, resolves 13 generated name pairs, creates six Staff objects, and enters editor BEFORE its start transition. Canonical main GameState.from_database currently creates a new CRT at backend materialization, which is deferred to Start/Continue. Correct replacement must avoid silently shifting all later seed/fixture states. Source selected user initialization 0x413BB0 also calls DBRUser constructor 0x424CA0 (whose visible four array element initializer 0x424F70 is RNG-free) and 0x426090 current-manager binding with indirect nontrivial subcalls. The complete seed-to-first-user branch, including 0x426090 indirect runtime effects and modal Apply/Cancel/rollback, remains to be audited. Do not declare an *exact* pre-staff LCG checkpoint from the >=98 direct calls alone.
 
 The source itself is accessible; the outstanding limitation is exact-head code test execution/graphical acceptance (local shell cannot resolve github.com for a clone), not unavailable original bytes. Continue branch-staged source modeling and native event mapping, then combine into one full feature PR with its required exact-head CI rather than triggering CI for every trace.
+
+
+## Recovery559: composed first-click CRT transaction and modal ownership
+
+The already-verified original user+staff draw components are now composed, **without an independent seed or GUI side effects**, in `reconstruction/original_supportstart_teamselect_user_birth.py`. The source-only `replay_original_teamselect_user_birth_direct_rng` requires the actual clicked `Club.index`, its selected native root-league definition from TeamSelect row+0x4C, the clicked club's original country-dependent name route, original source-ordered Player/Club tables, and a caller-owned RNG already at the correct first-click checkpoint. It preflights source contexts before drawing, consumes 13 original user pairs (26 calls) and then six original staff in exact type order on the **same RNG object**, returning a receipt that distinguishes names, RNG draw counts and club associations. No CSupportStaff registration or DBRUser native linked-list mutation is claimed. Its unit tests `reconstruction/test_original_supportstart_teamselect_user_birth.py` cover the minimum 98 direct draws, correct first-versus-next user club-group RNG bound, six exact staff types, source context mismatch rejection with zero advance, and no silent per-user reseed/rewind. Tests remain **unexecuted on the exact branch** until available CI or isolated verified checkout.
+
+### Original editor is a separate guarded TeamSelect input callback
+
+A fresh static trace of the original (SHA256 `833bf95e...`) distinguishes the new-human creation callback `0x4D8E90` from the **later separate editor-opening callback `0x4D91C0`**. Native `0x4D91C0` first calls base owner event `0x64F960` with its incoming event arguments and requires its return to be nonzero; it then checks original control bit15 via `0x652F80` and returns without modal if false. Only after BOTH gates does it locate the corresponding selected-human slot through `0x4D9240`, select current native user via `0x413B80`, and invoke `0x450BB0` with slot index and two actual original entry-name/state pointers. This is not proven to be a generic click on arbitrary 326×37 visual row bounds.
+
+`0x450BB0` itself constructs the PSupportStart object `0x4CF0F0`, lays it out from original screen position, runs modal `0x5EB540 -> 0x532650`, then reads **source result BYTE `PSupportStart+0x1DE4`** into BL at `0x450CBF`; cleanup via `0x5EB920` returns the same result as `AL`. Thus **the modal itself distinguishes Cancel=0 from Apply=1**. Crucially its TeamSelect editor-event caller **`0x4D91C0` at `0x4D922C` overwrites `EAX` with its earlier base event acceptance result held in EBX**, discarding `0x450BB0`'s AL before returning. This means Cancel can still count as a handled click at the OUTER TeamSelect event layer; do not equate the handler's return with Apply.
+
+Original `0x450BB0` sets modal width/height `0x2F8×0x1F4=760×500` and uses source global 0x8779C0/0x8779C4 for placement (clamped by native bounds), with additional x/y controls from source `0x653320`. Do not substitute a centered invented Tk dialog or assume mouse-hit regions from underlying visual row rectangles. The exact source hit owner/hotspots still need explicit reconstruction.
+
+### Native pre-staff call graph constraints
+
+Original `0x413BB0` first checks whether an existing user for the same club is already linked, and can return zero without allocating a fresh DBRUser. **The 26+six-staff transaction is ONLY for successful native new-user creation**, not every TeamSelect click. The normal new-user branch calls `0x424CA0` constructor, `0x4258D0` (which calls `0x42C400`) and `0x426090` manager slot/name binding before staff. An original static scan of direct callees `0x424CA0` and `0x426090` finds no direct call to `0x64D540`/CRT random, but **indirect helpers/vtable actions and source transition calls remain unqualified**; the source-only transaction must not present itself as the complete original seed-to-staff stream. The click path also invokes `0x412EF0` after registration but before staff creation, whose nested source graph remains to be audited for RNG and rollback side effects. Do not advance a fixed 98 calls or assume no intervening RNG without proving those callees.
+
+Reproduce static original:
+```bash
+objdump -D -Mintel --start-address=0x4D8E90 --stop-address=0x4D90A0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4D91C0 --stop-address=0x4D9240 footballmanager.exe
+objdump -D -Mintel --start-address=0x450BB0 --stop-address=0x450CE9 footballmanager.exe
+objdump -D -Mintel --start-address=0x413BB0 --stop-address=0x413C86 footballmanager.exe
+objdump -D -Mintel --start-address=0x4258D0 --stop-address=0x425A10 footballmanager.exe
+objdump -D -Mintel --start-address=0x426090 --stop-address=0x42621E footballmanager.exe
+```
+
+**Next work:** establish mandatory intermediate `0x412EF0` and `0x426090` hidden-CRT effects and actual first-click game-CRT state; source-bind distinct original new-human and editor-button callbacks and their Cancel/Apply linked-list semantics into Windows host. The source transaction is staged for integration but has no fake user creation, private assets, or GUI. Gate13–17 still open.
