@@ -727,3 +727,16 @@ The old TeamSelect zero-draw paragraph and historical 153,002 fixed prefix exclu
 An isolated, non-live source trace component and negative/regression tests are staged on the feature branch in reconstruction/original_supportstart_teamselect_staff_rng.py and its matching test file. These use one caller-owned RNG and preserve original source records. They are **NOT** sufficient to claim that the current production startup uses the correct CRT checkpoint or that the complete seven-row SupportStart interaction is restored. At this checkpoint their tests have not yet been executed against an exact branch checkout.
 
 Reproduce native disassembly: 0x4D8EF3..0x4D8F7F, 0x4C9CD0..0x4C9D36, 0x4C9B30..0x4C9CBD, 0x4CA660..0x4CA6CF, 0x4CB0F0..0x4CB2B0. Gates13–17 remain OPEN, original process and Windows11 GUI still unverified.
+
+
+### Recovery558 follow-up: 26 even-earlier RNG calls on ordinary DBRUser initialization
+
+The direct native TeamSelect selected-user callsite **0x4D8EF3 -> 0x413BB0 -> 0x4258D0** shows that immediately after original DBRUser+0x5B4 is set to the selected club pointer, source 0x4258F8 invokes **0x42C400**. This original method invokes **0x421C00** NINE times at exact addresses 0x42C422, 0x42C43B, 0x42C454, 0x42C46D, 0x42C486, 0x42C49F, 0x42C4B8, 0x42C4D1, 0x42C4EA, and then **FOUR more times** in the exact loop 0x42C4F5..0x42C50E calling 0x421C00 at 0x42C505. Thus it consumes exactly **13 separate original first/surname selection pairs = 26 bounded CRT calls** on the complete successful 0x42C400 routine, BEFORE reaching 0x4D8F75 for six SupportStaff creators.
+
+These 13 DBRUser stored player-name pointer pairs are different from actual displayed six staff names and have different retry semantics: 0x42C400 calls 0x421C00 directly and never performs 0x4CA660's '-' first-name comparison/retry. Native +0x520/+0x524 through +0x560/+0x564 (9 pairs) then +0x568/+0x578 through +0x574/+0x584 (4 pairs). All use the selected club country+0x14 as input and source nationality/player pool after country group indirection.
+
+**This makes the correct source-direct lower bound from actual user creation to completion of six staff at least 26 + 6*12 = 98 raw CRT calls** for a successful first user, before variable club slot counts, sentinel retries and potentially other earlier/indirect native consumers. Do not insert +98 unconditionally or treat it as an exact seed checkpoint: the 0x424CA0 DBRUser constructor, other 0x4258D0 initialization, 0x426090 name/manager binding and subsequent optional editor paths have not yet been globally proved RNG-free. Source-specific outputs affect later behavior.
+
+Source-only replay and focused synthetic tests have been staged at reconstruction/original_supportstart_user_creation_rng.py and test_original_supportstart_user_creation_rng.py, using the already decoded real player names and same caller-owned shared CRT. The full normal TeamSelect RNG transaction is still NOT live-integrated or verified in GUI; branch tests have not been executed on their exact head.
+
+Reproduce from the authentic original: 0x413BB0..0x413C86, 0x4258D0..0x4258FD, 0x42C400..0x42C514, 0x421C00..0x421C49. This is a material historical Gate2/3/4 precompetition ledger correction that must be independently reviewed before claiming source-equivalent original competition schedule state.
