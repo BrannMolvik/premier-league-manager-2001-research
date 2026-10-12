@@ -887,6 +887,45 @@ def main(path: str) -> None:
             raise AssertionError(("Native mouse-up vft moved",hex(vft)))
     print("PASS native mouse-up all registered windows and row release bits")
 
+
+    # Recovery571 original optional global input observers: the source
+    # native 64F7A0 and 64F860 calls are NOT passive no-ops. 984814
+    # and 984818 track eligible control pointers through vft+50/+48.
+    source_global_input_observers_571 = (
+        ("64f7e1", "0x984810"),
+        ("64f7fe", "call   DWORD PTR [edi]"),
+        ("64f81f", "0x984818"),
+        ("64f82f", "call   0x64fb80"),
+        ("64f834", "0x984814"),
+        ("64f844", "call   0x64fb20"),
+        ("64f88d", "mov    eax,DWORD PTR [esi+0x20]"),
+        ("64f8a7", "call   DWORD PTR [eax+0x14]"),
+        ("64f8ba", "call   0x64fb80"),
+        ("64f8cf", "call   0x64fb20"),
+        ("64fb24", "mov    eax,DWORD PTR [esi+0x18]"),
+        ("64fb2a", "cmp    al,0x3"),
+        ("64fb3a", "cmp    eax,edi"),
+        ("64fb3e", "cmp    eax,DWORD PTR [esi+0x10]"),
+        ("64fb43", "cmp    edx,DWORD PTR [esi+0xc]"),
+        ("64fb48", "cmp    edx,DWORD PTR [esi+0x14]"),
+        ("64fb52", "call   DWORD PTR [edx+0x50]"),
+        ("64fb59", "mov    DWORD PTR ds:0x984814,esi"),
+        ("64fb6d", "mov    DWORD PTR ds:0x984814,0x0"),
+        ("64fb84", "mov    eax,DWORD PTR [esi+0x18]"),
+        ("64fb8a", "cmp    al,0x3"),
+        ("64fb9a", "cmp    eax,edi"),
+        ("64fb9e", "cmp    eax,DWORD PTR [esi+0x10]"),
+        ("64fba3", "cmp    edx,DWORD PTR [esi+0xc]"),
+        ("64fba8", "cmp    edx,DWORD PTR [esi+0x14]"),
+        ("64fbb2", "call   DWORD PTR [edx+0x48]"),
+        ("64fbb9", "mov    DWORD PTR ds:0x984818,esi"),
+        ("64fbcd", "mov    DWORD PTR ds:0x984818,0x0"),
+    )
+    for address, expected in source_global_input_observers_571:
+        if expected not in instruction(address):
+            raise AssertionError(("Original global input observer callback moved", address))
+    print("PASS native optional global input observers and hover-pointer gates")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
