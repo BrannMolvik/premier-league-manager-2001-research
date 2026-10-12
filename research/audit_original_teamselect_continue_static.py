@@ -1073,12 +1073,17 @@ def main(path: str) -> None:
         ("425e59", 0x686fe3),
         ("425e66", 0x668140),
         ("425e81", 0x65cb20),
+        ("425efc", 0x42c7e0),
+        ("425f12", 0x42c890),
+        ("425f28", 0x42c950),
+        ("425f3e", 0x42c950),
+        ("425f54", 0x42c950),
     )
     original_user_calls = tuple(
         (m.group(1),int(m.group(2),16))
         for line in listing.splitlines()
         if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
-        and 0x4258d0 <= int(m.group(1),16) < 0x425ea0
+        and 0x4258d0 <= int(m.group(1),16) < 0x425f8d
     )
     if original_user_calls != first_human_initialization_callsites_572:
         raise AssertionError(("Original user post-queue direct-call frontier changed",
@@ -1091,7 +1096,7 @@ def main(path: str) -> None:
         "ret" not in instruction("6596a2")
     ):
         raise AssertionError("Native mode-default 0x6596A0 stub has changed")
-    print("PASS all 49 DBRUser first-init direct-call sites and zero-mode stub")
+    print("PASS all 54 DBRUser full 0x4258D0..0x425F8C direct CALL sites")
     print("WARNING indirect first-human event producers and CRT still UNKNOWN")
 
     # Recovery573: bounded first-user helpers, source-address+call-target
