@@ -1,5 +1,9 @@
 # Recovery537: Native eCText rendering, distinct control-state bits, glyph pipeline audit
 
+> **Inbox dispatch erratum:** the final PMessageRow vtable is `0x7BFAC8`, whose
+> `+0x98/+0x9C` are color getters, not the generic editing functions below.
+> See [the independently rechecked list contract](GATE13_ORIGINAL_INBOX_LIST_MILESTONE.md).
+
 ## Original-file identity, scope, and reproduction
 
 Authorized reference `footballmanager.exe`, 4,714,541 bytes, SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, static original x86 disassembly only (no execution). Reproduce `objdump -d -Mintel` on original PE, inspect `0x46E680..0x46E7C0`, `0x5D68D0..0x5D69CF`, `0x5D7350..0x5D75B0`, `0x5D75B0..0x5D7A29`, `0x650650/0x6506A0`, `0x64F5A0/0x64F5B0`, `0x6570F0..0x65726D`, and exact `.rdata` vftable `0x7BE340`. This is static/source provenance only, not original GUI observation.

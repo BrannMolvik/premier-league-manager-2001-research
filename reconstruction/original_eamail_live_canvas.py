@@ -1,11 +1,12 @@
 """Source original EAMail eight-row normal/selected bitmap compositing for live host.
 
-Selection is original 0x471B80 -> 0x470B40, normal 0x470B90; text,
-preview, status icons and detail/action dialog remain intentionally absent.
+Selection is original 0x471B80 -> 0x470B40, normal 0x470B90. Qualified
+list text/icons and single-step arrows are separate from blocked body/actions.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 
 from ea444_decoder import EA444DecodedImage
@@ -24,6 +25,10 @@ from original_eamail_source_contract import (
     validate_original_eamail_grid_resources,
 )
 from original_eamail_native_row_fields import OriginalEAMNativeVisibleRowsSource
+from original_management_text import (
+    OriginalManagementTextResources, load_verified_management_text_resources,
+)
+from original_pmatchinfo_scroll_readiness import PMATCHINFO_SCROLL_RESOURCE_LEADS
 
 
 class OriginalEAMailCanvasError(ValueError):
@@ -35,6 +40,9 @@ class OriginalEAMailRowArt:
     normal: EA444DecodedImage
     selected: EA444DecodedImage | None = None
     empty_preview: EA444DecodedImage | None = None
+    text_resources: OriginalManagementTextResources | None = None
+    unread_icon: EA444DecodedImage | None = None
+    scroll_arrows: EA444DecodedImage | None = None
 
     def __post_init__(self) -> None:
         for image in (self.normal, self.selected):
@@ -43,6 +51,9 @@ class OriginalEAMailRowArt:
         if (self.empty_preview is not None
                 and (self.empty_preview.width, self.empty_preview.height) != (532, 187)):
             raise OriginalEAMailCanvasError("Original native empty preview geometry drifted")
+        for image, size in ((self.unread_icon, (18, 12)), (self.scroll_arrows, (72, 50))):
+            if image is not None and (image.width, image.height) != size:
+                raise OriginalEAMailCanvasError("Original Inbox control geometry drifted")
 
 
 @dataclass(frozen=True)
@@ -137,7 +148,74 @@ def load_verified_original_eamail_row_art(
         raise OriginalEAMailCanvasError("Missing original native disabled preview map")
     empty_raw = (root / ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH).read_bytes()
     empty_art = decode_staged_or_original(empty_raw, tables=tables, quant=quant)
-    return OriginalEAMailRowArt(decoded(normal), decoded(selected), empty_art)
+    unread = decode_staged_or_original(
+        (root / ORIGINAL_EAMAIL_ART_FOLDER / 'unread_mail_icon.444').read_bytes(),
+        tables=tables, quant=quant,
+    )
+    arrows = PMATCHINFO_SCROLL_RESOURCE_LEADS[0]
+    raw = (root / arrows.source_path).read_bytes()
+    if len(raw) != arrows.staged_size_bytes or sha256(raw).hexdigest() != arrows.staged_sha256:
+        raise OriginalEAMailCanvasError("Original Inbox scroll atlas identity mismatch")
+    return OriginalEAMailRowArt(
+        decoded(normal), decoded(selected), empty_art,
+        load_verified_management_text_resources(root), unread,
+        decode_staged_or_original(raw, tables=tables, quant=quant),
+    )
+
+
+def original_eamail_initial_status_layers(visible, art):
+    """471780: initial transfer flags6 choose unread wrapper945BF0 at (15,3)."""
+    from original_eamail_native_filter import ORIGINAL_TRANSFER_EAM_NATIVE_INITIAL_FLAGS
+    if (type(visible) is not OriginalEAMNativeVisibleRowsSource
+            or type(art) is not OriginalEAMailRowArt or art.unread_icon is None):
+        raise OriginalEAMailCanvasError("Original Inbox initial-status source required")
+    if ORIGINAL_TRANSFER_EAM_NATIVE_INITIAL_FLAGS != 6:
+        raise OriginalEAMailCanvasError("Native initial record flags drifted")
+    png = encode_rgba_png(18, 12, art.unread_icon.rgba)
+    layers = []
+    for row in visible.native_rows:
+        if row.native_record_class != 'EAMPlayerAskTransferListsub':
+            raise OriginalEAMailCanvasError("Mutable/other Inbox status is not qualified")
+        x, y, _, _ = row.row_screen_rect
+        layers.append((x + 15, y + 3, 18, 12, png))
+    return tuple(layers)
+
+
+def original_eamail_scroll_at_point(x, y):
+    """Original enabled press slots ID19/21; panel origin (0,148)."""
+    for control_id, top in ((19, 178), (21, 311)):
+        if 212 <= x < 230 and top <= y < top + 25:
+            return control_id
+    return None
+
+
+def original_eamail_scroll_step(visible, control_id):
+    """64FF30 coordinator step1; 64FF90 bound disabling."""
+    if (type(visible) is not OriginalEAMNativeVisibleRowsSource
+            or type(control_id) is not int or control_id not in (19, 21)):
+        raise OriginalEAMailCanvasError("Original Inbox scroll owner/control required")
+    current, maximum = visible.original_scroll_offset, visible.original_max_scroll_offset
+    if maximum != max(0, visible.original_filtered_count - 8) or not 0 <= current <= maximum:
+        raise OriginalEAMailCanvasError("Original Inbox scroll range drifted")
+    return max(0, min(maximum, current + (-1 if control_id == 19 else 1)))
+
+
+def original_eamail_scroll_layers(visible, art, *, pressed_control_id=None):
+    """5F2BC0/5F2C00: original idle0, pressed1, disabled3 arrow crops."""
+    if type(art) is not OriginalEAMailRowArt or art.scroll_arrows is None:
+        raise OriginalEAMailCanvasError("Original Inbox arrow atlas required")
+    if pressed_control_id not in (None, 19, 21):
+        raise OriginalEAMailCanvasError("Invalid original Inbox pressed arrow")
+    atlas = art.scroll_arrows
+    layers = []
+    for control_id, top, sy in ((19, 178, 0), (21, 311, 25)):
+        enabled = original_eamail_scroll_step(visible, control_id) != visible.original_scroll_offset
+        frame = (1 if pressed_control_id == control_id else 0) if enabled else 3
+        sx = frame * 18
+        rgba = b''.join(atlas.rgba[(y * 72 + sx) * 4:(y * 72 + sx + 18) * 4]
+                        for y in range(sy, sy + 25))
+        layers.append((212, top, 18, 25, encode_rgba_png(18, 25, rgba)))
+    return tuple(layers)
 
 
 def original_eamail_row_at_screen_point(
