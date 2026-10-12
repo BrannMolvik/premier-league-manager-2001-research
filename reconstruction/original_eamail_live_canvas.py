@@ -43,6 +43,7 @@ class OriginalEAMailRowArt:
     text_resources: OriginalManagementTextResources | None = None
     unread_icon: EA444DecodedImage | None = None
     scroll_arrows: EA444DecodedImage | None = None
+    received_header: EA444DecodedImage | None = None
 
     def __post_init__(self) -> None:
         for image in (self.normal, self.selected):
@@ -160,7 +161,40 @@ def load_verified_original_eamail_row_art(
         decoded(normal), decoded(selected), empty_art,
         load_verified_management_text_resources(root), unread,
         decode_staged_or_original(raw, tables=tables, quant=quant),
+        decode_staged_or_original(
+            (root / ORIGINAL_EAMAIL_ART_FOLDER / 'recieved_tog.444').read_bytes(),
+            tables=tables, quant=quant,
+        ),
     )
+
+
+def original_eamail_received_hit(x, y):
+    # 46F389: panel-local (705,1), parent translation (0,148); 5F5A00:73x20.
+    return 705 <= x < 778 and 149 <= y < 169
+
+
+def original_eamail_received_layers(art, *, selected=False, hovered=False):
+    from original_management_text import _clip_mask, _line_origin, _white_rgba
+    atlas = art.received_header
+    if atlas is None or art.text_resources is None:
+        return ()
+    if (atlas.width, atlas.height) != (73, 60):
+        raise OriginalEAMailCanvasError('Original Received header geometry drifted')
+    # Actual vft7C2B04+98=474F80: selected40, hover20, idle0. No pressed frame.
+    sy = 40 if selected else 20 if hovered else 0
+    rgba = atlas.rgba[sy * 73 * 4:(sy + 20) * 73 * 4]
+    layers = [(705, 149, 73, 20, encode_rgba_png(73, 20, rgba))]
+    font = art.text_resources.league_tables_row_font
+    rect = (705, 149, 73, 20)
+    label = _clip_mask(font.render_text_alpha('Received'),
+                       _line_origin(font, 'Received', rect, 0x24), rect)
+    if label is not None:
+        x, y, width, height, alpha = label
+        pixels = _white_rgba(alpha)
+        if selected:
+            pixels = b''.join(bytes((0, 0, 0, pixels[i + 3])) for i in range(0, len(pixels), 4))
+        layers.append((x, y, width, height, encode_rgba_png(width, height, pixels)))
+    return tuple(layers)
 
 
 def original_eamail_initial_status_layers(visible, art):

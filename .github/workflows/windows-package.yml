@@ -6,6 +6,8 @@ on:
       - ".github/workflows/windows-package.yml"
       - ".gitattributes"
       - "reconstruction/app.py"
+      - "reconstruction/playtest_distribution.py"
+      - "reconstruction/test_playtest_distribution.py"
       - "reconstruction/test_app_package_smoke.py"
       - "reconstruction/gate13_pstartmenu_derivative.py"
       - "reconstruction/runtime_layout.py"
@@ -128,3 +130,25 @@ jobs:
           path: ${{ runner.temp }}\fm2001-release\*
           if-no-files-found: error
           retention-days: 14
+
+      - name: Prepare separate short-path diagnostic distribution
+        working-directory: reconstruction
+        shell: pwsh
+        run: |
+          python -m unittest -v test_playtest_distribution
+          python playtest_distribution.py --dist-root "dist\FM2001-Windows11" --commit "${{ github.event.pull_request.head.sha || github.sha }}"
+
+      - name: Upload direct-layout playtest (one extraction, no nested ZIP)
+        id: playtest
+        uses: actions/upload-artifact@v4
+        with:
+          name: FM2001-Playtest-${{ github.event.pull_request.head.sha || github.sha }}
+          path: reconstruction/dist/FM2001-Windows11/*
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Record playtest download identity
+        shell: pwsh
+        run: |
+          "Playtest: ${{ steps.playtest.outputs.artifact-url }}" >> $env:GITHUB_STEP_SUMMARY
+          "Artifact SHA-256: ${{ steps.playtest.outputs.artifact-digest }}" >> $env:GITHUB_STEP_SUMMARY

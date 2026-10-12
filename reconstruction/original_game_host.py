@@ -2025,7 +2025,15 @@ class OriginalGameTkHost:
                     rect.x <= x < rect.right and rect.y <= y < rect.bottom)
             self._schedule_prematch_update()
             return
+        from original_eamail_live_canvas import original_eamail_received_hit
+        previous = getattr(self, '_first_screen_pointer', None) or (-1, -1)
         self._first_screen_pointer = (int(event.x), int(event.y))
+        if (self.management_presenter is not None
+                and getattr(self.management_presenter, 'selected_child_id', None) == 0x65
+                and not self.pmenu_popup_active
+                and original_eamail_received_hit(*previous)
+                != original_eamail_received_hit(*self._first_screen_pointer)):
+            self.redraw()
         self._update_squad_background_hover(int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
                 FrontEndScreen.START_MENU,
@@ -2144,6 +2152,7 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_eamail_rows(self, frame) -> int:
+        from original_eamail_live_canvas import original_eamail_received_layers, original_eamail_received_hit
         """Draw original normal/selected Inbox row graphics, not synthetic UI.
 
         0x471B80 selects on first press; 0x470B40 installs bitmap 0x945DF0.
@@ -2161,6 +2170,12 @@ class OriginalGameTkHost:
             self._eamail_selected_node_serial = None
             self._eamail_selected_row_token = None
         drawn = 0
+        for x, y, _w, _h, png in original_eamail_received_layers(
+                self.eamail_row_art,
+                selected=getattr(getattr(self, 'management_presenter', None), 'eamail_sort_index', None) == 4,
+                hovered=original_eamail_received_hit(*(getattr(self, '_first_screen_pointer', None) or (-1, -1)))):
+            self._create_native_image(x, y, image=self._photo(png), anchor=self.tk.NW)
+            drawn += 1
         for row in source_original_eamail_row_backgrounds(
             frame.presentation.eamail, self.eamail_row_art,
             selected_node_serial=self._eamail_selected_node_serial,
@@ -2222,6 +2237,23 @@ class OriginalGameTkHost:
         self._eamail_selected_row_token = None
         self.redraw()
         self.last_status = 'Original Inbox one-row scroll; preview/actions remain unresolved'
+        return True
+
+    def _press_original_eamail_received(self, event, frame):
+        from original_eamail_live_canvas import original_eamail_received_hit
+        if (self.pmenu_popup_active or frame.presentation.panel_class != 'PEAMail'
+                or not original_eamail_received_hit(int(event.x), int(event.y))):
+            return False
+        if self.eamail_row_art is None or self.eamail_row_art.received_header is None:
+            return False
+        # 64F7A0 rejects held input; 652CF0 still notifies when already selected.
+        if getattr(self, '_eamail_received_pressed', False):
+            return True
+        self.management_presenter.source_accepted_eamail_received_sort()
+        self._eamail_received_pressed = True
+        self._eamail_selected_node_serial = None
+        self._eamail_selected_row_token = None
+        self.redraw()
         return True
 
     def _press_original_pbg_direct_inbox(self, event, frame) -> bool:
@@ -2751,6 +2783,7 @@ class OriginalGameTkHost:
         event = self._normalize_pointer_event(event)
         if self._release_original_squad_row(event):
             return
+        self._eamail_received_pressed = False  # 64F860: clear held, no second sort
         if getattr(self, '_eamail_scroll_pressed', None) is not None:
             self._eamail_scroll_pressed = None  # 64F860: release, no second step
             self.redraw()
@@ -2918,6 +2951,8 @@ class OriginalGameTkHost:
                 self.pmenu_popup_active = True
                 self.redraw()
                 self.last_status += '; native application event 2: PMenu popup opened'
+                return
+            if self._press_original_eamail_received(event, frame):
                 return
             if self._press_original_eamail_scroll(event, frame):
                 return

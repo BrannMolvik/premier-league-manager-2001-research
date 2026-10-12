@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import app
+import gate13_ea444_staged_rasters as staged_rasters
 
 
 class AppPackageSmokeTests(unittest.TestCase):
@@ -31,6 +32,13 @@ class AppPackageSmokeTests(unittest.TestCase):
                 canonical_bundle / name,
                 staged_bundle / name,
             )
+        raster_root = root / 'original_assets/converted/gate13-rasters-v1'
+        raster_root.mkdir(parents=True)
+        canonical_rasters = (Path(__file__).resolve().parents[1]
+                             / 'original_assets/converted/gate13-rasters-v1')
+        for name in ('manifest.json', 'payload.bin.xz'):
+            shutil.copyfile(canonical_rasters / name, raster_root / name)
+        self.enterContext(patch.object(staged_rasters, 'BUNDLE_ROOT', raster_root))
         return source, manifest
 
     def test_package_smoke_requires_assets_and_provenance(self):
@@ -53,6 +61,26 @@ class AppPackageSmokeTests(unittest.TestCase):
             self.assertFalse(report["settings_surface_present"])
             self.assertEqual(report["original_menu_control_ids"], [1, 2, 3, 4])
             self.assertTrue(report["external_game_data_required"])
+            self.assertGreater(report['gate13_raster_image_count'], 0)
+            self.assertEqual(report['gate13_raster_bundle_root'],
+                             str(root / 'original_assets/converted/gate13-rasters-v1'))
+
+    def test_smoke_rejects_mislocated_and_missing_management_rasters(self):
+        for defect in ('wrong_root', 'missing_payload'):
+            with self.subTest(defect=defect), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                source, _manifest = self._layout(root)
+                if defect == 'missing_payload':
+                    (staged_rasters.BUNDLE_ROOT / 'payload.bin.xz').unlink()
+                with (patch('app.application_root', return_value=root),
+                      patch('app.bundled_source_root', return_value=source)):
+                    if defect == 'wrong_root':
+                        with (patch.object(staged_rasters, 'BUNDLE_ROOT', root / 'wrong'),
+                              self.assertRaisesRegex(RuntimeError, 'wrong runtime root')):
+                            app.package_smoke_report()
+                    else:
+                        with self.assertRaises(FileNotFoundError):
+                            app.package_smoke_report()
 
     def test_smoke_rejects_nonoriginal_default_menu_controls(self):
         from dataclasses import replace

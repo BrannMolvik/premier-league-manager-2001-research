@@ -205,6 +205,7 @@ def build_management_panel_snapshot(
     league_fixtures_selection: LeagueFixturesSelectionContext | None = None,
     league_tables_selection: OriginalLeagueTablesSelectionContext | None = None,
     eamail_scroll_offset: int = 0,
+    eamail_sort_index: int | None = None,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -236,7 +237,7 @@ def build_management_panel_snapshot(
         rows = build_selected_user_original_eam_source_rows(
             bridge,
             original_source_root=bundled_source_root(),
-            filter_index=0, sort_index=None, scroll_offset=eamail_scroll_offset,
+            filter_index=0, sort_index=eamail_sort_index, scroll_offset=eamail_scroll_offset,
         )
         return OriginalManagementPanelSnapshot(
             club=club,
@@ -391,6 +392,7 @@ class OriginalManagementPresenter:
     league_fixtures_selection: LeagueFixturesSelectionContext | None = None
     league_tables_selection: OriginalLeagueTablesSelectionContext | None = None
     eamail_scroll_offset: int = 0
+    eamail_sort_index: int | None = None
 
     def __post_init__(self):
         # Recreated UI after source save/load still runs its real constructor;
@@ -416,6 +418,7 @@ class OriginalManagementPresenter:
             league_fixtures_selection=self.league_fixtures_selection,
             league_tables_selection=self.league_tables_selection,
             eamail_scroll_offset=self.eamail_scroll_offset,
+            eamail_sort_index=self.eamail_sort_index,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -434,6 +437,7 @@ class OriginalManagementPresenter:
         self.league_fixtures_selection = None  # A newly constructed panel resets radios.
         self.league_tables_selection = None
         self.eamail_scroll_offset = 0
+        self.eamail_sort_index = None
         return snapshot
 
     def source_accepted_eamail_scroll(self, control_id: int) -> OriginalManagementPanelSnapshot:
@@ -448,8 +452,21 @@ class OriginalManagementPresenter:
         snapshot = build_management_panel_snapshot(
             self.session, self.selected_child_id, bridge_factory=self.bridge_factory,
             expanded_root_id=self.expanded_root_id, eamail_scroll_offset=offset,
+            eamail_sort_index=self.eamail_sort_index,
         )
         self.eamail_scroll_offset = offset
+        return snapshot
+
+    def source_accepted_eamail_received_sort(self):
+        """Native ID16 grouped selection; no ascending/descending toggle."""
+        if self.selected_child_id != ORIGINAL_EAMAIL_MENU_CHILD_ID:
+            raise OriginalManagementPresentationError('Original Inbox must own sorting')
+        snapshot = build_management_panel_snapshot(
+            self.session, self.selected_child_id, bridge_factory=self.bridge_factory,
+            expanded_root_id=self.expanded_root_id,
+            eamail_scroll_offset=self.eamail_scroll_offset, eamail_sort_index=4,
+        )
+        self.eamail_sort_index = 4
         return snapshot
 
     def source_accepted_pbg_direct_inbox_action(self) -> OriginalManagementPanelSnapshot | None:
@@ -476,6 +493,7 @@ class OriginalManagementPresenter:
         self.league_fixtures_selection = None
         self.league_tables_selection = None
         self.eamail_scroll_offset = 0
+        self.eamail_sort_index = None
         return snapshot
 
     def source_accepted_pmenu_action(

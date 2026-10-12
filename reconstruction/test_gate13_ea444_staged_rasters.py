@@ -2,9 +2,11 @@ from hashlib import sha256
 import json
 import lzma
 from pathlib import Path
+import shutil
 import struct
+import sys
 import tempfile
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -54,6 +56,33 @@ class StagedRasterTests(unittest.TestCase):
             first = self.decode()
             self.assertEqual(first, EA444DecodedImage(2, 1, self.rgba, 123, 1))
             self.assertIs(first, self.decode())
+
+    def test_default_decoder_uses_frozen_runtime_root_not_module_parent(self):
+        code = Path(staged.__file__).read_text(encoding='utf-8')
+        for layout in ('onedir', 'onefile', 'legacy'):
+            with self.subTest(layout=layout):
+                executable = self.root / layout / 'FM2001-Windows11.exe'
+                runtime = (executable.parent if layout == 'legacy' else
+                           self.root / layout / '_internal')
+                bundle = runtime / 'original_assets/converted/gate13-rasters-v1'
+                bundle.mkdir(parents=True)
+                for name in ('manifest.json', 'payload.bin.xz'):
+                    shutil.copyfile(self.root / name, bundle / name)
+                module = ModuleType('frozen_raster_layout_probe')
+                module.__file__ = str(runtime / 'gate13_ea444_staged_rasters.py')
+                with (patch.object(sys, 'frozen', True, create=True),
+                      patch.object(sys, 'executable', str(executable)),
+                      patch.object(sys, '_MEIPASS',
+                                   None if layout == 'legacy' else str(runtime),
+                                   create=True)):
+                    exec(compile(code, module.__file__, 'exec'), module.__dict__)
+                    self.assertEqual(module.BUNDLE_ROOT, bundle.resolve())
+                    with patch.object(module, 'decode_ea444',
+                                      side_effect=AssertionError('cold decode')):
+                        image = module.decode_staged_or_original(
+                            self.source, tables=self.tables, quant=self.quant,
+                            manifest_sha256=self.pin)
+                    self.assertEqual(image.rgba, self.rgba)
 
     def test_identical_source_alias_requires_identical_pixels_and_decode_metadata(self):
         payload = lzma.compress(self.rgba * 2)
