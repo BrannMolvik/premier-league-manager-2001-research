@@ -7,6 +7,7 @@ from original_supportstart_input import (
     ORIGINAL_ROW_STATE_MASK, ORIGINAL_ROW_CHILD_INPUT_FLAG,
     ORIGINAL_ROW_CHILD_STATE_FLAG, OriginalSupportStartRowBitState,
     original_supportstart_row_refresh, original_supportstart_row_native_event,
+    original_supportstart_fifth_child_native_rect,
 )
 
 
@@ -45,6 +46,16 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         self.assertEqual(clicked.children, (0x8002, 0x8002, 0x8002, 0x2, 0x2))
         self.assertEqual(clicked.stored_staff_selection_byte_if_applied, 0)
         self.assertEqual(original_supportstart_row_native_event(clicked, True), row)
+
+    def test_fifth_text_control_geometry_from_native_rectangle_setup(self):
+        self.assertEqual(original_supportstart_fifth_child_native_rect(0),
+                         (621, 202, 95, 15))
+        self.assertEqual(original_supportstart_fifth_child_native_rect(6),
+                         (621, 442, 95, 15))
+        for bad in (-1, 7, None, True, 1.0):
+            with self.subTest(row=bad):
+                with self.assertRaises(ValueError):
+                    original_supportstart_fifth_child_native_rect(bad)
 
     def test_empty_unknown_source_flags_are_not_invented(self):
         row = OriginalSupportStartRowBitState(0, (0, 0, 0, 0, 0))
