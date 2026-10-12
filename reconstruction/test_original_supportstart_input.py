@@ -63,8 +63,10 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         self.assertFalse(original_supportstart_teamselect_modal_entry(0, False))
         self.assertFalse(original_supportstart_teamselect_modal_entry(0x8000, False))
         self.assertFalse(original_supportstart_teamselect_modal_entry(0, True))
-        self.assertTrue(original_supportstart_teamselect_modal_entry(0x8000, True))
+        self.assertFalse(original_supportstart_teamselect_modal_entry(0x8000, True))
         self.assertTrue(original_supportstart_teamselect_modal_entry(0x8002, True))
+        self.assertFalse(original_supportstart_teamselect_modal_entry(0x8022, True))
+        self.assertFalse(original_supportstart_teamselect_modal_entry(0x8002, False))
         with self.assertRaises(TypeError):
             original_supportstart_teamselect_modal_entry(0x8000, 1)
         with self.assertRaises(ValueError):
