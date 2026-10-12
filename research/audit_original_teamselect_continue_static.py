@@ -496,6 +496,41 @@ def main(path: str) -> None:
     print("PASS source MyWindow 0x400 loop intercept returns wParam zero")
     print("PASS Cancel/Apply store distinct modal bytes before same WM_USER close")
 
+    # Fresh 0x874C10 world's registered-human linked list is owner flag=1.
+    # Native TeamSelect deselect 0x4D90C8 -> 0x413DB0 unlinks via
+    # 0x414680; this owner flag controls user payload destructor, not
+    # merely the 0xC byte node freed on every unlink.
+    native_human_owner_instruction_assertions = (
+        ("412d04", "mov    DWORD PTR [esi+0x9c8],0x1"),
+        ("412d0e", "mov    DWORD PTR [esi+0x9cc],ebx"),
+        ("412d94", "mov    DWORD PTR [esi+0x9d4],ebx"),
+        ("412d9a", "mov    DWORD PTR [esi+0x9c4],ebx"),
+        ("413bef", "push   0x10f0"),
+        ("413c44", "lea    ecx,[esi+0x9c8]"),
+        ("413c4a", "call   0x617d70"),
+        ("413c70", "inc    eax"),
+        ("413c71", "mov    DWORD PTR [esi+0x9d4],eax"),
+        ("4d90b6", "call   0x413b80"),
+        ("4d90c8", "call   0x413db0"),
+        ("413dfb", "call   0x414680"),
+        ("41468d", "call   0x42cbf0"),
+        ("414692", "cmp    DWORD PTR [esi],0x0"),
+        ("41469f", "call   0x424fc0"),
+        ("4146a5", "call   0x686fe3"),
+        ("4146ae", "call   0x686fe3"),
+        ("413e06", "dec    eax"),
+        ("413e0d", "mov    DWORD PTR [esi+0x9c4],eax"),
+        ("425000", "mov    DWORD PTR [eax],0x1"),
+        ("42500c", "mov    DWORD PTR [ebx],0x1"),
+        ("425016", "mov    DWORD PTR [eax],0x0"),
+    )
+    for address, expected in native_human_owner_instruction_assertions:
+        if expected not in instruction(address):
+            raise AssertionError(("Original registered human owner changed", address))
+    print("PASS source registered-human linked list initially payload-owning")
+    print("PASS 413BB0 user append and 413DB0 indexed deselect ownership")
+    print("WARNING payload destructor's transitive staff/RNG effects unproven")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
