@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery544 corrected PSupportStart staff selector COUNT=7
+
+- Rechecked authenticated original source: PSupportStart constructor 0x4CF2EF vector count7, stride0x4C, native selector ctor 0x4C9340 at owner+0x2224. Apply method 0x4D0830 initializes ebp=6 and runs down through 0; 0x4D06B0 redraw loop increments index through 0..6. Prior 6-element description was a classic off-by-one misread and is superseded. This seven-selector group is NOT the six-human-manager TeamSelect limit. [Correction with exact disassembly](GATE13_PSUPPORTSTART_NAME_EDITOR_NATIVE_RECOVERY544.md#correction-psupportstart-processes-seven-support-selector-records-not-six).
+- Current original name state implemented PR640 is only portion of source PSupportStart; no seven-slot update GUI or Win11 acceptance. Next reconstruct actual child controls/text/geometry/provenance and editing action/return before user-visible original integration.
+
 ### 12 October 2026 KST — Recovery544 independent private original Support art hash receipts
 
 - Connected original extracted Google Drive `FM2001/FM2001_Art/Support/` has five source files: stars/stars2, subtitle/support title bars and support bars; separately materialized actual 2,776 / 1,504 / 3,988 / 4,516 / 4,076 bytes and computed individual SHA-256. Source PE independently embeds all five paths, native loader 0x64D750 and wrapper VAs, mapped in [PSupportStart source audit](GATE13_PSUPPORTSTART_NAME_EDITOR_NATIVE_RECOVERY544.md#original-fm2001_artsupport-resources-directly-retrieved-and-hashed). Not proof each graphic renders on PSupportStart; do not import until specific screen source use and placement verified. No user original executable run or modern Win11 native GUI acceptance.

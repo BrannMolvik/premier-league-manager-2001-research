@@ -262,3 +262,50 @@ GUI and Windows 11 acceptance remain unverified.
 Do not import images into `original_assets`
 until genuine PSupportStart use/transform is qualified
 according to asset policy.
+
+
+## CORRECTION: PSupportStart processes SEVEN support selector records, not six
+
+The preceding Recovery544 summary incorrectly said `0x4D0830`
+processes a six-element list. The authentic original
+constructor `0x4CF2EF..0x4CF309` calls MSVC array/vector
+constructor `0x6687C1` with **stride 0x4C** and
+**count 7**, storing the first selector at
+PSupportStart `+0x2224`. Its element
+constructor is native `0x4C9340`; destructor
+native `0x4D89E0`. Native `0x4D0830`
+actually starts loop variable `ebp=6`,
+processes an element, decrements and continues
+`while (ebp >= 0)` at `0x4D09ED..0x4D09F7`:
+**indices 6,5,4,3,2,1,0 = SEVEN elements**.
+Likewise `0x4D06B0` traverses these control
+records at `0x4D06E0..0x4D07E7`
+with increment until `edi==7`.
+
+This is reproducible, source-confirmed correction,
+not a new six-user player limit: seven support-selector
+records do not imply seven human managers (TeamSelect
+has independently proven maximum six humans).
+
+Original selector constructor `0x4C9340` creates
+multiple child controls and attaches original class
+IDs through `0x5D4580` at
+`0x4C9486..0x4C94C7`.
+This **proves a real seven-element editor
+control group** exists in PSupportStart but does
+not yet prove which support-person index each control
+chooses, its source text/layout/image, the actual
+mutation semantics of `0x4D0830`, or correct
+return after event1/event2. Do not implement
+a name-only PSupportStart apply or a fictitious
+six-slot editor.
+
+Reproduce privately:
+```bash
+objdump -D -Mintel --start-address=0x4cf2ef --stop-address=0x4cf30e footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9340 --stop-address=0x4c94db footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0830 --stop-address=0x4d08bf footballmanager.exe
+objdump -D -Mintel --start-address=0x4d09e9 --stop-address=0x4d0a16 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d06dc --stop-address=0x4d07ed footballmanager.exe
+```
+Original PE same SHA-256; static only; no original GUI/Win11 acceptance.
