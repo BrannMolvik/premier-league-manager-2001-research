@@ -467,3 +467,25 @@ Original startup directly calls `0x50D390` to initialize original data at `0x531
 A fresh local automated original-binary static audit on authenticated SHA256 bytes reported **PASS** for the direct function chain (0x4172A0 -> 0x417360 -> 0x4037B0 -> 0x4139E0/0x4139F0), the guarded producer `0x41AAE0`, source CRT seed `0x53109E`, and separate initial `0x5310EB` precompute. Source direct-call xref counts independently checked as EXACTLY ONE each: `0x41AAF1: call 0x409240`, `0x619F56: call 0x41AAE0`, `0x5310EB: call 0x619F70`. The audit did **not** execute the original EXE or the feature-branch Python tests.
 
 **Remaining exact blocker:** determine original event class membership and timing when the new DBRUser has already been inserted but the name and six staff constructors have not completed, at `0x4259B5` and `0x412F1F`, including source cross-queue callbacks and manager binding. Then faithfully implement the same CRT lifecycle and actual PSupportStart UI/list Cancel/Apply from original evidence; Gates13–17 remain OPEN.
+
+
+## Recovery563 next source step: actual global event-queue initial state is empty
+
+Identified the original C++-style global constructor/cleanup registration for the exact queued-event owner `0x947AA8`, independently of any assumptions about a Python port:
+
+- At original `0x6139A0`, initialization helper calls `0x6139B0`. At `0x6139B0`, ECX is loaded with exact original global queue owner **0x947AA8** and execution tail-jumps to `0x613E40`.
+- The complete original constructor `0x613E40..0x613E53` writes **owner+0x00=1**, **owner+0x04=0** (first queue-node pointer), **owner+0x08=0** (last pointer), **owner+0x0C=0** (not processing). These are actual four native DWORD writes, not a guessed initial queue class.
+- The `0x6139A0` initializer also registers native cleanup `0x6139D0` through `0x6681CC`; that cleanup tail-jumps to `0x613E60` for the SAME owner. `0x613E60` drains/frees remaining original queue entries through `0x4E9830` at process teardown, not during PSupportStart Cancel.
+- The original PE `.data` initializer-function pointer table includes **0x6139A0** at virtual address **0x8180D0** (file offset0x4180D0), alongside many similarly registered global constructors. Thus the original queue is designed to begin **EMPTY after its initializer executes**, not as a prepopulated hardcoded list. The exact order of that initializer relative to other global constructors and any source gameplay event producers still requires normal boot call-chain verification.
+
+**Practical narrowing:** all events seen by original first human at `0x4259B5` and `0x412F1F` must originate from subsequent source producer calls after the owner initialization, subject to legitimate lifecycle resets, not from an unexplained nonzero default at the queue's creation. This does NOT establish that the queue remains empty until TeamSelect, because original database/world/event creation contains many possible enqueue sites. No plain unconditional queue-clear or seed skip is justified.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x6139A0 --stop-address=0x6139DB footballmanager.exe
+objdump -D -Mintel --start-address=0x613E40 --stop-address=0x613E54 footballmanager.exe
+objdump -D -Mintel --start-address=0x613E60 --stop-address=0x613EBB footballmanager.exe
+objdump -s -j .data --start-address=0x8180C0 --stop-address=0x8180E0 footballmanager.exe
+```
+
+**NEXT:** trace world/new-game/database producer reachability following this exact empty-state initializer and before TeamSelect's **two** queue-drain locations. Filter the 175 original enqueues by real call graph rather than assuming all 175 are active; focus on source actual event types which draw CRT or persist. Then integrate source-consistent user creation/staff/SupportStart Apply/Cancel/return, without premature GUI acceptance or Gate13 closure.
