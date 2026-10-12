@@ -207,3 +207,40 @@ player-visible completion. PR645 remains a
 separate draft touching `original_supportstart_layout.py`,
 PR638 shared CRT remains blocked, and Gates13–17/real
 Win11 acceptance remain open.
+
+
+### Recovery549: fifth child native text rectangle, direct parameter-chain proof
+
+In addition to the previous star sprite `+0x44` layout
+`(621,185+40*i,15*stars,10)`, native `0x4C9510`
+at `0x4C9723` adds `0x15` to the original row y
+and has already added `0xE6` to row x.
+It calls `0x652400` at `0x4C978A`
+with **first four arguments** `x+230, y+21, 95, 15`.
+An independent original-x86 stack argument trace demonstrates
+the **first four** args of `0x652400→0x651F00→0x651E90
+→0x651BF0→0x64F380` are forwarded unchanged
+at every wrapper; `0x64F380` stores the resulting child bounds.
+For each of original seven row indices `i=0..6`, fifth child `+0x48`
+native local rectangle **`(x=621,y=202+40*i,width=95,height=15)`**.
+That is row0 y202 and row6 y442. Original separate
+`0x4C9830→0x652470` updates the fifth child's text payload
+during staff-row refresh, not the already source-proven setup rectangle.
+
+Evidence:
+```bash
+objdump -D -Mintel --start-address=0x4c969f --stop-address=0x4c9794 footballmanager.exe
+objdump -D -Mintel --start-address=0x652400 --stop-address=0x652470 footballmanager.exe
+objdump -D -Mintel --start-address=0x651f00 --stop-address=0x651f3d footballmanager.exe
+objdump -D -Mintel --start-address=0x651e90 --stop-address=0x651ef4 footballmanager.exe
+objdump -D -Mintel --start-address=0x651bf0 --stop-address=0x651c27 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f380 --stop-address=0x64f3bd footballmanager.exe
+```
+
+The feature-branch pure function
+`original_supportstart_fifth_child_native_rect`
+and sixth focused test capture this **native layout**, not a proven physical
+hit rectangle, parent transform, text font raster or a live editor.
+`0x5D4790` dispatch flags include this fifth child as an input
+candidate, but actual successful mouse hit conditions still
+depend on the native gate and original frame/control state.
