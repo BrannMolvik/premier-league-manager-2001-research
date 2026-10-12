@@ -29,3 +29,18 @@ def original_supportstart_star_frame(state: int) -> OriginalSupportStartStarFram
     return OriginalSupportStartStarFrame(
         STAR_WRAPPERS[state - 1], STAR_RESOURCE, (0, 0, 15 * state, 10)
     )
+
+
+def original_supportstart_star_local_rect(row: int, state: int) -> tuple[int, int, int, int]:
+    """Native 0x4C9510 -> 0x651BA0 -> 0x64F380 child bounds (x,y,w,h).
+
+    This is a native-layout child rectangle, NOT verified screen-space hit
+    geometry or a claim about parent GUI transforms. The seven calls to
+    0x4C9510 use row origins (391,181+40*i); the sprite child is positioned
+    at x+0xE6, y+4, and NULL sprite width/height are both zero.
+    """
+    if type(row) is not int or not 0 <= row < 7:
+        raise ValueError("source row must be an integer from 0 through 6")
+    frame = original_supportstart_star_frame(state)
+    return (621, 185 + 40 * row, 0 if frame is None else 15 * state,
+            0 if frame is None else 10)
