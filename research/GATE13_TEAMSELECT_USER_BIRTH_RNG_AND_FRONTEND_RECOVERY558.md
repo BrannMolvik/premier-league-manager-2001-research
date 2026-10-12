@@ -163,3 +163,28 @@ Also staged `original_supportstart_modal_result.py` and its synthetic tests: aft
 **Still unverified:** source modal input owner/hit acceptance, original DbrUser/Staff linked-list post-Cancel lifecycle (native destructor `0x4CF7B0` and `0x5EB920` include indirect GUI owner callbacks, so a bounded absence of direct staff-list calls is not general rollback proof), intervening indirect original CRT from new-user constructor `0x4258D0` and manager binding `0x426090`, exact seed checkpoint, actual live Windows PSupportStart, 2–6 human, release. No original executable launch or genuine Windows GUI acceptance.
 
 **Exact next:** verify any native transient pre-staff callsite random consumption and complete modal close list semantics; then source-wire original TeamSelect immediate DBRUser/13 name pairs/six staff/actual seven-row PSupportStart and original assets using ONE same process CRT with true club context; meaningful milestone PR and exact-head tests/assets/Win11 acceptance. Gate13–17 OPEN.
+
+
+### Recovery560 targeted native pre-staff RNG callsite audit: bounded, not a global proof
+
+Repeated independent objdump analysis on the SHA256-verified original, inspecting complete explicitly named native ranges, found the following **direct callsite counts** (direct target 0x64D540 bounded RNG, 0x66951C raw CRT rand or 0x66950F reseed):
+
+| Native function/range | Total direct/indirect CALL instructions | Direct RNG/seed calls |
+| --- | ---: | ---: |
+| new TeamSelect user branch 0x4D8E90–0x4D8F84 | 11 | 0 |
+| DBRUser constructor 0x424CA0–0x424F6B | 10 | 0 |
+| DBRUser initializer 0x4258D0–0x426090 | 60 | 0 (calls 0x42C400 separately, which contains 13 name-pair consumers) |
+| manager binding 0x426090–0x42621E | 6 | 0 |
+| selected-user support reset 0x412EF0–0x412FEF | 9 | 0 |
+| staff wrapper 0x4C9CD0–0x4C9D35 | 9 | 0 (delegates all staff draws to 0x4C9B30) |
+
+The manager binder 0x426090 calls 0x403E10, 0x4151C0 (itself calls 0x413B10), 0x415870 (which calls 0x405CF0 and 0x50FFC0), plus allocation/free. None is a direct RNG(…) call at the binder. DBRUser initialize reaches indirect `0x614080` global owner; possible virtual callbacks and helpers (`0x5DC400`, `0x5E43B0`, `0x5DED10`) require targeted second-level audits. The original selected-user setup 0x412EF0 has no direct RNG either, but calls 0x614080 and 0x414610 on any existing list entries. These bounded negatives narrow the unresolved branch; they DO NOT establish globally “RNG clean” or a complete exact first-click checkpoint. The 0x42C400 pair draws and 0x4C9B30 six staff draws are still definitely present through callees.
+
+Reproduction without original EXE execution:
+```
+objdump -D -Mintel --start-address=0x4258d0 --stop-address=0x426090 footballmanager.exe
+objdump -D -Mintel --start-address=0x426090 --stop-address=0x42621e footballmanager.exe
+objdump -D -Mintel --start-address=0x412ef0 --stop-address=0x412fef footballmanager.exe
+objdump -D -Mintel --start-address=0x415870 --stop-address=0x415929 footballmanager.exe
+```
+**Next precise call-graph step:** qualify 0x614080's dynamic vtable branch for passed global 0x947AA8 and 0x4258D0's original 0x5DC400/0x5E43B0/0x5DED10 helper paths; determine whether they can touch 0x64D540/0x66951C before the normal six-staff creation. Continue UI-modal Cancel list lifecycle through 0x5EB920/vft+0x74 and PSupportStart destructor 0x4CF7B0 before asserting rollback. Gates13–17 remain open.
