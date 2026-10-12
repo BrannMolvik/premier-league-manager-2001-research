@@ -262,6 +262,11 @@ jobs:
             test_original_teamselect_resources \
             test_original_teamselect_labels \
             test_original_teamselect_native \
+            test_support_staff \
+            test_original_supportstart_stars \
+            test_original_supportstart_input \
+            test_original_supportstart_staff_labels \
+            test_original_supportstart_editor_projection \
             test_original_scouting_resources \
             test_original_squad_resources \
             test_original_squad_presenter \
