@@ -278,3 +278,92 @@ compose the authentic first/surname strings
 into seven-row SupportStart without guesses.
 All Gates13–17 and Windows11 hands-on GUI
 acceptance remain OPEN.
+
+
+## Recovery552: Static.dat completes original name-group file provenance
+
+Independent original `footballmanager.exe` static disassembly
+at `0x50D410..0x50D492` finds its original
+literal `0x827E98 = "static.dat"`, mode `rb`,
+passed to `0x66A164` at `0x50D458`.
+It then calls `0x4117E0` at `0x50D47D`
+to read owner `0x874BD8` (whose +8 is
+the actual **`0x874BE0`** 0x6C-byte
+runtime country/group array consumed
+by original `0x421C00`).
+At `0x50D48D` it invokes
+`0x64CB40` on owner `0x874BC8`
+(whose +8 is **`0x874BD0`**,
+the 0x14-byte per-name-group table
+read by `0x421BA0`).
+This establishes that both original
+nationality→group and grouped candidate
+table **originate from the original Static.dat
+loading path**, while actual source candidate
+first/surname texts come from the separate
+original Master.dat player pool + Core.str.
+
+Original `0x64CB40` is a generic array
+deserializer: it reads u32 count from the stream,
+allocates native vector slots through vft+8,
+then calls the record's vft+0x0C per element.
+The source-specific record deserializers and
+any after-read pointer grouping/maintenance
+must still be traced, not inferred from
+Static.dat offsets alone.
+
+New privately fetched original `FM2001/Static.dat`
+is **86,929 bytes**, SHA-256
+`e0ff7c10a5f5f973a87cf6cd2d3770e623071899a0b30378debd0e7d13edb9d8`,
+Drive source ID `1Z1eaNrqC5Nvrx1HN72zIX4Qd-5-T8CJK`.
+Byte-verified original `fm2001_data.py`
+already has country records at offset 0x4A:
+209 serialized countries at 43 bytes each;
+the resulting native 0x6C-byte group records
+must not be confused with serialized 43-byte
+raw country records. No original static bytes
+were committed.
+
+### Explicitly source-observed choice projection (no hidden RNG)
+
+One additional bounded component was staged at
+`reconstruction/original_supportstart_player_name_source.py`:
+when the caller supplies **the two actually observed
+original 0x421BA0 source pool positions** and
+unchanged source-ordered `FM2001Database.players`
+(the already-existing original Master/Core parser),
+it returns first name from the first candidate,
+surname from the second, joined by exactly
+one original ASCII space, and rejects source
+first-name sentinel `"-"` so the native
+caller must retry its actual original draw.
+It validates source index ranges, original
+player index identity and CP1252/terminators
+without advancing any reconstruction RNG.
+Dedicated tests cover distinct name sources,
+same name source, unknown/misaligned positions,
+missing source data, CP1252, and the sentinel.
+**The data-only projector does not select the
+player positions** and must not be used to
+fake names in the live original SupportStart.
+The currently known actual native group
+data-file identity narrows that missing
+deterministic source producer but does not
+qualify its grouping or CRT seed checkpoint.
+
+Reproduction:
+```bash
+sha256sum Static.dat Master.dat Core.str footballmanager.exe
+objdump -D -Mintel --start-address=0x50d410 --stop-address=0x50d4af footballmanager.exe
+objdump -D -Mintel --start-address=0x64cb40 --stop-address=0x64cb8f footballmanager.exe
+```
+
+**Remaining path:** source-qualify Static.dat
+per-record country/group deserializers and
+name-group table pointer linkages; reconstruct
+name-selection original seed/draw order;
+restore six genuine initial staff names and
+all seven source rows within original
+SupportStart UI, plus native mouse event and
+modal return. No Windows 11 original GUI
+acceptance; Gates13–17 remain open.
