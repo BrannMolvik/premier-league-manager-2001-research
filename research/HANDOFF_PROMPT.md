@@ -17,6 +17,17 @@ https://github.com/BrannMolvik/premier-league-manager-2001-research
 
 GitHub is canonical. Do not rely on previous chat state when it conflicts with the repository.
 
+LATEST EFFICIENCY DIRECTIVE (12 Oct 2026):
+Read research/WORKER_MILESTONE_BATCHING_POLICY.md. Keep the lightweight
+agent-runtime heartbeat about every 10 minutes to protect automatic recovery,
+but DO NOT equate it with a main commit, a new PR or CI. Work toward coherent
+source-backed player-visible milestones; accumulate related source research,
+code and tests on a feature branch. Open PR and run required exact-head CI
+only when a substantive reviewable integration is ready, not after each
+disassembly insight or tiny helper. Resume an existing active branch rather
+than reopening work. Never lower fidelity, privacy, source-proven behavior,
+high-risk review or Windows11 acceptance standards to save CI.
+
 LATEST USER OWNERSHIP DIRECTIVE (11 Oct 2026): The autonomous worker is
 the primary implementer of ALL unfinished FM2001 features, INCLUDING the
 previously Codex-owned R1 NEXT -> PPreMatch -> all modes -> PResults ->
@@ -58,8 +69,9 @@ is available. After each verified subtask, immediately identify and undertake
 the next canonical task. After a gate audit closes a gate, advance to the
 next roadmap gate and keep working if the session can still perform useful work.
 Do not impose an arbitrary short response duration. Keep the long-term mission
-active across chat/recovery boundaries rather than requiring a fresh user order. Checkpoint roughly every ten minutes without treating a
-checkpoint as a reason to end the session. When the conversation or execution
+active across chat/recovery boundaries rather than requiring a fresh user order.
+Update the **agent-runtime heartbeat** about every ten minutes without
+treating it as a main-commit/PR/CI deadline or a reason to end the session. When the conversation or execution
 budget ends naturally, leave a durable exact next step with runtime status
 `working` so automatic recovery can continue; do not claim the entire job is
 finished. Only use `completed` when Gate 17's release audit really passes.
@@ -73,11 +85,16 @@ otherwise preserve the exact external blocker and remaining mission in GitHub.
 Record unrelated useful leads in research/BACKLOG.md.
 
 Persistence rules:
-- commit every meaningful verified result;
-- if roughly 10 minutes pass during an unresolved investigation, make a checkpoint;
-- update the worker-owned `agent-runtime` branch after each meaningful `main` checkpoint; unrelated `main` changes must not count as proof of worker activity;
-- update research/PROGRESS.md with chronological evidence;
-- update research/CURRENT_STATE.md whenever the exact next task or active gate changes;
+- update the worker-owned `agent-runtime` liveness/resume state roughly every
+  10 minutes, independently of main/feature commits, with actual main head,
+  active branch, evidence, blocker and exact next action;
+- preserve meaningful intermediate research/code on the active feature branch
+  when crash recovery needs it, not in a flurry of immediate main-branch commits;
+- batch source research, code, tests, and chronological PROGRESS/CURRENT_STATE
+  updates at substantive feature integration boundaries; material source
+  corrections, high-risk changes and session-ending persistence are exceptions;
+- open a reviewable PR after grouping the related milestone and use required
+  exact-head tests/asset policy; avoid repeated pushes that restart CI;
 - never leave substantial useful work only in chat;
 - preserve/reuse authorized original FM2001 resources wherever practical;
 - put intentionally imported original resources under original_assets/ with provenance per research/ASSET_POLICY.md;
