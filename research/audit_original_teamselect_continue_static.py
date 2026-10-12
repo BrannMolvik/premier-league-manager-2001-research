@@ -1326,6 +1326,27 @@ def main(path: str) -> None:
     print("PASS source secondary user pointer container and conditional append")
     print("WARNING actual user pointer event and allocator side effects unresolved")
 
+    # Recovery575 complete direct source cross-references to disambiguate
+    # the separately-owned RNG-heavy helper from first-user constructor.
+    original_native_rng_rich_caller_sets_575 = (
+        (0x60ce70, (0x425b2c, 0x427594)),
+        (0x60cd90, (0x60cf2a, 0x60cfc6, 0x60d062)),
+        (0x60d0e0, (0x5121ba,)),
+        (0x60d5a0, (0x60d1d0, 0x60d204, 0x60d24c)),
+    )
+    for target, expected in original_native_rng_rich_caller_sets_575:
+        observed = tuple(
+            int(match.group(1), 16) for line in listing.splitlines()
+            if (match := re.match(
+                r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x" + format(target, "x") + r"$",
+                line.strip()
+            ))
+        )
+        if observed != expected:
+            raise AssertionError(("Original native direct call owner changed",
+                                  hex(target), observed))
+    print("PASS original nested user versus later RNG-heavy direct callers")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
