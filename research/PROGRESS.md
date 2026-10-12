@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery544 PSupportStart original editor type and callback ownership
+
+- Confirmed SHA-matched original RTTI type `.?AVPSupportStart@@` at 0x81E818, original COL 0x7E6E80, final vtable 0x7C6DDC, constructor call 0x450C07→0x4CF0F0 from selected-user/club context; vtable+0x4C authentic edit-commit function 0x4D0830. The selected human first/surname editor belongs to original PSupportStart, not invented Settings. The UI event/input validation/full Start and return remain untraced. [Audited source](GATE13_PSUPPORTSTART_NAME_EDITOR_NATIVE_RECOVERY544.md).
+- Draft [PR640](https://github.com/BrannMolvik/premier-league-manager-2001-research/pull/640) source-qualified original user name state and internal save; initial PR exact-head Gate13 and asset CI green, full reconstruction in progress; no merge or Windows acceptance yet. PR638 CRT side effect stays quarantined.
+
 ### 12 October 2026 KST — Recovery544 source confirms editable human name field and missing port state
 
 - Independently `sha256sum` verified private original PE SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; static `objdump` only.
