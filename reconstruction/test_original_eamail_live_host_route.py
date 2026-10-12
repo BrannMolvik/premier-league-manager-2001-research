@@ -224,6 +224,7 @@ class OriginalInboxHostRouteTests(TestCase):
 
         # Call the real host pointer handler without Tk, recording redraws.
         before_delivered = session.gameplay.state.original_delivered_mailboxes.delivered_for_manager(0)
+        before_rng = (session.gameplay.state.rng.state, session.gameplay.match_rng.state)
         host = object.__new__(OriginalGameTkHost)
         host.pmenu_popup_active = False
         host.eamail_row_art = art
@@ -264,6 +265,10 @@ class OriginalInboxHostRouteTests(TestCase):
             session.gameplay.state.original_delivered_mailboxes.delivered_for_manager(0),
             before_delivered,
         )
+        # Preview production is not complete: neither first selection nor
+        # rejected detail may consume a guessed RNG stream (blocked PR #638).
+        self.assertEqual((session.gameplay.state.rng.state, session.gameplay.match_rng.state),
+                         before_rng)
 
     def test_foreign_manager_pending_and_empty_inbox_never_draw_art_rows(self):
         session = ordinary_inbox()

@@ -475,6 +475,66 @@ class FullHDFakeRoot(FakeRoot):
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_pmenu_open_hover_press_release_navigate_and_reopen_keep_distinct_states(self):
+        from test_original_management_canvas import _pmenu_resources
+        live, root = presenter(), FakeRoot()
+        host = OriginalGameTkHost(live, root, FakeTk,
+            management_presenter_factory=management_factory,
+            management_pmenu_resources=_pmenu_resources(),
+            squad_top_resources=fake_squad_top_resources(),
+            squad_row_text_resources=fake_squad_row_text_resources())
+        host.on_click(SimpleNamespace(x=141, y=512))
+        live.choose_club(12)
+        host.on_click(SimpleNamespace(x=426, y=301))
+        self.assertFalse(host.pmenu_popup_active)
+        host.on_click(SimpleNamespace(x=600, y=1))
+        self.assertTrue(host.pmenu_popup_active)
+        rows = host._pmenu_animation.snapshot().rows
+        self.assertEqual((rows[0].arrow_state_bits, rows[0].background_state_bits),
+                         (0x8002, 2))
+        self.assertEqual((rows[1].background_state_bits, rows[1].text_color_16),
+                         (0x8002, 0))  # Squad is the active screen, not a held press.
+        host.on_fixtures_pager_motion(SimpleNamespace(x=640, y=300))
+        root.run_idle()
+        transfers = host._pmenu_animation.snapshot().rows[7]
+        self.assertEqual((transfers.background_state_bits, transfers.text_color_16),
+                         (10, 0xFFFF))
+        self.assertEqual(host.management_presenter.selected_child_id, 0xCE)
+
+        # Exercise real pointer routing and presenter ownership without painting
+        # unrelated Fixtures resources or opening a Windows/Tk window.
+        with patch.object(host, 'redraw'), \
+                patch.object(host, '_fixtures_page_controls', return_value=()):
+            host.on_click(SimpleNamespace(x=640, y=300))  # Transfers title.
+            menu = host.management_presenter.snapshot().menu
+            self.assertEqual((menu.selected_root_id, menu.selected_child_id), (3, 0xCE))
+            title = next(row for row in menu.rows if row.row_kind == 'title' and row.menu_id == 3)
+            self.assertEqual((title.arrow_state_bits, title.background_state_bits), (0x8002, 2))
+            host.on_script_arrow_release(SimpleNamespace(x=640, y=300))
+            self.assertEqual(host.management_presenter.snapshot().menu, menu)
+
+            def press_row(kind, menu_id):
+                row = next(row for row in host.management_presenter.snapshot().menu.rows
+                           if row.row_kind == kind and row.menu_id == menu_id)
+                host.on_click(SimpleNamespace(x=640, y=96 + row.y + 1))
+
+            press_row('title', 0x259)  # Calendar expansion must not select a panel.
+            self.assertEqual(host.management_presenter.selected_child_id, 0xCE)
+            press_row('child', 0x25C)  # League Fixtures, accepted on press.
+            menu = host.management_presenter.snapshot().menu
+            self.assertEqual((menu.selected_root_id, menu.selected_child_id), (0x259, 0x25C))
+            self.assertTrue(host.pmenu_popup_active)
+            selected = next(row for row in menu.rows if row.row_kind == 'child' and row.selected)
+            self.assertEqual((selected.menu_id, selected.background_state_bits, selected.text_color_16),
+                             (0x25C, 0x8002, 0))
+            host.on_script_arrow_release(SimpleNamespace(x=640, y=96 + selected.y + 1))
+            self.assertEqual(host.management_presenter.snapshot().menu, menu)
+            host.on_fixtures_pager_motion(SimpleNamespace(x=523, y=214))
+            self.assertFalse(host.pmenu_popup_active)
+            host.on_click(SimpleNamespace(x=600, y=1))
+            self.assertTrue(host.pmenu_popup_active)
+            self.assertEqual(host.management_presenter.snapshot().menu, menu)
+
     def test_normal_menu_motion_uses_shared_idle_and_only_updates_existing_bitmaps(self):
         from test_original_management_canvas import _pmenu_resources
         live, root = presenter(), FakeRoot()

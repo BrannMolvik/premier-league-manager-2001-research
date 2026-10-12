@@ -110,7 +110,7 @@ class OriginalManagementCanvasTests(unittest.TestCase):
         stats = {o.role: o for o in render.overlays if o.menu_id == 0xCA}
         self.assertEqual(stats['arrow'].source_index, 7)
         self.assertEqual(stats['background'].source_index, 1)
-        self.assertEqual(stats['text'].native_color_16, 0)
+        self.assertEqual(stats['text'].native_color_16, 0xFFFF)
 
     def test_fresh_management_host_preserves_exact_fixed_geometry_and_open_pixels(self):
         presenter = OriginalManagementPresenter(
@@ -163,7 +163,7 @@ class OriginalManagementCanvasTests(unittest.TestCase):
         team_text = overlay(2, "text")
         self.assertEqual(team_arrow.source_index, 10)
         self.assertEqual((team_arrow.width, team_arrow.height), (30, 29))
-        self.assertEqual(team_box.source_index, 2)
+        self.assertEqual(team_box.source_index, 0)
         self.assertEqual((team_box.x, team_box.y), (30, 0))
         self.assertEqual(team_text.source_path, "Fonts/Zurich_XCn_BT_25pixel.fnt")
         self.assertEqual((team_text.x, team_text.y), (30, 1))
@@ -177,8 +177,8 @@ class OriginalManagementCanvasTests(unittest.TestCase):
         self.assertEqual(squad_arrow.source_index, 11)
         self.assertEqual(squad_box.source_index, 2)
         self.assertEqual(squad_text.source_path, "Fonts/Zurich_XCn_BT_16pixel.fnt")
-        self.assertEqual((squad_text.x, squad_text.y), (30, 46))
-        self.assertEqual(squad_text.native_color_16, 0xFFFF)
+        self.assertEqual((squad_text.x, squad_text.y), (42, 34))
+        self.assertEqual(squad_text.native_color_16, 0x0000)
         self.assertLessEqual(squad_text.x + squad_text.width, 198)
         self.assertLessEqual(squad_text.y + squad_text.height, 58)
 
@@ -187,8 +187,8 @@ class OriginalManagementCanvasTests(unittest.TestCase):
         stats_text = overlay(0xCA, "text")
         self.assertEqual(stats_arrow.source_index, 0)
         self.assertEqual(stats_box.source_index, 0)
-        self.assertEqual(stats_text.native_color_16, 0x0000)
-        self.assertEqual((stats_text.x, stats_text.y), (30, 75))
+        self.assertEqual(stats_text.native_color_16, 0xFFFF)
+        self.assertEqual((stats_text.x, stats_text.y), (42, 63))
         self.assertLessEqual(stats_text.y + stats_text.height, 87)
 
     def test_pmenu_compositor_rejects_unverified_resource_object(self):
