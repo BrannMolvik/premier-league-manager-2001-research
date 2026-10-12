@@ -25,3 +25,18 @@ These gates exclude treating `0x426220` as an **unconditional direct** first-hum
 A private Python verifier over complete Intel GNU objdump `.text` of the SHA-matched original source **passed 33 instruction-address assertions plus all four exact direct caller sets**, with originals never executed. Corresponding persistent assertions were added to `research/audit_original_teamselect_continue_static.py`; they are part of the currently **unopened** SupportStart branch, not accepted gameplay. No exact feature-head Python suite/CI or native GUI acceptance is asserted. This remains source-only evidence.
 
 **Next:** follow the `0x4F7F0F/0x4F994E` producer caller reachability from actual new-game sequence, and type concrete original events flowing through `0x613EE0` vs `0x614080`. Then source-audit PSupportStart Cancel/staged staff unlink and implement the *player-visible* immediate first human+13 pairs+six staff+seven-row name/staff modal, actual input/return/persistence, followed by Inbox/R1/all shipped leagues and Windows 11 Gates 13–17 audit.
+
+## Recovery566 follow-up: close the *direct* `0x426220` scheduler ancestry to Continue/time paths
+
+Further SHA-verified x86 source tracing narrows the remaining supposed early first-user event producer significantly:
+
+- Original `0x4F7F0F` and `0x4F7F1B` are inside one original function **`0x4F7C00`**, whose **sole direct original caller is `0x4C4381`**, *inside* TeamSelect Continue/new-game owner `0x4C41C0`. In the same function's straight-line normal setup, `0x4C4275` has already cleared pending global events, then `0x4C4304` has begun precompetition initialization, and only then `0x4C4381` calls the scheduler. Thus these two direct scheduler-entry calls are **AFTER normal Continue**, not calls inside the earlier first selected-club click.
+- Third scheduler call `0x4F994E` sits inside original function beginning **`0x4F9010`** (no intervening return instruction in the decoded continuous function path). **Its only two direct original callers are `0x4A86AA` and `0x4A878B`**, part of original game-time simulation paths. This is also separate from native TeamSelect selected-club handler `0x4D8E90`, which does not directly call either route.
+- Combine the full unique direct-call chain:
+  `0x4DA4A5 (TeamSelect Continue event42) -> 0x4C41C0 -> 0x4C4381 -> 0x4F7C00 -> 0x4F7F0F / 0x4F7F1B -> 0x616620 -> 0x616830 -> 0x404110 -> 0x4041D1 -> 0x426220`.
+  The other two time/simulation callers reach `0x4F9010 -> 0x4F994E -> 0x616620` and share its later conditional chain.
+- This is a **source-verified exclusion** of an *unconditional direct* `0x426220` callback or its nested `0x426600` constructors **before the initial TeamSelect human click**. An external original call through a function pointer, old/save-game state, a queued callback already present, or one of the other 175 original enqueue sites would require independent investigation. No universal pre-first-human empty event-queue claim is established.
+
+The private independent regression now passes three additional exact direct-caller sets and four original function call addresses on the hash-matched PE. Source audit script extended with these contract checks. This is **not** an original GUI observation or an accepted startup RNG checkpoint, and no Windows11 gameplay/CI was run for this branch.
+
+**Next immediately executable task:** identify any remaining source reachable enqueue owners between global owner construction `0x613E40` and source selected-human queue drains. In parallel, source trace SupportStart Cancel's staged staff-list/destructor persistence and proper TeamSelect human unselect effects, so a real 7-row modal can be integrated without corrupting original users or RNG. Keep Gate13 open.

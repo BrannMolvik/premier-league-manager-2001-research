@@ -243,6 +243,45 @@ def main(path: str) -> None:
     print("PASS native schedule 616620 -> 404110 -> 426220 guarded chain")
     print("WARNING direct callers do NOT prove first-user queue population")
 
+    # 0x426220 is reached via a *competition scheduler*, not directly
+    # via TeamSelect selected club: 0x616620 -> 0x404110 -> 0x426220.
+    # Scheduler entry 0x4F7C00 has one direct caller: 0x4C4381 INSIDE
+    # 0x4C41C0 source Continue, after queue clear/precompetition.
+    # Second scheduler entry 0x4F9010 (the 0x4F994E call is inside it)
+    # has just two syntactic direct time-processing owners.
+    confirmed_scheduler_direct_owners = {
+        "4f7c00": ("4c4381",),
+        "4f9010": ("4a86aa", "4a878b"),
+        "4c41c0": ("4da4a5",),
+    }
+    for target, source_callsites in confirmed_scheduler_direct_owners.items():
+        actual = direct_calls(target)
+        if actual != source_callsites:
+            raise AssertionError(("Original scheduler caller ancestry changed", target, actual))
+    scheduler_edges = (
+        ("4da4a5", "call   0x4c41c0"),
+        ("4c4381", "call   0x4f7c00"),
+        ("4a86aa", "call   0x4f9010"),
+        ("4a878b", "call   0x4f9010"),
+    )
+    for address, expected in scheduler_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original scheduler transition changed", address))
+    if not (0x4c4275 < 0x4c4304 < 0x4c4381):
+        raise AssertionError("Original Continue queue-clear/competitions order invalid")
+    import re as _scheduler_re
+    if any(
+        0x4f9010 <= int(match.group(1), 16) < 0x4f994e
+        for match in _scheduler_re.finditer(
+            r"^\s*([0-9a-f]+):[^\n]*\bret(?:\s|$)", listing, _scheduler_re.MULTILINE
+        )
+    ):
+        raise AssertionError("0x4F994E no longer in source 0x4F9010 body")
+    print("PASS original selected click != direct scheduler producer")
+    print("PASS source Continue -> 4C4381 -> 4F7C00 -> 616620")
+    print("PASS 4F9010 third scheduler owner only two later-source direct callers")
+    print("WARNING indirect callback reachability or prior session state NOT ruled out")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
