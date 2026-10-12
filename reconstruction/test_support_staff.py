@@ -13,6 +13,14 @@ from support_staff import (
 
 
 class SupportStaffTrainingTests(unittest.TestCase):
+
+    def test_original_inactive_list_dispatch_matches_six_initial_types(self):
+        from support_staff import original_staff_inactive_link_owner_offset
+        self.assertEqual(
+            [original_staff_inactive_link_owner_offset(i) for i in (1,2,3,4,5,13)],
+            [0x5B8,0x5B8,0x5B8,0x5B8,0x5B8,0x5C4],
+        )
+
     def test_initial_rating_tiers_match_4c9d40(self):
         self.assertEqual(
             [initial_staff_rating_base(value) for value in range(7)],

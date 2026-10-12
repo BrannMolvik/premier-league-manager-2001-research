@@ -96,6 +96,33 @@ def original_teamselect_support_slots(
     )
 
 
+
+def original_supportstart_flag_after_selector_state(native_control_dword: int) -> int:
+    """Exact original 0x4D088A->0x652F80 source bit15 inversion.
+
+    Native getter 0x652F80 reads DWORD [control+0x18], shifts right 15,
+    masks bit1 and 0x4D089B writes inverse Boolean to source record+0x28+i.
+    This does not recreate a click, selection state transition or staff mutation.
+    """
+    if (type(native_control_dword) is not int
+            or not 0 <= native_control_dword <= 0xFFFFFFFF):
+        raise ValueError("Native PSupportStart selector state must be a DWORD")
+    return 1 ^ ((native_control_dword >> 15) & 1)
+
+
+def original_staff_inactive_link_owner_offset(staff_type: int) -> int:
+    """Native PSupportStart Apply 0x4D0900 -> 0x4CA070 type dispatch.
+
+    Original 0x4CA070 checks 1..16 and uses exact byte table 0x4CA0D8:
+    first 5 types go to selected DBRUser+0x5B8; next 11 to +0x5C4.
+    This is a bounded source mapping, not a linked-list mutation, GUI,
+    user selection claim or authorization to advance the shared RNG.
+    """
+    if type(staff_type) is not int or not 1 <= staff_type <= 16:
+        raise ValueError("Native inactive staff type must be 1..16")
+    return 0x5B8 if staff_type <= 5 else 0x5C4
+
+
 def initial_staff_rating_base(competition_context: int) -> int:
     """Map the 0x4FA520 context to the base used by 0x4C9D40.
 
