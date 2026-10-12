@@ -1,6 +1,8 @@
 # FM2001 division of work — high-impact original functionality first
 **Latest user direction, 11 October 2026: Codex owns NO implementation subsystems; autonomous worker owns entire FM2001 port and Codex is optional testing/verification only.** This replaces the earlier "small isolated fixes only / no worker merge" restriction wherever they conflict. Continue respecting source-first, original-only Windows compatibility, source-private files, tests, and Gate 13–17 acceptance.
 
+**12 October 2026 worker efficiency policy:** `research/WORKER_MILESTONE_BATCHING_POLICY.md` overrides older instructions for per-finding commits, per-subtask PRs and ten-minute main-branch checkpoints. Keep the runtime liveness heartbeat near ten minutes; batch related original research, implementation and regressions into substantive safe review milestones. No reduction in original fidelity, required test or review standards.
+
 ## Mission and priority
 The autonomous worker's primary objective is to **restore the most important missing or wrong original FM2001 functionality**, not to accumulate cosmetic or small defect reports. First inspect the shipped original (verified native executable/resources/data and, if separately authorized, genuine running-original observations); trace the complete player journey and establish what exists, what is missing, and source certainty. Then **implement the verified behavior directly** rather than automatically routing every fix to Codex.
 
@@ -21,14 +23,23 @@ Before changing original behavior, verify its actual owner, input/enablement, pr
 Validate each meaningful slice using original-derived tests and ordinary user-facing click/transition tests. Prefer local tests. If local shell/Python fails, **green relevant GitHub PR CI may substitute for execution**, but only if the worker can inspect the exact commit's executed tests/results, coverage includes new original-evidence cases, no original bytes are exposed, and no failures are waived. If neither local execution nor meaningful remote tests are possible, do not merge or claim implementation accepted. A passing build is not a physical Windows11 playtest. Preserve source/prototype/integration/visible-accepted distinctions. Conserve Actions minutes via meaningful milestone checks only.
 
 ## Branch, integration and merge responsibility
-Work from fresh main on focused worker branches; keep changes reviewable and milestone-oriented. No direct game-code commits to main, no force pushes, and never overwrite an external contributor's working branch. Open PRs documenting source evidence, original-to-port functionality, exact test results and unknowns.
+Work from fresh main on focused worker branches; keep changes reviewable
+and milestone-oriented. No direct game-code commits to main, no force pushes,
+and never overwrite an external contributor's working branch. Accumulate
+related source tracing, original assets, implementation and tests in the
+in-flight **unopened** feature branch when possible. Open a PR only when the
+cohesive original-feature milestone is ready for review, exact-head
+CI and safe merge; document original-to-port functionality and unknowns.
+High-risk changes, urgent regressions and genuinely independent bounded
+functionality can merit smaller PRs. Do not use rapid PR revisions as ordinary
+scratch checkpoints or change source correctness criteria to reduce runs.
 
 **Worker may handle routine integration and merge its own verified PR** only when all are true: actual source contract is established for the implemented scope; meaningful relevant tests and required CI pass on the current PR head; no reviewer objection remains; GitHub says mergeable; branch is up to date/reconciled with current main; changes are reconciled with any truly concurrent external edits; no private game files, saved-game migrations, gate closure, release-affecting code or unsupported behavior are smuggled in. Document the checks and post-merge main HEAD. A protected, contested, cross-cutting or high-risk change requires independent supervisor review; independent supervisor review must not depend on Codex usage; optionally request Codex QA only if Daniel approves the cost. A declined/unknown/conflicting merge must be reported, not forced.
 
 Review ready external worker/Devin fixes without distracting Codex; do not blindly auto-merge. Keep normal iteration local and GitHub CI cost-controlled.
 
 ## Worker recovery instructions
-At each recovery: verify main and agent-runtime heads; inspect external/Codex branches only for actual new activity, read CURRENT_STATE, source-first policy, original-reference completeness protocol, this division-of-work policy, and active ownership; choose the **highest-impact actionable missing feature**, not the easiest fix. Inspect existing PRs first if relevant. When one evidence-backed milestone is done, continue the next major missing piece, checkpoint only substantive progress. If native-source tool execution fails, try the verified small-file-first procedure in `research/ORIGINAL_SOURCE_LOCATOR.md`, then independent existing evidence and cloud-safe repo review; use PR CI for honest remote verification where suitable, not blind commits. When no safe progress possible, record one precise blocker/next trigger rather than repeated administrative heartbeats.
+At each recovery: verify main and agent-runtime heads; inspect external/Codex branches only for actual new activity, read CURRENT_STATE, source-first policy, original-reference completeness protocol, this division-of-work policy, and active ownership; choose the **highest-impact actionable missing feature**, not the easiest fix. Inspect existing PRs first if relevant. When one evidence-backed milestone is done, continue the next major missing piece, checkpoint only substantive feature progress on main and keep the independent 10-minute runtime heartbeat. Read `research/WORKER_MILESTONE_BATCHING_POLICY.md`. If native-source tool execution fails, try the verified small-file-first procedure in `research/ORIGINAL_SOURCE_LOCATOR.md`, then independent existing evidence and cloud-safe repo review; use PR CI for honest remote verification where suitable, not blind commits. When no safe progress possible, record one precise blocker/next trigger rather than repeated administrative heartbeats.
 
 Never declare Gate13 done after Quick3 alone, or the mission done until full original-feature scope through Gate17 and Windows11 release audit pass. Do not narrow original selectable countries, leagues, managers or presentation modes in order to close a gate.
 
