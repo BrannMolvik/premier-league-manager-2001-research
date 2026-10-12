@@ -265,6 +265,22 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
         self.assertFalse(hasattr(rows[0], "hit_rectangle"))
         self.assertFalse(hasattr(rows[0], "label"))
 
+    def test_original_supportstart_action_one_and_two_are_real_owned_controls(self):
+        # 0x4C7CC3 and 0x4C7CF8 group registrations in original vft+4.
+        # 0x4D05E0 event dispatch resolves cancel vs full staff/name apply.
+        from original_supportstart_layout import original_supportstart_action_children
+        actions = original_supportstart_action_children()
+        self.assertEqual(tuple(a.native_event for a in actions), (1, 2))
+        self.assertEqual(tuple(a.object_owner_offset for a in actions),
+                         (0x1EB8, 0x1F08))
+        self.assertEqual(tuple(a.animation_wrapper_address for a in actions),
+                         (0x946190, 0x946150))
+        self.assertEqual(tuple(a.result_byte_after_native_handler for a in actions),
+                         (0, 1))
+        self.assertEqual(tuple(a.invokes_full_original_apply for a in actions),
+                         (False, True))
+        self.assertTrue(all(not hasattr(a, "click_rect") for a in actions))
+
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
             (26, "England"), (66, "Scotland"), (33, "Germany"),
