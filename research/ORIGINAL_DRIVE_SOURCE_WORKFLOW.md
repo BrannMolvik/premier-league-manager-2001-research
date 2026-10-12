@@ -77,10 +77,14 @@
    (d) genuine interactive Windows 11 gameplay/installation acceptance.
    Labels (a)/(b) never imply (c)/(d). Gate 13 and Gates 14–17 remain open
    until their actual acceptance criteria are satisfied.
-7. **Checkpoint economically:** pursue high-impact end-to-end functionality,
-   batch local tests/CI around meaningful verified milestones, use reviewed
-   fresh-main PRs, do not overwrite concurrently active worker branches, and
-   keep `CURRENT_STATE.md` current with evidence, blockers, exact next step.
+7. **Checkpoint economically:** follow `research/WORKER_MILESTONE_BATCHING_POLICY.md`:
+   preserve a roughly ten-minute **agent-runtime** heartbeat independently
+   of code commits, accumulate related original evidence/implementation/tests
+   on an in-flight feature branch, and open a reviewed PR/run applicable
+   exact-head CI only at meaningful feature integration. Keep
+   `CURRENT_STATE.md` current at material integration, correctness, or gate
+   boundaries, and store the exact interim resume point in agent-runtime.
+   Never reduce source-fidelity tests or overwrite concurrent worker branches.
 
 ## If the execution sandbox fails
 
