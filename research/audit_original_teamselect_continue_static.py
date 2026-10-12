@@ -93,6 +93,38 @@ def main(path: str) -> None:
     print("PASS native TeamSelect deselect != special global event prune")
     print("WARNING direct xrefs do not prove pre-click producer reachability")
 
+    # Nested editor return and TeamSelect's OUTER handler result are
+    # distinct: native 0x450BB0 returns BL copied from PSupportStart
+    # +0x1de4, but original TeamSelect 0x4D91C0 returns EBX saved from
+    # earlier control acceptance 0x64F960, NOT the modal EAX result.
+    modal_edges = (
+        ("4d91d0", "call   0x64f960"),
+        ("4d91d5", "mov    ebx,eax"),
+        ("4d9224", "call   0x450bb0"),
+        ("4d922c", "mov    eax,ebx"),
+        ("450cbf", "mov    bl,BYTE PTR [esi+0x1de4]"),
+        ("450cd9", "mov    al,bl"),
+        ("4d060a", "call   DWORD PTR [edx+0x4c]"),
+        ("4d0611", "mov    BYTE PTR [esi+0x1de4],0x1"),
+        ("4d0623", "mov    BYTE PTR [esi+0x1de4],0x0"),
+        ("4cf936", "push   0x4d89e0"),
+        ("4d89e0", "jmp    0x5d4600"),
+        ("41a352", "call   0x613ec0"),
+        ("41a364", "call   0x613ee0"),
+        ("41a463", "call   0x613ec0"),
+        ("41a475", "call   0x613ee0"),
+        ("5e3322", "call   0x613ec0"),
+        ("5e3335", "call   0x613ee0"),
+    )
+    for address, expected in modal_edges:
+        actual = instruction(address)
+        if expected not in actual:
+            raise AssertionError(("Nested modal/queue source edge changed", address, actual))
+    print("PASS original nested editor return distinct from outer input acceptance")
+    print("PASS Apply invokes vft+0x4C while Cancel only sets 0/requests close")
+    print("PASS 3 enqueue -> immediate timed-process callsite pairs")
+    print("WARNING no staff rollback or GUI fidelity follows from modal return")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
