@@ -12,7 +12,7 @@ so it cannot be used as proof that Cancel restores the pre-modal lists.
 0x4C7B70 -> 0x4C9510
 sets the exact seven native layout anchor/owner offsets.
 
-0x4D06B0 writes role LABEL from 0x4CDCD0 to first +0x70 buffer and\nwhole STAFF FULL NAME from vft+0x08 to second +0x4F0 buffer.\nThe actual localized role text is not guessed here.\nUses the FINAL native name chosen by second 0x4CA660 call, not
+0x4D06B0 writes role LABEL from 0x4CDCD0 to first +0x70 buffer and\nwhole STAFF FULL NAME from vft+0x08 to second +0x4F0 buffer.\nThe already source-verified EA role resolver may fill that first buffer\nwhen real shipped language tables are supplied; never guess labels.\nUses the FINAL native name chosen by second 0x4CA660 call, not
 the first (constructor) overwritten name. All source names must
 originate from a previously replayed genuine shared-CRT receipt.
 No additional CRT draws, user/linked-list mutation, guessed role
@@ -22,6 +22,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ea_language_strings import EAStringIndex, EAStringTable
+from original_supportstart_staff_labels import original_supportstart_native_staff_label
 from original_supportstart_layout import (
     SourceSupportStartRowAnchor,
     original_supportstart_row_anchors,
@@ -72,8 +74,27 @@ class SourceOriginalSupportStartInitialRow:
 
 def source_supportstart_initial_modal_rows(
     birth: SourceOriginalTeamSelectUserBirthReceipt,
+    *,
+    source_strings: EAStringTable | None = None,
+    source_indices: EAStringIndex | None = None,
 ) -> tuple[SourceOriginalSupportStartInitialRow, ...]:
-    """Project native list+selector data without changing state or RNG."""
+    """Project native list+selector data without changing state or RNG.
+
+    If *both* shipped language tables are provided, reuse the already
+    source-proven 0x4CDCD0 role resolver, including exceptional type13
+    English.idx slot2437. With neither, do not invent local role text.
+    """
+    if (source_strings is None) != (source_indices is None):
+        raise OriginalSupportStartInitialRowsError(
+            "Native language string+index resource pair must be complete"
+        )
+    if source_strings is not None and (
+        type(source_strings) is not EAStringTable
+        or type(source_indices) is not EAStringIndex
+    ):
+        raise OriginalSupportStartInitialRowsError(
+            "Expected authentic parsed original EA language resources"
+        )
     if type(birth) is not SourceOriginalTeamSelectUserBirthReceipt:
         raise OriginalSupportStartInitialRowsError(
             "Require original source-user/staff birth receipt"
@@ -116,7 +137,20 @@ def source_supportstart_initial_modal_rows(
             original_first_name=final.first_name,
             original_surname=final.surname,
             source_staff_creation_index=index,
+            source_role_label=(
+                original_supportstart_native_staff_label(
+                    created.staff_type, source_strings, source_indices
+                )
+                if source_strings is not None else None
+            ),
         ))
+    if source_strings is not None and any(
+        item.source_has_staff and (not item.source_role_label)
+        for item in rows
+    ):
+        raise OriginalSupportStartInitialRowsError(
+            "Original native staff role label unresolved from supplied source"
+        )
     return tuple(rows)
 
 
