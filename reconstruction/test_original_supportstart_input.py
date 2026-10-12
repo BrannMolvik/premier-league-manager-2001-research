@@ -207,6 +207,29 @@ class OriginalSupportStartInputTests(unittest.TestCase):
             with self.subTest(kw=kw), self.assertRaises(ValueError):
                 project_original_supportstart_row_native_dispatch(row, **kw)
 
+    def test_native_pressed_bit_blocks_repeated_parent_accept_without_release(self):
+        row = original_supportstart_fresh_native_row()
+        accepted = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False, False),
+        )
+        pressed = accepted.source_after_row_bit15_toggle
+        self.assertEqual(pressed.parent, 0x8193)
+        # 0x64F7B8 source bit0x10 rejects another press until a real
+        # 0x64F860 / vft+0x1C(0) release is observed.
+        with self.assertRaises(ValueError):
+            project_original_supportstart_row_native_dispatch(
+                pressed, native_second_argument_present=True,
+                observed_parent_acceptance=True, observed_child_acceptances=(False, False),
+            )
+        rejected = project_original_supportstart_row_native_dispatch(
+            pressed, native_second_argument_present=True,
+            observed_parent_acceptance=False, observed_child_acceptances=(),
+        )
+        self.assertTrue(rejected.early_parent_reject)
+        self.assertFalse(rejected.native_handler_accepted)
+
     def test_native_teamselect_dialog_cancel_still_returns_handled_event(self):
         # 0x4D922C returns EBX from 0x64F960, overwriting EAX from 0x450BB0.
         cancel = original_supportstart_teamselect_event_outcome(True, 0x8002, 0)

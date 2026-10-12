@@ -619,6 +619,35 @@ def main(path: str) -> None:
             raise AssertionError(("Original row/child vft+0x1C state handler changed",hex(vtable_va)))
     print("PASS accepted native row/child input sets bit0x10 before bit15 toggle")
 
+    # Original +0x20/+0x24 are a callback-enabled flag/context pair:
+    # row vft+0x08 -> 0x5D48C0 forwards callback binding to its five
+    # original children; each child vft+0x08 -> 0x64F3C0 sets both.
+    # 0x64F7A0 optionally invokes callback vft+0x0C if source both
+    # has the callback flag and a nonnull 2nd event argument.
+    original_modal_callback_binding_edges = (
+        ("64f3c8", "mov    DWORD PTR [ecx+0x20],eax"),
+        ("64f3cb", "mov    DWORD PTR [ecx+0x24],edx"),
+        ("5d48d0", "call   0x64f3c0"),
+        ("5d48e8", "call   DWORD PTR [edx+0x8]"),
+        ("64f7c0", "mov    eax,DWORD PTR [esi+0x20]"),
+        ("64f7cb", "test   eax,eax"),
+        ("64f7cf", "test   ebp,ebp"),
+        ("64f7d3", "mov    ecx,DWORD PTR [esi+0x24]"),
+        ("64f7da", "call   DWORD PTR [edx+0xc]"),
+        ("64f7df", "je     0x64f854"),
+    )
+    for address, expected in original_modal_callback_binding_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Source input callback binding changed",address))
+    for vtable_va,target in (
+        (0x7c6780,0x5d48c0), (0x7be9bc,0x64f3c0),
+        (0x7c66c8,0x64f3c0), (0x7be530,0x64f3c0),
+        (0x7bff14,0x64f3c0),
+    ):
+        if struct.unpack_from("<I", binary, vtable_va - 0x400000 + 0x8)[0] != target:
+            raise AssertionError(("Native row input callback setter vft changed",hex(vtable_va)))
+    print("PASS parent and all five child callback/context binding; hit callback opaque")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
