@@ -14,6 +14,7 @@ on:
       - "reconstruction/competition_state.py"
       - "reconstruction/test_competition_state.py"
       - "reconstruction/game_state.py"
+      - "reconstruction/test_game_state_sched.py"
       - "reconstruction/gate13_live_report_producer_trace.py"
       - "reconstruction/test_gate13_live_report_producer_trace.py"
       - "reconstruction/original_pmatchinfo_scroll_readiness.py"
