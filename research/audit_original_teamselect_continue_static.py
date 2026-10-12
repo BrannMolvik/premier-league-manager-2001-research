@@ -47,6 +47,52 @@ def main(path: str) -> None:
         if target not in observed:
             raise AssertionError((address, target, observed))
         print("PASS", address, target)
+    # Direct native UI path, independently cross-checked against the owner EXE:
+    # TeamSelect selection -> user registration -> first queue drain ->
+    # manager binding -> second queue drain -> six staff and modal staging.
+    click_calls = (
+        ("4d8ef8", "call   0x413bb0"),  # successful selected club/user birth
+        ("413c4a", "call   0x617d70"),  # register actual DBRUser
+        ("413c54", "call   0x4258d0"),  # initialize selected user
+        ("4258f8", "call   0x42c400"),  # thirteen player-name pairs
+        ("4259b5", "call   0x614080"),  # FIRST global event drain
+        ("413c5b", "call   0x426090"),  # manager slot binder
+        ("4d8f19", "call   0x412ef0"),  # selected club user setup
+        ("412f1f", "call   0x614080"),  # SECOND global event drain
+        ("4d8f75", "call   0x4c9cd0"),  # six staff constructors
+        ("4d8f7f", "call   0x4da4f0"),  # seven initial selector rows
+        ("4d90c8", "call   0x413db0"),  # team deselect removes DBRUser
+        ("43256f", "call   0x413c90"),  # distinct user event prune caller
+    )
+    for address, expected in click_calls:
+        actual = instruction(address)
+        if expected not in actual:
+            raise AssertionError(("Unexpected native click/cancel edge", address, actual))
+    if not (
+        listing.index("  4d8ef8:") < listing.index("  4d8f19:")
+        < listing.index("  4d8f75:") < listing.index("  4d8f7f:")
+    ):
+        raise AssertionError("Native TeamSelect first-user startup ordering altered")
+
+    def direct_calls(target: str) -> tuple[str, ...]:
+        return tuple(re.findall(
+            r"^\s*([0-9a-f]+):[^\n]*call\s+0x" + target + r"(?:\s|$)",
+            listing, re.MULTILINE
+        ))
+
+    # Counts enumerate *syntactic* direct callsites in this HASHED original
+    # executable, NOT what is reachable/actually fires before either drain.
+    if len(direct_calls("613ec0")) != 175:
+        raise AssertionError("Original queue-enqueue helper xrefs changed")
+    if len(direct_calls("613ee0")) != 5:
+        raise AssertionError("Original timed queue-processor xrefs changed")
+    if direct_calls("413c90") != ("43256f",):
+        raise AssertionError("Original special queue-prune direct caller changed")
+    print("PASS original native user first/second queue drain chronology")
+    print("PASS 175 direct enqueue-helper, 5 timed-processor caller sites")
+    print("PASS native TeamSelect deselect != special global event prune")
+    print("WARNING direct xrefs do not prove pre-click producer reachability")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
