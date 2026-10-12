@@ -98,3 +98,64 @@ def source_supportstart_initial_modal_rows(
             source_staff_creation_index=index,
         ))
     return tuple(rows)
+
+
+@dataclass(frozen=True)
+class SourceOriginalSupportStartStagingTransfer:
+    """One original 0x4DA4F0 move, not a committed GameState mutation."""
+
+    source_slot_index: int
+    source_staff_creation_index: int
+    original_staff_type: int
+    from_user_list_offset: int
+    to_user_inactive_list_offset: int
+    source_checks_global_staff_list_for_removal: bool
+
+
+def source_supportstart_native_staging_transfers(
+    rows: tuple[SourceOriginalSupportStartInitialRow, ...],
+) -> tuple[SourceOriginalSupportStartStagingTransfer, ...]:
+    """The actual *order* of source linked-list moves while staging seven rows.
+
+    Original 0x4DA4F0 initializes EBP=6 and descends to zero.
+    Slot6 is null for the newly created six-element source list.
+    At each filled slot, 0x4CA070 appends to the corresponding inactive
+    staff type list (+0x5B8 or +0x5C4), then native 0x4D1880 removes
+    that staff from +0x5D0 and conditionally removes it from global
+    0x875600 if found. This happens before the editor's Apply/Cancel.
+    It does NOT prove what Cancel cleanup eventually restores.
+    """
+    if (type(rows) is not tuple or
+            len(rows) != ORIGINAL_SUPPORT_START_SLOT_COUNT):
+        raise OriginalSupportStartInitialRowsError("Require seven native source rows")
+    if any(
+        type(row) is not SourceOriginalSupportStartInitialRow
+        or row.source_slot_index != index
+        for index, row in enumerate(rows)
+    ):
+        raise OriginalSupportStartInitialRowsError("Source row owners inconsistent")
+    if tuple(row.original_staff_type for row in rows) != (
+        INITIAL_SUPPORT_STAFF_TYPES + (None,)
+    ):
+        raise OriginalSupportStartInitialRowsError(
+            "Only normal six-staff source creation is qualified"
+        )
+    if any(row.source_staff_creation_index != i for i, row in enumerate(rows[:6])):
+        raise OriginalSupportStartInitialRowsError(
+            "Original source-list identity changed during staging"
+        )
+    # Reverse slots, omitting source-empty index6. This is the actual
+    # predecessor-safe removal order of the original index-decrement loop.
+    return tuple(
+        SourceOriginalSupportStartStagingTransfer(
+            source_slot_index=i,
+            source_staff_creation_index=i,
+            original_staff_type=rows[i].original_staff_type,
+            from_user_list_offset=0x5D0,
+            to_user_inactive_list_offset=(
+                0x5B8 if rows[i].original_staff_type <= 5 else 0x5C4
+            ),
+            source_checks_global_staff_list_for_removal=True,
+        )
+        for i in range(5, -1, -1)
+    )
