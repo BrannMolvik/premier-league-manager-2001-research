@@ -1,3 +1,9 @@
+### 12 October 2026 KST — Recovery543 native current-user MANAGERNAME pointer chain, still no authentic selected preview
+
+- Re-materialized the separately uploaded private 4,714,541-byte original executable and independently checked the exact canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Static objdump/x86 only; did NOT execute the original.
+- Verified original first-screen selected manager pointer `[[screen+0x3C]+0x4C]` through `0x4D8E90 -> 0x413BB0 -> 0x4258D0` is stored at DBRUser+0x5B4; selected user `0x4139D0` resolves registry position, Inbox `0x56FE0C` passes precise manager pointer to typed `0x612FD0`, and `0x613040` uses manager+0x40 index/0x40-stride native table and literal `%s %s`.
+- Current reconstruction's `native_user_recipient_key` heuristic does not prove manager-name identity. Do not synthesize greeting from club alias or imported AI manager. Detailed firsthand evidence and reproduction: [Recovery543 manager chain](GATE13_EAM_MANAGER_USER_BINDING_RECOVERY543.md). Next: provenance of selected first-screen manager creation/binding, shared CRT state, full original selected preview, PEAMMessage/ESC, all R1 modes and original league/country/multi-human scope. PR638 BLOCKED. Gates13–17 OPEN; no Windows GUI acceptance.
+
 ### 12 October 2026 KST — Recovery542 source-authentic initial Inbox disabled preview merged and audited
 
 - Original PEAMail vft `0x7C2950+0x8→0x4720D0` initialization clears native current row, selects empty source `0x874BA0`, invokes `0x471620` and native empty branch `0x4716F2` selects wrapper `0x945B30`, original `preview_panel_disabled.444` 532×187 at screen (246,343). [Full original-source audit](GATE13_EAM_NATIVE_EMPTY_PREVIEW_ART_RECOVERY542.md).
