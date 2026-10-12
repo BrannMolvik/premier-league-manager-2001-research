@@ -302,3 +302,38 @@ objdump -D -Mintel --start-address=0x4d91c0 --stop-address=0x4d926d footballmana
 objdump -D -Mintel --start-address=0x450bb0 --stop-address=0x450ce9 footballmanager.exe
 cd reconstruction && python -m unittest test_original_supportstart_input
 ```
+
+
+### Further source counterexample: TeamSelect native 0x64F960 flag gating
+
+The original `0x64F960` (distinct from generic row
+`0x64F7A0`) begins at `0x64F965–0x64F980`:
+it **rejects unless control+0x18 bit `0x0002` is set**
+and **bit `0x0020` is clear**. It then may
+invoke an owner-dependent virtual input callback before returning
+success, so these flags are **necessary, not sufficient**.
+The caller `0x4D91C0` also requires control bit
+`0x8000` via `0x652F80`.
+The modal predicate is consequently:
+
+```text
+source_64F960_event_accepted AND (DWORD & 0x0002 != 0)
+AND (DWORD & 0x0020 == 0) AND (DWORD & 0x8000 != 0)
+```
+
+The `original_supportstart_teamselect_modal_entry`
+feature-branch helper now **fails closed** for even a contradictory
+`accepted_by_native_64f960=True` if those original
+bit guards are not satisfied. A previous staged helper/test
+incorrectly permitted `0x8000` without bit0x2;
+that isolated test expectation was corrected **before integration**
+using source disassembly and positive/negative counterexamples
+`0x8000` rejected, `0x8002` accepted (if callback verified),
+`0x8022` rejected. Seven focused local tests pass.
+Do not conflate `0x64F960`'s bit0x20 guard with the
+separate generic row `0x64F7A0` bit0x10 guard.
+
+Repeat:
+```bash
+objdump -D -Mintel --start-address=0x64f960 --stop-address=0x64fa1a footballmanager.exe
+```
