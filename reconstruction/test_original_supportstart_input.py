@@ -294,6 +294,74 @@ class OriginalSupportStartInputTests(unittest.TestCase):
             with self.subTest(index=index), self.assertRaises(ValueError):
                 original_supportstart_row_callback_contract(index)
 
+    def test_original_release_visits_parent_and_both_input_children_without_hit_test(self):
+        from original_supportstart_input import (
+            project_original_supportstart_native_row_release,
+        )
+        row = original_supportstart_fresh_native_row()
+        pressed = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=True, observed_child_acceptances=(True,True),
+            source_row_index=0,
+        ).source_after_row_bit15_toggle
+        self.assertEqual(pressed.parent, 0x8193)
+        self.assertEqual(pressed.children[3:], (0x193, 0x193))
+        receipt = project_original_supportstart_native_row_release(
+            pressed, source_row_index=0,
+            observed_original_release_for_row=True,
+        )
+        self.assertTrue(receipt.source_parent_was_pressed)
+        self.assertEqual(receipt.invoked_child_indices, (3,4))
+        self.assertEqual(receipt.source_child_was_pressed, (True,True))
+        self.assertEqual(receipt.source_row_after.parent, 0x8183)
+        self.assertEqual(receipt.source_row_after.children[3:], (0x183,0x183))
+        self.assertEqual(receipt.source_row_after.stored_staff_selection_byte_if_applied, 0)
+        # AFTER an actual observed release, a second qualified press may toggle back.
+        second = project_original_supportstart_row_native_dispatch(
+            receipt.source_row_after, native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False,False), source_row_index=0,
+        )
+        self.assertEqual(second.source_after_row_bit15_toggle.parent, 0x193)
+        self.assertEqual(second.source_after_row_bit15_toggle.stored_staff_selection_byte_if_applied, 1)
+
+    def test_source_release_can_skip_unregistered_or_disabled_input_children(self):
+        from original_supportstart_input import (
+            project_original_supportstart_native_row_release,
+            original_supportstart_empty_row_after_refresh,
+        )
+        empty = original_supportstart_empty_row_after_refresh(original_supportstart_fresh_native_row())
+        receipt = project_original_supportstart_native_row_release(
+            empty, source_row_index=6, observed_original_release_for_row=True,
+        )
+        # Input child3 still enabled bit0, child4 disabled: release invokes
+        # parent and child3, but neither had native pressed bit0x10.
+        self.assertEqual(receipt.invoked_child_indices, (3,))
+        self.assertEqual(receipt.source_row_after, empty)
+        self.assertFalse(receipt.source_parent_was_pressed)
+        self.assertEqual(receipt.source_child_was_pressed, (False,))
+
+    def test_native_release_cannot_be_invented_or_rebound_to_wrong_row(self):
+        from original_supportstart_input import project_original_supportstart_native_row_release
+        row = original_supportstart_fresh_native_row()
+        for idx in (-1,7,True,None):
+            with self.subTest(index=idx), self.assertRaises(ValueError):
+                project_original_supportstart_native_row_release(
+                    row, source_row_index=idx,
+                    observed_original_release_for_row=True,
+                )
+        for observed in (1,None,"yes"):
+            with self.subTest(observed=observed), self.assertRaises(TypeError):
+                project_original_supportstart_native_row_release(
+                    row, source_row_index=0,
+                    observed_original_release_for_row=observed,
+                )
+        with self.assertRaises(ValueError):
+            project_original_supportstart_native_row_release(
+                row, source_row_index=0,
+                observed_original_release_for_row=False,
+            )
+
     def test_native_teamselect_dialog_cancel_still_returns_handled_event(self):
         # 0x4D922C returns EBX from 0x64F960, overwriting EAX from 0x450BB0.
         cancel = original_supportstart_teamselect_event_outcome(True, 0x8002, 0)

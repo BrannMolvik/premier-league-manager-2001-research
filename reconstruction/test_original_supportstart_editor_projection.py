@@ -232,6 +232,39 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 modal.with_observed_native_row_input(index, observed)
 
+    def test_real_separate_native_mouse_release_allows_repeat_row_toggle(self):
+        from original_supportstart_input import (
+            project_original_supportstart_row_native_dispatch,
+            project_original_supportstart_native_row_release,
+        )
+        modal = self.editor
+        down = project_original_supportstart_row_native_dispatch(
+            modal.rows[0], native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False,False), source_row_index=0,
+        )
+        pressed = modal.with_observed_native_row_input(0, down)
+        self.assertEqual(pressed.rows[0].parent, 0x8193)
+        up = project_original_supportstart_native_row_release(
+            pressed.rows[0], source_row_index=0,
+            observed_original_release_for_row=True,
+        )
+        released = pressed.with_observed_native_row_release(0, up)
+        self.assertEqual(released.rows[0].parent, 0x8183)
+        self.assertEqual(released.rows[0].stored_staff_selection_byte_if_applied,0)
+        down_again = project_original_supportstart_row_native_dispatch(
+            released.rows[0], native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False,False), source_row_index=0,
+        )
+        clicked_twice = released.with_observed_native_row_input(0, down_again)
+        self.assertEqual(clicked_twice.rows[0].parent, 0x193)
+        self.assertEqual(clicked_twice.close(2).original_record_flag_bytes[0], 1)
+        with self.assertRaisesRegex(ValueError, "Stale"):
+            clicked_twice.with_observed_native_row_release(0, up)
+        with self.assertRaisesRegex(ValueError, "identity"):
+            released.with_observed_native_row_release(1, up)
+
     def test_apply_uses_true_source_flag_inversion_and_staged_human_name(self):
         changed = self.editor.with_edited_name("Ada", "Lovelace")
         changed = changed.with_native_row_event(0, accepted_by_native_gate=True)

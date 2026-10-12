@@ -223,6 +223,71 @@ def project_original_supportstart_row_native_dispatch(
     )
 
 
+@dataclass(frozen=True)
+class OriginalSupportStartNativeReleaseObservation:
+    """One source-qualified original WM_LBUTTONUP release for a known row.
+
+    Native 0x653C40 visits ALL windows, 0x653510 all registered children.
+    Row virtual+0x70 -> 0x5D4800 invokes 0x64F860 on the parent, then
+    eligible child3/4 vft+0x70 when their bit0 is set. Every such
+    0x64F860 invokes vft+0x1C(0) -> 0x64F470 -> 0x64F750.
+    This only projects source DWORD bit0x10; other native callbacks
+    and resource/hover redraw side effects are not simulated.
+    """
+    source_row_index: int
+    source_row_before: OriginalSupportStartRowBitState
+    source_row_after: OriginalSupportStartRowBitState
+    invoked_child_indices: tuple[int, ...]
+    source_parent_was_pressed: bool
+    source_child_was_pressed: tuple[bool, ...]
+
+
+def project_original_supportstart_native_row_release(
+    row: OriginalSupportStartRowBitState,
+    *,
+    source_row_index: int,
+    observed_original_release_for_row: bool,
+) -> OriginalSupportStartNativeReleaseObservation:
+    """Native vft+0x70 row release, NOT an automatic mouse-up simulation.
+
+    Caller must independently establish that a real MyWindow WM202
+    delivered through 0x5326A0/0x653C40/0x653510 to THIS native row.
+    Native row+0x70 0x5D4800 always tries parent 0x64F860, and
+    iterates child registrations whose original flags include bit0x04
+    and whose control state has enabled bit0. It clears bit0x10 on
+    pressed parent/eligible children, leaving bit15 and all other
+    bits unchanged. No screen rectangle test runs on this release path.
+    """
+    if type(row) is not OriginalSupportStartRowBitState:
+        raise TypeError("Require source five-child row")
+    if type(source_row_index) is not int or not 0 <= source_row_index < 7:
+        raise ValueError("Native selector identity 0..6 required")
+    if type(observed_original_release_for_row) is not bool:
+        raise TypeError("Original release dispatch must be explicitly observed")
+    if not observed_original_release_for_row:
+        raise ValueError("Do not synthesize an unobserved native release")
+    invoked = tuple(
+        i for i, (registration, control) in enumerate(
+            zip(ORIGINAL_ROW_REGISTRATION_FLAGS, row.children)
+        )
+        if registration & ORIGINAL_ROW_CHILD_INPUT_FLAG and control & 0x0001
+    )
+    children = list(row.children)
+    was_pressed = tuple(bool(children[i] & 0x10) for i in invoked)
+    for i in invoked:
+        children[i] &= ~0x10
+    return OriginalSupportStartNativeReleaseObservation(
+        source_row_index=source_row_index,
+        source_row_before=row,
+        source_row_after=OriginalSupportStartRowBitState(
+            row.parent & ~0x10, tuple(children)
+        ),
+        invoked_child_indices=invoked,
+        source_parent_was_pressed=bool(row.parent & 0x10),
+        source_child_was_pressed=was_pressed,
+    )
+
+
 def original_supportstart_fifth_child_native_rect(row_index: int) -> tuple[int, int, int, int]:
     """Source fifth child +0x48 native (x,y,w,h), not a proven hit area.
 

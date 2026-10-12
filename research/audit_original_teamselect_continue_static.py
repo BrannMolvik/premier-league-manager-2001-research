@@ -852,6 +852,41 @@ def main(path: str) -> None:
             raise AssertionError(("Native modal row event must redraw only",id))
     print("PASS original seven modal row IDs 8..14, callback TRUE, no Apply/Cancel")
 
+    # Original release 0x653C40/0x653510 forward all windows/children,
+    # native row virtual+0x70 0x5D4800, input children+0x70 0x64F860.
+    original_supportstart_mouse_up_570 = (
+        ("653c69", "cmp    esi,DWORD PTR [edi+0x8]"),
+        ("653c71", "push   ebx"),
+        ("653c75", "call   0x653510"),
+        ("653c7a", "inc    esi"),
+        ("65353d", "call   DWORD PTR [eax+0x14]"),
+        ("653540", "mov    eax,DWORD PTR [esi+0x3c]"),
+        ("65354c", "push   0x1"),
+        ("653558", "call   DWORD PTR [eax+0x70]"),
+        ("5d480c", "push   ebx"),
+        ("5d4810", "call   0x64f860"),
+        ("5d482a", "test   cl,0x4"),
+        ("5d4831", "call   0x64f570"),
+        ("5d4848", "call   DWORD PTR [eax+0x70]"),
+        ("64f863", "push   0x0"),
+        ("64f867", "call   DWORD PTR [eax+0x1c]"),
+        ("64f8d5", "mov    eax,0x1"),
+        ("64f8de", "xor    eax,eax"),
+        ("64f482", "call   0x64f750"),
+        ("64f765", "mov    DWORD PTR [esi+0x18],edx"),
+        ("428ae0", "ret    0x8"),
+    )
+    for address, expected in original_supportstart_mouse_up_570:
+        if expected not in instruction(address):
+            raise AssertionError(("Original SupportStart mouse-up changed",address))
+    for vft, target in ((0x7c6780+0x70, 0x5d4800),
+                        (0x7be530+0x70, 0x64f860),
+                        (0x7bff14+0x70, 0x64f860),
+                        (0x7c6ddc+0x14, 0x428ae0)):
+        if struct.unpack_from("<I",binary,vft-0x400000)[0] != target:
+            raise AssertionError(("Native mouse-up vft moved",hex(vft)))
+    print("PASS native mouse-up all registered windows and row release bits")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

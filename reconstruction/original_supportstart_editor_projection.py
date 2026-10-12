@@ -16,6 +16,7 @@ from original_human_user_name import OriginalHumanUserName
 from original_supportstart_input import (
     OriginalSupportStartRowBitState,
     OriginalSupportStartRowNativeDispatchObservation,
+    OriginalSupportStartNativeReleaseObservation,
     original_supportstart_initial_seven_rows,
     original_supportstart_row_native_event,
 )
@@ -163,6 +164,30 @@ class OriginalSupportStartEditorProjection:
         changed = list(self.rows)
         changed[index] = observation.source_after_row_bit15_toggle
         return replace(self, rows=tuple(changed))
+
+    def with_observed_native_row_release(
+        self,
+        index: int,
+        release: OriginalSupportStartNativeReleaseObservation,
+    ) -> "OriginalSupportStartEditorProjection":
+        """Preserve original separate WM_LBUTTONUP through row vft+0x70.
+
+        This only follows a release independently observed at original
+        MyWindow+0x14 and bound to the correct source row object.
+        It is not a synthetic release fired on mouse-down or a Tk event.
+        Native row bit15 (current selection) must survive mouse-up.
+        """
+        if type(index) is not int or not 0 <= index < 7:
+            raise ValueError("Require original source row index0..6")
+        if type(release) is not OriginalSupportStartNativeReleaseObservation:
+            raise TypeError("Require source-qualified native release observation")
+        if release.source_row_index != index:
+            raise ValueError("Original native release row identity mismatch")
+        if release.source_row_before != self.rows[index]:
+            raise ValueError("Stale native row release state")
+        updated = list(self.rows)
+        updated[index] = release.source_row_after
+        return replace(self, rows=tuple(updated))
 
     def with_native_row_event(
         self, index: int, *, accepted_by_native_gate: bool
