@@ -29,6 +29,7 @@ from original_eamail_live_canvas import (
     load_verified_original_eamail_row_art,
     original_eamail_row_at_screen_point,
     source_original_eamail_row_backgrounds,
+    original_empty_eamail_preview,
 )
 from original_eamail_source_contract import original_eamail_neutral_row_dispatch
 from original_management_background import OriginalManagementBackground
@@ -2161,6 +2162,21 @@ class OriginalGameTkHost:
         ):
             self._create_native_image(
                 row.x, row.y, image=self._photo(row.png), anchor=self.tk.NW,
+            )
+            drawn += 1
+        # The source PEAMail +0x8 initialization clears current selection
+        # and refreshes 0x471620 with empty 0x874BA0: 0x945B30 is the
+        # shipped disabled 532x187 preview at source screen (246,343).
+        # A selected row needs actual formatted body and enabled art, still
+        # unresolved; no fabricated blank replacement is painted for it.
+        empty = original_empty_eamail_preview(
+            frame.presentation.eamail, self.eamail_row_art,
+            selected_node_serial=self._eamail_selected_node_serial,
+        )
+        if empty is not None:
+            x, y, _w, _h = empty.screen_rect
+            self._create_native_image(
+                x, y, image=self._photo(empty.png), anchor=self.tk.NW,
             )
             drawn += 1
         return drawn
