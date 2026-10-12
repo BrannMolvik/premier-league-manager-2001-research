@@ -194,3 +194,53 @@ Reproduce from authorized original:
 ```bash
 objdump -D -Mintel --start-address=0x4cb0f0 --stop-address=0x4cb2b0 footballmanager.exe
 ```
+
+## Correction: double native staff name-generator invocation in fixed staff setup
+
+**Critical independent vtable cross-check** (after the preceding report):
+actual CSupportStaff vft base `0x7C6834` at **`+0x10`** is
+**`0x4CA660`**, the *same original staff name-generator* used in the
+`0x4CA2F0` constructor. Native `0x4C9E3C..0x4C9E4C` retrieves
+current user's club `+0x14` source country, pushes it, and invokes
+**vft+0x10 = `0x4CA660` AGAIN**. This source call occurs **after**
+`0x4CA2F0` has already invoked `0x4CA660` at `0x4CA334`.
+The second call therefore regenerates/overwrites the first name+surname
+created during construction. It is **not** a no-op country setter.
+
+Every successfully constructed fixed staff therefore has **two calls
+to `0x421C00`** prior to its vft+0x28/+0x30/+0x5C calls:
+minimum **FOUR original RNG name selections per staff**, not two,
+plus independent retry *pairs* when first-name source string is exactly
+`"-"`. Native `0x4CA660` loops back to `0x4CA66B` on the sentinel,
+re-executing **BOTH** `0x421BA0` picks (two RNG calls) on each retry.
+Previously staged remarks that a retry consumes only an extra first-name
+draw were incorrect for **SupportStaff** (other report-setup name routes
+can follow different loops).
+
+This changes the source-confirmed **minimum per-staff** RNG direct call
+lower bound to:
+
+- RNG(25), RNG(2): 2
+- constructor name pair + explicit vft+0x10 name pair: **4**
+- vft+0x28 RNG(20), vft+0x30 RNG(30): 2
+- vft+0x5C source RNG(3) item count + 3 draws for each of 1..3 entries:
+  **4–10** more
+- **TOTAL minimum source-direct calls: 12–18 per staff** depending on item
+  count, *before* first-name retry loops and any additional indirect calls.
+
+The earlier “four or more after age/rating” and “two selected names per
+staff” descriptions in this report are superseded by this corrected trace.
+This still does **not** prove a particular shared-CRT fresh-game seed,
+exact output staff name, or that vft+0x5C cannot make additional indirect
+random draws. In particular, the actual vft+0x5C argument propagation
+must be studied across the CSupportStaff caller frame before reproducing
+the eligible club set. **Do not implement additional live RNG draws from
+the 12–18 lower bound alone.**
+
+Reproduce:
+```bash
+objdump -s -j .rdata --start-address=0x7c6834 --stop-address=0x7c6895 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9e2a --stop-address=0x4c9e6a footballmanager.exe
+objdump -D -Mintel --start-address=0x4ca2f0 --stop-address=0x4ca33f footballmanager.exe
+objdump -D -Mintel --start-address=0x4ca660 --stop-address=0x4ca6d0 footballmanager.exe
+```
