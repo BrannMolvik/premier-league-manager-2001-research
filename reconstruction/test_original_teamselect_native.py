@@ -219,6 +219,33 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "byte 1"):
             OriginalSupportStartSourceSlot(0, source[0], True)
 
+    def test_original_supportstart_seven_source_row_anchors_and_owner_buffers(self):
+        # Original PSupportStart vft+4 = 0x4C7B70, layout 0x4C8014..0x4C8263.
+        # 0x4C9510 -> native 0x64F380 writes the x/y origin, not a hit rect.
+        from original_supportstart_layout import (
+            SOURCE_SUPPORTSTART_NATIVE_SIZE,
+            original_supportstart_row_anchors,
+        )
+        rows = original_supportstart_row_anchors()
+        self.assertEqual(SOURCE_SUPPORTSTART_NATIVE_SIZE, (760, 500))
+        self.assertEqual(len(rows), 7)
+        self.assertEqual(tuple(row.origin for row in rows), (
+            (391, 181), (391, 221), (391, 261), (391, 301),
+            (391, 341), (391, 381), (391, 421),
+        ))
+        self.assertEqual(tuple(row.native_group_index for row in rows),
+                         (8, 9, 10, 11, 12, 13, 14))
+        self.assertEqual(tuple(row.selector_owner_offset for row in rows),
+                         (0x2224, 0x2270, 0x22bc, 0x2308, 0x2354,
+                          0x23a0, 0x23ec))
+        self.assertEqual(tuple(row.display_text_first_owner_offset for row in rows),
+                         (0x70, 0xf0, 0x170, 0x1f0, 0x270, 0x2f0, 0x370))
+        self.assertEqual(tuple(row.display_text_second_owner_offset for row in rows),
+                         (0x4f0, 0x570, 0x5f0, 0x670, 0x6f0, 0x770, 0x7f0))
+        # No rendering width, hit rectangle or invented absent staff created.
+        self.assertFalse(hasattr(rows[0], "hit_rectangle"))
+        self.assertFalse(hasattr(rows[0], "label"))
+
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
             (26, "England"), (66, "Scotland"), (33, "Germany"),
