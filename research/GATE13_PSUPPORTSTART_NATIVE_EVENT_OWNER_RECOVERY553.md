@@ -80,3 +80,18 @@ full seven-row GUI, source-personal names from exact shared RNG and
 native input owner, Apply/Cancel and TeamSelect return, Inbox selected
 detail, R1 all modes, multi-league/multihuman, and Gates13–17
 Windows11 acceptance remain incomplete.
+
+
+## Recovery556: actual SupportStart row owner propagation, still not physical click proof
+
+Original SHA-256-verified executable static disassembly further closes the native `control+0x20/+0x24` **setter and propagation route**:
+
+- Original generic base `0x64F3C0` writes argument1 directly to control+0x20 and argument2 to control+0x24 (`0x64F3C8/0x64F3CB`). It does **not** perform a point-in-rectangle test or invoke the owner.
+- In `0x5D48C0`, generic group virtual+0x08 first invokes `0x64F3C0` on its OWN group with the same two arguments; then loops its registered children and invokes each child's **virtual+0x08** with those SAME arguments. The group therefore recursively propagates a uniform handler/context pair down the actual child tree, rather than authorizing different guessed per-star/per-text hitboxes.
+- The real original **PSupportStart row group's** vtable base `0x7C6780 +0x08` is exactly `0x5D48C0`, and its immediate animation/text/star controls have their own base vft+0x08 = `0x64F3C0` at `0x7C66C8`, `0x7BE530`, and `0x7BFF14`. Thus a parent owner registration can reach all five original row child controls. Which actual higher-level object and event context are registered remains to be sourced.
+- `0x4C9510` sets native row bounds through `0x64F380`; text/control setup `0x651BA0` likewise calls `0x64F380` and stores its original visual selector at +0x2C. **Neither of these setter paths installs a unique owner+0x24 callback.** Original `0x64F380` stores control x/y/end bounds, a separate +0x28 pointer and +0x1C field; `0x64F3C0` is the distinct owner setter.
+- The existing `0x64F7A0` gate calls owner virtual+0x0C/+0x10 only when its control+0x20 and qualifying event argument are nonzero. Current source has not yet identified the actual object passed into the outermost `0x5D48C0` invocation, nor the native mouse hit-test stage that selects the row before dispatch. **Do not map visual 326×37 bounds, 17×37 animation, or 15×10 star strip as mouse hit regions by assumption.**
+
+Reproduce on the canonical original: `objdump -D -Mintel --start-address=0x64f380 --stop-address=0x64f3d0 footballmanager.exe`, `--start-address=0x5d48c0 --stop-address=0x5d48fa`, `--start-address=0x4c9510 --stop-address=0x4c97d0`; read vtables `0x7C6780`, `0x7C66C8`, `0x7BE530`, `0x7BFF14`. No shipped-original process run/GUI acceptance.
+
+**Next native event task:** identify actual PSupportStart outer group owner/context setter call and concrete owner vft+0x0C/+0x10, then hit-test route and source exact seven-row selection/Cancel/Apply from normal TeamSelect. Player-visible editor and Gates13–17 still OPEN.
