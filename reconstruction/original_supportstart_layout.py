@@ -162,9 +162,12 @@ def original_supportstart_native_row_window_event_candidate(
     Only then does 0x6534EA dispatch row virtual+0x6C with arg2=1;
     actual 0x5D4790 parent/child callbacks may STILL reject input.
 
-    Real native root/row object identity and source-native event pixels
-    must come from upstream window dispatch, not an arbitrary Tk mouse
-    rectangle. Source blank staff rows can pass THIS geometric prefilter,
+    IMPORTANT: 0x6534AD invokes window vft+0x10 BEFORE any child
+    rectangle test. Caller must supply its resulting POST-callback
+    control DWORD and genuine source-native event pixel, not pre-dispatch
+    state or an arbitrary Tk mouse rectangle. Real root/row object
+    identity must likewise come from upstream event routing.
+    Source blank staff rows can pass THIS geometric prefilter,
     yet their own 0x64F7A0 bit1 acceptance gate rejects the event.
     """
     if (type(source_screen_point) is not tuple or len(source_screen_point) != 2

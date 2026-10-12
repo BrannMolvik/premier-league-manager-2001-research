@@ -703,6 +703,30 @@ def main(path: str) -> None:
             raise AssertionError(("Original window event rectangle gate moved",address))
     print("PASS original window half-open child bounds before virtual input")
 
+    # Native window 0x653480 always calls window's vft+0x10 with
+    # literal event0 and local x/y point BEFORE it even inspects the
+    # registered children. Original PSupportStart vft+0x10=0x4D05E0,
+    # whose zero-event branch bypasses action event1/2 and calls
+    # 0x653350 with window bounds. The source callback could affect
+    # child/window state; geometry prefilter requires post-callback.
+    native_modal_prechild_parent_virtual_edges = (
+        ("653498", "mov    eax,DWORD PTR [esi]"),
+        ("6534a4", "push   ecx"),
+        ("6534a5", "push   0x0"),
+        ("6534ad", "call   DWORD PTR [eax+0x10]"),
+        ("6534b0", "mov    eax,DWORD PTR [esi+0x3c]"),
+        ("4d05e7", "test   eax,eax"),
+        ("4d05ec", "je     0x4d0641"),
+        ("4d0670", "call   0x653350"),
+    )
+    for addr, target in native_modal_prechild_parent_virtual_edges:
+        if target not in instruction(addr):
+            raise AssertionError(("Native modal prechild source callback changed",addr))
+    if struct.unpack_from("<I",binary,0x7c6ddc - 0x400000 + 0x10)[0] != 0x4d05e0:
+        raise AssertionError("PSupportStart vft+0x10 source null event owner changed")
+    print("PASS pre-child modal vft+0x10(0,point) before child geometry prefilter")
+    print("WARNING actual scene graph routing, post-callback state still unverified")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
