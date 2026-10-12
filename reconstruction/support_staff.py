@@ -97,6 +97,19 @@ def original_teamselect_support_slots(
 
 
 
+def original_supportstart_flag_after_selector_state(native_control_dword: int) -> int:
+    """Exact original 0x4D088A->0x652F80 source bit15 inversion.
+
+    Native getter 0x652F80 reads DWORD [control+0x18], shifts right 15,
+    masks bit1 and 0x4D089B writes inverse Boolean to source record+0x28+i.
+    This does not recreate a click, selection state transition or staff mutation.
+    """
+    if (type(native_control_dword) is not int
+            or not 0 <= native_control_dword <= 0xFFFFFFFF):
+        raise ValueError("Native PSupportStart selector state must be a DWORD")
+    return 1 ^ ((native_control_dword >> 15) & 1)
+
+
 def original_staff_inactive_link_owner_offset(staff_type: int) -> int:
     """Native PSupportStart Apply 0x4D0900 -> 0x4CA070 type dispatch.
 
