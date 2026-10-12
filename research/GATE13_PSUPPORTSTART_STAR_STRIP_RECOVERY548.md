@@ -633,3 +633,57 @@ sha256sum English.str EnglishEAM.str footballmanager.exe
 objdump -D -Mintel --start-address=0x4cdcd0 --stop-address=0x4cdd82 footballmanager.exe
 objdump -D -Mintel --start-address=0x6458b0 --stop-address=0x645b20 footballmanager.exe
 ```
+
+
+## Recovery551 additional native callback necessity: event gate is not a mouse hit test
+
+Independently re-disassembled original `0x64F7A0..0x64F859`
+and source row registration `0x5D4790..0x5D47FB`.
+For registered child+0x44 (star) or child+0x48 (text),
+original `0x64F7A0` checks
+`control+0x18 bit0x02 set` and `bit0x10 clear`.
+After those mandatory gates, it reads `control+0x20`
+and **only when this pointer is non-null and
+the second native event argument is nonzero**,
+calls `[control+0x24] vtable+0x0C` with
+the widget pointer and first input event
+argument; a zero owner callback return rejects.
+Otherwise it proceeds to source notifier
+`[0x984810]`, virtual+0x1C(1) on the
+child, possible owner virtual+0x10 callback,
+and optional global notification owners
+`0x984818/0x984814`, then returns 1.
+
+Source `0x64F300` constructor initializes
+`control+0x24` and `+0x28` to NULL,
+`+0x18=0x183`; it does **not** show the
+final `+0x20` state after subclass setup.
+Source `0x651BA0` (the star sprite installer)
+only writes geometry through `0x64F380`,
+sprite pointer+0x2C and a zero to +0x30;
+it does **not** bind a click callback or prove
+a star click hit area. Source original
+`0x5D4790` may first call parent
+`0x64F7A0` if second event arg nonzero,
+and only after parent accepts dispatches
+child+0x44/+0x48 events.
+
+**Important:** a nominal native star layout
+rectangle, visible original sprite or native
+bit0x02/bit0x10 pre-gate is **not** sufficient
+to assert a real accepted mouse click.
+The source startup event/owner binding and
+native graphical hit path must be traced
+before wiring the modern host.
+The feature's `original_supportstart_source_dispatch_candidates()`
+intentionally remains a necessary-gates-only
+predicate, not a native hit simulator.
+No synthetic GUI listener/hotzone is added.
+
+Proof reproduction:
+```bash
+objdump -D -Mintel --start-address=0x64f7a0 --stop-address=0x64f85c footballmanager.exe
+objdump -D -Mintel --start-address=0x64f300 --stop-address=0x64f324 footballmanager.exe
+objdump -D -Mintel --start-address=0x651ba0 --stop-address=0x651be0 footballmanager.exe
+objdump -D -Mintel --start-address=0x5d4790 --stop-address=0x5d47fc footballmanager.exe
+```
