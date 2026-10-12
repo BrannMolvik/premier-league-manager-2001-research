@@ -1,3 +1,5 @@
+**SOURCE CORRECTION (Recovery554):** The native 0x411A10 group table at 0x874BD0 is built from filtered PLAYER records, not clubs. The earlier club-dependent analysis below is historical and MUST NOT be used to implement name generation. See [the corrected source disassembly and real-data validation](GATE13_PSUPPORTSTART_NAME_GROUP_RECOVERY554.md).
+
 # Recovery553: source-correct original SupportStart name group routing
 
 Original source original `footballmanager.exe` SHA-256

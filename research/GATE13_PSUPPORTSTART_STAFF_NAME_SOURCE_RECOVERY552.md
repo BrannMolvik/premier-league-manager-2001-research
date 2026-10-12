@@ -1,3 +1,5 @@
+**SOURCE CORRECTION (Recovery554):** Early wording below conflated club-country grouping with name candidate grouping. Source 0x411A10 builds the actual 0x874BD0 name groups from PLAYER records with four native byte tests. Both branches of 0x421BA0 return PLAYER records. See [corrected source evidence](GATE13_PSUPPORTSTART_NAME_GROUP_RECOVERY554.md).
+
 # Recovery552: original SupportStart staff personal name path and missing name-pool boundary
 
 **Source:** statically inspected original 4,714,541-byte

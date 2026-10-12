@@ -1,20 +1,15 @@
-"""Original SupportStart candidate name projection from a source-observed pair.
+"""Source-observed SupportStart name pairing from original player records.
 
-Original 0x50D630 loads master.dat player pool at 0x875638; its 0x4218C0
-stream reader creates 0x250-byte runtime objects from 103-byte Master.dat
-player records. Native 0x421C00 makes TWO selections through 0x421BA0
-for first and surname respectively and 0x4CA6E0 joins them with ' '.
-
-Only use TWO source-observed *player pool positions* in native
-country-group count<=10 global-PLAYER fallback, not an invented name.
-Groups with >10 CLUB entries select from the CLUB source pool instead. The original nationality-group filters, shared CRT
-seed, alternate draw paths and name retry still need qualification.
-This function is NOT a generator and it draws zero random numbers.
+0x421C00 draws independently from 0x421BA0 twice and passes source
+PLAYER first name (+0x08) and PLAYER surname (+0x0C) to CSupportStaff.
+Both the filtered-nationality group (>10 eligible players) and global
+fallback (<=10) come from the same original PLAYER pool 0x875638.
+No original random index is fabricated or drawn here.
 """
 from __future__ import annotations
-
 from dataclasses import dataclass
 from fm2001_data import Player
+from original_supportstart_name_group_source import OriginalNameGroupCandidateRoute
 
 
 class OriginalSupportStaffNameSourceError(ValueError):
@@ -30,71 +25,59 @@ class OriginalSupportStaffSelectedName:
 
     @property
     def full_name(self) -> str:
-        """Native 0x4CA6E0 joining string, if source indices are verified."""
         return self.first_name + " " + self.surname
 
 
 def source_support_staff_name_from_observed_player_pair(
     source_player_pool: tuple[Player, ...],
+    route: OriginalNameGroupCandidateRoute,
     *, original_first_player_position: int,
     original_surname_player_position: int,
-    source_group_club_count: int,
 ) -> OriginalSupportStaffSelectedName:
-    """Native name retrieval once upstream source choices are established.
+    """Resolve source-bounded two-choice name only once native draws are known.
 
-    Neither the modern Match RNG nor daily RNG is consumed; each index must
-    come from an independently source-qualified original 0x421BA0 selection.
-    Caller must supply the original full Master.dat player array unchanged.
-    The source group must have <=10 clubs, or native 0x421BA0 selects
-    from original CLUB records rather than global PLAYER fallback.
-    The function cannot prove those upstream group/seed choices by itself.
+    Upstream caller must supply the correct source-derived candidate route.
+    A nationality-filtered choice cannot quietly index a record outside the
+    permitted source group. Source global fallback includes *all* records,
+    including ones filtered from grouped candidate arrays.
     """
-    if (type(source_group_club_count) is not int or
-            not 0 <= source_group_club_count <= 10):
+    if type(route) is not OriginalNameGroupCandidateRoute:
+        raise TypeError("Original name candidate route is required")
+    if (type(source_player_pool) is not tuple
+            or len(source_player_pool) != route.global_player_count
+            or not source_player_pool):
         raise OriginalSupportStaffNameSourceError(
-            "Original source group must use global player fallback (<=10 clubs)"
+            "Require unchanged original Master.dat source player pool"
         )
-    if type(source_player_pool) is not tuple or not source_player_pool:
+    positions=(original_first_player_position, original_surname_player_position)
+    if not all(route.eligible_source_player_position(v) for v in positions):
         raise OriginalSupportStaffNameSourceError(
-            "Require original Master.dat ordered player records"
+            "Original 0x421BA0 choice not in its eligible player pool"
         )
-    for index in (original_first_player_position, original_surname_player_position):
-        if type(index) is not int or not 0 <= index < len(source_player_pool):
+    selected=(source_player_pool[positions[0]],source_player_pool[positions[1]])
+    for position,record in zip(positions,selected):
+        if type(record) is not Player or record.index != position:
             raise OriginalSupportStaffNameSourceError(
-                "Unqualified original 0x421BA0 player-pool position"
+                "Original source player-record order changed"
             )
-    first = source_player_pool[original_first_player_position]
-    last = source_player_pool[original_surname_player_position]
-    if type(first) is not Player or first.index != original_first_player_position:
+    first,last=selected[0].first_name,selected[1].surname
+    if type(first) is not str or type(last) is not str or not first or not last:
         raise OriginalSupportStaffNameSourceError(
-            "Original first-name source player record order changed"
+            "Original player first or surname missing"
         )
-    if type(last) is not Player or last.index != original_surname_player_position:
+    if first == "-":
         raise OriginalSupportStaffNameSourceError(
-            "Original surname source player record order changed"
+            "Original 0x4CA660 sentinel first name requires another native draw"
         )
-    a, b = first.first_name, last.surname
-    if type(a) is not str or type(b) is not str or not a or not b:
-        raise OriginalSupportStaffNameSourceError(
-            "No original Core.str first/surname value"
-        )
-    if a == "-":
-        raise OriginalSupportStaffNameSourceError(
-            "Original 0x4CA660 rejects first name '-' and retries its source draw"
-        )
-    for value in (a, b):
+    for value in (first,last):
         if "\x00" in value:
             raise OriginalSupportStaffNameSourceError(
-                "Original name contains an embedded source terminator"
+                "Original Core.str source name contains terminator"
             )
         try:
             value.encode("cp1252")
         except UnicodeEncodeError as exc:
             raise OriginalSupportStaffNameSourceError(
-                "Original name must decode from Core.str CP1252"
+                "Original Core.str name is not CP1252"
             ) from exc
-    return OriginalSupportStaffSelectedName(
-        original_first_player_position,
-        original_surname_player_position,
-        a, b,
-    )
+    return OriginalSupportStaffSelectedName(positions[0],positions[1],first,last)
