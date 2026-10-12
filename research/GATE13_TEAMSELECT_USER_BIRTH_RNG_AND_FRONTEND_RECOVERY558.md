@@ -444,3 +444,26 @@ objdump -D -Mintel --start-address=0x619F70 --stop-address=0x61A0D2 footballmana
 ```
 
 **Next source target:** map which original application startup operations between 0x53109E seed and 0x4D8E90 initial click can populate event queue +0x947AA8, which event classes have source virtual+0x24 side effects and how the first human linked-list and Cancel transitions govern simulation; then actual original shared CRT click-state reproduction. Continue independently original SupportStart GUI hit/Cancel linked-list provenance. No original program launched, no new branch tests or GUI acceptance, Gates13–17 remain OPEN.
+
+
+### Recovery563 critical chronology correction: DBRUser is registered BEFORE the first queue drain
+
+The native `0x413BB0` registration function also establishes a **positive-state hazard** that prevents prematurely declaring the guarded producer unreachable on the first human click:
+
+1. `0x413BCE..0x413BF0` first checks original human list `registry+0x9CC` for a previously managed same-club ID and refuses duplicates.
+2. On success `0x413BEF..0x413C15` constructs the DBRUser object with `0x424CA0`.
+3. **`0x413C2F..0x413C4A` allocates a list entry and APPENDS the new DBRUser to the global human-user list via `0x617D70` with head pointer `registry+0x9C8` (first user now resides at original `registry+0x9CC`).** This executes BEFORE initializing the user.
+4. `0x413C4F..0x413C54` then calls `0x4258D0` with selected club. That initializer generates 13 user-name pairs and invokes FIRST `0x614080` queue drain at `0x4259B5`.
+5. On return, `0x413C5B` binds the manager through `0x426090`. Later TeamSelect invokes the SECOND `0x614080` drain at `0x412F1F`, then creates six staff. **The new human is already registered at BOTH drains** (subject to source user allocation success and no intervening list removal).
+
+This means the `0x417360` predicate for source event `0x409353 RNG(5)` *could* pass during the first user's setup IF a queued object references that newly controlled club, the event producer's simulation criteria are met and it runs before/during the drain. It is wrong to argue that “the human list must still be empty throughout initial TeamSelect.” It was initially empty, but `0x413C44` populated it before the first queue callback. Conversely this does not make the event **mandatory** at first click: neither the producer `0x619EB0` nor a live queued event of its concrete class is source-established there.
+
+Original registration sequence is source-proven by direct x86 static disassembly; no proprietary bytes committed or original process launched. Reproduce `0x413BB0..0x413C87`, `0x4258D0..0x4259C1`, `0x412EF0..0x412F26` and `0x417360..0x41736C`.
+
+### Recovery563 exact startup CRT anchor, with source-only native regression check
+
+Original startup directly calls `0x50D390` to initialize original data at `0x53108D`. Subsequently it calls `0x66A767` to obtain the original time/seed and **`0x66950F`** (srand) at `0x53109E`. The startup then calls `0x619F70` at `0x5310EB` before `0x531400` for application setup. **`0x619F70` is an allocation/precalculation routine, distinct from producer-containing `0x619EB0`; the former makes no direct calls to `0x64D540`, `0x66951C`, `0x66950F` within `0x619F70..0x61A0D1`.** This proves a starting seed-owner boundary and excludes one falsely suspected *direct* RNG source, but not any other intervening startup consumer.
+
+A fresh local automated original-binary static audit on authenticated SHA256 bytes reported **PASS** for the direct function chain (0x4172A0 -> 0x417360 -> 0x4037B0 -> 0x4139E0/0x4139F0), the guarded producer `0x41AAE0`, source CRT seed `0x53109E`, and separate initial `0x5310EB` precompute. Source direct-call xref counts independently checked as EXACTLY ONE each: `0x41AAF1: call 0x409240`, `0x619F56: call 0x41AAE0`, `0x5310EB: call 0x619F70`. The audit did **not** execute the original EXE or the feature-branch Python tests.
+
+**Remaining exact blocker:** determine original event class membership and timing when the new DBRUser has already been inserted but the name and six staff constructors have not completed, at `0x4259B5` and `0x412F1F`, including source cross-queue callbacks and manager binding. Then faithfully implement the same CRT lifecycle and actual PSupportStart UI/list Cancel/Apply from original evidence; Gates13–17 remain OPEN.
