@@ -531,6 +531,31 @@ def main(path: str) -> None:
     print("PASS 413BB0 user append and 413DB0 indexed deselect ownership")
     print("WARNING payload destructor's transitive staff/RNG effects unproven")
 
+    # Registered-user payload destructor 0x424FC0 explicitly sets staff
+    # list owner flags 1,1,0 then walks all three lists via 0x4145A0.
+    # Each list node is always freed; staff payload destructed ONLY when
+    # that list's owner flag is set and node has non-null payload.
+    native_deselected_human_staff_destructor_edges = (
+        ("425000", "mov    DWORD PTR [eax],0x1"),
+        ("42500c", "mov    DWORD PTR [ebx],0x1"),
+        ("425016", "mov    DWORD PTR [eax],0x0"),
+        ("425319", "call   0x4145a0"),
+        ("42532f", "call   0x4145a0"),
+        ("425346", "call   0x4145a0"),
+        ("4145b7", "cmp    DWORD PTR [ebx],0x0"),
+        ("4145c4", "call   0x4ca630"),
+        ("4145ca", "call   0x686fe3"),
+        ("4145d6", "call   0x686fe3"),
+        ("4d1892", "cmp    DWORD PTR [esi],0x0"),
+        ("4d189f", "call   0x4ca630"),
+    )
+    for address, expected in native_deselected_human_staff_destructor_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original user/staff ownership changed",address))
+    print("PASS original DBRUser destructor inactive/current staff-list flags 1/1/0")
+    print("PASS original 4145A0 frees nodes and conditionally destroys staff")
+    print("WARNING global staff list and other transitive cleanup remain unresolved")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
