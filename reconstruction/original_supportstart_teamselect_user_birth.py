@@ -9,7 +9,7 @@ This module composes the independently recovered DIRECT draw components
 against ONE caller-owned, already-positioned shared CRT instance.
 
 Neither a new seed nor an alternate RNG stream is ever introduced.
-The complete original seed-to-click checkpoint, indirect constructor draws,
+The complete original seed-to-click checkpoint, other indirect constructor draws,
 user registration/rollback, staff list pointer writes, actual editor mouse
 acceptance and Windows GUI remain separate, unresolved integration work.
 Do not call this a full native user constructor or wire it to GameState
@@ -30,6 +30,12 @@ from original_supportstart_teamselect_staff_rng import (
     SourceOriginalTeamSelectStaffRngReceipt,
     replay_original_teamselect_staff_crt_draws,
 )
+from original_first_human_nested_random import (
+    NESTED_BOUNDED_RNG_BOUND,
+    OriginalNestedRandomBranchProjection,
+    OriginalNestedRandomSourceError,
+    project_original_first_human_nested_random,
+)
 from original_supportstart_user_creation_rng import (
     SourceOriginalUserBirthNameReceipt,
     consume_original_user_birth_name_pairs,
@@ -48,6 +54,9 @@ class SourceOriginalTeamSelectUserBirthReceipt:
     selection_context: int
     birth_names: SourceOriginalUserBirthNameReceipt
     staff: tuple[SourceOriginalTeamSelectStaffRngReceipt, ...]
+    # Additional SOURCE-QUALIFIED 0x60CE70 constructor calls. This is not
+    # evidence that the full original stream has been reconciled.
+    nested_user_source_rng_call_count: int = 0
 
     @property
     def direct_source_rng_call_count(self) -> int:
@@ -56,6 +65,11 @@ class SourceOriginalTeamSelectUserBirthReceipt:
             self.birth_names.direct_source_rng_call_count
             + sum(item.direct_source_rng_call_count for item in self.staff)
         )
+
+    @property
+    def modeled_source_rng_call_count(self) -> int:
+        """Partial source subtree count, not original full startup parity."""
+        return self.direct_source_rng_call_count + self.nested_user_source_rng_call_count
 
 
 def replay_original_teamselect_user_birth_direct_rng(
@@ -69,6 +83,7 @@ def replay_original_teamselect_user_birth_direct_rng(
     selection_context: int,
     require_shipped_club_count: bool = True,
     acknowledge_omitted_native_event_and_binder_effects: bool = False,
+    source_nested_user_allocations: OriginalNestedRandomBranchProjection | None = None,
 ) -> SourceOriginalTeamSelectUserBirthReceipt:
     """Replay source 13 name pairs and six staff on ONE shared CRT.
 
@@ -81,6 +96,12 @@ def replay_original_teamselect_user_birth_direct_rng(
     original CRT unexpectedly fails DURING a draw, the caller must treat
     its whole process state as unqualified; there is no fake rollback
     of the original random stream.
+
+    Optional source_nested_user_allocations projects verified conditional
+    0x425B2C/0x60CE70 constructor draws from one caller-owned shared CRT,
+    AFTER the 26 name draws and BEFORE the six staff constructors.
+    Its caller-supplied success flags are hypothetical, NOT observed native
+    allocations. The actual first queue drain precedes these draws.
 
     **STRICT INTEGRATION GUARD:** Source original has TWO 0x947AA8 event
     queue drains and a manager-binder between 13 names and six staff.
@@ -100,6 +121,22 @@ def replay_original_teamselect_user_birth_direct_rng(
         )
     if not callable(getattr(rng, "randbelow", None)):
         raise OriginalTeamSelectUserBirthError("Require caller-owned shared CRT")
+    if source_nested_user_allocations is not None:
+        if type(source_nested_user_allocations) is not OriginalNestedRandomBranchProjection:
+            raise OriginalTeamSelectUserBirthError(
+                "Nested user draw model requires source-qualified constructor branches"
+            )
+        try:
+            expected = project_original_first_human_nested_random(
+                outer_allocation_succeeded=source_nested_user_allocations.outer_allocation_succeeded,
+                child_allocations_succeeded=source_nested_user_allocations.child_allocations_succeeded,
+            )
+        except OriginalNestedRandomSourceError as exc:
+            raise OriginalTeamSelectUserBirthError(str(exc)) from exc
+        if source_nested_user_allocations != expected:
+            raise OriginalTeamSelectUserBirthError(
+                "Nested source receipt fields or live checkpoint cannot be forged"
+            )
     if type(selected_club_id) is not int or selected_club_id < 0:
         raise OriginalTeamSelectUserBirthError("Invalid original clicked club ID")
     if type(original_clubs) is not tuple or type(original_players) is not tuple:
@@ -167,6 +204,17 @@ def replay_original_teamselect_user_birth_direct_rng(
     birth_names = consume_original_user_birth_name_pairs(
         rng, original_players, name_route
     )
+    # Original 0x4259B5 global queue drain occurs BETWEEN these draws.
+    # Its native callbacks are omitted by the explicit TEST-ONLY guard.
+    # 0x425B2C -> 0x60CE70 occurs AFTER names, BEFORE manager binder
+    # and before the second original global queue drain 0x412F1F.
+    # Each source-successful child calls 0x60CD90 -> bounded rand(20)
+    # exactly once. No generated nested-record value is invented here.
+    nested_draws = 0
+    if source_nested_user_allocations is not None:
+        for _ in source_nested_user_allocations.reached_child_constructor_sites:
+            rng.randbelow(NESTED_BOUNDED_RNG_BOUND)
+            nested_draws += 1
     staff = tuple(
         replay_original_teamselect_staff_crt_draws(
             rng,
@@ -185,4 +233,5 @@ def replay_original_teamselect_user_birth_direct_rng(
         selection_context=selection_context,
         birth_names=birth_names,
         staff=staff,
+        nested_user_source_rng_call_count=nested_draws,
     )
