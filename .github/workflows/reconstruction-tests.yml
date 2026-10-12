@@ -45,6 +45,8 @@ on:
       - "reconstruction/test_support_staff.py"
       - "reconstruction/original_supportstart_pointer_observation.py"
       - "reconstruction/test_original_supportstart_pointer_observation.py"
+      - "reconstruction/original_first_human_nested_random.py"
+      - "reconstruction/test_original_first_human_nested_random.py"
       - "reconstruction/original_teamselect_queue_lifecycle.py"
       - "reconstruction/test_original_teamselect_queue_lifecycle.py"
       - "reconstruction/original_supportstart_input.py"

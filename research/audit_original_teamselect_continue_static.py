@@ -1020,6 +1020,333 @@ def main(path: str) -> None:
     print("PASS literal-zero first-human binder branch and bounded lookup callees")
     print("WARNING binder pointer effects and dynamic original queue still unproven")
 
+    # Recovery572 exact native DBRUser 0x4258D0 direct CALL inventory.
+    # No direct queue-enqueue 0x613EC0 or bounded CRT 0x64D540,
+    # but transitive queued callbacks/random may still execute.
+    first_human_initialization_callsites_572 = (
+        ("4258f8", 0x42c400),
+        ("4259b5", 0x614080),
+        ("4259c0", 0x5cf830),
+        ("4259f0", 0x42ca60),
+        ("4259f6", 0x686fe3),
+        ("425a03", 0x668140),
+        ("425a22", 0x5e43b0),
+        ("425a44", 0x5dc400),
+        ("425a7e", 0x42ca60),
+        ("425a84", 0x686fe3),
+        ("425a91", 0x668140),
+        ("425ab5", 0x5e43b0),
+        ("425ad7", 0x5dc400),
+        ("425b02", 0x42ca60),
+        ("425b08", 0x686fe3),
+        ("425b12", 0x668140),
+        ("425b2c", 0x60ce70),
+        ("425b4a", 0x686fe3),
+        ("425b57", 0x668140),
+        ("425b7e", 0x425fd0),
+        ("425ba0", 0x425f90),
+        ("425bc2", 0x686fe3),
+        ("425bcc", 0x668140),
+        ("425c0c", 0x686fe3),
+        ("425c1f", 0x686fe3),
+        ("425c2c", 0x668140),
+        ("425c46", 0x5ded10),
+        ("425c75", 0x412dd0),
+        ("425c8f", 0x412dd0),
+        ("425c95", 0x686fe3),
+        ("425ca4", 0x668140),
+        ("425cd4", 0x412dd0),
+        ("425d07", 0x42ca60),
+        ("425d0d", 0x686fe3),
+        ("425d17", 0x668140),
+        ("425d59", 0x42ca60),
+        ("425d64", 0x412dd0),
+        ("425d6a", 0x686fe3),
+        ("425d74", 0x668140),
+        ("425da1", 0x686fe3),
+        ("425dab", 0x668140),
+        ("425def", 0x686fe3),
+        ("425df9", 0x668140),
+        ("425e39", 0x425ff0),
+        ("425e46", 0x40eaa0),
+        ("425e53", 0x40eaa0),
+        ("425e59", 0x686fe3),
+        ("425e66", 0x668140),
+        ("425e81", 0x65cb20),
+        ("425efc", 0x42c7e0),
+        ("425f12", 0x42c890),
+        ("425f28", 0x42c950),
+        ("425f3e", 0x42c950),
+        ("425f54", 0x42c950),
+    )
+    original_user_calls = tuple(
+        (m.group(1),int(m.group(2),16))
+        for line in listing.splitlines()
+        if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+        and 0x4258d0 <= int(m.group(1),16) < 0x425f8d
+    )
+    if original_user_calls != first_human_initialization_callsites_572:
+        raise AssertionError(("Original user post-queue direct-call frontier changed",
+                              original_user_calls))
+    if sum(v == 0x613ec0 for _,v in original_user_calls) != 0:
+        raise AssertionError("Unexpected direct global queue enqueue in DBRUser body")
+    if sum(v == 0x64d540 for _,v in original_user_calls) != 0:
+        raise AssertionError("Unexpected direct bounded CRT draw in DBRUser body")
+    if "xor    eax,eax" not in instruction("6596a0") or (
+        "ret" not in instruction("6596a2")
+    ):
+        raise AssertionError("Native mode-default 0x6596A0 stub has changed")
+    print("PASS all 54 DBRUser full 0x4258D0..0x425F8C direct CALL sites")
+    print("WARNING indirect first-human event producers and CRT still UNKNOWN")
+
+    # Recovery573: bounded first-user helpers, source-address+call-target
+    # inventory, to avoid confusing CRT free 0x66953E with RAND 0x66951C.
+    # This proves only DIRECT calls in the bounded functions.
+    source_first_human_postqueue_cleanup_573 = (
+        (0x425f90, 0x425fd0, ((0x425fa5, 0x5e4e90),)),
+        (0x425fd0, 0x425ff0, ()),
+        (0x425ff0, 0x426050, ((0x42600f, 0x66953e), (0x42602d, 0x66953e),)),
+        (0x5cf830, 0x5cf840, ((0x5cf838, 0x42c9f0),)),
+        (0x42c9f0, 0x42ca60, ((0x42ca19, 0x686fe3), (0x42ca25, 0x686fe3),)),
+        (0x5e4e90, 0x5e5000, ((0x5e4ede, 0x667e90), (0x5e4eec, 0x667e90), (0x5e4efd, 0x667e90), (0x5e4f0e, 0x667e90), (0x5e4f22, 0x667e90), (0x5e4f33, 0x667e90), (0x5e4f44, 0x667e90), (0x5e4f55, 0x667e90), (0x5e4f69, 0x667e90), (0x5e4f7a, 0x667e90), (0x5e4f9e, 0x667fa7), (0x5e4fac, 0x667fa7), (0x5e4fbd, 0x667fa7), (0x5e4fce, 0x667fa7), (0x5e4fe2, 0x667fa7), (0x5e4ff3, 0x667fa7),)),
+    )
+    for start,stop,expected in source_first_human_postqueue_cleanup_573:
+        recovered = tuple(
+            (int(m.group(1),16), int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if recovered != expected:
+            raise AssertionError(("Original first-user helper source changed",
+                                  hex(start), recovered))
+    for address,expected in (
+        ("425f95","mov    ebx,0x8"),
+        ("425faa","add    esi,0x168"),
+        ("425fb1","jne    0x425fa3"),
+        ("425fd5","mov    DWORD PTR [eax+0x160],ecx"),
+        ("425fdb","mov    DWORD PTR [eax+0x164],ecx"),
+        ("425ff3","mov    eax,DWORD PTR [esi+0x14]"),
+        ("42600f","call   0x66953e"),
+        ("42602d","call   0x66953e"),
+        ("5cf838","call   0x42c9f0"),
+        ("42ca19","call   0x686fe3"),
+        ("42ca25","call   0x686fe3"),
+        ("66951c","call   0x66d553"),
+        ("669524","imul   ecx,ecx,0x343fd"),
+        ("66952a","add    ecx,0x269ec3"),
+        ("66953d","ret"),
+        ("66953e","push   ebp"),
+    ):
+        if expected not in instruction(address):
+            raise AssertionError(("Original CRT/free helper ambiguity changed",address))
+    print("PASS six bounded native first-user helper call inventories")
+    print("PASS native raw RAND 0x66951C distinct from CRT heap helper 0x66953E")
+    print("WARNING transitive event/heap callbacks and source queue heads unknown")
+
+    # Recovery573 constant native mode helper 0x6596A0 selects case0,
+    # NOT a random draw. Both 5DED10 and nested 5E4300 have mode tables.
+    source_fixed_mode_constructor_table_573 = (
+        ("5ded8f", "call   0x6596a0"),
+        ("5ded94", "cmp    eax,0x4"),
+        ("5ded9d", "jmp    DWORD PTR [eax*4+0x5df340]"),
+        ("5deda4", "push   0x0"),
+        ("5deda8", "push   0x412e8480"),
+        ("5dedb3", "call   0x5e43b0"),
+        ("5dedd9", "jmp    0x5dee47"),
+        ("5dee47", "call   0x5e48d0"),
+        ("5e4313", "call   0x6596a0"),
+        ("5e431d", "jmp    DWORD PTR [eax*4+0x5e4390]"),
+        ("6596a0", "xor    eax,eax"),
+        ("6596a2", "ret"),
+    )
+    for a,t in source_fixed_mode_constructor_table_573:
+        if t not in instruction(a):
+            raise AssertionError(("Original mode0 constructor dispatch moved",a))
+    for table,targets in (
+        (0x5df340,(0x5deda4,0x5deddb,0x5deda4,0x5dee12,0x5deddb)),
+        (0x5e4390,(0x5e4324,0x5e4339,0x5e434e,0x5e4363,0x5e4378)),
+    ):
+        actual = tuple(struct.unpack_from("<I",binary,table-0x400000+4*i)[0]
+                       for i in range(5))
+        if actual != targets:
+            raise AssertionError(("Original native mode jump table moved",hex(table)))
+    print("PASS fixed zero-mode 0x6596A0 selects real 5DED10/5E4300 case0")
+    print("WARNING subsequent case0 descendants and indirect owners need audit")
+
+    # Recovery573: five FULL first-user initializer tail callees.
+    # Each is list teardown with possible nested array destructor
+    # callback (0x42C780 -> 0x66820D), not an original user event queue.
+    source_user_suffix_list_destroyers_573 = (
+        (0x42c7e0, 0x42c850, ((0x42c804, 0x42c780), (0x42c80a, 0x686fe3), (0x42c816, 0x686fe3),)),
+        (0x42c890, 0x42c900, ((0x42c8b3, 0x686fe3), (0x42c8bf, 0x686fe3),)),
+        (0x42c950, 0x42c9c0, ((0x42c974, 0x42c900), (0x42c97a, 0x686fe3), (0x42c986, 0x686fe3),)),
+        (0x42c780, 0x42c7e0, ((0x42c7b8, 0x66820d),)),
+        (0x42c900, 0x42c910, ()),
+    )
+    for start,stop,expected in source_user_suffix_list_destroyers_573:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Original DBRUser suffix list cleanup changed",
+                                  hex(start),have))
+    for addr,expected in (
+        ("42c804","call   0x42c780"),
+        ("42c7b8","call   0x66820d"),
+        ("42c8b3","call   0x686fe3"),
+        ("42c974","call   0x42c900"),
+        ("42c900","mov    DWORD PTR [ecx],0x7be170"),
+    ):
+        if expected not in instruction(addr):
+            raise AssertionError(("Original first-user suffix ownership changed",addr))
+    print("PASS five original DBRUser suffix destroyer direct-call ranges")
+    print("WARNING nested 0x66820D destructor callbacks remain dynamic")
+
+    # Recovery573: 0x42C780 array destructor callback is the exact
+    # 0x667D30 RET stub, invoked 3 x 0x18 records through 0x66820D.
+    # On this bounded call site, the callback has zero instructions
+    # with side effects, so no indirect queue or game CRT draw there.
+    source_user_array_destructor_callback_573 = (
+        ("42c7a3","push   0x667d30"),
+        ("42c7a8","push   0x3"),
+        ("42c7ad","push   0x18"),
+        ("42c7b8","call   0x66820d"),
+        ("66824f","call   DWORD PTR [ebp+0x14]"),
+        ("667d30","ret"),
+    )
+    for addr,expected in source_user_array_destructor_callback_573:
+        if expected not in instruction(addr):
+            raise AssertionError(("Original no-op array destructor moved",addr))
+    print("PASS 3-element first-human suffix destructor uses exact no-op callback")
+
+    # Recovery574: three allocation-dependent nested calls to source
+    # 0x60CD90; each invokes 0x64D540(20) -> original CRT rand once.
+    # 0x60D0E0 and 0x60D5A0 are distinct functions, not this ctor!
+    original_nested_constructor_source_574 = (
+        ("425b12", "call   0x668140"),
+        ("425b28", "je     0x425b33"),
+        ("425b2c", "call   0x60ce70"),
+        ("60ceb7", "call   0x668140"),
+        ("60cecc", "je     0x60cf33"),
+        ("60cf2a", "call   0x60cd90"),
+        ("60cf52", "call   0x668140"),
+        ("60cf67", "je     0x60cfcf"),
+        ("60cfc6", "call   0x60cd90"),
+        ("60cfee", "call   0x668140"),
+        ("60d003", "je     0x60d06b"),
+        ("60d062", "call   0x60cd90"),
+        ("60ce10", "push   0x14"),
+        ("60ce38", "call   0x64d540"),
+        ("64d541", "call   0x66951c"),
+        ("60ce98", "call   0x60cbb0"),
+        ("60cbbc", "ret"),
+        ("60d0a5", "ret"),
+    )
+    for address,expected in original_nested_constructor_source_574:
+        if expected not in instruction(address):
+            raise AssertionError(("Native nested ctor allocation/RNG moved",address))
+    nested_ctor_calls_574 = (
+        (0x60ce70,0x60d0a6,((0x60ce98,0x60cbb0), (0x60ceb7,0x668140), (0x60ceeb,0x5e43b0), (0x60cef2,0x5e48d0), (0x60cf0c,0x5e43b0), (0x60cf13,0x5e48d0), (0x60cf2a,0x60cd90), (0x60cf3b,0x668140), (0x60cf48,0x617d70), (0x60cf52,0x668140), (0x60cf87,0x5e43b0), (0x60cf8e,0x5e48d0), (0x60cfa8,0x5e43b0), (0x60cfaf,0x5e48d0), (0x60cfc6,0x60cd90), (0x60cfd7,0x668140), (0x60cfe4,0x617d70), (0x60cfee,0x668140), (0x60d023,0x5e43b0), (0x60d02a,0x5e48d0), (0x60d044,0x5e43b0), (0x60d04b,0x5e48d0), (0x60d062,0x60cd90), (0x60d073,0x668140), (0x60d080,0x617d70))),
+        (0x60cd90,0x60ce60,((0x60cdcf,0x64ccd0), (0x60cde2,0x64ccd0), (0x60ce38,0x64d540))),
+        (0x60cbb0,0x60cbbd,()),
+        (0x64d540,0x64d55f,((0x64d541,0x66951c), (0x64d558,0x668350))),
+    )
+    for start,stop,expected in nested_ctor_calls_574:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Native nested ctor direct calls moved",
+                                  hex(start),have))
+    print("PASS original 3 conditional nested first-human RNG call sites")
+    print("WARNING actual allocations, full shared CRT and queues unobserved")
+
+    # Recovery574: 0x425A44 / 0x425AD7 construct numeric container
+    # 0x5DC400. This completely bounded DIRECT call graph only
+    # reaches three signed DIV 0x66A518, six 0x5E4300 mode stubs
+    # selecting 0x6596A0 constant0, and four no-call value setters.
+    source_first_human_numeric_container_574 = (
+        (0x5dc400, 0x5dc505, ((0x5dc45a,0x64ccd0), (0x5dc464,0x5e42e0), (0x5dc46e,0x5e42e0), (0x5dc476,0x5e42e0), (0x5dc480,0x5e42e0), (0x5dc488,0x5e42e0), (0x5dc490,0x5e42e0), (0x5dc4ad,0x5e4410), (0x5dc4c1,0x5e4410), (0x5dc4cf,0x5e4410), (0x5dc4dd,0x5e4410))),
+        (0x64ccd0, 0x64cda0, ((0x64cd23,0x66a518), (0x64cd46,0x66a518), (0x64cd78,0x66a518))),
+        (0x5e42e0, 0x5e4300, ((0x5e42ed,0x5e4300),)),
+        (0x5e4300, 0x5e4390, ((0x5e4313,0x6596a0),)),
+        (0x5e4410, 0x5e4480, ()),
+        (0x66a518, 0x66a536, ()),
+    )
+    for start,stop,expected in source_first_human_numeric_container_574:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Numeric user ctor direct-call graph moved",hex(start),have))
+    print("PASS numeric first-user 0x5DC400 nested no-direct-CRT constructor graph")
+
+    # Recovery574 last first-user source 0x425E81->0x65CB20
+    # ->0x65D270 conditionally ->0x65D0E0 list-pointer insertion.
+    # This bounded source graph has NO direct 0x64D540/0x66951C
+    # nor global queue producer; conditional and nested memory calls
+    # still need provenance before full user startup claims.
+    original_first_human_secondary_container_574 = (
+        (0x65cb20,0x65cd04,((0x65ccea,0x65d270),)),
+        (0x65d270,0x65d3ec,((0x65d2b1,0x66953e), (0x65d2d4,0x66953e), (0x65d301,0x40f080), (0x65d30a,0x679d7c), (0x65d32d,0x40eaa0), (0x65d33c,0x40eaa0), (0x65d353,0x40eaa0), (0x65d35b,0x40f090), (0x65d3a2,0x669bd1), (0x65d3da,0x65d0e0))),
+        (0x65d0e0,0x65d138,((0x65d0e3,0x65cd80), (0x65d0f6,0x669bd1), (0x65d10c,0x6698a9))),
+        (0x65cd80,0x65cda5,()),
+    )
+    for start,stop,expected in original_first_human_secondary_container_574:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Original secondary user constructor moved",hex(start),have))
+    for address,expected in (
+        ("425e7f","mov    ecx,eax"),
+        ("425e81","call   0x65cb20"),
+        ("65ccea","call   0x65d270"),
+        ("65d391","test   eax,eax"),
+        ("65d393","je     0x65d3df"),
+        ("65d3da","call   0x65d0e0"),
+        ("65d0e3","call   0x65cd80"),
+        ("65d10c","call   0x6698a9"),
+    ):
+        if expected not in instruction(address):
+            raise AssertionError(("Original user pointer registration branch moved",address))
+    print("PASS source secondary user pointer container and conditional append")
+    print("WARNING actual user pointer event and allocator side effects unresolved")
+
+    # Recovery575 complete direct source cross-references to disambiguate
+    # the separately-owned RNG-heavy helper from first-user constructor.
+    original_native_rng_rich_caller_sets_575 = (
+        (0x60ce70, (0x425b2c, 0x427594)),
+        (0x60cd90, (0x60cf2a, 0x60cfc6, 0x60d062)),
+        (0x60d0e0, (0x5121ba,)),
+        (0x60d5a0, (0x60d1d0, 0x60d204, 0x60d24c)),
+    )
+    for target, expected in original_native_rng_rich_caller_sets_575:
+        observed = tuple(
+            int(match.group(1), 16) for line in listing.splitlines()
+            if (match := re.match(
+                r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x" + format(target, "x") + r"$",
+                line.strip()
+            ))
+        )
+        if observed != expected:
+            raise AssertionError(("Original native direct call owner changed",
+                                  hex(target), observed))
+    print("PASS original nested user versus later RNG-heavy direct callers")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
