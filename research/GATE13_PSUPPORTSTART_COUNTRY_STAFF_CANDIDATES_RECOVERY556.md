@@ -92,3 +92,21 @@ The previously listed source-owner address `0x876C48` is the original **competit
 Reproduce by disassembling `0x50D443..0x50D4D0`, `0x4F7020..0x4F7042`, `0x40F760..0x40F8B3`; raw read `.rdata` at `0x7C9C94..0x7C9CC4`. Verify the authenticated original `Static.dat` 193 records at `0x2726`, each 53 bytes; next u32 at `0x4F1F` is 1053. No original bytes copied into Git.
 
 **Next action:** inspect the existing runtime competition initialization and original `0x4F7380` to establish actual active club-country competition candidate membership from existing `FM2001Database.competitions`, then source-reconcile `0x4CB2B0` conditional counts and RNG. Do not add extra direct shared RNG calls until exact startup ordering and actual selections are proven. Continue actual seven-row PSupportStart modal/TeamSelect source interaction; Gate13–17 remain OPEN.
+
+
+## Recovery556: root-competition qualification and native comparator mapped onto existing parser fields
+
+Direct source evidence proves which original competitions enter each country vector during **initial** `0x4F7380` construction. `0x4F70E0` maps serialized competition parent reference (expanded record+0x08) into an instantiated source parent pointer, using NULL when original `-1`. The shared constructor `0x4F3BE0` writes **that actual parent pointer to runtime object+0x04** (`0x4F3BFF`) and stores **negative** source signed WORD+0x16 as runtime object+0x18 (`0x4F3C20..0x4F3C26`). Native `0x4F7380` at `0x4F746E` and `0x4F7512` includes **only object+0x04==0**: those are **root competitions**, not a generic dynamic “active flag.”
+
+The country index producer `0x4F8FF0` follows runtime object+0x20 to the 0x40-byte original competition definition and reads definition+0x24, which derives from **Static.dat record+27** and is already represented by `CompetitionDefinition.country_region_id`. On root objects, the native +0x48 list contains **kind1 leagues (including special ID27) and kind3 dummy leagues**, excluding kind2 cups. The native comparator `0x4F79D0` places tag1 before tag3, then compares runtime object+0x18 descending, which is equivalent to **`CompetitionDefinition.initialization_order_value` ascending**. Native tie comparator returns 0; original `qsort` tie order is not source-proven. Any code that needs one exact pointer index into tied candidates must fail closed until ordering is verified.
+
+With the authenticated ORIGINAL `Static.dat` 193 entries (not synthetic data):
+- **178** root entries: 23 league, 25 cup, 130 dummy league.
+- **153** root league/dummy-league entries are eligible for source country+0x48 candidate vector.
+- These 153 entries span **108** distinct country/region indexes; largest group contains 15.
+- There are **12** country/kind/initialization-order tie groups where pointer order is unqualified (e.g., country33 league order9 has IDs24,83; country116 dummy order0 has 15 IDs).
+- These counts describe the original **fresh sorted input definition stage** and are NOT assertions that all 153 options are relevant to one selected club, original match schedule, all modes or that a particular live staff assignment has been reproduced.
+
+Already parsed `FM2001Database.competitions` has source ID, parent, kind, country and signed initialization order: reuse it. A bounded, source-defined grouping helper can reproduce membership and **strictly ordered non-tied** groups without changing shared RNG or inventing ties. Future actual CSupportStaff +0x5C must still account for dynamic competition membership, user-selected country, original input and calendar state and shared-CRT ownership.
+
+Reproduce: `objdump` native `0x4F70E0..0x4F722C`, `0x4F3BE0..0x4F3C3F`, `0x4F7380..0x4F75AA`, `0x4F79D0..0x4F7A28`, `0x4F8FF0..0x4F900F`. Source original `Static.dat` length 86929, SHA e0ff7c10a5f5f973a87cf6cd2d3770e623071899a0b30378debd0e7d13edb9d8. No original process was executed; no original binary or dataset was committed.
