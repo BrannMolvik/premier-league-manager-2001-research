@@ -18,7 +18,7 @@ class OriginalPMenuPresenterTests(unittest.TestCase):
         live.observe(menu, (600, 155))  # Unselected Stats, not a click.
         before = live.snapshot().rows[2]
         self.assertEqual((before.arrow_state_bits, before.background_state_bits), (10, 10))
-        self.assertEqual((before.selected, before.text_color_16, before.arrow_frame), (False, 0, 0))
+        self.assertEqual((before.selected, before.text_color_16, before.arrow_frame), (False, 0xFFFF, 0))
         for frame in range(1, 11):
             self.assertTrue(live.pending())
             self.assertTrue(live.update())
@@ -38,7 +38,7 @@ class OriginalPMenuPresenterTests(unittest.TestCase):
         live.observe(menu, (600, 96))
         live.update()
         self.assertEqual(live.snapshot().rows[0].arrow_frame, 0)
-        self.assertEqual(live.snapshot().rows[0].background_state_bits, 0x800A)
+        self.assertEqual(live.snapshot().rows[0].background_state_bits, 0xA)
         live.observe(menu, (600, 299))  # Transfers title.
         for _ in range(10):
             live.update()
@@ -131,14 +131,14 @@ class OriginalPMenuPresenterTests(unittest.TestCase):
             ),
         )
         self.assertEqual(snapshot.rows[0].text_line_origin, (30, 1))
-        self.assertEqual(snapshot.rows[1].text_line_origin, (30, 46))
+        self.assertEqual(snapshot.rows[1].text_line_origin, (42, 34))
         self.assertEqual(snapshot.rows[0].text_clip_rect, (30, 0, 198, 29))
         self.assertEqual(snapshot.rows[1].text_clip_rect, (30, 29, 198, 58))
         self.assertEqual(snapshot.rows[0].text_color_16, 0xFFFF)
-        self.assertEqual(snapshot.rows[0].background_state_bits, 0x8002)
-        self.assertEqual(snapshot.rows[1].text_color_16, 0xFFFF)
+        self.assertEqual(snapshot.rows[0].background_state_bits, 0x2)
+        self.assertEqual(snapshot.rows[1].text_color_16, 0x0000)
         self.assertEqual(snapshot.rows[1].background_state_bits, 0x8002)
-        self.assertEqual(snapshot.rows[2].text_color_16, 0x0000)
+        self.assertEqual(snapshot.rows[2].text_color_16, 0xFFFF)
         self.assertEqual(snapshot.rows[2].background_state_bits, 0x2)
         self.assertEqual(len(snapshot.resource_source_paths), 4)
         self.assertTrue(snapshot.rows[0].arrow_source_path.endswith("menu_arrow_anim.444"))

@@ -134,8 +134,8 @@ PMENU_CHILD_TEXT_LAYOUT = OriginalPMenuTextLayout(
     font_path_literal_va=0x839E30,
     font_load_call_va=0x6044F4,
     control_rect=(30, 0, 168, 29),
-    signed_offset=(0, 12),
-    line_origin=(30, 17),
+    signed_offset=(12, 0),
+    line_origin=(42, 5),
     clip_rect=(30, 0, 198, 29),
 )
 PMENU_ROW_TEXT_LAYOUTS = (PMENU_TITLE_TEXT_LAYOUT, PMENU_CHILD_TEXT_LAYOUT)
@@ -159,8 +159,8 @@ def pmenu_static_row_state(
     The row factory passes node bit 0 through vtable slot +0x4c and the inverse
     of node bit 1 through +0x58. Title +0x4c updates only its arrow; child
     +0x4c updates both arrow and background. Both constructors initialize the
-    background's bit 15 set. Text color method 0x6529F0 selects white when that
-    background bit remains set and black otherwise.
+    background with bit 15 clear (6528D0 argument 7 is zero). Text color
+    method 0x6529F0 selects +0x46 black when set, +0x44 white otherwise.
     """
     if row_kind not in {"title", "child"}:
         raise OriginalPMenuChromeError("PMenu row kind must be title or child")
@@ -170,14 +170,14 @@ def pmenu_static_row_state(
     selected_bit = PMENU_STATE_BIT_15 if selected else 0
     arrow_bits = enabled_bit | selected_bit
     background_bits = (
-        enabled_bit | PMENU_STATE_BIT_15
+        enabled_bit
         if row_kind == "title"
         else arrow_bits
     )
     return OriginalPMenuStaticRowState(
         arrow_state_bits=arrow_bits,
         background_state_bits=background_bits,
-        text_color_16=(0xFFFF if background_bits & PMENU_STATE_BIT_15 else 0x0000),
+        text_color_16=(0x0000 if background_bits & PMENU_STATE_BIT_15 else 0xFFFF),
     )
 
 # PTitleMenuRow::0x47A7E0 and PChildMenuRow::0x47A990 build the same

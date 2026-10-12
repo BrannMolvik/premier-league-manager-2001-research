@@ -1,5 +1,7 @@
 """Regressions for source-backed PMenu menu chrome and topology."""
 from pathlib import Path
+from importlib.util import find_spec
+import os
 import tempfile
 import unittest
 from original_pmenu_chrome import (
@@ -138,7 +140,8 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.control_rect, (30, 0, 168, 29))
         self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.control_rect, (30, 0, 168, 29))
         self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.line_origin, (30, 1))
-        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.line_origin, (30, 17))
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.signed_offset, (12, 0))
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.line_origin, (42, 5))
         self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.clip_rect, (30, 0, 198, 29))
         self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.clip_rect, (30, 0, 198, 29))
 
@@ -150,19 +153,19 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         selected_title = pmenu_static_row_state("title", selected=True)
         child = pmenu_static_row_state("child", selected=False)
         selected_child = pmenu_static_row_state("child", selected=True)
-        self.assertEqual((title.arrow_state_bits, title.background_state_bits), (0x2, 0x8002))
+        self.assertEqual((title.arrow_state_bits, title.background_state_bits), (0x2, 0x2))
         self.assertEqual(
             (selected_title.arrow_state_bits, selected_title.background_state_bits),
-            (0x8002, 0x8002),
+            (0x8002, 0x2),
         )
         self.assertEqual(title.text_color_16, 0xFFFF)
         self.assertEqual((child.arrow_state_bits, child.background_state_bits), (0x2, 0x2))
-        self.assertEqual(child.text_color_16, 0x0000)
+        self.assertEqual(child.text_color_16, 0xFFFF)
         self.assertEqual(
             (selected_child.arrow_state_bits, selected_child.background_state_bits),
             (0x8002, 0x8002),
         )
-        self.assertEqual(selected_child.text_color_16, 0xFFFF)
+        self.assertEqual(selected_child.text_color_16, 0x0000)
         with self.assertRaises(OriginalPMenuChromeError):
             pmenu_static_row_state("other", selected=False)
 
@@ -400,6 +403,43 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalPMenuChromeError):
                     main_english_global_va(bad)
+
+
+class OriginalPMenuNativeCalibrationTests(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE') and find_spec('capstone'),
+                         'Licensed original and optional Capstone required')
+    def test_constructor_forwarding_offsets_and_color_branch_against_original(self):
+        from capstone import Cs, CS_ARCH_X86, CS_MODE_32
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        # parse() rejects any executable other than the canonical hash. These
+        # semantic landmarks guard the prior erroneous argument-slot reading.
+        decoder = Cs(CS_ARCH_X86, CS_MODE_32)
+        facts = (
+            (0x47A8F5, 'push', '0'),       # title A9 (Y)
+            (0x47A8F7, 'push', '0'),       # title A8 (X)
+            (0x47A8F9, 'push', '0'),       # title A7 (selection)
+            (0x47AAA5, 'push', '0'),       # child A9 (Y)
+            (0x47AAA7, 'push', '0xc'),     # child A8 (X)
+            (0x47AAA9, 'push', '0'),       # child A7 (selection)
+            (0x65290C, 'call', '0x651e30'),
+            (0x651E88, 'ret', '0x2c'),     # forwarded 11 args, not all 12
+            (0x652911, 'mov', 'eax, dword ptr [esp + 0x20]'),  # original A7
+            (0x65291A, 'call', 'dword ptr [edx + 0xb0]'),
+            (0x651E7F, 'mov', 'word ptr [esi + 0x40], ax'),   # X=A8
+            (0x651E83, 'mov', 'word ptr [esi + 0x42], cx'),   # Y=A9
+            (0x652120, 'movsx', 'edx, word ptr [esi + 0x40]'),
+            (0x652134, 'movsx', 'ebx, word ptr [esi + 0x42]'),
+            (0x6529FC, 'mov', 'ax, word ptr [esi + 0x46]'),   # selected=A11
+            (0x652A02, 'mov', 'ax, word ptr [esi + 0x44]'),   # normal=A10
+        )
+        for va, mnemonic, operands in facts:
+            with self.subTest(va=hex(va)):
+                instruction = next(decoder.disasm(pe.read(va, 15), va))
+                self.assertEqual((instruction.mnemonic, instruction.op_str), (mnemonic, operands))
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.signed_offset, (12, 0))
+        self.assertEqual(pmenu_static_row_state('title', selected=True).background_state_bits, 2)
+        self.assertEqual(pmenu_static_row_state('child', selected=True).text_color_16, 0)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,13 @@
 
 _Date: 2 October 2026 KST_
 
+**Correction, 12 October 2026:** the Recovery 177/179 argument-slot reading
+below was wrong. The constructor wrapper `0x6528D0` omits argument 7 when
+forwarding to `0x651E30`, then uses that argument for selection. The corrected
+offsets, colors and initial state below supersede those earlier claims.
+See [the independent menu/Inbox audit](GATE13_ORIGINAL_MENU_INBOX_FUNCTIONALITY_AUDIT.md)
+for the complete forwarding receipt and interaction boundaries.
+
 This note records the first source-bound management-shell chrome after the
 fresh-game route recovered in `GATE13_MANAGEMENT_SHELL_ROUTE.md`.
 
@@ -44,20 +51,20 @@ This corrects the earlier provisional use of the CMenuList-family bold font.
 | Row | Font object | Static loader call | Exact font | Native line height | Stored offset | Local line origin |
 | --- | ---: | ---: | --- | ---: | ---: | ---: |
 | title | `0x8A3550` | `0x6045F6` | `Fonts/Zurich_XCn_BT_25pixel.fnt` | 26 | `(0,0)` | `(30,1)` |
-| child | `0x8CAB80` | `0x6044F4` | `Fonts/Zurich_XCn_BT_16pixel.fnt` | 18 | `(0,12)` | `(30,17)` |
+| child | `0x8CAB80` | `0x6044F4` | `Fonts/Zurich_XCn_BT_16pixel.fnt` | 18 | `(12,0)` | `(42,5)` |
 
 Both row constructors pass raw style `0x2001`, whose effective font style is
 `0x21`. Bit 0 preserves the left origin. With neither vertical edge bit set,
 the renderer adds `trunc(29/2) - trunc(line_height/2)`, producing the `+1`
 title and `+5` child centering terms shown above. The child constructor's
-stored `+12` is then applied exactly; it is not normalized away.
+stored `+12` is a horizontal inset (`+0x40`), not a vertical offset (`+0x42`).
 
 The background control begins at local `(30,0)`, has source-proven size
 `168x29`, and supplies the half-open text clip `(30,0)-(198,29)`. Each glyph's
 own `draw_y` is added after the line origin, then the glyph rectangle is
-clipped against that control rectangle. The reconstruction now preserves
-these intentionally low/clipped child-label coordinates rather than making a
-visual correction.
+clipped against that control rectangle. The earlier claim that child labels
+were intentionally low/clipped was a consequence of the incorrect argument
+mapping, not original behavior.
 
 The two authorized font files were exact-path selected from the canonical
 ZIP and imported byte-identically:
@@ -74,18 +81,18 @@ Recovery 179 followed `CMenuList::0x4823A0` after construction. Node flag bit
 passed through `+0x58`. Slot `+0x58` toggles control bit `0x2` on both the
 arrow and background. Title slot `+0x4C` (`0x4825E0`) sets bit `0x8000` only
 on its arrow, while child slot `+0x4C` (`0x482700`) sets it on both. Both row
-constructors initially set the background's `0x8000` bit.
+constructors initially clear the background's `0x8000` bit (argument 7 is zero).
 
 Consequently, for ordinary enabled stationary rows:
 
-- a title background is `0x8002` and its label is white whether or not that
+- a title background is `0x0002` and its label is white whether or not that
   root is expanded; only the title arrow reflects expansion;
-- an unselected child background is `0x0002` with black text;
-- the selected child background is `0x8002` with white text.
+- an unselected child background is `0x0002` with white text;
+- the selected child background is `0x8002` with black text.
 
 The color selection is direct: `0x6529F0` calls `0x652F80`, which tests bit
-`0x8000`, then returns the row's `+0x46` white value when set or `+0x44`
-black value otherwise. No visual naming is assigned to the atlas frames.
+`0x8000`, then returns the row's `+0x46` black value when set or `+0x44`
+white value otherwise. No visual naming is assigned to the atlas frames.
 
 ## Exact original row resources
 
