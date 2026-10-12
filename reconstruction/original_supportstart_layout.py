@@ -98,3 +98,50 @@ def original_supportstart_row_anchors() -> tuple[SourceSupportStartRowAnchor, ..
         )
         for i in range(SOURCE_SUPPORTSTART_ROW_COUNT)
     )
+
+
+def original_supportstart_native_modal_origin(
+    *, viewport_size: tuple[int, int],
+) -> tuple[int, int]:
+    """Original 0x450C37..0x450C86 native viewport-relative 760x500 window.
+
+    The actual source reads width from 0x8779C0 and height from
+    0x8779C4. No viewport is hardcoded and these layout coordinates
+    do NOT establish native pointer-hit geometry.
+    """
+    if (type(viewport_size) is not tuple or len(viewport_size) != 2
+            or any(type(value) is not int or not 0 < value <= 0x7fffffff
+                   for value in viewport_size)):
+        raise ValueError("Require authentic positive signed-32-bit viewport dimensions")
+    width, height = viewport_size
+    x = width if width < 20 else width - 760 if width >= 780 else 20
+    y = height if height < 50 else height - 500 if height >= 550 else 50
+    return (x, y)
+
+
+def original_supportstart_row_native_screen_rect(
+    index: int, *, viewport_size: tuple[int, int],
+) -> tuple[int, int, int, int]:
+    """Translate authentic modal-local row bounds, NOT interactive hits."""
+    if type(index) is not int or not 0 <= index < SOURCE_SUPPORTSTART_ROW_COUNT:
+        raise ValueError("Expected genuine native PSupportStart row index 0..6")
+    x, y = original_supportstart_native_modal_origin(viewport_size=viewport_size)
+    local = original_supportstart_row_anchors()[index].source_layout_rect
+    return (x + local[0], y + local[1], local[2], local[3])
+
+
+def original_supportstart_action_native_screen_rect(
+    native_event: int, *, viewport_size: tuple[int, int],
+) -> tuple[int, int, int, int]:
+    """Original exit/tick source rectangle translated, NOT pointer hit."""
+    if type(native_event) is not int:
+        raise ValueError("Native SupportStart action must be integer")
+    action = next(
+        (a for a in original_supportstart_action_children()
+         if a.native_event == native_event), None
+    )
+    if action is None:
+        raise ValueError("Only original event1 Exit and event2 Apply")
+    x, y = original_supportstart_native_modal_origin(viewport_size=viewport_size)
+    a, b, w, h = action.source_layout_rect
+    return (x + a, y + b, w, h)

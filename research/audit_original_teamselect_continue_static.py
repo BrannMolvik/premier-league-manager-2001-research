@@ -648,6 +648,34 @@ def main(path: str) -> None:
             raise AssertionError(("Native row input callback setter vft changed",hex(vtable_va)))
     print("PASS parent and all five child callback/context binding; hit callback opaque")
 
+    # Native 0x450C37..0x450C86 determines modal origin from actual
+    # viewport globals, not a hardcoded 800x600 or centered layout.
+    source_modal_native_viewport_instructions = (
+        ("450c12", "mov    eax,ds:0x8779c0"),
+        ("450c17", "mov    ecx,DWORD PTR ds:0x8779c4"),
+        ("450c3c", "cmp    eax,0x14"),
+        ("450c3f", "jge    0x450c45"),
+        ("450c41", "mov    ecx,eax"),
+        ("450c45", "cmp    eax,0x30c"),
+        ("450c4a", "lea    ecx,[eax-0x2f8]"),
+        ("450c50", "jge    0x450c57"),
+        ("450c52", "mov    ecx,0x14"),
+        ("450c57", "mov    eax,ds:0x8779c4"),
+        ("450c5c", "cmp    eax,0x32"),
+        ("450c5f", "jl     0x450c74"),
+        ("450c61", "cmp    eax,0x226"),
+        ("450c66", "jl     0x450c6f"),
+        ("450c68", "add    eax,0xfffffe0c"),
+        ("450c6f", "mov    eax,0x32"),
+        ("450c78", "push   0x1f4"),
+        ("450c7d", "push   0x2f8"),
+        ("450c86", "call   0x653320"),
+    )
+    for address, expected in source_modal_native_viewport_instructions:
+        if expected not in instruction(address):
+            raise AssertionError(("Original SupportStart viewport origin changed",address))
+    print("PASS original PSupportStart conditional viewport-relative modal origin")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
