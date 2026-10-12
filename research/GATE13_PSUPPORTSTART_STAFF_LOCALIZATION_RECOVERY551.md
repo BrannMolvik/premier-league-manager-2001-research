@@ -86,3 +86,53 @@ producer and the exceptional string pointer `0x9821E4`,
 then bind source-qualified row labels and real staff names into
 the seven-row original editor. UI mouse/hit route and
 TeamSelect source record registry/persistence remain unresolved.
+
+
+## Recovery551 follow-up: native case13 independently SOURCE CLOSED
+
+The original exception `0x4CDD3E` reads global `0x9821E4`
+instead of adjacent Support `0x982A74`.
+Source initializer `0x64A312` loads exactly that global
+via `0x64E320`, from a 2-byte English.idx position
+read with original `0x667E90`. Independent
+static PE call-order audit between the already
+confirmed case1-global initialization at
+`0x6458B7` and case13 exceptional global
+initialization at `0x64A317` counts **561**
+sequential `0x64E320` locale lookups,
+inclusive. The first is original English.idx
+position **1877**, hence the last is
+`1877+560 = 2437`.
+
+Raw separately SHA-256 verified
+`FM2001/English.idx` entry **2437** points
+to original `FM2001/English.str` text
+**'Physiotherapist'**. Additional neighboring
+entries corroborate the count: entry2436 is
+"Writer's player of the year", entry2438 is
+"Sleet"; adjacent globals `0x9821E8`
+and `0x9821E0` are initialized
+immediately before/after `0x9821E4`.
+This source pointer and indexed-byte
+proof supersedes the initial UNKNOWN case13.
+
+The native `0x4CDCD0` 16-case label contract
+is now **fully source-qualified**:
+case13="Physiotherapist"; the nearby
+`English.idx` entry1889="MASSEUR"
+is **not** the same native case13 pointer.
+`reconstruction/original_supportstart_staff_labels.py`
+and tests now cover all sixteen without invented
+fallbacks. This is native label-ordinal proof;
+mapping an original generated staff instance's
+virtual+0x14/type field to that ordinal still
+needs independent source evidence and GUI
+acceptance remains outstanding.
+
+Reproduction:
+```bash
+objdump -D -Mintel --start-address=0x64a2d0 --stop-address=0x64a33d footballmanager.exe
+objdump -D -Mintel --start-address=0x4cdd30 --stop-address=0x4cdd61 footballmanager.exe
+# Count native 0x64E320 calls inclusive 0x6458B7..0x64A317:
+objdump -D -Mintel --start-address=0x6458b0 --stop-address=0x64a330 footballmanager.exe
+```

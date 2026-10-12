@@ -2,8 +2,8 @@
 
 Native 0x4CDCD0 accepts 1..16, branches via jump table 0x4CDD84,
 and reads string pointer globals initialized at 0x6458B0..0x645AF9.
-Native ordinal 13 instead reads separate 0x9821E4 (not the contiguous
-Support text family), so it is UNKNOWN until that source is qualified.
+Native ordinal 13 reads separate 0x9821E4, source independently resolved
+from English.idx position 2437: 'Physiotherapist'.
 
 This is the 0x4CDCD0 label-ordinal contract. It is NOT proof of the
 CSupportStaff virtual+0x14 ordinal for any particular generated staff,
@@ -18,6 +18,7 @@ from ea_language_strings import EAStringIndex, EAStringTable
 # The source role-label CASE is separate from the staff object type.
 SOURCE_NATIVE_STAFF_LABEL_INDEX = {
     **{ordinal: 1876 + ordinal for ordinal in range(1, 13)},
+    13: 2437,
     14: 1890,
     15: 1893,
     16: 1894,
@@ -30,8 +31,9 @@ def original_supportstart_native_staff_label(
 ) -> str | None:
     """Resolve verified original string for native 0x4CDCD0 case 1..16.
 
-    Return None if the original case uses a different global or if caller
-    lacks a proven ordinal. Do not silently guess the source text.
+    The exceptional case13 uses 0x9821E4, but its independent index2437
+    resolves to the shipped 'Physiotherapist' string; do not substitute
+    the adjacent Support/Masseur string. Unknown ordinals return None.
     """
     if type(native_label_case) is not int:
         raise TypeError("Require the original native 0x4CDCD0 label ordinal")

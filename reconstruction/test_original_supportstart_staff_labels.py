@@ -31,6 +31,7 @@ class OriginalSupportStaffSourceLabelTests(unittest.TestCase):
             10: "DEFENSIVE COACH",
             11: "MIDFIELD COACH",
             12: "ATTACKING COACH",
+            13: "Physiotherapist",
             14: "DOCTOR",
             15: "TALENT SCOUT",
             16: "SCOUT",
@@ -45,9 +46,12 @@ class OriginalSupportStaffSourceLabelTests(unittest.TestCase):
                     label,
                 )
 
-    def test_native_special_label_13_and_out_of_range_do_not_borrow_nearby_roles(self):
+    def test_native_special_label_13_uses_distinct_original_resource_and_unknown_cases_fail_closed(self):
         self.assertEqual(SOURCE_NATIVE_STAFF_SPECIAL_CASE_13_GLOBAL, 0x9821E4)
-        for ordinal in (-10, 0, 13, 17, 99):
+        self.assertEqual(SOURCE_NATIVE_STAFF_LABEL_INDEX[13], 2437)
+        self.assertEqual(original_supportstart_native_staff_label(
+            13, self.strings, self.indices), "Physiotherapist")
+        for ordinal in (-10, 0, 17, 99):
             with self.subTest(ordinal=ordinal):
                 self.assertIsNone(original_supportstart_native_staff_label(
                     ordinal, self.strings, self.indices))
