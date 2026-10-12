@@ -36,6 +36,8 @@ class SourceSupportStartActionChild:
     native_event: int
     object_owner_offset: int
     animation_wrapper_address: int
+    # Verified visual native local bounds, not mouse hit proof.
+    source_layout_rect: tuple[int, int, int, int]
     result_byte_after_native_handler: int
     invokes_full_original_apply: bool
 
@@ -45,12 +47,12 @@ def original_supportstart_action_children() -> tuple[SourceSupportStartActionChi
 
     Native 0x4D05E0 event1 sets +0x1DE4=0 without apply; event2 calls
     virtual+0x4C 0x4D0830 (staff + names commit), then returns byte 1.
-    This exposes the original owner path only; button locations/labels and
-    full staff transactions are not reconstructed.
+    This exposes exact original visual client rectangles only. Button hit masks,
+    parent transforms, hover states and live Apply remain unresolved.
     """
     return (
-        SourceSupportStartActionChild(1, 0x1EB8, 0x946190, 0, False),
-        SourceSupportStartActionChild(2, 0x1F08, 0x946150, 1, True),
+        SourceSupportStartActionChild(1, 0x1EB8, 0x946190, (729, 1, 30, 30), 0, False),
+        SourceSupportStartActionChild(2, 0x1F08, 0x946150, (697, 1, 30, 30), 1, True),
     )
 
 
@@ -95,4 +97,92 @@ def original_supportstart_row_anchors() -> tuple[SourceSupportStartRowAnchor, ..
             native_group_index=SOURCE_SUPPORTSTART_CHILD_GROUP_FIRST_INDEX + i,
         )
         for i in range(SOURCE_SUPPORTSTART_ROW_COUNT)
+    )
+
+
+def original_supportstart_native_modal_origin(
+    *, viewport_size: tuple[int, int],
+) -> tuple[int, int]:
+    """Original 0x450C37..0x450C86 native viewport-relative 760x500 window.
+
+    The actual source reads width from 0x8779C0 and height from
+    0x8779C4. No viewport is hardcoded and these layout coordinates
+    do NOT establish native pointer-hit geometry.
+    """
+    if (type(viewport_size) is not tuple or len(viewport_size) != 2
+            or any(type(value) is not int or not 0 < value <= 0x7fffffff
+                   for value in viewport_size)):
+        raise ValueError("Require authentic positive signed-32-bit viewport dimensions")
+    width, height = viewport_size
+    x = width if width < 20 else width - 760 if width >= 780 else 20
+    y = height if height < 50 else height - 500 if height >= 550 else 50
+    return (x, y)
+
+
+def original_supportstart_row_native_screen_rect(
+    index: int, *, viewport_size: tuple[int, int],
+) -> tuple[int, int, int, int]:
+    """Translate authentic modal-local row bounds, NOT interactive hits."""
+    if type(index) is not int or not 0 <= index < SOURCE_SUPPORTSTART_ROW_COUNT:
+        raise ValueError("Expected genuine native PSupportStart row index 0..6")
+    x, y = original_supportstart_native_modal_origin(viewport_size=viewport_size)
+    local = original_supportstart_row_anchors()[index].source_layout_rect
+    return (x + local[0], y + local[1], local[2], local[3])
+
+
+def original_supportstart_action_native_screen_rect(
+    native_event: int, *, viewport_size: tuple[int, int],
+) -> tuple[int, int, int, int]:
+    """Original exit/tick source rectangle translated, NOT pointer hit."""
+    if type(native_event) is not int:
+        raise ValueError("Native SupportStart action must be integer")
+    action = next(
+        (a for a in original_supportstart_action_children()
+         if a.native_event == native_event), None
+    )
+    if action is None:
+        raise ValueError("Only original event1 Exit and event2 Apply")
+    x, y = original_supportstart_native_modal_origin(viewport_size=viewport_size)
+    a, b, w, h = action.source_layout_rect
+    return (x + a, y + b, w, h)
+
+
+def original_supportstart_native_row_window_event_candidate(
+    index: int,
+    *,
+    source_screen_point: tuple[int, int],
+    viewport_size: tuple[int, int],
+    native_row_control_dword: int,
+) -> bool:
+    """Source 0x653480 native window CHILD prefilter, not accepted click.
+
+    Original modal local point = native screen point - modal owner x/y.
+    0x6534C7 requires child control bit0 (enabled), followed by
+    half-open rectangle: min_x<=x<max_x and min_y<=y<max_y.
+    Only then does 0x6534EA dispatch row virtual+0x6C with arg2=1;
+    actual 0x5D4790 parent/child callbacks may STILL reject input.
+
+    IMPORTANT: 0x6534AD invokes window vft+0x10 BEFORE any child
+    rectangle test. Caller must supply its resulting POST-callback
+    control DWORD and genuine source-native event pixel, not pre-dispatch
+    state or an arbitrary Tk mouse rectangle. Real root/row object
+    identity must likewise come from upstream event routing.
+    Source blank staff rows can pass THIS geometric prefilter,
+    yet their own 0x64F7A0 bit1 acceptance gate rejects the event.
+    """
+    if (type(source_screen_point) is not tuple or len(source_screen_point) != 2
+            or any(type(v) is not int or not -0x80000000 <= v <= 0x7fffffff
+                   for v in source_screen_point)):
+        raise ValueError("Native window event requires exact signed x/y point")
+    if (type(native_row_control_dword) is not int
+            or not 0 <= native_row_control_dword <= 0xffffffff):
+        raise ValueError("Native row control state must be DWORD")
+    x,y,w,h = original_supportstart_row_native_screen_rect(
+        index, viewport_size=viewport_size
+    )
+    px,py = source_screen_point
+    return bool(
+        (native_row_control_dword & 0x0001)
+        and x <= px < x + w
+        and y <= py < y + h
     )

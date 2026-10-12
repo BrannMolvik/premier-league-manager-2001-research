@@ -15,12 +15,15 @@ from dataclasses import dataclass, replace
 from original_human_user_name import OriginalHumanUserName
 from original_supportstart_input import (
     OriginalSupportStartRowBitState,
+    OriginalSupportStartRowNativeDispatchObservation,
+    OriginalSupportStartNativeReleaseObservation,
     original_supportstart_initial_seven_rows,
     original_supportstart_row_native_event,
 )
 from original_supportstart_staff_lists import (
     OriginalSupportStartLinkedLists,
     OriginalSupportStartProjectedApply,
+    project_original_supportstart_first_human_modal_entry,
     project_original_supportstart_staff_apply,
 )
 from support_staff import OriginalSupportStartSourceSlot
@@ -48,6 +51,9 @@ class OriginalSupportStartEditorProjection:
 
     original_user: OriginalHumanUserName
     source_slots: tuple[OriginalSupportStartSourceSlot, ...]
+    # Supplied state is an already source-qualified snapshot at modal entry.
+    # On the normal first human path, 0x4DA4F0 stages staff BEFORE the modal;
+    # it is not permission to recreate the pre-staging lists on Cancel.
     prior_staff_lists: OriginalSupportStartLinkedLists
     rows: tuple[OriginalSupportStartRowBitState, ...]
     draft_first_name: str
@@ -73,6 +79,33 @@ class OriginalSupportStartEditorProjection:
             rows=rows,
             draft_first_name=original_user.first_name,
             draft_surname=original_user.surname,
+        )
+
+    @classmethod
+    def open_initial_first_human_modal(
+        cls,
+        *,
+        original_user: OriginalHumanUserName,
+        source_slots: tuple[OriginalSupportStartSourceSlot, ...],
+        before_native_staging: OriginalSupportStartLinkedLists,
+    ) -> "OriginalSupportStartEditorProjection":
+        """Compose source first-human staff staging BEFORE modal construction.
+
+        The original 0x4D8F7F -> 0x4DA4F0 performs the list transfer
+        before 0x4D9224 -> 0x450BB0 opens the editor. This bounded
+        factory requires the original six pointers, native owner flags
+        already reset and an explicit genuine user; it does not create
+        users, advance shared CRT, post native messages, or open Tk.
+        """
+        if type(original_user) is not OriginalHumanUserName:
+            raise TypeError("Require original source-registered human")
+        staged = project_original_supportstart_first_human_modal_entry(
+            source_slots=source_slots, before=before_native_staging
+        )
+        return cls.open(
+            original_user=original_user,
+            source_slots=source_slots,
+            prior_staff_lists=staged,
         )
 
     def original_source_role_labels(self, strings, indices) -> tuple[str | None, ...]:
@@ -102,6 +135,60 @@ class OriginalSupportStartEditorProjection:
         replace(self.original_user, first_name=first_name, surname=surname)
         return replace(self, draft_first_name=first_name, draft_surname=surname)
 
+    def with_observed_native_row_input(
+        self,
+        index: int,
+        observation: OriginalSupportStartRowNativeDispatchObservation,
+    ) -> "OriginalSupportStartEditorProjection":
+        """Advance source row after real 0x5D6270 accepted event observation.
+
+        Use observed parent-first + child OR results, including native
+        pressed bit0x10 BEFORE virtual+0x98 toggles bit15. Never resolve
+        a Tk coordinate or infer a hit result from a source rectangle.
+        Source row object identity must be supplied by the native event owner;
+        matching bitsets for multiple staff rows are not object identity.
+        Stale, different-row, or empty-row accepted observations fail
+        closed, and original selected-user/apply state stays unchanged
+        until the verified modal event2 commit.
+        """
+        if type(index) is not int or not 0 <= index < 7:
+            raise ValueError("Require original source row index 0..6")
+        if type(observation) is not OriginalSupportStartRowNativeDispatchObservation:
+            raise TypeError("Require source-qualified native dispatch observation")
+        if observation.source_row_index != index:
+            raise ValueError("Original native row identity missing or mismatched")
+        if observation.source_row_before != self.rows[index]:
+            raise ValueError("Native callback observation does not match current row state")
+        if self.source_slots[index].staff is None and observation.native_handler_accepted:
+            raise ValueError("Original disabled staff row cannot accept native input")
+        changed = list(self.rows)
+        changed[index] = observation.source_after_row_bit15_toggle
+        return replace(self, rows=tuple(changed))
+
+    def with_observed_native_row_release(
+        self,
+        index: int,
+        release: OriginalSupportStartNativeReleaseObservation,
+    ) -> "OriginalSupportStartEditorProjection":
+        """Preserve original separate WM_LBUTTONUP through row vft+0x70.
+
+        This only follows a release independently observed at original
+        MyWindow+0x14 and bound to the correct source row object.
+        It is not a synthetic release fired on mouse-down or a Tk event.
+        Native row bit15 (current selection) must survive mouse-up.
+        """
+        if type(index) is not int or not 0 <= index < 7:
+            raise ValueError("Require original source row index0..6")
+        if type(release) is not OriginalSupportStartNativeReleaseObservation:
+            raise TypeError("Require source-qualified native release observation")
+        if release.source_row_index != index:
+            raise ValueError("Original native release row identity mismatch")
+        if release.source_row_before != self.rows[index]:
+            raise ValueError("Stale native row release state")
+        updated = list(self.rows)
+        updated[index] = release.source_row_after
+        return replace(self, rows=tuple(updated))
+
     def with_native_row_event(
         self, index: int, *, accepted_by_native_gate: bool
     ) -> "OriginalSupportStartEditorProjection":
@@ -126,6 +213,9 @@ class OriginalSupportStartEditorProjection:
         if type(native_event) is not int or native_event not in (1, 2):
             raise ValueError("Only source Exit(event1) and Tick(event2) close this modal")
         if native_event == 1:
+            # Source event1 skips Apply. Preserve only the caller-supplied
+            # modal-entry snapshot; native teardown/outer event follow-on
+            # still requires separate verification. No synthetic rollback.
             return OriginalSupportStartCloseProjection(
                 0, self.original_user, self.prior_staff_lists,
                 tuple(slot.original_selected_byte for slot in self.source_slots),

@@ -100,6 +100,194 @@ def original_supportstart_row_native_event(
     )
 
 
+@dataclass(frozen=True)
+class OriginalSupportStartRowNativeDispatchObservation:
+    """Exact source call order, with caller-observed callback results only.
+
+    Parent virtual+0x6C runs when the second native event argument is
+    nonnull. It is allowed to accept the row WITHOUT any eligible child.
+    Children are still iterated after parent acceptance; if the parent
+    rejects, 0x5D4790 RETURNS EARLY without visiting any child.
+    """
+    parent_invoked: bool
+    parent_accepted: bool | None
+    invoked_child_indices: tuple[int, ...]
+    observed_child_acceptances: tuple[bool, ...]
+    early_parent_reject: bool
+    native_handler_accepted: bool
+    source_row_before: OriginalSupportStartRowBitState
+    # Original native selector identity supplied by the owner, never DWORD guesses.
+    source_row_index: int | None
+    source_post_virtual_gate_row: OriginalSupportStartRowBitState
+
+    @property
+    def source_after_row_bit15_toggle(self) -> OriginalSupportStartRowBitState:
+        """0x5D6270: after all accepted source +0x6C calls, flip bit15.
+
+        The earlier accepted 0x64F7A0 calls source virtual+0x1C(1),
+        setting state bit0x10 on the *accepted* native control.
+        Then 0x5D6270 calls row virtual+0x98 only for nonzero result.
+        Does not model optional opaque input/global callbacks.
+        """
+        return original_supportstart_row_native_event(
+            self.source_post_virtual_gate_row, self.native_handler_accepted
+        )
+
+
+def project_original_supportstart_row_native_dispatch(
+    row: OriginalSupportStartRowBitState,
+    *,
+    native_second_argument_present: bool,
+    observed_parent_acceptance: bool | None,
+    observed_child_acceptances: tuple[bool, ...],
+    source_row_index: int | None = None,
+) -> OriginalSupportStartRowNativeDispatchObservation:
+    """Source 0x5D6270 -> 0x5D4790 parent/children acceptance order.
+
+    Original 0x5D479B tests whether *second event argument* is nonnull.
+    If so 0x5D47A5 calls 0x64F7A0 on the PARENT. A false return at
+    0x5D47AC exits immediately, regardless of child state. A true
+    parent result is ORed with child vft+0x6C results at 0x5D47EB.
+    Crucially, parent alone may accept: child candidates are NOT
+    necessary for row toggle. Native 0x5D6270 toggles bit15 when the
+    final 0x5D4790 result is nonzero.
+
+    Source 0x5D47CA requires registered child flag bit0x04, then
+    0x64F570 requires child state bit0. Every such child has its
+    virtual+0x6C invoked, even if its base 0x64F7A0 state bits
+    (bit1 set / bit0x10 clear) require it to return 0. External
+    +0x24 hit-object callbacks remain UNKNOWN. Results here are
+    caller observations, not invented physical mouse acceptance,
+    side-effect execution, source CRT draws, or gameplay mutations.
+    Optional `source_row_index` must be supplied by the actual native
+    row owner, not inferred from equal DWORD values or mouse geometry.
+    The returned source-post-virtual-gate DWORDs project ONLY the direct
+    vft+0x1C(1) state bit0x10 set in accepted parent/children; additional
+    source callback state mutations must be qualified separately.
+    """
+    if type(row) is not OriginalSupportStartRowBitState:
+        raise TypeError("Require exact original five-child row state")
+    if source_row_index is not None and (
+        type(source_row_index) is not int or not 0 <= source_row_index < 7
+    ):
+        raise ValueError("Native selector row index must be a source-owned 0..6 identity")
+    if type(native_second_argument_present) is not bool:
+        raise TypeError("Native event-pointer presence requires Boolean")
+    if type(observed_child_acceptances) is not tuple or any(
+        type(x) is not bool for x in observed_child_acceptances
+    ):
+        raise TypeError("Each actual native child callback return requires Boolean")
+    if native_second_argument_present:
+        if type(observed_parent_acceptance) is not bool:
+            raise TypeError("Native parent callback result must be explicit")
+        if observed_parent_acceptance and (
+            not row.parent & 0x0002 or row.parent & 0x0010
+        ):
+            raise ValueError("Parent cannot accept with original base control gate closed")
+        if not observed_parent_acceptance:
+            if observed_child_acceptances:
+                raise ValueError("Native parent rejection short-circuits all children")
+            return OriginalSupportStartRowNativeDispatchObservation(
+                True, False, (), (), True, False, row, source_row_index, row
+            )
+    elif observed_parent_acceptance is not None:
+        raise ValueError("Native parent cannot report result when not invoked")
+    invoked = tuple(
+        i for i, (registration, control) in enumerate(
+            zip(ORIGINAL_ROW_REGISTRATION_FLAGS, row.children)
+        )
+        if registration & ORIGINAL_ROW_CHILD_INPUT_FLAG and control & 0x0001
+    )
+    if len(observed_child_acceptances) != len(invoked):
+        raise ValueError("Exactly one explicit callback result per invoked child required")
+    for index, accepted in zip(invoked, observed_child_acceptances):
+        control = row.children[index]
+        if accepted and (not control & 0x0002 or control & 0x0010):
+            raise ValueError("Original child cannot accept with bit1 clear or bit4 set")
+    # 0x64F7A0 on acceptance invokes native vft+0x1C(1) ->
+    # 0x64F470 -> 0x64F710; this sets control DWORD bit0x10.
+    # The first row vft+0x98 bit15 toggle happens only AFTER this.
+    child_bits = list(row.children)
+    for index, accepted in zip(invoked, observed_child_acceptances):
+        if accepted:
+            child_bits[index] |= 0x0010
+    post_gate = OriginalSupportStartRowBitState(
+        row.parent | (0x0010 if observed_parent_acceptance is True else 0),
+        tuple(child_bits),
+    )
+    return OriginalSupportStartRowNativeDispatchObservation(
+        native_second_argument_present, observed_parent_acceptance,
+        invoked, observed_child_acceptances, False,
+        (observed_parent_acceptance is True or any(observed_child_acceptances)),
+        row, source_row_index, post_gate,
+    )
+
+
+@dataclass(frozen=True)
+class OriginalSupportStartNativeReleaseObservation:
+    """One source-qualified original WM_LBUTTONUP release for a known row.
+
+    Native 0x653C40 visits ALL windows, 0x653510 all registered children.
+    Row virtual+0x70 -> 0x5D4800 invokes 0x64F860 on the parent, then
+    eligible child3/4 vft+0x70 when their bit0 is set. Every such
+    0x64F860 invokes vft+0x1C(0) -> 0x64F470 -> 0x64F750.
+    This only projects source DWORD bit0x10; other native callbacks
+    and resource/hover redraw side effects are not simulated.
+    """
+    source_row_index: int
+    source_row_before: OriginalSupportStartRowBitState
+    source_row_after: OriginalSupportStartRowBitState
+    invoked_child_indices: tuple[int, ...]
+    source_parent_was_pressed: bool
+    source_child_was_pressed: tuple[bool, ...]
+
+
+def project_original_supportstart_native_row_release(
+    row: OriginalSupportStartRowBitState,
+    *,
+    source_row_index: int,
+    observed_original_release_for_row: bool,
+) -> OriginalSupportStartNativeReleaseObservation:
+    """Native vft+0x70 row release, NOT an automatic mouse-up simulation.
+
+    Caller must independently establish that a real MyWindow WM202
+    delivered through 0x5326A0/0x653C40/0x653510 to THIS native row.
+    Native row+0x70 0x5D4800 always tries parent 0x64F860, and
+    iterates child registrations whose original flags include bit0x04
+    and whose control state has enabled bit0. It clears bit0x10 on
+    pressed parent/eligible children, leaving bit15 and all other
+    bits unchanged. No screen rectangle test runs on this release path.
+    """
+    if type(row) is not OriginalSupportStartRowBitState:
+        raise TypeError("Require source five-child row")
+    if type(source_row_index) is not int or not 0 <= source_row_index < 7:
+        raise ValueError("Native selector identity 0..6 required")
+    if type(observed_original_release_for_row) is not bool:
+        raise TypeError("Original release dispatch must be explicitly observed")
+    if not observed_original_release_for_row:
+        raise ValueError("Do not synthesize an unobserved native release")
+    invoked = tuple(
+        i for i, (registration, control) in enumerate(
+            zip(ORIGINAL_ROW_REGISTRATION_FLAGS, row.children)
+        )
+        if registration & ORIGINAL_ROW_CHILD_INPUT_FLAG and control & 0x0001
+    )
+    children = list(row.children)
+    was_pressed = tuple(bool(children[i] & 0x10) for i in invoked)
+    for i in invoked:
+        children[i] &= ~0x10
+    return OriginalSupportStartNativeReleaseObservation(
+        source_row_index=source_row_index,
+        source_row_before=row,
+        source_row_after=OriginalSupportStartRowBitState(
+            row.parent & ~0x10, tuple(children)
+        ),
+        invoked_child_indices=invoked,
+        source_parent_was_pressed=bool(row.parent & 0x10),
+        source_child_was_pressed=was_pressed,
+    )
+
+
 def original_supportstart_fifth_child_native_rect(row_index: int) -> tuple[int, int, int, int]:
     """Source fifth child +0x48 native (x,y,w,h), not a proven hit area.
 
@@ -138,14 +326,16 @@ def original_supportstart_teamselect_modal_entry(
 def original_supportstart_source_dispatch_candidates(
     row: OriginalSupportStartRowBitState,
 ) -> tuple[int, ...]:
-    """Necessary native child pre-gates for 0x5D4790, not input acceptance.
+    """Necessary child virtual-acceptance gates, NOT whole-row acceptance.
 
     Source first requires registered child flags bit0x04 and native
     0x64F570 bit0x01; for the actual last two source child vtables,
     virtual+0x6C points to native 0x64F7A0 which additionally requires
     child control bit0x02 set, bit0x10 clear. Subsequent native event
     predicates and parent callback may still reject: returning an index
-    here does NOT establish a mouse hit or accepted row toggle.
+    here does NOT establish a mouse hit or accepted row toggle. Also,
+    0x5D4790 calls the parent FIRST when event argument2 is nonnull;
+    a parent acceptance alone can toggle the row even if this tuple is empty.
     """
     if type(row) is not OriginalSupportStartRowBitState:
         raise TypeError("Require an original row with five child control DWORDs")
@@ -294,3 +484,64 @@ def original_teamselect_native_private_staff_record_address(
     if not 0 <= result <= 0xFFFFFFFF:
         raise ValueError("Source TeamSelect private record address out of DWORD")
     return result
+
+
+@dataclass(frozen=True)
+class OriginalSupportStartRowCallbackContract:
+    """True original modal-owned row selector, NOT a Windows mouse hit."""
+    source_row_index: int
+    source_modal_selector_offset: int
+    original_native_control_event_id: int
+    source_parent_input_callback_va: int
+    source_callback_acceptance_result: int
+    original_parent_dispatch_va: int
+
+
+def original_supportstart_row_callback_contract(
+    index: int,
+) -> OriginalSupportStartRowCallbackContract:
+    """0x4C8014..0x4C825E seven modal-linked native row controls.
+
+    Every row selector receives event ID 8+index via parent vft+0x08,
+    whose final native implementation 0x5D48C0 delegates to 0x64F3C0
+    and binds +0x20=event ID, +0x24=actual PSupportStart owner.
+    Original modal vft+0x0C -> 0x42DE00 returns 1 unconditionally.
+    Source 0x4D05E0's table sends IDs8..14 to generic redraw
+    0x4D0641, NOT original Apply 0x4D0606 or Cancel 0x4D061F.
+
+    Callbacks and IDs are source-qualified only when a real original
+    row object, manager, original Win32 event and input state have
+    already been established. This is NOT permission to assume a hit,
+    state changes from opaque other callbacks, or an original DBRUser.
+    """
+    if type(index) is not int or not 0 <= index < 7:
+        raise ValueError("Require original native row identity index0..6")
+    return OriginalSupportStartRowCallbackContract(
+        source_row_index=index,
+        source_modal_selector_offset=0x2224 + index * 0x4C,
+        original_native_control_event_id=8 + index,
+        source_parent_input_callback_va=0x42DE00,
+        source_callback_acceptance_result=1,
+        original_parent_dispatch_va=0x4D0641,
+    )
+
+
+def original_supportstart_native_modal_event_dispatch_va(event_id: int) -> int:
+    """Exact 0x4D05E0 original event-ID 1..20 compact jump table.
+
+    Event1 is Cancel, event2 Apply, event3 owner vft+0x48;
+    event4..17 use default redraw, 18..20 use 0x4CFA70.
+    No category is assigned beyond native 1..20 here; zero is the
+    separate 0x4D0641 parent-window repaint branch, not a row action.
+    """
+    if type(event_id) is not int or not 1 <= event_id <= 20:
+        raise ValueError("Only original PSupportStart native event IDs 1..20")
+    if event_id == 1:
+        return 0x4D061F
+    if event_id == 2:
+        return 0x4D0606
+    if event_id == 3:
+        return 0x4D0631
+    if event_id >= 18:
+        return 0x4D063A
+    return 0x4D0641

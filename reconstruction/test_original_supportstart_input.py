@@ -10,6 +10,7 @@ from original_supportstart_input import (
     original_supportstart_fifth_child_native_rect,
     original_supportstart_teamselect_modal_entry,
     original_supportstart_source_dispatch_candidates,
+    project_original_supportstart_row_native_dispatch,
     original_supportstart_teamselect_event_outcome,
     original_supportstart_fresh_native_row,
     SOURCE_ORIGINAL_CONTROL_INIT_DWORD,
@@ -94,6 +95,272 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         self.assertEqual(original_supportstart_source_dispatch_candidates(row), (3,))
         with self.assertRaises(TypeError):
             original_supportstart_source_dispatch_candidates(None)
+
+    def test_original_parent_can_accept_row_even_when_no_child_is_eligible(self):
+        # Parent 0x5D47A5 accepts before child virtual+0x6C loop;
+        # accumulator EBP begins as parent result 1.
+        row = OriginalSupportStartRowBitState(
+            0x183, (0x183, 0x183, 0x183, 0x180, 0x180)
+        )
+        self.assertEqual(original_supportstart_source_dispatch_candidates(row), ())
+        result = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=True, observed_child_acceptances=(),
+        )
+        self.assertTrue(result.parent_invoked)
+        self.assertTrue(result.native_handler_accepted)
+        self.assertEqual(result.source_post_virtual_gate_row.parent, 0x193)
+        self.assertEqual(result.invoked_child_indices, ())
+        applied = original_supportstart_row_native_event(
+            row, accepted_by_native_gate=result.native_handler_accepted,
+        )
+        self.assertEqual(applied.stored_staff_selection_byte_if_applied, 0)
+        self.assertEqual(result.source_after_row_bit15_toggle.parent, 0x8193)
+
+    def test_parent_rejection_returns_without_eligible_child_dispatch(self):
+        row = original_supportstart_fresh_native_row()
+        self.assertEqual(original_supportstart_source_dispatch_candidates(row), (3, 4))
+        result = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=False, observed_child_acceptances=(),
+        )
+        self.assertTrue(result.early_parent_reject)
+        self.assertEqual(result.invoked_child_indices, ())
+        self.assertFalse(result.native_handler_accepted)
+        self.assertIs(original_supportstart_row_native_event(row, False), row)
+
+    def test_no_second_event_argument_skips_parent_but_dispatches_children(self):
+        row = original_supportstart_fresh_native_row()
+        result = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=False,
+            observed_parent_acceptance=None, observed_child_acceptances=(False, True),
+        )
+        self.assertFalse(result.parent_invoked)
+        self.assertIsNone(result.parent_accepted)
+        self.assertEqual(result.invoked_child_indices, (3, 4))
+        self.assertTrue(result.native_handler_accepted)
+        self.assertEqual(result.source_post_virtual_gate_row.parent, 0x183)
+        self.assertEqual(result.source_post_virtual_gate_row.children[3], 0x183)
+        self.assertEqual(result.source_post_virtual_gate_row.children[4], 0x193)
+        self.assertEqual(result.source_after_row_bit15_toggle.parent, 0x8183)
+        result2 = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=True, observed_child_acceptances=(False, False),
+        )
+        self.assertTrue(result2.native_handler_accepted)
+        self.assertEqual(result2.invoked_child_indices, (3, 4))
+        self.assertEqual(result2.observed_child_acceptances, (False, False))
+
+    def test_source_empty_row_and_closed_child_flags_cannot_invent_events(self):
+        from original_supportstart_input import original_supportstart_empty_row_after_refresh
+        empty = original_supportstart_empty_row_after_refresh(original_supportstart_fresh_native_row())
+        result = project_original_supportstart_row_native_dispatch(
+            empty, native_second_argument_present=False,
+            observed_parent_acceptance=None, observed_child_acceptances=(False,),
+        )
+        # Empty refresh leaves fourth child bit0 set but clears bit1:
+        # vft+0x6C is invoked and necessarily returns zero.
+        self.assertEqual(result.invoked_child_indices, (3,))
+        self.assertFalse(result.native_handler_accepted)
+        with self.assertRaises(ValueError):
+            project_original_supportstart_row_native_dispatch(
+                empty, native_second_argument_present=True,
+                observed_parent_acceptance=True, observed_child_acceptances=(),
+            )
+        closed = OriginalSupportStartRowBitState(
+            0x183, (0x183, 0x183, 0x183, 0x183, 0x193)
+        )
+        # Both child virtuals are INVOKED if their bit0 is set, but
+        # source 0x64F7A0 rejects the final child whose bit0x10 is set.
+        with self.assertRaises(ValueError):
+            project_original_supportstart_row_native_dispatch(
+                closed, native_second_argument_present=False,
+                observed_parent_acceptance=None, observed_child_acceptances=(False, True),
+            )
+        legal = project_original_supportstart_row_native_dispatch(
+            closed, native_second_argument_present=False,
+            observed_parent_acceptance=None, observed_child_acceptances=(True, False),
+        )
+        self.assertEqual(legal.invoked_child_indices, (3, 4))
+        self.assertTrue(legal.native_handler_accepted)
+
+    def test_native_dispatch_observation_requires_exact_callback_arity(self):
+        row = original_supportstart_fresh_native_row()
+        for kw in (
+            dict(native_second_argument_present=1,
+                 observed_parent_acceptance=None, observed_child_acceptances=(False, False)),
+            dict(native_second_argument_present=True,
+                 observed_parent_acceptance=None, observed_child_acceptances=(False, False)),
+            dict(native_second_argument_present=False,
+                 observed_parent_acceptance=None, observed_child_acceptances=(0, False)),
+        ):
+            with self.subTest(kw=kw), self.assertRaises(TypeError):
+                project_original_supportstart_row_native_dispatch(row, **kw)
+        for kw in (
+            dict(native_second_argument_present=False,
+                 observed_parent_acceptance=False, observed_child_acceptances=(False, False)),
+            dict(native_second_argument_present=False,
+                 observed_parent_acceptance=None, observed_child_acceptances=(True,)),
+            dict(native_second_argument_present=True,
+                 observed_parent_acceptance=False, observed_child_acceptances=(False, False)),
+        ):
+            with self.subTest(kw=kw), self.assertRaises(ValueError):
+                project_original_supportstart_row_native_dispatch(row, **kw)
+
+    def test_native_pressed_bit_blocks_repeated_parent_accept_without_release(self):
+        row = original_supportstart_fresh_native_row()
+        accepted = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False, False),
+        )
+        pressed = accepted.source_after_row_bit15_toggle
+        self.assertEqual(pressed.parent, 0x8193)
+        # 0x64F7B8 source bit0x10 rejects another press until a real
+        # 0x64F860 / vft+0x1C(0) release is observed.
+        with self.assertRaises(ValueError):
+            project_original_supportstart_row_native_dispatch(
+                pressed, native_second_argument_present=True,
+                observed_parent_acceptance=True, observed_child_acceptances=(False, False),
+            )
+        rejected = project_original_supportstart_row_native_dispatch(
+            pressed, native_second_argument_present=True,
+            observed_parent_acceptance=False, observed_child_acceptances=(),
+        )
+        self.assertTrue(rejected.early_parent_reject)
+        self.assertFalse(rejected.native_handler_accepted)
+
+    def test_native_selector_identity_is_not_inferred_from_equal_flags(self):
+        row = original_supportstart_fresh_native_row()
+        bound = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=False,
+            observed_parent_acceptance=None,
+            observed_child_acceptances=(False, False),
+            source_row_index=3,
+        )
+        self.assertEqual(bound.source_row_index, 3)
+        unbound = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=False,
+            observed_parent_acceptance=None,
+            observed_child_acceptances=(False, False),
+        )
+        self.assertIsNone(unbound.source_row_index)
+        for index in (True, -1, 7, 1.0):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                project_original_supportstart_row_native_dispatch(
+                    row, native_second_argument_present=False,
+                    observed_parent_acceptance=None,
+                    observed_child_acceptances=(False, False),
+                    source_row_index=index,
+                )
+
+    def test_true_native_seven_row_callback_identity_and_default_actions(self):
+        from original_supportstart_input import (
+            original_supportstart_row_callback_contract,
+            original_supportstart_native_modal_event_dispatch_va,
+        )
+        identities = tuple(
+            original_supportstart_row_callback_contract(i) for i in range(7)
+        )
+        self.assertEqual(tuple(r.original_native_control_event_id for r in identities),
+                         (8, 9, 10, 11, 12, 13, 14))
+        self.assertEqual(tuple(r.source_modal_selector_offset for r in identities),
+                         tuple(0x2224 + 0x4C*i for i in range(7)))
+        self.assertEqual({r.source_parent_input_callback_va for r in identities},
+                         {0x42DE00})
+        self.assertEqual({r.source_callback_acceptance_result for r in identities},
+                         {1})
+        self.assertEqual({r.original_parent_dispatch_va for r in identities},
+                         {0x4D0641})
+        self.assertEqual(tuple(original_supportstart_native_modal_event_dispatch_va(
+            r.original_native_control_event_id) for r in identities),
+            (0x4D0641,)*7)
+
+    def test_modal_native_cancel_apply_remain_distinct_from_row_control_ids(self):
+        from original_supportstart_input import (
+            original_supportstart_native_modal_event_dispatch_va as dispatch,
+        )
+        self.assertEqual(dispatch(1), 0x4D061F)
+        self.assertEqual(dispatch(2), 0x4D0606)
+        self.assertEqual(dispatch(3), 0x4D0631)
+        self.assertEqual(dispatch(4), 0x4D0641)
+        self.assertEqual(dispatch(17), 0x4D0641)
+        self.assertEqual([dispatch(n) for n in (18,19,20)], [0x4D063A]*3)
+        for event in (0,21,-1,True,1.0,None):
+            with self.subTest(event=event), self.assertRaises(ValueError):
+                dispatch(event)
+        from original_supportstart_input import original_supportstart_row_callback_contract
+        for index in (-1,7,True,None,1.0):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                original_supportstart_row_callback_contract(index)
+
+    def test_original_release_visits_parent_and_both_input_children_without_hit_test(self):
+        from original_supportstart_input import (
+            project_original_supportstart_native_row_release,
+        )
+        row = original_supportstart_fresh_native_row()
+        pressed = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=True,
+            observed_parent_acceptance=True, observed_child_acceptances=(True,True),
+            source_row_index=0,
+        ).source_after_row_bit15_toggle
+        self.assertEqual(pressed.parent, 0x8193)
+        self.assertEqual(pressed.children[3:], (0x193, 0x193))
+        receipt = project_original_supportstart_native_row_release(
+            pressed, source_row_index=0,
+            observed_original_release_for_row=True,
+        )
+        self.assertTrue(receipt.source_parent_was_pressed)
+        self.assertEqual(receipt.invoked_child_indices, (3,4))
+        self.assertEqual(receipt.source_child_was_pressed, (True,True))
+        self.assertEqual(receipt.source_row_after.parent, 0x8183)
+        self.assertEqual(receipt.source_row_after.children[3:], (0x183,0x183))
+        self.assertEqual(receipt.source_row_after.stored_staff_selection_byte_if_applied, 0)
+        # AFTER an actual observed release, a second qualified press may toggle back.
+        second = project_original_supportstart_row_native_dispatch(
+            receipt.source_row_after, native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False,False), source_row_index=0,
+        )
+        self.assertEqual(second.source_after_row_bit15_toggle.parent, 0x193)
+        self.assertEqual(second.source_after_row_bit15_toggle.stored_staff_selection_byte_if_applied, 1)
+
+    def test_source_release_can_skip_unregistered_or_disabled_input_children(self):
+        from original_supportstart_input import (
+            project_original_supportstart_native_row_release,
+            original_supportstart_empty_row_after_refresh,
+        )
+        empty = original_supportstart_empty_row_after_refresh(original_supportstart_fresh_native_row())
+        receipt = project_original_supportstart_native_row_release(
+            empty, source_row_index=6, observed_original_release_for_row=True,
+        )
+        # Input child3 still enabled bit0, child4 disabled: release invokes
+        # parent and child3, but neither had native pressed bit0x10.
+        self.assertEqual(receipt.invoked_child_indices, (3,))
+        self.assertEqual(receipt.source_row_after, empty)
+        self.assertFalse(receipt.source_parent_was_pressed)
+        self.assertEqual(receipt.source_child_was_pressed, (False,))
+
+    def test_native_release_cannot_be_invented_or_rebound_to_wrong_row(self):
+        from original_supportstart_input import project_original_supportstart_native_row_release
+        row = original_supportstart_fresh_native_row()
+        for idx in (-1,7,True,None):
+            with self.subTest(index=idx), self.assertRaises(ValueError):
+                project_original_supportstart_native_row_release(
+                    row, source_row_index=idx,
+                    observed_original_release_for_row=True,
+                )
+        for observed in (1,None,"yes"):
+            with self.subTest(observed=observed), self.assertRaises(TypeError):
+                project_original_supportstart_native_row_release(
+                    row, source_row_index=0,
+                    observed_original_release_for_row=observed,
+                )
+        with self.assertRaises(ValueError):
+            project_original_supportstart_native_row_release(
+                row, source_row_index=0,
+                observed_original_release_for_row=False,
+            )
 
     def test_native_teamselect_dialog_cancel_still_returns_handled_event(self):
         # 0x4D922C returns EBX from 0x64F960, overwriting EAX from 0x450BB0.
