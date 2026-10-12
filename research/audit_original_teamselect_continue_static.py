@@ -1094,6 +1094,51 @@ def main(path: str) -> None:
     print("PASS all 49 DBRUser first-init direct-call sites and zero-mode stub")
     print("WARNING indirect first-human event producers and CRT still UNKNOWN")
 
+    # Recovery573: bounded first-user helpers, source-address+call-target
+    # inventory, to avoid confusing CRT free 0x66953E with RAND 0x66951C.
+    # This proves only DIRECT calls in the bounded functions.
+    source_first_human_postqueue_cleanup_573 = (
+        (0x425f90, 0x425fd0, ((0x425fa5, 0x5e4e90),)),
+        (0x425fd0, 0x425ff0, ()),
+        (0x425ff0, 0x426050, ((0x42600f, 0x66953e), (0x42602d, 0x66953e),)),
+        (0x5cf830, 0x5cf840, ((0x5cf838, 0x42c9f0),)),
+        (0x42c9f0, 0x42ca60, ((0x42ca19, 0x686fe3), (0x42ca25, 0x686fe3),)),
+        (0x5e4e90, 0x5e5000, ((0x5e4ede, 0x667e90), (0x5e4eec, 0x667e90), (0x5e4efd, 0x667e90), (0x5e4f0e, 0x667e90), (0x5e4f22, 0x667e90), (0x5e4f33, 0x667e90), (0x5e4f44, 0x667e90), (0x5e4f55, 0x667e90), (0x5e4f69, 0x667e90), (0x5e4f7a, 0x667e90), (0x5e4f9e, 0x667fa7), (0x5e4fac, 0x667fa7), (0x5e4fbd, 0x667fa7), (0x5e4fce, 0x667fa7), (0x5e4fe2, 0x667fa7), (0x5e4ff3, 0x667fa7),)),
+    )
+    for start,stop,expected in source_first_human_postqueue_cleanup_573:
+        recovered = tuple(
+            (int(m.group(1),16), int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if recovered != expected:
+            raise AssertionError(("Original first-user helper source changed",
+                                  hex(start), recovered))
+    for address,expected in (
+        ("425f95","mov    ebx,0x8"),
+        ("425faa","add    esi,0x168"),
+        ("425fb1","jne    0x425fa3"),
+        ("425fd5","mov    DWORD PTR [eax+0x160],ecx"),
+        ("425fdb","mov    DWORD PTR [eax+0x164],ecx"),
+        ("425ff3","mov    eax,DWORD PTR [esi+0x14]"),
+        ("42600f","call   0x66953e"),
+        ("42602d","call   0x66953e"),
+        ("5cf838","call   0x42c9f0"),
+        ("42ca19","call   0x686fe3"),
+        ("42ca25","call   0x686fe3"),
+        ("66951c","call   0x66d553"),
+        ("669524","imul   ecx,ecx,0x343fd"),
+        ("66952a","add    ecx,0x269ec3"),
+        ("66953d","ret"),
+        ("66953e","push   ebp"),
+    ):
+        if expected not in instruction(address):
+            raise AssertionError(("Original CRT/free helper ambiguity changed",address))
+    print("PASS six bounded native first-user helper call inventories")
+    print("PASS native raw RAND 0x66951C distinct from CRT heap helper 0x66953E")
+    print("WARNING transitive event/heap callbacks and source queue heads unknown")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
