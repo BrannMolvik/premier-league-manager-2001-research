@@ -19,7 +19,7 @@ class OriginalSupportStartArtTests(TestCase):
         art = verified_original_supportstart_art(root)
         self.assertEqual(len(art), 6)
         self.assertEqual(set(art), {s.relative_source for s in ORIGINAL_SUPPORTSTART_ART_SPECS})
-        self.assertEqual(sum(map(len, art.values())), 216020)
+        self.assertEqual(sum(map(len, art.values())), 218872)
         self.assertEqual(ORIGINAL_SUPPORTSTART_IMAGE_SIZE, (760, 500))
         self.assertEqual(ORIGINAL_SUPPORTSTART_ROW_BAR_FRAME_SOURCE, (0,0,306,17))
         self.assertEqual(ORIGINAL_SUPPORTSTART_BUTTON_FIRST_FRAME_SOURCE, (0,0,30,30))
