@@ -1139,6 +1139,36 @@ def main(path: str) -> None:
     print("PASS native raw RAND 0x66951C distinct from CRT heap helper 0x66953E")
     print("WARNING transitive event/heap callbacks and source queue heads unknown")
 
+    # Recovery573 constant native mode helper 0x6596A0 selects case0,
+    # NOT a random draw. Both 5DED10 and nested 5E4300 have mode tables.
+    source_fixed_mode_constructor_table_573 = (
+        ("5ded8f", "call   0x6596a0"),
+        ("5ded94", "cmp    eax,0x4"),
+        ("5ded9d", "jmp    DWORD PTR [eax*4+0x5df340]"),
+        ("5deda4", "push   0x0"),
+        ("5deda8", "push   0x412e8480"),
+        ("5dedb3", "call   0x5e43b0"),
+        ("5dedd9", "jmp    0x5dee47"),
+        ("5dee47", "call   0x5e48d0"),
+        ("5e4313", "call   0x6596a0"),
+        ("5e431d", "jmp    DWORD PTR [eax*4+0x5e4390]"),
+        ("6596a0", "xor    eax,eax"),
+        ("6596a2", "ret"),
+    )
+    for a,t in source_fixed_mode_constructor_table_573:
+        if t not in instruction(a):
+            raise AssertionError(("Original mode0 constructor dispatch moved",a))
+    for table,targets in (
+        (0x5df340,(0x5deda4,0x5deddb,0x5deda4,0x5dee12,0x5deddb)),
+        (0x5e4390,(0x5e4324,0x5e4339,0x5e434e,0x5e4363,0x5e4378)),
+    ):
+        actual = tuple(struct.unpack_from("<I",binary,table-0x400000+4*i)[0]
+                       for i in range(5))
+        if actual != targets:
+            raise AssertionError(("Original native mode jump table moved",hex(table)))
+    print("PASS fixed zero-mode 0x6596A0 selects real 5DED10/5E4300 case0")
+    print("WARNING subsequent case0 descendants and indirect owners need audit")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
