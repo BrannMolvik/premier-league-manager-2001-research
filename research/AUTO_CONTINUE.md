@@ -6,6 +6,15 @@
 
 **Original source access — VERIFIED UPLOAD, 11 October 2026:** Read `research/ORIGINAL_DRIVE_SOURCE_WORKFLOW.md` and `research/ORIGINAL_SOURCE_LOCATOR.md` on every relevant recovery. Daniel uploaded actual extracted original `FM2001/` game folders, binaries, art, databases, FMV and fonts to private connected Google Drive; the original executable and all four source-listed EAMail .444 strips have been independently raw-byte retrieved and SHA-256 matched. **Source retrieval is not blocked merely because previous 511 MB ZIP materialization failed.** Prefer targeted small authenticated Drive-file reads from the extracted tree; avoid downloading the 511 MB Library ZIP/632 MB BIN for routine source work, repeated pointless hashing or asking the user to repeat the extraction. A `caas.internal.errors.ClientError` on a trivial command still means the separate execution runtime is blocked; do not claim local disassembly, GUI playtest or full catalog parity without actually verifying it. Continue source-qualified complete gameplay features; use meaningful batched CI, not heartbeat churn. Original program launch requires separate authorization; no original binary in Git or premature gate closures.
 
+**LATEST worker efficiency directive — 12 October 2026:** read
+`research/WORKER_MILESTONE_BATCHING_POLICY.md`. Preserve the approximately
+10-minute **agent-runtime liveness** heartbeat and recovery safety, but do
+**NOT** create a new `main` research commit, PR or GitHub Actions run per
+small source discovery or heartbeat. Batch connected source findings,
+implementation and regression tests on an active feature branch into a
+reviewable, meaningful milestone. This supersedes any conflicting earlier
+ten-minute main-commit instructions in this file or historic handoffs.
+
 This protocol exists so long-running FM2001 work can recover from a ChatGPT
 timeout, connection interruption, or conversation-length limit without relying
 on the dead conversation.
@@ -22,8 +31,9 @@ focused test, or completing one ChatGPT response is not project completion.
 
 While meaningful source-backed work remains feasible in a worker response,
 continue to the next step without asking the user for another "continue".
-Checkpoint roughly every ten minutes, not once per response or as a reason
-to end a response. A finite chat/tool session cannot guarantee indefinite
+Send an accurate `agent-runtime` liveness/resume heartbeat roughly every ten
+minutes while working. This does not require a `main` commit, PR, or CI
+run; store feature work on its own branch at safe persistence boundaries. A finite chat/tool session cannot guarantee indefinite
 execution; persist the exact next action and keep the runtime in `working`
 when a session ends but Gate 17 is not finished. The local recovery extension
 may then resume after its normal health/lease checks.
@@ -94,8 +104,10 @@ No restart should occur while the state says `waiting_for_user`, `paused`, or
 
 ## CI and billing policy
 
-A GitHub `main` or `agent-runtime` commit remains a watchdog heartbeat and
-durable progress checkpoint. It does **not** need to start an Actions runner.
+**Only the worker-owned `agent-runtime` heartbeat counts for the watchdog.**
+`main` and feature-branch commits are development milestones, not liveness
+proof; a ten-minute runtime update does **not** require a main commit or an
+Actions runner. See `research/WORKER_MILESTONE_BATCHING_POLICY.md`.
 CI is intentionally cost-controlled: focused Gate 13 checks are manually
 dispatched at meaningful milestones (or run on integration pull requests), the
 full reconstruction suite runs manually at gate audits, and unrelated
@@ -123,19 +135,24 @@ heartbeat commits.
 Never dispatch extra workflows merely as heartbeat signals. If GitHub Actions
 included minutes are exhausted, use available local tests and preserve the
 unverified CI boundary until another authorized verification opportunity.
-Preserve 10-minute checkpoint guidance only when there is useful evidence or
-a genuine unresolved investigation to save; avoid commit spam.
+Preserve the approximately 10-minute `agent-runtime` heartbeat even during
+long useful investigations; avoid separate `main` or PR commits merely
+for timing. Persist substantive intermediate work on a feature branch when
+recovery risk warrants it, and CI only at meaningful integration boundaries.
 
 ## What counts as a heartbeat
 
 The watchdog treats only the worker-owned `agent-runtime` branch as a liveness
-heartbeat. An unrelated `main` commit is not proof the worker is alive. After
-meaningful verified `main` checkpoints, the worker must also update its
-`agent-runtime` checkpoint within the normal ten-minute interval.
+heartbeat. An unrelated `main` or feature-branch commit is not proof the
+worker is alive. Update `research/AUTO_CONTINUE_STATE.json` on the runtime
+branch roughly every ten minutes with the latest actual main HEAD and a
+truthful short next-action description. This heartbeat is intentionally
+independent of ordinary code/research commits and PR/CI cycles.
 
-This intentionally reuses the repository's existing persistence rule: during
-active investigation, commit every meaningful verified result and checkpoint
-roughly every ten minutes if the investigation is still unresolved.
+Save meaningful unresolved source evidence on an active feature branch when
+needed to survive a timeout; do not force a tiny source-result commit on
+`main` every ten minutes. For full recovery/integration boundaries see
+`research/WORKER_MILESTONE_BATCHING_POLICY.md`.
 
 The default stale threshold is 15 minutes, leaving a small grace period beyond
 the 10-minute checkpoint target.
@@ -153,15 +170,19 @@ When the user asks to continue sustained project work:
 5. continue the exact active task as the next step of the full Gate-17 mission;
 6. after each verified task, continue to the next canonical source-backed
    task while the current session can still do useful work;
-7. checkpoint to `main` at the normal persistence boundaries.
+7. keep the runtime heartbeat current on `agent-runtime`; preserve substantive
+   work on its feature branch as needed, and integrate to `main` only after a
+   reviewed, required-test-verified feature milestone.
 
 ### During autonomous work
 
 Do not rely on the conversation as durable state.
 
-A main-branch checkpoint must contain enough evidence and an exact next step for
-a fresh session to continue. If the live resume point changes, update
-`CURRENT_STATE.md` / `project_status.json` as already required.
+An integration milestone on `main` must contain enough evidence and an exact
+next step for a fresh session to continue. Between milestones, the current
+`agent-runtime` active task plus the in-flight feature branch preserve the
+live resume point; update `CURRENT_STATE.md` / `project_status.json`
+at material integration, gate, or correctness-critical boundaries.
 
 ### Intentionally stopping
 
@@ -251,7 +272,7 @@ keeps retrying after sign-in.
 
 The default runtime configuration uses:
 
-- checkpoint target: 10 minutes;
+- **agent-runtime heartbeat** target: 10 minutes (not a main-commit or PR target);
 - stale threshold: 15 minutes;\n- active-generation grace after stale detection: 10 minutes;\n- recovery cooldown: 20 minutes;
 - maximum recoveries: 3 per hour.
 
