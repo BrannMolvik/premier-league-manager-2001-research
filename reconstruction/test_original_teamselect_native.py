@@ -193,6 +193,29 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
                 SimpleNamespace(countries=(), competitions=(), clubs=())
             )
 
+    def test_original_teamselect_staff_to_supportstart_is_seven_not_six(self):
+        # Original 0x4D8F75 -> 0x4C9CD0 creates SIX fresh support staff.
+        # Original 0x4DA4F0 -> 0x4CF124 passes SEVEN selector slots.
+        # These are not the six-human TeamSelect limit tested below.
+        from match_schedule import MsvcCrtRng
+        from support_staff import (
+            INITIAL_SUPPORT_STAFF_TYPES,
+            ORIGINAL_SUPPORT_START_SLOT_COUNT,
+            generate_fresh_user_support_staff,
+            original_teamselect_support_slots,
+        )
+
+        source = generate_fresh_user_support_staff(MsvcCrtRng(1), 6)
+        self.assertEqual(INITIAL_SUPPORT_STAFF_TYPES, (1, 2, 3, 4, 5, 13))
+        self.assertEqual(len(source), 6)
+        slots = original_teamselect_support_slots(source)
+        self.assertEqual(ORIGINAL_SUPPORT_START_SLOT_COUNT, 7)
+        self.assertEqual(len(slots), 7)
+        self.assertEqual([s.original_selected_byte for s in slots],
+                         [1, 1, 1, 1, 1, 1, None])
+        self.assertIsNone(slots[-1].staff)
+        self.assertTrue(all(slots[i].staff is source[i] for i in range(6)))
+
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
             (26, "England"), (66, "Scotland"), (33, "Germany"),
