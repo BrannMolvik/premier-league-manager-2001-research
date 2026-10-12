@@ -1,3 +1,5 @@
+> **CRITICAL PLAYER-JOURNEY CORRECTION, RECOVERY557 (12 OCTOBER 2026):** The virtual+0x58 method `0x4CB0F0` is **actually called by the ordinary TeamSelect fresh-human path**: `0x4D8F75 -> 0x4C9CD0 -> 0x4C9B30 -> vft+0x58 (0x4CB0F0)`. The separate `0x4D1760 -> 0x4C9D40 -> vft+0x5C (0x4CB2B0)` originates from `0x4257B6` in a different reset/setup path, whose full player-visible reachability is not yet established. This resolves the earlier *method ownership* misunderstanding: while `0x4CB0F0` is indeed +0x58 (NOT +0x5C), it is NOT irrelevant to normal fresh TeamSelect. Earlier Recovery555 text that excluded `0x4CB0F0` from the fresh user journey is SUPERSEDED. Source trace details appended. **Do not use the old generic 12–18 RNG call count as original behavior for either distinct path.**
+
 > **CORRECTION 12 October 2026, Recovery555:** The original CSupportStaff virtual+0x5C is **0x4CB2B0**, NOT 0x4CB0F0. The latter is virtual+0x58. Previous statements below using the +0x58 club scan and its 4–10 RNG draw estimate as if the fixed fresh-staff constructor invoked them are **SUPERSEDED**. Do not use the previously reported 12–18 draws-per-staff lower bound. See detailed corrective source audit appended below. No production RNG was changed.
 
 # Recovery554: original fixed SupportStaff constructor consumes additional shared CRT draws
@@ -288,3 +290,31 @@ Further direct static disassembly on the same SHA-256-verified original confirms
 - At 0x4CB4C3 the selected group's **virtual+0x24** is called and the return byte compared exactly to 1; a different result branches to 0x4CB3C6. This affects draw count and needs actual selected-object vtable/eligibility proof before implementing the full 0x4CB2B0 path.
 
 **Next original investigation:** identify the vtables and actual source data producers of the three country-group vectors (+0x38/+0x40/+0x48), especially the selected-group +0x24 gate and its optional +0x38 initialization; then account for every CRT draw and commit state in fresh-user startup. Only after that bind original staff names to the seven-row modal and source-proven TeamSelect Apply/Cancel return. Do not put these source helper conclusions into a standalone speculative RNG owner.
+
+
+## Recovery557: distinguish TWO actual fresh staff producers from canonical TeamSelect caller
+
+Independent full function disassembly of SHA-256-verified original (static only):
+
+**Ordinary first-human TeamSelect path:** `0x4D8EF3/0x413BB0` allocates/registers original human, `0x4D8F29..0x4D8F4E` clears its three support staff lists, `0x4D8F75` invokes `0x4C9CD0`, and `0x4D8F7F` subsequently invokes `0x4DA4F0` to stage **seven** SupportStart source slots. The `0x4C9CD0` function invokes `0x4C9B30` SIX times (types **1,2,3,4,5,13**):
+
+- `0x4C9B49` uses bounded CRT **RNG25** before constructing each staff object.
+- `0x4C9C04` constructs CSupportStaff via `0x4CA2F0`; its constructor calls native +0x10 name generator internally, and `0x4C9C31` explicitly calls vft**+0x10 (0x4CA660)** again from the selected user's club country. The TWO source name-generation pairs are retained as proven with potential full-pair retries on '-' sentinel.
+- `0x4C9C3B` calls **vft+0x2C (0x4CA770)** with source staff type bucket/mode and flag1; `0x4C9C42` calls **vft+0x30 (0x4CA640)** (known RNG30).
+- `0x4C9C4E` calls **vft+0x58 = 0x4CB0F0** with the source original `0x4C9B30` third parameter (a source group/competition context), and `0x4C9C79` invokes +0x2C again. This +0x58 path uses **original CLUBS** matching a parameter at club+0x10 and retains at most 24; it consumes original RNG(3) plus 3 draws per 1–3 assigned slots, subject to **candidate count and zero-bound** reconciliation. See earlier raw `0x4CB0F0` trace; the method's +0x58 slot attribution is correct, its earlier statement that it does not participate in normal first human is not.
+- It adds original staff to `0x875600` global staff list and selected user linked-list at +0x5D0 after applying type rules. This **visible TeamSelect source** is not equivalent to simply calling age/rating-only `support_staff.generate_fixed_initial_staff` and skipping original names, random draws, and role associations.
+- `0x4C9B30` DOES NOT call vft+0x5C=0x4CB2B0 directly. Thus the **country+0x50 club-pointer vs numeric RNG argument contradiction** in +0x5C is **not an initial blocker for reconstructing just this source-proven TeamSelect producer**, provided it can be proved no earlier reachable caller consumes +0x5C before the selected first human. Other original-game journeys cannot ignore it.
+
+**Distinct path:** `0x4D1760` invoked at `0x4257B6` clears a selected DBRUser staff linked-list family and calls `0x4C9D40` six times. `0x4C9D40` uses RNG25 + RNG2, constructs CSupportStaff, calls vft+0x10 again, then vft+0x28 RNG20, +0x30 RNG30 and **+0x5C (0x4CB2B0)** with the country+0x50 ambiguity. Its caller `0x4257B6` is in a **separate source flow** and cannot be conflated with `0x4D8F75` just because both create six staff types. Trace the actual `0x4257B6` parent screen/career phase before declaring whether this path is part of new-game startup, later reset, or a different operation.
+
+**Required next:** prioritize authentic **`0x4C9B30`** source parameters, +0x2C rating method, original +0x58 24-club selection and shared CRT current-user checkpoint, then seven SupportStart rows/Apply/Cancel/TeamSelect return. Separately preserve the real +0x5C pointer/bound contradiction for the `0x4D1760` source path. No production changes or original/Windows GUI playtests are implied by this caller proof.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4d8ef3 --stop-address=0x4d8f84 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9cd0 --stop-address=0x4c9d35 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9b30 --stop-address=0x4c9cbe footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9d40 --stop-address=0x4c9e80 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d1760 --stop-address=0x4d1819 footballmanager.exe
+objdump -D -Mintel --start-address=0x4257a5 --stop-address=0x4257df footballmanager.exe
+```
