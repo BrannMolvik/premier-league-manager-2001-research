@@ -419,3 +419,64 @@ def original_teamselect_native_private_staff_record_address(
     if not 0 <= result <= 0xFFFFFFFF:
         raise ValueError("Source TeamSelect private record address out of DWORD")
     return result
+
+
+@dataclass(frozen=True)
+class OriginalSupportStartRowCallbackContract:
+    """True original modal-owned row selector, NOT a Windows mouse hit."""
+    source_row_index: int
+    source_modal_selector_offset: int
+    original_native_control_event_id: int
+    source_parent_input_callback_va: int
+    source_callback_acceptance_result: int
+    original_parent_dispatch_va: int
+
+
+def original_supportstart_row_callback_contract(
+    index: int,
+) -> OriginalSupportStartRowCallbackContract:
+    """0x4C8014..0x4C825E seven modal-linked native row controls.
+
+    Every row selector receives event ID 8+index via parent vft+0x08,
+    whose final native implementation 0x5D48C0 delegates to 0x64F3C0
+    and binds +0x20=event ID, +0x24=actual PSupportStart owner.
+    Original modal vft+0x0C -> 0x42DE00 returns 1 unconditionally.
+    Source 0x4D05E0's table sends IDs8..14 to generic redraw
+    0x4D0641, NOT original Apply 0x4D0606 or Cancel 0x4D061F.
+
+    Callbacks and IDs are source-qualified only when a real original
+    row object, manager, original Win32 event and input state have
+    already been established. This is NOT permission to assume a hit,
+    state changes from opaque other callbacks, or an original DBRUser.
+    """
+    if type(index) is not int or not 0 <= index < 7:
+        raise ValueError("Require original native row identity index0..6")
+    return OriginalSupportStartRowCallbackContract(
+        source_row_index=index,
+        source_modal_selector_offset=0x2224 + index * 0x4C,
+        original_native_control_event_id=8 + index,
+        source_parent_input_callback_va=0x42DE00,
+        source_callback_acceptance_result=1,
+        original_parent_dispatch_va=0x4D0641,
+    )
+
+
+def original_supportstart_native_modal_event_dispatch_va(event_id: int) -> int:
+    """Exact 0x4D05E0 original event-ID 1..20 compact jump table.
+
+    Event1 is Cancel, event2 Apply, event3 owner vft+0x48;
+    event4..17 use default redraw, 18..20 use 0x4CFA70.
+    No category is assigned beyond native 1..20 here; zero is the
+    separate 0x4D0641 parent-window repaint branch, not a row action.
+    """
+    if type(event_id) is not int or not 1 <= event_id <= 20:
+        raise ValueError("Only original PSupportStart native event IDs 1..20")
+    if event_id == 1:
+        return 0x4D061F
+    if event_id == 2:
+        return 0x4D0606
+    if event_id == 3:
+        return 0x4D0631
+    if event_id >= 18:
+        return 0x4D063A
+    return 0x4D0641

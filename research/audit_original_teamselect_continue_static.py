@@ -801,6 +801,57 @@ def main(path: str) -> None:
             raise AssertionError(("Original Win32 left-button event changed",address))
     print("PASS native WM_LBUTTONDOWN/DBLCLK and WM_LBUTTONUP source handlers")
 
+    # Original modal input row IDs 8..14, callback target 42DE00 always true.
+    original_row_callback_id_570 = (
+        ("4c8017", "lea    edi,[esi+0x2224]"),
+        ("4c801d", "push   esi"),
+        ("4c801e", "push   0x8"),
+        ("4c803e", "call   DWORD PTR [eax+0x8]"),
+        ("4c8068", "lea    edi,[esi+0x2270]"),
+        ("4c806f", "push   0x9"),
+        ("4c8090", "call   DWORD PTR [edx+0x8]"),
+        ("4c80bd", "lea    edi,[esi+0x22bc]"),
+        ("4c80c4", "push   0xa"),
+        ("4c80e5", "call   DWORD PTR [edx+0x8]"),
+        ("4c8112", "lea    edi,[esi+0x2308]"),
+        ("4c8119", "push   0xb"),
+        ("4c813a", "call   DWORD PTR [edx+0x8]"),
+        ("4c8167", "lea    edi,[esi+0x2354]"),
+        ("4c816e", "push   0xc"),
+        ("4c818f", "call   DWORD PTR [edx+0x8]"),
+        ("4c81bc", "lea    edi,[esi+0x23a0]"),
+        ("4c81c3", "push   0xd"),
+        ("4c81e4", "call   DWORD PTR [edx+0x8]"),
+        ("4c8211", "lea    edi,[esi+0x23ec]"),
+        ("4c8218", "push   0xe"),
+        ("4c8239", "call   DWORD PTR [edx+0x8]"),
+        ("64f3c8", "mov    DWORD PTR [ecx+0x20],eax"),
+        ("64f3cb", "mov    DWORD PTR [ecx+0x24],edx"),
+        ("5d48d0", "call   0x64f3c0"),
+        ("5d48e8", "call   DWORD PTR [edx+0x8]"),
+        ("42de00", "mov    eax,0x1"),
+        ("42de05", "ret    0x8"),
+        ("4d05e0", "mov    eax,DWORD PTR [esp+0x4]"),
+        ("4d05ee", "mov    eax,DWORD PTR [eax+0x20]"),
+        ("4d05f1", "dec    eax"),
+        ("4d05f9", "mov    cl,BYTE PTR [eax+0x4d0690]"),
+        ("4d05ff", "jmp    DWORD PTR [ecx*4+0x4d067c]"),
+        ("4d0606", "mov    edx,DWORD PTR [esi]"),
+        ("4d060a", "call   DWORD PTR [edx+0x4c]"),
+        ("4d061f", "push   0x0"),
+    )
+    for a, expected in original_row_callback_id_570:
+        if expected not in instruction(a):
+            raise AssertionError(("Original PSupportStart row callback changed",a))
+    if struct.unpack_from("<I",binary,0x7c6ddc + 0xc - 0x400000)[0] != 0x42de00:
+        raise AssertionError("Native PSupportStart vft+0x0C callback moved")
+    if struct.unpack_from("<I",binary,0x7c6780 + 0x8 - 0x400000)[0] != 0x5d48c0:
+        raise AssertionError("Native row vft+0x08 callback setup moved")
+    for id in range(8,15):
+        if binary[0x4d0690-0x400000+id-1] != 4:
+            raise AssertionError(("Native modal row event must redraw only",id))
+    print("PASS original seven modal row IDs 8..14, callback TRUE, no Apply/Cancel")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

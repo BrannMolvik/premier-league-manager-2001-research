@@ -254,6 +254,46 @@ class OriginalSupportStartInputTests(unittest.TestCase):
                     source_row_index=index,
                 )
 
+    def test_true_native_seven_row_callback_identity_and_default_actions(self):
+        from original_supportstart_input import (
+            original_supportstart_row_callback_contract,
+            original_supportstart_native_modal_event_dispatch_va,
+        )
+        identities = tuple(
+            original_supportstart_row_callback_contract(i) for i in range(7)
+        )
+        self.assertEqual(tuple(r.original_native_control_event_id for r in identities),
+                         (8, 9, 10, 11, 12, 13, 14))
+        self.assertEqual(tuple(r.source_modal_selector_offset for r in identities),
+                         tuple(0x2224 + 0x4C*i for i in range(7)))
+        self.assertEqual({r.source_parent_input_callback_va for r in identities},
+                         {0x42DE00})
+        self.assertEqual({r.source_callback_acceptance_result for r in identities},
+                         {1})
+        self.assertEqual({r.original_parent_dispatch_va for r in identities},
+                         {0x4D0641})
+        self.assertEqual(tuple(original_supportstart_native_modal_event_dispatch_va(
+            r.original_native_control_event_id) for r in identities),
+            (0x4D0641,)*7)
+
+    def test_modal_native_cancel_apply_remain_distinct_from_row_control_ids(self):
+        from original_supportstart_input import (
+            original_supportstart_native_modal_event_dispatch_va as dispatch,
+        )
+        self.assertEqual(dispatch(1), 0x4D061F)
+        self.assertEqual(dispatch(2), 0x4D0606)
+        self.assertEqual(dispatch(3), 0x4D0631)
+        self.assertEqual(dispatch(4), 0x4D0641)
+        self.assertEqual(dispatch(17), 0x4D0641)
+        self.assertEqual([dispatch(n) for n in (18,19,20)], [0x4D063A]*3)
+        for event in (0,21,-1,True,1.0,None):
+            with self.subTest(event=event), self.assertRaises(ValueError):
+                dispatch(event)
+        from original_supportstart_input import original_supportstart_row_callback_contract
+        for index in (-1,7,True,None,1.0):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                original_supportstart_row_callback_contract(index)
+
     def test_native_teamselect_dialog_cancel_still_returns_handled_event(self):
         # 0x4D922C returns EBX from 0x64F960, overwriting EAX from 0x450BB0.
         cancel = original_supportstart_teamselect_event_outcome(True, 0x8002, 0)
