@@ -328,3 +328,51 @@ objdump -D -Mintel --start-address=0x5CF830 --stop-address=0x5CF83E footballmana
 Original `0x4259BA`, immediately after the FIRST pre-staff event queue drain at `0x4259B5`, calls `0x5CF830` on DBRUser+0x6B4. Its entire body is a one-argument forwarding call `0x42C9F0`. Direct original disassembly `0x42C9F0..0x42CA5C` shows a deterministic singly linked-list cleanup: iterate nodes at +0x04, if owner nonzero reset a vtable pointer to `0x7BD5A8`, free the nested pointer and each node through `0x686FE3`, reset first/last heads to null at exit. The routine has **NO direct bounded RNG, CRT rand/srand, or independent polymorphic callback** in this bounded native path. Thus the `0x5CF830 -> 0x42C9F0` cleanup itself cannot account for extra CRT draws between 13 user-name pairs and six staff. Other calls and the two event-queue drains remain separate unresolved inputs.
 
 Reproduce original `0x42599E..0x4259C7`, `0x5CF830..0x5CF83E`, `0x42C9F0..0x42CA5D`. No original executable was launched, no GUI acceptance, no new feature-branch test execution.
+
+
+## Recovery562: exhaustive direct enqueue callsite inventory reveals nonconstant event dispatch
+
+**Source:** same SHA256-checked original `footballmanager.exe` (833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3), original `.text` statically disassembled using `objdump -D -Mintel -j .text`; original process NOT launched. This supplements, and **restricts**, Recovery561's statement that the **one** underlying `0x555D60` class is queue-dispatch RNG-free.
+
+### Source direct call counts and reachability boundary
+
+A complete scan of the disassembled original `.text` gives **175 apparent direct `call 0x613EC0` enqueue sites**, **3 direct `call 0x614080` queue-drain sites** (0x412F1F before six staff, 0x4259B5 after 13 user name pairs, 0x613F40 in deferred queue processing), and **5 direct `call 0x613EE0` time-filter queue processing sites** (0x41A364, 0x41A475, 0x43216C, 0x4A8084, 0x5E3335). Counts are static opcode-callsite counts, **not** assertions that every branch executes or every apparent target is active on fresh TeamSelect.
+
+Among the earliest distinct queued-original constructors:
+
+| Enqueue instruction | 0x7BD564 envelope's underlying constructor | Actual underlying vtable set | Actual underlying virtual+0x24 | Bounded interpretation |
+| --- | --- | --- | --- | --- |
+| 0x404503 | 0x555D60 | 0x7CE378 | **0x40DFB0** | returns zero, direct RNG-free |
+| 0x4045C5 | 0x587120 | 0x7D1828 | **0x40DFB0** | returns zero, direct RNG-free |
+| 0x4047FE | 0x587580 | 0x7D187C | **0x40DFB0** | returns zero, direct RNG-free |
+| 0x404955 | 0x554810 | 0x7CE420 | **0x40DFB0** | returns zero, direct RNG-free |
+| 0x404A3D | 0x554B80 | 0x7CE3CC | **0x40DFB0** | returns zero, direct RNG-free |
+| **0x409385** | original 0x57F1E0 writes actual vtable **0x7BD6BC**, then same 0x7BD564 envelope | **0x7BD6BC** | **0x5E5810**, NOT a zero-return stub | **dynamic game-object factory on callback, cannot declare RNG-free** |
+
+The outer envelope `0x7BD564+0x04 = 0x40DFB0` returns zero, so `0x614080` normally reaches outer `+0x18 = 0x404610`, which tail-jumps via the underlying event's **actual virtual+0x24**. Sharing the SAME outer envelope **does not** establish that every underlying event is the benign 0x555D60 event.
+
+**Concrete nontrivial source counterexample:** At original **0x409353**, while constructing/enqueuing this sixth example, a bounded CRT call `0x64D540(5)` is made and its selected result contributes to the event order/position field before `0x409385 -> 0x613EC0`. This is a real original RNG consumer in **event production**, independent of whether the event later dispatches during the first-human workflow. Its underlying callback `0x5E5810` has conditional branches for argument0/1 and allocates either a **0x490-byte or 0x494-byte game object**, invoking 0x582300 or 0x57C970 and installing original vtables 0x7CCB50/0x7CCAA0. No direct bounded RNG was observed in this bounded `0x5E5810` method; its child object constructors and later callbacks are not source-qualified as RNG-free. Do NOT flatten it into `0x40DFB0` or assume it cannot affect original game state.
+
+**Subtlety:** 0x613EC0 can enqueue the same envelope with many other source constructors, and some producer functions may themselves draw original RNG before enqueueing. It is insufficient to classify event-queue draws solely by the `0x614080` callback's direct call list, or to treat every unqualified possible event as present during startup.
+
+### What this actually establishes
+
+The two real pre-staff drain checkpoints remain:
+- 0x4259B5 after successful DBRUser `0x42C400` generated thirteen two-pick name pairs (26 confirmed bounded CRT draws);
+- 0x412F1F before TeamSelect's six normal `0x4C9B30` staff constructors (at least 72 more direct bounded draws, variable by source choices).
+
+Whether a particular event of the nontrivial class is present at either checkpoint depends on the **original launcher/database initialization and active event queue state**. No source observation here certifies a full 98-draw exact checkpoint or the effect of all 175 producers.
+
+Reproduce, on authenticated original bytes, without original-process execution:
+```bash
+objdump -D -Mintel -j .text footballmanager.exe > /tmp/fm2001-original-x86.txt
+grep -c 'call   0x613ec0' /tmp/fm2001-original-x86.txt  # 175
+grep -c 'call   0x614080' /tmp/fm2001-original-x86.txt # 3
+grep -c 'call   0x613ee0' /tmp/fm2001-original-x86.txt # 5
+objdump -D -Mintel --start-address=0x404490 --stop-address=0x404A44 footballmanager.exe
+objdump -D -Mintel --start-address=0x409322 --stop-address=0x40938A footballmanager.exe
+objdump -s -j .rdata --start-address=0x7BD6BC --stop-address=0x7BD6F0 footballmanager.exe
+objdump -D -Mintel --start-address=0x5E5810 --stop-address=0x5E594A footballmanager.exe
+```
+
+**NEXT source action:** trace the source normal New Game database/event/calendar pre-TeamSelect setup and actual event queue population (owner 0x947AA8) at BOTH initial user queues; classify only live-reachable event constructors and their virtual+0x24 effects, plus per-human event reentrancy, not every offline callsite indiscriminately. Investigate Cancel staff staging post-close separately. Preserve current source-only first-human CRT/SupportStart scaffolding; do not inject guessed draws, execute original EXE, assert actual Windows 11 GUI acceptance or close Gates13–17.
