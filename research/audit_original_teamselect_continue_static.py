@@ -556,6 +556,45 @@ def main(path: str) -> None:
     print("PASS original 4145A0 frees nodes and conditionally destroys staff")
     print("WARNING global staff list and other transitive cleanup remain unresolved")
 
+    # Recovery569 corrected input: 0x5D4790 tries parent base 0x64F7A0
+    # FIRST for a nonnull second argument. A successful parent result
+    # seeds EBP=1, so child virtual+0x6C acceptance is NOT necessary.
+    # Rejected parent immediately returns false, bypassing all children.
+    original_row_parent_first_edges = (
+        ("5d479b", "test   ebx,ebx"),
+        ("5d479d", "je     0x5d47b6"),
+        ("5d47a5", "call   0x64f7a0"),
+        ("5d47aa", "mov    ebp,eax"),
+        ("5d47ae", "jne    0x5d47b6"),
+        ("5d47b0", "pop    esi"),
+        ("5d47ca", "test   cl,0x4"),
+        ("5d47d1", "call   0x64f570"),
+        ("5d47e8", "call   DWORD PTR [eax+0x6c]"),
+        ("5d47eb", "or     ebp,eax"),
+        ("5d47f6", "mov    eax,ebp"),
+        ("5d6280", "call   0x5d4790"),
+        ("5d6287", "test   edi,edi"),
+        ("5d629d", "call   DWORD PTR [ebx+0x98]"),
+        ("64f7a5", "mov    eax,DWORD PTR [esi+0x18]"),
+        ("64f7ac", "test   cl,0x1"),
+        ("64f7b8", "test   al,0x1"),
+        ("64f7da", "call   DWORD PTR [edx+0xc]"),
+        ("64f84b", "mov    eax,0x1"),
+        ("64f856", "xor    eax,eax"),
+    )
+    for address, expected in original_row_parent_first_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original row parent/child input changed", address))
+    for va, target in (
+        (0x7c6780+0x6c, 0x5d6270),
+        (0x7c6780+0x98, 0x5d6200),
+        (0x7be530+0x6c, 0x64f7a0),
+        (0x7bff14+0x6c, 0x64f7a0),
+    ):
+        if struct.unpack_from("<I", binary, va - 0x400000)[0] != target:
+            raise AssertionError(("Native row/child vtable input owner changed",hex(va)))
+    print("PASS parent-first input and OR children; no fake last-two-only gating")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
