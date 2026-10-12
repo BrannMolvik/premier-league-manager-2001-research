@@ -116,3 +116,53 @@ SupportStart → TeamSelect return without synthetic
 click maps. Preserve already merged PR #648 and
 old draft PR #645, currently subsumed only as
 bounded native geometry on this new branch.
+
+
+## Additional source producer evidence: serialized pool records
+
+Further original disassembly identifies how the `0x875638`
+fallback name-record pool is populated; the source
+file path and startup callsite are still UNKNOWN.
+
+`0x4218C0` invokes `0x421C80` followed by
+`0x421CE0` on the same original name-pool object.
+In `0x421C80`:
+
+1. Invokes the name-pool owner virtual+0x0C to
+   release or reset its existing values.
+2. Calls original generic file reader `0x667E90`
+   with arguments including **size4, count1**
+   to read the 32-bit record count into pool+0x04.
+3. Calls owner virtual+0x08 to allocate the
+   array using the newly supplied count.
+4. Iterates count records at `pool+0x08`
+   with exact **0x250/592-byte stride** and
+   calls `0x418B90` per record to parse
+   further fields and name strings.
+
+`0x421CE0` then iterates the same 0x250
+records and calls runtime maintenance/association
+routines before staff name selection can use the
+grouped lookup through `0x421BA0`.
+This establishes that the name-pool record
+stream is original serialized data, not a
+source-proven collection of arbitrarily sampled
+player names.
+
+Critical unknown remains the specific original
+filesystem path/record producer and the exact
+serial field implementation in `0x418B90`,
+plus downstream `0x421CE0` group table
+construction and shared CRT RNG ordering.
+No code should synthesize a pool before those are
+qualified. Continue by following callsites of
+`0x4218C0` and the owning native file-handle
+open, then parse only the specific authorized
+original file with a reproducible byte receipt.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4218c0 --stop-address=0x4218dd footballmanager.exe
+objdump -D -Mintel --start-address=0x421c80 --stop-address=0x421cdb footballmanager.exe
+objdump -D -Mintel --start-address=0x421ce0 --stop-address=0x421e01 footballmanager.exe
+```
