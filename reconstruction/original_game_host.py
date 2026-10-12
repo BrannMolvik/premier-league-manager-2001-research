@@ -3301,7 +3301,8 @@ def run_original_game_ui(
                 home_club_id=pair[0],
                 away_club_id=pair[1],
                 background_club_override_id=None,
-                source_root=resolved_source_root,
+                # Dynamic club art is in the user's installation, not the bundled subset.
+                source_root=Path(game_dir),
                 original_executable=original_executable,
             )
 
