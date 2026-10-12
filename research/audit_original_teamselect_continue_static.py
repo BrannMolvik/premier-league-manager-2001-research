@@ -282,6 +282,43 @@ def main(path: str) -> None:
     print("PASS 4F9010 third scheduler owner only two later-source direct callers")
     print("WARNING indirect callback reachability or prior session state NOT ruled out")
 
+    # Next two original global queue producer families are NOT source-
+    # qualified as first-human callbacks. One needs human-club predicate 1;
+    # the other is reachable through polymorphic dispatch in 18 vtables.
+    other_event_owner_edges = (
+        ("41987d", "call   0x41a250"),
+        ("41a285", "call   0x417340"),
+        ("41a28a", "cmp    al,0x1"),
+        ("417340", "call   0x417270"),
+        ("417347", "jmp    0x4037b0"),
+        ("5128b8", "call   0x4197c0"),
+        ("5e30f4", "call   0x5e3110"),
+        ("5e30d5", "call   DWORD PTR [eax+0x1c]"),
+        ("5e30e0", "call   DWORD PTR [edx+0x20]"),
+        ("5e30eb", "call   DWORD PTR [eax+0x24]"),
+    )
+    for address, expected in other_event_owner_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original callback producer changed", address))
+    for native, callers in {
+        "41a250": ("41987d",),
+        "4197c0": ("5128b8",),
+        "5e3110": ("5e30f4",),
+    }.items():
+        if direct_calls(native) != callers:
+            raise AssertionError(("Original callback caller changed", native))
+    original_generic_event_virtual_slots = tuple(
+        0x7d743c + (0x2c * i) for i in range(18)
+    )
+    if any(
+        struct.unpack_from("<I", binary, slot - 0x400000)[0] != 0x5e30d0
+        for slot in original_generic_event_virtual_slots
+    ):
+        raise AssertionError("Original 18 polymorphic event dispatch slot family changed")
+    print("PASS source human-managed club gate for 41A250 enqueue producer")
+    print("PASS generic 5E30D0 dispatch reused in 18 original vtable slots")
+    print("WARNING vtable reachability and callback CRT effects are UNKNOWN")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
