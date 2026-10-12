@@ -121,10 +121,15 @@ def original_supportstart_teamselect_modal_entry(
     """TeamSelect source 0x4D91C0 entry predicate for 0x450BB0 modal.
 
     Native 0x64F960 must accept its full event context AND the source
-    TeamSelect control bit15 must be set (getter 0x652F80). Actual hit/event
+    TeamSelect control bit15 must be set (getter 0x652F80).
+    The original 0x64F960 first requires bit0x2 set and bit0x20 clear,
+    independent of subsequent native owner/input callbacks. Actual hit/event
     routing is not reconstructed by this predicate; neither step can be guessed.
     """
     _dword(native_teamselect_control_dword)
     if type(accepted_by_native_64f960) is not bool:
         raise TypeError("TeamSelect native 0x64F960 result must be explicit Boolean")
-    return accepted_by_native_64f960 and bool(native_teamselect_control_dword & ORIGINAL_ROW_STATE_MASK)
+    return (accepted_by_native_64f960
+            and bool(native_teamselect_control_dword & 0x0002)
+            and not bool(native_teamselect_control_dword & 0x0020)
+            and bool(native_teamselect_control_dword & ORIGINAL_ROW_STATE_MASK))
