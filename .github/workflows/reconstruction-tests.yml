@@ -48,6 +48,8 @@ on:
       - "reconstruction/test_original_supportstart_pointer_observation.py"
       - "reconstruction/original_supportstart_teamselect_user_birth.py"
       - "reconstruction/test_original_supportstart_teamselect_user_birth.py"
+      - "reconstruction/original_startup_player_crt_pipeline.py"
+      - "reconstruction/test_original_startup_player_crt_pipeline.py"
       - "reconstruction/original_first_human_nested_random.py"
       - "reconstruction/test_original_first_human_nested_random.py"
       - "reconstruction/original_teamselect_queue_lifecycle.py"
