@@ -120,3 +120,60 @@ and TeamSelect return. This has not been
 observed in a real original process or a
 Windows 11 interactive acceptance run.
 Gate 13–17 remain OPEN.
+
+
+## Further source verification: pool and group constructors
+
+Static disassembly of the same original executable independently confirms:
+
+- `0x416F60` initializes the **global candidate name pool object**
+  at `0x875638` with native vtable `0x7BDA78`,
+  count at `+0x04` initially **0**, record pointer at
+  `+0x08` initially **NULL**, and self-reference
+  `+0x0C=0x875638`. This is a constructor-time
+  state only, NOT a proof the game starts staff generation
+  with an empty name pool.
+- Name pool array accessor `0x416F90` uses
+  `index * 0x250 + *(pool+0x08)`, confirming
+  **0x250**-byte candidate records. `0x416FB0`
+  returns stride `0x250` directly; `0x416FC0`
+  allocates `count*0x250 + 4` and invokes
+  vector initializer `0x6687C1` with
+  record constructor `0x4234D0`,
+  destructor `0x423620`, stride `0x250`.
+  It stores data pointer at `pool+0x08`
+  only after non-null allocation, and otherwise leaves NULL.
+- `0x410C70` initializes **name-group object**
+  at `0x874BC8` with vft `0x7BD850`,
+  count `+0x04=0`, group array pointer
+  `+0x08 = 0` (absolute `0x874BD0`),
+  and self pointer at `0x874BF8`.
+  `0x410CB0` allocates `count*0x14 + 4`
+  bytes and vector-initializes group entries
+  with stride `0x14`, original initializer
+  `0x410D80`, and disposer `0x401EC0`.
+  This proves `0x421BA0`'s group offset
+  is a native **20-byte** runtime group record,
+  not a speculative table.
+- Native `0x421C00` uses **a distinct global**
+  `0x874BE0` to look up nationality-group mapping,
+  stride `0x6C` (108 bytes), source DWORD+0x0C.
+  This global must **not** be confused with
+  group entries at `0x874BD0` or name
+  candidates at `0x875640`. Initializer
+  and underlying original disc file provenance
+  for `0x874BE0` remain incomplete.
+
+This establishes three separate backing owners,
+but does not establish group/candidate **contents**,
+complete startup order, save boundaries or
+the shared random state at the first staff-name draw.
+Do not manufacture source names from the old
+manager database or a generic random-name list.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x416f60 --stop-address=0x417050 footballmanager.exe
+objdump -D -Mintel --start-address=0x410c70 --stop-address=0x410d20 footballmanager.exe
+objdump -D -Mintel --start-address=0x421ba0 --stop-address=0x421c49 footballmanager.exe
+```
