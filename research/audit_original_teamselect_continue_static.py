@@ -1268,6 +1268,29 @@ def main(path: str) -> None:
     print("PASS original 3 conditional nested first-human RNG call sites")
     print("WARNING actual allocations, full shared CRT and queues unobserved")
 
+    # Recovery574: 0x425A44 / 0x425AD7 construct numeric container
+    # 0x5DC400. This completely bounded DIRECT call graph only
+    # reaches three signed DIV 0x66A518, six 0x5E4300 mode stubs
+    # selecting 0x6596A0 constant0, and four no-call value setters.
+    source_first_human_numeric_container_574 = (
+        (0x5dc400, 0x5dc505, ((0x5dc45a,0x64ccd0), (0x5dc464,0x5e42e0), (0x5dc46e,0x5e42e0), (0x5dc476,0x5e42e0), (0x5dc480,0x5e42e0), (0x5dc488,0x5e42e0), (0x5dc490,0x5e42e0), (0x5dc4ad,0x5e4410), (0x5dc4c1,0x5e4410), (0x5dc4cf,0x5e4410), (0x5dc4dd,0x5e4410))),
+        (0x64ccd0, 0x64cda0, ((0x64cd23,0x66a518), (0x64cd46,0x66a518), (0x64cd78,0x66a518))),
+        (0x5e42e0, 0x5e4300, ((0x5e42ed,0x5e4300),)),
+        (0x5e4300, 0x5e4390, ((0x5e4313,0x6596a0),)),
+        (0x5e4410, 0x5e4480, ()),
+        (0x66a518, 0x66a536, ()),
+    )
+    for start,stop,expected in source_first_human_numeric_container_574:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Numeric user ctor direct-call graph moved",hex(start),have))
+    print("PASS numeric first-user 0x5DC400 nested no-direct-CRT constructor graph")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
