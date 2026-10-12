@@ -13,7 +13,10 @@ from ea444_quantization import quantization_from_verified_executable
 from ea444_tables import tables_from_original_executable
 from gate13_ea444_staged_rasters import decode_staged_or_original
 from gate13_original_pixel_preview import encode_rgba_png
-from original_eamail_control_art import validate_original_eamail_control_art
+from original_eamail_control_art import (
+    ORIGINAL_EAMAIL_ART_FOLDER, ORIGINAL_EAMAIL_CONTROL_ART,
+    validate_original_eamail_control_art,
+)
 from original_eamail_source_contract import (
     ORIGINAL_EAMAIL_GRID_RESOURCES,
     ORIGINAL_EAMAIL_ROW_RECT,
@@ -31,11 +34,15 @@ class OriginalEAMailCanvasError(ValueError):
 class OriginalEAMailRowArt:
     normal: EA444DecodedImage
     selected: EA444DecodedImage | None = None
+    empty_preview: EA444DecodedImage | None = None
 
     def __post_init__(self) -> None:
         for image in (self.normal, self.selected):
             if image is not None and (image.width, image.height) != ORIGINAL_EAMAIL_ROW_RECT[2:]:
                 raise OriginalEAMailCanvasError("Original native row grid geometry drifted")
+        if (self.empty_preview is not None
+                and (self.empty_preview.width, self.empty_preview.height) != (532, 187)):
+            raise OriginalEAMailCanvasError("Original native empty preview geometry drifted")
 
 
 @dataclass(frozen=True)
@@ -49,6 +56,52 @@ class OriginalEAMailCanvasRowOverlay:
     source_path: str
     native_full_text_and_art_rendered: bool = False
     native_selected: bool = False
+
+
+
+# Native PEAMail vft 0x7C2950 +0x8 = 0x4720D0. Opening its panel resets
+# source selection and preview string to 0x874BA0 then calls 0x471620,
+# which selects resource 0x945B30 when the initial string is empty.
+# 0x945B30 maps to the shipped preview_panel_disabled.444 (532x187).
+ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH = (
+    ORIGINAL_EAMAIL_ART_FOLDER + "/preview_panel_disabled.444"
+)
+ORIGINAL_EAMAIL_EMPTY_PREVIEW_NATIVE_WRAPPER_VA = 0x945B30
+ORIGINAL_EAMAIL_EMPTY_PREVIEW_SCREEN_RECT = (246, 343, 532, 187)
+
+
+@dataclass(frozen=True)
+class OriginalEAMailEmptyPreviewOverlay:
+    screen_rect: tuple[int, int, int, int]
+    source_path: str
+    png: bytes
+    native_body_text_rendered: bool = False
+
+
+def original_empty_eamail_preview(
+    visible: OriginalEAMNativeVisibleRowsSource,
+    art: OriginalEAMailRowArt,
+    *, selected_node_serial: int | None = None,
+) -> OriginalEAMailEmptyPreviewOverlay | None:
+    """Original native initial empty preview only; never fake selected body.
+
+    Once a row is selected the original displays a dynamically formatted
+    message and enabled preview art. That path is NOT implemented here.
+    """
+    if type(visible) is not OriginalEAMNativeVisibleRowsSource or type(art) is not OriginalEAMailRowArt:
+        raise OriginalEAMailCanvasError("Verified original Inbox source required")
+    if selected_node_serial is not None:
+        return None
+    if art.empty_preview is None:
+        return None
+    return OriginalEAMailEmptyPreviewOverlay(
+        screen_rect=ORIGINAL_EAMAIL_EMPTY_PREVIEW_SCREEN_RECT,
+        source_path=ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH,
+        png=encode_rgba_png(
+            art.empty_preview.width, art.empty_preview.height,
+            art.empty_preview.rgba,
+        ),
+    )
 
 
 def load_verified_original_eamail_row_art(
@@ -75,7 +128,16 @@ def load_verified_original_eamail_row_art(
             (root / resource.source_path).read_bytes(), tables=tables, quant=quant,
         )
 
-    return OriginalEAMailRowArt(decoded(normal), decoded(selected))
+    empty_spec = next(
+        (x for x in ORIGINAL_EAMAIL_CONTROL_ART
+         if x.name == "preview_panel_disabled.444"), None,
+    )
+    if (empty_spec is None or empty_spec.dimensions != (532, 187)
+            or ORIGINAL_EAMAIL_EMPTY_PREVIEW_NATIVE_WRAPPER_VA != 0x945B30):
+        raise OriginalEAMailCanvasError("Missing original native disabled preview map")
+    empty_raw = (root / ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH).read_bytes()
+    empty_art = decode_staged_or_original(empty_raw, tables=tables, quant=quant)
+    return OriginalEAMailRowArt(decoded(normal), decoded(selected), empty_art)
 
 
 def original_eamail_row_at_screen_point(
