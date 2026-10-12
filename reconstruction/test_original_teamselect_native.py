@@ -306,6 +306,80 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "1..16"):
                     original_staff_inactive_link_owner_offset(bad)
 
+    def test_original_supportstart_source_list_ownership_not_heads(self):
+        # Original 0x4D0844/0x4D0854/0x4D0864/0x4D086F store
+        # zero to [+0] deletion/ownership flag, NOT head [+4].
+        # 0x617D70 appends via [+4,+8]; 0x4D1880 reads [+0] for delete.
+        from original_supportstart_staff_lists import (
+            OriginalSupportStartLinkedLists,
+            project_original_supportstart_staff_apply,
+            SOURCE_STAFF_LINK_OWNERS,
+        )
+        from support_staff import (
+            SupportStaffState, original_teamselect_support_slots,
+        )
+        self.assertEqual(SOURCE_STAFF_LINK_OWNERS,
+                         (0x875600, 0x5B8, 0x5C4, 0x5D0))
+        staff_a = SupportStaffState(1, 30, 3)
+        staff_b = SupportStaffState(13, 35, 4)
+        foreign_staff = SupportStaffState(3, 42, 5)
+        slots = original_teamselect_support_slots((staff_a, staff_b))
+        before = OriginalSupportStartLinkedLists(
+            inactive_type_1_to_5=(staff_a,),
+            inactive_type_6_to_16=(staff_b,),
+            global_staff=(foreign_staff,),
+        )
+        # bit15=0 -> record flag1 -> both already inactive, leave as they are.
+        same = project_original_supportstart_staff_apply(
+            source_slots=slots, control_dwords=(0,) * 7, prior=before,
+        )
+        self.assertEqual(same.original_record_flag_bytes, (1,) * 7)
+        self.assertEqual(same.list_payload_deletion_flags, (0, 0, 0, 0))
+        self.assertEqual(same.lists, before)
+        # bit15=1 on first two rows -> flag0 => remove from inactive,
+        # append to currently selected user and global list (native tail order
+        # is reversed: original Apply visits slot6 first down to slot0).
+        active = project_original_supportstart_staff_apply(
+            source_slots=slots,
+            control_dwords=(0x8000, 0x8000) + (0,) * 5,
+            prior=before,
+        )
+        self.assertEqual(active.original_record_flag_bytes[:2], (0, 0))
+        self.assertEqual(active.lists.inactive_type_1_to_5, ())
+        self.assertEqual(active.lists.inactive_type_6_to_16, ())
+        self.assertIs(active.lists.current_staff[0], staff_b)
+        self.assertIs(active.lists.current_staff[1], staff_a)
+        self.assertEqual(active.lists.global_staff, (foreign_staff, staff_b, staff_a))
+        self.assertEqual(before.inactive_type_1_to_5, (staff_a,))
+        self.assertEqual(before.inactive_type_6_to_16, (staff_b,))
+        self.assertEqual(before.global_staff, (foreign_staff,))
+
+    def test_original_supportstart_source_list_fails_closed_on_bad_pointer_history(self):
+        from original_supportstart_staff_lists import (
+            OriginalSupportStartLinkedLists, project_original_supportstart_staff_apply,
+        )
+        from support_staff import SupportStaffState, original_teamselect_support_slots
+        person = SupportStaffState(2, 32, 3)
+        with self.assertRaisesRegex(ValueError, "two user lists"):
+            OriginalSupportStartLinkedLists(
+                current_staff=(person,), inactive_type_1_to_5=(person,),
+            )
+        with self.assertRaisesRegex(ValueError, "Duplicate pointer"):
+            OriginalSupportStartLinkedLists(current_staff=(person, person))
+        with self.assertRaisesRegex(ValueError, "Invalid source type"):
+            OriginalSupportStartLinkedLists(inactive_type_6_to_16=(person,))
+        original = original_teamselect_support_slots((person,))
+        with self.assertRaisesRegex(ValueError, "seven original selector DWORDs"):
+            project_original_supportstart_staff_apply(
+                source_slots=original, control_dwords=(0,), prior=OriginalSupportStartLinkedLists(),
+            )
+        with self.assertRaisesRegex(ValueError, "DWORD"):
+            project_original_supportstart_staff_apply(
+                source_slots=original,
+                control_dwords=(True,) + (0,) * 6,
+                prior=OriginalSupportStartLinkedLists(),
+            )
+
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
             (26, "England"), (66, "Scotland"), (33, "Germany"),
