@@ -233,6 +233,25 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
             (391, 181), (391, 221), (391, 261), (391, 301),
             (391, 341), (391, 381), (391, 421),
         ))
+        self.assertEqual(tuple(row.source_layout_rect for row in rows), (
+            (391, 181, 326, 37), (391, 221, 326, 37),
+            (391, 261, 326, 37), (391, 301, 326, 37),
+            (391, 341, 326, 37), (391, 381, 326, 37),
+            (391, 421, 326, 37),
+        ))
+        from original_supportstart_layout import (
+            SOURCE_SUPPORTSTART_ROW_RECT_SIZE,
+            SOURCE_SUPPORTSTART_BACKGROUND_SOURCE,
+            SOURCE_SUPPORTSTART_ROW_BARS_SOURCE,
+            SOURCE_SUPPORTSTART_ROW_BUTTON_SOURCE,
+        )
+        self.assertEqual(SOURCE_SUPPORTSTART_ROW_RECT_SIZE, (326, 37))
+        self.assertEqual(SOURCE_SUPPORTSTART_BACKGROUND_SOURCE,
+                         "FM2001_Art/Generic/user_entry/background.444")
+        self.assertEqual(SOURCE_SUPPORTSTART_ROW_BARS_SOURCE,
+                         "FM2001_Art/Generic/user_entry/text_bars.444")
+        self.assertEqual(SOURCE_SUPPORTSTART_ROW_BUTTON_SOURCE,
+                         "FM2001_Art/Generic/GenericButtonsAndBars/user_entry_anim.444")
         self.assertEqual(tuple(row.native_group_index for row in rows),
                          (8, 9, 10, 11, 12, 13, 14))
         self.assertEqual(tuple(row.selector_owner_offset for row in rows),
