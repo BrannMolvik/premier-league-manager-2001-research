@@ -244,3 +244,61 @@ hit rectangle, parent transform, text font raster or a live editor.
 `0x5D4790` dispatch flags include this fifth child as an input
 candidate, but actual successful mouse hit conditions still
 depend on the native gate and original frame/control state.
+
+
+### Recovery549: precise native TeamSelect conditional SupportStart modal edge
+
+Original TeamSelect final vft `0x7C7628` dispatches source
+`0x4D91C0` for this original control action.
+At `0x4D91C0–0x4D91E4`, source first invokes
+`0x64F960` with the input event's two arguments,
+then **only if its result is nonzero** invokes
+`0x652F80` on the actual TeamSelect control and
+continues **only if its control+0x18 bit15 is set**.
+The qualified branch then looks up its current user,
+retains user identity `0x8755D4`, computes a
+selected-record array index via `0x4D9240`, and
+passes the source arrays `record+0x0C` (staff pointer slots)
+and `record+0x28` (selected bytes) into
+`0x450BB0` at exact call `0x4D9224`.
+The modal `0x450BB0` constructs `0x29C0`
+PSupportStart, enters original native GUI
+`0x5EB540` and `0x532650`, reads
+`PSupportStart+0x1DE4` only **after** GUI return
+and returns that result as AL. Original event1
+Cancel=0 and event2 Apply=1 were previously
+verified at `0x4D05E0`; the UI's complete
+original parent navigation on result still needs tracing.
+
+**This is a conditional event route, not permission to
+show SupportStart on every club-row toggle or solely on
+TeamSelect Start/Continue.** Generic `0x64F960`
+event acceptance and the actual TeamSelect control's
+bit15 are both required. The source-bounded helper
+`original_supportstart_teamselect_modal_entry` accepts
+both verified upstream inputs; a seventh focused test
+asserts all four gate/bit combinations. It does NOT
+implement a pointer hit test or launch a dialog.
+
+**Present port observable gap:** `reconstruction/front_end_session.py`
+`toggle_club_selection` currently changes the selected club IDs
+without a native SupportStart session, and its
+`TEAM_SELECT/START_CONTINUE` block calls
+`gameplay.select_club` and immediately dispatches
+to management. `reconstruction/original_game_host.py`
+`on_click` handles TeamSelect club rows with
+`_update_teamselect_club_row` or accepts
+`TEAMSELECT_START_CONTINUE` and draws management.
+Neither is the source `0x4D91C0→0x450BB0`
+PSupportStart modal/return journey. This is a
+**PARTIAL / MISSING original player-visible path**;
+do not introduce an unconditional compatibility dialog
+until the original source event owner, seven-row GUI,
+Cancel/Apply staff state and name edits are qualified.
+
+Repeat:
+```bash
+objdump -D -Mintel --start-address=0x4d91c0 --stop-address=0x4d926d footballmanager.exe
+objdump -D -Mintel --start-address=0x450bb0 --stop-address=0x450ce9 footballmanager.exe
+cd reconstruction && python -m unittest test_original_supportstart_input
+```
