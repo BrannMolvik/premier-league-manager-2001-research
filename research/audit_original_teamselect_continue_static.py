@@ -984,6 +984,42 @@ def main(path: str) -> None:
     print("PASS source DBRUser init callback/formatter direct-call frontier")
     print("WARNING other ctor branches, queue contents and first-click CRT remain unproven")
 
+    # Recovery572: original native binder 0x426090 supplies literal zero
+    # to 0x415870. That dispatch skips complex 0x405CF0/0x50FFC0.
+    source_first_human_binder_branch_572 = (
+        ("4261a9", "push   0x0"),
+        ("4261b3", "call   0x415870"),
+        ("415877", "cmp    al,0x1"),
+        ("41587c", "jne    0x4158c3"),
+        ("4158a5", "call   0x405cf0"),
+        ("4158be", "call   0x50ffc0"),
+        ("4151d5", "call   0x413b10"),
+        ("403e10", "mov    eax,DWORD PTR [ecx+0x40]"),
+        ("413b10", "mov    eax,DWORD PTR [ecx+0x9cc]"),
+        ("426177", "call   0x4151c0"),
+        ("42609b", "call   0x403e10"),
+        ("426195", "call   0x403e10"),
+    )
+    for address, expected in source_first_human_binder_branch_572:
+        if expected not in instruction(address):
+            raise AssertionError(("Original first-manager binder branch changed",address))
+    for start,stop,expected in (
+        (0x403e10,0x403e3d,()),
+        (0x413b10,0x413b36,()),
+        (0x4151c0,0x415209,(0x413b10,)),
+        (0x4158c3,0x415927,()),
+    ):
+        calls = tuple(int(v,16)
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):",line))
+            and start <= int(m.group(1),16) < stop
+            for v in re.findall(r"\bcall\s+0x([0-9a-f]+)",line))
+        if calls != expected:
+            raise AssertionError(("First-human binder bounded direct calls changed",
+                                  hex(start), calls))
+    print("PASS literal-zero first-human binder branch and bounded lookup callees")
+    print("WARNING binder pointer effects and dynamic original queue still unproven")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
