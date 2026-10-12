@@ -54,3 +54,23 @@ On the EXISTING unopened SupportStart feature branch (no unnecessary PR/CI), new
 4. At coherent player-visible integration, create one reviewable PR with source-proven tests, privacy/asset checks, exact-head required CI and a real user Windows11 GUI acceptance. Then continue Inbox, R1 four modes/PResults, complete leagues/countries/2–6 humans, Gates 13–17 Windows11 release audit.
 
 Do not mark Gate13 or any later gate passed from static original disassembly or synthetic tests. Continue from GitHub, not the conversation.
+
+
+## Recovery558 independent original executable static assertions PASS
+
+A fresh deterministic local script, inspecting the SHA-confirmed original PE with Intel objdump, asserted all of the following without executing the original process:
+
+| Native owner | Assertion | Result |
+| --- | --- | --- |
+| 0x42C400..0x42C514 | exactly 10 textual callsites to 0x421C00, of which 9 are unrolled and last at 0x42C505 sits inside native four-iteration loop | PASS |
+| 0x4C9CD0..0x4C9D12 | exactly 6 source calls to 0x4C9B30 before post-staff linkage | PASS |
+| 0x4CB0F0..0x4CB2B0 | exactly four DIRECT bounded RNG call instructions, 0x4CB16D/0x4CB1A1/0x4CB1CE/0x4CB1D7 (the latter three run once per chosen assignment) | PASS |
+| 0x4CA660..0x4CA6CF | original source compare branch at 0x4CA6B6 loops back to 0x4CA66B, i.e. both name choices repeat on first-name "-" | PASS |
+
+The helper is a static x86/source receipt only; no current GitHub branch code was checked out in the local shell, so **new Python tests and full suite were not run** and no GitHub Actions claim is made. Source code/asset privacy unchanged.
+
+### Immediate integration impediments, source-specific
+
+Canonical main FrontEndSession currently preserves team selection only as IDs while the source event constructs an actual linked DBRUser, resolves 13 generated name pairs, creates six Staff objects, and enters editor BEFORE its start transition. Canonical main GameState.from_database currently creates a new CRT at backend materialization, which is deferred to Start/Continue. Correct replacement must avoid silently shifting all later seed/fixture states. Source selected user initialization 0x413BB0 also calls DBRUser constructor 0x424CA0 (whose visible four array element initializer 0x424F70 is RNG-free) and 0x426090 current-manager binding with indirect nontrivial subcalls. The complete seed-to-first-user branch, including 0x426090 indirect runtime effects and modal Apply/Cancel/rollback, remains to be audited. Do not declare an *exact* pre-staff LCG checkpoint from the >=98 direct calls alone.
+
+The source itself is accessible; the outstanding limitation is exact-head code test execution/graphical acceptance (local shell cannot resolve github.com for a clone), not unavailable original bytes. Continue branch-staged source modeling and native event mapping, then combine into one full feature PR with its required exact-head CI rather than triggering CI for every trace.
