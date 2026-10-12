@@ -30,7 +30,11 @@ from original_eamail_live_canvas import (
     original_eamail_row_at_screen_point,
     source_original_eamail_row_backgrounds,
     original_empty_eamail_preview,
+    original_eamail_initial_status_layers,
+    original_eamail_scroll_at_point, original_eamail_scroll_step,
+    original_eamail_scroll_layers,
 )
+from original_eamail_row_text import original_eamail_row_text_layers
 from original_eamail_source_contract import original_eamail_neutral_row_dispatch
 from original_management_background import OriginalManagementBackground
 from original_management_header import (
@@ -432,6 +436,7 @@ class OriginalGameTkHost:
         # Retain only the present panel's displayed native row identity.
         self._eamail_selected_node_serial = None
         self._eamail_selected_row_token = None  # per-panel native pointer surrogate
+        self._eamail_scroll_pressed = None
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
         self.pmatchinfo_nested_font = pmatchinfo_nested_font
@@ -2020,7 +2025,15 @@ class OriginalGameTkHost:
                     rect.x <= x < rect.right and rect.y <= y < rect.bottom)
             self._schedule_prematch_update()
             return
+        from original_eamail_live_canvas import original_eamail_received_hit
+        previous = getattr(self, '_first_screen_pointer', None) or (-1, -1)
         self._first_screen_pointer = (int(event.x), int(event.y))
+        if (self.management_presenter is not None
+                and getattr(self.management_presenter, 'selected_child_id', None) == 0x65
+                and not self.pmenu_popup_active
+                and original_eamail_received_hit(*previous)
+                != original_eamail_received_hit(*self._first_screen_pointer)):
+            self.redraw()
         self._update_squad_background_hover(int(event.x), int(event.y))
         if self.presenter.session.navigation.screen in (
                 FrontEndScreen.START_MENU,
@@ -2139,10 +2152,11 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_eamail_rows(self, frame) -> int:
+        from original_eamail_live_canvas import original_eamail_received_layers, original_eamail_received_hit
         """Draw original normal/selected Inbox row graphics, not synthetic UI.
 
         0x471B80 selects on first press; 0x470B40 installs bitmap 0x945DF0.
-        Native glyphs, status icons, preview and popup still need source work.
+        Qualified row glyphs/icons are separate from blocked preview and popup.
         """
         if frame.presentation.panel_class != "PEAMail":
             return 0
@@ -2156,6 +2170,12 @@ class OriginalGameTkHost:
             self._eamail_selected_node_serial = None
             self._eamail_selected_row_token = None
         drawn = 0
+        for x, y, _w, _h, png in original_eamail_received_layers(
+                self.eamail_row_art,
+                selected=getattr(getattr(self, 'management_presenter', None), 'eamail_sort_index', None) == 4,
+                hovered=original_eamail_received_hit(*(getattr(self, '_first_screen_pointer', None) or (-1, -1)))):
+            self._create_native_image(x, y, image=self._photo(png), anchor=self.tk.NW)
+            drawn += 1
         for row in source_original_eamail_row_backgrounds(
             frame.presentation.eamail, self.eamail_row_art,
             selected_node_serial=self._eamail_selected_node_serial,
@@ -2164,6 +2184,24 @@ class OriginalGameTkHost:
                 row.x, row.y, image=self._photo(row.png), anchor=self.tk.NW,
             )
             drawn += 1
+        if self.eamail_row_art.text_resources is not None:
+            for x, y, w, h, rgba in original_eamail_row_text_layers(
+                frame.presentation.eamail, self.eamail_row_art.text_resources,
+                selected_node_serial=self._eamail_selected_node_serial,
+            ):
+                self._create_native_image(
+                    x, y, image=self._photo(encode_rgba_png(w, h, rgba)), anchor=self.tk.NW,
+                )
+                drawn += 1
+            for x, y, _w, _h, png in (
+                original_eamail_initial_status_layers(frame.presentation.eamail, self.eamail_row_art)
+                + original_eamail_scroll_layers(
+                    frame.presentation.eamail, self.eamail_row_art,
+                    pressed_control_id=getattr(self, '_eamail_scroll_pressed', None),
+                )
+            ):
+                self._create_native_image(x, y, image=self._photo(png), anchor=self.tk.NW)
+                drawn += 1
         # The source PEAMail +0x8 initialization clears current selection
         # and refreshes 0x471620 with empty 0x874BA0: 0x945B30 is the
         # shipped disabled 532x187 preview at source screen (246,343).
@@ -2180,6 +2218,43 @@ class OriginalGameTkHost:
             )
             drawn += 1
         return drawn
+
+    def _press_original_eamail_scroll(self, event, frame) -> bool:
+        # shortcut: single-step only until the native held-repeat cadence is qualified.
+        if self.pmenu_popup_active or frame.presentation.panel_class != 'PEAMail':
+            return False
+        control_id = original_eamail_scroll_at_point(int(event.x), int(event.y))
+        if control_id is None:
+            return False
+        visible = frame.presentation.eamail
+        if original_eamail_scroll_step(visible, control_id) == visible.original_scroll_offset:
+            return True  # disabled original control cannot notify/rebuild selection
+        if getattr(self, '_eamail_scroll_pressed', None) is not None:
+            return True
+        self.management_presenter.source_accepted_eamail_scroll(control_id)
+        self._eamail_scroll_pressed = control_id
+        self._eamail_selected_node_serial = None  # 47223C clears both row pointers
+        self._eamail_selected_row_token = None
+        self.redraw()
+        self.last_status = 'Original Inbox one-row scroll; preview/actions remain unresolved'
+        return True
+
+    def _press_original_eamail_received(self, event, frame):
+        from original_eamail_live_canvas import original_eamail_received_hit
+        if (self.pmenu_popup_active or frame.presentation.panel_class != 'PEAMail'
+                or not original_eamail_received_hit(int(event.x), int(event.y))):
+            return False
+        if self.eamail_row_art is None or self.eamail_row_art.received_header is None:
+            return False
+        # 64F7A0 rejects held input; 652CF0 still notifies when already selected.
+        if getattr(self, '_eamail_received_pressed', False):
+            return True
+        self.management_presenter.source_accepted_eamail_received_sort()
+        self._eamail_received_pressed = True
+        self._eamail_selected_node_serial = None
+        self._eamail_selected_row_token = None
+        self.redraw()
+        return True
 
     def _press_original_pbg_direct_inbox(self, event, frame) -> bool:
         """Dispatch original PBg header ID1 directly to PEAMail factory 0x65.
@@ -2708,6 +2783,10 @@ class OriginalGameTkHost:
         event = self._normalize_pointer_event(event)
         if self._release_original_squad_row(event):
             return
+        self._eamail_received_pressed = False  # 64F860: clear held, no second sort
+        if getattr(self, '_eamail_scroll_pressed', None) is not None:
+            self._eamail_scroll_pressed = None  # 64F860: release, no second step
+            self.redraw()
         pager_changed = any(flags & 0x10 for flags in self.fixtures_pager_flags.values())
         self.fixtures_pager_flags = {direction: flags & ~0x10
                                     for direction, flags in self.fixtures_pager_flags.items()}
@@ -2872,6 +2951,10 @@ class OriginalGameTkHost:
                 self.pmenu_popup_active = True
                 self.redraw()
                 self.last_status += '; native application event 2: PMenu popup opened'
+                return
+            if self._press_original_eamail_received(event, frame):
+                return
+            if self._press_original_eamail_scroll(event, frame):
                 return
             if self._press_original_eamail_row(event, frame):
                 return
@@ -3218,7 +3301,8 @@ def run_original_game_ui(
                 home_club_id=pair[0],
                 away_club_id=pair[1],
                 background_club_override_id=None,
-                source_root=resolved_source_root,
+                # Dynamic club art is in the user's installation, not the bundled subset.
+                source_root=Path(game_dir),
                 original_executable=original_executable,
             )
 

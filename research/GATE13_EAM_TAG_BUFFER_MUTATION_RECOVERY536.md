@@ -1,5 +1,9 @@
 # Recovery536 — original eCText tag parser mutates its owned text buffer
 
+> **Corrected for Inbox rows:** this generic-vtable dispatch does not apply to
+> the final PMessageRow children. Their `0x7BFAC8+0x98/+0x9C` are color getters
+> `0x43B680/0x43B6A0`. See [the independently rechecked list contract](GATE13_ORIGINAL_INBOX_LIST_MILESTONE.md).
+
 ## Evidence scope and original identity
 
 Direct inspection of owner-authorized shipped `footballmanager.exe` (4,714,541 bytes, SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`). Static PE disassembly only: no original-game launch, physical mouse input, or Windows 11 observation. This extends [native font/tag branch Recovery535](GATE13_EAM_NATIVE_TEXT_FONT_SWITCH_RECOVERY535.md), which verified default object `0x9269F0` bound to shipped Zurich BdXCn 16px font and original tag type jump table `0x5D7A4C`.

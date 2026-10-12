@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Independent Codex original Inbox readable-list milestone (unmerged)
+
+- Branch `codex/original-inbox-list` starts at PR647 merge `29e7f2e1`. Actual PMessageRow text children use final vtable `0x7BFAC8`; corrected earlier generic editing-slot attribution to source color getters `0x43B680/0x43B6A0`. Connected qualified original player/club, subject/date glyphs, immutable initial unread icons and one-row native up/down scrolling. Selection clears on native list rebuild, not on disabled arrow or mere release. Original assets/font/recipient checks retained; no simulation, RNG ownership or save-schema changes. [Source contract, tests and limitations](GATE13_ORIGINAL_INBOX_LIST_MILESTONE.md).
+- Preview/detail, mutable read/actions, complete classes, physical filter/header controls and >16 hybrid sorting remain incomplete. PR638 stays blocked. No original execution or interactive Windows UI testing. Worker SupportStart and performance branch untouched; Gate13 OPEN.
+
 ### 12 October 2026 KST — Recovery547 independent PSupportStart child control/source widget routing
 
 - Verified latest main 83136a2 including PR644 and batched checkpoint policy; runtime generation547 continuous. Direct original source 0x4C9340 constructs five row controls at +0x38/+0x3C/+0x40/+0x44/+0x48 with original registration IDs 0x33/0x31/0x31/0x15/0x15. 0x4C9510 assigns original source 945950 to first, configures two 945910 text children at source row_x+19, a separate staff role sprite child via 0x4C97D0 and text child via 0x652400. 0x4C97D0 supports only source values1–5 with original wrapper pointers; else NULL. This narrows actual seven-row editor child identity without guessing click bounds/labels. [Original source audit](GATE13_PSUPPORTSTART_CHILD_CONTROL_RECOVERY547.md). Original executable static only, Gate13–17 OPEN.
@@ -13273,3 +13278,14 @@ Verified original source 0x321 PSaveGame 760x500 and event6 write/event7 delete+
 - Re-read canonical main `7d495ebba691111913031ae4802f229f78a7fea8`, CURRENT_STATE, Roadmap/continuation, fidelity ledger and current Codex implementation `e166ae4d70c32b41f8dcef86b3d3d42b19a24262`, which has no new commits. Codex's real source-accepted NEXT backend and PMenu Return/Continue are integrated but normal selected pre-match/modal/calc/PResults/return, all original Inbox/Save/forms, correct selected-country League views remain incomplete; source test badges cannot substitute for Windows11 normal pointer acceptance.
 - Created `research/GATE13_FIRST_VISIBLE_PLAYABLE_SLICE_BLOCKER_MATRIX_RECOVERY490.md`: exact integrated R0→R1 first-player-accepted Quick mode3→R2 original management→R3 full original-scope gate acceptance, P0 A–G dependency and source/code owners, negative/positive tests and backout boundaries. This identifies a concrete **next Codex-only implementation**: central original match-phase/input gate and guard on public NEXT before mutable Side scanning, then reuse original PPreMatch four-button mode selection and source mode3 pre/post-calculation, event-progress PResults and normal return. All four native match modes still mandatory to claim full fidelity.
 - Original executable had been independently SHA256 rehashed/disassembled in Recovery488; trivial local `container.exec` still fails `caas.internal.errors.ClientError`, so this turn performed no source original binary, original game process, Windows mouse, code, tests, CI or release gates. Audit-only scope retained; Gate13 OPEN.
+### 12 October 2026 KST — Inbox Received control and single-extraction Windows diagnostic build
+
+Branch `codex/inbox-controls-playtest`, based on main8d81c44d with PR647/649.
+Source-qualified Received header integrated with real list ordering and native
+selection/scroll/reset semantics. Separate direct-layout build artifact avoids
+nested ZIPs; preserves formal RC/provenance and enforces C:\FMTest path bounds.
+95 Inbox and118 focused tests pass; exact CI/download identity in the PR.
+[Evidence and incomplete boundaries](GATE13_INBOX_RECEIVED_PLAYTEST.md).
+Worker SupportStart, CRT ownership, agent-runtime and performance checkpoint
+unchanged. No interactive Windows test; Gate13 OPEN; PR left for review.
+

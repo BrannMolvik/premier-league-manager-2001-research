@@ -687,6 +687,8 @@ PSTARTMENU_DERIVATIVE_RELATIVE = (
 
 def package_smoke_report() -> dict:
     """Fail-closed packaged-runtime probe that requires no user game data."""
+    import gate13_ea444_staged_rasters as staged_rasters
+
     app_root = application_root()
     root = bundled_source_root()
     provenance = app_root / "original_assets" / "MANIFEST.md"
@@ -732,6 +734,12 @@ def package_smoke_report() -> dict:
             f"{exc}"
         ) from exc
 
+    raster_root = app_root / 'original_assets/converted/gate13-rasters-v1'
+    if staged_rasters.BUNDLE_ROOT.resolve() != raster_root.resolve():
+        raise RuntimeError('Packaged management raster decoder uses the wrong runtime root')
+    _raster_manifest, raster_images = staged_rasters._load_bundle(
+        staged_rasters.BUNDLE_ROOT, staged_rasters.MANIFEST_SHA256)
+
     startup_ffmpeg = resolve_startup_ffmpeg(
         app_root,
         system_which=lambda _name: None,
@@ -747,6 +755,8 @@ def package_smoke_report() -> dict:
             derivative_manifest.read_bytes()
         ).hexdigest(),
         "pstartmenu_presenter_build_passed": True,
+        "gate13_raster_bundle_root": str(raster_root),
+        "gate13_raster_image_count": len(raster_images),
         "pstartmenu_presenter_screen": str(package_snapshot.screen.value),
         "original_menu_control_ids": [control.event for control in package_snapshot.controls],
         "settings_surface_present": False,
