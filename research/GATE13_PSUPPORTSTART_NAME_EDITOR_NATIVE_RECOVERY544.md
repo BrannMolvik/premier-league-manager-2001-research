@@ -81,3 +81,60 @@ objdump -D -Mintel --start-address=0x4cf0f0 --stop-address=0x4cf159 footballmana
 objdump -D -Mintel --start-address=0x4cf570 --stop-address=0x4cf725 footballmanager.exe
 objdump -D -Mintel --start-address=0x4d0830 --stop-address=0x4d0a74 footballmanager.exe
 ```
+
+
+## Follow-up source caller chain through TeamSelect vtable
+
+Source examination after PR #640 merged identifies the **sole direct** executable
+CALL to PSupportStart factory `0x450BB0`: native
+`0x4D9224` in method `0x4D91C0`. Raw little-endian pointer search
+in original `.rdata` shows `0x4D91C0` at
+`0x7C7628`, within the same original TeamSelect-style
+class vtable block `0x7C7600..0x7C7644` which also
+contains native `0x4D8E90` (the previously proven
+club selection handler). This bounds the source call
+owner to the original TeamSelect class's event/method path.
+Neither a new Settings action nor a generic invented
+manager-home is the original PSupportStart opener.
+
+Crucially, original `0x4D91C0` is **conditional**.
+At `0x4D91D0` it first calls native
+`0x64F960` and tests a result, then at
+`0x4D91DD` it calls `0x652F80` and
+tests its Boolean. If either fails it branches to
+`0x4D9234` and never opens PSupportStart.
+The successful branch resolves an original TeamSelect
+private record via `0x4D9240`,
+reads record+0x08 as a registered user pointer,
+calls original `0x413B80` removal at `0x4D91FC`,
+writes the returned selected-user index at
+`0x4D9207`, then resolves a distinct private
+record again at `0x4D9216`, pushing its
+`+0x0C/+0x28` fields plus the calculated index
+into `0x450BB0` at **`0x4D9224`**.
+That factory obtains **the current selected registered user**
+through `0x4139D0` and its club pointer
+`user+0x5B4`, then calls PSupportStart constructor
+`0x4CF0F0`. It is not a proof that
+every first TeamSelect selection automatically opens
+this editor, nor that the editor opens only on deselection.
+The *exact UI triggering action*, `0x652F80` conditions,
+screen transition/close, edit validation and return remain
+UNKNOWN and require following this vtable event and
+parent wrapper before building player-visible UI.
+
+Independent reproduction on the unchanged SHA-matched
+private original:
+```bash
+objdump -D -Mintel --start-address=0x4d91c0 --stop-address=0x4d9240 footballmanager.exe
+objdump -s --start-address=0x7c7600 --stop-address=0x7c7650 footballmanager.exe
+objdump -D -Mintel --start-address=0x450bb0 --stop-address=0x450c35 footballmanager.exe
+```
+Exact source direct-call candidates obtained by decoding
+original text `E8 rel32` targets; `0x4D9224` was the only
+direct CALL to `0x450BB0` in the original `.text`.
+There may be other indirect caller paths, which were **not**
+excluded by this particular xref enumeration.
+
+Original PSupportStart GUI still NOT in the port.
+No original binary was run or Windows 11 GUI accepted.
