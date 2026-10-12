@@ -376,3 +376,15 @@ objdump -D -Mintel --start-address=0x5E5810 --stop-address=0x5E594A footballmana
 ```
 
 **NEXT source action:** trace the source normal New Game database/event/calendar pre-TeamSelect setup and actual event queue population (owner 0x947AA8) at BOTH initial user queues; classify only live-reachable event constructors and their virtual+0x24 effects, plus per-human event reentrancy, not every offline callsite indiscriminately. Investigate Cancel staff staging post-close separately. Preserve current source-only first-human CRT/SupportStart scaffolding; do not inject guessed draws, execute original EXE, assert actual Windows 11 GUI acceptance or close Gates13–17.
+
+
+### Recovery562 queue-drain lifetime distinction: zero versus nonzero delegated callback
+
+The original `0x614080..0x6140EE` control flow adds an important state/lifecycle consequence to the event-class inventory:
+
+1. If `queueOwner+0x0C != 0`, original sets `owner+0x10=1` and returns without examining entries. Else it traverses the queue list at +0x04, snapshots each entry's next node, calls its event object's virtual **+0x04**, then its virtual **+0x18** on the return-zero or return-one path. 
+2. For a return-zero original wrapper +0x04, `0x6140AE..0x6140B5` invokes its +0x18; **a nonzero callback return branches to `0x6140E5` and retains the queue node**. A zero return falls through `0x6140D9..0x6140E0` and calls `0x4EA190` to unlink the node. Thus an original queued event with a nontrivial callback can remain scheduled for later.
+3. For the `0x404503/0x555D60` underlying event, delegated +0x24 returns zero via 0x40DFB0, so the original drain can unlink it. For the `0x409385/0x7BD6BC` event, delegate +0x24=`0x5E5810` may allocate an underlying object and return a nonzero pointer on supported arguments (argument0/1 source branches); **this can retain that queue entry**. It is not source-proven that either branch executes during first-manager creation.
+4. The original queue is therefore an **ongoing gameplay event/retention system**, not merely a list of startup RNG callbacks to consume once. The port must preserve actual event identity, ordering, state, removal and re-entry. A scalar counter like `startup_rng_draws_per_event=0` or a blanket queue-clear operation is source-incompatible.
+
+This behavior is verified from native static control flow. Original runtime event order, actual callback arguments and shared-CRT consumption along indirect constructors remain unknown. Do not mark the two first-user queue drains or fresh startup stream verified on this evidence alone.
