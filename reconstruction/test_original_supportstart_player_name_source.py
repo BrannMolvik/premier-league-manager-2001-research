@@ -5,6 +5,7 @@ from original_supportstart_name_group_source import OriginalNameGroupCandidateRo
 from original_supportstart_player_name_source import (
     OriginalSupportStaffNameSourceError,
     source_support_staff_name_from_observed_player_pair,
+    consume_original_supportstaff_name_from_shared_rng,
 )
 
 
@@ -70,6 +71,75 @@ class SourceSupportStaffNameTests(unittest.TestCase):
             source_support_staff_name_from_observed_player_pair(
                 malformed,self.group,original_first_player_position=0,
                 original_surname_player_position=2)
+
+
+    def test_shared_crt_staff_pair_selects_first_and_surname_independently(self):
+        class Rng:
+            def __init__(self, values):
+                self.values=list(values)
+                self.bounds=[]
+            def randbelow(self, bound):
+                self.bounds.append(bound)
+                return self.values.pop(0)
+
+        rng=Rng([0,1])
+        replay=consume_original_supportstaff_name_from_shared_rng(
+            rng, self.players, self.group
+        )
+        self.assertEqual(replay.selected_name.full_name,"David Winterburn")
+        self.assertEqual((replay.source_name_pairs_attempted,replay.bounded_rng_calls),
+                         (1,2))
+        self.assertEqual(rng.bounds,[2,2])
+        self.assertEqual(rng.values,[])
+
+    def test_staff_sentinel_retries_entire_two_draw_pair_not_only_first(self):
+        records=(player(0,"-","Seaman"),self.players[1],self.players[2])
+        class Rng:
+            def __init__(self):
+                self.calls=[]
+                self.sequence=[0,2,1,0]
+            def randbelow(self, bound):
+                self.calls.append(bound)
+                return self.sequence.pop(0)
+        rng=Rng()
+        replay=consume_original_supportstaff_name_from_shared_rng(
+            rng, records, self.fallback
+        )
+        self.assertEqual(replay.selected_name.full_name,"Lee Seaman")
+        self.assertEqual(replay.source_name_pairs_attempted,2)
+        self.assertEqual(replay.bounded_rng_calls,4)
+        self.assertEqual(rng.calls,[3,3,3,3])
+        self.assertEqual(rng.sequence,[])
+
+    def test_first_pair_then_second_overwrites_name_using_same_rng_owner(self):
+        class Rng:
+            def __init__(self): self.sequence=[0,1,2,0];self.bounds=[]
+            def randbelow(self,bound):
+                self.bounds.append(bound)
+                return self.sequence.pop(0)
+        rng=Rng()
+        first=consume_original_supportstaff_name_from_shared_rng(
+            rng,self.players,self.fallback)
+        second=consume_original_supportstaff_name_from_shared_rng(
+            rng,self.players,self.fallback)
+        self.assertEqual(first.selected_name.full_name,"David Dixon")
+        self.assertEqual(second.selected_name.full_name,"Nigel Seaman")
+        self.assertEqual(rng.bounds,[3,3,3,3])
+        self.assertEqual(rng.sequence,[])
+
+    def test_missing_original_candidates_and_wrong_rng_source_fail_closed(self):
+        class Rng:
+            def randbelow(self,bound): return bound
+        with self.assertRaisesRegex(OriginalSupportStaffNameSourceError,"out-of-bounds"):
+            consume_original_supportstaff_name_from_shared_rng(
+                Rng(),self.players,self.fallback)
+        with self.assertRaises(TypeError):
+            consume_original_supportstaff_name_from_shared_rng(
+                object(),self.players,self.fallback)
+        with self.assertRaisesRegex(OriginalSupportStaffNameSourceError,"non-sentinel"):
+            consume_original_supportstaff_name_from_shared_rng(
+                Rng(),(player(0,"-","Last"),),
+                OriginalNameGroupCandidateRoute(1,1,0,"global_players",(),1))
 
 
 if __name__=="__main__":
