@@ -99,3 +99,76 @@ objdump -D -Mintel --start-address=0x64f380 --stop-address=0x64f3be footballmana
 objdump -D -Mintel --start-address=0x4c7e28 --stop-address=0x4c7e52 footballmanager.exe
 objdump -D -Mintel --start-address=0x4c7ec1 --stop-address=0x4c7eeb footballmanager.exe
 ```
+
+
+## Follow-up: complete source width/height and actual original user_entry art (Recovery546)
+
+The original row width and height are now **source-qualified**, correcting
+the provisional unknown width/height in the first section of this report.
+The same original `0x4C9510` call reads the **native** width from
+`[0x945924]` and height from `[0x945928]`, adds
+`0x14=20` to each, and passes these as width/height along with the
+two earlier source x/y args into `0x64F380` at `0x4C9539`.
+
+The original `0x5F6180` directly loads
+`FM2001_Art/Generic/user_entry/text_bars.444` into
+sprite input `0x945930`. Its native frame wrapper
+`0x5F61D0` invokes `0x64E500` with exact cropped
+sprite width `0x132=306` and height `0x11=17`,
+writing those to widget `0x945910+0x14/+0x18`
+at `0x64E58F/0x64E592`. Thus the layout child
+rectangle is `(x, y, width, height) =
+(391, 181+40i, 306+20, 17+20)`
+= **(391, 181+40i, 326, 37)**, for seven rows.
+Original `0x64F380` stores left/top and
+computes right/bottom from dimensions.
+
+The original `0x5F60F0` loads
+`Generic/GenericButtonsAndBars/user_entry_anim.444`
+into sprite `0x945970` and `0x5F6140`
+wraps its selected source slice into `0x945950`.
+Native `0x4C9510` passes this wrapper to
+`0x652940` at `0x4C954F`.
+The original `0x5F6220` loads
+`Generic/user_entry/background.444` through
+resource `0x9458F0`, wrapped by
+`0x5F6270` into `0x9458D0`
+with original width760 and height500.
+This completes asset *identity, native crop frame,
+layout child dimensions* but not the final composition
+and click semantics for every control.
+
+Connected private original-source Google Drive produced exact
+original bytes, independently checked:
+
+| Original user_entry source file | File bytes | EA444 dimensions | SHA-256 |
+| --- | ---: | --- | --- |
+| `FM2001_Art/Generic/user_entry/background.444` | 176,016 | 760×500 | `a7536fe303e6a340bf6f30a345ce77b7f396b91c8330957e6fd7a30915a3f6c4` |
+| `FM2001_Art/Generic/user_entry/text_bars.444` | 11,124 | 306×68 (source atlas, cropped frame 306×17) | `8c569018962a7084c33e5f4fda5d67e63f384d2e18d778281a7ad5aba2cba723` |
+| `FM2001_Art/Generic/GenericButtonsAndBars/user_entry_anim.444` | 19,720 | 17×851 | `7eb9df5610dade0d32cde3051e457216be1fb5062dcc66209012ca969203d1bc` |
+
+The existing five `FM2001_Art/Support/` images
+are also authentic but do **not** replace these
+three original Generic user-entry resources.
+Private direct source file Drive IDs:
+`1riZydXCbNfew617npZpkGCHqb4AfYWpz`,
+`13sDm0KfnIqjS3iQyIdc4IvuoEL_7rhvg`,
+`1jZFq_uFfxF4CAzJ7H_GfOSNlyPaDac3C`.
+No proprietary original bytes copied to Git.
+
+**Important bounded distinction:** `0x64F380`
+creates a native child bounding rectangle (326×37).
+This does **not** by itself prove every pixel is visible,
+the clickable region is the full rect, hover/pressed frame
+counts, on-screen caption positioning or the original
+owner's modal close/cancel/commit GUI acceptance.
+Those remain OPEN.
+
+Source reproduction:
+```bash
+objdump -D -Mintel --start-address=0x4c9510 --stop-address=0x4c953f footballmanager.exe
+objdump -D -Mintel --start-address=0x5f60f0 --stop-address=0x5f6200 footballmanager.exe
+objdump -D -Mintel --start-address=0x5f6220 --stop-address=0x5f6299 footballmanager.exe
+objdump -D -Mintel --start-address=0x64e560 --stop-address=0x64e5a7 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f380 --stop-address=0x64f3be footballmanager.exe
+```
