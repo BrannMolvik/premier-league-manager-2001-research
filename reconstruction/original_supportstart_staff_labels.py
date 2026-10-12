@@ -5,13 +5,16 @@ and reads string pointer globals initialized at 0x6458B0..0x645AF9.
 Native ordinal 13 reads separate 0x9821E4, source independently resolved
 from English.idx position 2437: 'Physiotherapist'.
 
-This is the 0x4CDCD0 label-ordinal contract. It is NOT proof of the
-CSupportStaff virtual+0x14 ordinal for any particular generated staff,
-a player-visible control, or the training behavior of staff_type fields.
+Original CSupportStaff constructor 0x4CA2F0 stores the passed type at +0x04,
+vtable 0x7C6834+0x14 resolves 0x42CB40 which returns that very type,
+and PSupportStart 0x4D0725 passes the result to 0x4CDCD0. Native generated
+staff type and localized ordinal therefore match, not a guessed alias.
+This does not certify full GUI, staff name text or Windows acceptance.
 """
 from __future__ import annotations
 
 from ea_language_strings import EAStringIndex, EAStringTable
+from support_staff import SupportStaffState
 
 # Exact native switch entries from 0x4CDD84 and original English.idx's
 # ordinal-to-string IDs. Source 0x64E320 resolves these at startup.
@@ -45,3 +48,19 @@ def original_supportstart_native_staff_label(
     if not 0 <= index < len(indices.string_ids):
         raise ValueError("Original English.idx missing source label index")
     return indices.resolve(strings, index)
+
+
+
+def original_supportstart_staff_type_label(
+    staff: SupportStaffState, strings: EAStringTable, indices: EAStringIndex,
+) -> str | None:
+    """Source constructor/type getter→native original 0x4CDCD0 role text.
+
+    Original 0x4CA2F0 puts the real staff type into CSupportStaff+0x04;
+    0x7C6834+0x14 → 0x42CB40 returns [ecx+0x04] unchanged;
+    PSupportStart 0x4D0725 sends that integer to 0x4CDCD0.
+    This is NOT the synthetic staff display name, monthly cost, or GUI.
+    """
+    if type(staff) is not SupportStaffState:
+        raise TypeError("Expected source-bounded CSupportStaff record")
+    return original_supportstart_native_staff_label(staff.staff_type, strings, indices)

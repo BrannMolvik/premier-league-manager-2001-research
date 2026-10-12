@@ -3,10 +3,12 @@ from pathlib import Path
 import unittest
 
 from ea_language_strings import EAStringTable, EAStringIndex
+from support_staff import SupportStaffState, INITIAL_SUPPORT_STAFF_TYPES
 from original_supportstart_staff_labels import (
     SOURCE_NATIVE_STAFF_LABEL_INDEX,
     SOURCE_NATIVE_STAFF_SPECIAL_CASE_13_GLOBAL,
     original_supportstart_native_staff_label,
+    original_supportstart_staff_type_label,
 )
 
 
@@ -55,6 +57,25 @@ class OriginalSupportStaffSourceLabelTests(unittest.TestCase):
             with self.subTest(ordinal=ordinal):
                 self.assertIsNone(original_supportstart_native_staff_label(
                     ordinal, self.strings, self.indices))
+
+
+    def test_concrete_staff_type_getter_matches_all_six_fresh_user_labels(self):
+        # Original 0x4CA2F0 field+4, 0x42CB40 vft+0x14,
+        # 0x4D0725 -> 0x4CDCD0 proves ordinal equals staff.staff_type.
+        self.assertEqual(INITIAL_SUPPORT_STAFF_TYPES, (1, 2, 3, 4, 5, 13))
+        self.assertEqual(
+            tuple(original_supportstart_staff_type_label(
+                SupportStaffState(type_id, 30, 3), self.strings, self.indices
+            ) for type_id in INITIAL_SUPPORT_STAFF_TYPES),
+            ("ASSISTANT MANAGER", "STADIUM MANAGER",
+             "YOUTH TEAM MANAGER", "BUSINESS CONSULTANT",
+             "CHIEF SCOUT", "Physiotherapist"),
+        )
+        with self.assertRaises(TypeError):
+            original_supportstart_staff_type_label(None, self.strings, self.indices)
+        self.assertIsNone(original_supportstart_staff_type_label(
+            SupportStaffState(17, 30, 2), self.strings, self.indices
+        ))
 
     def test_type_and_incomplete_index_tables_fail_closed(self):
         with self.assertRaises(TypeError):

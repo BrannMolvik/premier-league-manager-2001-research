@@ -17,7 +17,7 @@ class BoundedRng(Protocol):
 
 
 INITIAL_SUPPORT_STAFF_TYPES = (1, 2, 3, 4, 5, 13)
-ASSISTANT_MANAGER_TYPE = 2
+ASSISTANT_MANAGER_TYPE = 1
 YOUTH_TEAM_COACH_TYPE = 3
 # Original TeamSelect 0x4DA4F0 -> PSupportStart 0x4CF2EF/0x4D06B0.
 # Seven UI selector records are distinct from six fixed initial staff.
@@ -153,7 +153,7 @@ def generate_fixed_initial_staff(
 
     Types 1..5 take the default-success compatibility path and therefore enter
     fresh user state with status 1. The only Gate-11 training staff are types
-    2 and 3, both inside that range.
+    1 and 3, both inside that range.
     """
 
     staff_type = int(staff_type)
@@ -192,7 +192,7 @@ def training_quality_multiplier(
 
     Youth Team Coach (type 3) takes precedence. Its effective 1..5 rating maps
     to 1.25/1.30/1.35/1.40/1.45. If no youth coach exists but an Assistant
-    Manager (type 2) does, the fallback is 1.25. Training Centre feature ID 5
+    Manager (type 1) does, the fallback is 1.25. Training Centre feature ID 5
     then adds exactly +0.25.
     """
 

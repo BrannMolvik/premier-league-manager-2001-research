@@ -136,3 +136,79 @@ objdump -D -Mintel --start-address=0x4cdd30 --stop-address=0x4cdd61 footballmana
 # Count native 0x64E320 calls inclusive 0x6458B7..0x64A317:
 objdump -D -Mintel --start-address=0x6458b0 --stop-address=0x64a330 footballmanager.exe
 ```
+
+
+## Recovery551 concrete staff-type identity and training role correction
+
+**This is now verified beyond label adjacency** from the same
+SHA-256-authenticated original 2001 executable. Native CSupportStaff
+constructor `0x4CA2F0` receives `type` as first argument
+(pushed from source `0x4C9BFD` as EDI) and at
+`0x4CA2FF` writes type straight to
+`CSupportStaff+0x04`, then sets actual vtable
+`CSupportStaff+0x00=0x7C6834`
+at `0x4CA314`. Reading exactly the PE vtable
+entry `0x7C6834+0x14` gives
+**`0x42CB40`**, whose entire original function is:
+
+```asm
+0042cb40 mov eax, DWORD PTR [ecx+0x4]
+0042cb43 ret
+```
+
+Original `PSupportStart 0x4D0720..0x4D072E`
+calls **that** virtual+0x14 on the real staff pointer,
+then passes the unmodified integer to native
+`0x4CDCD0` label switch.
+The actual six newly generated source staff types
+`(1,2,3,4,5,13)` therefore display in that order:
+
+`ASSISTANT MANAGER`, `STADIUM MANAGER`,
+`YOUTH TEAM MANAGER`, `BUSINESS CONSULTANT`,
+`CHIEF SCOUT`, **`Physiotherapist`**.
+
+This independently exposes an earlier **WRONG**
+clean-room gameplay mapping:
+`reconstruction/support_staff.py` previously defined
+`ASSISTANT_MANAGER_TYPE=2`, but original source
+type2's localized role is **Stadium Manager**.
+Original training helper `0x4EACE0` calls
+`0x4D0C10` (scan original selected DBRUser active
+staff list+0x5BC for type3, code
+`0x4D0C4A..0x4D0C50`) and, if none,
+`0x4D0B10` (same list for type**1**, code
+`0x4D0B4A..0x4D0B50`).
+Original native fallback assistant therefore
+**type1**, not type2.
+This contradicts and supersedes the existing
+source interpretation that used type2. Correct
+`ASSISTANT_MANAGER_TYPE=1` while preserving
+`YOUTH_TEAM_COACH_TYPE=3`; add counterexample
+type2-only (no youth/assistant) yields multiplier1.0,
+and exact training facility +0.25 still applies.
+Existing original staff generation order/types
+and original staff list dispatch are not changed.
+
+Source evidence:
+```bash
+objdump -s -j .rdata --start-address=0x7c6834 --stop-address=0x7c689c footballmanager.exe
+objdump -D -Mintel --start-address=0x4ca2f0 --stop-address=0x4ca33e footballmanager.exe
+objdump -D -Mintel --start-address=0x42cb40 --stop-address=0x42cb44 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0720 --stop-address=0x4d0730 footballmanager.exe
+objdump -D -Mintel --start-address=0x4eace0 --stop-address=0x4eadac footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0b10 --stop-address=0x4d0b87 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0c10 --stop-address=0x4d0c87 footballmanager.exe
+```
+
+The feature branch now includes read-only source
+`original_supportstart_staff_type_label` plus
+real original resource regression for six initial
+source staff, and corrects narrow training
+assistant fallback. **This is a substantive
+gameplay source correction, so meaningful exact-head
+full/impacted CI, asset review and high-risk
+cross-subsystem regression review are mandatory
+before merging.** It is still NOT a complete
+SupportStart GUI. Any other functions that
+previously relied on assistant type2 must be
+audited before acceptance.
