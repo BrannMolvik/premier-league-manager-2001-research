@@ -38,7 +38,7 @@ class OriginalQueueOwnerProjection:
     enabled_flag: int
     source_event_identities: tuple[int, ...]
     processing_flag: int
-    deferred_flag: int
+    deferred_flag: int | None
 
 
 @dataclass(frozen=True)
@@ -50,8 +50,8 @@ class OriginalQueueDrainProjection:
 
 
 def original_queue_new_owner() -> OriginalQueueOwnerProjection:
-    """Actual original 0x613E40 4-DWORD owner initialization."""
-    return OriginalQueueOwnerProjection(1, (), 0, 0)
+    """Only 0x613E40-owned values are known; +0x10 is NOT written there."""
+    return OriginalQueueOwnerProjection(1, (), 0, None)
 
 
 def _require_owner(owner: OriginalQueueOwnerProjection) -> None:
@@ -59,7 +59,7 @@ def _require_owner(owner: OriginalQueueOwnerProjection) -> None:
         raise OriginalQueueLifecycleError("Expected original queue owner")
     if (owner.enabled_flag not in (0, 1)
             or owner.processing_flag not in (0, 1)
-            or owner.deferred_flag not in (0, 1)
+            or owner.deferred_flag not in (None, 0, 1)
             or any(type(i) is not int or i < 0 for i in owner.source_event_identities)
             or len(set(owner.source_event_identities)) != len(owner.source_event_identities)):
         raise OriginalQueueLifecycleError("Source queue state is inconsistent")
@@ -123,7 +123,7 @@ def project_original_teamselect_continue_clear(
     """0x4C426E..0x4C4275 -> 0x4E9830 destroys remaining queued nodes.
 
     Caller MUST supply the real owner head as the original does. This
-    reports the object identities passed to native deleting destructors;
+    reports removed event identities (destructors run only if enabled);
     it does not execute their native destructor side effects, and it
     preserves unrelated owner processing/deferred flags.
     """
