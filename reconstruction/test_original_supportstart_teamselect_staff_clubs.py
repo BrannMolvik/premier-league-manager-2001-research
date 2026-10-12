@@ -6,6 +6,7 @@ from original_supportstart_teamselect_staff_clubs import (
     ORIGINAL_STAFF_CANDIDATE_CAP,
     OriginalTeamSelectStaffClubError,
     original_teamselect_staff_club_candidates,
+    original_teamselect_staff_initial_scalar,
 )
 
 
@@ -75,6 +76,45 @@ class OriginalTeamSelectStaffClubTests(unittest.TestCase):
                     original_teamselect_staff_club_candidates(
                         clubs, group_id=group_id,
                         require_shipped_count=require_shipped_count
+                    )
+
+
+    def test_original_teamselect_scalar_dispatch_and_context_increment(self):
+        # Distinct source competition group and selected-screen position.
+        for group_id, expected in ((0, 4), (1, 3), (2, 2),
+                                   (3, 1), (4, 1), (170, 1)):
+            with self.subTest(group_id=group_id):
+                self.assertEqual(
+                    original_teamselect_staff_initial_scalar(
+                        source_group_id=group_id, selection_context=0),
+                    expected
+                )
+                for position in (1, 2):
+                    self.assertEqual(
+                        original_teamselect_staff_initial_scalar(
+                            source_group_id=group_id, selection_context=position),
+                        expected + 1
+                    )
+                self.assertEqual(
+                    original_teamselect_staff_initial_scalar(
+                        source_group_id=group_id, selection_context=3),
+                    expected
+                )
+                self.assertEqual(
+                    original_teamselect_staff_initial_scalar(
+                        source_group_id=group_id, selection_context=-1),
+                    expected
+                )
+
+    def test_source_scalar_input_type_and_dword_bounds(self):
+        for group, context in (
+            (-1, 0), (0x100000000, 0), (True, 0),
+            (0, True), (0, -0x80000001), (0, 0x80000000)
+        ):
+            with self.subTest(group=group, context=context):
+                with self.assertRaises(OriginalTeamSelectStaffClubError):
+                    original_teamselect_staff_initial_scalar(
+                        source_group_id=group, selection_context=context
                     )
 
 
