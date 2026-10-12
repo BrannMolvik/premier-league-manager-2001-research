@@ -84,6 +84,30 @@ class OriginalNameGroupTests(unittest.TestCase):
         self.assertTrue(fallback.eligible_source_player_position(11))
         self.assertEqual(fallback.source_record_positions,())
 
+    def test_real_name_group_owner_matches_existing_startup_rng_contract(self):
+        # startup_rng already implements 0x411A10 nationality/player filtering
+        # for earlier startup and report-setup paths. Keep these two source
+        # consumers aligned; SupportStart must not invent a separate club path.
+        from types import SimpleNamespace
+        from startup_rng import generated_name_source_ids, report_setup_player_pool
+        fixture=([SimpleNamespace(index=i,nationality_id=1,
+                                  first_name="David",surname="Seaman")
+                  for i in range(11)]
+                 + [SimpleNamespace(index=11,nationality_id=1,
+                                    first_name="John",surname="Noah"),
+                    SimpleNamespace(index=12,nationality_id=1,
+                                    first_name="X.",surname="Smith"),
+                    SimpleNamespace(index=13,nationality_id=1,
+                                    first_name="John",surname="Nolan"),
+                    SimpleNamespace(index=14,nationality_id=2,
+                                    first_name="Alan",surname="Doe")])
+        self.assertEqual(generated_name_source_ids(fixture,1),
+                         self.pools.group_players[1])
+        self.assertEqual(generated_name_source_ids(fixture,2),
+                         self.pools.group_players[2])
+        self.assertEqual(len(report_setup_player_pool(fixture,1)),11)
+        self.assertEqual(len(report_setup_player_pool(fixture,2)),15)
+
     def test_source_identity_and_truncated_data_fail_closed(self):
         master,core=raw_master_core()
         with self.assertRaisesRegex(OriginalNameGroupError,"checksum"):
