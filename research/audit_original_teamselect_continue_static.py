@@ -676,6 +676,33 @@ def main(path: str) -> None:
             raise AssertionError(("Original SupportStart viewport origin changed",address))
     print("PASS original PSupportStart conditional viewport-relative modal origin")
 
+    # Source original native window 0x653480 computes LOCAL event x/y
+    # subtracting window x/y, filters each child control state bit0,
+    # uses four signed half-open x/y rectangle comparisons BEFORE
+    # passing source point + literal1 to the child's vft+0x6C.
+    modal_native_halfopen_hit_prefilter_edges = (
+        ("65348b", "mov    ecx,DWORD PTR [eax]"),
+        ("65348d", "mov    edx,DWORD PTR [esi+0xc]"),
+        ("653493", "sub    ecx,edx"),
+        ("653495", "mov    edx,DWORD PTR [eax+0x4]"),
+        ("6534a2", "sub    edx,edi"),
+        ("6534c7", "test   BYTE PTR [ecx+0x18],0x1"),
+        ("6534cd", "cmp    edx,DWORD PTR [ecx+0x8]"),
+        ("6534d0", "jl     0x6534f5"),
+        ("6534d2", "cmp    edx,DWORD PTR [ecx+0x10]"),
+        ("6534d5", "jge    0x6534f5"),
+        ("6534d7", "cmp    eax,DWORD PTR [ecx+0xc]"),
+        ("6534da", "jl     0x6534f5"),
+        ("6534dc", "cmp    eax,DWORD PTR [ecx+0x14]"),
+        ("6534df", "jge    0x6534f5"),
+        ("6534e7", "push   0x1"),
+        ("6534ea", "call   DWORD PTR [edx+0x6c]"),
+    )
+    for address, expected in modal_native_halfopen_hit_prefilter_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original window event rectangle gate moved",address))
+    print("PASS original window half-open child bounds before virtual input")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

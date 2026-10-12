@@ -145,3 +145,41 @@ def original_supportstart_action_native_screen_rect(
     x, y = original_supportstart_native_modal_origin(viewport_size=viewport_size)
     a, b, w, h = action.source_layout_rect
     return (x + a, y + b, w, h)
+
+
+def original_supportstart_native_row_window_event_candidate(
+    index: int,
+    *,
+    source_screen_point: tuple[int, int],
+    viewport_size: tuple[int, int],
+    native_row_control_dword: int,
+) -> bool:
+    """Source 0x653480 native window CHILD prefilter, not accepted click.
+
+    Original modal local point = native screen point - modal owner x/y.
+    0x6534C7 requires child control bit0 (enabled), followed by
+    half-open rectangle: min_x<=x<max_x and min_y<=y<max_y.
+    Only then does 0x6534EA dispatch row virtual+0x6C with arg2=1;
+    actual 0x5D4790 parent/child callbacks may STILL reject input.
+
+    Real native root/row object identity and source-native event pixels
+    must come from upstream window dispatch, not an arbitrary Tk mouse
+    rectangle. Source blank staff rows can pass THIS geometric prefilter,
+    yet their own 0x64F7A0 bit1 acceptance gate rejects the event.
+    """
+    if (type(source_screen_point) is not tuple or len(source_screen_point) != 2
+            or any(type(v) is not int or not -0x80000000 <= v <= 0x7fffffff
+                   for v in source_screen_point)):
+        raise ValueError("Native window event requires exact signed x/y point")
+    if (type(native_row_control_dword) is not int
+            or not 0 <= native_row_control_dword <= 0xffffffff):
+        raise ValueError("Native row control state must be DWORD")
+    x,y,w,h = original_supportstart_row_native_screen_rect(
+        index, viewport_size=viewport_size
+    )
+    px,py = source_screen_point
+    return bool(
+        (native_row_control_dword & 0x0001)
+        and x <= px < x + w
+        and y <= py < y + h
+    )
