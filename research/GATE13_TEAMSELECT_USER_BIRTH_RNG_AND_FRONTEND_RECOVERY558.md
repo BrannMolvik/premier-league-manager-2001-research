@@ -188,3 +188,12 @@ objdump -D -Mintel --start-address=0x412ef0 --stop-address=0x412fef footballmana
 objdump -D -Mintel --start-address=0x415870 --stop-address=0x415929 footballmanager.exe
 ```
 **Next precise call-graph step:** qualify 0x614080's dynamic vtable branch for passed global 0x947AA8 and 0x4258D0's original 0x5DC400/0x5E43B0/0x5DED10 helper paths; determine whether they can touch 0x64D540/0x66951C before the normal six-staff creation. Continue UI-modal Cancel list lifecycle through 0x5EB920/vft+0x74 and PSupportStart destructor 0x4CF7B0 before asserting rollback. Gates13–17 remain open.
+
+
+### Recovery560 modal-close callback qualification, not Cancel rollback proof
+
+Exact original PSupportStart vtable **0x7C6DDC+0x74** contains `0x5D4860`, confirmed from its original .rdata little-endian DWORD (the same vtable has +0x00 `0x4CF790` deleting destructor and +0x4C `0x4D0830` Apply). Generic modal-close routine `0x5EB920` resolves a widget object via `0x5EB8F0` and calls its dynamic **vft+0x74** at `0x5EB962`. This may dispatch `0x5D4860` IF the resolved object is in fact the PSupportStart object; the original type at that callsite still needs independent identification.
+
+`0x5D4860..0x5D48B7` checks a group-control enabled/state bit at +0x18, iterates source registered child controls +0x2C/+0x34 with registration bit0x10, filters through `0x64F570`, then calls eligible children **virtual+0x18**, and finally `0x64F450`. It does not directly invoke `0x4CA070`, `0x4D1880`, `0x617D70`, `0x4D0830` or a DBRUser list. However the indirect child+0x18 actions and the exact object returned by `0x5EB8F0` must be proved before asserting no staff-list mutations at modal close. The native PSupportStart destructor `0x4CF7B0..0x4CFA6E` predominantly calls UI/control destructors `0x64F350`, group destructors `0x5D4600`, and base/resource teardown; no direct source staff-list writes were identified in that bounded range. **Cancel does not execute Apply** is proven; **Cancel restores all staged lists** is NOT.
+
+This preserves the distinction between original modal inner result, outer event acceptance, native staged linked-list moves, and final persisted user staff state. Do not fake Cancel restore or treat zero modal result as a non-click. Actual source close lifecycle remains PARTIAL.
