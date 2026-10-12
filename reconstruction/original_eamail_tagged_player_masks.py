@@ -6,7 +6,9 @@ T tag state without switching its default 0x9269F0 font object.
 
 This module extracts *source template fragments*, NOT final rendered runs:
 native mutable-tag buffer edits, color selectors P/C, glyph positions,
-caret state, clipping and on-screen placement remain source-unresolved.
+caret state, clipping and on-screen placement are not represented HERE.
+Final Inbox-specific color/advance/clipping is in original_eamail_row_text;
+the actual specialist color slots do not edit the raw label buffer.
 Never join masks or treat the fragments as the native drawn string.
 """
 from __future__ import annotations

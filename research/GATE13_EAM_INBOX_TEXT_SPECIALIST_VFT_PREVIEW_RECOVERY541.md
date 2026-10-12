@@ -25,7 +25,7 @@ Validated native **specialist** vtable slots:
 - `+0x64 → 0x5D7360`: actual specialized text-render dispatch; pushes six arguments to `0x5D75B0` including explicit zero-valued draw/walk mode parameters.
 - `+0x6C → 0x5D7380`: first qualified text point event, parent +0x10.
 - `+0x78 → 0x5D73E0`: second qualified text point event, parent +0x20.
-- `+0x98 → 0x650650` and `+0x9C → 0x6506A0`: inherited cursor/text buffer editing. The native text walker calls these indirectly for caret and T-markup parsing; their precise state-sensitive effect **must not** be replaced by naive literal tag removal.
+- **Corrected:** `+0x98 → 0x43B680` and `+0x9C → 0x43B6A0`: actual specialist color getters, selected by control mask4. The earlier editing-function attribution was a raw-table error. Generic `0x7BE340` has the editing functions, not these final children. [Independent source recheck and rendering contract](GATE13_ORIGINAL_INBOX_LIST_MILESTONE.md).
 
 The old generic vtable still provides useful inherited slot evidence, but original Inbox's paint and event dispatch are **specialized**. This independently connects the original constructor to the correct paint/events, resolving an incomplete owner-vtable link in the prior source audit. Prior assertions that the generic table alone specified Inbox paint/event owner are incomplete and should not be used for action geometry.
 
@@ -33,7 +33,7 @@ The old generic vtable still provides useful inherited slot evidence, but origin
 
 The real `+0x64` function `0x5D7360` dispatches `0x5D75B0`; its text-loop calls `0x5D7500`, which advances the font pen using original glyph metrics, kerning and, for non-space when drawing enabled, `0x6570F0`. The original `0x6570F0` rejects a missing destination clip pointer at `0x6571C5..0x6571CB`, performs rectangle rejection comparisons to four clip edges at `0x6571D1..0x6571EE`, intersects the glyph rectangle at `0x659130` and finally dispatches `0x658BC0` versus `0x6556C0` by graphics mode. This proves the original **per-glyph clip gate**, not final screen-space coordinates or exact RGB/alpha. In `0x5D75B0`, text pen starts from the caller-provided transform and `eCText+0x08/+0x0C`, with additional font line-height/word wrap `0x5D78F1..0x5D794C`; don't render masked glyphs at guessed baseline or accept entire row as a tagged text link.
 
-The selection mask 0x4 toggled by `0x470B40/0x470B90` on all three text children is separate from disabled gates 0x10/0x20 previously proved. Source does not yet prove that selected-state mask changes pixel colors; direct visual parity/GUI absent.
+The selection mask 0x4 toggled by `0x470B40/0x470B90` on all three text children is separate from disabled gates 0x10/0x20 previously proved. **Later correction:** actual specialist getters `0x43B680/0x43B6A0` prove the normal/selected color-input switch; see the list milestone above. Direct visual parity/GUI remains untested.
 
 ## Native selected Inbox preview is NOT just row highlight
 
