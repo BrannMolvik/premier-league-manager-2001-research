@@ -1,3 +1,5 @@
+> **RECOVERY557 SOURCE CORRECTION:** The outstanding original **DBRCountry+0x50 writer was found**, at `0x4F7913` in original `0x4F7380`. It stores an **original DBRClub pointer**, NOT a verified candidate count. The preceding `0x403640` predicate selects clubs whose runtime club+0x74 byte is 2 or 3, then `0x405890` selects the country record from club+0x14, and `[country+0x50] = club pointer`. **Earlier text below stating that `0x4F7380` does not write +0x50, or presenting it as simply a missing numeric count initializer, is SUPERSEDED.** Critically, `0x4CB2B0` appears to pass the same field as `0x64D540` numeric RNG bound, creating a material *source data-flow contradiction* that must be independently resolved before connecting staff generation to the live shared CRT. Do not equate this pointer with +0x4C or treat it as a count.
+
 > **CORRECTIVE SOURCE AUDIT, Recovery556, 12 October 2026:** The 0x40-byte `0x876C50` source pool identified below is the original **Static.dat competition definitions**, not a special source pool of staff candidates. Native `0x4F7020` is called directly during the game's Static.dat file load at `0x50D4C8`, and consumes 193 competitions followed by 1,053 rounds. The existing `reconstruction/fm2001_data.py` parser already decodes these source records correctly. Also the kind1 / competition ID27 special subclass's vft+0x24 is **0x5B6380** and returns 1 (same as other leagues). Its vft+0x28 is **0x4FAFE0**; the earlier table shifted this slot. The older unknown-file/unknown-special-kind1 statements below are **SUPERSEDED**, not implementation blockers. See detailed correction at the end. Other candidate-state/CRT/UI unknowns remain open.
 
 # Recovery556: original per-country support-staff candidate source, tags, and ordering
@@ -132,3 +134,42 @@ A further authenticated-original x86 cross-check of the full CSupportStaff virtu
 - Prelude `0x64CCD0` called at `0x4CB2E1` performs date/ordinal arithmetic using `0x66A518` (not an obvious direct call to `0x64D540`), but the separate helpers, country-state mutation and shared process seed must be reconciled before claiming globally no indirect random draws.
 
 **Next targeted source step:** inspect every native writer or initializer of **DBRCountry+0x50** during the canonical new-user startup and the accepted root-competition subgroup; identify when the selected user's country+0x50 receives a valid bound, including country-vector lifecycle after `0x4F7380`. Then determine MSVC CRT initial checkpoint and dynamic chosen object states. A new port feature should consume source-proven inputs from the existing `FM2001Database.competitions` and fail closed for unqualified dynamic state. No live RNG or GUI changes made.
+
+
+## Recovery557: actual native DBRCountry+0x50 writer discovered and qualified
+
+**Direct original PE source** (independently SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`):
+
+- At `0x4F78C9..0x4F7926`, near the END of original country/competition graph setup `0x4F7380`, native iterates all expanded original clubs `0x874B90` at original **0x2A8 bytes per club**, excluding its sentinel alternative where relevant.
+- `0x4F78EA` calls `0x403640`, whose entire selector is `mov al,[ecx+0x74]; cmp al,2; je success; cmp al,3; je success`. This tests a **club** runtime byte, NOT a country +0x50 count.
+- Only on success, `0x4F78F3..0x4F790B` reconstructs that original club pointer in `EDI` from the expanded original club pool.
+- `0x4F790E` calls `0x405890` with `ECX=EDI`. The full helper at `0x405890..0x4058A2` reads `DBRClub+0x14` country ID, computes original **country-stride 0x6C** (`27*4`) and returns `EAX=&DBRCountry[country]`.
+- **`0x4F7913: mov DWORD PTR [eax+0x50],edi`** therefore writes the actual **selected club pointer into DBRCountry+0x50**. This is an actual native memory write, not a speculative producer inferred from static country data. More than one qualifying club in the same country would overwrite the field in original club iteration order; source behavior must not automatically be treated as one national club per country without source/corpus proof.
+- The prior bounded negative result was partly true but incomplete: country constructor `0x410BD0` and serialized parser `0x411740` do not write +0x50, and early `0x4F7380..0x4F75AE` grouped competition stage does not write it; the **SAME FUNCTION has a later postgroup write at `0x4F7913`**. That misleading earlier report scope is now corrected.
+
+### Collision with the original staff RNG calculation
+
+The genuine CSupportStaff vft+0x5C function `0x4CB2B0` (not separate vft+0x58 at `0x4CB0F0`) initializes a full 0x6C-byte **stack copy** of the current selected user's country:
+
+- `0x4CB2EB..0x4CB305`: reads selected user+0x5B4 original club pointer, its +0x14 country, and the source DBRCountry array.
+- `0x4CB30D/0x4CB5D0`: copies the original country 0x38-byte prefix into local struct; `0x4CB319,0x4CB327,0x4CB343`: separately copy source country +0x38/+0x40/+0x48 pointer arrays/counts. 
+- **`0x4CB348: mov edx,[esi+0x50]`; `0x4CB34B: mov [esp+0x7C],edx`** is a literal copy of the original country+0x50 pointer-sized value.
+- `0x4CB3A7: mov eax,[esp+0x7C]`; `0x4CB3B9: mov [esp+0x14],eax`; `0x4CB42E: mov ecx,[esp+0x14]`; `0x4CB432: push ecx`; `0x4CB433: call 0x64D540` directly use the copied value as a **32-bit bound argument** for the original bounded CRT RNG. The original 0x64D540 first invokes actual CRT `0x66951C`, then applies the int bound using x87 math and conversion at `0x668350`. There is no obvious pointer-to-count conversion on this direct path.
+- `0x4CB493` then indexes the local separately copied country+0x48 candidate pointer vector using the chosen index. **A pointer-valued `+0x50` and a numerically bounded array count cannot be conflated.** The function can take conditional native branches and code paths yet to be fully qualified; this is a **real remaining behavioral conflict**, not permission to patch the compiler/native game, substitute +0x4C, invent a safe fallback, or assert all clubs/countries crash.
+- Real extracted original `Master.dat` independently SHA256 verified `183dd457d09ce616f99a664636727668ec15eab3f65b9057ef0953e76548b6b8`, 1,246 serialized clubs. Its existing reconstruction parser has a `team_category_code` from packed club byte+98; **88 rows have value 2, 1,158 have value 1**. This is a relevant original-corpus clue, BUT the specific native mapping `Master.dat packed+98 -> DBRClub+0x74` must be verified by tracing the native serialized club decoder before treating those 88 as the proven set in `0x4F7913`. The original club predicate itself is certain.
+
+### Why this matters
+
+The earlier plan “find the missing +0x50 COUNT writer” is superseded: the exact writer has been found, but it reveals a *type/ownership mismatch* that affects reproducing the shared CRT in original startup. We cannot safely claim exact source staff names, per-user startup seed, or original seven-row UI state by guessing the count or treating club pointers as array lengths. Investigate original game source CFG and memory layout/candidate selection before production integration. Maintain independent standards: static original source, port tests, actual original runtime observation, and real Win11 GUI acceptance are separate.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4f78c9 --stop-address=0x4f7929 footballmanager.exe
+objdump -D -Mintel --start-address=0x403640 --stop-address=0x403654 footballmanager.exe
+objdump -D -Mintel --start-address=0x405890 --stop-address=0x4058a3 footballmanager.exe
+objdump -D -Mintel --start-address=0x4cb2e6 --stop-address=0x4cb34f footballmanager.exe
+objdump -D -Mintel --start-address=0x4cb393 --stop-address=0x4cb4a9 footballmanager.exe
+objdump -D -Mintel --start-address=0x64d540 --stop-address=0x64d55f footballmanager.exe
+```
+
+**Next:** confirm the native DBRClub+0x74 serialized source and fresh new-game initialization reachability; trace any later override or branch guard on DBRCountry+0x50; source-audit the candidate-selection input and original CRT behavior with zero/pointer bounds. Do not execute the original program without separate authorization, and do not mark original GUI/windows acceptance on source-only traces. Then finish full source-backed SupportStart state, seven original selectors and Apply/Cancel/TeamSelect modal. The existing branch and all Gates13–17 remain open.
