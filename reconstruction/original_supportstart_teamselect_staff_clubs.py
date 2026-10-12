@@ -82,3 +82,27 @@ def original_teamselect_staff_club_candidates(
         source_club_indices=matches[:ORIGINAL_STAFF_CANDIDATE_CAP],
         truncated_original_club_count=max(0, len(matches) - ORIGINAL_STAFF_CANDIDATE_CAP),
     )
+
+
+def original_teamselect_staff_initial_scalar(
+    *, source_group_id: int, selection_context: int
+) -> int:
+    """Exact deterministic 0x4C9B5C..0x4C9BE0 argument dispatch.
+
+    First original 0x4C9B30 source argument is native staff type.
+    Second is TeamSelect's [screen+0x68]-[screen+0x64]-1 context.
+    Third is its selected root-league row+0x4C source competition ID.
+    The +0x10 native staff scalar has a source group base 4,3,2,1
+    for IDs 0,1,2,>=3, incremented once when second argument==1/2.
+    This is NOT the other 0x4C9D40 constructor's RNG2 rating.
+    No original CRT draw or player-visible staff is created here.
+    """
+    if (type(source_group_id) is not int
+            or not 0 <= source_group_id <= 0xFFFFFFFF
+            or type(selection_context) is not int
+            or not -0x80000000 <= selection_context <= 0x7FFFFFFF):
+        raise OriginalTeamSelectStaffClubError("Unqualified native TeamSelect scalar inputs")
+    base = max(1, 4 - source_group_id) if source_group_id <= 3 else 1
+    if selection_context in (1, 2):
+        base += 1
+    return base
