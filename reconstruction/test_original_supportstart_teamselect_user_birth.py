@@ -94,6 +94,67 @@ class OriginalTeamSelectUserBirthTests(unittest.TestCase):
             [0]*6
         )
 
+    def test_three_nested_original_ctor_draws_preserve_same_rng_owner(self):
+        from original_first_human_nested_random import (
+            project_original_first_human_nested_random,
+        )
+        extra = project_original_first_human_nested_random(
+            outer_allocation_succeeded=True,
+            child_allocations_succeeded=(True, True, True),
+        )
+        rng = SharedTraceRng()
+        receipt = self.birth(rng, source_nested_user_allocations=extra)
+        self.assertEqual(receipt.direct_source_rng_call_count, 98)
+        self.assertEqual(receipt.nested_user_source_rng_call_count, 3)
+        self.assertEqual(receipt.modeled_source_rng_call_count, 101)
+        self.assertEqual(rng.bounds[:26], [3]*26)
+        self.assertEqual(rng.bounds[26:29], [20]*3)
+        self.assertEqual(
+            rng.bounds[29:],
+            [25,3,3,3,3,20,30,3,2,3,3,20]*6,
+        )
+        self.assertEqual(len(rng.bounds), 101)
+
+    def test_conditional_child_allocation_source_draws_only(self):
+        from original_first_human_nested_random import (
+            project_original_first_human_nested_random,
+        )
+        for flags in ((False,False,False),(True,False,True),
+                      (False,True,False),(True,True,True)):
+            with self.subTest(flags=flags):
+                rng=SharedTraceRng()
+                extra=project_original_first_human_nested_random(
+                    outer_allocation_succeeded=True,
+                    child_allocations_succeeded=flags,
+                )
+                receipt=self.birth(rng,source_nested_user_allocations=extra)
+                self.assertEqual(receipt.nested_user_source_rng_call_count,sum(flags))
+                self.assertEqual(len(rng.bounds),98+sum(flags))
+                self.assertEqual(rng.bounds[26:26+sum(flags)],[20]*sum(flags))
+
+    def test_nested_source_receipt_forgery_fails_before_first_draw(self):
+        from dataclasses import replace
+        from original_first_human_nested_random import (
+            project_original_first_human_nested_random,
+        )
+        extra=project_original_first_human_nested_random(
+            outer_allocation_succeeded=True,
+            child_allocations_succeeded=(True,True,True),
+        )
+        invalid=(
+            None, True, 3, "three",
+            replace(extra,raw_shared_crt_rand_calls=5),
+            replace(extra,bounded_rng_calls=5),
+            replace(extra,live_crt_checkpoint_verified=True),
+            replace(extra,child_allocations_succeeded=(True,False,True)),
+        )
+        for item in invalid[1:]:
+            with self.subTest(invalid=item):
+                rng=SharedTraceRng()
+                with self.assertRaises(OriginalTeamSelectUserBirthError):
+                    self.birth(rng,source_nested_user_allocations=item)
+                self.assertEqual(rng.bounds,[])
+
     def test_2_consecutive_users_share_rng_and_use_their_actual_leagues(self):
         rng = SharedTraceRng()
         first = self.birth(rng)
