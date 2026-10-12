@@ -46,6 +46,46 @@ class QueueSourceTests(unittest.TestCase):
         self.assertEqual(result.owner,OriginalQueueOwnerProjection(1,(),0,0))
         self.assertEqual(result.virtual_call_order,())
 
+    def test_first_human_requires_two_independent_original_queue_snapshots(self):
+        from original_teamselect_queue_lifecycle import (
+            FIRST_HUMAN_NATIVE_QUEUE_OWNER_VA as OWNER,
+            FIRST_HUMAN_FIRST_DRAIN_CALLSITE_VA as FIRST,
+            FIRST_HUMAN_SECOND_DRAIN_CALLSITE_VA as SECOND,
+            SourceFirstHumanQueueSnapshot, preflight_original_first_human_two_empty_queue_drains,
+        )
+        one=SourceFirstHumanQueueSnapshot(FIRST,OWNER,original_queue_new_owner(),True)
+        two=SourceFirstHumanQueueSnapshot(SECOND,OWNER,original_queue_new_owner(),True)
+        result=preflight_original_first_human_two_empty_queue_drains(one,two)
+        self.assertEqual(result.source_queued_callback_count,0)
+        self.assertEqual(result.first.virtual_call_order,())
+        self.assertEqual(result.second.virtual_call_order,())
+        self.assertFalse(result.live_teamselect_startup_authorized)
+        # First drained empty is NOT proof second stayed empty.
+        with self.assertRaisesRegex(OriginalQueueLifecycleError, "empty"):
+            preflight_original_first_human_two_empty_queue_drains(
+                one,SourceFirstHumanQueueSnapshot(
+                    SECOND,OWNER,OriginalQueueOwnerProjection(1,(44,),0,0),True))
+        for state in (
+            OriginalQueueOwnerProjection(1,(),1,0),
+            OriginalQueueOwnerProjection(1,(),0,1),
+            OriginalQueueOwnerProjection(0,(),0,None),
+            OriginalQueueOwnerProjection(True,(),0,None),
+        ):
+            with self.subTest(state=state),self.assertRaises(OriginalQueueLifecycleError):
+                preflight_original_first_human_two_empty_queue_drains(
+                    one,SourceFirstHumanQueueSnapshot(SECOND,OWNER,state,True))
+        for bad in (
+            SourceFirstHumanQueueSnapshot(FIRST,OWNER,one.owner,False),
+            SourceFirstHumanQueueSnapshot(SECOND,OWNER,one.owner,True),
+            SourceFirstHumanQueueSnapshot(FIRST,OWNER+4,one.owner,True),
+            SourceFirstHumanQueueSnapshot(True,OWNER,one.owner,True),
+        ):
+            with self.subTest(snapshot=bad),self.assertRaises(OriginalQueueLifecycleError):
+                preflight_original_first_human_two_empty_queue_drains(bad,two)
+        for bad in (None,object(),1):
+            with self.assertRaises(OriginalQueueLifecycleError):
+                preflight_original_first_human_two_empty_queue_drains(one,bad)
+
     def test_invalid_observation_cannot_fabricate_queue_state(self):
         owner=OriginalQueueOwnerProjection(1,(2,),0,0)
         invalid=(
