@@ -112,3 +112,19 @@ def original_supportstart_fifth_child_native_rect(row_index: int) -> tuple[int, 
     if type(row_index) is not int or not 0 <= row_index < 7:
         raise ValueError("Source support row must be 0 through 6")
     return (621, 202 + 40*row_index, 95, 15)
+
+
+def original_supportstart_teamselect_modal_entry(
+    native_teamselect_control_dword: int,
+    accepted_by_native_64f960: bool,
+) -> bool:
+    """TeamSelect source 0x4D91C0 entry predicate for 0x450BB0 modal.
+
+    Native 0x64F960 must accept its full event context AND the source
+    TeamSelect control bit15 must be set (getter 0x652F80). Actual hit/event
+    routing is not reconstructed by this predicate; neither step can be guessed.
+    """
+    _dword(native_teamselect_control_dword)
+    if type(accepted_by_native_64f960) is not bool:
+        raise TypeError("TeamSelect native 0x64F960 result must be explicit Boolean")
+    return accepted_by_native_64f960 and bool(native_teamselect_control_dword & ORIGINAL_ROW_STATE_MASK)
