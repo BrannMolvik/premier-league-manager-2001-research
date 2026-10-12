@@ -515,3 +515,40 @@ objdump -D -Mintel --start-address=0x4C4880 --stop-address=0x4C48E0 footballmana
 objdump -D -Mintel --start-address=0x4A80E9 --stop-address=0x4A813B footballmanager.exe
 objdump -D -Mintel --start-address=0x6194D0 --stop-address=0x6195C9 footballmanager.exe
 ```
+
+
+## Recovery564: native event-queue model implemented and locally tested; binder branch narrowed
+
+### Source-bounded queue lifecycle implementation
+
+Existing unmerged feature branch now includes:
+
+- `reconstruction/original_teamselect_queue_lifecycle.py`: pure projection of the native original queue owner `0x947AA8` constructor `0x613E40` and conditional drain `0x614080`. It reproduces exactly the source callback order: one vft+0x04 call when initial return zero, two such calls when initial return nonzero, then one vft+0x18 call; virtual+0x18 return zero removes the event node through `0x4EA190`, nonzero retains it. When owner+0x0C is processing, it marks owner+0x10 deferred and dispatches no nodes. Because actual callback types/mutations remain unknown, this implementation accepts **observed integer callback results**, does NOT invoke original events or draw the shared CRT, and fails closed on incomplete/reordered observations. There is no fabricated empty-queue assumption between startup and the two human-creation queue drains.
+- The original TeamSelect Continue transition `0x4DA480 -> 0x4C41C0` event id **42/0x2A** invokes `0x4E9830` at `0x4C4275` with actual global head `[0x947AAC]`. The native `0x4E9830` walks and frees the whole event list, invoking each owned object's vft+0x00 deleting destructor only when enabled and nonnull, then zeros owner+0x04/+0x08. The pure `project_original_teamselect_continue_clear` returns remaining removed native identities without running unknown destructors or changing source unrelated flags. Critically it occurs **before `0x4C4304 -> 0x413830` precompetition setup**, not during the earlier first-human selected-club event.
+- Original `0x613E40` writes native owner+0x00=1, +0x04=0, +0x08=0, +0x0C=0. It **does not itself write owner+0x10 deferred flag**. The new pure owner constructor uses `deferred_flag=None` to mark that explicitly uninitialized-by-this-constructor field as unresolved rather than silently assuming original zero; native timed-processor `0x613EE0` does explicitly write owner+0x10=0 before later handling.
+- `reconstruction/test_original_teamselect_queue_lifecycle.py` covers source constructor, full event gate and trigger dispatch/removal order, retained event, processing/defer gate, Continue clear and invalid/reordered callback results. **Five targeted unittest cases were actually executed locally against a same-length local code copy and passed**; the local source SHA256 was `1358a96b1ec2407b6323096403256fbbb58b25fe4042858ac0ef386442346860`, test SHA256 `158c62b3a9f7f73eeed887a0c582f050f46a817da05cafdb9cc27a19b38d9999`. Both files' contents were then staged to existing GitHub feature branch. The exact remote feature-branch suite and Actions have **not** run, and this source-only component is NOT a working gameplay event dispatcher or PSupportStart GUI.
+
+### Newly narrowed original manager binding path `0x426090`
+
+Independent original disassembly clarifies how user bind can avoid a suspected pre-staff indirect RNG source:
+
+- Actual normal DBRUser binder `0x426090` accepts the original selected user pointer and first calls `0x403E10` on its +0x5B4 ClubRef, then either copies the original named-manager First/Surname from native +0x875628 owner rows (club+0x40*0x40) or copies static native fallback text from 0x8195E4/0x8195DC.
+- Original `0x426162..0x4261E5` scans old manager entries `0x875624/0x875628`, calling `0x4151C0` to identify eligible old slot and possibly `0x415870` to vacate it. **This caller pushes literal zero at `0x4261A9`** before `call 0x415870` at `0x4261B3`.
+- `0x415870` tests its argument against **1** at `0x415877`. Only for **1** does it invoke the more involved 0x405CF0 and 0x50FFC0 routines. For the normal `0x426090` call argument **0**, it jumps to `0x4158C3`, updates its referenced ClubRef/counters and unlinks old manager assignment without executing either 0x405CF0 or 0x50FFC0. Thus those particular nested subcalls are **not reachable through this binder callsite**, reducing the pre-staff queue/CRT uncertainty. The binder's other `0x4151C0` scans original current-user list and text predicates, and has no directly recovered shared CRT consumption in its bounded `0x4151C0..0x415208` body.
+- The binder still invokes alloc/free `0x668140/0x686FE3`, original `0x403E10` and other basic lookup/text functions. This is a **bounded** branch-specific exclusion of the former suspect 0x50FFC0, NOT proof that every transitive binder or external queue producer is globally RNG-free. If `0x875624` is zero, the original loop skips even this old-manager cleanup; its real count at the first click remains an input to verify.
+
+### Continue-timed dynamic allocator also source-separated from human creation
+
+Only **two direct calls** to original dynamic allocator `0x6194D0` exist in source `.text`: a **weekly** time advance `0x4A8103`, guarded at `0x4A80EE..0x4A8103` by `(originalDate+5)%7==0`, and `0x4C48B8` much later inside the new-game Continue routine **after** the aforementioned pending queue clear and original precompetition setup. This rules out a *direct call* to the known `0x619EB0 -> 0x41AAE0 -> 0x409240` conditional RNG(5) event allocator in the earlier club-selection callback. It does NOT exclude other event classes already queued by different sources or non-direct callbacks; do not claim an exactly RNG-clean source first human.
+
+**Next exact source task:** identify which global original queue producers can execute after the registered empty C++ queue constructor and before first user queue drains `0x4259B5` and `0x412F1F`; qualify their actual object callbacks and resulting CRT stream without guessing. Source exact frontend still lacks immediate DBRUser/13 name pairs/six staff and 7-row original SupportStart interactive modal; original staged list Cancel/Apply post-close remains unresolved. Source private binary statically inspected only; no original process execution, no genuine Win11 GUI acceptance, Gates13–17 OPEN.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4DA480 --stop-address=0x4DA4C0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4C41C0 --stop-address=0x4C438C footballmanager.exe
+objdump -D -Mintel --start-address=0x4E9830 --stop-address=0x4E9894 footballmanager.exe
+objdump -D -Mintel --start-address=0x426090 --stop-address=0x42621E footballmanager.exe
+objdump -D -Mintel --start-address=0x415870 --stop-address=0x415927 footballmanager.exe
+objdump -D -Mintel --start-address=0x4151C0 --stop-address=0x415209 footballmanager.exe
+```
