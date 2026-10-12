@@ -1,3 +1,9 @@
+### 12 October 2026 KST — Recovery543 original human name override and free manager slot source proof
+
+- Independently disassembled native `0x4151C0` in SHA-verified original: rejects candidate assigned to any already registered human user, then requires manager static name to begin `!`. Current port heuristic alone is not full equivalence.
+- Source `0x414F30` first/`0x414FA0` last name accessors first check original human ownership (`0x4037B0`), look up registered user by club ID (`0x403850 -> 0x413B40`), and return actual original `DBRUser+0x05/+0x25` first/surname; otherwise use static manager table name. New-user setup `0x426090` initializes human name from prior manager/fallback before rebinding selected club+0x40 to a free human manager entry. Typed Inbox MANAGERNAME therefore must use actual user name for human manager, not `!` sentinel or imported AI name. [Source reproduction](GATE13_EAM_MANAGER_USER_BINDING_RECOVERY543.md#follow-up-original-0x4151c0-and-effective-human-name-override).
+- No modern name resolution implemented or Windows GUI accepted; Gate13–17 remain OPEN, PR638 CRT blocked.
+
 ### 12 October 2026 KST — Recovery543 correction: selected club pointer and original manager slot rebind
 
 - **Corrects the preceding Recovery543 interpretation:** native `DBRUser+0x5B4` is a DBRClub pointer, not a manager object pointer. Original cross-check `0x403E10`, `0x413BB0` club+4 duplicate guard, `0x426090` manager name sourcing and `0x4261B8` reassignment prove it. Original Inbox MANAGERNAME reads the selected club's *current/rebound* manager index at club+0x40, then formats the name through source manager table. Prior incorrect manager-pointer wording is superseded.
