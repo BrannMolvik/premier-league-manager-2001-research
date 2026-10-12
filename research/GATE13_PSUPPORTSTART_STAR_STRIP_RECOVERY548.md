@@ -465,3 +465,76 @@ objdump -D -Mintel --start-address=0x42de80 --stop-address=0x42dea2 footballmana
 objdump -D -Mintel --start-address=0x5d45b0 --stop-address=0x5d45d9 footballmanager.exe
 objdump -D -Mintel --start-address=0x4c9340 --stop-address=0x4c94cd footballmanager.exe
 ```
+
+
+## Recovery551: source-verified empty staff row input disabling
+
+Original SHA-256 checked executable `footballmanager.exe`,
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The precise NULL-staff branch at `0x4D07B0..0x4D07CB`
+calls `0x4C9830` with empty labels `0x874BA0`,
+zero rating and no stars, then invokes the native row
+virtual+0x3C. **This branch never reads the original
+selected-byte record+0x28[i]**. This matters for the
+seventh fresh-user row, which receives no staff pointer.
+
+Original row final vft `0x7C6780+0x3C = 0x64F540`
+(the apparent immediate helper alone is not the final mutation).
+The actual call chain:
+
+1. `0x64F540` calls row virtual+0x10(0).
+2. Row virtual+0x10 is **`0x4C97A0`**, which forwards
+   0 into the fifth child `+0x48` virtual+0x0C.
+3. Fifth child vft `0x7BFF14+0x0C = 0x64F3E0`,
+   which on false clears bit0x08 and bit0x01 from
+   its control+0x18.
+4. `0x4C97A0` then calls `0x5D4940(0)` on
+   the parent row. It iterates **all five** registered children,
+   invokes each child virtual+0x10(0) = `0x64F410`,
+   then invokes `0x64F410(0)` on the parent row.
+   This clears control+0x18 bit0x02 from all six
+   while preserving unrelated bits.
+5. Original control constructor `0x64F300` starts
+   parent/five child DWORDs at `0x183`, therefore after
+   the NULL staff refresh:
+   **parent=0x181;
+   first four children=(0x181,0x181,0x181,0x181);
+   fifth child=0x180**.
+   Both original candidate input children now fail
+   source pre-gates, so a normal native row input is
+   disabled independently of guessed screen-space
+   coordinates.
+
+This also clarifies an easy-to-miss vtable mapping:
+row `+0x3C=0x64F540` routes via `+0x10=0x4C97A0`,
+**not directly to `0x64F410`**. The fifth child gets
+additional bit0x01 cleared, beyond general disabled bit0x02.
+
+The feature branch adds source-backed
+`original_supportstart_empty_row_after_refresh` and
+`original_supportstart_initial_seven_rows` that
+preserve original six fresh staff + seventh null row,
+as well as every-empty-row edge cases. These
+represent **control flags only**, not complete user
+input or modal integration. The uninitialized
+empty-row selection record remains UNKNOWN;
+do not fill it from a fabricated value.
+
+Reproduce from the private original:
+```bash
+objdump -D -Mintel --start-address=0x4d06e0 --stop-address=0x4d07e9 footballmanager.exe
+objdump -s --start-address=0x7c6780 --stop-address=0x7c67c0 footballmanager.exe
+objdump -s --start-address=0x7bff14 --stop-address=0x7bff30 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c97a0 --stop-address=0x4c97c4 footballmanager.exe
+objdump -D -Mintel --start-address=0x5d4940 --stop-address=0x5d4971 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f3e0 --stop-address=0x64f40c footballmanager.exe
+objdump -D -Mintel --start-address=0x64f410 --stop-address=0x64f42a footballmanager.exe
+cd reconstruction && python -m unittest test_original_supportstart_input
+```
+
+**Next:** finish complete SupportStart modal source-owned
+name/staff edit/Apply/Cancel transaction and integrate
+original parent route only after its source input
+and original graphics are faithfully established.
+All Gates13–17 remain OPEN; source evidence is
+not original-runtime or Windows11 GUI acceptance.

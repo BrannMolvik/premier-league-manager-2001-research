@@ -212,3 +212,54 @@ def original_supportstart_fresh_native_row() -> OriginalSupportStartRowBitState:
         SOURCE_ORIGINAL_CONTROL_INIT_DWORD,
         (SOURCE_ORIGINAL_CONTROL_INIT_DWORD,) * 5,
     )
+
+
+def original_supportstart_empty_row_after_refresh(
+    row: OriginalSupportStartRowBitState,
+) -> OriginalSupportStartRowBitState:
+    """Native 0x4D07B0 empty-row branch, exact child and parent flag effects.
+
+    Source 0x4D07CB row virtual+0x3C -> 0x64F540 -> virtual+0x10
+    -> 0x4C97A0(0) -> fifth child virtual+0x0C -> 0x64F3E0(0):
+    clear bits0x8 and0x1 on fifth child. 0x4C97A0 then invokes
+    0x5D4940(0), which invokes virtual+0x10 for all five children
+    and 0x64F410(0) on parent, clearing bit0x02 on all six.
+    This captures control flags only, not drawing or pointer hit geometry.
+    """
+    if type(row) is not OriginalSupportStartRowBitState:
+        raise TypeError("Require five-child source native row state")
+    children = list(row.children)
+    children[4] &= ~(0x0008 | 0x0001)
+    children = [child & ~0x0002 for child in children]
+    return OriginalSupportStartRowBitState(
+        row.parent & ~0x0002, tuple(children)
+    )
+
+
+def original_supportstart_initial_seven_rows(
+    source_slots: tuple,
+) -> tuple[OriginalSupportStartRowBitState, ...]:
+    """Source 0x4D06B0: seven original staff rows without fabricating staff.
+
+    A non-null source staff pointer invokes original 0x5D6200 with
+    (original_selected_byte == 0). A null source staff pointer invokes
+    0x4C9830 with empty labels/rating and then vft+0x3C disabling
+    native input, without ever reading the uninitialized selected byte.
+    This function constructs original CONTROL state only, not GUI.
+    """
+    from support_staff import OriginalSupportStartSourceSlot
+
+    if (type(source_slots) is not tuple or len(source_slots) != 7
+            or any(type(item) is not OriginalSupportStartSourceSlot
+                   or item.index != i for i, item in enumerate(source_slots))):
+        raise ValueError("Expected seven original ordered support source slots")
+    results = []
+    for slot in source_slots:
+        row = original_supportstart_fresh_native_row()
+        if slot.staff is None:
+            results.append(original_supportstart_empty_row_after_refresh(row))
+        else:
+            results.append(original_supportstart_row_refresh(
+                row, slot.original_selected_byte
+            ))
+    return tuple(results)

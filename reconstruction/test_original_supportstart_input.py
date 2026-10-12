@@ -134,6 +134,43 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         self.assertEqual(toggled.children, (0x8183, 0x8183, 0x8183, 0x183, 0x183))
         self.assertEqual(toggled.stored_staff_selection_byte_if_applied, 0)
 
+
+    def test_empty_source_row_disables_fifth_text_and_all_six_native_flags(self):
+        from original_supportstart_input import (
+            original_supportstart_empty_row_after_refresh,
+            original_supportstart_initial_seven_rows,
+        )
+        fresh = original_supportstart_fresh_native_row()
+        empty = original_supportstart_empty_row_after_refresh(fresh)
+        self.assertEqual(empty.parent, 0x181)
+        self.assertEqual(empty.children, (0x181, 0x181, 0x181, 0x181, 0x180))
+        self.assertEqual(original_supportstart_source_dispatch_candidates(empty), ())
+        self.assertIs(original_supportstart_row_native_event(empty, False), empty)
+        # The normal native handler must never report accepted input for a
+        # disabled source row, but the lower-level accepted-event function
+        # is intentionally not a mouse-acceptance predictor.
+        from support_staff import SupportStaffState, original_teamselect_support_slots
+        staff = tuple(SupportStaffState(n, 32, 3) for n in (1, 2, 3, 4, 5, 13))
+        rows = original_supportstart_initial_seven_rows(
+            original_teamselect_support_slots(staff)
+        )
+        self.assertEqual(len(rows), 7)
+        self.assertEqual([row.parent for row in rows], [0x183]*6 + [0x181])
+        self.assertEqual(rows[6], empty)
+
+    def test_zero_staff_seven_empty_rows_disable_without_reading_unknown_flags(self):
+        from original_supportstart_input import original_supportstart_initial_seven_rows
+        from support_staff import original_teamselect_support_slots
+        rows = original_supportstart_initial_seven_rows(
+            original_teamselect_support_slots(())
+        )
+        self.assertEqual([r.parent for r in rows], [0x181]*7)
+        self.assertEqual([r.children[-1] for r in rows], [0x180]*7)
+        with self.assertRaises(ValueError):
+            original_supportstart_initial_seven_rows(())
+        with self.assertRaises(ValueError):
+            original_supportstart_initial_seven_rows([])
+
     def test_empty_unknown_source_flags_are_not_invented(self):
         row = OriginalSupportStartRowBitState(0, (0, 0, 0, 0, 0))
         for invalid in (None, True, -1, 256, 1.0):
