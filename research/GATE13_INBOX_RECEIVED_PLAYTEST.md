@@ -19,13 +19,17 @@ centered horizontal/vertical alignment, reused from existing management text.
 
 Input actual +6C=652CF0 calls64F7A0 enabled/not-held and parent acceptance;
 parent7C2950+C=42DE00 returns1. Group setter652D80/652B40 selects one, not
-inverse toggle. Actual +4C=652E00 removes selected headers from acceptance.
+inverse toggle. Actual +4C=652E00 is an inverse-selected QUERY, not proven
+pointer acceptance. Counterexample: generic caller651644 discards its result;
+the actual press652CF0 unconditionally notifies parent after group selection,
+even for an already-selected header. Re-click therefore rebuilds; held bit4
+is rejected by64F7A0 until release64F860. Do not conflate these virtual slots.
 Raw dispatcher byte at47236C+15=1; slot472354+4=4721F2 clears row selection
 and preview, refilters and sorts. Date comparator472C60 puts strictly newer
 records first; existing bounded <=16-pointer sorter is reused. Sort/rebuild
 472B4F..8A retains scroll offset and recomputes its bounds. Newly constructed
 panel resets selection/sort and offset. Host only accepts header with loaded
-verified art and no popup occlusion; selected re-click is a no-op.
+verified art and no popup occlusion; selected re-click rebuilds without toggling.
 
 Implemented bounded slice: actual Received header, native static/hover/selected
 frames and text, ordinary click -> real delivered-user sorting -> selection

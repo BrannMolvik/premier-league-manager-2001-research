@@ -51,6 +51,10 @@ class ReceivedControlTests(unittest.TestCase):
         host._press_original_eamail_received(SimpleNamespace(x=706, y=150), frame)
         self.assertEqual(host._eamail_selected_node_serial, 42)
         self.assertEqual(len(redraws), 1)
+        host._eamail_received_pressed = False  # native mouse release clears bit4
+        host._press_original_eamail_received(SimpleNamespace(x=706, y=150), frame)
+        self.assertIsNone(host._eamail_selected_node_serial)
+        self.assertEqual(len(redraws), 2)  # selected re-click still notifies/rebuilds
         presenter.navigate(0x65)
         self.assertIsNone(presenter.eamail_sort_index)
         self.assertEqual(presenter.eamail_scroll_offset, 0)

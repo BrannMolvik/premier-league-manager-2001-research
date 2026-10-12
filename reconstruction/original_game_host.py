@@ -2246,10 +2246,11 @@ class OriginalGameTkHost:
             return False
         if self.eamail_row_art is None or self.eamail_row_art.received_header is None:
             return False
-        # 652E00 removes a selected grouped header from pointer acceptance.
-        if self.management_presenter.eamail_sort_index == 4:
+        # 64F7A0 rejects held input; 652CF0 still notifies when already selected.
+        if getattr(self, '_eamail_received_pressed', False):
             return True
         self.management_presenter.source_accepted_eamail_received_sort()
+        self._eamail_received_pressed = True
         self._eamail_selected_node_serial = None
         self._eamail_selected_row_token = None
         self.redraw()
@@ -2782,6 +2783,7 @@ class OriginalGameTkHost:
         event = self._normalize_pointer_event(event)
         if self._release_original_squad_row(event):
             return
+        self._eamail_received_pressed = False  # 64F860: clear held, no second sort
         if getattr(self, '_eamail_scroll_pressed', None) is not None:
             self._eamail_scroll_pressed = None  # 64F860: release, no second step
             self.redraw()
