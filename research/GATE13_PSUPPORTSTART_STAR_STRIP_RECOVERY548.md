@@ -422,3 +422,46 @@ transition, then construct complete original seven
 staff rows, name editing, Apply/Cancel and return
 without overriding existing original-game host behavior
 with invented hot zones.
+
+
+### Recovery550 constructor initialization: star and text event candidates are initially enabled
+
+Disassembly of `0x64F300` at `0x64F30B`
+writes control DWORD `+0x18 = 0x183`
+(`bit0x01`, `bit0x02`, `bit0x80`,
+`bit0x100` set; `bit0x10` clear).
+Original `0x4C9340` creates parent row through
+`0x5D45B0→0x64F300`, first
+three children `+0x38/+0x3C/+0x40`
+through `0x42DE80→0x64F300`,
+and fourth/fifth children `+0x44/+0x48`
+directly through `0x64F300`.
+**All six constructor-time DWORDs start at 0x183**.
+
+For an untouched *constructor-time* row, both
+input-dispatch candidate children 3 and 4
+clear `0x64F570` bit0x01 and
+`0x64F7A0` bit0x02 / not-bit0x10
+pre-gates. This does **not** show that an
+actual mouse position was within either child
+or that an owner event callback accepted.
+The source render/setup and selected-byte refresh
+may subsequently change state, so do not promote
+this constructor invariant to an unconditional
+all-frames GUI rule.
+
+The feature branch adds
+`original_supportstart_fresh_native_row()`
+and one focused regression that establishes
+original untouched constructor value, eligible
+fourth/fifth children, bit15 propagation and
+Apply inverse flag without conflating native event
+acceptance with click coordinates.
+
+Reproduction:
+```bash
+objdump -D -Mintel --start-address=0x64f300 --stop-address=0x64f324 footballmanager.exe
+objdump -D -Mintel --start-address=0x42de80 --stop-address=0x42dea2 footballmanager.exe
+objdump -D -Mintel --start-address=0x5d45b0 --stop-address=0x5d45d9 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9340 --stop-address=0x4c94cd footballmanager.exe
+```

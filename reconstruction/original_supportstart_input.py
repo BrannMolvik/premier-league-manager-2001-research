@@ -194,3 +194,21 @@ def original_supportstart_teamselect_event_outcome(
     return OriginalSupportStartTeamSelectEventOutcome(
         int(native_64f960_accepted), called, modal_result_byte
     )
+
+
+SOURCE_ORIGINAL_CONTROL_INIT_DWORD = 0x183
+
+
+def original_supportstart_fresh_native_row() -> OriginalSupportStartRowBitState:
+    """Constructor-time row and child control DWORDs, before row setup.
+
+    Exact original 0x64F300 initializes control+0x18 to 0x183.
+    PSupportStart row 0x4C9340 -> 0x5D45B0 -> 0x64F300,
+    first three 0x42DE80 -> 0x64F300 and last two direct
+    0x64F300. This describes the constructor, not a promised
+    final state after all setup and source selection refresh.
+    """
+    return OriginalSupportStartRowBitState(
+        SOURCE_ORIGINAL_CONTROL_INIT_DWORD,
+        (SOURCE_ORIGINAL_CONTROL_INIT_DWORD,) * 5,
+    )

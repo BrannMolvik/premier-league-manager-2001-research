@@ -11,6 +11,8 @@ from original_supportstart_input import (
     original_supportstart_teamselect_modal_entry,
     original_supportstart_source_dispatch_candidates,
     original_supportstart_teamselect_event_outcome,
+    original_supportstart_fresh_native_row,
+    SOURCE_ORIGINAL_CONTROL_INIT_DWORD,
 )
 
 
@@ -118,6 +120,19 @@ class OriginalSupportStartInputTests(unittest.TestCase):
             original_supportstart_teamselect_event_outcome(False, 0x8002, 0)
         with self.assertRaises(TypeError):
             original_supportstart_teamselect_event_outcome(1, 0x8002, None)
+
+
+    def test_constructor_all_six_native_control_dwords_start_0x183(self):
+        self.assertEqual(SOURCE_ORIGINAL_CONTROL_INIT_DWORD, 0x183)
+        row = original_supportstart_fresh_native_row()
+        self.assertEqual(row.parent, 0x183)
+        self.assertEqual(row.children, (0x183,) * 5)
+        self.assertEqual(original_supportstart_source_dispatch_candidates(row), (3, 4))
+        self.assertEqual(row.stored_staff_selection_byte_if_applied, 1)
+        toggled = original_supportstart_row_native_event(row, True)
+        self.assertEqual(toggled.parent, 0x8183)
+        self.assertEqual(toggled.children, (0x8183, 0x8183, 0x8183, 0x183, 0x183))
+        self.assertEqual(toggled.stored_staff_selection_byte_if_applied, 0)
 
     def test_empty_unknown_source_flags_are_not_invented(self):
         row = OriginalSupportStartRowBitState(0, (0, 0, 0, 0, 0))
