@@ -1,3 +1,5 @@
+> **SOURCE CORRECTION (RECOVERY558, 12 OCTOBER 2026):** The historical “TeamSelect lifetime ... zero CRT draws” and resulting fixed 153,002 pre-youth seed-prefix equivalence DO NOT represent the ordinary player journey with a newly selected human manager. Native 0x4D8F75 calls 0x4C9CD0, which invokes 0x4C9B30 SIX times before the seven-slot SupportStart editor and later competition setup. Successful staff births each consume 12–18 direct CRT draws plus 2 per original first-name '-' retry; all 23 source-eligible initial root leagues have nonempty club candidate groups of at most 24. The existing replay_precompetition_startup_rng deliberately lacks these births and cannot establish exact post-team-name/youth shared CRT state for a new human career. Earlier counts below are a historically bounded partial replay, not complete original new-game proof. Detailed replacement evidence at file end and in GATE13_PSUPPORTSTART_NORMAL_TEAMSELECT_FRESH_STAFF_RECOVERY557.md.
+
 # Startup RNG Ledger
 
 > **27 September 2026 startup-wage RNG correction:** deterministic RNG states,
@@ -710,3 +712,18 @@ Gate-3 completion validation:
 
 Gate 3 is complete. Gate 4 resumes at exact primary schedule-bucket population,
 shuffle, and same-day execution order.
+
+
+## Recovery558 material correction: native TeamSelect staff births precede Continue
+
+The verified original executable (4,714,541 bytes, SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3) was independently statically disassembled. No original process executed.
+
+At 0x4D8EF3 the ordinary TeamSelect event calls 0x413BB0 to create the selected human, clears its native staff lists at 0x4D8F29–0x4D8F4E, calls 0x4C9CD0 at **0x4D8F75** to create SIX staff types 1,2,3,4,5,13 via 0x4C9B30, then calls 0x4DA4F0 at 0x4D8F7F to stage the seven PSupportStart selectors. The original selected-human UI event occurs **before** the Start/Continue path and 0x413830 precompetition source ledger block.
+
+Every successful normal 0x4C9B30 constructor calls bounded RNG25, constructs initial player first+surname through 0x4CA660 (two independently bounded CRT draws; repeat both if selected first is '-'), calls vft+0x10=0x4CA660 again for a second source pair, invokes vft+0x2C -> +0x28=0x4CA790 -> RNG20, invokes vft+0x30=0x4CA640 -> RNG30, invokes vft+0x58=0x4CB0F0 which calls RNG3 for 1–3 club assignments plus three bounded calls per assignment (native club array index, RNG3, RNG3), and calls +0x2C -> RNG20 AGAIN. These are at least 12 per normal staff with one assignment and no sentinel retries, or at least 72 direct CRT draws across six staff before entering the editor. The actual count depends on source state and cannot be patched as an unconditional skip. The source staff group uses the selected original league row ID, and all 23 shipped starting root-league choices have 10–24 actual Master.dat matching clubs. The separate 0x4D1760 -> 0x4C9D40 (RNG25/RNG2/+0x5C) pathway is a DIFFERENT constructor and must not be conflated with this first-human event.
+
+The old TeamSelect zero-draw paragraph and historical 153,002 fixed prefix exclude the actual player-visible user creation and are therefore superseded as full-game checkpoints; they may still describe a partial replay that intentionally did not create users. The live GameState.from_database seed and mandatory DBTPlayers RNG, together with original source new-user selection, must be reconciled in one shared stream. Existing reconstruction/startup_rng.py replay_precompetition_startup_rng does not model the six-staff human creation between DBTPlayers and the 0x413830 block. Do not advance a fixed +72: each staff consumes up to 18 direct calls before retries and other unresolved indirect consumers, and earlier human selections affect later names/competitions. A one-human / six-human input, cancel/apply, source identical output and Win11 GUI acceptance comparison remains necessary.
+
+An isolated, non-live source trace component and negative/regression tests are staged on the feature branch in reconstruction/original_supportstart_teamselect_staff_rng.py and its matching test file. These use one caller-owned RNG and preserve original source records. They are **NOT** sufficient to claim that the current production startup uses the correct CRT checkpoint or that the complete seven-row SupportStart interaction is restored. At this checkpoint their tests have not yet been executed against an exact branch checkout.
+
+Reproduce native disassembly: 0x4D8EF3..0x4D8F7F, 0x4C9CD0..0x4C9D36, 0x4C9B30..0x4C9CBD, 0x4CA660..0x4CA6CF, 0x4CB0F0..0x4CB2B0. Gates13–17 remain OPEN, original process and Windows11 GUI still unverified.
