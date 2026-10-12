@@ -57,3 +57,50 @@ test encode this precisely without claiming GUI acceptance. Original
 zeroes child+0x30. Exact visible draw ordering/parent transforms and
 hit behavior remain unresolved.
 
+
+## Seven-row selection-state propagation, separate from the stars
+
+Further native disassembly clarifies the original selected-state control
+hierarchy without assuming mouse-hit behavior:
+
+- Original row constructor `0x4C9340` sets row vtable
+  `0x7C6780`. Its virtual offset `+0x98`
+  points exactly to `0x5D6200` (pointer at `0x7C6818`).
+- Original `0x4D06B0` at `0x4D078A–0x4D07A0` reads
+  source selected-byte array `PSupportStart+0x974`, index0..6,
+  computes `selected_byte == 0`, and calls row vft+0x98.
+  This is original **row refresh / selection-state initialization**,
+  not proof of a physical click or state mutation.
+- `0x5D6200` walks registered row children (count at row+0x34,
+  pair entries at row+0x2C, per-child registration flag byte+4).
+  It changes control bit `0x8000` only for children
+  whose registration flag has bit `0x20` set.
+  It calls original `0x64F710` (OR bit) for true,
+  `0x64F750` (clear bit) for false; it also
+  changes the same flag on the parent row object.
+- `0x4C9340` registers five children with exact flags
+  `0x33,0x31,0x31,0x15,0x15`. Therefore this selected-state
+  propagation applies to first three children
+  `+0x38,+0x3C,+0x40` (bit `0x20` set), but *not*
+  star sprite `+0x44` or fifth child `+0x48`.
+  This independently differentiates the cumulative star
+  display from the row's selectable/control region.
+- Original `0x652F80` reads bit15 of object+0x18.
+  In the existing original `0x4D0830` Apply trace,
+  that bit is inverted for selected staff record+0x28.
+  The native read/set/commit relation is supported;
+  user input hit routing and complete transaction are still unknown.
+
+Reproduce with source x86:
+```bash
+objdump -D -Mintel --start-address=0x4c9340 --stop-address=0x4c94d0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0788 --stop-address=0x4d07a8 footballmanager.exe
+objdump -D -Mintel --start-address=0x5d6200 --stop-address=0x5d6268 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f710 --stop-address=0x64f795 footballmanager.exe
+objdump -D -Mintel --start-address=0x652f80 --stop-address=0x652f89 footballmanager.exe
+```
+
+**Next source objective:** establish which of `+0x38,+0x3C,+0x40`
+actually receives pointer/keyboard events and the exact parent row event
+dispatch, rather than conflating the passive stars or text rendering
+with source-verified click behavior. Preserve all seven original slots.
