@@ -144,7 +144,7 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
         accepted = modal.close(2)
         self.assertEqual(accepted.source_modal_result, 1)
         self.assertTrue(accepted.invoked_original_apply)
-        self.assertEqual(accepted.original_record_flag_bytes, (1,)*6+(None,))
+        self.assertEqual(accepted.original_record_flag_bytes, (1,)*7)
         self.assertEqual(accepted.staff_lists, modal.prior_staff_lists)
         self.assertEqual(source.current_staff, self.staff)
         # Row0 native-gated toggle instead commits type1 active while
