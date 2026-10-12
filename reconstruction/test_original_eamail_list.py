@@ -108,8 +108,8 @@ class OriginalInboxListTests(unittest.TestCase):
         resource = self.toy_resources()
         rgba = self.raster('A BBB', resources=resource, width=7, height=27)
         self.assertEqual([i for i in range(7) if rgba[i*4+3]], [0, 1])
-        self.assertEqual([i for i in range(7) if rgba[(25*7+i)*4+3]], list(range(6)))
-        self.assertFalse(any(rgba[7*4:25*7*4]))
+        self.assertEqual([i for i in range(7) if rgba[(18*7+i)*4+3]], list(range(6)))
+        self.assertFalse(any(rgba[7*4:18*7*4]))
         clipped = self.raster('A BBB', resources=resource, width=7, height=16)
         self.assertEqual(sum(bool(a) for a in clipped[3::4]), 2)
         # First untagged word is not wrapped; long tagged first word is.
@@ -120,6 +120,19 @@ class OriginalInboxListTests(unittest.TestCase):
                            resources=resource, tagged=True, width=215)
         self.assertEqual(tuple(rgba[:3]), (120, 238, 130))
         self.assertEqual(tuple(rgba[4*4:4*4+3]), (255, 255, 255))  # @, tags have no width
+
+    def test_native_word_measurement_folds_case_but_drawing_does_not(self):
+        resource = self.toy_resources()
+        font = resource.league_tables_row_font
+        glyphs = list(font.glyphs)
+        glyphs[ord('a') - 32] = replace(glyphs[ord('a') - 32], width=6)
+        resource = replace(resource, league_tables_row_font=replace(font, glyphs=tuple(glyphs)))
+        self.assertEqual(font.header_value_2, 1)  # loader6576A7 stores at native +4
+        folded = self.raster('A a', resources=resource, width=8)
+        self.assertEqual([i for i in range(8) if folded[i*4+3]], [0, 1, 4, 5, 6, 7])
+        unfolded = self.raster('A a', resources=replace(resource,
+            league_tables_row_font=replace(resource.league_tables_row_font, header_value_2=0)), width=8)
+        self.assertEqual([i for i in range(8) if unfolded[i*4+3]], [0, 1])
 
     def test_unknown_tags_names_rectangles_and_owners_fail_closed(self):
         for text, tagged in (('<T+P>A<T->', False), ('<T+X>A<T->', True),
@@ -253,6 +266,10 @@ class OriginalInboxNativeCalibrationTests(unittest.TestCase):
             (0x5D795C, 'movsx', 'eax, byte ptr [ecx + edi - 1]'),
             (0x5D7557, 'call', '0x6570f0'),
             (0x5D7590, 'movsx', 'eax, byte ptr [esi + ebp + 0x20]'),
+            (0x6576A7, 'lea', 'eax, [ebp + 4]'),  # third file header -> flags
+            (0x6576FB, 'lea', 'edi, [ebp + 0x18]'),  # first glyph HEIGHT, not atlas
+            (0x6570A9, 'test', 'byte ptr [ecx + 4], 1'),
+            (0x6570EC, 'sub', 'eax, 0x20'),
             (0x46F7EA, 'mov', 'dword ptr [edi + 0x18], 1'),
             (0x650042, 'call', '0x64ff30'),
             (0x47223C, 'lea', 'ecx, [esi + 0xf58]'),

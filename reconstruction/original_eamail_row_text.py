@@ -54,6 +54,10 @@ def original_eamail_text_rgba(text, resources, *, width, height, tagged, selecte
             for byte in raw[i:]:
                 if byte in (32, ord('<')):
                     break
+                # 6574E0 passes flags0 to 6570A0; font header flags live at
+                # native +4. 6570D0 folds these byte ranges for MEASUREMENT.
+                if font.header_value_2 & 1 and (97 <= byte <= 122 or 224 <= byte <= 246 or 248 <= byte <= 255):
+                    byte -= 32
                 current = font.glyph_for_byte(byte)
                 word_width += current.width
                 if previous is not None:
@@ -61,7 +65,7 @@ def original_eamail_text_rgba(text, resources, *, width, height, tagged, selecte
                 previous = byte
             if x + word_width > width:
                 x = 0
-                y += font.atlas_height * 3 // 2  # native float 1.5, truncation
+                y += font.glyph_for_byte(32).height * 3 // 2  # native +18, float1.5
             start_word = False
         if value != 32:
             alpha = font.glyph_alpha(value)
