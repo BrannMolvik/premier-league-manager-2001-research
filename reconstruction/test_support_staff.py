@@ -48,17 +48,30 @@ class SupportStaffTrainingTests(unittest.TestCase):
 
     def test_youth_coach_precedes_assistant_and_maps_rating_to_quality(self):
         staff = (
-            SupportStaffState(2, 35, 5, 1),
+            SupportStaffState(1, 35, 5, 1),
             SupportStaffState(3, 40, 2, 1),
         )
         self.assertAlmostEqual(training_quality_multiplier(staff), 1.30)
+
+    def test_source_stadium_manager_type_two_does_not_substitute_for_assistant(self):
+        # Native CSupportStaff +4 type getter and 0x4D0B10 training fallback
+        # compares 1. Type 2 is the distinct original STADIUM MANAGER.
+        from support_staff import ASSISTANT_MANAGER_TYPE, YOUTH_TEAM_COACH_TYPE
+        self.assertEqual(ASSISTANT_MANAGER_TYPE, 1)
+        self.assertEqual(YOUTH_TEAM_COACH_TYPE, 3)
+        self.assertEqual(training_quality_multiplier(
+            (SupportStaffState(2, 35, 5, 1),)), 1.0)
+        self.assertEqual(training_quality_multiplier(
+            (SupportStaffState(2, 35, 5, 1),), has_training_centre=True), 1.25)
+        self.assertEqual(training_quality_multiplier(
+            (SupportStaffState(1, 35, 5, 1),)), 1.25)
 
     def test_status_two_forces_youth_rating_one(self):
         staff = (SupportStaffState(3, 40, 5, 2),)
         self.assertAlmostEqual(training_quality_multiplier(staff), 1.25)
 
     def test_assistant_fallback_and_training_centre_bonus(self):
-        staff = (SupportStaffState(2, 35, 5, 1),)
+        staff = (SupportStaffState(1, 35, 5, 1),)
         self.assertAlmostEqual(training_quality_multiplier(staff), 1.25)
         self.assertAlmostEqual(
             training_quality_multiplier(staff, has_training_centre=True),

@@ -39,6 +39,18 @@ on:
       - "research/FIDELITY_GAPS.md"
       - "reconstruction/gate15_support_staff_cost_source_trace.py"
       - "reconstruction/test_gate15_support_staff_cost_source_trace.py"
+      # Original SupportStart source-contract and staff training corrections
+      # must receive comprehensive gameplay regressions, not just GUI smoke.
+      - "reconstruction/support_staff.py"
+      - "reconstruction/test_support_staff.py"
+      - "reconstruction/original_supportstart_input.py"
+      - "reconstruction/test_original_supportstart_input.py"
+      - "reconstruction/original_supportstart_editor_projection.py"
+      - "reconstruction/test_original_supportstart_editor_projection.py"
+      - "reconstruction/original_supportstart_staff_labels.py"
+      - "reconstruction/test_original_supportstart_staff_labels.py"
+      - "reconstruction/original_supportstart_stars.py"
+      - "reconstruction/test_original_supportstart_stars.py"
       - "research/GATE15_SUPPORT_STAFF_COST_SOURCE_TRACE.md"
       - "reconstruction/gate15_fidelity_ledger.py"
       - "reconstruction/test_gate15_fidelity_ledger.py"
