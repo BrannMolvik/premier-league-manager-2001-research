@@ -156,6 +156,36 @@ def main(path: str) -> None:
     print("PASS original timed wrapper vft+0x10 forwards inner+0x3c")
     print("WARNING inner event type/CRT/queue presence before first human UNKNOWN")
 
+    # Native inner-event payload vtables for original 0x426220/0x426600
+    # producer path; none are yet proven present during first human click.
+    inner_vft_classes = (
+        (0x7BDFD4, 0x4093E0),
+        (0x7BDF80, 0x5CFF30),
+        (0x7BE034, 0x5EB3E0),
+    )
+    for vtable_va, timed_handler in inner_vft_classes:
+        vtable_offset = 0x3BD000 + (vtable_va - 0x7BD000)
+        drain_handler = struct.unpack_from("<I", binary, vtable_offset + 0x24)[0]
+        timed_actual = struct.unpack_from("<I", binary, vtable_offset + 0x3C)[0]
+        if (drain_handler, timed_actual) != (0x40DFB0, timed_handler):
+            raise AssertionError(("Inner native event vtable changed", vtable_va))
+    dispatch_edges = (
+        ("4093e0", "mov    eax,0x1"),
+        ("5cff6c", "call   0x426600"),
+        ("5eb428", "mov    eax,ecx"),
+        ("413070", "cmp    eax,0x42"),
+        ("413075", "cmp    eax,0x5b"),
+        ("4130d5", "jmp    DWORD PTR [edx*4+0x413510]"),
+        ("4132ab", "call   DWORD PTR [edx+0xc]"),
+    )
+    for address, expected in dispatch_edges:
+        actual = instruction(address)
+        if expected not in actual:
+            raise AssertionError(("Native per-user event dispatcher changed", address, actual))
+    print("PASS three typed inner event virtual drain/timed callback pairs")
+    print("PASS 0x413020 user event dispatch; NOT a no-op registrar")
+    print("WARNING these event constructors' first human reachability UNKNOWN")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
