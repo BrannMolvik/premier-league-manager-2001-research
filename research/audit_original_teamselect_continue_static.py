@@ -766,6 +766,41 @@ def main(path: str) -> None:
             raise AssertionError(("Original window selector vft changed", hex(va)))
     print("PASS MyWindow captured/uncaptured source window dispatch")
 
+    # Original Win32 WndProc mouse callbacks, kept separate from row hits.
+    original_mywindow_win32_button_events_570 = (
+        ("531cc3", "push   0x531f70"),
+        ("531cc8", "push   0x201"),
+        ("531cd2", "push   0x531f70"),
+        ("531cd7", "push   0x203"),
+        ("531ce1", "push   0x532010"),
+        ("531ce6", "push   0x202"),
+        ("531cbe", "call   0x6a4ba0"),
+        ("531ccd", "call   0x6a4ba0"),
+        ("531cdc", "call   0x6a4ba0"),
+        ("531f27", "test   bl,bl"),
+        ("531f2a", "jne    0x531f3b"),
+        ("531fb7", "test   bl,bl"),
+        ("531fba", "jne    0x531fe2"),
+        ("531fbc", "mov    eax,DWORD PTR [esp+0x30]"),
+        ("531fc7", "and    ecx,0xffff"),
+        ("531fd6", "shr    eax,0x10"),
+        ("531fdd", "call   0x532680"),
+        ("53205c", "mov    eax,DWORD PTR [esp+0x30]"),
+        ("532067", "and    ecx,0xffff"),
+        ("532076", "shr    eax,0x10"),
+        ("53207d", "call   0x5326a0"),
+        ("532689", "call   0x6596e0"),
+        ("532692", "call   0x653b40"),
+        ("6596e0", "mov    DWORD PTR [ecx+0xc],0x1"),
+        ("6596f0", "mov    DWORD PTR [ecx+0xc],0x0"),
+        ("5326a9", "call   0x6596f0"),
+        ("5326b2", "call   0x653c40"),
+    )
+    for address, expected in original_mywindow_win32_button_events_570:
+        if expected not in instruction(address):
+            raise AssertionError(("Original Win32 left-button event changed",address))
+    print("PASS native WM_LBUTTONDOWN/DBLCLK and WM_LBUTTONUP source handlers")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

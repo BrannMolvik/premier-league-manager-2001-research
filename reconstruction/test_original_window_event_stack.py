@@ -82,6 +82,85 @@ class NativeWindowStackTests(unittest.TestCase):
                 (self.base,),source_point=(1,1),
                 owner_capture_flag_nonzero=1)
 
+    def test_both_native_left_down_and_doubleclick_use_window_stack(self):
+        from original_window_event_stack import (
+            project_original_mywindow_left_button_event,
+        )
+        lparam = (281 << 16) | 431
+        for message in (0x201, 0x203):
+            with self.subTest(message=message):
+                result = project_original_mywindow_left_button_event(
+                    win32_message=message, packed_lparam=lparam,
+                    original_guard_nonzero=False,
+                    windows=(self.base,self.modal),
+                    owner_capture_flag_nonzero=True,
+                )
+                self.assertEqual(result.native_client_point, (431,281))
+                self.assertEqual(result.wrote_source_pressed_flag, 1)
+                self.assertEqual(result.window_down_route.dispatched_indices, (1,))
+                self.assertFalse(result.original_release_owner_invoked)
+
+    def test_left_button_up_has_separate_release_owner(self):
+        from original_window_event_stack import project_original_mywindow_left_button_event
+        result = project_original_mywindow_left_button_event(
+            win32_message=0x202, packed_lparam=(300<<16)|200,
+            original_guard_nonzero=False,
+            windows=(self.base,self.modal),
+            owner_capture_flag_nonzero=True,
+        )
+        self.assertEqual(result.wrote_source_pressed_flag, 0)
+        self.assertIsNone(result.window_down_route)
+        self.assertTrue(result.original_release_owner_invoked)
+        self.assertEqual(result.native_client_point, (200,300))
+
+    def test_original_mouse_uses_unsigned_low_and_high_words(self):
+        from original_window_event_stack import project_original_mywindow_left_button_event
+        # Original SHR/AND maps 0xFFFF -> 65535, NOT -1 via signed GET_X_LPARAM.
+        result = project_original_mywindow_left_button_event(
+            win32_message=0x201, packed_lparam=0xFFFFFFFF,
+            original_guard_nonzero=True, windows=(),
+            owner_capture_flag_nonzero=False,
+        )
+        self.assertEqual(result.native_client_point, (65535,65535))
+        self.assertIsNone(result.wrote_source_pressed_flag)
+        self.assertIsNone(result.window_down_route)
+
+    def test_source_guard_skips_down_and_up_native_dispatch(self):
+        from original_window_event_stack import project_original_mywindow_left_button_event
+        for message in (0x201,0x202,0x203):
+            result = project_original_mywindow_left_button_event(
+                win32_message=message, packed_lparam=0,
+                original_guard_nonzero=True, windows=(),
+                owner_capture_flag_nonzero=False,
+            )
+            self.assertIsNone(result.wrote_source_pressed_flag)
+            self.assertIsNone(result.window_down_route)
+            self.assertFalse(result.original_release_owner_invoked)
+
+    def test_window_message_projection_requires_actual_native_event(self):
+        from original_window_event_stack import project_original_mywindow_left_button_event
+        for message in (0x200,0x204,None,True):
+            with self.assertRaises(NativeWindowStackError):
+                project_original_mywindow_left_button_event(
+                    win32_message=message, packed_lparam=0,
+                    original_guard_nonzero=False, windows=(),
+                    owner_capture_flag_nonzero=False,
+                )
+        for lparam in (-1,True,0x100000000,None):
+            with self.assertRaises(NativeWindowStackError):
+                project_original_mywindow_left_button_event(
+                    win32_message=0x202, packed_lparam=lparam,
+                    original_guard_nonzero=False, windows=(),
+                    owner_capture_flag_nonzero=False,
+                )
+        with self.assertRaises(NativeWindowStackError):
+            project_original_mywindow_left_button_event(
+                win32_message=0x201, packed_lparam=0,
+                original_guard_nonzero=1, windows=(),
+                owner_capture_flag_nonzero=False,
+            )
+
+
 
 if __name__ == "__main__":
     unittest.main()

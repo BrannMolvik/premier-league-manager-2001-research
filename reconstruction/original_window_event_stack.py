@@ -87,3 +87,70 @@ def project_original_native_window_route(
         tuple(i for i, w in enumerate(windows) if w.contains(source_point)),
         False,
     )
+
+
+SOURCE_WIN32_WM_LBUTTONDOWN = 0x201
+SOURCE_WIN32_WM_LBUTTONUP = 0x202
+SOURCE_WIN32_WM_LBUTTONDBLCLK = 0x203
+
+
+@dataclass(frozen=True)
+class OriginalMyWindowLeftButtonProjection:
+    """Window message handler ownership, NOT a qualified staff click."""
+    native_win32_message: int
+    native_client_point: tuple[int, int]
+    source_guard_nonzero: bool
+    wrote_source_pressed_flag: int | None
+    window_down_route: NativeWindowRoute | None
+    original_release_owner_invoked: bool
+
+
+def project_original_mywindow_left_button_event(
+    *,
+    win32_message: int,
+    packed_lparam: int,
+    original_guard_nonzero: bool,
+    windows: tuple[NativeWindow, ...],
+    owner_capture_flag_nonzero: bool,
+) -> OriginalMyWindowLeftButtonProjection:
+    """Actual original 0x531Cxx registered Win32 handler / LPARAM routing.
+
+    0x531CC3 and 0x531CD2 register BOTH WM_LBUTTONDOWN (0x201)
+    and WM_LBUTTONDBLCLK (0x203) to 0x531F70. Source 0x531FBC
+    takes unsigned LOWORD(lParam) as x and HIWORD as y WITHOUT
+    sign extension; 0x532680 -> 0x6596E0 writes input pressed +0xC=1
+    then calls 0x653B40 window stack.
+
+    0x531CE1 registers WM_LBUTTONUP(0x202) to 0x532010;
+    0x53207D -> 0x5326A0 -> 0x6596F0 writes pressed+0xC=0,
+    then 0x653C40 handles release (NOT the down-stack path).
+    Both source handlers inspect original input guard byte 0x877A3C
+    and bypass their event delivery if nonzero. This projection
+    exposes the distinct owners, not full release/hover/GUI effects.
+    """
+    if type(win32_message) is not int or win32_message not in (
+        SOURCE_WIN32_WM_LBUTTONDOWN, SOURCE_WIN32_WM_LBUTTONUP,
+        SOURCE_WIN32_WM_LBUTTONDBLCLK,
+    ):
+        raise NativeWindowStackError("Only original registered left-button messages")
+    if type(packed_lparam) is not int or not 0 <= packed_lparam <= 0xFFFFFFFF:
+        raise NativeWindowStackError("Require original 32-bit Win32 mouse LPARAM")
+    if type(original_guard_nonzero) is not bool:
+        raise NativeWindowStackError("Require observed original guarded input Boolean")
+    # Original native AND 0xFFFF and SHR 16; do NOT sign-extend the WORDs.
+    point = (packed_lparam & 0xFFFF, (packed_lparam >> 16) & 0xFFFF)
+    if original_guard_nonzero:
+        return OriginalMyWindowLeftButtonProjection(
+            win32_message, point, True, None, None, False
+        )
+    if win32_message == SOURCE_WIN32_WM_LBUTTONUP:
+        return OriginalMyWindowLeftButtonProjection(
+            win32_message, point, False, 0, None, True
+        )
+    route = project_original_native_window_route(
+        windows, source_point=point,
+        owner_capture_flag_nonzero=owner_capture_flag_nonzero,
+    )
+    return OriginalMyWindowLeftButtonProjection(
+        win32_message, point, False, 1, route, False
+    )
