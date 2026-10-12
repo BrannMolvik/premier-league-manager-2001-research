@@ -17,6 +17,8 @@ from front_end_state import StartMenuControl, TeamSelectControl
 from original_eamail_live_canvas import (
     OriginalEAMailRowArt, OriginalEAMailCanvasError,
     original_eamail_row_at_screen_point, source_original_eamail_row_backgrounds,
+    original_empty_eamail_preview, ORIGINAL_EAMAIL_EMPTY_PREVIEW_SCREEN_RECT,
+    ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH,
 )
 from original_eamail_source_contract import (
     ORIGINAL_EAMAIL_GRID_RESOURCES, ORIGINAL_EAMAIL_PANEL_RECT,
@@ -119,6 +121,61 @@ class OriginalInboxHostRouteTests(TestCase):
         self.assertTrue(rendered[0].png.startswith(b"\x89PNG\r\n\x1a\n"))
         self.assertFalse(rendered[0].native_full_text_and_art_rendered)
         self.assertFalse(rows.original_gui_accepted)
+
+    def test_original_empty_preview_art_and_host_source_coordinates(self):
+        session = ordinary_inbox()
+        delivered(session, player_id=1000)
+        presenter = OriginalManagementPresenter(session, bridge_factory=FixtureEAMBridge)
+        presenter.source_accepted_pmenu_action("title", 1, 0)
+        presenter.source_accepted_pmenu_action("child", 0x65, 0)
+        frame = build_management_canvas_frame(presenter)
+        plain = EA444DecodedImage(
+            532, 18, bytes((31, 49, 72, 255)) * (532 * 18),
+            consumed_bits=0, transparent_pixels=0,
+        )
+        disabled = EA444DecodedImage(
+            532, 187, bytes((44, 55, 66, 255)) * (532 * 187),
+            consumed_bits=0, transparent_pixels=0,
+        )
+        art = OriginalEAMailRowArt(plain, plain, disabled)
+        self.assertEqual(ORIGINAL_EAMAIL_EMPTY_PREVIEW_SCREEN_RECT,
+                         (246, 343, 532, 187))
+        self.assertEqual(ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH,
+                         "FM2001_Art/Generic/EAMail/preview_panel_disabled.444")
+        overlay = original_empty_eamail_preview(frame.presentation.eamail, art)
+        self.assertEqual(overlay.screen_rect, (246, 343, 532, 187))
+        self.assertEqual(overlay.source_path, ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH)
+        self.assertTrue(overlay.png.startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertFalse(overlay.native_body_text_rendered)
+        self.assertIsNone(original_empty_eamail_preview(
+            frame.presentation.eamail, art, selected_node_serial=1
+        ))
+        self.assertIsNone(original_empty_eamail_preview(
+            frame.presentation.eamail, OriginalEAMailRowArt(plain, plain)
+        ))
+        with self.assertRaisesRegex(OriginalEAMailCanvasError, "geometry"):
+            OriginalEAMailRowArt(plain, plain, plain)
+
+        # Check real host draw integration without invoking Tk or original EXE.
+        host = object.__new__(OriginalGameTkHost)
+        host.eamail_row_art = art
+        host._eamail_selected_node_serial = None
+        host._eamail_selected_row_token = None
+        host.tk = SimpleNamespace(NW="nw")
+        host._photo = lambda data: data
+        drawn = []
+        host._create_native_image = lambda x, y, **kw: drawn.append(
+            (x, y, kw.get("anchor"), kw.get("image"))
+        )
+        self.assertEqual(host._draw_eamail_rows(frame), 2)
+        self.assertEqual(tuple((x, y) for x, y, *_ in drawn),
+                         ((233, 178), (246, 343)))
+        self.assertTrue(all(item[-1].startswith(b"\x89PNG\r\n\x1a\n")
+                            for item in drawn))
+        drawn.clear()
+        host._eamail_selected_node_serial = frame.presentation.eamail.native_rows[0].original_internal_node_serial
+        self.assertEqual(host._draw_eamail_rows(frame), 1)
+        self.assertEqual(tuple((x, y) for x, y, *_ in drawn), ((233, 178),))
 
     def test_native_row_selection_is_original_sprite_and_second_click_fails_closed(self):
         session = ordinary_inbox()
