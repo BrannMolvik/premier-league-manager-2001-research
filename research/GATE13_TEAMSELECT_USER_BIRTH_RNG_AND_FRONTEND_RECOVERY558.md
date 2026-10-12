@@ -272,3 +272,13 @@ Native queue global `0x947AA8` is NOT an inert reserved pointer. Its enqueue met
 **What is NOT proven:** whether `0x4044F5` producer or any other enqueue route executes before normal first-user TeamSelect `0x412EF0`, whether a specific queued object virtual callback uses shared CRT, and whether a call at first-user selection sees queue owner+0x0C set/queue owner+0x04 nonempty. Consequently the prior 26+6-staff direct RNG ledger remains a lower bound, NOT an exact precompetition seed checkpoint. To finish, trace normal launcher -> DB load -> TeamSelect entry event queue state and instantiated event class virtuals on that path.
 
 Reproduction: `0x613EC0..0x613EDD`, `0x613EE0..0x613F4C`, `0x614080..0x6140EF`, `0x4044D3..0x40450C`, `0x425570..0x425581`. All independent original private static disassembly, no original process launched or normal Windows UI playtest.
+
+
+### Recovery561: one queued object's concrete polymorphic forwarding confirmed
+
+The actual original `0x4044D3..0x404503` event producer assigns vtable **0x7BD564** to the 0x0C-byte wrapper before enqueuing it. Independently reading that original PE `.rdata` vtable gives `+0x04 = 0x40DFB0` and `+0x18 = 0x404610`:
+- `0x40DFB0` is exactly `xor eax,eax; ret` (this wrapper's own +0x04 callback is **RNG-free** and returns false).
+- `0x404610` loads wrapper+0x08 **underlying event object** and tail-jumps through its **virtual+0x24**. Hence the outer queued wrapper's +0x18 callback can perform underlying object-specific work. Its source object is constructed at `0x4044CA -> 0x555D60`, and its concrete vtable/call graph, runtime reachability before first human and shared CRT impact remain to be established.
+- The vtable+0x14 function `0x404600` separately tail-jumps to underlying event object vft+0x40, confirming this wrapper delegates several behaviors rather than implementing static category logic itself.
+
+This is a narrower independently proven indirect dispatch boundary, not a claim that this event is queued when first TeamSelect creates a human. Source execution order and actual queue contents must still be qualified. Reproduce `0x7BD564..0x7BD580`, `0x40DFB0..0x40DFB3`, `0x404600..0x404618`, `0x404450..0x404506`.
