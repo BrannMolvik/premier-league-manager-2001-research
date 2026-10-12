@@ -1,3 +1,10 @@
+### 12 October 2026 KST — Recovery544 source confirms editable human name field and missing port state
+
+- Independently `sha256sum` verified private original PE SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; static `objdump` only.
+- Native new user 0x426090 first copies previous manager first/surname into DBRUser+0x05/+0x25, fallback literal John Smith when 0x403E10 manager validation fails, then original 0x4261B8 rebinds selected club+0x40 to selected human-manager slot.
+- Native 0x4CF6AC/0x4CF6D0 preloads current user name into original editable GUI buffers at +0x97C/+0x980; 0x4D0A22/0x4D0A31 apply the edited strings to current DBRUser+0x05/+0x25, not to static manager table. Thus original 0x414F30/0x414FA0 and Inbox MANAGERNAME can observe editable human name.
+- Present port model and internal save lack this user name; no actual preview has been accepted. [Details/reproduction](GATE13_EAM_USER_NAME_EDITOR_NATIVE_RECOVERY544.md). Next implement/test source user name lifecycle, binding and save; no fake name. Gate13–17 OPEN. PR638 blocked.
+
 ### 12 October 2026 KST — Recovery543 original human name override and free manager slot source proof
 
 - Independently disassembled native `0x4151C0` in SHA-verified original: rejects candidate assigned to any already registered human user, then requires manager static name to begin `!`. Current port heuristic alone is not full equivalence.
