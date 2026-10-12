@@ -263,3 +263,34 @@ def original_supportstart_initial_seven_rows(
                 row, slot.original_selected_byte
             ))
     return tuple(results)
+
+
+def original_teamselect_native_private_staff_record_address(
+    *,
+    teamselect_owner_va: int,
+    pressed_control_va: int,
+    source_group_start: int,
+    source_group_end: int,
+) -> int:
+    """0x4D9240: map a native TeamSelect 0x40-stride control to 0x30 record.
+
+    Exact arithmetic from the shipped executable:
+      record = owner - 0x310 + 0x30 * (
+          ((control - owner - 0x2EE4) >> 6)
+          + 24 * (group_end - group_start)
+      )
+    Native SAR floors negative/misaligned values, but these are not
+    proven legal source control pointers. Fail closed on them here.
+    The parameters are source object addresses/field VALUES, not GUI x/y,
+    club IDs or a manager index; this never creates a missing source user.
+    """
+    for arg in (teamselect_owner_va, pressed_control_va, source_group_start, source_group_end):
+        _dword(arg)
+    relative = pressed_control_va - teamselect_owner_va - 0x2EE4
+    delta = source_group_end - source_group_start
+    if relative < 0 or relative % 0x40 != 0 or delta < 0:
+        raise ValueError("Unqualified source native TeamSelect record pointer")
+    result = teamselect_owner_va - 0x310 + 0x30 * ((relative >> 6) + 24 * delta)
+    if not 0 <= result <= 0xFFFFFFFF:
+        raise ValueError("Source TeamSelect private record address out of DWORD")
+    return result

@@ -538,3 +538,47 @@ original parent route only after its source input
 and original graphics are faithfully established.
 All Gates13–17 remain OPEN; source evidence is
 not original-runtime or Windows11 GUI acceptance.
+
+
+## Recovery551 source TeamSelect control→private staff-record offset
+
+Further original static trace `0x4D91C0→0x4D9240`
+resolves the **particular pressed native TeamSelect
+control** to its 0x30-byte private selection record,
+before supplying `record+0x0C` staff pointers and
+`record+0x28` selected flags to `0x450BB0`
+PSupportStart. Original `0x4D9240` reads
+owner fields `+0x64/+0x68`, subtracts the owner
+address and `0x2EE4` from the control pointer,
+arithmetic-shifts right six to get a **0x40-byte
+control stride**, and combines a source group-span:
+
+```text
+delta = *(owner+0x68) - *(owner+0x64)
+row = (control_va - owner_va - 0x2EE4) >> 6
+record_va = owner_va - 0x310 + 0x30 * (row + 24*delta)
+```
+
+This is **not** a pixel coordinate or a club ID. It is
+native object-address arithmetic, and a staff record
+does not automatically exist for every arbitrary
+manager row. The source-bounded
+`original_teamselect_native_private_staff_record_address`
+preserves the exact arithmetic for plausible aligned
+positive native source control addresses, refusing
+unqualified malformed/negative cases rather than
+emulating native SAR wraparound on invalid objects.
+Two more independent tests establish first, seventh and
+group-shifted 0x30 record strides plus deliberate
+off-by-one/misalignment counterexamples.
+
+This further constrains UI integration: a real host
+must preserve per-selected-user control→record identity
+and original registered-source manager state, rather
+than launch the same modal for every club click or
+reuse a single-human record for 2–6 manager setup.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4d91c0 --stop-address=0x4d926d footballmanager.exe
+```

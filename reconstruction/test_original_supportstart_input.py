@@ -171,6 +171,54 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             original_supportstart_initial_seven_rows([])
 
+
+    def test_original_native_teamselect_control_to_private_staff_record_stride(self):
+        from original_supportstart_input import (
+            original_teamselect_native_private_staff_record_address,
+        )
+        owner = 0x00400000
+        first_control = owner + 0x2EE4
+        self.assertEqual(
+            original_teamselect_native_private_staff_record_address(
+                teamselect_owner_va=owner,
+                pressed_control_va=first_control,
+                source_group_start=0, source_group_end=0,
+            ), owner - 0x310
+        )
+        for i in range(7):
+            with self.subTest(row=i):
+                self.assertEqual(
+                    original_teamselect_native_private_staff_record_address(
+                        teamselect_owner_va=owner,
+                        pressed_control_va=first_control + 0x40*i,
+                        source_group_start=0, source_group_end=0,
+                    ), owner - 0x310 + 0x30*i
+                )
+        self.assertEqual(
+            original_teamselect_native_private_staff_record_address(
+                teamselect_owner_va=owner,
+                pressed_control_va=first_control + 0x40,
+                source_group_start=2, source_group_end=3,
+            ), owner - 0x310 + 0x30*25
+        )
+
+    def test_teamselect_native_private_record_rejects_unqualified_controls(self):
+        from original_supportstart_input import (
+            original_teamselect_native_private_staff_record_address as resolve
+        )
+        o = 0x400000
+        for c in (o+0x2EE3, o+0x2EE5, o+0x2EE4+63):
+            with self.subTest(control=c):
+                with self.assertRaises(ValueError):
+                    resolve(teamselect_owner_va=o,pressed_control_va=c,
+                            source_group_start=0,source_group_end=0)
+        with self.assertRaises(ValueError):
+            resolve(teamselect_owner_va=o,pressed_control_va=o+0x2EE4,
+                    source_group_start=3,source_group_end=2)
+        with self.assertRaises(ValueError):
+            resolve(teamselect_owner_va=True,pressed_control_va=o+0x2EE4,
+                    source_group_start=0,source_group_end=0)
+
     def test_empty_unknown_source_flags_are_not_invented(self):
         row = OriginalSupportStartRowBitState(0, (0, 0, 0, 0, 0))
         for invalid in (None, True, -1, 256, 1.0):
