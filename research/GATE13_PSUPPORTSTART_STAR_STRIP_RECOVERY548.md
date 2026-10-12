@@ -1,0 +1,34 @@
+# Recovery548: source-verified PSupportStart cumulative staff stars
+
+**Original source, not GUI acceptance.** Verified exact original private `footballmanager.exe` (4,714,541 bytes, SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`) and original private extracted `FM2001_Art/Support/stars.444` (2,776 bytes; SHA-256 `16c619e305ebad013e7404ea9e5d4414a9f9a8bd0d6ad26f269ee82a49849633`). Neither original file is committed to Git.
+
+**New original owner trace:**
+
+1. PSupportStart's seven-row update at `0x4D06B0` for a non-null staff pointer invokes staff virtual+0x24, multiplies the result by original `1000.0` at `0x7C6828`, then separately invokes staff virtual+0x40, passing its integer return value to row refresh `0x4C9830`. The former is used in another row field; do not conflate these two values.
+2. `0x4C9830` at `0x4C9861–0x4C9873` resolves the rating-like integer with `0x4C97D0` and writes the selected source wrapper into row child+0x44 at child+0x2C. The non-null path recomputes the child right boundary from source wrapper field+0x14; NULL uses a separate no-image path.
+3. `0x4C97D0` maps 1..5 to `0x945890`, `0x945850`, `0x945810`, `0x9457D0`, `0x945790` respectively; unsigned out-of-range returns NULL.
+4. Disassembly of initializer routines `0x5F6310`, `0x5F63A0`, `0x5F6430`, `0x5F64C0`, `0x5F6550` shows all five wrappers use the **same** original Support/stars.444 source loaded through `0x64D750` and filename literal `0x836414`. The `0x64E500` source rectangle fields are `left=0, top=0, right=15/30/45/60/75, bottom=10`. Original sprite dimensions 75x10. These are cumulative fills, not five different staff-role icons or x-shifted fragments.
+
+| Native integer | Wrapper VA | Original image crop (left,top,right,bottom) |
+|---|---|---|
+| 1 | `0x945890` | `(0,0,15,10)` |
+| 2 | `0x945850` | `(0,0,30,10)` |
+| 3 | `0x945810` | `(0,0,45,10)` |
+| 4 | `0x9457D0` | `(0,0,60,10)` |
+| 5 | `0x945790` | `(0,0,75,10)` |
+| other | NULL | none |
+
+**Proof reproduction (private original bytes must remain outside Git):**
+```bash
+sha256sum footballmanager.exe stars.444
+objdump -D -Mintel --start-address=0x4d06b0 --stop-address=0x4d0786 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c9830 --stop-address=0x4c98a8 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c97d0 --stop-address=0x4c9824 footballmanager.exe
+objdump -D -Mintel --start-address=0x5f6300 --stop-address=0x5f6580 footballmanager.exe
+objdump -D -Mintel --start-address=0x64e500 --stop-address=0x64e5a5 footballmanager.exe
+cd reconstruction && python -m unittest test_original_supportstart_stars
+```
+
+**Scoped code:** `reconstruction/original_supportstart_stars.py` and dedicated `test_original_supportstart_stars.py` preserve the exact original rectangle and NULL result; rejecting non-integer Python inputs is an explicit port guard, not a claim about native input validation.
+
+**Unresolved:** original fourth-child parent transform and hit/hover behavior, fifth-child text/control, source staff role-label derivation, seven-row edit/Apply/Cancel, actual TeamSelect close/return, Inbox shared CRT, R1 all match modes, multi-human/all leagues, and real Win11 acceptance. The complete player-visible PSupportStart remains missing. No PR/CI is opened for this minor source fragment. Resume this feature branch and trace `0x651BA0`, `0x652400`, `0x4C9830` source interaction semantics, then group a genuinely reviewable complete editor integration. Existing PR645 is draft and touches the separate layout module; do not overwrite it.
