@@ -595,6 +595,30 @@ def main(path: str) -> None:
             raise AssertionError(("Native row/child vtable input owner changed",hex(va)))
     print("PASS parent-first input and OR children; no fake last-two-only gating")
 
+    # Accepted 0x64F7A0 calls original vft+0x1C(1),
+    # native 0x64F470 -> 0x64F710 sets state bit0x10.
+    # A later event with this bit still set is rejected until separate
+    # vft+0x1C(0) path clears it; never manufacture release timing.
+    row_press_state_edges = (
+        ("64f803", "push   0x1"),
+        ("64f807", "call   DWORD PTR [edx+0x1c]"),
+        ("64f474", "push   0x10"),
+        ("64f47a", "call   0x64f710"),
+        ("64f482", "call   0x64f750"),
+        ("64f720", "or     edx,eax"),
+        ("64f722", "mov    DWORD PTR [esi+0x18],edx"),
+        ("64f765", "mov    DWORD PTR [esi+0x18],edx"),
+        ("64f863", "push   0x0"),
+        ("64f867", "call   DWORD PTR [eax+0x1c]"),
+    )
+    for address, expected in row_press_state_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original row pressed/released bit changed",address))
+    for vtable_va in (0x7c6780, 0x7be530, 0x7bff14):
+        if struct.unpack_from("<I", binary, vtable_va - 0x400000 + 0x1c)[0] != 0x64f470:
+            raise AssertionError(("Original row/child vft+0x1C state handler changed",hex(vtable_va)))
+    print("PASS accepted native row/child input sets bit0x10 before bit15 toggle")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

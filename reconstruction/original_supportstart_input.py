@@ -115,6 +115,20 @@ class OriginalSupportStartRowNativeDispatchObservation:
     observed_child_acceptances: tuple[bool, ...]
     early_parent_reject: bool
     native_handler_accepted: bool
+    source_post_virtual_gate_row: OriginalSupportStartRowBitState
+
+    @property
+    def source_after_row_bit15_toggle(self) -> OriginalSupportStartRowBitState:
+        """0x5D6270: after all accepted source +0x6C calls, flip bit15.
+
+        The earlier accepted 0x64F7A0 calls source virtual+0x1C(1),
+        setting state bit0x10 on the *accepted* native control.
+        Then 0x5D6270 calls row virtual+0x98 only for nonzero result.
+        Does not model optional opaque input/global callbacks.
+        """
+        return original_supportstart_row_native_event(
+            self.source_post_virtual_gate_row, self.native_handler_accepted
+        )
 
 
 def project_original_supportstart_row_native_dispatch(
@@ -141,6 +155,9 @@ def project_original_supportstart_row_native_dispatch(
     +0x24 hit-object callbacks remain UNKNOWN. Results here are
     caller observations, not invented physical mouse acceptance,
     side-effect execution, source CRT draws, or gameplay mutations.
+    The returned source-post-virtual-gate DWORDs project ONLY the direct
+    vft+0x1C(1) state bit0x10 set in accepted parent/children; additional
+    source callback state mutations must be qualified separately.
     """
     if type(row) is not OriginalSupportStartRowBitState:
         raise TypeError("Require exact original five-child row state")
@@ -161,7 +178,7 @@ def project_original_supportstart_row_native_dispatch(
             if observed_child_acceptances:
                 raise ValueError("Native parent rejection short-circuits all children")
             return OriginalSupportStartRowNativeDispatchObservation(
-                True, False, (), (), True, False
+                True, False, (), (), True, False, row
             )
     elif observed_parent_acceptance is not None:
         raise ValueError("Native parent cannot report result when not invoked")
@@ -177,10 +194,22 @@ def project_original_supportstart_row_native_dispatch(
         control = row.children[index]
         if accepted and (not control & 0x0002 or control & 0x0010):
             raise ValueError("Original child cannot accept with bit1 clear or bit4 set")
+    # 0x64F7A0 on acceptance invokes native vft+0x1C(1) ->
+    # 0x64F470 -> 0x64F710; this sets control DWORD bit0x10.
+    # The first row vft+0x98 bit15 toggle happens only AFTER this.
+    child_bits = list(row.children)
+    for index, accepted in zip(invoked, observed_child_acceptances):
+        if accepted:
+            child_bits[index] |= 0x0010
+    post_gate = OriginalSupportStartRowBitState(
+        row.parent | (0x0010 if observed_parent_acceptance is True else 0),
+        tuple(child_bits),
+    )
     return OriginalSupportStartRowNativeDispatchObservation(
         native_second_argument_present, observed_parent_acceptance,
         invoked, observed_child_acceptances, False,
         (observed_parent_acceptance is True or any(observed_child_acceptances)),
+        post_gate,
     )
 
 

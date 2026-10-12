@@ -109,11 +109,13 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         )
         self.assertTrue(result.parent_invoked)
         self.assertTrue(result.native_handler_accepted)
+        self.assertEqual(result.source_post_virtual_gate_row.parent, 0x193)
         self.assertEqual(result.invoked_child_indices, ())
         applied = original_supportstart_row_native_event(
             row, accepted_by_native_gate=result.native_handler_accepted,
         )
         self.assertEqual(applied.stored_staff_selection_byte_if_applied, 0)
+        self.assertEqual(result.source_after_row_bit15_toggle.parent, 0x8193)
 
     def test_parent_rejection_returns_without_eligible_child_dispatch(self):
         row = original_supportstart_fresh_native_row()
@@ -137,6 +139,10 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         self.assertIsNone(result.parent_accepted)
         self.assertEqual(result.invoked_child_indices, (3, 4))
         self.assertTrue(result.native_handler_accepted)
+        self.assertEqual(result.source_post_virtual_gate_row.parent, 0x183)
+        self.assertEqual(result.source_post_virtual_gate_row.children[3], 0x183)
+        self.assertEqual(result.source_post_virtual_gate_row.children[4], 0x193)
+        self.assertEqual(result.source_after_row_bit15_toggle.parent, 0x8183)
         result2 = project_original_supportstart_row_native_dispatch(
             row, native_second_argument_present=True,
             observed_parent_acceptance=True, observed_child_acceptances=(False, False),
