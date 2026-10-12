@@ -582,3 +582,54 @@ Reproduce:
 ```bash
 objdump -D -Mintel --start-address=0x4d91c0 --stop-address=0x4d926d footballmanager.exe
 ```
+
+
+## Recovery551 additional private original localized staff-label source
+
+The owner-supplied extracted original `FM2001/English.str`
+was directly retrieved from private Drive and independently
+SHA-256 verified: **369,644 bytes**, SHA-256
+`aa594a55ad95c672b69184e5f3ff8349e41fe95b48c5dcb3c8fcfe2bcdf5b601`.
+Separate `FM2001/EnglishEAM.str` is 298,747
+bytes, SHA-256
+`98387ef673e87a02cf2cab7349770a4415f29fd381877b603922302c3e3f174f`.
+No private original bytes were committed to Git.
+
+The **original English.str** has a contiguous source
+localized label family around byte offset 269,400
+including Assistant Manager, Stadium Manager,
+Youth Team Manager, Business Consultant, Chief Scout,
+Groundsman, GK Coach, Fitness Coach, Technique Coach,
+Defensive Coach, Midfield Coach, Attacking Coach,
+Masseur, Doctor, Psychotherapist, Dietician, Talent
+Scout and Scout. These are real original strings, not
+newly written UI copy. The original EXE
+`0x4CDCD0` selects 16 source staff-type
+cases (range1–16, source table 0x4CDD84)
+and reads localized pointer globals
+`0x982AA4..0x982A60`; initializer
+`0x6458B0..0x645AF9` loads that
+family through `0x64E320`.
+
+**IMPORTANT qualification:** raw adjacency of strings
+in `English.str` does **not** prove a particular
+source type1..16 to a particular text label; there
+are at least 18 nearby staff-facing labels and the
+runtime indexed localization resolver still requires
+source-qualified index→pointer mapping. Do not
+use guessed type labels in the live SupportStart
+editor or confound plain `English.str`
+with `EnglishEAM.str` message templates.
+
+Next source task for genuine GUI is to resolve original
+`0x64E320` string indices and final `0x982A*`
+pointer family, original staff virtual name getter and
+text layout; then assemble original editor with authentic
+staff types/names and native pointer dispatch.
+
+Reproduction (authorized private files only):
+```bash
+sha256sum English.str EnglishEAM.str footballmanager.exe
+objdump -D -Mintel --start-address=0x4cdcd0 --stop-address=0x4cdd82 footballmanager.exe
+objdump -D -Mintel --start-address=0x6458b0 --stop-address=0x645b20 footballmanager.exe
+```
