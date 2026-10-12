@@ -95,6 +95,66 @@ class GameScheduleIntegrationTests(unittest.TestCase):
         )
         self.assertIs(state._resolve_rng(), state.rng)
 
+    def test_already_advanced_application_owned_crt_stays_same_object(self):
+        # 0x53109E seeds ONCE before Loader444/DBTPlayers in the original.
+        # These explicit preloads only test stream ownership; they do
+        # NOT claim actual source seed-to-click draw parity.
+        shared = MsvcCrtRng(123456)
+        for bound in (17, 0, 20, 32768, 4):
+            shared.randbelow(bound)
+        starting_state = shared.state
+        reference = GameState.from_database(
+            Database(), date(2000, 8, 18),
+            seed=starting_state, season_year=2000,
+        )
+        state = GameState.from_database(
+            Database(), date(2000, 8, 18),
+            source_shared_crt=shared, season_year=2000,
+        )
+        self.assertIs(state.rng, shared)
+        self.assertIs(state._resolve_rng(), shared)
+        self.assertEqual(state.players[1].morale, reference.players[1].morale)
+        self.assertEqual(state.players[2].morale, reference.players[2].morale)
+        self.assertEqual(shared.state, reference.rng.state)
+        self.assertEqual(shared.rand15(), reference.rng.rand15())
+
+    def test_fresh_caller_owned_crt_matches_existing_seed_path(self):
+        shared = MsvcCrtRng(1)
+        a = GameState.from_database(
+            Database(), date(2000, 8, 18), source_shared_crt=shared,
+            season_year=2000,
+        )
+        b = GameState.from_database(
+            Database(), date(2000, 8, 18), seed=1,
+            season_year=2000,
+        )
+        self.assertIs(a.rng, shared)
+        self.assertEqual(a.rng.state, 0x6DF109FD)
+        self.assertEqual(a.rng.state, b.rng.state)
+        self.assertEqual(
+            [(p.index, p.morale, p.startup_month_span)
+             for p in a.players.values()],
+            [(p.index, p.morale, p.startup_month_span)
+             for p in b.players.values()],
+        )
+
+    def test_ambiguous_seed_and_fake_shared_crt_reject_without_consuming(self):
+        shared = MsvcCrtRng(123)
+        before = shared.state
+        with self.assertRaisesRegex(ValueError, "do not supply a new seed"):
+            GameState.from_database(
+                Database(), date(2000, 8, 18),
+                seed=1, source_shared_crt=shared,
+            )
+        self.assertEqual(shared.state, before)
+        for fake in (1, True, object(), "123"):
+            with self.subTest(fake=type(fake).__name__), self.assertRaises(TypeError):
+                GameState.from_database(
+                    Database(), date(2000, 8, 18),
+                    source_shared_crt=fake,
+                )
+        self.assertEqual(shared.state, before)
+
     def test_player_only_state_requires_explicit_rng(self):
         state = GameState.from_players([], date(2000, 8, 18))
         with self.assertRaises(RuntimeError):
