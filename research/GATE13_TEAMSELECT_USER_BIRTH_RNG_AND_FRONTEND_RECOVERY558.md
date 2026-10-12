@@ -321,3 +321,10 @@ objdump -D -Mintel --start-address=0x4258F1 --stop-address=0x4259C7 footballmana
 objdump -D -Mintel --start-address=0x412F05 --stop-address=0x412F2A footballmanager.exe
 objdump -D -Mintel --start-address=0x5CF830 --stop-address=0x5CF83E footballmanager.exe
 ```
+
+
+### Recovery561 additional closure: the 0x5CF830 post-name cleanup has no hidden random draw
+
+Original `0x4259BA`, immediately after the FIRST pre-staff event queue drain at `0x4259B5`, calls `0x5CF830` on DBRUser+0x6B4. Its entire body is a one-argument forwarding call `0x42C9F0`. Direct original disassembly `0x42C9F0..0x42CA5C` shows a deterministic singly linked-list cleanup: iterate nodes at +0x04, if owner nonzero reset a vtable pointer to `0x7BD5A8`, free the nested pointer and each node through `0x686FE3`, reset first/last heads to null at exit. The routine has **NO direct bounded RNG, CRT rand/srand, or independent polymorphic callback** in this bounded native path. Thus the `0x5CF830 -> 0x42C9F0` cleanup itself cannot account for extra CRT draws between 13 user-name pairs and six staff. Other calls and the two event-queue drains remain separate unresolved inputs.
+
+Reproduce original `0x42599E..0x4259C7`, `0x5CF830..0x5CF83E`, `0x42C9F0..0x42CA5D`. No original executable was launched, no GUI acceptance, no new feature-branch test execution.
