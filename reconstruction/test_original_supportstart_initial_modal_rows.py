@@ -39,6 +39,7 @@ def original_fixture_birth(rng):
             7,7,1,"global_players",(),1
         ),
         selection_context=0,require_shipped_club_count=False,
+        acknowledge_omitted_native_event_and_binder_effects=True,
     )
 
 
