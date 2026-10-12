@@ -387,10 +387,34 @@ class GameState:
         start_date: date,
         seed: int | None = None,
         season_year: int | None = None,
+        *,
+        source_shared_crt: MsvcCrtRng | None = None,
     ) -> "GameState":
-        if seed is None:
-            seed = int(time())
-        rng = MsvcCrtRng(int(seed))
+        """Materialize DBTPlayers using exactly one caller-owned CRT when supplied.
+
+        Source original 0x531098/0x53109E initializes an application CRT
+        before Loader444, DBTPlayers and later human/staff constructors.
+        The optional owner lets a separately source-verified startup
+        pipeline pass THAT already-advanced stream through DBTPlayers.
+        This is NOT proof that frontend currently reproduces the true
+        seed-to-click stream or original native event queue callbacks.
+
+        Legacy seed/time initialization is retained unchanged whenever
+        source_shared_crt is omitted. A caller cannot supply both owners
+        or silently reseed an existing stream.
+        """
+        if source_shared_crt is not None:
+            if seed is not None:
+                raise ValueError(
+                    "source_shared_crt is an existing stream; do not supply a new seed"
+                )
+            if type(source_shared_crt) is not MsvcCrtRng:
+                raise TypeError("source_shared_crt must be the original MsvcCrtRng owner")
+            rng = source_shared_crt
+        else:
+            if seed is None:
+                seed = int(time())
+            rng = MsvcCrtRng(int(seed))
         source_players = tuple(database.players)
         clubs = tuple(getattr(database, "clubs", ()))
         countries = tuple(getattr(database, "countries", ()))
