@@ -13,8 +13,9 @@ from pathlib import Path
 import struct
 
 from ea444_decoder import EA444DecodedImage, decode_ea444
+from runtime_layout import bundled_original_assets_root
 
-BUNDLE_ROOT = Path(__file__).resolve().parents[1] / 'original_assets/converted/gate13-rasters-v1'
+BUNDLE_ROOT = bundled_original_assets_root() / 'converted/gate13-rasters-v1'
 MANIFEST_SHA256 = 'b17a34521037ea367dfd7a869fa3a91d6672ed8a4a4d897106e884154f0f9e10'
 CONVERTER_ID = 'fm2001-source-ea444-lossless-rgba-v1'
 
