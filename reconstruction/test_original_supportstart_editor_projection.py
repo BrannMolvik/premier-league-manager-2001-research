@@ -3,7 +3,10 @@ import unittest
 
 from original_human_user_name import OriginalHumanUserName, OriginalHumanUserNameError
 from original_supportstart_editor_projection import OriginalSupportStartEditorProjection
-from original_supportstart_staff_lists import OriginalSupportStartLinkedLists
+from original_supportstart_staff_lists import (
+    OriginalSupportStartLinkedLists,
+    project_original_supportstart_first_human_modal_entry,
+)
 from support_staff import SupportStaffState, original_teamselect_support_slots
 
 
@@ -64,6 +67,63 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
         self.assertEqual(result.staff_lists.inactive_type_1_to_5, self.staff[:5])
         self.assertEqual(result.staff_lists.inactive_type_6_to_16, self.staff[5:])
         self.assertIs(result.original_human_user_name, self.user)
+
+    def test_native_first_human_pre_modal_six_staff_list_order_and_cancel(self):
+        fresh = OriginalSupportStartLinkedLists(
+            current_staff=self.staff, global_staff=self.staff
+        )
+        staged = project_original_supportstart_first_human_modal_entry(
+            source_slots=self.slots, before=fresh,
+        )
+        # Native 0x4DA4F0 visits 6..0: slot6 empty, then type13
+        # into +0x5C4, and 5,4,3,2,1 into +0x5B8.
+        self.assertEqual(
+            tuple(s.staff_type for s in staged.inactive_type_1_to_5),
+            (5, 4, 3, 2, 1),
+        )
+        self.assertIs(staged.inactive_type_6_to_16[0], self.staff[5])
+        self.assertEqual(staged.current_staff, ())
+        self.assertEqual(staged.global_staff, ())
+        self.assertIs(fresh.current_staff[0], self.staff[0])
+        editor = OriginalSupportStartEditorProjection.open(
+            original_user=self.user, source_slots=self.slots,
+            prior_staff_lists=staged,
+        )
+        # Native event1 skips 0x4D0830 Apply; no invented restoration
+        # of the six pre-staging list nodes.
+        canceled = editor.with_native_row_event(
+            0, accepted_by_native_gate=True,
+        ).close(1)
+        self.assertIs(canceled.staff_lists, staged)
+        self.assertIs(canceled.original_human_user_name, self.user)
+        self.assertFalse(canceled.invoked_original_apply)
+
+    def test_first_human_staging_requires_exact_source_order_and_unowned_lists(self):
+        fresh = OriginalSupportStartLinkedLists(
+            current_staff=self.staff, global_staff=self.staff
+        )
+        wrong_prior = (
+            OriginalSupportStartLinkedLists(
+                current_staff=self.staff[:5], global_staff=self.staff),
+            OriginalSupportStartLinkedLists(
+                current_staff=self.staff[::-1], global_staff=self.staff),
+            OriginalSupportStartLinkedLists(
+                current_staff=self.staff,
+                inactive_type_1_to_5=(self.staff[0],),
+            ),
+        )
+        for prior in wrong_prior:
+            with self.subTest(prior=prior):
+                with self.assertRaises(ValueError):
+                    project_original_supportstart_first_human_modal_entry(
+                        source_slots=self.slots, before=prior,
+                    )
+        for slots in (self.slots[:6], self.slots[::-1], (None,) + self.slots[1:]):
+            with self.subTest(slots=slots):
+                with self.assertRaises(ValueError):
+                    project_original_supportstart_first_human_modal_entry(
+                        source_slots=slots, before=fresh,
+                    )
 
     def test_apply_uses_true_source_flag_inversion_and_staged_human_name(self):
         changed = self.editor.with_edited_name("Ada", "Lovelace")

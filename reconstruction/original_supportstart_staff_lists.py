@@ -71,6 +71,59 @@ class OriginalSupportStartLinkedLists:
                 raise ValueError("Invalid source type in original user+0x5C4")
 
 
+def project_original_supportstart_first_human_modal_entry(
+    *,
+    source_slots: tuple[OriginalSupportStartSourceSlot, ...],
+    before: OriginalSupportStartLinkedLists,
+) -> OriginalSupportStartLinkedLists:
+    """Project ONLY original first-human 0x4DA4F0 pre-modal staff staging.
+
+    0x4D8F19..0x4D8F4E clears all four linked-list payload-owner flags
+    before 0x4C9CD0 constructs the 1,2,3,4,5,13 staff in +0x5D0.
+    Native 0x4DA4F0 then walks source slots 6..0, calls 0x4CA070
+    to append to +0x5B8/+0x5C4 and unlinks any matching node from
+    +0x5D0 and global 0x875600 via 0x4D1880, BEFORE opening the GUI.
+
+    This identity-preserving, non-mutating projection requires a *first*
+    human with the genuine six selected source pointers in creation order
+    and no previously inactive selected-user staff. It cannot recreate
+    earlier global ownership or prove what native Cancel's later outer
+    callbacks do. Do not use for loaded saves, later humans, or GUI Apply.
+    """
+    if (
+        type(source_slots) is not tuple or len(source_slots) != 7
+        or any(type(row) is not OriginalSupportStartSourceSlot
+               or row.index != i for i, row in enumerate(source_slots))
+        or type(before) is not OriginalSupportStartLinkedLists
+    ):
+        raise ValueError("Require original seven slots and explicit first-human lists")
+    staff = tuple(row.staff for row in source_slots[:6])
+    if (
+        source_slots[6].staff is not None
+        or tuple(getattr(s, "staff_type", None) for s in staff) != (1, 2, 3, 4, 5, 13)
+        or before.inactive_type_1_to_5 or before.inactive_type_6_to_16
+        or len(before.current_staff) != 6
+        or any(current is not source for current, source in zip(before.current_staff, staff))
+    ):
+        raise ValueError("First-human six-staff source creation state is unqualified")
+
+    primary: list[SupportStaffState] = []
+    secondary: list[SupportStaffState] = []
+    current = list(before.current_staff)
+    global_list = list(before.global_staff)
+    for source in reversed(staff):
+        owner = original_staff_inactive_link_owner_offset(source.staff_type)
+        (primary if owner == 0x5B8 else secondary).append(source)
+        _remove(current, source)
+        _remove(global_list, source)
+    return OriginalSupportStartLinkedLists(
+        inactive_type_1_to_5=tuple(primary),
+        inactive_type_6_to_16=tuple(secondary),
+        current_staff=tuple(current),
+        global_staff=tuple(global_list),
+    )
+
+
 @dataclass(frozen=True)
 class OriginalSupportStartProjectedApply:
     lists: OriginalSupportStartLinkedLists

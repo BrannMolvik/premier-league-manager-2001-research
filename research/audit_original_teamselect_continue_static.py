@@ -386,6 +386,53 @@ def main(path: str) -> None:
         raise AssertionError("Match injury direct caller changed")
     print("PASS guarded original Match/FriendlyMatch injury producer")
 
+    # Modal result is captured BEFORE vtable-owned GUI destruction,
+    # and the *outer* accepted callback explicitly ignores the result.
+    # The native PSupportStart destructor owns seven child UI structs,
+    # not direct original registered-human or staff-list cleanup.
+    native_modal_close_edges = (
+        ("450cbf", "mov    bl,BYTE PTR [esi+0x1de4]"),
+        ("450ccd", "call   0x5eb920"),
+        ("5eba9a", "mov    eax,DWORD PTR [edi]"),
+        ("5ebaa0", "call   DWORD PTR [eax]"),
+        ("4cf793", "call   0x4cf7b0"),
+        ("4cf7cd", "mov    DWORD PTR [esi],0x7c6ddc"),
+        ("4cf93b", "push   0x7"),
+        ("4cf946", "mov    BYTE PTR [esp+0x20],0x10"),
+        ("4cf94b", "call   0x66820d"),
+        ("4cf9db", "call   0x5d4600"),
+        ("4cfa5a", "call   0x6532a0"),
+        ("4d060a", "call   DWORD PTR [edx+0x4c]"),
+        ("4d0611", "mov    BYTE PTR [esi+0x1de4],0x1"),
+        ("4d0623", "mov    BYTE PTR [esi+0x1de4],0x0"),
+        ("4d9224", "call   0x450bb0"),
+        ("4d922c", "mov    eax,ebx"),
+        ("4d8f75", "call   0x4c9cd0"),
+        ("4d8f7f", "call   0x4da4f0"),
+        ("4da537", "call   0x4ca070"),
+        ("4da561", "call   0x4d1880"),
+        ("4da58d", "call   0x4d1880"),
+        ("4d90c8", "call   0x413db0"),
+    )
+    for address, expected in native_modal_close_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original source modal/owner instruction changed",address))
+    if struct.unpack_from("<I", binary, 0x7c6ddc - 0x400000)[0] != 0x4cf790:
+        raise AssertionError("Original SupportStart destructor vft+0 changed")
+    if struct.unpack_from("<I", binary, 0x7c6e28 - 0x400000)[0] != 0x4d0830:
+        raise AssertionError("Original SupportStart Apply vft+0x4c changed")
+    for target, owners in {
+        "4cf7b0": ("4cf793",),
+        "450bb0": ("4d9224",),
+        "4da4f0": ("4d8f7f",),
+        "413db0": ("4d90c8",),
+    }.items():
+        if direct_calls(target) != owners:
+            raise AssertionError(("Original modal caller set changed",target))
+    print("PASS original modal event1 Cancel / event2 Apply and object teardown")
+    print("PASS original first-human staff list staging before modal")
+    print("WARNING transitive vft/callback/teardown side effects still unresolved")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
