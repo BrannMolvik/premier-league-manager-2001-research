@@ -1347,6 +1347,61 @@ def main(path: str) -> None:
                                   hex(target), observed))
     print("PASS original nested user versus later RNG-heavy direct callers")
 
+    # Recovery575: original first-human binder is 0x426090..0x42621D,
+    # while direct global enqueuer 0x426394 sits in DIFFERENT function
+    # 0x426220 (reached directly by conditionally selected 0x4041D1).
+    # Original first-game seed 0x531098 comes from Win32 local/system/
+    # timezone converter 0x66A767, then 0x53109E CRT srand on thread
+    # data+0x14. This does NOT establish real seed-to-click RNG parity.
+    source_first_user_queue_owner_and_time_seed_575 = (
+        ("4041bf", "call   0x4037b0"),
+        ("4041c6", "jne    0x4041d6"),
+        ("4041d1", "call   0x426220"),
+        ("413c5b", "call   0x426090"),
+        ("42621d", "ret"),
+        ("426220", "push   ebp"),
+        ("426387", "mov    ecx,0x947aa8"),
+        ("426394", "call   0x613ec0"),
+        ("531098", "call   0x66a767"),
+        ("53109e", "call   0x66950f"),
+        ("66a774", "call   DWORD PTR ds:0x7bd178"),
+        ("66a77e", "call   DWORD PTR ds:0x7bd174"),
+        ("66a7d3", "call   DWORD PTR ds:0x7bd170"),
+        ("66a830", "call   0x67314f"),
+        ("66950f", "call   0x66d553"),
+        ("669518", "mov    DWORD PTR [eax+0x14],ecx"),
+        ("66951c", "call   0x66d553"),
+        ("669521", "mov    ecx,DWORD PTR [eax+0x14]"),
+        ("669524", "imul   ecx,ecx,0x343fd"),
+        ("66952a", "add    ecx,0x269ec3"),
+        ("669530", "mov    DWORD PTR [eax+0x14],ecx"),
+        ("669535", "shr    eax,0x10"),
+        ("669538", "and    eax,0x7fff"),
+    )
+    for address,expected in source_first_user_queue_owner_and_time_seed_575:
+        if expected not in instruction(address):
+            raise AssertionError(("Original binder / queue producer / srand moved",address))
+    # The exact two direct owners are disjoint. Complete caller sets
+    # are checked against the private original text listing.
+    first_human_binder_source_xrefs_575 = (
+        (0x426090,(0x413c5b,)),
+        (0x426220,(0x4041d1,)),
+    )
+    for target,expected in first_human_binder_source_xrefs_575:
+        observed = tuple(int(match.group(1),16)
+            for line in listing.splitlines()
+            if (match := re.match(
+                r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x" + format(target,"x") + r"$",
+                line.strip()
+            ))
+        )
+        if observed != expected:
+            raise AssertionError(("Original binder versus event-producer XREF changed",
+                                  hex(target),observed))
+    print("PASS first-human binder separated from globally queued event producer")
+    print("PASS CRT 32-bit system-time seed, per-thread state and LCG")
+    print("WARNING actual seed clock and global queue heads not observed")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

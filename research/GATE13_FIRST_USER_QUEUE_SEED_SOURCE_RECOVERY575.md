@@ -1,0 +1,21 @@
+# Recovery575 — separate first-human binder, queued-event producer and application wall-clock seed
+
+**13 October 2026 KST. Gate13 OPEN; Gates14–17 OPEN.** Source is the authorized original `footballmanager.exe`, size 4,714,541 bytes, SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Its disassembly and original bytes remain private and are **not committed**; the original EXE was **not executed**. Prior PR #655 merged at `15116d63c3bede8f8edf91c8a8488b4a5e360267` with full 3,594 tests OK (31 skipped) and asset-policy passed. This research resumes the distinct unfinished native queue/seed dependencies, not those completed source-CRTs.
+
+## First-user manager binder is NOT the nearby event-queue producer
+
+- The native first-human accepted club routine calls first-manager binder **`0x413C5B -> 0x426090`**. Actual native binder entry `0x426090` returns at **`0x42621D`**, before a separate C++ function begins at **`0x426220`**. A complete original direct-call search has exactly **one** caller of `0x426090`: `0x413C5B`.
+- The separate function `0x426220` has exactly **one** direct caller **`0x4041D1`**, under a separate source conditional: `0x4041BF -> 0x4037B0` must report original status1 or native `0x4041C6` jumps around the call to `0x4041D6`.
+- Inside that **separate** function `0x426220`, at **`0x426387`** the source loads global queue owner **`0x947AA8`** and invokes **`0x426394 -> 0x613EC0`** to enqueue an event. This is NOT a call in `0x426090` or its original literal-zero registered-human branch.
+- Original global enqueue `0x613EC0` has approximately **175 direct call sites** in the whole executable (verified by private full-code static scan), so excluding THIS producer from binder does NOT prove original shared queue empty at either `0x4259B5` or `0x412F1F`. Dynamic startup actions, process-global event source, callbacks and actual runtime queue head remain unknown. Never substitute the original constructor's initial null head for either missing queue observation.
+
+The source audit checks eight relevant native instruction sites, exact two incoming CALL sets and the owner pointer setup; private original SHA and checks PASS. No actual original game executed.
+
+## Application CRT starts from OS-provided clock/timezone, not a fixed constant
+
+- Original app startup **`0x531098 -> 0x66A767`** gets an OS-derived timestamp and immediately invokes **`0x53109E -> 0x66950F`**, the original MSVC-compatible CRT `srand`.
+- Original runtime `0x66A767` uses imported **`GetLocalTime`** at **`0x66A774`** (IAT VA `0x7BD178`), **`GetSystemTime`** at **`0x66A77E`** (IAT `0x7BD174`), and **`GetTimeZoneInformation`** at **`0x66A7D3`** (IAT `0x7BD170`) before timestamp conversion `0x66A830 -> 0x67314F`. The imported symbol names were independently identified from the original PE import table with `objdump -p`; the x86 addresses match. Avoid hardcoding a single seed or guessing a fixed 153,002-draw prefix for an original selected-human journey.
+- Native `srand` at `0x66950F` calls CRT thread-state getter **`0x66D553`**, stores the supplied 32-bit seed at **thread-state +0x14** (`0x669518`). Native `rand` at `0x66951C` reads that SAME per-thread slot, applies the standard `state * 0x343FD + 0x269EC3` LCG at `0x669524/0x66952A`, writes new state to +0x14 and yields `(state >> 16) & 0x7FFF` at `0x669535/0x669538`.
+- This proves the source seed API and per-thread RNG ownership. It does **not** supply the actual user execution timestamp, time-zone/DST resolution, exact number/order of all game initialization and menu draws before the first click, or native queue callback effects. Reconstructed GUI must use one coherent stream through loader/DBTPlayers/first-human/staff, not create a fresh stream on TeamSelect Continue as if original reseeded then.
+
+The private original source verification PASSed **23 x86 instruction sites and both exact direct caller inventories**. The persistent `research/audit_original_teamselect_continue_static.py` was extended. No normal Win11 game client was launched, no player-visible original behaviour validated, no gate closed. The next task is to source-trace actual queue producers through startup and selected first-human, then reconcile full CRT seed-to-click before integrating real staff-modal and manager persistence.
