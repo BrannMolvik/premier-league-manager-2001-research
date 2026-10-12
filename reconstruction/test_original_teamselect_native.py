@@ -275,6 +275,8 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
                          (0x1EB8, 0x1F08))
         self.assertEqual(tuple(a.animation_wrapper_address for a in actions),
                          (0x946190, 0x946150))
+        self.assertEqual(tuple(a.source_layout_rect for a in actions),
+                         ((729, 1, 30, 30), (697, 1, 30, 30)))
         self.assertEqual(tuple(a.result_byte_after_native_handler for a in actions),
                          (0, 1))
         self.assertEqual(tuple(a.invokes_full_original_apply for a in actions),
