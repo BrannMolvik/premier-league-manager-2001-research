@@ -98,3 +98,17 @@ def original_supportstart_row_native_event(
     return original_supportstart_row_set_bit15(
         row, not bool(row.parent & ORIGINAL_ROW_STATE_MASK)
     )
+
+
+def original_supportstart_fifth_child_native_rect(row_index: int) -> tuple[int, int, int, int]:
+    """Source fifth child +0x48 native (x,y,w,h), not a proven hit area.
+
+    Original 0x4C9510 calls 0x652400 with row x+0xE6,
+    row y+0x15, width0x5F, height0x0F. The first four
+    arguments are forwarded unchanged through 0x651F00,
+    0x651E90, 0x651BF0 to native rectangle setter 0x64F380.
+    No parent coordinate transform or actual input capture is inferred.
+    """
+    if type(row_index) is not int or not 0 <= row_index < 7:
+        raise ValueError("Source support row must be 0 through 6")
+    return (621, 202 + 40*row_index, 95, 15)
