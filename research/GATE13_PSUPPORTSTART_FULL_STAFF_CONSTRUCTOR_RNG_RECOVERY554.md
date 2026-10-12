@@ -275,3 +275,16 @@ The actual fixed-staff factory 0x4C9E4C calls +0x10, 0x4C9E55 calls +0x28 with a
 **Corrected scope:** RNG25, RNG2, TWO full native name-generator calls (each two source-player selections with both draws repeated for any first-name '-' retry), RNG20 and RNG30 are direct, source-verified constructor calls. Actual +0x5C additionally always calls RNG3 and has conditional country-group/candidate draws with possible repeats. The total and seed checkpoint remain UNKNOWN until 0x4CB5D0, 0x4D1830, 0x4F4940, selected-record virtual+0x24 and the relevant live source group populations are traced. Do not add arbitrary RNG calls to the live shared CRT; do not claim reconstructed initial staff names or unblock Inbox PR638 from this partial trace.
 
 Reproduce on the hashed original with objdump disassembly around 0x4C9E37–0x4C9E66, 0x4CB0F0–0x4CB2B0, 0x4CB2B0–0x4CB5B8, and vtable raw data 0x7C6834–0x7C6898. No original GUI playtest or Windows11 release acceptance has been performed. Gate13–17 remain open.
+
+
+### Recovery555 follow-up: helper side effects narrowed, indirect RNG still unresolved
+
+Further direct static disassembly on the same SHA-256-verified original confirms:
+
+- 0x4CB5D0 (through 0x4CB668) is an inline field-copy of the source country's 0x38-byte prefix with original copy/derived vtable setting. It has **no direct random-number call**.
+- 0x4D1830 (through 0x4D187D) copies a pointer-array/count pair, allocates the corresponding 4*count bytes and copies its members; it has **no direct random-number call**. This establishes that the three copied collections are independent source arrays, NOT new randomly generated candidate pools.
+- 0x4F4940 (through 0x4F496F) conditionally invokes its selected object virtual+0x38, then indexes the object's +0x34 pointer array, writes ordinal +0x28 to each child, and marks bit 0x01 at owner+0x40. The indirect **virtual+0x38 must be traced** before asserting this route is RNG-free.
+- 0x64D540 calls the process CRT random routine 0x66951C **before** it evaluates the supplied floating-point bound; do not assume a zero or exceptional bound skips random consumption.
+- At 0x4CB4C3 the selected group's **virtual+0x24** is called and the return byte compared exactly to 1; a different result branches to 0x4CB3C6. This affects draw count and needs actual selected-object vtable/eligibility proof before implementing the full 0x4CB2B0 path.
+
+**Next original investigation:** identify the vtables and actual source data producers of the three country-group vectors (+0x38/+0x40/+0x48), especially the selected-group +0x24 gate and its optional +0x38 initialization; then account for every CRT draw and commit state in fresh-user startup. Only after that bind original staff names to the seven-row modal and source-proven TeamSelect Apply/Cancel return. Do not put these source helper conclusions into a standalone speculative RNG owner.
