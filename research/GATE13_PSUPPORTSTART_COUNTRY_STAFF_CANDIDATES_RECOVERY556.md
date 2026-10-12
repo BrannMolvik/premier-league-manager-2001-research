@@ -1,3 +1,5 @@
+> **CORRECTIVE SOURCE AUDIT, Recovery556, 12 October 2026:** The 0x40-byte `0x876C50` source pool identified below is the original **Static.dat competition definitions**, not a special source pool of staff candidates. Native `0x4F7020` is called directly during the game's Static.dat file load at `0x50D4C8`, and consumes 193 competitions followed by 1,053 rounds. The existing `reconstruction/fm2001_data.py` parser already decodes these source records correctly. Also the kind1 / competition ID27 special subclass's vft+0x24 is **0x5B6380** and returns 1 (same as other leagues). Its vft+0x28 is **0x4FAFE0**; the earlier table shifted this slot. The older unknown-file/unknown-special-kind1 statements below are **SUPERSEDED**, not implementation blockers. See detailed correction at the end. Other candidate-state/CRT/UI unknowns remain open.
+
 # Recovery556: original per-country support-staff candidate source, tags, and ordering
 
 **Source:** owner's original footballmanager.exe (4,714,541 bytes), independently SHA-256-checked in the recovery shell as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Original binary was statically disassembled, never executed. This is neither a Windows GUI observation nor complete staff generator integration.
@@ -69,3 +71,24 @@ objdump -D -Mintel --start-address=0x4f38a0 --stop-address=0x4f3920 footballmana
 objdump -D -Mintel --start-address=0x4f70e0 --stop-address=0x4f7257 footballmanager.exe
 objdump -s -j .rdata --start-address=0x7c9984 --stop-address=0x7c99b0 footballmanager.exe
 ```
+
+
+## Corrected source identity and exact actual Static.dat record verification (Recovery556)
+
+The previously listed source-owner address `0x876C48` is the original **competition-definition array owner**. In the original loader:
+
+1. `0x50D443..0x50D45D` opens literal `"static.dat"` from the original executable at `0x827E98` with read-binary mode and retains its original FILE pointer in ESI.
+2. `0x50D47D` reads the original 209 country records, `0x50D48D` reads the 209 nationality name-group labels. Further original position-related vectors are read through `0x50D4BD`.
+3. **`0x50D4C2` passes the SAME FILE handle to `0x4F7020`**. `0x4F702C` calls generic array deserializer `0x64CB40` with `0x876C48`, followed at `0x4F7038` by a second array deserializer on `0x876BD0`. The original `0x876C48` element vft+0x0C = `0x40F760` reads exactly **53 bytes serialized per 0x40-byte expanded competition object**, matching `reconstruction/fm2001_data.py` original COMPETITION_RECORD_SIZE=53.
+4. Actual private extracted `FM2001/Static.dat` was independently raw-byte retrieved from owner Drive and SHA-256 verified: **86,929 bytes**, SHA256 `e0ff7c10a5f5f973a87cf6cd2d3770e623071899a0b30378debd0e7d13edb9d8`. Starting at verified offset `0x2726`, original u32 source competition count is **193**, IDs exactly 0..192, then 193×53-byte competition records. After these rows, exact offset `0x4F1F` contains source u32 **1,053**, beginning the original round array read second by `0x4F7020`.
+5. All 193 actual serialized competition entries have original kind byte at record+14: **34 kind1 leagues, 29 kind2 cups, 130 kind3 dummy leagues**. Source competition ID27 is kind1, confirming the special Scotland subtype. This is original corpus evidence, not evidence that all 193 instantiate/are eligible in current runtime or that particular countries have a particular number of active candidates.
+6. Existing **`FM2001Database._parse_competitions`** already reads `Static.dat + 0x2726`, count, 53-byte rows, exact kind+14, source index+0, country/region+27, parent reference+4; existing **`_parse_rounds`** reads source offset `0x4F1F`, 1,053×36 bytes. Future reconstruction **must reuse those verified original fields**, not add a separate 0x40 record parser/new synthetic staff data pool.
+7. **Second independent virtual-table correction:** actual `0x7C9C94+0x24 = 0x5B6380`, constant tag 1; `+0x28 = 0x4FAFE0`, the adjacent dynamic serialization function. ID27 is a special league subclass with added behavior, but its original virtual+0x24 remains the same class1 tag. All four kind1/2/3 object virtual+0x24 results are now source-qualified for these classes.
+
+**Interpretation:** `0x4F7380` constructs active runtime COMPETITION objects and groups certain competitions by country. CSupportStaff method `0x4CB2B0` later uses those runtime competition groups when composing staff details/associated records. This is NOT a source for six staff personal names, which are selected separately from the original PLAYER source groups `0x421BA0`. Do not rename or reclassify the player-name tables.
+
+**Remaining true blockers:** exact runtime instantiated active competitions, their dynamic virtual methods/fields and their grouping order (especially country+0x50), source startup ordering and shared CRT state, screen control callback/hit ownership, and original seven-row modal Apply/Cancel/return. Neither original EXE nor Windows GUI was run.
+
+Reproduce by disassembling `0x50D443..0x50D4D0`, `0x4F7020..0x4F7042`, `0x40F760..0x40F8B3`; raw read `.rdata` at `0x7C9C94..0x7C9CC4`. Verify the authenticated original `Static.dat` 193 records at `0x2726`, each 53 bytes; next u32 at `0x4F1F` is 1053. No original bytes copied into Git.
+
+**Next action:** inspect the existing runtime competition initialization and original `0x4F7380` to establish actual active club-country competition candidate membership from existing `FM2001Database.competitions`, then source-reconcile `0x4CB2B0` conditional counts and RNG. Do not add extra direct shared RNG calls until exact startup ordering and actual selections are proven. Continue actual seven-row PSupportStart modal/TeamSelect source interaction; Gate13–17 remain OPEN.
