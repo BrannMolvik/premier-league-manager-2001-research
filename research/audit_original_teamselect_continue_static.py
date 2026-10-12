@@ -1291,6 +1291,41 @@ def main(path: str) -> None:
             raise AssertionError(("Numeric user ctor direct-call graph moved",hex(start),have))
     print("PASS numeric first-user 0x5DC400 nested no-direct-CRT constructor graph")
 
+    # Recovery574 last first-user source 0x425E81->0x65CB20
+    # ->0x65D270 conditionally ->0x65D0E0 list-pointer insertion.
+    # This bounded source graph has NO direct 0x64D540/0x66951C
+    # nor global queue producer; conditional and nested memory calls
+    # still need provenance before full user startup claims.
+    original_first_human_secondary_container_574 = (
+        (0x65cb20,0x65cd04,((0x65ccea,0x65d270),)),
+        (0x65d270,0x65d3ec,((0x65d2b1,0x66953e), (0x65d2d4,0x66953e), (0x65d301,0x40f080), (0x65d30a,0x679d7c), (0x65d32d,0x40eaa0), (0x65d33c,0x40eaa0), (0x65d353,0x40eaa0), (0x65d35b,0x40f090), (0x65d3a2,0x669bd1), (0x65d3da,0x65d0e0))),
+        (0x65d0e0,0x65d138,((0x65d0e3,0x65cd80), (0x65d0f6,0x669bd1), (0x65d10c,0x6698a9))),
+        (0x65cd80,0x65cda5,()),
+    )
+    for start,stop,expected in original_first_human_secondary_container_574:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Original secondary user constructor moved",hex(start),have))
+    for address,expected in (
+        ("425e7f","mov    ecx,eax"),
+        ("425e81","call   0x65cb20"),
+        ("65ccea","call   0x65d270"),
+        ("65d391","test   eax,eax"),
+        ("65d393","je     0x65d3df"),
+        ("65d3da","call   0x65d0e0"),
+        ("65d0e3","call   0x65cd80"),
+        ("65d10c","call   0x6698a9"),
+    ):
+        if expected not in instruction(address):
+            raise AssertionError(("Original user pointer registration branch moved",address))
+    print("PASS source secondary user pointer container and conditional append")
+    print("WARNING actual user pointer event and allocator side effects unresolved")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
