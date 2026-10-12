@@ -282,6 +282,19 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
         self.assertTrue(all(not hasattr(a, "click_rect") for a in actions))
 
 
+    def test_original_supportstart_selector_bit15_source_inverse_flag(self):
+        from support_staff import original_supportstart_flag_after_selector_state
+        self.assertEqual(original_supportstart_flag_after_selector_state(0), 1)
+        self.assertEqual(original_supportstart_flag_after_selector_state(0x7FFF), 1)
+        self.assertEqual(original_supportstart_flag_after_selector_state(0x8000), 0)
+        self.assertEqual(original_supportstart_flag_after_selector_state(0xFFFF), 0)
+        self.assertEqual(original_supportstart_flag_after_selector_state(0x10000), 1)
+        self.assertEqual(original_supportstart_flag_after_selector_state(0xFFFFFFFF), 0)
+        for bad in (-1, 0x100000000, True, None, "32768"):
+            with self.subTest(bad=bad):
+                with self.assertRaisesRegex(ValueError, "DWORD"):
+                    original_supportstart_flag_after_selector_state(bad)
+
     def test_original_supportstart_inactive_type_bucket_dispatch(self):
         from support_staff import original_staff_inactive_link_owner_offset
         self.assertEqual(
