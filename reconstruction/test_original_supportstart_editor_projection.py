@@ -28,7 +28,7 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
         self.assertEqual([r.parent for r in self.editor.rows], [0x183]*6 + [0x181])
         self.assertEqual(self.editor.rows[6].children, (0x181,)*4 + (0x180,))
 
-    def test_cancel_rolls_back_name_and_all_staff_flags_and_list_identity(self):
+    def test_cancel_does_not_apply_and_preserves_supplied_modal_entry_snapshot(self):
         changed = self.editor.with_edited_name("Ada", "Lovelace")
         changed = changed.with_native_row_event(0, accepted_by_native_gate=True)
         cancel = changed.close(1)
@@ -38,6 +38,32 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
         self.assertIs(cancel.staff_lists, self.prior)
         self.assertEqual(cancel.original_record_flag_bytes, (1,)*6 + (None,))
         self.assertEqual(self.editor.rows[0].parent, 0x183)
+
+    def test_cancel_does_not_invent_undo_of_initial_staff_staging(self):
+        # After original 0x4DA4F0 normal first-user stage: types 1..5
+        # enter +0x5B8, type13 enters +0x5C4; +0x5D0/0x875600
+        # remove their nodes BEFORE PSupportStart opens. This only
+        # checks the bounded editor projection, not native teardown.
+        staged = OriginalSupportStartLinkedLists(
+            inactive_type_1_to_5=self.staff[:5],
+            inactive_type_6_to_16=(self.staff[5],),
+            current_staff=(),
+            global_staff=(),
+        )
+        editor = OriginalSupportStartEditorProjection.open(
+            original_user=self.user,
+            source_slots=self.slots,
+            prior_staff_lists=staged,
+        )
+        result = editor.with_edited_name("New", "Manager").close(1)
+        self.assertEqual(result.source_modal_result, 0)
+        self.assertFalse(result.invoked_original_apply)
+        self.assertIs(result.staff_lists, staged)
+        self.assertEqual(result.staff_lists.current_staff, ())
+        self.assertEqual(result.staff_lists.global_staff, ())
+        self.assertEqual(result.staff_lists.inactive_type_1_to_5, self.staff[:5])
+        self.assertEqual(result.staff_lists.inactive_type_6_to_16, self.staff[5:])
+        self.assertIs(result.original_human_user_name, self.user)
 
     def test_apply_uses_true_source_flag_inversion_and_staged_human_name(self):
         changed = self.editor.with_edited_name("Ada", "Lovelace")

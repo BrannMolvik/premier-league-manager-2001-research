@@ -48,6 +48,9 @@ class OriginalSupportStartEditorProjection:
 
     original_user: OriginalHumanUserName
     source_slots: tuple[OriginalSupportStartSourceSlot, ...]
+    # Supplied state is an already source-qualified snapshot at modal entry.
+    # On the normal first human path, 0x4DA4F0 stages staff BEFORE the modal;
+    # it is not permission to recreate the pre-staging lists on Cancel.
     prior_staff_lists: OriginalSupportStartLinkedLists
     rows: tuple[OriginalSupportStartRowBitState, ...]
     draft_first_name: str
@@ -126,6 +129,9 @@ class OriginalSupportStartEditorProjection:
         if type(native_event) is not int or native_event not in (1, 2):
             raise ValueError("Only source Exit(event1) and Tick(event2) close this modal")
         if native_event == 1:
+            # Source event1 skips Apply. Preserve only the caller-supplied
+            # modal-entry snapshot; native teardown/outer event follow-on
+            # still requires separate verification. No synthetic rollback.
             return OriginalSupportStartCloseProjection(
                 0, self.original_user, self.prior_staff_lists,
                 tuple(slot.original_selected_byte for slot in self.source_slots),
