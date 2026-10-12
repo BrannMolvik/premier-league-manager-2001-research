@@ -144,6 +144,8 @@ class OriginalSupportStartEditorProjection:
         Use observed parent-first + child OR results, including native
         pressed bit0x10 BEFORE virtual+0x98 toggles bit15. Never resolve
         a Tk coordinate or infer a hit result from a source rectangle.
+        Source row object identity must be supplied by the native event owner;
+        matching bitsets for multiple staff rows are not object identity.
         Stale, different-row, or empty-row accepted observations fail
         closed, and original selected-user/apply state stays unchanged
         until the verified modal event2 commit.
@@ -152,6 +154,8 @@ class OriginalSupportStartEditorProjection:
             raise ValueError("Require original source row index 0..6")
         if type(observation) is not OriginalSupportStartRowNativeDispatchObservation:
             raise TypeError("Require source-qualified native dispatch observation")
+        if observation.source_row_index != index:
+            raise ValueError("Original native row identity missing or mismatched")
         if observation.source_row_before != self.rows[index]:
             raise ValueError("Native callback observation does not match current row state")
         if self.source_slots[index].staff is None and observation.native_handler_accepted:

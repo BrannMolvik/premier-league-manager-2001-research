@@ -230,6 +230,30 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         self.assertTrue(rejected.early_parent_reject)
         self.assertFalse(rejected.native_handler_accepted)
 
+    def test_native_selector_identity_is_not_inferred_from_equal_flags(self):
+        row = original_supportstart_fresh_native_row()
+        bound = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=False,
+            observed_parent_acceptance=None,
+            observed_child_acceptances=(False, False),
+            source_row_index=3,
+        )
+        self.assertEqual(bound.source_row_index, 3)
+        unbound = project_original_supportstart_row_native_dispatch(
+            row, native_second_argument_present=False,
+            observed_parent_acceptance=None,
+            observed_child_acceptances=(False, False),
+        )
+        self.assertIsNone(unbound.source_row_index)
+        for index in (True, -1, 7, 1.0):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                project_original_supportstart_row_native_dispatch(
+                    row, native_second_argument_present=False,
+                    observed_parent_acceptance=None,
+                    observed_child_acceptances=(False, False),
+                    source_row_index=index,
+                )
+
     def test_native_teamselect_dialog_cancel_still_returns_handled_event(self):
         # 0x4D922C returns EBX from 0x64F960, overwriting EAX from 0x450BB0.
         cancel = original_supportstart_teamselect_event_outcome(True, 0x8002, 0)

@@ -185,6 +185,7 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
             before, native_second_argument_present=True,
             observed_parent_acceptance=True,
             observed_child_acceptances=(False, False),
+            source_row_index=0,
         )
         modified = editor.with_observed_native_row_input(0, observed)
         self.assertEqual(modified.rows[0].parent, 0x8193)
@@ -210,11 +211,21 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
             modal.rows[0], native_second_argument_present=False,
             observed_parent_acceptance=None,
             observed_child_acceptances=(False, False),
+            source_row_index=0,
         )
         unchanged = modal.with_observed_native_row_input(0, observed)
         self.assertEqual(unchanged.rows, modal.rows)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, "identity"):
             modal.with_observed_native_row_input(1, observed)
+        # All six initial rows share identical native bitsets; without
+        # original selector identity a callback cannot be assigned a row.
+        unbound = project_original_supportstart_row_native_dispatch(
+            modal.rows[0], native_second_argument_present=False,
+            observed_parent_acceptance=None,
+            observed_child_acceptances=(False, False),
+        )
+        with self.assertRaisesRegex(ValueError, "identity"):
+            modal.with_observed_native_row_input(0, unbound)
         with self.assertRaises(TypeError):
             modal.with_observed_native_row_input(0, True)
         for index in (-1, 7, None, True):

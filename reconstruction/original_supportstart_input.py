@@ -116,6 +116,8 @@ class OriginalSupportStartRowNativeDispatchObservation:
     early_parent_reject: bool
     native_handler_accepted: bool
     source_row_before: OriginalSupportStartRowBitState
+    # Original native selector identity supplied by the owner, never DWORD guesses.
+    source_row_index: int | None
     source_post_virtual_gate_row: OriginalSupportStartRowBitState
 
     @property
@@ -138,6 +140,7 @@ def project_original_supportstart_row_native_dispatch(
     native_second_argument_present: bool,
     observed_parent_acceptance: bool | None,
     observed_child_acceptances: tuple[bool, ...],
+    source_row_index: int | None = None,
 ) -> OriginalSupportStartRowNativeDispatchObservation:
     """Source 0x5D6270 -> 0x5D4790 parent/children acceptance order.
 
@@ -156,12 +159,18 @@ def project_original_supportstart_row_native_dispatch(
     +0x24 hit-object callbacks remain UNKNOWN. Results here are
     caller observations, not invented physical mouse acceptance,
     side-effect execution, source CRT draws, or gameplay mutations.
+    Optional `source_row_index` must be supplied by the actual native
+    row owner, not inferred from equal DWORD values or mouse geometry.
     The returned source-post-virtual-gate DWORDs project ONLY the direct
     vft+0x1C(1) state bit0x10 set in accepted parent/children; additional
     source callback state mutations must be qualified separately.
     """
     if type(row) is not OriginalSupportStartRowBitState:
         raise TypeError("Require exact original five-child row state")
+    if source_row_index is not None and (
+        type(source_row_index) is not int or not 0 <= source_row_index < 7
+    ):
+        raise ValueError("Native selector row index must be a source-owned 0..6 identity")
     if type(native_second_argument_present) is not bool:
         raise TypeError("Native event-pointer presence requires Boolean")
     if type(observed_child_acceptances) is not tuple or any(
@@ -179,7 +188,7 @@ def project_original_supportstart_row_native_dispatch(
             if observed_child_acceptances:
                 raise ValueError("Native parent rejection short-circuits all children")
             return OriginalSupportStartRowNativeDispatchObservation(
-                True, False, (), (), True, False, row, row
+                True, False, (), (), True, False, row, source_row_index, row
             )
     elif observed_parent_acceptance is not None:
         raise ValueError("Native parent cannot report result when not invoked")
@@ -210,7 +219,7 @@ def project_original_supportstart_row_native_dispatch(
         native_second_argument_present, observed_parent_acceptance,
         invoked, observed_child_acceptances, False,
         (observed_parent_acceptance is True or any(observed_child_acceptances)),
-        row, post_gate,
+        row, source_row_index, post_gate,
     )
 
 
