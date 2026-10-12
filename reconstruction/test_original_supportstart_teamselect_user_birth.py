@@ -56,6 +56,7 @@ class OriginalTeamSelectUserBirthTests(unittest.TestCase):
             name_route=self.route,
             selection_context=1,
             require_shipped_club_count=False,
+            acknowledge_omitted_native_event_and_binder_effects=True,
         )
         args.update(override)
         return replay_original_teamselect_user_birth_direct_rng(rng, **args)
@@ -114,6 +115,23 @@ class OriginalTeamSelectUserBirthTests(unittest.TestCase):
             (2,)*6
         )
         self.assertEqual(second.staff[0].constructor_base_scalar, 2)
+
+    def test_original_two_queue_barriers_not_silently_skipped(self):
+        rng = SharedTraceRng()
+        with self.assertRaisesRegex(
+            OriginalTeamSelectUserBirthError, "0x4259B5 and 0x412F1F"
+        ):
+            self.birth(
+                rng,
+                acknowledge_omitted_native_event_and_binder_effects=False
+            )
+        self.assertEqual(rng.bounds, [])
+        with self.assertRaises(OriginalTeamSelectUserBirthError):
+            self.birth(
+                rng,
+                acknowledge_omitted_native_event_and_binder_effects=1
+            )
+        self.assertEqual(rng.bounds, [])
 
     def test_invalid_native_context_never_consumes_existing_crt(self):
         bad = (
