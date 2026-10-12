@@ -124,3 +124,73 @@ and Apply/Cancel/TeamSelect return;
 do not simulate unproven native actions.
 All Gates13–17/real Windows11 GUI
 acceptance remain OPEN.
+
+
+## Further source closure: 0x4CB0F0's native per-staff RNG branch
+
+Exact original `0x4CB0F0` was inspected through
+`0x4CB2AD` rather than treating virtual+0x5C
+as an opaque post-creation helper:
+
+1. Scans native original `0x874B90`
+   CLUBS at 0x2A8 stride, comparing
+   expanded club+0x10 to the passed
+   source group/competition parameter.
+   Retains **at most 24** matching
+   source club pointers on its stack.
+   This data family is unrelated to
+   `0x421BA0` name selection, whose
+   native nationality group is populated
+   from PLAYERS.
+2. Always invokes `0x64D540(3)` at
+   `0x4CB16D` and adds 1, yielding
+   native count **1–3**.
+3. For each selected item (1–3):
+   - `0x4CB1A1` invokes
+     `0x64D540(matching_club_count)`
+     to choose one eligible club from
+     the bounded original pointer array.
+   - `0x4CB1CE` invokes
+     `0x64D540(3)`.
+   - `0x4CB1D7` invokes
+     **another `0x64D540(3)`**.
+   - It uses those source results to
+     populate/schedule several source
+     staff record strings/values, before
+     incrementing the slot+0x30 cursor.
+4. For selection counts <=2, it
+   populates extra default strings
+   from static source literal `0x874BA0`
+   **without an extra direct RNG call**
+   within `0x4CB256..0x4CB2A1`.
+
+This establishes at least **one RNG(3) plus
+three RNG calls per each of 1–3 items**
+inside virtual+0x5C alone, i.e.
+**4–10 additional bounded CRT draws**
+per normal full native staff constructor,
+independent of the preexisting
+RNG25, RNG2, two native staff-name
+choices, RNG20, RNG30 and possible
+first-name retry. The exact
+`matching_club_count` argument and
+Native pointer-array ownership must
+be qualified at the selected user
+source context, and the called
+`0x64CCD0` preamble and text
+formatter `0x66876F` need
+cross-call audits before claiming
+there are no further hidden draws.
+
+**No synthetic RNG calls were added to
+production**: the source currently stores
+only a minimal age/rating staff projection.
+A six-staff sequence with this many omitted
+draws must never be used as proof of an
+original-equivalent shared CRT checkpoint
+or to unblock draft PR638's Inbox click.
+
+Reproduce from authorized original:
+```bash
+objdump -D -Mintel --start-address=0x4cb0f0 --stop-address=0x4cb2b0 footballmanager.exe
+```
