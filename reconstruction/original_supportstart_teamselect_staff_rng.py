@@ -19,7 +19,6 @@ from fm2001_data import Player
 from original_supportstart_name_group_source import OriginalNameGroupCandidateRoute
 from original_supportstart_player_name_source import (
     BoundedSharedCrtRng,
-    OriginalSupportStaffNameSourceError,
     OriginalSupportStaffSelectedName,
     consume_original_supportstaff_name_from_shared_rng,
 )
@@ -127,11 +126,33 @@ def replay_original_teamselect_staff_crt_draws(
                 if original_name_route.candidate_source == "filtered_nationality_players"
                 else tuple(range(len(players)))
                 if original_name_route.candidate_source == "global_players" else ())
-    if not eligible or not any(
-        0 <= i < len(players) and original_name_route.eligible_source_player_position(i)
-        and players[i].first_name != "-" for i in eligible
+    if not eligible or len(set(eligible)) != len(eligible):
+        raise OriginalTeamSelectStaffRngError("Missing or duplicate native name candidates")
+    if any(
+        type(i) is not int or not 0 <= i < len(players)
+        or not original_name_route.eligible_source_player_position(i)
+        for i in eligible
     ):
-        raise OriginalTeamSelectStaffRngError("No valid native player-name candidates")
+        raise OriginalTeamSelectStaffRngError("Invalid native player-name candidate index")
+    for i in eligible:
+        row = players[i]
+        if (
+            type(row.first_name) is not str or type(row.surname) is not str
+            or not row.first_name or not row.surname
+            or "\x00" in row.first_name or "\x00" in row.surname
+        ):
+            raise OriginalTeamSelectStaffRngError("Missing original source name text")
+        try:
+            row.first_name.encode("cp1252")
+            row.surname.encode("cp1252")
+        except UnicodeEncodeError as exc:
+            raise OriginalTeamSelectStaffRngError(
+                "Original source name cannot be encoded as CP1252"
+            ) from exc
+    if all(players[i].first_name == "-" for i in eligible):
+        raise OriginalTeamSelectStaffRngError(
+            "Native name candidate pool cannot exit '-' retry"
+        )
 
     age_like = _source_draw(rng, 25) + 25
     initial_name = consume_original_supportstaff_name_from_shared_rng(
