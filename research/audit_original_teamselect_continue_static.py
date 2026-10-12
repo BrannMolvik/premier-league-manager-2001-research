@@ -1223,6 +1223,51 @@ def main(path: str) -> None:
             raise AssertionError(("Original no-op array destructor moved",addr))
     print("PASS 3-element first-human suffix destructor uses exact no-op callback")
 
+    # Recovery574: three allocation-dependent nested calls to source
+    # 0x60CD90; each invokes 0x64D540(20) -> original CRT rand once.
+    # 0x60D0E0 and 0x60D5A0 are distinct functions, not this ctor!
+    original_nested_constructor_source_574 = (
+        ("425b12", "call   0x668140"),
+        ("425b28", "je     0x425b33"),
+        ("425b2c", "call   0x60ce70"),
+        ("60ceb7", "call   0x668140"),
+        ("60cecc", "je     0x60cf33"),
+        ("60cf2a", "call   0x60cd90"),
+        ("60cf52", "call   0x668140"),
+        ("60cf67", "je     0x60cfcf"),
+        ("60cfc6", "call   0x60cd90"),
+        ("60cfee", "call   0x668140"),
+        ("60d003", "je     0x60d06b"),
+        ("60d062", "call   0x60cd90"),
+        ("60ce10", "push   0x14"),
+        ("60ce38", "call   0x64d540"),
+        ("64d541", "call   0x66951c"),
+        ("60ce98", "call   0x60cbb0"),
+        ("60cbbc", "ret"),
+        ("60d0a5", "ret"),
+    )
+    for address,expected in original_nested_constructor_source_574:
+        if expected not in instruction(address):
+            raise AssertionError(("Native nested ctor allocation/RNG moved",address))
+    nested_ctor_calls_574 = (
+        (0x60ce70,0x60d0a6,((0x60ce98,0x60cbb0), (0x60ceb7,0x668140), (0x60ceeb,0x5e43b0), (0x60cef2,0x5e48d0), (0x60cf0c,0x5e43b0), (0x60cf13,0x5e48d0), (0x60cf2a,0x60cd90), (0x60cf3b,0x668140), (0x60cf48,0x617d70), (0x60cf52,0x668140), (0x60cf87,0x5e43b0), (0x60cf8e,0x5e48d0), (0x60cfa8,0x5e43b0), (0x60cfaf,0x5e48d0), (0x60cfc6,0x60cd90), (0x60cfd7,0x668140), (0x60cfe4,0x617d70), (0x60cfee,0x668140), (0x60d023,0x5e43b0), (0x60d02a,0x5e48d0), (0x60d044,0x5e43b0), (0x60d04b,0x5e48d0), (0x60d062,0x60cd90), (0x60d073,0x668140), (0x60d080,0x617d70))),
+        (0x60cd90,0x60ce60,((0x60cdcf,0x64ccd0), (0x60cde2,0x64ccd0), (0x60ce38,0x64d540))),
+        (0x60cbb0,0x60cbbd,()),
+        (0x64d540,0x64d55f,((0x64d541,0x66951c), (0x64d558,0x668350))),
+    )
+    for start,stop,expected in nested_ctor_calls_574:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Native nested ctor direct calls moved",
+                                  hex(start),have))
+    print("PASS original 3 conditional nested first-human RNG call sites")
+    print("WARNING actual allocations, full shared CRT and queues unobserved")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
