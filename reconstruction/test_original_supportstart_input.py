@@ -150,9 +150,11 @@ class OriginalSupportStartInputTests(unittest.TestCase):
         empty = original_supportstart_empty_row_after_refresh(original_supportstart_fresh_native_row())
         result = project_original_supportstart_row_native_dispatch(
             empty, native_second_argument_present=False,
-            observed_parent_acceptance=None, observed_child_acceptances=(),
+            observed_parent_acceptance=None, observed_child_acceptances=(False,),
         )
-        self.assertEqual(result.invoked_child_indices, ())
+        # Empty refresh leaves fourth child bit0 set but clears bit1:
+        # vft+0x6C is invoked and necessarily returns zero.
+        self.assertEqual(result.invoked_child_indices, (3,))
         self.assertFalse(result.native_handler_accepted)
         with self.assertRaises(ValueError):
             project_original_supportstart_row_native_dispatch(
