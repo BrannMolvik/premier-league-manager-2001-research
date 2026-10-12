@@ -1833,6 +1833,31 @@ class ManagementSourceDataBridge:
                 )
         return rows
 
+    def source_current_human_manager_name(self) -> str:
+        """Source-bounded human DBRUser+0x05/+0x25, NOT old AI manager name.
+
+        Native 0x414F30/0x414FA0 follow selected club -> currently rebound
+        manager -> registered DBRUser name, 0x613040 formats '%s %s'.
+        The current port supports only an explicitly qualified one-human owner.
+        No Inbox preview/RNG/rendering is implied by returning this text.
+        """
+        from original_human_user_name import OriginalHumanUserName
+
+        club_id = self._human_club_id()
+        owner = getattr(self.state, "original_current_human_user_name", None)
+        current_key = getattr(self.state, "native_user_recipient_key", None)
+        mailboxes = getattr(self.state, "original_delivered_mailboxes", None)
+        registered = getattr(mailboxes, "registered_manager_keys", None)
+        if (type(owner) is not OriginalHumanUserName
+                or owner.selected_club_id != club_id
+                or owner.rebound_manager_slot != current_key
+                or getattr(self.state, "user_controlled_club_id", None) != club_id
+                or type(registered) is not tuple or registered != (current_key,)):
+            raise ManagementPresentationError(
+                "Original selected human manager name is not source-qualified"
+            )
+        return owner.source_manager_name()
+
     def source_eam_player_descriptor_name_and_club(
         self, delivered: object,
     ) -> tuple[str, str, str | None, str | None]:
