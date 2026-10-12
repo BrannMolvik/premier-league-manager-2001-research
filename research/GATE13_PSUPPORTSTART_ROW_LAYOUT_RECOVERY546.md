@@ -172,3 +172,41 @@ objdump -D -Mintel --start-address=0x5f6220 --stop-address=0x5f6299 footballmana
 objdump -D -Mintel --start-address=0x64e560 --stop-address=0x64e5a7 footballmanager.exe
 objdump -D -Mintel --start-address=0x64f380 --stop-address=0x64f3be footballmanager.exe
 ```
+
+
+## Original action 1/2 button owner mapping — verified direct original virtual UI route
+
+The original PSupportStart vtable+0x04 layout routine `0x4C7B70`
+also creates two distinct child controls, **not just staff rows**.
+
+- Native `0x4C7CC3..0x4C7CF3` registers
+  `PSupportStart+0x1EB8` as **original child event 1**
+  (`push 1` at `0x4C7CCD`) and calls
+  `0x5D3900` with sprite wrapper `0x946190`.
+- Native `0x4C7CF8..0x4C7D2A` registers
+  `PSupportStart+0x1F08` as **original child event 2**
+  (`push 2` at `0x4C7D02`) and calls
+  `0x5D3900` with wrapper `0x946150`.
+- Native PSupportStart VFT +0x10 `0x4D05E0`
+  dispatches source event 1 into `0x4D061F`,
+  setting original result byte `+0x1DE4=0`
+  **without committing support staff/names**;
+  event 2 enters `0x4D0606`, invokes
+  original virtual+0x4C `0x4D0830`
+  (full support staff/name transaction), then writes
+  original result `+0x1DE4=1`.
+- The immediate control→native event→result byte
+  relation is source-verified and is captured as
+  immutable original `SourceSupportStartActionChild`
+  entries, with no invented clickable rectangle.
+  The precise source animation-path resource mapping,
+  button displayed labels, hit rect, and closing
+  parent-navigation consequences **remain UNKNOWN**.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4c7cc3 --stop-address=0x4c7d2e footballmanager.exe
+objdump -D -Mintel --start-address=0x4d05e0 --stop-address=0x4d0631 footballmanager.exe
+```
+Original executable static disassembly only.
+No Windows GUI/playtest acceptance; Gates 13–17 OPEN.
