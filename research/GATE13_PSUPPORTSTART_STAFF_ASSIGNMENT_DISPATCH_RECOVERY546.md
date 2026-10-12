@@ -13,3 +13,39 @@ If flag is zero, 0x4D093B..0x4D09E4 instead checks/removes any existing pointer 
 The proposed code is deliberately a pure mapping only (types1..5 to head0x5B8, types6..16 to head0x5C4), with strict out-of-range rejection. It does NOT recreate native linked-list nodes, staff recruitment, full Apply, original save format or GUI. Do not attach it to gameplay without independent owner/lifetime and mutation tests. Gates13–17 and real Windows11 playtest remain OPEN. PR638 original shared CRT issue still blocked.
 
 Private reproduction: sha256sum footballmanager.exe; objdump -D -Mintel --start-address=0x4d0830 --stop-address=0x4d0a72 footballmanager.exe; objdump -D -Mintel --start-address=0x4ca070 --stop-address=0x4ca0cf footballmanager.exe; objdump -s --start-address=0x4ca0d0 --stop-address=0x4ca0e8 footballmanager.exe.
+
+
+## Selector raw DWORD control bit semantics independently recovered
+
+Original `0x652F80` is just three x86 instructions:
+`mov eax,[ecx+0x18]`; `shr eax,0x0F`;
+`and al,1`; `ret`. Therefore it
+reads **bit15** from the native selector
+control DWORD at offset +0x18; it does NOT
+automatically imply an on-screen checkbox label
+or human-specific meaning. Original
+`0x4D0893..0x4D089E` tests the result
+and writes `sete cl` (inverse 0/1) into
+the record flag `+0x28+i`. A bounded
+pure source helper now computes
+`1 ^ ((word >> 15) & 1)`.
+Correct source counterexamples:
+state DWORD `0x7FFF -> flag1`,
+`0x8000 -> flag0`,
+`0x10000 -> flag1`, and
+`0xFFFFFFFF -> flag0`.
+32-bit range validated; rejects booleans,
+negative or too-large modern input rather than
+guessing bit fields. The original did not
+execute in this recovery.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x652f80 --stop-address=0x652f89 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d088a --stop-address=0x4d08a1 footballmanager.exe
+```
+This proves the selector's **read and stored flag**
+only. It does not prove which click changes
+that bit in real UI, state mutation ordering
+through a complete Apply, or original modal
+visibility/return.
