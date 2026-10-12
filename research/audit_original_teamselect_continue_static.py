@@ -433,6 +433,26 @@ def main(path: str) -> None:
     print("PASS original first-human staff list staging before modal")
     print("WARNING transitive vft/callback/teardown side effects still unresolved")
 
+    # Native modal exits do not synchronously tear down the HWND:
+    # 0x6539F0 -> 0x659650 -> imported USER32.PostMessageA,
+    # posting WM_USER (0x400) with original zero event payload.
+    original_modal_postmessage_edges = (
+        ("6539f4", "mov    ecx,DWORD PTR [ecx+0x64]"),
+        ("6539fc", "push   0x0"),
+        ("6539fe", "push   eax"),
+        ("6539ff", "push   0x400"),
+        ("653a04", "call   0x659650"),
+        ("659658", "mov    ecx,DWORD PTR [ecx+0x4]"),
+        ("659663", "call   DWORD PTR ds:0x7bd2d8"),
+    )
+    for addr, expected in original_modal_postmessage_edges:
+        if expected not in instruction(addr):
+            raise AssertionError(("Native SupportStart close message edge changed",addr))
+    if direct_calls("6539f0") != ("4d0618", "4d062a"):
+        raise AssertionError("Native modal source close owner changed")
+    print("PASS SupportStart modal exit posts WM_USER 0x400 via USER32.PostMessageA")
+    print("WARNING posted message handler and callback side effects unresolved")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
