@@ -210,3 +210,46 @@ objdump -D -Mintel --start-address=0x4d05e0 --stop-address=0x4d0631 footballmana
 ```
 Original executable static disassembly only.
 No Windows GUI/playtest acceptance; Gates 13–17 OPEN.
+
+
+## Further recovered original native exit/tick art identity — Recovery546
+
+Original PSupportStart owner source 0x4C7CC3..0x4C7CF3 (child event1)
+passes sprite wrapper 0x946190 to native 0x5D3900, while child event2
+0x4C7CF8..0x4C7D2A passes wrapper 0x946150. Original loader chain
+independently qualifies the exact resources:
+
+- Original x86 0x5F4DB0 passes literal path at 0x835CE8 to native
+  0x64D750 -> original loader object 0x9461B0;
+  0x5F4E00 uses native 0x64E500 to wrap that asset in object
+  **0x946190** with frame geometry **30×30**. The literal source
+  path is FM2001_Art/Generic/GenericButtonsAndBars/exit_button.444.
+- Original x86 0x5F4E40 passes literal path at 0x835D24 to native
+  0x64D750 -> original loader object 0x946170;
+  0x5F4E90 uses native 0x64E500 to wrap that asset in object
+  **0x946150** with frame geometry **30×30**. The literal source
+  path is FM2001_Art/Generic/GenericButtonsAndBars/tick_button.444.
+
+Private connected owner's original extracted game directory was inspected
+and both exact original files separately materialized and SHA-256 checked:
+- exit_button.444 4,864 bytes, EA444 original 30×90,
+  SHA-256 **3c317bbb4449a03efbeb867d1de4fd2e5b7d936f29d31f1c11af2092556fa0f9**.
+- tick_button.444 4,372 bytes, EA444 original 30×90,
+  SHA-256 **119178ce89378df72f917f7fee4e17fb7edb5d43a5a5dee6229a89fbcf6be5c4**.
+
+Each source sprite atlas has 30×90 header and its native
+0x64E500 wrapper crops a 30×30 cell. Event1 source returns0
+without source staff/name apply; event2 executes native full Apply
+before returning1. This proves their original **exit and tick icon
+identity**, original resource reuse and native event distinction.
+**Still UNKNOWN:** which 30×30 source frame is drawn per hover/click
+state, actual screen/client pixel origin and pointer hit rect,
+remaining PSupportStart child resources, and original GUI observation.
+
+Private reproduction:
+objdump -s --start-address=0x835ce8 --stop-address=0x835d5d footballmanager.exe;
+objdump -D -Mintel --start-address=0x5f4db0 --stop-address=0x5f4eb6 footballmanager.exe;
+objdump -D -Mintel --start-address=0x4c7cc3 --stop-address=0x4c7d2e footballmanager.exe.
+
+No original image bytes were added to Git. Source-level verified only,
+no physical Windows GUI acceptance, all Gates13–17 OPEN.
