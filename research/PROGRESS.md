@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery544 source PSupportStart commit/cancel event table and six-slot side-effects
+
+- Static original PE disassembly resolved original PSupportStart vtable+0x10 -> `0x4D05E0`, event `[arg+0x20]` 1–20, native byte table `0x4D0690` and jump pointer table `0x4D067C`. Event1 branches 0x4D061F no name commit, sets screen state byte0 and invokes 0x6539F0; event2 calls genuine virtual+0x4C=`0x4D0830` then state byte1 and 0x6539F0. Event3 virtual+0x48=`0x4D06B0`; event4–17 shared dispatch only; event18–20 0x4CFA70. No guessed labels, mouse controls or GUI acceptance. [Full source evidence](GATE13_PSUPPORTSTART_NAME_EDITOR_NATIVE_RECOVERY544.md#psupportstart-native-input-event-table-source-proven-apply-vs-cancel-follow-on).
+- Original apply virtual `0x4D0830` before name writes iterates six owner-stored support/staff slots and edits DBRUser queue pointers, so PR640 name state is incomplete by design. Next trace six-slot staff/model and original controls to enable complete PSupportStart, then turn to Inbox CRT, R1 and Gates13–17.
+
 ### 12 October 2026 KST — Recovery544 PR640 source-human manager name owner MERGED; PSupportStart TeamSelect factory edge
 
 - PR #640 source-retained single-human first/surname, provenance-qualified state, user name read bridge and internal save/restore accepted on exact head `425d940d859a5a15d1b977ac6fbaa2818f9115cf`. Gate13 `38192180410` SUCCESS, full reconstruction `38192180428` SUCCESS (`Ran 3400 tests`, 27 skipped), asset `38192180537` SUCCESS, zero reviews/threads. Squash merged `0643c97dceb299a0f2301c30d6c42b5c1de9ba23`. No source editor GUI, selected Inbox preview, CRT first click or Windows GUI accepted.

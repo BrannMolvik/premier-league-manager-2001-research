@@ -138,3 +138,62 @@ excluded by this particular xref enumeration.
 
 Original PSupportStart GUI still NOT in the port.
 No original binary was run or Windows 11 GUI accepted.
+
+
+## PSupportStart native input event table: source-proven apply vs cancel (follow-on)
+
+A new bounded disassembly identifies original PSupportStart **virtual
++0x10** at VFT `0x7C6DEC` as `0x4D05E0`, a genuine
+native PSupportStart event dispatch function. The event arg
+is dereferenced `[arg+0x20]`; native source decrements it,
+rejects values outside 1–20, maps 20 event IDs through a
+five-entry jump table and executes the original behaviors.
+Raw original PE table `0x4D0690` and target table
+`0x4D067C` were independently decoded:
+
+| Native event value | Branch | Proven behavior |
+| --- | --- | --- |
+| 1 | `0x4D061F` | Writes PSupportStart `+0x1DE4 = 0` and invokes `0x6539F0` with argument 0; **does NOT call edit commit virtual** |
+| 2 | `0x4D0606` | Invokes PSupportStart **virtual +0x4C = `0x4D0830`**, then writes `+0x1DE4 = 1` and invokes `0x6539F0` with argument 0; **commits edited current DBRUser+0x05/+0x25 first** |
+| 3 | `0x4D0631` | Invokes PSupportStart virtual +0x48 (`0x4D06B0`); distinct function, effects require further source audit |
+| 4–17 | `0x4D0641` | No special branch before shared base `0x653350` processing |
+| 18–20 | `0x4D063A` | Invokes `0x4CFA70`; source semantics not yet qualified |
+
+`0x4D05E0` then computes original surface rect
+and calls base `0x653350`, so a branch-local edit
+action is **not** all parent event/render work.
+The event #1 vs #2 distinction is source-exact:
+event 1 discards current text-buffer changes as far
+as native commit virtual is concerned; event 2
+applies current name buffers before initiating closing.
+The functions have not been run, and interpreting
+`0x6539F0` as an actual observed close is not
+allowed: it is a source caller/action edge that
+needs control-owner confirmation. Do not label
+these events as specific on-screen text/buttons
+until source control mapping is independently checked.
+The third action and 18–20 remain unresolved.
+
+The `0x4D0830` original commit does **more than
+names**: it first processes a six-element source
+selection list at owner `+0x970/+0x974` and
+connected registered-user nodes `+0x5B8/+0x5C4/+0x5D0`
+before writing name fields. Hence the new source
+name-state implementation PR640 is only a bounded
+subset, **not** a complete original PSupportStart
+apply transaction. Routing event 2 to a name-only
+modern form would silently discard shipped support
+selection behavior and must not be presented as an
+original-complete port.
+
+Reproduction on the private original executable:
+```bash
+objdump -s --start-address=0x7c6ddc --stop-address=0x7c6e34 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d05e0 --stop-address=0x4d06b0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0830 --stop-address=0x4d0a74 footballmanager.exe
+```
+Decode five 32-bit branch VAs from original
+`0x4D067C`; decode 20 one-byte branch indexes
+from original `0x4D0690`. Use checked canonical
+original SHA-256 at top. No original runtime
+or native Windows GUI acceptance.
