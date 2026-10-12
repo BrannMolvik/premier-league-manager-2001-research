@@ -1,3 +1,7 @@
+### 12 October 2026 KST — Recovery544 independent private original Support art hash receipts
+
+- Connected original extracted Google Drive `FM2001/FM2001_Art/Support/` has five source files: stars/stars2, subtitle/support title bars and support bars; separately materialized actual 2,776 / 1,504 / 3,988 / 4,516 / 4,076 bytes and computed individual SHA-256. Source PE independently embeds all five paths, native loader 0x64D750 and wrapper VAs, mapped in [PSupportStart source audit](GATE13_PSUPPORTSTART_NAME_EDITOR_NATIVE_RECOVERY544.md#original-fm2001_artsupport-resources-directly-retrieved-and-hashed). Not proof each graphic renders on PSupportStart; do not import until specific screen source use and placement verified. No user original executable run or modern Win11 native GUI acceptance.
+
 ### 12 October 2026 KST — Recovery544 source PSupportStart commit/cancel event table and six-slot side-effects
 
 - Static original PE disassembly resolved original PSupportStart vtable+0x10 -> `0x4D05E0`, event `[arg+0x20]` 1–20, native byte table `0x4D0690` and jump pointer table `0x4D067C`. Event1 branches 0x4D061F no name commit, sets screen state byte0 and invokes 0x6539F0; event2 calls genuine virtual+0x4C=`0x4D0830` then state byte1 and 0x6539F0. Event3 virtual+0x48=`0x4D06B0`; event4–17 shared dispatch only; event18–20 0x4CFA70. No guessed labels, mouse controls or GUI acceptance. [Full source evidence](GATE13_PSUPPORTSTART_NAME_EDITOR_NATIVE_RECOVERY544.md#psupportstart-native-input-event-table-source-proven-apply-vs-cancel-follow-on).

@@ -197,3 +197,68 @@ Decode five 32-bit branch VAs from original
 from original `0x4D0690`. Use checked canonical
 original SHA-256 at top. No original runtime
 or native Windows GUI acceptance.
+
+
+## Original `FM2001_Art/Support/` resources directly retrieved and hashed
+
+Owner's private extracted original game tree in connected Google Drive has an
+actual `FM2001/FM2001_Art/Support/` directory. On 12 October
+2026, five original files were separately materialized into
+a **private temporary analysis directory**, actual bytes read and
+SHA-256 independently recomputed. No proprietary bytes were
+committed to the public Git repository.
+
+| Original path under FM2001 | Actual bytes | SHA-256 |
+| --- | ---: | --- |
+| `FM2001_Art/Support/stars.444` | 2,776 | `16c619e305ebad013e7404ea9e5d4414a9f9a8bd0d6ad26f269ee82a49849633` |
+| `FM2001_Art/Support/stars2.444` | 1,504 | `54c2b86375695d3b8a5df9cf463e11e877f0e47f64f6883e6eea108784db953d` |
+| `FM2001_Art/Support/sub_title_bar.444` | 3,988 | `4088bc5c0580c74026b8dadb6a876deb00e474b1da9429a7fec05901624284c0` |
+| `FM2001_Art/Support/support_bars.444` | 4,516 | `518fbf6d7f7d44d55c3c76daa48f132e06b9011791b916cb5a125207eceb290c` |
+| `FM2001_Art/Support/support_title_bar.444` | 4,076 | `0b79b83a23fc5f3bea97b4390256034c2439c83be9998a412dba7b57c0d6ef6b` |
+
+Direct private Drive file IDs (same table order):
+`1yEyn00p8t8r_PixdxmRz_VJze7fUm835`,
+`1TC02F1WZf7kPdRNZpxOtUULXsGJfQ6uP`,
+`17EME3n6W14pzQp2X3OKxL3X7q18F15dI`,
+`1oP-AfHy-Wda3sriy7j9pc86hzRhuEIZZ`,
+`1YlyeQyKYEn6A85LVH4s5QPqP3FUdH5hx`.
+Folder is the owner's original private source; no public sharing changes.
+
+Canonical original EXE SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+has exact original source-path literals at PE VAs
+`0x8362AC` (support title),
+`0x8362D8` (subtitle),
+`0x836354` (support bars),
+`0x836414` (stars) and `0x836434` (stars2).
+They are loaded via native `0x64D750`
+from `0x5F5DC0` into `0x945AD0`,
+`0x5F5E50` into `0x945A90`,
+`0x5F6050` into `0x9459B0`,
+and separate `0x5F62C0..0x5F6595` paths for
+stars and stars2 respectively. The support-title loader
+builds native resource wrapper `0x945AB0` via
+`0x5F5E00..0x5F5E38`, called at
+`0x4C92A0` as a drawing input. These
+are **original resource load mappings**, not proof
+of their exact ownership on PSupportStart,
+coordinates, selection frames, or user-visible UI.
+The PSupportStart constructor has a direct
+`0x4C9340` callback at `0x4CF2F4`; mapping
+that callback's child/control resource and
+screen origin to these particular files remains
+a specific **next source investigation**.
+
+**Reproduce original path literals** with
+`strings -a -t x footballmanager.exe | grep -iE 'support_bars|support_title_bar|sub_title_bar|stars2|stars\.444'`,
+and disassemble:
+```bash
+objdump -D -Mintel --start-address=0x5f5dc0 --stop-address=0x5f5e60 footballmanager.exe
+objdump -D -Mintel --start-address=0x5f6050 --stop-address=0x5f6064 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c92a0 --stop-address=0x4c9337 footballmanager.exe
+objdump -D -Mintel --start-address=0x4cf2ef --stop-address=0x4cf30e footballmanager.exe
+```
+No original executable was launched. Native
+GUI and Windows 11 acceptance remain unverified.
+Do not import images into `original_assets`
+until genuine PSupportStart use/transform is qualified
+according to asset policy.
