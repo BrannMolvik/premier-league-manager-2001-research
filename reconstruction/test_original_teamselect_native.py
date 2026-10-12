@@ -215,6 +215,9 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
                          [1, 1, 1, 1, 1, 1, None])
         self.assertIsNone(slots[-1].staff)
         self.assertTrue(all(slots[i].staff is source[i] for i in range(6)))
+        from support_staff import OriginalSupportStartSourceSlot
+        with self.assertRaisesRegex(ValueError, "byte 1"):
+            OriginalSupportStartSourceSlot(0, source[0], True)
 
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
