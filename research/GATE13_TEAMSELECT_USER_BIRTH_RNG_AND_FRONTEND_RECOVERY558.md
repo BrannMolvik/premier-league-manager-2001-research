@@ -282,3 +282,23 @@ The actual original `0x4044D3..0x404503` event producer assigns vtable **0x7BD56
 - The vtable+0x14 function `0x404600` separately tail-jumps to underlying event object vft+0x40, confirming this wrapper delegates several behaviors rather than implementing static category logic itself.
 
 This is a narrower independently proven indirect dispatch boundary, not a claim that this event is queued when first TeamSelect creates a human. Source execution order and actual queue contents must still be qualified. Reproduce `0x7BD564..0x7BD580`, `0x40DFB0..0x40DFB3`, `0x404600..0x404618`, `0x404450..0x404506`.
+
+
+### Recovery561 final follow-up: one concrete queued class has RNG-free virtual+0x24
+
+The specific native event created by `0x4044CA -> 0x555D60` and enqueued at `0x4044F5..0x404503` is now closed **for its two event-queue callback slots**, removing one false indirect-RNG suspicion without asserting ALL queue entries are safe.
+
+1. Native constructor `0x555D60..0x555DF2` writes actual underlying event instance's vtable **0x7CE378** at `0x555DC6`.
+2. The queue envelope constructed by `0x404450` writes wrapper vtable **0x7BD564** at `0x4044DC`. Original vtable+0x04 is **0x40DFB0** (`xor eax,eax; ret`), which consumes no original CRT.
+3. This wrapper's vtable+0x18 is **0x404610** (`mov ecx,[ecx+8]; mov eax,[ecx]; jmp [eax+0x24]`). For this exact constructor's underlying `0x7CE378`, **vtable+0x24 = 0x40DFB0** again, the same zero-return leaf. Thus `0x614080` invoking either wrapper +0x04 or wrapper +0x18 on THIS object alone has **zero shared CRT calls**.
+4. This proof is only for the specific `0x555D60/0x7CE378` event class, conditional on no later in-place vtable mutation. Additional queue producers and actual callback types may differ. It does not prove whether any event is queued at the first human click, nor negate the original 13 name pairs and six staff RNG calls.
+
+Original private PE source reproduce:
+```
+objdump -D -Mintel --start-address=0x555D60 --stop-address=0x555DF2 footballmanager.exe
+objdump -s -j .rdata --start-address=0x7CE378 --stop-address=0x7CE3AC footballmanager.exe
+objdump -s -j .rdata --start-address=0x7BD564 --stop-address=0x7BD580 footballmanager.exe
+objdump -D -Mintel --start-address=0x404600 --stop-address=0x404618 footballmanager.exe
+objdump -D -Mintel --start-address=0x40DFB0 --stop-address=0x40DFB3 footballmanager.exe
+```
+**Next:** inspect the other queue producers and relevant pre-human TeamSelect state, especially those dynamically dispatched through original 0x614080, and the original manager-binder nontrivial callees; establish exact shared CRT boundaries BEFORE changing the live Windows startup stream. All 13–17 gates remain OPEN; no original execution, exact feature-branch Python tests or Win11 GUI acceptance.
