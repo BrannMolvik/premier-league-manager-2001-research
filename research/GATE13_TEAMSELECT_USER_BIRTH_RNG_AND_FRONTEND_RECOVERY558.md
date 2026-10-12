@@ -1,3 +1,5 @@
+> **RECOVERY561 MATERIAL SOURCE CORRECTION, 12 OCTOBER 2026:** Prior Recovery560 claim that the `0x5EB920` cleanup indirect `+0x74` necessarily dispatches `PSupportStart::0x5D4860` is **WRONG**. The object at `0x5EB962` comes from `0x5EB8F0 -> 0x6555D0`, where the global *rendering/device service* `0x947590` is called through its virtual+0x18 to obtain a different graphics object, not the original PSupportStart pointer. The same graphics `+0x74` operation occurs on **modal opening** at `0x5EB5D6`, establishing this is a generic rendering setup/teardown edge, NOT standalone evidence of original staff-list Cancel effects. **The actual PSupportStart destructor is called later at `0x5EBAA0: call [edi->vft+0]`**, with `EDI` carrying the original modal pointer; the real PSupportStart deleting destructor is `0x4CF790 -> 0x4CF7B0`. Correction detailed at end. Do not use the old `+0x74` association for input/Cancel semantics.
+
 # Recovery558: original TeamSelect performs immediate user birth before Continue
 
 **Active scope:** Gate13 PStartMenu -> TeamSelect selected first/next human -> native DBRUser initialization -> six original staff -> seven-row PSupportStart modal -> Apply/Cancel -> TeamSelect -> Continue -> competitions. **Original source**, not the incomplete reconstruction, defines the player journey.
@@ -197,3 +199,36 @@ Exact original PSupportStart vtable **0x7C6DDC+0x74** contains `0x5D4860`, confi
 `0x5D4860..0x5D48B7` checks a group-control enabled/state bit at +0x18, iterates source registered child controls +0x2C/+0x34 with registration bit0x10, filters through `0x64F570`, then calls eligible children **virtual+0x18**, and finally `0x64F450`. It does not directly invoke `0x4CA070`, `0x4D1880`, `0x617D70`, `0x4D0830` or a DBRUser list. However the indirect child+0x18 actions and the exact object returned by `0x5EB8F0` must be proved before asserting no staff-list mutations at modal close. The native PSupportStart destructor `0x4CF7B0..0x4CFA6E` predominantly calls UI/control destructors `0x64F350`, group destructors `0x5D4600`, and base/resource teardown; no direct source staff-list writes were identified in that bounded range. **Cancel does not execute Apply** is proven; **Cancel restores all staged lists** is NOT.
 
 This preserves the distinction between original modal inner result, outer event acceptance, native staged linked-list moves, and final persisted user staff state. Do not fake Cancel restore or treat zero modal result as a non-click. Actual source close lifecycle remains PARTIAL.
+
+
+## Recovery561: correct modal cleanup ownership, graphics handle vs PSupportStart
+
+Authenticated original PE SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, static x86 disassembly, no process execution.
+
+The earlier source narrative at Recovery560 conflated **TWO DISTINCT OBJECTS**:
+
+**Actual graphics object passed through rendering layer**
+1. `0x450CCD` passes the actual PSupportStart pointer (in `ESI`) as first stack argument to generic close `0x5EB920`.
+2. `0x5EB941: mov edi,[esp+0x48]` stores that original PSupportStart pointer in `EDI`.
+3. `0x5EB945..0x5EB953` passes it to `0x5EB8F0`, whose `0x5EB8F4..0x5EB910` calculates the source layout width/height from window fields, fetches **`[0x947590]` graphics/service pointer**, and calls `0x6555D0` with that service and the rectangle parameters.
+4. Original `0x6555D0..0x6556BC` builds a graphics request, then at **`0x6556A5: call [render-service-vft+0x18]`** obtains a **different EAX returned graphics object**. It is THIS return value moved to **`EBX`** at `0x5EB956`, and `[ebx->vft+0x74]` is invoked at `0x5EB962`. Thus it is not necessarily the PSupportStart virtual+0x74 function `0x5D4860` (and in the actual concrete operation the object owner/source is a graphics service, not the modal's own virtual table).
+5. On original modal **opening**, the same `0x5EB8F0` and `[ebx->vft+0x74]` pair occurs at `0x5EB5AF` and `0x5EB5D6`, confirming it represents generic graphics/front-buffer ownership, not a specially triggered Cancel callback. Its exact drawing/viewport side effects should be audited separately but **cannot establish staff-list rollback**.
+
+**Actual SupportStart lifetime cleanup**
+1. After restoring graphics service state and native frame event owner, `0x5EB920` holds original PSupportStart in **`EDI`**, tests it nonnull at `0x5EBA96`, and at `0x5EBA9A..0x5EBAA0` performs `push 1; mov ecx,edi; call [edi->vft+0]`.
+2. PSupportStart original vtable base is `0x7C6DDC`, slot+0 is **`0x4CF790`**, deleting destructor. `0x4CF793` directly invokes **`0x4CF7B0`**, then conditionally frees its object when the flag has bit0. That is the true modal/window destructor chain in the close routine.
+3. Native `0x4CF7B0` statically destroys large ranges of UI child controls/text/layout resources, mostly through control/base destructors such as `0x64F350` and `0x5D4600`. No direct normal user+0x5D0/+0x5B8/+0x5C4 list restoration or Apply call appears in the bounded destructor disassembly. **Absence of direct calls is not evidence of a full negative result** because its generic child destruction/indirect owner effects are not fully qualified.
+4. **Native Apply** still source-verified only on PSupportStart action2 at `0x4D05E0 -> 0x4D0830`; action1 sets modal result0 without Apply. The premodal original `0x4DA4F0` staff list staging remains real and prior to either button. Whether its effects remain on Cancel, or are reversed by later owner logic, is **UNRESOLVED**. Do not assume GUI Cancel restores staff or that it discards the entire human selection/CRT stream.
+
+**Practical correction:** For real original PSupportStart cancellation, examine original `0x4CF7B0` true destructor child owner effects, `0x4D91C0` parent return and any re-entry to `0x4DA4F0` / linked-list repair. **Do not trace generic 0x5D4860 row propagation as modal destructor on the false premise that it was +0x74 called by 0x5EB920.** Other original UI layouts may use 0x5D4860 for legitimate events independent of that incorrect modal ownership.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x5EB8F0 --stop-address=0x5EB919 footballmanager.exe
+objdump -D -Mintel --start-address=0x6555D0 --stop-address=0x6556BD footballmanager.exe
+objdump -D -Mintel --start-address=0x5EB920 --stop-address=0x5EBAC0 footballmanager.exe
+objdump -D -Mintel --start-address=0x5EB540 --stop-address=0x5EB5E0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4CF790 --stop-address=0x4CF857 footballmanager.exe
+```
+
+**Next specific source task:** inspect direct original PSupportStart destructor `0x4CF7B0` down to every nontrivial owned callback and generic child vtable teardown, then parent `0x4D91C0` post-return and TeamSelect registration/lifecycle; qualify real staged-staff behavior on Cancel. Separately trace original pre-first-human `0x614080` indirect helpers and shared CRT checkpoint. The branch remains source-only; no original process launch, exact-HEAD Python tests, GUI playtest or Gate13–17 release acceptance.
