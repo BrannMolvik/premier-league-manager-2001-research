@@ -1020,6 +1020,80 @@ def main(path: str) -> None:
     print("PASS literal-zero first-human binder branch and bounded lookup callees")
     print("WARNING binder pointer effects and dynamic original queue still unproven")
 
+    # Recovery572 exact native DBRUser 0x4258D0 direct CALL inventory.
+    # No direct queue-enqueue 0x613EC0 or bounded CRT 0x64D540,
+    # but transitive queued callbacks/random may still execute.
+    first_human_initialization_callsites_572 = (
+        ("4258f8", 0x42c400),
+        ("4259b5", 0x614080),
+        ("4259c0", 0x5cf830),
+        ("4259f0", 0x42ca60),
+        ("4259f6", 0x686fe3),
+        ("425a03", 0x668140),
+        ("425a22", 0x5e43b0),
+        ("425a44", 0x5dc400),
+        ("425a7e", 0x42ca60),
+        ("425a84", 0x686fe3),
+        ("425a91", 0x668140),
+        ("425ab5", 0x5e43b0),
+        ("425ad7", 0x5dc400),
+        ("425b02", 0x42ca60),
+        ("425b08", 0x686fe3),
+        ("425b12", 0x668140),
+        ("425b2c", 0x60ce70),
+        ("425b4a", 0x686fe3),
+        ("425b57", 0x668140),
+        ("425b7e", 0x425fd0),
+        ("425ba0", 0x425f90),
+        ("425bc2", 0x686fe3),
+        ("425bcc", 0x668140),
+        ("425c0c", 0x686fe3),
+        ("425c1f", 0x686fe3),
+        ("425c2c", 0x668140),
+        ("425c46", 0x5ded10),
+        ("425c75", 0x412dd0),
+        ("425c8f", 0x412dd0),
+        ("425c95", 0x686fe3),
+        ("425ca4", 0x668140),
+        ("425cd4", 0x412dd0),
+        ("425d07", 0x42ca60),
+        ("425d0d", 0x686fe3),
+        ("425d17", 0x668140),
+        ("425d59", 0x42ca60),
+        ("425d64", 0x412dd0),
+        ("425d6a", 0x686fe3),
+        ("425d74", 0x668140),
+        ("425da1", 0x686fe3),
+        ("425dab", 0x668140),
+        ("425def", 0x686fe3),
+        ("425df9", 0x668140),
+        ("425e39", 0x425ff0),
+        ("425e46", 0x40eaa0),
+        ("425e53", 0x40eaa0),
+        ("425e59", 0x686fe3),
+        ("425e66", 0x668140),
+        ("425e81", 0x65cb20),
+    )
+    original_user_calls = tuple(
+        (m.group(1),int(m.group(2),16))
+        for line in listing.splitlines()
+        if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+        and 0x4258d0 <= int(m.group(1),16) < 0x425ea0
+    )
+    if original_user_calls != first_human_initialization_callsites_572:
+        raise AssertionError(("Original user post-queue direct-call frontier changed",
+                              original_user_calls))
+    if sum(v == 0x613ec0 for _,v in original_user_calls) != 0:
+        raise AssertionError("Unexpected direct global queue enqueue in DBRUser body")
+    if sum(v == 0x64d540 for _,v in original_user_calls) != 0:
+        raise AssertionError("Unexpected direct bounded CRT draw in DBRUser body")
+    if "xor    eax,eax" not in instruction("6596a0") or (
+        "ret" not in instruction("6596a2")
+    ):
+        raise AssertionError("Native mode-default 0x6596A0 stub has changed")
+    print("PASS all 49 DBRUser first-init direct-call sites and zero-mode stub")
+    print("WARNING indirect first-human event producers and CRT still UNKNOWN")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
