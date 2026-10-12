@@ -63,7 +63,7 @@ class OriginalNameGroupTests(unittest.TestCase):
         self.assertEqual(self.table.group_records_offset,0x236d)
         self.assertEqual(self.table.resolved_group(199),26)
         self.assertEqual(self.table.resolved_group(1),1)
-        self.assertEqual(self.table.group_labels_core_indices[208],842)
+        self.assertEqual(self.table.serialized_group_label_ids[208],842)
 
     def test_only_source_eligible_players_join_nationality_buckets(self):
         self.assertEqual(self.pools.global_player_count,15)

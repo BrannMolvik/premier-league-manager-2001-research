@@ -38,7 +38,7 @@ class OriginalNameGroupError(ValueError):
 @dataclass(frozen=True)
 class OriginalNameGroupTable:
     country_to_group: tuple[int, ...]
-    group_labels_core_indices: tuple[int, ...]
+    serialized_group_label_ids: tuple[int, ...]
     group_records_offset: int
 
     def resolved_group(self, country_index: int) -> int:
