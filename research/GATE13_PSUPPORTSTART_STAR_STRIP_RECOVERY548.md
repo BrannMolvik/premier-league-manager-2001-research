@@ -337,3 +337,88 @@ Repeat:
 ```bash
 objdump -D -Mintel --start-address=0x64f960 --stop-address=0x64fa1a footballmanager.exe
 ```
+
+
+## Recovery550: actual native child handlers, input pre-gates, and modal return ownership
+
+The exact original first-party executable (SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+was inspected statically, not executed. PE `.rdata` direct
+vtable DWORD verification finds both fourth child
+`vft 0x7BE530+0x6C` and fifth
+`vft 0x7BFF14+0x6C` resolve to **the same
+`0x64F7A0` native input-handler routine**.
+The first three child final vtable+0x6C pointers
+instead resolve to `0x652B50`; their source
+registration flags do not permit child event dispatch
+through `0x5D4790`.
+
+Disassembly of original `0x5D4790` proves a
+**necessary** child input path, in this order:
+
+1. If its second event argument is nonzero, require
+   `0x64F7A0` to accept the *parent* row first;
+   otherwise the function returns 0 before children.
+2. Iterate source registered children with
+   **registration flag & 0x04** set
+   (actual fourth/fifth only).
+3. Require child's `0x64F570` bit0x01 to be set.
+4. Invoke the child's own vtable+0x6C (here
+   `0x64F7A0`). Native `0x64F7A0` rejects
+   child control+0x18 unless bit `0x0002` set
+   and bit `0x0010` clear. It may also
+   require owner callback +0x0C to accept an
+   event and invokes other input notifier paths.
+5. Combine accepted child return(s) with the
+   upstream parent return, then `0x5D6270`
+   toggles row selection bit15 only when
+   final accepted return is nonzero.
+
+The bounded
+`original_supportstart_source_dispatch_candidates()`
+returns the source child **indices that clear only
+the deterministic pre-gates** (3 or 4); it never
+claims an actual event, hit rectangle, or renderer.
+
+**TeamSelect modal return correction:** native
+`0x4D91C0` calls `0x64F960` and
+retains its return in EBX, conditionally invokes
+the SupportStart modal `0x450BB0`,
+which returns `PSupportStart+0x1DE4`
+as AL (0=Cancel, 1=Apply). However immediately
+after that call, at `0x4D922C`, the
+caller **overwrites EAX with the saved EBX**
+(`mov eax,ebx`) and returns from
+`0x4D9231` with the input-handler result.
+Thus **Cancel does not imply TeamSelect
+input handler returned 0**. The internal
+staff/name side effects still differ.
+The feature branch's bounded
+`original_supportstart_teamselect_event_outcome()`
+keeps these independent result values and fails
+closed on impossible modal-result combinations.
+
+Reproduce from private source without putting binaries in Git:
+```bash
+objdump -s --start-address=0x7be590 --stop-address=0x7be5b0 footballmanager.exe
+objdump -s --start-address=0x7bff70 --stop-address=0x7bff95 footballmanager.exe
+objdump -D -Mintel --start-address=0x5d4790 --stop-address=0x5d47fc footballmanager.exe
+objdump -D -Mintel --start-address=0x64f570 --stop-address=0x64f579 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f7a0 --stop-address=0x64f85b footballmanager.exe
+objdump -D -Mintel --start-address=0x4d91c0 --stop-address=0x4d923b footballmanager.exe
+objdump -D -Mintel --start-address=0x450ca2 --stop-address=0x450ce9 footballmanager.exe
+cd reconstruction && python -m unittest test_original_supportstart_input
+```
+
+**Qualification:** these are source routine control-flow
+facts, not an integrated player-visible SupportStart,
+complete native owner callback acceptance, or
+Windows 11 GUI test. Extra isolated regression
+cases do not justify a new PR/CI until the original
+editor can be assembled safely. Continuing task:
+trace the owner callback path for the two
+event candidates and source modal's screen
+transition, then construct complete original seven
+staff rows, name editing, Apply/Cancel and return
+without overriding existing original-game host behavior
+with invented hot zones.

@@ -9,6 +9,8 @@ from original_supportstart_input import (
     original_supportstart_row_refresh, original_supportstart_row_native_event,
     original_supportstart_fifth_child_native_rect,
     original_supportstart_teamselect_modal_entry,
+    original_supportstart_source_dispatch_candidates,
+    original_supportstart_teamselect_event_outcome,
 )
 
 
@@ -71,6 +73,51 @@ class OriginalSupportStartInputTests(unittest.TestCase):
             original_supportstart_teamselect_modal_entry(0x8000, 1)
         with self.assertRaises(ValueError):
             original_supportstart_teamselect_modal_entry(-1, True)
+
+
+    def test_original_child_prefilter_does_not_fabricate_hit_acceptance(self):
+        # Only fourth/fifth children are registered for native input.
+        row = OriginalSupportStartRowBitState(
+            0x2, (0x3, 0x3, 0x3, 0x3, 0x3)
+        )
+        self.assertEqual(original_supportstart_source_dispatch_candidates(row), (3, 4))
+        # 0x64F570 bit1, 0x64F7A0 bit2 and NOT bit0x10 are necessary.
+        row = OriginalSupportStartRowBitState(
+            0x2, (0x3, 0x3, 0x3, 0x13, 0x2)
+        )
+        self.assertEqual(original_supportstart_source_dispatch_candidates(row), ())
+        row = OriginalSupportStartRowBitState(
+            0x2, (0x3, 0x3, 0x3, 0x3, 0x13)
+        )
+        self.assertEqual(original_supportstart_source_dispatch_candidates(row), (3,))
+        with self.assertRaises(TypeError):
+            original_supportstart_source_dispatch_candidates(None)
+
+    def test_native_teamselect_dialog_cancel_still_returns_handled_event(self):
+        # 0x4D922C returns EBX from 0x64F960, overwriting EAX from 0x450BB0.
+        cancel = original_supportstart_teamselect_event_outcome(True, 0x8002, 0)
+        apply = original_supportstart_teamselect_event_outcome(True, 0x8002, 1)
+        self.assertTrue(cancel.modal_called)
+        self.assertEqual(cancel.native_handler_return, 1)
+        self.assertEqual(cancel.modal_result_byte, 0)
+        self.assertEqual(apply.native_handler_return, 1)
+        self.assertEqual(apply.modal_result_byte, 1)
+        accepted_without_modal = original_supportstart_teamselect_event_outcome(
+            True, 0x2, None
+        )
+        self.assertEqual(accepted_without_modal.native_handler_return, 1)
+        self.assertFalse(accepted_without_modal.modal_called)
+        denied = original_supportstart_teamselect_event_outcome(False, 0x8002, None)
+        self.assertEqual(denied.native_handler_return, 0)
+        self.assertFalse(denied.modal_called)
+        with self.assertRaises(ValueError):
+            original_supportstart_teamselect_event_outcome(True, 0x8002, None)
+        with self.assertRaises(ValueError):
+            original_supportstart_teamselect_event_outcome(True, 0x8022, 0)
+        with self.assertRaises(ValueError):
+            original_supportstart_teamselect_event_outcome(False, 0x8002, 0)
+        with self.assertRaises(TypeError):
+            original_supportstart_teamselect_event_outcome(1, 0x8002, None)
 
     def test_empty_unknown_source_flags_are_not_invented(self):
         row = OriginalSupportStartRowBitState(0, (0, 0, 0, 0, 0))

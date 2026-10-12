@@ -133,3 +133,64 @@ def original_supportstart_teamselect_modal_entry(
             and bool(native_teamselect_control_dword & 0x0002)
             and not bool(native_teamselect_control_dword & 0x0020)
             and bool(native_teamselect_control_dword & ORIGINAL_ROW_STATE_MASK))
+
+
+def original_supportstart_source_dispatch_candidates(
+    row: OriginalSupportStartRowBitState,
+) -> tuple[int, ...]:
+    """Necessary native child pre-gates for 0x5D4790, not input acceptance.
+
+    Source first requires registered child flags bit0x04 and native
+    0x64F570 bit0x01; for the actual last two source child vtables,
+    virtual+0x6C points to native 0x64F7A0 which additionally requires
+    child control bit0x02 set, bit0x10 clear. Subsequent native event
+    predicates and parent callback may still reject: returning an index
+    here does NOT establish a mouse hit or accepted row toggle.
+    """
+    if type(row) is not OriginalSupportStartRowBitState:
+        raise TypeError("Require an original row with five child control DWORDs")
+    return tuple(
+        i for i, (flags, child) in enumerate(
+            zip(ORIGINAL_ROW_REGISTRATION_FLAGS, row.children)
+        )
+        if (flags & ORIGINAL_ROW_CHILD_INPUT_FLAG)
+        and (child & 0x0001)
+        and (child & 0x0002)
+        and not (child & 0x0010)
+    )
+
+
+@dataclass(frozen=True)
+class OriginalSupportStartTeamSelectEventOutcome:
+    """Original 0x4D91C0 return is the input acceptance, not modal outcome."""
+    native_handler_return: int
+    modal_called: bool
+    modal_result_byte: int | None
+
+
+def original_supportstart_teamselect_event_outcome(
+    native_64f960_accepted: bool,
+    native_control_dword: int,
+    modal_result_byte: int | None,
+) -> OriginalSupportStartTeamSelectEventOutcome:
+    """Model 0x4D91C0 -> 0x450BB0 -> 0x4D922C with explicit inputs.
+
+    Native 0x450BB0 yields the modal's 0/1 result; caller 0x4D922C
+    discards EAX and restores EBX from 0x64F960 as its handler return.
+    The modal itself performs staff/name Apply or Cancel effects
+    separately; this function does NOT simulate those mutations.
+    """
+    if type(native_64f960_accepted) is not bool:
+        raise TypeError("Require an actual source input acceptance result")
+    _dword(native_control_dword)
+    called = original_supportstart_teamselect_modal_entry(
+        native_control_dword, native_64f960_accepted
+    )
+    if called:
+        if type(modal_result_byte) is not int or modal_result_byte not in (0, 1):
+            raise ValueError("Called original modal must return a source result byte 0 or 1")
+    elif modal_result_byte is not None:
+        raise ValueError("No original modal could return a result on a rejected route")
+    return OriginalSupportStartTeamSelectEventOutcome(
+        int(native_64f960_accepted), called, modal_result_byte
+    )
