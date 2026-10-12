@@ -281,6 +281,18 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
                          (False, True))
         self.assertTrue(all(not hasattr(a, "click_rect") for a in actions))
 
+
+    def test_original_supportstart_inactive_type_bucket_dispatch(self):
+        from support_staff import original_staff_inactive_link_owner_offset
+        self.assertEqual(
+            tuple(original_staff_inactive_link_owner_offset(i) for i in range(1, 17)),
+            (0x5B8,) * 5 + (0x5C4,) * 11,
+        )
+        for bad in (0, 17, -1, True, False, 2.0, "2"):
+            with self.subTest(bad=bad):
+                with self.assertRaisesRegex(ValueError, "1..16"):
+                    original_staff_inactive_link_owner_offset(bad)
+
     def test_source_proven_six_user_cap_fails_closed(self):
         country_order = (
             (26, "England"), (66, "Scotland"), (33, "Germany"),

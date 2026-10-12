@@ -96,6 +96,20 @@ def original_teamselect_support_slots(
     )
 
 
+
+def original_staff_inactive_link_owner_offset(staff_type: int) -> int:
+    """Native PSupportStart Apply 0x4D0900 -> 0x4CA070 type dispatch.
+
+    Original 0x4CA070 checks 1..16 and uses exact byte table 0x4CA0D8:
+    first 5 types go to selected DBRUser+0x5B8; next 11 to +0x5C4.
+    This is a bounded source mapping, not a linked-list mutation, GUI,
+    user selection claim or authorization to advance the shared RNG.
+    """
+    if type(staff_type) is not int or not 1 <= staff_type <= 16:
+        raise ValueError("Native inactive staff type must be 1..16")
+    return 0x5B8 if staff_type <= 5 else 0x5C4
+
+
 def initial_staff_rating_base(competition_context: int) -> int:
     """Map the 0x4FA520 context to the base used by 0x4C9D40.
 
