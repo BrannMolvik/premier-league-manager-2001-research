@@ -1206,6 +1206,23 @@ def main(path: str) -> None:
     print("PASS five original DBRUser suffix destroyer direct-call ranges")
     print("WARNING nested 0x66820D destructor callbacks remain dynamic")
 
+    # Recovery573: 0x42C780 array destructor callback is the exact
+    # 0x667D30 RET stub, invoked 3 x 0x18 records through 0x66820D.
+    # On this bounded call site, the callback has zero instructions
+    # with side effects, so no indirect queue or game CRT draw there.
+    source_user_array_destructor_callback_573 = (
+        ("42c7a3","push   0x667d30"),
+        ("42c7a8","push   0x3"),
+        ("42c7ad","push   0x18"),
+        ("42c7b8","call   0x66820d"),
+        ("66824f","call   DWORD PTR [ebp+0x14]"),
+        ("667d30","ret"),
+    )
+    for addr,expected in source_user_array_destructor_callback_573:
+        if expected not in instruction(addr):
+            raise AssertionError(("Original no-op array destructor moved",addr))
+    print("PASS 3-element first-human suffix destructor uses exact no-op callback")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
