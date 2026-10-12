@@ -104,3 +104,106 @@ objdump -D -Mintel --start-address=0x652f80 --stop-address=0x652f89 footballmana
 actually receives pointer/keyboard events and the exact parent row event
 dispatch, rather than conflating the passive stars or text rendering
 with source-verified click behavior. Preserve all seven original slots.
+
+
+## Recovery549: native row acceptance and selection bit toggle
+
+The original private 4,714,541-byte `footballmanager.exe` was freshly
+SHA-256 checked as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+Disassembly of exact original `0x4C9340`, `0x5D4790`,
+`0x5D6200`, `0x5D6270`, `0x64F710`, `0x64F750`,
+`0x64F7A0`, `0x652F80`, `0x4D0796` and `0x4D088A`
+establishes a **bounded original input-state path**:
+
+1. `PSupportStart` source row vft `0x7C6780` has virtual
+   `+0x6C=0x5D6270` and `+0x98=0x5D6200`.
+   `0x5D6270` first calls `0x5D4790` with the original
+   two event arguments. When that function returns zero, it
+   returns without changing bit15. When nonzero, it calls
+   `0x652F80` on row+0x18, inverts the bit, then calls
+   row vft+0x98, `0x5D6200`, with that Boolean.
+2. `0x5D4790` first optionally invokes source
+   `0x64F7A0` for the parent gate, then iterates the
+   five registered row children, **requiring registration
+   flag & 0x04**, the child to pass source
+   `0x64F570`, and its virtual+0x6C result. Source
+   registration flags are `0x33,0x31,0x31,0x15,0x15`;
+   **only fourth+fifth** (offsets `+0x44,+0x48`)
+   participate in that child-dispatch loop. This is a
+   registration/dispatch property, **not yet a verified
+   clickable screen rectangle**.
+3. Conversely, native `0x5D6200` updates bit `0x8000`
+   for parent and ONLY children whose registration
+   flag & `0x20` is set, the **first three**
+   (offsets `+0x38,+0x3C,+0x40`), through exact
+   `0x64F710` OR or `0x64F750` AND-NOT.
+   It does NOT propagate that visual selection bit to the
+   fourth star sprite or fifth control.
+4. Native `0x4D0796` refreshes a row with
+   `(selected_byte==0)` and native Apply `0x4D088A→0x652F80`
+   stores `!bit15` back to `source+0x974[i]`,
+   before the original staff linked-list transfers. Hence
+   for an **initialized** selected byte 1, initial row
+   bit15 is 0; one accepted row event makes it 1
+   and the eventual Apply byte becomes 0.
+   A second accepted input reverses this. **NULL staff
+   record bytes are not proven initialized.**
+
+### Source correction to the preceding Recovery547 report
+
+Earlier `GATE13_PSUPPORTSTART_CHILD_CONTROL_RECOVERY547.md`
+mistakenly described the first child `+0x38` as
+`0x64F300` final vft `0x7BE530`. The actual
+source constructor `0x4C938B..0x4C9398` creates
+that first child with `0x42DE80` and installs
+**final vtable `0x7BE9BC`**. The subsequent row
+children are `+0x3C/+0x40→0x7C66C8`,
+`+0x44→0x7BE530`, and `+0x48→0x7BFF14`.
+Static original .rdata vtable read confirms these
+final pointers and their distinct virtual+0x6C methods.
+The source-original first-child art `0x945950`
+continues to be configured by `0x4C9510`, but
+that does not make the first child a plain sprite-control
+instance or one of the child input-dispatch candidates.
+
+### Bounded implementation and verification
+
+On the **same unopened** `worker/recovery548-psupportstart-star-strip`
+feature branch, `reconstruction/original_supportstart_input.py`
+models five native child registration masks, correct
+final vtable identities, bit15 propagation to first three,
+row initial state from an explicit initialized source byte,
+the effect of explicitly upstream-accepted native event,
+and original inverse-bit15 value consumed by the existing
+`support_staff.original_supportstart_flag_after_selector_state`.
+`test_original_supportstart_input.py` contains five
+focused regression tests for the source mask split,
+one/two accepted events, rejection no-op, preserving
+other native bits, unknown empty bytes and input validation.
+Five local tests passed in an isolated test copy using a
+temporary exact-function local dependency extracted from
+`support_staff.py`; **this does not constitute running
+the complete GitHub checkout, required exact-head CI or
+Windows 11 acceptance**. No original bytes were copied
+into the public repository and no new PR/CI was opened.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4c9340 --stop-address=0x4c94cd footballmanager.exe
+objdump -D -Mintel --start-address=0x5d4790 --stop-address=0x5d47fc footballmanager.exe
+objdump -D -Mintel --start-address=0x5d6200 --stop-address=0x5d62b0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d0786 --stop-address=0x4d07a5 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d088a --stop-address=0x4d08a2 footballmanager.exe
+```
+
+**Still P0 and exact next:** trace source `0x64F7A0`'s gate
+and child+0x44/+0x48 hit/availability contracts;
+`0x652400→0x651F00→0x651E90→0x651BF0`
+text-child geometry and effective `0x4C97A0` event
+ownership, then fully wire original seven-row
+select/edit/Apply/Cancel/TeamSelect return with
+original art. Source-verified pure helpers are **not**
+player-visible completion. PR645 remains a
+separate draft touching `original_supportstart_layout.py`,
+PR638 shared CRT remains blocked, and Gates13–17/real
+Win11 acceptance remain open.
