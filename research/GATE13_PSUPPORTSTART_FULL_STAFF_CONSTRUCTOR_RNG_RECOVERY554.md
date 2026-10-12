@@ -1,3 +1,5 @@
+> **CORRECTION 12 October 2026, Recovery555:** The original CSupportStaff virtual+0x5C is **0x4CB2B0**, NOT 0x4CB0F0. The latter is virtual+0x58. Previous statements below using the +0x58 club scan and its 4–10 RNG draw estimate as if the fixed fresh-staff constructor invoked them are **SUPERSEDED**. Do not use the previously reported 12–18 draws-per-staff lower bound. See detailed corrective source audit appended below. No production RNG was changed.
+
 # Recovery554: original fixed SupportStaff constructor consumes additional shared CRT draws
 
 The original `footballmanager.exe` (SHA-256
@@ -244,3 +246,32 @@ objdump -D -Mintel --start-address=0x4c9e2a --stop-address=0x4c9e6a footballmana
 objdump -D -Mintel --start-address=0x4ca2f0 --stop-address=0x4ca33f footballmanager.exe
 objdump -D -Mintel --start-address=0x4ca660 --stop-address=0x4ca6d0 footballmanager.exe
 ```
+
+
+## Recovery555: corrective source audit of real fixed-staff constructor vtable
+
+The private original 4,714,541-byte footballmanager.exe was independently downloaded and SHA-256 verified as 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. This was a static PE read, not original process execution.
+
+The actual CSupportStaff vtable at 0x7C6834 was cross-checked with a PE VA-to-raw-offset little-endian DWORD reader:
+
+| Slot | Actual callee |
+| --- | --- |
+| +0x10 | 0x4CA660, name generator |
+| +0x28 | 0x4CA790, RNG(20) type-dependent state |
+| +0x30 | 0x4CA640, RNG(30) |
+| **+0x58** | **0x4CB0F0, a DIFFERENT method** |
+| **+0x5C** | **0x4CB2B0, the actual postconstructor method** |
+
+The actual fixed-staff factory 0x4C9E4C calls +0x10, 0x4C9E55 calls +0x28 with a pushed -1, 0x4C9E5C calls +0x30 without an argument, and **0x4C9E63 calls +0x5C without an argument**. The calling conventions independently confirm the slot correction: 0x4CA790 ends with ret 4, 0x4CA640 with ret, **0x4CB2B0 with ret**; the incorrectly attributed 0x4CB0F0 ends with ret 4.
+
+### Actual +0x5C method at 0x4CB2B0
+
+1. Reads the currently selected user club nationality via DBRUser+0x5B4 -> club+0x14, selects original 0x6C-byte country record at 0x874BE0, calls 0x4CB5D0 on this record and 0x4D1830 on three data fields at +0x38/+0x40/+0x48. The latter helpers and list cardinalities remain to be qualified, not invented.
+2. Calls original shared bounded RNG(3) at 0x4CB3A0, adds one, and initializes 1–3 source attempts.
+3. In the conditional live-candidate path at 0x4CB42E, calls bounded RNG(group count) at 0x4CB433, followed by RNG(selected candidate quantity) at 0x4CB4A5. Selected object virtual+0x24 is a veto at 0x4CB4C3. Rejection loops before the accepted candidate text/extra RNG path; actual group identity, count and callback veto semantics are not yet proven.
+4. After an accepted candidate, resolves original club text through 0x4F4940/0x40DA70 and calls bounded RNG(3) **twice** at 0x4CB507 and 0x4CB510; writes source staff text via 0x66876F. The separate default-fill route at 0x4CB3CE copies native literal 0x874BA0 without those two accepted-route calls. A fixed 4–10 RNG cost cannot be asserted.
+5. Returns at 0x4CB5B7 with plain ret. The formerly analyzed 0x4CB0F0 function scans a different club collection, limits a local array to 24 pointers and has its own RNG pattern. Those facts are valid for **vft+0x58 only**, not the fresh-staff factory.
+
+**Corrected scope:** RNG25, RNG2, TWO full native name-generator calls (each two source-player selections with both draws repeated for any first-name '-' retry), RNG20 and RNG30 are direct, source-verified constructor calls. Actual +0x5C additionally always calls RNG3 and has conditional country-group/candidate draws with possible repeats. The total and seed checkpoint remain UNKNOWN until 0x4CB5D0, 0x4D1830, 0x4F4940, selected-record virtual+0x24 and the relevant live source group populations are traced. Do not add arbitrary RNG calls to the live shared CRT; do not claim reconstructed initial staff names or unblock Inbox PR638 from this partial trace.
+
+Reproduce on the hashed original with objdump disassembly around 0x4C9E37–0x4C9E66, 0x4CB0F0–0x4CB2B0, 0x4CB2B0–0x4CB5B8, and vtable raw data 0x7C6834–0x7C6898. No original GUI playtest or Windows11 release acceptance has been performed. Gate13–17 remain open.
