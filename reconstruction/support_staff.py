@@ -63,7 +63,9 @@ class OriginalSupportStartSourceSlot:
         if self.staff is None:
             if self.original_selected_byte is not None:
                 raise ValueError("Unknown empty original support flag must stay unqualified")
-        elif type(self.staff) is not SupportStaffState or self.original_selected_byte != 1:
+        elif (type(self.staff) is not SupportStaffState
+              or type(self.original_selected_byte) is not int
+              or self.original_selected_byte != 1):
             raise ValueError("Original filled support slot needs a source staff and byte 1")
 
 
