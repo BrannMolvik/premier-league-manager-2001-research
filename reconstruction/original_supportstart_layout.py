@@ -30,6 +30,31 @@ SOURCE_SUPPORTSTART_CHILD_GROUP_FIRST_INDEX = 8
 
 
 @dataclass(frozen=True)
+class SourceSupportStartActionChild:
+    """Actual original owner/dispatch edge; not a derived mouse hit rectangle."""
+
+    native_event: int
+    object_owner_offset: int
+    animation_wrapper_address: int
+    result_byte_after_native_handler: int
+    invokes_full_original_apply: bool
+
+
+def original_supportstart_action_children() -> tuple[SourceSupportStartActionChild, ...]:
+    """Vft+4 source 0x4C7B70 creates action children IDs 1/2.
+
+    Native 0x4D05E0 event1 sets +0x1DE4=0 without apply; event2 calls
+    virtual+0x4C 0x4D0830 (staff + names commit), then returns byte 1.
+    This exposes the original owner path only; button locations/labels and
+    full staff transactions are not reconstructed.
+    """
+    return (
+        SourceSupportStartActionChild(1, 0x1EB8, 0x946190, 0, False),
+        SourceSupportStartActionChild(2, 0x1F08, 0x946150, 1, True),
+    )
+
+
+@dataclass(frozen=True)
 class SourceSupportStartRowAnchor:
     """Original editor row anchor and per-row owner offsets, not a hit rectangle."""
 
