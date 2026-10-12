@@ -62,6 +62,22 @@ class NativeSupportStartModalInitialRowsTests(unittest.TestCase):
             ("Seaman",)*6+(None,)
         )
         self.assertEqual(
+            tuple(row.source_staff_full_name for row in rows),
+            ("David Seaman",)*6+(None,)
+        )
+        self.assertEqual(
+            tuple(row.source_role_label for row in rows),
+            (None,)*7  # Original role captions not guessed from names
+        )
+        self.assertEqual(
+            tuple(row.source_role_label_owner_offset for row in rows),
+            tuple(0x70+0x80*i for i in range(7))
+        )
+        self.assertEqual(
+            tuple(row.source_staff_full_name_owner_offset for row in rows),
+            tuple(0x4f0+0x80*i for i in range(7))
+        )
+        self.assertEqual(
             tuple(row.source_has_staff for row in rows),
             (True,)*6+(False,)
         )
