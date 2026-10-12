@@ -4,7 +4,12 @@ Original 0x4C9C9E -> 0x617D70 appends six created staff to the
 current user's +0x5D0 linked list in source creation order.
 Original 0x4DA4F0 walks that same list by source index 6..0,
 mapping staff types (1,2,3,4,5,13) into initial slots 0..5
-and leaving initial slot 6 empty. 0x4C7B70 -> 0x4C9510
+and leaving initial slot 6 empty. IMPORTANT: 0x4DA4F0 also calls
+0x4CA070 to append to type-specific +0x5B8/+0x5C4 lists and 0x4D1880
+to unlink the chosen node from the +0x5D0 source list while staging.
+This pure projection does NOT implement those native ownership changes,
+so it cannot be used as proof that Cancel restores the pre-modal lists.
+0x4C7B70 -> 0x4C9510
 sets the exact seven native layout anchor/owner offsets.
 
 Uses the FINAL native name chosen by second 0x4CA660 call, not
