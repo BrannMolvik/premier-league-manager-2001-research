@@ -12,7 +12,7 @@ so it cannot be used as proof that Cancel restores the pre-modal lists.
 0x4C7B70 -> 0x4C9510
 sets the exact seven native layout anchor/owner offsets.
 
-Uses the FINAL native name chosen by second 0x4CA660 call, not
+0x4D06B0 writes role LABEL from 0x4CDCD0 to first +0x70 buffer and\nwhole STAFF FULL NAME from vft+0x08 to second +0x4F0 buffer.\nThe actual localized role text is not guessed here.\nUses the FINAL native name chosen by second 0x4CA660 call, not
 the first (constructor) overwritten name. All source names must
 originate from a previously replayed genuine shared-CRT receipt.
 No additional CRT draws, user/linked-list mutation, guessed role
@@ -44,10 +44,30 @@ class SourceOriginalSupportStartInitialRow:
     original_first_name: str | None
     original_surname: str | None
     source_staff_creation_index: int | None
+    # Actual 0x4D06B0 reads a localized ROLE label via 0x4CDCD0 and
+    # copies it to anchor first buffer +0x70+0x80*i. Its exact decoded
+    # text is not recovered here. Never render a first name there.
+    source_role_label: str | None = None
 
     @property
     def source_has_staff(self) -> bool:
         return self.original_staff_type is not None
+
+    @property
+    def source_staff_full_name(self) -> str | None:
+        # vft+0x08 yields FULL "First Last" copied to native second
+        # text buffer +0x4F0+0x80*i. Do not split across both buffers.
+        if not self.source_has_staff:
+            return None
+        return self.original_first_name + " " + self.original_surname
+
+    @property
+    def source_role_label_owner_offset(self) -> int:
+        return self.native_anchor.display_text_first_owner_offset
+
+    @property
+    def source_staff_full_name_owner_offset(self) -> int:
+        return self.native_anchor.display_text_second_owner_offset
 
 
 def source_supportstart_initial_modal_rows(
