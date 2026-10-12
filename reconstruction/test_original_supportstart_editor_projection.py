@@ -125,6 +125,50 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
                         source_slots=slots, before=fresh,
                     )
 
+    def test_initial_first_human_modal_factory_composes_staging_and_apply(self):
+        source = OriginalSupportStartLinkedLists(
+            current_staff=self.staff, global_staff=self.staff
+        )
+        modal = OriginalSupportStartEditorProjection.open_initial_first_human_modal(
+            original_user=self.user,
+            source_slots=self.slots,
+            before_native_staging=source,
+        )
+        self.assertEqual(
+            tuple(s.staff_type for s in modal.prior_staff_lists.inactive_type_1_to_5),
+            (5, 4, 3, 2, 1),
+        )
+        self.assertEqual(modal.prior_staff_lists.current_staff, ())
+        # Native untouched event2 Apply leaves all six inactive on
+        # original source initial bit15=0, selected record flags=1.
+        accepted = modal.close(2)
+        self.assertEqual(accepted.source_modal_result, 1)
+        self.assertTrue(accepted.invoked_original_apply)
+        self.assertEqual(accepted.original_record_flag_bytes, (1,)*6+(None,))
+        self.assertEqual(accepted.staff_lists, modal.prior_staff_lists)
+        self.assertEqual(source.current_staff, self.staff)
+        # Row0 native-gated toggle instead commits type1 active while
+        # preserving the remaining descending inactive pointer order.
+        switched = modal.with_native_row_event(
+            0, accepted_by_native_gate=True,
+        ).close(2)
+        self.assertEqual(switched.original_record_flag_bytes[0], 0)
+        self.assertEqual(switched.staff_lists.current_staff, (self.staff[0],))
+        self.assertEqual(switched.staff_lists.global_staff, (self.staff[0],))
+        self.assertEqual(
+            tuple(x.staff_type for x in switched.staff_lists.inactive_type_1_to_5),
+            (5, 4, 3, 2),
+        )
+        self.assertIs(accepted.original_human_user_name, self.user)
+
+    def test_initial_first_human_modal_factory_does_not_accept_missing_user(self):
+        source = OriginalSupportStartLinkedLists(current_staff=self.staff)
+        with self.assertRaises(TypeError):
+            OriginalSupportStartEditorProjection.open_initial_first_human_modal(
+                original_user=None, source_slots=self.slots,
+                before_native_staging=source,
+            )
+
     def test_apply_uses_true_source_flag_inversion_and_staged_human_name(self):
         changed = self.editor.with_edited_name("Ada", "Lovelace")
         changed = changed.with_native_row_event(0, accepted_by_native_gate=True)

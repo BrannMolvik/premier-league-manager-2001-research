@@ -21,6 +21,7 @@ from original_supportstart_input import (
 from original_supportstart_staff_lists import (
     OriginalSupportStartLinkedLists,
     OriginalSupportStartProjectedApply,
+    project_original_supportstart_first_human_modal_entry,
     project_original_supportstart_staff_apply,
 )
 from support_staff import OriginalSupportStartSourceSlot
@@ -76,6 +77,33 @@ class OriginalSupportStartEditorProjection:
             rows=rows,
             draft_first_name=original_user.first_name,
             draft_surname=original_user.surname,
+        )
+
+    @classmethod
+    def open_initial_first_human_modal(
+        cls,
+        *,
+        original_user: OriginalHumanUserName,
+        source_slots: tuple[OriginalSupportStartSourceSlot, ...],
+        before_native_staging: OriginalSupportStartLinkedLists,
+    ) -> "OriginalSupportStartEditorProjection":
+        """Compose source first-human staff staging BEFORE modal construction.
+
+        The original 0x4D8F7F -> 0x4DA4F0 performs the list transfer
+        before 0x4D9224 -> 0x450BB0 opens the editor. This bounded
+        factory requires the original six pointers, native owner flags
+        already reset and an explicit genuine user; it does not create
+        users, advance shared CRT, post native messages, or open Tk.
+        """
+        if type(original_user) is not OriginalHumanUserName:
+            raise TypeError("Require original source-registered human")
+        staged = project_original_supportstart_first_human_modal_entry(
+            source_slots=source_slots, before=before_native_staging
+        )
+        return cls.open(
+            original_user=original_user,
+            source_slots=source_slots,
+            prior_staff_lists=staged,
         )
 
     def original_source_role_labels(self, strings, indices) -> tuple[str | None, ...]:
