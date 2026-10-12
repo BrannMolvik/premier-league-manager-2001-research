@@ -36,6 +36,8 @@ class SourceSupportStartActionChild:
     native_event: int
     object_owner_offset: int
     animation_wrapper_address: int
+    # Native visual child x/y/width/height; not a proven pointer hit mask.
+    source_layout_rect: tuple[int, int, int, int]
     result_byte_after_native_handler: int
     invokes_full_original_apply: bool
 
@@ -45,12 +47,12 @@ def original_supportstart_action_children() -> tuple[SourceSupportStartActionChi
 
     Native 0x4D05E0 event1 sets +0x1DE4=0 without apply; event2 calls
     virtual+0x4C 0x4D0830 (staff + names commit), then returns byte 1.
-    This exposes the original owner path only; button locations/labels and
-    full staff transactions are not reconstructed.
+    Original x/y coordinates and sprite dimensions establish visual rectangles;
+    pointer hit ownership, animation frame and full staff apply are still unresolved.
     """
     return (
-        SourceSupportStartActionChild(1, 0x1EB8, 0x946190, 0, False),
-        SourceSupportStartActionChild(2, 0x1F08, 0x946150, 1, True),
+        SourceSupportStartActionChild(1, 0x1EB8, 0x946190, (729, 1, 30, 30), 0, False),
+        SourceSupportStartActionChild(2, 0x1F08, 0x946150, (697, 1, 30, 30), 1, True),
     )
 
 
