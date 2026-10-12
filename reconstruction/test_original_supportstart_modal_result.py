@@ -50,6 +50,35 @@ class OriginalSupportStartModalResultTests(unittest.TestCase):
         self.assertTrue(result.original_editor_applied)
         self.assertEqual(result.outer_teamselect_handler_result, 1)
 
+    def test_win32_close_message_is_identical_but_editor_result_differs(self):
+        canceled = source_teamselect_supportstart_modal_dispatch(
+            owner_event_accepted=True, selected_control_bit15=True,
+            native_action_event=1,
+        )
+        applied = source_teamselect_supportstart_modal_dispatch(
+            owner_event_accepted=True, selected_control_bit15=True,
+            native_action_event=2,
+        )
+        self.assertEqual(canceled.source_posted_close_message, (0x400, 0))
+        self.assertEqual(applied.source_posted_close_message, (0x400, 0))
+        self.assertEqual(canceled.source_window_loop_return, 0)
+        self.assertEqual(applied.source_window_loop_return, 0)
+        self.assertEqual(canceled.native_modal_result_byte, 0)
+        self.assertEqual(applied.native_modal_result_byte, 1)
+        self.assertFalse(canceled.native_apply_called)
+        self.assertTrue(applied.native_apply_called)
+        self.assertEqual(canceled.outer_teamselect_handler_result, 1)
+        self.assertEqual(applied.outer_teamselect_handler_result, 1)
+
+    def test_no_win32_modal_close_message_before_accepted_native_action(self):
+        for accepted, selected in ((False, True), (True, False), (False, False)):
+            projected = source_teamselect_supportstart_modal_dispatch(
+                owner_event_accepted=accepted,
+                selected_control_bit15=selected,
+            )
+            self.assertIsNone(projected.source_posted_close_message)
+            self.assertIsNone(projected.source_window_loop_return)
+
     def test_invented_visual_or_keyboard_actions_fail_closed(self):
         for args in (
             {"owner_event_accepted": 1, "selected_control_bit15": True},

@@ -8,6 +8,11 @@ action event 2 invokes 0x4D0830 and writes +0x1DE4 = 1.
 0x450BB0 returns that inner BYTE in AL, but outer 0x4D91C0
 overwrites EAX with the saved event-acceptance EBX at 0x4D922C.
 
+Original 0x6539F0 posts WM_USER(0x400,wParam=0) on BOTH actions via
+USER32.PostMessageA, and MyWindow::0x532B80 consumes it as a loop
+termination without normal DispatchMessageA. That Win32 loop's result is
+zero for BOTH actions, whereas the modal byte differs (0 vs 1).
+
 This is the SOURCE CONTROL-RESULT boundary, not a new GUI/input handler.
 It DOES NOT model native linked-list cleanup or the exact mapping of
 screen-coordinate and keyboard input to action event 1/2. In particular,
@@ -33,6 +38,23 @@ class SourceOriginalSupportStartModalDispatch:
     native_modal_result_byte: int | None
     native_apply_called: bool
     outer_teamselect_handler_result: int
+
+    @property
+    def source_posted_close_message(self) -> tuple[int, int] | None:
+        """Only after source-qualified native event1/2: (WM_USER, wParam).
+
+        Both original actions at 0x4D0618 / 0x4D062A push literal zero
+        into 0x6539F0 -> USER32.PostMessageA(Msg=0x400,wParam=0).
+        The original MyWindow 0x532B80 message pump consumes 0x400
+        without TranslateMessage/DispatchMessage and returns wParam=0.
+        This is NOT the PSupportStart Apply/Cancel modal result byte.
+        """
+        return (0x400, 0) if self.modal_opened else None
+
+    @property
+    def source_window_loop_return(self) -> int | None:
+        """Original MyWindow WM_USER terminates with *wParam*, not Apply."""
+        return 0 if self.modal_opened else None
 
     @property
     def original_editor_applied(self) -> bool:

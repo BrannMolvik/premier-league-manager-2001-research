@@ -454,6 +454,48 @@ def main(path: str) -> None:
     print("PASS SupportStart modal exit posts WM_USER 0x400 via USER32.PostMessageA")
     print("WARNING posted message handler and callback side effects unresolved")
 
+    # Original MyWindow RTTI/vft+0 is 0x532B80; modal host
+    # 0x450BB0 -> 0x532650 -> 0x654210 dispatches that MyWindow loop.
+    # WM_USER 0x400 is filtered BEFORE USER32 Translate/DispatchMessage,
+    # and returns MSG.wParam from stack. Both original action events
+    # push literal zero to the posted close wrapper, so loop result=0.
+    native_mywindow_loop_edges = (
+        ("450cb2", "mov    ecx,0x877960"),
+        ("450cba", "call   0x532650"),
+        ("53266d", "call   0x654210"),
+        ("654258", "mov    eax,DWORD PTR [edi]"),
+        ("65425c", "call   DWORD PTR [eax]"),
+        ("532ba8", "call   edi"),
+        ("532bb9", "call   ebx"),
+        ("532bbf", "cmp    DWORD PTR [esp+0x14],0x400"),
+        ("532bc7", "je     0x532bf9"),
+        ("532bce", "call   ebp"),
+        ("532bd5", "call   DWORD PTR ds:0x7bd2ac"),
+        ("532bf9", "mov    eax,DWORD PTR [esp+0x18]"),
+        ("4d060d", "push   0x0"),
+        ("4d061f", "push   0x0"),
+    )
+    for addr, expected in native_mywindow_loop_edges:
+        if expected not in instruction(addr):
+            raise AssertionError(("Original MyWindow event loop changed",addr))
+    _mywindow_vft = 0x7cb294
+    if struct.unpack_from("<I", binary, _mywindow_vft - 0x400000)[0] != 0x532b80:
+        raise AssertionError("MyWindow virtual+0 native event pump changed")
+    _mywindow_col = struct.unpack_from(
+        "<I", binary, _mywindow_vft - 0x400000 - 4
+    )[0]
+    _mywindow_td = struct.unpack_from(
+        "<I", binary, _mywindow_col - 0x400000 + 12
+    )[0]
+    _mywindow_name_start = _mywindow_td - 0x400000 + 8
+    _mywindow_name = binary[
+        _mywindow_name_start:binary.index(b"\x00", _mywindow_name_start)
+    ]
+    if _mywindow_name != b".?AVMyWindow@@":
+        raise AssertionError("Original MyWindow RTTI class identity changed")
+    print("PASS source MyWindow 0x400 loop intercept returns wParam zero")
+    print("PASS Cancel/Apply store distinct modal bytes before same WM_USER close")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
