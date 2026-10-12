@@ -1,5 +1,9 @@
 """Pure source-contract tests, not original GUI acceptance."""
 import unittest
+import hashlib
+from pathlib import Path
+
+from ea444_header import parse_ea444_header
 
 from original_supportstart_stars import (
     STAR_RESOURCE,
@@ -11,6 +15,19 @@ from original_supportstart_stars import (
 
 
 class OriginalSupportStartStarTests(unittest.TestCase):
+    def test_staged_original_star_asset_is_byte_identical_and_real_ea444(self):
+        # Source file exists intentionally in original_assets with provenance
+        # and must match the owner's authenticated original, not replacement art.
+        original = (Path(__file__).resolve().parents[1] / "original_assets"
+                    / "source" / STAR_RESOURCE)
+        data = original.read_bytes()
+        self.assertEqual(len(data), 2776)
+        self.assertEqual(hashlib.sha256(data).hexdigest(),
+                         "16c619e305ebad013e7404ea9e5d4414a9f9a8bd0d6ad26f269ee82a49849633")
+        dimensions = parse_ea444_header(data)
+        self.assertEqual((dimensions.width, dimensions.height), STAR_SOURCE_SIZE)
+        self.assertEqual(dimensions.payload_size, 2768)
+
     def test_all_five_native_cases_use_same_stars_strip(self):
         self.assertEqual(STAR_SOURCE_SIZE, (75, 10))
         self.assertEqual(len(STAR_WRAPPERS), 5)
