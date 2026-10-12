@@ -395,3 +395,52 @@ This behavior is verified from native static control flow. Original runtime even
 Full original `.text` call xref finds **one** direct caller of underlying event producer `0x409240`: `0x41AAF1` in function `0x41AAE0`. At original `0x41AAE3`, the owner first invokes **`0x417360`**, compares the returned byte to exactly 1 (`cmp al,1`, `jne 0x41AAFA`), and only on **the accepted branch** calls `0x409240` at `0x41AAF1`. On the alternate branch, the same method looks up owner data through `0x417270`, increments `+0x1A4/+0x1A0` counters and invokes `0x41A9D0`, with no call to that particular queued event producer. Hence the source `0x409353 RNG(5)` is **conditionally gated by a game-object predicate**, not a mandatory random draw for every manager, match or queue drain. Its exact normal-start reachability still must be established from the object's dynamic owner and `0x417360` state. Do not add it to the mandatory CRT seed prefix or infer that it runs on first click.
 
 Reproduce `objdump -D -Mintel --start-address=0x41AAE0 --stop-address=0x41AB25 footballmanager.exe`; static `.text` direct call xref `call   0x409240` occurs once at `0x41AAF1`, not including unresolved indirect vft targets.
+
+
+## Recovery563: fully resolve the guarded RNG(5) producer's human-control predicate and distinct simulation call path
+
+Authenticated original `footballmanager.exe` SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; independently checked on the container's same binary, **statically disassembled only**. This resolves the precise predecessor of the source `0x409353 RNG(5)` discovered in Recovery562 without claiming its runtime execution.
+
+### Exact predicate is a real-human-managed-club lookup, not an arbitrary AI/club flag
+
+At original `0x41AAE3`, code calls `0x417360`; only when `AL == 1` does `0x41AAF1` call `0x409240`, whose producer consumes `RNG(5)` at `0x409353` and enqueues via `0x409385`.
+
+- `0x417360` invokes `0x4172A0`, then tail-jumps to **`0x4037B0`**. `0x4172A0` reads original source object **signed WORD+0x72**, maps it to expanded `DBRClub` in `0x874B90` (0x2A8-byte club stride), or the fallback original club object `0x874B94` if the signed source index is negative.
+- `0x4037B0` passes the obtained ClubRef to `0x4139E0` with global **0x874C10 original human-user registry** as `ECX`; this is not a synthetic staff or country list.
+- `0x4139E0` extracts the ClubRef's original **club ID +0x04** and passes it into `0x4139F0`. `0x4139F0` walks the original linked list at **`humanRegistry+0x9CC`**, reading each `DBRUser+0x5B4` actual club pointer, comparing **`[originalClub+0x04]`** to the requested club ID and returning BOOL1 exactly on a match, otherwise BOOL0.
+- Therefore the producer's actual immediate guard is: **is the club referenced by this object's +0x72 club index currently controlled by an ORIGINAL HUMAN manager?** It does NOT trigger just because a league, club, candidate group or generic event exists.
+
+This is a strong conditional exclusion for states in which the original human-user linked list is genuinely empty. It is **not** proof that later simulation cannot enqueue the event once a human is registered, nor that any other event class is RNG-free.
+
+### The only direct callsite is inside a separately guarded simulation/transfer allocator
+
+Complete original `.text` direct xrefs:
+- only direct `call 0x409240` is **0x41AAF1**;
+- only direct `call 0x41AAE0` is **0x619F56** in source `0x619EB0`;
+- original `0x619B46` and `0x619B57` each invoke `0x619EB0` with separate candidate arrays.
+
+The `0x619EB0` routine has its OWN event-eligibility requirements, even before the human-owned-club test: the dynamic threshold at `0x821614` must not be reached; `0x947BEC` source candidate count must be nonzero; record `+0x1A0 != 5`; name/predicate `0x403E70` must pass; `0x61ABF0` must return a valid selected object; that object's original signed WORD+0x72 must equal signed WORD+0x10; then `0x41AAE0` is invoked. Source `0x619EB0` also shuffles its candidate array with `RNG(remaining_count)` at `0x619EC1` if count>1, so the pipeline can have its **OWN conditional random draws**, independent of the later `RNG(5)`.
+
+**Runtime inference boundary:** There is no proven call from the original first-human TeamSelect input event `0x4D8E90` or DBRUser constructor `0x4258D0` into `0x619EB0`. It is a distinct data-driven allocator that may run at other game stages. The exact normal fresh game's queue contents, prior simulation state, and any pre-TeamSelect producer effects still require evidence. Do not add 0x409353's RNG(5) to a generic 'first-user fixed RNG budget' or omit possible game-season event draws when the corresponding human club predicate and other gates later pass.
+
+### Important similarly named function is a DIFFERENT bootstrap routine
+
+Original startup at **`0x53108D -> 0x50D390`** loads original data, then `0x531098 -> 0x66A767; 0x53109E -> 0x66950F` explicitly seeds original CRT, and at **`0x5310EB` calls `0x619F70`** before entering further application/UI setup `0x5310F0 -> 0x531400`.
+
+**`0x619F70` is NOT `0x619EB0`.** The former builds/precalculates original 0x876CB8/0x947BE0/0x947BDC 11-field candidate/weight arrays, and its `0x619F70..0x61A0D1` disassembly has **no DIRECT RNG, rand or srand call**. The latter is the separate event-eligibility/shuffle routine with RNG and the `0x619F56` guarded producer. Conflating them could falsely assign `RNG(5)` to the first-human startup sequence just because the close-address bootstrap function is invoked before opening the UI.
+
+This isolates a source-qualified original **seed-before-app-interface anchor**, but not the full canonical stream: intervening original functions `0x5327E0`, `0x604160`, `0x531400` and database/TeamSelect objects may consume indirect CRT. Source-first investigation must examine their reachability and two 0x947AA8 drains rather than declaring an exact seed solely from this anchor.
+
+Reproduce source:
+```bash
+objdump -D -Mintel --start-address=0x4172A0 --stop-address=0x4172C3 footballmanager.exe
+objdump -D -Mintel --start-address=0x417360 --stop-address=0x41736C footballmanager.exe
+objdump -D -Mintel --start-address=0x4037B0 --stop-address=0x4037BC footballmanager.exe
+objdump -D -Mintel --start-address=0x4139E0 --stop-address=0x413A1A footballmanager.exe
+objdump -D -Mintel --start-address=0x41AAE0 --stop-address=0x41AB24 footballmanager.exe
+objdump -D -Mintel --start-address=0x619EB0 --stop-address=0x619F6E footballmanager.exe
+objdump -D -Mintel --start-address=0x53108D --stop-address=0x531105 footballmanager.exe
+objdump -D -Mintel --start-address=0x619F70 --stop-address=0x61A0D2 footballmanager.exe
+```
+
+**Next source target:** map which original application startup operations between 0x53109E seed and 0x4D8E90 initial click can populate event queue +0x947AA8, which event classes have source virtual+0x24 side effects and how the first human linked-list and Cancel transitions govern simulation; then actual original shared CRT click-state reproduction. Continue independently original SupportStart GUI hit/Cancel linked-list provenance. No original program launched, no new branch tests or GUI acceptance, Gates13–17 remain OPEN.
