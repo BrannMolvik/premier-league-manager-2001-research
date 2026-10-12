@@ -6,6 +6,13 @@ This repository is designed so that work can continue safely across ChatGPT, Cod
 
 A conversation timeout is not a reason to restart the investigation. **GitHub is the project memory.**
 
+**12 October 2026 efficiency directive:** read
+`research/WORKER_MILESTONE_BATCHING_POLICY.md` first. Preserve the
+approximately 10-minute `agent-runtime` liveness heartbeat; batch related
+research, code and tests on an in-flight feature branch, then open and verify
+a cohesive PR. Never treat heartbeat timing as a reason to create a `main`
+commit, PR, or GitHub Actions run.
+
 **Permanent assignment:** finish the entire FM2001 modernization through
 Gate 17, not merely the current gate or the next item in `CURRENT_STATE.md`.
 
@@ -96,9 +103,11 @@ Do not begin a new subsystem merely because its code or executable path is inter
 
 ## Cost-controlled validation
 
-GitHub commit checkpoints and GitHub Actions runs are separate. Preserve useful
-recoverable research/code checkpoints roughly every ten minutes during active
-investigations, but do not dispatch Actions for each small commit.
+The approximately 10-minute recovery **heartbeat belongs solely on
+`agent-runtime`**, not on `main`, and must not trigger GitHub Actions.
+Preserve meaningful in-progress research/code on a feature branch as needed
+for crash recovery. Run CI at reviewable feature milestones rather than for
+every newly discovered source fact or rapidly pushed PR revision.
 
 - Run relevant quick tests locally whenever execution tools are available.
 - For direct main-branch work, request the focused workflow
@@ -108,30 +117,48 @@ investigations, but do not dispatch Actions for each small commit.
   at gate-completion audits, when a relevant regression warrants it, and before
   releases. Do not invoke the known-failing full suite repeatedly merely to
   reproduce the same two established secondary-schedule failures.
-- Pull requests validate impacted focused workflows and applicable asset
-  policy, with concurrent superseded runs cancelled.
+- Open PRs **only when a coherent source-backed implementation/research
+  milestone is ready for review and exact-head CI**, rather than early as
+  remote scratch space. Group related commits before opening. PR synchronize
+  pushes can cancel/restart costly workflows; minimize post-PR push churn.
+  Applicable focused tests and asset policy still must pass; run full suites
+  whenever integration risk or a gate/release audit warrants it.
 - If monthly GitHub Actions billing limits block CI, run available local tests,
   record the exact unverified boundary, and defer cloud CI rather than consume
   paid Actions minutes without explicit authorization.
 - Do not reduce technical-quality gates or label an unexecuted test as passed.
   Record the last *verified* test commit and workflow run in `CURRENT_STATE.md`.
 
-Don't make empty or artificial commits to create heartbeats; checkpoint
-real evidence and leave clear continuation state.
+Do not create `main` commits or new PRs for liveness. Keep the worker-owned
+runtime heartbeat current with truthful evidence, branch and next action,
+and persist substantial work on a branch when crash risk requires it.
 
 ## Persistence requirement
 
 Do not keep important discoveries only in conversational reasoning.
 
-Commit:
+**Runtime**: approximately every ten minutes, update
+`agent-runtime` with the genuine current main SHA, in-flight
+branch/PR, verified evidence, unresolved blocker, and precise next step.
+Keep the recovery watchdog timing and safety unchanged.
 
-- immediately after each verified subproblem or corrected interpretation;
-- before switching to a different subsystem;
-- after a meaningful implementation/test block;
-- during a long unresolved trace after roughly ten minutes, even if the investigation is incomplete;
-- before a risky or long operation likely to outlive the session.
+**Development/research**: commit recoverable work on the **feature branch**
+after a coherent evidence/implementation block, before changing subsystem
+or performing a risky operation, and when session-ending recovery needs a
+persistent artifact. An intermediate source correction can be documented
+on that branch without opening an immediate PR. Do not push
+`CURRENT_STATE.md`/`PROGRESS.md` changes to `main` after every
+subproblem; bundle those with a reviewed feature milestone. Make a
+separate immediate correction only when a materially wrong canonical
+claim, regression, or other urgent safety issue requires it.
 
-A timeout should lose at most one small analysis block.
+**Integration**: open/merge an appropriately scoped PR and run required
+exact-head tests only when a useful original-derived milestone is ready.
+Exceptions for high-risk reviewable slices and urgent bug fixes are allowed;
+do not force a giant unsafe PR merely to reduce counts.
+
+A timeout should lose at most one modest research block, without
+creating a main commit or CI run per ten-minute heartbeat.
 
 ## What belongs where
 
@@ -262,14 +289,19 @@ Before advancing gates:
 
 If a session must stop mid-task:
 
-1. stop at a safe intermediate point;
-2. persist useful scripts/output that are legal to store;
-3. update the relevant research notes;
-4. append a chronological checkpoint to `PROGRESS.md`;
-5. put the exact next address/command/test in `CURRENT_STATE.md` if the live resume point changed;
-6. commit and push.
+1. stop at a safe intermediate point and preserve useful legal scripts/output;
+2. commit substantial unfinished code/source receipts to its existing feature
+   branch when recoverability requires it; no fresh PR is necessary;
+3. update the worker-owned `agent-runtime` state with the actual main SHA,
+   branch/PR, exact native address/source finding, test state and next action;
+4. update `PROGRESS.md`, `CURRENT_STATE.md` and `project_status.json`
+   at the next meaningful integration milestone, or sooner only if a critical
+   canonical correction or loss of progress truly requires it;
+5. keep `status=working` if the entire Gate-17 mission is unfinished and
+   no user action is needed.
 
-The next session should continue from that checkpoint rather than reconstructing the previous chat.
+The next session continues the same in-flight feature branch and task.
+Do not automatically create a documentation PR merely because a chat ends.
 
 
 ## Critical-path efficiency priority
