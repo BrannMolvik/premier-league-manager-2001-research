@@ -166,3 +166,115 @@ objdump -D -Mintel --start-address=0x4218c0 --stop-address=0x4218dd footballmana
 objdump -D -Mintel --start-address=0x421c80 --stop-address=0x421cdb footballmanager.exe
 objdump -D -Mintel --start-address=0x421ce0 --stop-address=0x421e01 footballmanager.exe
 ```
+
+
+## Recovery552: original name pool source-file identity and byte-level record discovery
+
+**Correction to the earlier UNKNOWN file producer:** original
+`0x50D630` has a single direct name-pool reader call at
+`0x50D687`, calling `0x4218C0` on the native
+`0x875638` player/name pool. At `0x50D63D–0x50D647`
+the source opens ASCII filename literal `0x827F48`,
+independently read from the SHA-verified original PE as
+**`master.dat`**, with access-mode literal `0x81E168`
+equal to **`rb`**. Therefore the name source was NOT an
+unknown separate hypothetical staff names file: it is the
+existing real `FM2001/Master.dat` player pool.
+
+The owner-only extracted original `Master.dat` and
+`Core.str` were independently byte-fetched and
+SHA-256 validated from private Google Drive, without
+committing either original dataset to Git:
+
+| Private original file | Bytes | SHA-256 | Drive source ID |
+|---|---:|---|---|
+| `FM2001/Master.dat` | 3,391,446 | `183dd457d09ce616f99a664636727668ec15eab3f65b9057ef0953e76548b6b8` | `1M3Ci2RUmkM-lK0_Qonq3fQ7zC08B97OR` |
+| `FM2001/Core.str` | 351,695 | `b0800475769fa087e69de989388569e5b29f495e5abe5d62687c2acb1d339e06` | `1tUf8XOHa5KKE1gluQVO7h79aU30ss2VM` |
+
+The existing `reconstruction/fm2001_data.py` has already
+decoded their original saved record format.
+Byte-level independent check of the two actual files:
+
+- `Master.dat+0x000000`: `u32 club_count=1246`.
+- Clubs occupy 181 serialized bytes apiece,
+  starting at file offset 4, finishing at **225,530**.
+- `Master.dat+225530`: `u32 player_count=30064`.
+  The player record stream begins at **225,534**,
+  with exactly **103 serialized bytes** per player.
+  Its end is **3,322,126**.
+- `Master.dat+3,322,126`: `u32 manager_count=1612`,
+  followed by 43-byte manager records ending at
+  **3,391,446**, exactly file length. There are
+  no unexplained trailing bytes.
+- Each player's 103-byte record begins with
+  `u16 player_id, first_name_core_index,
+  surname_core_index, club_id`.
+  Original source `0x418B90` parses player ID
+  into native record+0x04, reads a second u16
+  and resolves the first-name pointer into
+  native+0x08 via `0x64E320`, then a third u16
+  resolves the surname into native+0x0C.
+  Those are the exact two fields read at
+  `0x421C2A` and `0x421C3F` for staff
+  first/surname selection.
+- Original `Core.str` is an index-bearing CP1252
+  NUL string resource with 29,033 string entries
+  and 235,555 bytes in its string payload,
+  following the existing verified `EAStringTable`
+  format.
+  The independent first source player (`player_id=0`)
+  is **David Seaman** (`Core.str` indices0,1),
+  and last record (`player_id=30063`) is
+  **Arild Stavrum** (indices6317,27934).
+  These are **corpus identity samples**, NOT
+  claims that any initially generated support
+  staff has either of those names.
+
+**Native lifecycle caveat:** the original
+`0x421CE0` post-processing step loops over
+all 30,064 player structs and `0x418B90`
+calls `0x6596A0` on a conditional record
+branch, so original player-load processing
+itself may change runtime state beyond mere
+sequential IO. Source name selection still
+uses TWO potentially distinct original player
+indices filtered by the nationality/group
+tables via `0x421BA0`; it is not a naive
+uniform sample of arbitrary players.
+The exact group-table construction,
+original startup CRT TLS state and precise
+player choices for a fresh support staff remain
+**unqualified**. Do not infer first/surname
+draws or substitute names just because
+`Master.dat` is now identified.
+
+This discovery unblocks original **candidate name
+data identity**, but NOT the deterministic
+original six fresh staff names, original UI
+interaction, or the whole GameState integration.
+Use already recovered `FM2001Database.players`
+rather than inventing another Master.dat parser,
+when the verified runtime RNG/group source can
+eventually select a genuine original candidate.
+No game assets or player-name datasets were
+silently copied into the public repo.
+
+Reproduction using only owner-authorized
+original files locally:
+```bash
+sha256sum Master.dat Core.str footballmanager.exe
+objdump -D -Mintel --start-address=0x50d630 --stop-address=0x50d6b6 footballmanager.exe
+objdump -D -Mintel --start-address=0x421c80 --stop-address=0x421cdc footballmanager.exe
+objdump -D -Mintel --start-address=0x418b90 --stop-address=0x418bee footballmanager.exe
+objdump -D -Mintel --start-address=0x421ba0 --stop-address=0x421c49 footballmanager.exe
+```
+
+**Next source step:** connect `0x421CE0`/group-table
+population with parsed original Master/Static
+country-nationality ownership, recover the
+native shared CRT seed checkpoint at fresh staff
+creation and conditional extra draws, then
+compose the authentic first/surname strings
+into seven-row SupportStart without guesses.
+All Gates13–17 and Windows11 hands-on GUI
+acceptance remain OPEN.
