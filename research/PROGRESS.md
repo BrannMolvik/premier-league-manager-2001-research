@@ -1,3 +1,7 @@
+### 12 October 2026 KST — Recovery547 independent PSupportStart child control/source widget routing
+
+- Verified latest main 83136a2 including PR644 and batched checkpoint policy; runtime generation547 continuous. Direct original source 0x4C9340 constructs five row controls at +0x38/+0x3C/+0x40/+0x44/+0x48 with original registration IDs 0x33/0x31/0x31/0x15/0x15. 0x4C9510 assigns original source 945950 to first, configures two 945910 text children at source row_x+19, a separate staff role sprite child via 0x4C97D0 and text child via 0x652400. 0x4C97D0 supports only source values1–5 with original wrapper pointers; else NULL. This narrows actual seven-row editor child identity without guessing click bounds/labels. [Original source audit](GATE13_PSUPPORTSTART_CHILD_CONTROL_RECOVERY547.md). Original executable static only, Gate13–17 OPEN.
+
 ### 12 October 2026 KST — Recovery546 source PSupportStart staff Apply mapping PR643 merged; genuine exit/tick art identified
 
 - Source 0x4D0830 original staff Apply iterates 7 controls and reads 0x652F80 raw bit15 at selector+0x18, stores inverse bit at TeamSelect byte+0x28+i; original 0x4CA070 native 16-byte staff-type dispatcher maps 1..5 to DBRUser inactive link+0x5B8, 6..16 to +0x5C4; no live linked-list mutation implemented. [Full owner source audit](GATE13_PSUPPORTSTART_STAFF_ASSIGNMENT_DISPATCH_RECOVERY546.md).
