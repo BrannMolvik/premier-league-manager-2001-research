@@ -29,6 +29,7 @@ from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiv
 from game_state import GameCalendar, GameState
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from original_eamail_pending import OriginalPendingTransferEAMQueue
+from original_human_user_name import OriginalHumanUserName
 from gate17_country_allocation_scope import (
     PlayableCountryAllocationPlan,
     PlayableCountryAllocationScope,
@@ -1538,6 +1539,10 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             else int(state.user_controlled_club_id)
         ),
         "native_user_recipient_key": state.native_user_recipient_key,
+        "original_current_human_user_name": (
+            None if state.original_current_human_user_name is None
+            else state.original_current_human_user_name.snapshot()
+        ),
         # Modern port-owned snapshot of original DBRUser+0x6B4 delivered lists.
         # Pending MPM events remain serialized in their separate arrays.
         "original_delivered_mailboxes": state.original_delivered_mailboxes.snapshot(),
@@ -1747,6 +1752,10 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             else int(snapshot["user_controlled_club_id"])
         ),
         native_user_recipient_key=snapshot.get("native_user_recipient_key"),
+        original_current_human_user_name=(
+            None if snapshot.get("original_current_human_user_name") is None
+            else OriginalHumanUserName.restore(snapshot["original_current_human_user_name"])
+        ),
         original_delivered_mailboxes=OriginalDeliveredEAMailboxes.restore(
             snapshot.get("original_delivered_mailboxes")
         ),

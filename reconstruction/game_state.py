@@ -73,6 +73,7 @@ from match_injury_persistence import clear_expired_persistent_injury
 from match_schedule import MsvcCrtRng
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from original_eamail_pending import OriginalPendingTransferEAMQueue
+from original_human_user_name import OriginalHumanUserName, original_fresh_human_name
 from match_preparation import (
     PreparedAiMatchSelection,
     PreparedPremierLeagueAiSide,
@@ -295,6 +296,9 @@ class GameState:
     user_controlled_club_id: int | None = None
     # Runtime DBRClub+40 after426090 human binding, not imported AI manager_id.
     native_user_recipient_key: int | None = None
+    # Source 0x426090 initial user name and 0x4D0A22 edited DBRUser +0x05/+0x25.
+    # This is a qualified single-user shadow owner; does not alter imported AI names.
+    original_current_human_user_name: OriginalHumanUserName | None = None
     # Original DBRUser+0x6B4 delivered lists. Pending contract/transfer mail
     # remains separate until the actual source +0x3C due-event dispatch.
     # No automatic delivery or invented PEAMail screen is implied.
@@ -327,10 +331,19 @@ class GameState:
         key = self.native_user_recipient_key
         if key is not None and (type(key) is not int or key not in self.managers):
             raise ValueError('Native human recipient key must be an explicit manager index')
+        owner = self.original_current_human_user_name
+        if owner is not None and (
+            type(owner) is not OriginalHumanUserName
+            or owner.rebound_manager_slot != key
+            or owner.selected_club_id not in self.clubs
+        ):
+            raise ValueError('Original human name must belong to registered club/manager slot')
 
     def bind_original_user_mail_recipient(self, club_id: int) -> None:
         """426090/4151C0, bounded to the currently supported single human."""
+        previous_user_name = self.original_current_human_user_name
         self.native_user_recipient_key = None
+        self.original_current_human_user_name = None
         club = self.clubs[club_id]
         old_key = getattr(club, 'manager_id', None)
         managers = tuple(self.managers.get(i) for i in range(len(self.managers)))
@@ -343,6 +356,19 @@ class GameState:
             (i for i, manager in enumerate(managers)
              if i != old_key and manager.first_name.startswith('!')),
             None if old_key == 0xFFFFFFFF else old_key)
+        key = self.native_user_recipient_key
+        if key is not None:
+            # 0x4151C0 must return an unused source '!' manager slot. The
+            # legacy old-AI fallback is not a proven current-human user.
+            if (previous_user_name is not None
+                    and previous_user_name.selected_club_id == club_id
+                    and previous_user_name.rebound_manager_slot == key):
+                self.original_current_human_user_name = previous_user_name
+            else:
+                self.original_current_human_user_name = original_fresh_human_name(
+                    club_id=club_id, rebound_manager_slot=key,
+                    clubs=self.clubs, managers=self.managers,
+                )
 
     def _resolve_rng(self, rng=None):
         if rng is not None:
