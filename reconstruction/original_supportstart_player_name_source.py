@@ -5,8 +5,9 @@ stream reader creates 0x250-byte runtime objects from 103-byte Master.dat
 player records. Native 0x421C00 makes TWO selections through 0x421BA0
 for first and surname respectively and 0x4CA6E0 joins them with ' '.
 
-Only use TWO source-observed *player pool positions*, not one invented
-full player identity. The original nationality-group filters, shared CRT
+Only use TWO source-observed *player pool positions* in native
+country-group count<=10 global-PLAYER fallback, not an invented name.
+Groups with >10 CLUB entries select from the CLUB source pool instead. The original nationality-group filters, shared CRT
 seed, alternate draw paths and name retry still need qualification.
 This function is NOT a generator and it draws zero random numbers.
 """
@@ -37,14 +38,22 @@ def source_support_staff_name_from_observed_player_pair(
     source_player_pool: tuple[Player, ...],
     *, original_first_player_position: int,
     original_surname_player_position: int,
+    source_group_club_count: int,
 ) -> OriginalSupportStaffSelectedName:
     """Native name retrieval once upstream source choices are established.
 
     Neither the modern Match RNG nor daily RNG is consumed; each index must
     come from an independently source-qualified original 0x421BA0 selection.
     Caller must supply the original full Master.dat player array unchanged.
+    The source group must have <=10 clubs, or native 0x421BA0 selects
+    from original CLUB records rather than global PLAYER fallback.
     The function cannot prove those upstream group/seed choices by itself.
     """
+    if (type(source_group_club_count) is not int or
+            not 0 <= source_group_club_count <= 10):
+        raise OriginalSupportStaffNameSourceError(
+            "Original source group must use global player fallback (<=10 clubs)"
+        )
     if type(source_player_pool) is not tuple or not source_player_pool:
         raise OriginalSupportStaffNameSourceError(
             "Require original Master.dat ordered player records"

@@ -367,3 +367,76 @@ all seven source rows within original
 SupportStart UI, plus native mouse event and
 modal return. No Windows 11 original GUI
 acceptance; Gates13–17 remain open.
+
+
+## Recovery553 correction: name selector's CLUB branch versus PLAYER fallback
+
+Previous wording stating that native `0x421BA0` always selects
+from the Master.dat **player** pool was incomplete, and a
+brief earlier recovery incorrectly identified its fallback
+as a manager pool. Both simplifications are now explicitly
+superseded by cross-function first-party source disassembly:
+
+- `0x50D66D→0x40B9C0` loads the first
+  Master.dat counted vector (**1246 CLUBS** of
+  181-byte serialized records), into expanded
+  runtime `0x874B90` array with **0x2A8** stride.
+  Original `0x4022D0` reads club ID, source
+  original club localized name/short name, league
+  and country from the actual first serialized
+  Master.dat vector.
+- `0x50D687→0x4218C0` loads the next
+  counted vector (**30064 PLAYERS** of 103B
+  records) into `0x875638` at **0x250**
+  native stride; original `0x418B90` reads
+  player first/surname from original Core.str.
+- `0x50D697→0x415B70` loads the final
+  **1612 MANAGERS**, independently of the two
+  candidate owners.
+- `0x50D6B6→0x4F6EB0→0x411440`
+  groups native 1246 **CLUB** records by
+  `club+0x14` (source raw Master club+12
+  country ID), allocates `group+0x0C`
+  pointer arrays, and stores `group+0x10`
+  counts before any selection.
+- `0x421BA0` uses that group when
+  `count>10`, returning an expanded
+  **CLUB** record pointer. When `count<=10`,
+  it instead selects from the global
+  30064-source-**PLAYER** array.
+  Both have native pointers at +0x08/+0x0C
+  but their original string meanings can
+  differ. Actual generated staff names on
+  club branch are not accepted merely by
+  interpreting them as player first/surname.
+- Independent bytes: Master.dat contains
+  1246 clubs covering 91 country IDs.
+  Per-source country clubs: group1=11,
+  group26=130; 36 source groups have
+  more than10 clubs and 173 do not.
+  Country-to-group mapping itself has
+  59 reassignments and one sentinel
+  country199→group26. These determine
+  which original 0x421BA0 branch is eligible,
+  not the exact upstream CRT draw.
+
+To prevent a **silent wrong-name implementation**,
+`source_support_staff_name_from_observed_player_pair`
+now **requires explicit original group club count
+0..10** and refuses 11+ / unknown groups. New
+counterexamples cover non-player-branch inputs.
+Its source role is strictly the observed
+*global player fallback* projection; it does
+not try to handle club-branch naming or
+invent the shared CRT random results.
+
+See the complete verified local group parser and
+native branch rules in
+`research/GATE13_PSUPPORTSTART_NAME_GROUP_RECOVERY553.md`.
+For exact source proof:
+```bash
+objdump -D -Mintel --start-address=0x50d630 --stop-address=0x50d6bd footballmanager.exe
+objdump -D -Mintel --start-address=0x4f6eb0 --stop-address=0x4f6ed8 footballmanager.exe
+objdump -D -Mintel --start-address=0x411440 --stop-address=0x411558 footballmanager.exe
+objdump -D -Mintel --start-address=0x421ba0 --stop-address=0x421c49 footballmanager.exe
+```
