@@ -115,3 +115,53 @@ objdump -D -Mintel --start-address=0x418bf0 --stop-address=0x418c0b footballmana
 staff births, source GUI hit-owner callbacks, real selected
 staff names and GUI lifecycle, end-to-end Apply/Cancel/
 TeamSelect return and Windows11 acceptance; Gates13–17 OPEN.
+
+## Recovery554: the existing runtime name-group source already agrees
+
+Before making a duplicate name generator, the active `main`
+`reconstruction/startup_rng.py` was checked. It **already**
+source-implements the same native `0x411A10` player-name
+eligibility via `generated_name_source_eligible()` and
+`generated_name_source_ids()`, and chooses the group
+only for count>10 with global player fallback via
+`report_setup_player_pool()`. These were originally
+recovered for report setup/startup and should remain
+the canonical *runtime* owner for shared gameplay
+RNG use. The strict raw-binary decoder on this
+SupportStart feature branch is a **source-data
+verification component**, not a replacement for
+the existing runtime startup or its RNG ownership.
+
+Independently traversing **all 30,064 original real
+player rows** and decoding Core.str first/surname
+strings produced **23,392** eligible players
+using the main `startup_rng` decoded-string logic,
+exactly the same 23,392 as the byte-pointer-native
+`0x411A10` test. **ZERO** per-record eligibility
+differences; the native +1/+2 lookahead did not
+create a discrepancy for this shipped Core.str
+corpus. Therefore the existing original-source
+`startup_rng.generated_name_source_ids`
+should be reused, NOT rewritten.
+
+New `test_original_supportstart_name_group_source.py`
+adds a cross-owner regression using known
+original-shaped records, asserting that the
+native-byte source group and the existing
+`startup_rng` functions return identical
+ordered source-player IDs and select the same
+filtered-vs-global fallback population. This
+also protects the source-authoritative
+precompetition shared-CRT replay against
+a SupportStart-only RNG fork.
+
+**Material remaining source decision:** the
+original native staff constructor requires a
+fresh-game shared CRT draw checkpoint that
+includes all earlier Loader444, database,
+team-name, youth and other users' RNG
+consumers, and the selected user's exact
+club-country input. Until proven, do not
+sample names locally from a new independent
+random generator or install fabricated names
+in the normal host.

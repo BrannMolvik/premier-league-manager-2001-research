@@ -8,7 +8,10 @@ from 30064 player records, applying exact byte tests before membership.
 Native 0x411440 separately groups CLUBS by country; it is unrelated to
 the 0x874BD0 name candidate arrays.
 
-No source original RNG state or person-name choices are invented.
+No source original RNG state or person-name choices are invented. This
+byte-exact binary loader audits private source input; for live game
+runtime reuse startup_rng.generated_name_source_ids and the same
+shared-CRT stream instead of instantiating a parallel RNG owner.
 """
 from __future__ import annotations
 from dataclasses import dataclass
