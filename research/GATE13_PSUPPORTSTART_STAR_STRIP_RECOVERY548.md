@@ -32,3 +32,28 @@ cd reconstruction && python -m unittest test_original_supportstart_stars
 **Scoped code:** `reconstruction/original_supportstart_stars.py` and dedicated `test_original_supportstart_stars.py` preserve the exact original rectangle and NULL result; rejecting non-integer Python inputs is an explicit port guard, not a claim about native input validation.
 
 **Unresolved:** original fourth-child parent transform and hit/hover behavior, fifth-child text/control, source staff role-label derivation, seven-row edit/Apply/Cancel, actual TeamSelect close/return, Inbox shared CRT, R1 all match modes, multi-human/all leagues, and real Win11 acceptance. The complete player-visible PSupportStart remains missing. No PR/CI is opened for this minor source fragment. Resume this feature branch and trace `0x651BA0`, `0x652400`, `0x4C9830` source interaction semantics, then group a genuinely reviewable complete editor integration. Existing PR645 is draft and touches the separate layout module; do not overwrite it.
+
+## Further source-verified native star child layout (Recovery548)
+
+At `0x4C969F–0x4C96BC`, the source row routine increments its incoming
+row x by `0xE6=230`, its row y by `4`, then passes x/y/sprite/0
+to `0x651BA0`. The original call to `0x651BA0`
+uses source wrapper `+0x14/+0x18` as image width/height,
+or width=height=0 for NULL, and forwards x/y/width/height to
+`0x64F380`. The original `0x64F380` stores x, y and right/bottom
+boundaries using `x+width`, `y+height`.
+Thus with native row origins `(391,181+40*i)`:
+
+- **native child local x** = 391+230 = **621**
+- **native child local y** = 181+40*i+4 = **185+40*i**, for i=0..6
+- native sprite rectangle = `(621,185+40*i,15*grade,10)` for grade1..5
+- NULL/out-of-range state has geometry `(621,185+40*i,0,0)`.
+
+These are original **native layout child bounds**, not independently
+observed screen-space coordinates and **not** native mouse hit rectangles.
+The source-backed `original_supportstart_star_local_rect()` and added
+test encode this precisely without claiming GUI acceptance. Original
+`0x651BA0` also stores sprite pointer into child+0x2C and
+zeroes child+0x30. Exact visible draw ordering/parent transforms and
+hit behavior remain unresolved.
+
