@@ -319,6 +319,47 @@ def main(path: str) -> None:
     print("PASS generic 5E30D0 dispatch reused in 18 original vtable slots")
     print("WARNING vtable reachability and callback CRT effects are UNKNOWN")
 
+    # Original RTTI disproves that 0x5E30D0 is an unidentified generic
+    # event family. The eighteen vtables are actual injury/illness Aog
+    # subclasses, and their shared +0x04 invokes 0x5E30D0.
+    injury_rtti_source_types = (
+        "AogCheekModerate", "AogNoseMild", "AogHeadMild",
+        "AogRibsMild", "AogGroinSerious", "AogHamstringMild",
+        "AogKneeModerate", "AogThighSerious", "AogCalfMild",
+        "AogShinSerious", "AogAchillesMild", "AogDamagedShoulder",
+        "AogDamagedAnkle", "AogBrokenFootSerious",
+        "AogBrokenLegHeavy", "AogFluOut", "AogFluWeak", "AogVirus",
+    )
+    def original_rtti_type_name(vtable_va: int) -> str:
+        col = struct.unpack_from("<I", binary, vtable_va - 0x400000 - 4)[0]
+        desc = struct.unpack_from("<I", binary, col - 0x400000 + 12)[0]
+        offset = desc - 0x400000 + 8
+        return binary[offset:binary.index(b"\x00", offset)].decode("ascii")
+    for n, identity in enumerate(injury_rtti_source_types):
+        vtable = 0x7d7438 + (0x2c * n)
+        if original_rtti_type_name(vtable) != ".?AV" + identity + "@@":
+            raise AssertionError(("Native injury class identity changed", n))
+    if original_rtti_type_name(0x7d7760) != ".?AVMPMInjuryReverse@@":
+        raise AssertionError("Native delayed injury reversal event identity changed")
+    injury_event_edges = (
+        ("5e30d5", "call   DWORD PTR [eax+0x1c]"),
+        ("5e30e0", "call   DWORD PTR [edx+0x20]"),
+        ("5e30eb", "call   DWORD PTR [eax+0x24]"),
+        ("5e30f4", "call   0x5e3110"),
+        ("5e31e4", "mov    DWORD PTR [eax],0x7d7760"),
+        ("5e3238", "call   0x613ec0"),
+        ("5e32eb", "call   DWORD PTR [edx+0x8]"),
+        ("5e330e", "mov    DWORD PTR [eax],0x7bd564"),
+        ("5e3322", "call   0x613ec0"),
+        ("5e3335", "call   0x613ee0"),
+    )
+    for address, expected in injury_event_edges:
+        if expected not in instruction(address):
+            raise AssertionError(("Original injury queue event owner changed", address))
+    print("PASS original 18 injury/illness RTTI classes + MPMInjuryReverse")
+    print("PASS injury conditional virtual gates and two event enqueue phases")
+    print("WARNING no proof injury callback executes before first human creation")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
