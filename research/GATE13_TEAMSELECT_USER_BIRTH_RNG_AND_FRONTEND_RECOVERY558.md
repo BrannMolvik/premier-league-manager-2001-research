@@ -388,3 +388,10 @@ The original `0x614080..0x6140EE` control flow adds an important state/lifecycle
 4. The original queue is therefore an **ongoing gameplay event/retention system**, not merely a list of startup RNG callbacks to consume once. The port must preserve actual event identity, ordering, state, removal and re-entry. A scalar counter like `startup_rng_draws_per_event=0` or a blanket queue-clear operation is source-incompatible.
 
 This behavior is verified from native static control flow. Original runtime event order, actual callback arguments and shared-CRT consumption along indirect constructors remain unknown. Do not mark the two first-user queue drains or fresh startup stream verified on this evidence alone.
+
+
+### Recovery562 follow-up: exact guard/caller for the nontrivial RNG(5) event producer
+
+Full original `.text` call xref finds **one** direct caller of underlying event producer `0x409240`: `0x41AAF1` in function `0x41AAE0`. At original `0x41AAE3`, the owner first invokes **`0x417360`**, compares the returned byte to exactly 1 (`cmp al,1`, `jne 0x41AAFA`), and only on **the accepted branch** calls `0x409240` at `0x41AAF1`. On the alternate branch, the same method looks up owner data through `0x417270`, increments `+0x1A4/+0x1A0` counters and invokes `0x41A9D0`, with no call to that particular queued event producer. Hence the source `0x409353 RNG(5)` is **conditionally gated by a game-object predicate**, not a mandatory random draw for every manager, match or queue drain. Its exact normal-start reachability still must be established from the object's dynamic owner and `0x417360` state. Do not add it to the mandatory CRT seed prefix or infer that it runs on first click.
+
+Reproduce `objdump -D -Mintel --start-address=0x41AAE0 --stop-address=0x41AB25 footballmanager.exe`; static `.text` direct call xref `call   0x409240` occurs once at `0x41AAF1`, not including unresolved indirect vft targets.
