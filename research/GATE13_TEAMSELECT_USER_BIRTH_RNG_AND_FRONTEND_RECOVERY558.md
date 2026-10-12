@@ -302,3 +302,22 @@ objdump -D -Mintel --start-address=0x404600 --stop-address=0x404618 footballmana
 objdump -D -Mintel --start-address=0x40DFB0 --stop-address=0x40DFB3 footballmanager.exe
 ```
 **Next:** inspect the other queue producers and relevant pre-human TeamSelect state, especially those dynamically dispatched through original 0x614080, and the original manager-binder nontrivial callees; establish exact shared CRT boundaries BEFORE changing the live Windows startup stream. All 13–17 gates remain OPEN; no original execution, exact feature-branch Python tests or Win11 GUI acceptance.
+
+
+### Recovery561 second queue checkpoint inside actual DBRUser initialization
+
+The original `0x4258D0` DBRUser initializer has **a second confirmed queue dispatch location** in the normal user-creation call chain, which must be distinguished from its later TeamSelect reset:
+
+1. `0x4258F8` first calls `0x42C400` for the thirteen DBRUser name-pair selections (26 direct shared-CRT calls).
+2. `0x42599E..0x4259B5` then sets **`ECX=0x947AA8`** and invokes the SAME queue's `0x614080`, before staff registration. Thus the first user birth can encounter an event-queue callback **immediately after the 26 draws**, even before the later `0x412EF0 -> 0x614080` which occurs before the six support staff.
+3. `0x4259BA` separately invokes `0x5CF830` with selected DBRUser+0x6B4 (this is a forwarding wrapper to `0x42C9F0`, not a direct bounded RNG call). These intermediate constructors and event effects must be source-audited before treating the following staff birth as exactly 26 draws after entry.
+4. An original full-text x86 cross-reference search for direct calls to `0x614080` found the normal local callsites `0x4259B5` and `0x412F1F` plus queue's internal deferred recursion at `0x613F40`; thus two explicit source checkpoints lie between first user selected and the six staff factories, **with possible internal reentrancy**. This rules out treating only `0x412EF0` as the single pre-staff queue barrier.
+
+Next: establish original first-TeamSelect queue objects on **both** calls, then original `0x42C9F0` owned manager bindings and whether those effects/other constructors advance CRT. A successful user still requires authentic source 13 name pairs + six staff, but no exact total draw count is established from these direct sites alone. Original static disassembly only, no source process or Windows11 GUI acceptance.
+
+Reproduce:
+```
+objdump -D -Mintel --start-address=0x4258F1 --stop-address=0x4259C7 footballmanager.exe
+objdump -D -Mintel --start-address=0x412F05 --stop-address=0x412F2A footballmanager.exe
+objdump -D -Mintel --start-address=0x5CF830 --stop-address=0x5CF83E footballmanager.exe
+```
