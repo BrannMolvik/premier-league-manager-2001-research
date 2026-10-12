@@ -1174,6 +1174,38 @@ def main(path: str) -> None:
     print("PASS fixed zero-mode 0x6596A0 selects real 5DED10/5E4300 case0")
     print("WARNING subsequent case0 descendants and indirect owners need audit")
 
+    # Recovery573: five FULL first-user initializer tail callees.
+    # Each is list teardown with possible nested array destructor
+    # callback (0x42C780 -> 0x66820D), not an original user event queue.
+    source_user_suffix_list_destroyers_573 = (
+        (0x42c7e0, 0x42c850, ((0x42c804, 0x42c780), (0x42c80a, 0x686fe3), (0x42c816, 0x686fe3),)),
+        (0x42c890, 0x42c900, ((0x42c8b3, 0x686fe3), (0x42c8bf, 0x686fe3),)),
+        (0x42c950, 0x42c9c0, ((0x42c974, 0x42c900), (0x42c97a, 0x686fe3), (0x42c986, 0x686fe3),)),
+        (0x42c780, 0x42c7e0, ((0x42c7b8, 0x66820d),)),
+        (0x42c900, 0x42c910, ()),
+    )
+    for start,stop,expected in source_user_suffix_list_destroyers_573:
+        have = tuple(
+            (int(m.group(1),16),int(m.group(2),16))
+            for line in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)",line))
+            and start <= int(m.group(1),16) < stop
+        )
+        if have != expected:
+            raise AssertionError(("Original DBRUser suffix list cleanup changed",
+                                  hex(start),have))
+    for addr,expected in (
+        ("42c804","call   0x42c780"),
+        ("42c7b8","call   0x66820d"),
+        ("42c8b3","call   0x686fe3"),
+        ("42c974","call   0x42c900"),
+        ("42c900","mov    DWORD PTR [ecx],0x7be170"),
+    ):
+        if expected not in instruction(addr):
+            raise AssertionError(("Original first-user suffix ownership changed",addr))
+    print("PASS five original DBRUser suffix destroyer direct-call ranges")
+    print("WARNING nested 0x66820D destructor callbacks remain dynamic")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
