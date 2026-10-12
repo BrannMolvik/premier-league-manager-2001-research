@@ -15,6 +15,7 @@ from dataclasses import dataclass, replace
 from original_human_user_name import OriginalHumanUserName
 from original_supportstart_input import (
     OriginalSupportStartRowBitState,
+    OriginalSupportStartRowNativeDispatchObservation,
     original_supportstart_initial_seven_rows,
     original_supportstart_row_native_event,
 )
@@ -132,6 +133,32 @@ class OriginalSupportStartEditorProjection:
         # Retained original user object supplies CP1252 and source-name bounds.
         replace(self.original_user, first_name=first_name, surname=surname)
         return replace(self, draft_first_name=first_name, draft_surname=surname)
+
+    def with_observed_native_row_input(
+        self,
+        index: int,
+        observation: OriginalSupportStartRowNativeDispatchObservation,
+    ) -> "OriginalSupportStartEditorProjection":
+        """Advance source row after real 0x5D6270 accepted event observation.
+
+        Use observed parent-first + child OR results, including native
+        pressed bit0x10 BEFORE virtual+0x98 toggles bit15. Never resolve
+        a Tk coordinate or infer a hit result from a source rectangle.
+        Stale, different-row, or empty-row accepted observations fail
+        closed, and original selected-user/apply state stays unchanged
+        until the verified modal event2 commit.
+        """
+        if type(index) is not int or not 0 <= index < 7:
+            raise ValueError("Require original source row index 0..6")
+        if type(observation) is not OriginalSupportStartRowNativeDispatchObservation:
+            raise TypeError("Require source-qualified native dispatch observation")
+        if observation.source_row_before != self.rows[index]:
+            raise ValueError("Native callback observation does not match current row state")
+        if self.source_slots[index].staff is None and observation.native_handler_accepted:
+            raise ValueError("Original disabled staff row cannot accept native input")
+        changed = list(self.rows)
+        changed[index] = observation.source_after_row_bit15_toggle
+        return replace(self, rows=tuple(changed))
 
     def with_native_row_event(
         self, index: int, *, accepted_by_native_gate: bool

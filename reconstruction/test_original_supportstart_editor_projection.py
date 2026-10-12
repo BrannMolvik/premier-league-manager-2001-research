@@ -169,6 +169,58 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
                 before_native_staging=source,
             )
 
+    def test_observed_native_row_gate_bridges_to_editor_apply_without_fake_click(self):
+        from original_supportstart_input import (
+            project_original_supportstart_row_native_dispatch,
+        )
+        source = OriginalSupportStartLinkedLists(
+            current_staff=self.staff, global_staff=self.staff
+        )
+        editor = OriginalSupportStartEditorProjection.open_initial_first_human_modal(
+            original_user=self.user, source_slots=self.slots,
+            before_native_staging=source,
+        )
+        before = editor.rows[0]
+        observed = project_original_supportstart_row_native_dispatch(
+            before, native_second_argument_present=True,
+            observed_parent_acceptance=True,
+            observed_child_acceptances=(False, False),
+        )
+        modified = editor.with_observed_native_row_input(0, observed)
+        self.assertEqual(modified.rows[0].parent, 0x8193)
+        self.assertEqual(modified.rows[0].stored_staff_selection_byte_if_applied, 0)
+        self.assertEqual(editor.rows[0], before)
+        accepted = modified.close(2)
+        self.assertEqual(accepted.original_record_flag_bytes[0], 0)
+        self.assertEqual(accepted.staff_lists.current_staff, (self.staff[0],))
+        self.assertEqual(accepted.staff_lists.global_staff, (self.staff[0],))
+        # Source Apply remains independent of the WM_USER posted exit:
+        # this accepted input is only a staged row event.
+        self.assertEqual(modified.draft_first_name, "Old")
+        self.assertEqual(modified.draft_surname, "Manager")
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            modified.with_observed_native_row_input(0, observed)
+
+    def test_observed_native_gate_rejects_other_rows_or_invented_clicks(self):
+        from original_supportstart_input import (
+            project_original_supportstart_row_native_dispatch,
+        )
+        modal = self.editor
+        observed = project_original_supportstart_row_native_dispatch(
+            modal.rows[0], native_second_argument_present=False,
+            observed_parent_acceptance=None,
+            observed_child_acceptances=(False, False),
+        )
+        unchanged = modal.with_observed_native_row_input(0, observed)
+        self.assertEqual(unchanged.rows, modal.rows)
+        with self.assertRaises(ValueError):
+            modal.with_observed_native_row_input(1, observed)
+        with self.assertRaises(TypeError):
+            modal.with_observed_native_row_input(0, True)
+        for index in (-1, 7, None, True):
+            with self.assertRaises(ValueError):
+                modal.with_observed_native_row_input(index, observed)
+
     def test_apply_uses_true_source_flag_inversion_and_staged_human_name(self):
         changed = self.editor.with_edited_name("Ada", "Lovelace")
         changed = changed.with_native_row_event(0, accepted_by_native_gate=True)

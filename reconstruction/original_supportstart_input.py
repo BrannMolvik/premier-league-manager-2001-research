@@ -115,6 +115,7 @@ class OriginalSupportStartRowNativeDispatchObservation:
     observed_child_acceptances: tuple[bool, ...]
     early_parent_reject: bool
     native_handler_accepted: bool
+    source_row_before: OriginalSupportStartRowBitState
     source_post_virtual_gate_row: OriginalSupportStartRowBitState
 
     @property
@@ -178,7 +179,7 @@ def project_original_supportstart_row_native_dispatch(
             if observed_child_acceptances:
                 raise ValueError("Native parent rejection short-circuits all children")
             return OriginalSupportStartRowNativeDispatchObservation(
-                True, False, (), (), True, False, row
+                True, False, (), (), True, False, row, row
             )
     elif observed_parent_acceptance is not None:
         raise ValueError("Native parent cannot report result when not invoked")
@@ -209,7 +210,7 @@ def project_original_supportstart_row_native_dispatch(
         native_second_argument_present, observed_parent_acceptance,
         invoked, observed_child_acceptances, False,
         (observed_parent_acceptance is True or any(observed_child_acceptances)),
-        post_gate,
+        row, post_gate,
     )
 
 
