@@ -173,3 +173,27 @@ objdump -D -Mintel --start-address=0x64d540 --stop-address=0x64d55f footballmana
 ```
 
 **Next:** confirm the native DBRClub+0x74 serialized source and fresh new-game initialization reachability; trace any later override or branch guard on DBRCountry+0x50; source-audit the candidate-selection input and original CRT behavior with zero/pointer bounds. Do not execute the original program without separate authorization, and do not mark original GUI/windows acceptance on source-only traces. Then finish full source-backed SupportStart state, seven original selectors and Apply/Cancel/TeamSelect modal. The existing branch and all Gates13–17 remain open.
+
+
+### Recovery557: packed original Master.dat type is now native-proven
+
+The previously uncertain equivalence of reconstructed `Club.team_category_code` with original **DBRClub+0x74** is now closed from the original, not merely inferred from the port:
+
+1. `0x50D662..0x50D671` calls `0x40B9C0` with open original `Master.dat` FILE; `0x40B9C0` loops the original 1,246 clubs, calls temporary-club source deserializer `0x4022D0` per 181-byte serialized record, then native `0x403660` copies its source fields into the expanded 0x2A8-byte club.
+2. At `0x40247E..0x40248C`, `0x4022D0` reads **one original packed byte** directly into `temporaryClub+0x74` using `0x667E90` with size1/count1; it follows exactly four original DWORD reads into +0x64/+0x68/+0x6C/+0x70. Counting prior serialized field lengths (including source 4-byte ID, two source u16 name IDs, source 4-byte competition/country IDs, original 6+24 kit bytes) locates this byte at **original serialized club offset +98**, exactly where `fm2001_data.py` reads `team_category_code=r[98]`.
+3. `0x403660..0x40367F` does `rep movs DWORD PTR` for **0x39 DWORDs** starting at expanded destination+0x04 from temporary source+0x04, which includes +0x74. Thus `0x403640` truly tests the shipped `Master.dat` packed byte+98.
+4. Real SHA-confirmed `Master.dat` has **1,158** club type1 rows and **88** club type2 rows, NO type3 rows (source 1,246 clubs). Each of the 88 type2 rows belongs to a **distinct country** in the shipped country+0x14 column, so original `0x4F7913` registers 88 real club pointers under 88 original country+0x50 slots during normal `0x4F7380` startup, provided normal source loading reaches that loop (the caller chain `0x50D6B6 -> 0x4F6EB0 -> 0x4F7380` has been separately recovered).
+5. The same original country+0x50 pointer is independently read at `0x445CFB` and passed to source `0x615C50` as a native argument; this second non-staff use supports the pointer interpretation. **It is not a second proof of actual GUI/run-time execution.**
+
+This resolves the country +0x50 writer, serialized source, normal creation stage and shipped qualifying category, not the **contradictory direct RNG-bound use** at `0x4CB433`. The source counterexample now applies to a nonempty verified group of countries rather than an uncertain rare branch. The actual selected user's country, late overrides, object lifetime, and any unseen guards must be traced before specifying exact staff-generation draws or declaring a shipped original bug.
+
+Reproduce source:
+```bash
+objdump -D -Mintel --start-address=0x50d630 --stop-address=0x50d6b8 footballmanager.exe
+objdump -D -Mintel --start-address=0x40b9c0 --stop-address=0x40ba40 footballmanager.exe
+objdump -D -Mintel --start-address=0x4022d0 --stop-address=0x4024bc footballmanager.exe
+objdump -D -Mintel --start-address=0x403660 --stop-address=0x403683 footballmanager.exe
+objdump -D -Mintel --start-address=0x4f78c9 --stop-address=0x4f7927 footballmanager.exe
+```
+
+**Updated exact next source target:** investigate why original CSupportStaff 0x4CB2B0 passes a club pointer at country+0x50 to original RNG(0x64D540) before indexing an unrelated +0x48 competition array, including possible source +0x50 late rebinding or true runtime path guard. Do not change the live CRT; original source + simulated helper tests are not original or Windows GUI acceptance.
