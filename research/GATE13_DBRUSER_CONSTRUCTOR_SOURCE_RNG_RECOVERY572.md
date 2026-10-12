@@ -1,0 +1,25 @@
+# Recovery572 — bounded DBRUser constructor before first human RNG
+
+**13 October 2026 KST.** Gate13–17 remain OPEN. The source for this finding is the privately authorized original `footballmanager.exe` (4,714,541 bytes, SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`). The EXE was **not launched**, and source code/assembly or any original binary bytes are not committed. Original text disassembly reconstructed privately from GNU objdump, 31 exact original instruction sites and 4 strict callsite-range scans independently **PASSED**.
+
+## Precise source ordering
+
+First TeamSelect selected club goes through `0x413C0E` → `DBRUser::0x424CA0` **before** `0x413C54` → `0x4258D0` → `0x4258F8` → `0x42C400` (original 13 stored name pairs). The original DBRUser C++ constructor is **not** empty: it allocates several native owned arrays and initializes many native owner records before first name pair is chosen.
+
+Within constructor `0x424CA0..0x424F6B`, three exact source bulk initializer sites all invoke the same C++ array construction runtime helper `0x6687C1`:
+
+- `0x424D39` pushes callback **`0x424F70`**, `0x424D3E` pushes count **4**, `0x424D4E` calls the array helper.
+- `0x424E6D` pushes callback **`0x424F90`**, `0x424E74` pushes count **`0xC8` (200)**, `0x424E7A` calls the array helper.
+- `0x424EDC` pushes callback **`0x61E480`**, `0x424EE1` pushes count **`0x100` (256)**, `0x424EE9` calls the array helper.
+
+### Nested callbacks narrowed
+
+**200-owner callback** `0x424F90` does scalar initialization and calls `0x4EAB80` at `0x424FAE`. `0x4EAB80..0x4EAC38` has exactly four direct call sites: `0x4EB2A0` once (fixed local zero initialization) and `0x64CE30` three times. `0x64CE30..0x64CF05` calls only `0x66A518`, a signed integer DIV/quotient helper whose native `idiv` occurs at `0x66A51F`; it does not call the original shared CRT RNG. These bounded nested functions explain the 200 owner record initializations without inserting a random draw for each record.
+
+**256-owner callback** `0x61E480` allocates an embedded object, invokes `0x4EAB80` at `0x61E4DF`, and calls `0x61E540` with a literal **`0xFFFF`** argument. That subroutine first executes `0x61E7A0`, which tail-jumps to `0x4EAB80`; then source `0x61E54D` compares the provided word to `0xFFFF` and `0x61E552` branches to `0x61E5A0` early, bypassing the ordinary full non-sentinel club/player association path for **this constructor callsite**. `0x5EE970` (at `0x424EA7`) and `0x42C6B0` (at `0x424F45`) have **no direct native call instructions** in their verified tiny bounded bodies.
+
+**Scope limitation:** These findings rule out extra *direct* CRT calls in the enumerated nested initialization/formatting functions on the specified successful path. They do **not** prove the entire constructor globally RNG-free, because other original allocation helpers/indirect callbacks, CRT seed-to-click and actual runtime object states remain to be accounted for. Never insert or subtract 200/256 RNG calls as a guessed hidden-state adjustment, never mark the historic initial-name RNG checkpoint settled.
+
+## Test and implementation boundary
+
+The existing `reconstruction/original_supportstart_teamselect_user_birth.py` correctly retains its **test-only** explicit missing-queue-and-binder acknowledgement. This finding does not weaken that guard. The subsequent two original global queue drains `0x4259B5` and `0x412F1F`, manager binding `0x413C5B`, first click seed-to-CRT and all subsequent per-staff dynamic draws are still unresolved in live GameState. No original GUI event was executed, no Windows11 interactive fidelity acceptance performed. A persistent 31-instruction, four-call-range audit was added to `research/audit_original_teamselect_continue_static.py` and can be rerun only against the authorized private original executable. The meaningful next step is to enumerate the remaining non-leaf ctor/queue producers by **source reachability** and qualify actual original queue head state at each drain, not assume it empty.

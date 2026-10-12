@@ -926,6 +926,64 @@ def main(path: str) -> None:
             raise AssertionError(("Original global input observer callback moved", address))
     print("PASS native optional global input observers and hover-pointer gates")
 
+    # Recovery572: constructor BEFORE original 13 first/surname pairs.
+    # Restrict no-direct-CRT conclusions to the specified nested leaves.
+    dbruser_ctor_nested_frontier_572 = (
+        ("413c0e", "call   0x424ca0"),
+        ("413c54", "call   0x4258d0"),
+        ("4258f8", "call   0x42c400"),
+        ("424d39", "push   0x424f70"),
+        ("424d3e", "push   0x4"),
+        ("424d4e", "call   0x6687c1"),
+        ("424e6d", "push   0x424f90"),
+        ("424e74", "push   0xc8"),
+        ("424e7a", "call   0x6687c1"),
+        ("424edc", "push   0x61e480"),
+        ("424ee1", "push   0x100"),
+        ("424ee9", "call   0x6687c1"),
+        ("424ea7", "call   0x5ee970"),
+        ("424f45", "call   0x42c6b0"),
+        ("424fae", "call   0x4eab80"),
+        ("4eabbd", "call   0x4eb2a0"),
+        ("4eabe6", "call   0x64ce30"),
+        ("4eabfe", "call   0x64ce30"),
+        ("4eac1c", "call   0x64ce30"),
+        ("64ce99", "call   0x66a518"),
+        ("66a51f", "idiv   DWORD PTR [ebp+0xc]"),
+        ("5ee974", "mov    DWORD PTR [eax],0x1"),
+        ("5ee980", "ret"),
+        ("42c6b4", "mov    DWORD PTR [ecx+0x10e8],eax"),
+        ("42c6ba", "ret    0x4"),
+        ("61e4df", "call   0x4eab80"),
+        ("61e4fa", "call   0x61e540"),
+        ("61e544", "call   0x61e7a0"),
+        ("61e7a3", "jmp    0x4eab80"),
+        ("61e54d", "cmp    bx,0xffff"),
+        ("61e552", "je     0x61e5a0"),
+    )
+    for address, expected in dbruser_ctor_nested_frontier_572:
+        if expected not in instruction(address):
+            raise AssertionError(("Original DBRUser ctor callback changed",address))
+    # Exact CALL destination sets of carefully bounded original helpers.
+    # If any new caller appears, unqualified side effects must be audited.
+    source_ctor_direct_sets = (
+        (0x4eab80, 0x4eac38, (0x4eb2a0, 0x64ce30, 0x64ce30, 0x64ce30)),
+        (0x64ce30, 0x64cf05, (0x66a518,)),
+        (0x5ee970, 0x5ee981, ()),
+        (0x42c6b0, 0x42c6bd, ()),
+    )
+    for start, stop, expected in source_ctor_direct_sets:
+        block_calls = tuple(int(dest,16)
+            for ln in listing.splitlines()
+            if (m := re.match(r"^\s*([0-9a-f]{6}):",ln))
+            and start <= int(m.group(1),16) < stop
+            for dest in re.findall(r"\bcall\s+0x([0-9a-f]+)",ln)
+        )
+        if block_calls != expected:
+            raise AssertionError(("Nested DBRUser ctor direct calls moved",hex(start),block_calls))
+    print("PASS source DBRUser init callback/formatter direct-call frontier")
+    print("WARNING other ctor branches, queue contents and first-click CRT remain unproven")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
