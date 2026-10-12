@@ -145,7 +145,7 @@ class OriginalInboxHostRouteTests(TestCase):
         overlay = original_empty_eamail_preview(frame.presentation.eamail, art)
         self.assertEqual(overlay.screen_rect, (246, 343, 532, 187))
         self.assertEqual(overlay.source_path, ORIGINAL_EAMAIL_EMPTY_PREVIEW_SOURCE_PATH)
-        self.assertTrue(overlay.png.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+        self.assertTrue(overlay.png.startswith(b"\x89PNG\r\n\x1a\n"))
         self.assertFalse(overlay.native_body_text_rendered)
         self.assertIsNone(original_empty_eamail_preview(
             frame.presentation.eamail, art, selected_node_serial=1
@@ -170,7 +170,7 @@ class OriginalInboxHostRouteTests(TestCase):
         self.assertEqual(host._draw_eamail_rows(frame), 2)
         self.assertEqual(tuple((x, y) for x, y, *_ in drawn),
                          ((233, 178), (246, 343)))
-        self.assertTrue(all(item[-1].startswith(b"\\x89PNG\\r\\n\\x1a\\n")
+        self.assertTrue(all(item[-1].startswith(b"\x89PNG\r\n\x1a\n")
                             for item in drawn))
         drawn.clear()
         host._eamail_selected_node_serial = frame.presentation.eamail.native_rows[0].original_internal_node_serial
