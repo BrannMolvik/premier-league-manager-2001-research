@@ -1,7 +1,9 @@
 """Exact first six staff and seventh blank from native linked-list order."""
 import unittest
 from dataclasses import replace
+from pathlib import Path
 
+from ea_language_strings import EAStringIndex, EAStringTable
 from fm2001_data import Club, CompetitionDefinition, Player
 from original_supportstart_name_group_source import OriginalNameGroupCandidateRoute
 from original_supportstart_initial_modal_rows import (
@@ -108,6 +110,43 @@ class NativeSupportStartModalInitialRowsTests(unittest.TestCase):
             with self.subTest(staff=staff):
                 with self.assertRaises(OriginalSupportStartInitialRowsError):
                     source_supportstart_initial_modal_rows(replace(birth,staff=staff))
+
+    def test_source_actual_six_localized_roles_use_original_index_tables(self):
+        source = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        strings = EAStringTable.from_bytes((source / "English.str").read_bytes())
+        indices = EAStringIndex.from_bytes(
+            (source / "English.idx").read_bytes(), strings
+        )
+        prior_rng=SourceZeroRng()
+        born=original_fixture_birth(prior_rng)
+        count=len(prior_rng.calls)
+        rows=source_supportstart_initial_modal_rows(
+            born, source_strings=strings, source_indices=indices
+        )
+        self.assertEqual(
+            tuple(row.source_role_label for row in rows),
+            ("ASSISTANT MANAGER", "STADIUM MANAGER",
+             "YOUTH TEAM MANAGER", "BUSINESS CONSULTANT",
+             "CHIEF SCOUT", "Physiotherapist", None)
+        )
+        self.assertEqual(
+            tuple(row.source_staff_full_name for row in rows),
+            ("David Seaman",)*6+(None,)
+        )
+        self.assertEqual(count,len(prior_rng.calls))
+
+    def test_partial_language_pair_or_wrong_source_rejected(self):
+        birth=original_fixture_birth(SourceZeroRng())
+        from ea_language_strings import EAStringIndex
+        for text, indices in (
+            (None, EAStringIndex((0,))),
+            ("ASSISTANT MANAGER", EAStringIndex((0,))),
+        ):
+            with self.subTest(text=text):
+                with self.assertRaises(OriginalSupportStartInitialRowsError):
+                    source_supportstart_initial_modal_rows(
+                        birth,source_strings=text,source_indices=indices
+                    )
 
     def test_requires_source_birth_receipt(self):
         with self.assertRaises(OriginalSupportStartInitialRowsError):
