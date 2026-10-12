@@ -8,6 +8,7 @@ from original_supportstart_input import (
     ORIGINAL_ROW_CHILD_STATE_FLAG, OriginalSupportStartRowBitState,
     original_supportstart_row_refresh, original_supportstart_row_native_event,
     original_supportstart_fifth_child_native_rect,
+    original_supportstart_teamselect_modal_entry,
 )
 
 
@@ -56,6 +57,18 @@ class OriginalSupportStartInputTests(unittest.TestCase):
             with self.subTest(row=bad):
                 with self.assertRaises(ValueError):
                     original_supportstart_fifth_child_native_rect(bad)
+
+
+    def test_teamselect_modal_requires_native_accept_and_selected_bit(self):
+        self.assertFalse(original_supportstart_teamselect_modal_entry(0, False))
+        self.assertFalse(original_supportstart_teamselect_modal_entry(0x8000, False))
+        self.assertFalse(original_supportstart_teamselect_modal_entry(0, True))
+        self.assertTrue(original_supportstart_teamselect_modal_entry(0x8000, True))
+        self.assertTrue(original_supportstart_teamselect_modal_entry(0x8002, True))
+        with self.assertRaises(TypeError):
+            original_supportstart_teamselect_modal_entry(0x8000, 1)
+        with self.assertRaises(ValueError):
+            original_supportstart_teamselect_modal_entry(-1, True)
 
     def test_empty_unknown_source_flags_are_not_invented(self):
         row = OriginalSupportStartRowBitState(0, (0, 0, 0, 0, 0))
