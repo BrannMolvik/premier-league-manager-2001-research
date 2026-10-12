@@ -36,6 +36,7 @@ class OriginalRegisteredHumanRegistryTests(unittest.TestCase):
         self.assertEqual(removal.removed.source_user_token, 100)
         self.assertTrue(removal.native_node_disposed)
         self.assertTrue(removal.native_user_payload_destructor_called)
+        self.assertEqual(removal.native_staff_list_payload_deletion_flags, (1, 1, 0))
         self.assertEqual(removal.updated.current_index, 0)
         self.assertEqual(tuple(x.club_id for x in removal.updated.records), (20,))
         last = removal.updated.deselect(20)
@@ -50,6 +51,7 @@ class OriginalRegisteredHumanRegistryTests(unittest.TestCase):
         removal = r.deselect(10)
         self.assertTrue(removal.native_node_disposed)
         self.assertFalse(removal.native_user_payload_destructor_called)
+        self.assertIsNone(removal.native_staff_list_payload_deletion_flags)
         self.assertEqual(removal.updated.records, ())
 
     def test_missing_user_and_seventh_human_fail_closed(self):

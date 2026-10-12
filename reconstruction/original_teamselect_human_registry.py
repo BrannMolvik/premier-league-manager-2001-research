@@ -41,6 +41,17 @@ class OriginalRegisteredHumanRemoval:
     native_node_disposed: bool
     native_user_payload_destructor_called: bool
 
+    @property
+    def native_staff_list_payload_deletion_flags(self) -> tuple[int, int, int] | None:
+        """Source 0x424FC0 flags for user+0x5B8,+0x5C4,+0x5D0.
+
+        If 0x414680 skips user destructor, this deselection path implies
+        no user staff-list destructor. Otherwise 0x425000/0x42500C/
+        0x425016 set flags 1,1,0 before 0x4145A0 linked-list release.
+        The flags do NOT establish which staff nodes actually exist.
+        """
+        return (1, 1, 0) if self.native_user_payload_destructor_called else None
+
 
 @dataclass(frozen=True)
 class OriginalRegisteredHumanRegistry:
