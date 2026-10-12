@@ -26,8 +26,8 @@ def static_fixture():
 def raw_master_core():
     # Retain native source 1246-club section without simulating club grouping.
     players=[("David","Seaman",1)]*11 + [("John","Noah",1),
-          ("X.","Smith",1),("John","Nolan",1),("Alan","Doe",2)]
-    strings=["David","Seaman","John","Noah","X.","Smith","Nolan","Alan","Doe"]
+          ("X.","Smith",1),("John","Nolan",1),("Alan","Dean",2)]
+    strings=["David","Seaman","John","Noah","X.","Smith","Nolan","Alan","Dean"]
     payload=b""
     offsets=[]
     for text in strings:
@@ -100,7 +100,7 @@ class OriginalNameGroupTests(unittest.TestCase):
                     SimpleNamespace(index=13,nationality_id=1,
                                     first_name="John",surname="Nolan"),
                     SimpleNamespace(index=14,nationality_id=2,
-                                    first_name="Alan",surname="Doe")])
+                                    first_name="Alan",surname="Dean")])
         self.assertEqual(generated_name_source_ids(fixture,1),
                          self.pools.group_players[1])
         self.assertEqual(generated_name_source_ids(fixture,2),

@@ -159,7 +159,7 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
             tuple(x.staff_type for x in switched.staff_lists.inactive_type_1_to_5),
             (5, 4, 3, 2),
         )
-        self.assertIs(accepted.original_human_user_name, self.user)
+        self.assertEqual(accepted.original_human_user_name, self.user)
 
     def test_initial_first_human_modal_factory_does_not_accept_missing_user(self):
         source = OriginalSupportStartLinkedLists(current_staff=self.staff)

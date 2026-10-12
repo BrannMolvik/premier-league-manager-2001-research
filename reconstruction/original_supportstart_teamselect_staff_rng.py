@@ -107,10 +107,10 @@ def replay_original_teamselect_staff_crt_draws(
     if not callable(getattr(rng, "randbelow", None)):
         raise OriginalTeamSelectStaffRngError("Require existing shared CRT RNG owner")
     # Validate group and empty pool BEFORE advancing any source RNG state.
-    scalar = original_teamselect_staff_initial_scalar(
-        source_group_id=source_group_id, selection_context=selection_context
-    )
     try:
+        scalar = original_teamselect_staff_initial_scalar(
+            source_group_id=source_group_id, selection_context=selection_context
+        )
         club_ids = original_club_candidates.require_nonempty_source_pool()
     except OriginalTeamSelectStaffClubError as exc:
         raise OriginalTeamSelectStaffRngError(str(exc)) from exc
