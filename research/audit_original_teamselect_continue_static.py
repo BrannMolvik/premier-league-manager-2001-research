@@ -727,6 +727,45 @@ def main(path: str) -> None:
     print("PASS pre-child modal vft+0x10(0,point) before child geometry prefilter")
     print("WARNING actual scene graph routing, post-callback state still unverified")
 
+    # SHA-verified original MyWindow stack owner, Recovery570.
+    source_window_stack_570 = (
+        ("532692", "call   0x653b40"),
+        ("653b5e", "mov    eax,DWORD PTR [ebx]"),
+        ("653b6a", "je     0x653c02"),
+        ("653b70", "mov    edi,DWORD PTR [ebx+0x8]"),
+        ("653b76", "dec    edi"),
+        ("653b77", "mov    esi,DWORD PTR [eax+edi*4]"),
+        ("653b82", "call   DWORD PTR [edx+0x44]"),
+        ("653b87", "je     0x653b73"),
+        ("653b94", "cmp    eax,edi"),
+        ("653b98", "cmp    eax,DWORD PTR [esi+0x14]"),
+        ("653b9d", "cmp    edx,DWORD PTR [esi+0x10]"),
+        ("653ba2", "cmp    edx,DWORD PTR [esi+0x18]"),
+        ("653baa", "call   0x653480"),
+        ("653bc2", "push   0x0"),
+        ("653bd1", "call   0x668995"),
+        ("653bea", "call   0x6539f0"),
+        ("653c05", "cmp    edi,DWORD PTR [ebx+0x8]"),
+        ("653c15", "cmp    eax,DWORD PTR [ecx+0xc]"),
+        ("653c1a", "cmp    eax,DWORD PTR [ecx+0x14]"),
+        ("653c1f", "cmp    edx,DWORD PTR [ecx+0x10]"),
+        ("653c24", "cmp    edx,DWORD PTR [ecx+0x18]"),
+        ("653c2a", "call   0x653480"),
+        ("654222", "mov    DWORD PTR [esi+0x64],edi"),
+        ("654225", "call   0x6542b0"),
+        ("6542ba", "mov    DWORD PTR [esi+0x4],0x1"),
+        ("654320", "mov    DWORD PTR [eax+edx*4],esi"),
+        ("654327", "mov    DWORD PTR [ebx+0x8],edi"),
+        ("65434a", "inc    DWORD PTR [ebx]"),
+    )
+    for address, expected in source_window_stack_570:
+        if expected not in instruction(address):
+            raise AssertionError(("Original native window stack changed", address))
+    for va, expected in ((0x7cb294+0x10, 0x532680), (0x7c6ddc+0x44, 0x628060)):
+        if struct.unpack_from("<I", binary, va - 0x400000)[0] != expected:
+            raise AssertionError(("Original window selector vft changed", hex(va)))
+    print("PASS MyWindow captured/uncaptured source window dispatch")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",

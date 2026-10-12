@@ -1,0 +1,13 @@
+# Recovery570 native original window-stack routing and SupportStart
+
+13 October 2026 KST. Gate13 open. Source: private owner-supplied footballmanager.exe 4,714,541 bytes, SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. Original game NOT launched. Evidence is static original executable x86 and actual source vtables, not reconstructed GUI behavior.
+
+Original MyWindow vtable 0x7CB294+0x10 points to 0x532680, which calls native 0x653B40 at 0x532692. That manager calls the previously traced rectangle dispatcher 0x653480 at 0x653BAA (captured) or 0x653C2A (uncaptured). Source 0x450CBA starts modal event loop through 0x532650 -> 0x654210 -> 0x6542B0; window registration appends to manager array at 0x654320, increments count at 0x654327, and may increment manager+0 at 0x65434A after an independent external owner callback. Do not assume manager+0 is always nonzero.
+
+When manager+0 is nonzero, 0x653B40 searches the registered window array from LAST to FIRST, calling candidate vtable+0x44. The first returning nonzero is selected. Only this selected window's source-screen half-open bounds are tested. Inside routes ONCE through 0x653480, while outside takes a distinct external fallback 0x668995 and may post a separate 0xFFFF event through 0x6539F0, not automatically visit lower windows. A stack with no qualifying vtable+0x44 has no validated safe outcome.
+
+When manager+0 is zero, native 0x653C02..0x653C30 instead scans windows FORWARD by array index and calls 0x653480 for EVERY in-bounds window, regardless of its vtable+0x44 result. Original PSupportStart vtable 0x7C6DDC+0x44 is 0x628060, whose complete function returns 1 unconditionally (mov al,1; ret). This proves eligibility if it is reached in the captured reverse scan, NOT actual top-of-stack state at a real moment.
+
+Implemented reconstruction/original_window_event_stack.py pure fail-closed routing of explicit owner-capture flag, source window identities, virtual+0x44 results, half-open native window bounds and pointer coordinate, plus seven regression tests. No synthetic user/staff, child hit callback, Tk mouse mapping, WndProc message-type assumption or shared CRT draw. Local independent original SHA and 28 instruction-address checks, plus two original vtable targets, PASS. Exact feature-head tests/CI and real Win11 GUI acceptance NOT executed.
+
+Next: trace original MyWindow event pointer provenance / source coordinate scaling, modal selector scene registration and +0x24 hit callback vft+0x0C, then integrate normal first human plus six staff plus seven-row editor using correct shared CRT, double 0x614080 queue drain, and manager binder. Gates13-17 OPEN.
