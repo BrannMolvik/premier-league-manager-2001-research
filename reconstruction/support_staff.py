@@ -19,6 +19,9 @@ class BoundedRng(Protocol):
 INITIAL_SUPPORT_STAFF_TYPES = (1, 2, 3, 4, 5, 13)
 ASSISTANT_MANAGER_TYPE = 2
 YOUTH_TEAM_COACH_TYPE = 3
+# Original TeamSelect 0x4DA4F0 -> PSupportStart 0x4CF2EF/0x4D06B0.
+# Seven UI selector records are distinct from six fixed initial staff.
+ORIGINAL_SUPPORT_START_SLOT_COUNT = 7
 
 
 @dataclass(frozen=True)
@@ -36,6 +39,59 @@ class SupportStaffState:
         if int(self.status) == 2:
             return 1
         return int(self.rating)
+
+
+
+@dataclass(frozen=True)
+class OriginalSupportStartSourceSlot:
+    """One original TeamSelect selection record, NOT a new staff creation.
+
+    0x4DA4F0 populates record +0x0C+4*i and sets +0x28+i = 1 for
+    each existing DBRUser+0x5D4 staff node; PSupportStart 0x4CF124 reads
+    those addresses, and 0x4D06B0 renders seven cells.  For a missing
+    staff node the original code writes a NULL pointer but does not
+    establish its flag's initialized value, so preserve None as unknown.
+    """
+
+    index: int
+    staff: SupportStaffState | None
+    original_selected_byte: int | None
+
+    def __post_init__(self) -> None:
+        if type(self.index) is not int or not 0 <= self.index < ORIGINAL_SUPPORT_START_SLOT_COUNT:
+            raise ValueError("Original support slot index outside 0..6")
+        if self.staff is None:
+            if self.original_selected_byte is not None:
+                raise ValueError("Unknown empty original support flag must stay unqualified")
+        elif type(self.staff) is not SupportStaffState or self.original_selected_byte != 1:
+            raise ValueError("Original filled support slot needs a source staff and byte 1")
+
+
+def original_teamselect_support_slots(
+    selected_user_staff_in_native_list_order: Iterable[SupportStaffState],
+) -> tuple[OriginalSupportStartSourceSlot, ...]:
+    """Stage only original 0x4DA4F0's seven pointers/flags, without RNG.
+
+    The caller must already hold source-ordered registered user+0x5D4 staff;
+    this function does not generate staff, pick a row action, edit its flag,
+    commit user linked lists, create UI images or qualify original GUI.
+    It explicitly does NOT infer how shared-CRT startup initialized that list.
+    """
+    items = tuple(selected_user_staff_in_native_list_order)
+    if len(items) > ORIGINAL_SUPPORT_START_SLOT_COUNT:
+        raise ValueError("Native PSupportStart has exactly seven pointer slots")
+    if any(type(item) is not SupportStaffState for item in items):
+        raise TypeError("Original support slot requires native-list staff records")
+    if len({id(item) for item in items}) != len(items):
+        raise ValueError("Source staff pointer cannot occupy multiple selector positions")
+    return tuple(
+        OriginalSupportStartSourceSlot(
+            index=index,
+            staff=items[index] if index < len(items) else None,
+            original_selected_byte=1 if index < len(items) else None,
+        )
+        for index in range(ORIGINAL_SUPPORT_START_SLOT_COUNT)
+    )
 
 
 def initial_staff_rating_base(competition_context: int) -> int:
