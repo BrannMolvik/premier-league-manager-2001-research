@@ -57,3 +57,46 @@ Run after checkout:
 cd reconstruction
 python -m unittest test_original_supportstart_stars test_original_supportstart_input test_original_supportstart_editor_projection test_support_staff test_original_human_user_name
 ```
+
+
+## Recovery551 original role labels integrated into seven-row source projection
+
+Exact CSupportStaff constructor+type virtual relation now verified:
+`0x4CA2FF` stores raw type in `CSupportStaff+0x04`;
+native vft `0x7C6834+0x14=0x42CB40`
+returns this field, and PSupportStart
+`0x4D0725..0x4D072E` invokes `0x4CDCD0`
+with the returned ordinal. Original
+`English.idx`/`English.str` provide real
+six fresh user role names (types1,2,3,4,5,13);
+the unpopulated seventh source row still has
+**no staff pointer, no role and no invented label**.
+
+`OriginalSupportStartEditorProjection.original_source_role_labels()`
+now binds the existing authentic language reader and
+`original_supportstart_staff_type_label()` to the actual
+seven source staff pointers, with source NULL→None.
+The test loads existing `original_assets/source/English.str`
+and `English.idx` and checks all six original
+source role labels and seventh None.
+The underlying staff **personal names** remain
+unrecovered: original getter vft `0x7C6834+0x08`
+resolves `0x4CA340` and returns
+`CSupportStaff+0x184`; constructor
+`0x4CA2F0` calls `0x4CA660`,
+which gets localized/random candidate name pointers
+through `0x421C00` and native name pool
+`0x875638`, rejecting a sentinel `0x8185D0`.
+Without the exact name pool context and shared original
+RNG state, the port cannot fabricate source-real
+staff names or complete seven-row rendering.
+No GUI, normal path, native hit acceptance or
+Windows11 acceptance is claimed.
+
+Native reproduction:
+```bash
+objdump -s -j .rdata --start-address=0x7c6834 --stop-address=0x7c688c footballmanager.exe
+objdump -D -Mintel --start-address=0x4ca2f0 --stop-address=0x4ca347 footballmanager.exe
+objdump -D -Mintel --start-address=0x4ca660 --stop-address=0x4ca6d0 footballmanager.exe
+objdump -D -Mintel --start-address=0x421c00 --stop-address=0x421c49 footballmanager.exe
+```

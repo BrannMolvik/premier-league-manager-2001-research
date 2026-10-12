@@ -51,6 +51,24 @@ class SupportStartEditorProjectionTests(unittest.TestCase):
         self.assertIs(self.editor.prior_staff_lists, self.prior)
         self.assertIsNot(apply.staff_lists, self.prior)
 
+    def test_six_original_source_staff_role_labels_and_seventh_null(self):
+        from pathlib import Path
+        from ea_language_strings import EAStringTable, EAStringIndex
+        source = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        strings = EAStringTable.from_bytes((source / "English.str").read_bytes())
+        indices = EAStringIndex.from_bytes(
+            (source / "English.idx").read_bytes(), strings
+        )
+        self.assertEqual(self.editor.original_source_role_labels(strings, indices), (
+            "ASSISTANT MANAGER", "STADIUM MANAGER",
+            "YOUTH TEAM MANAGER", "BUSINESS CONSULTANT",
+            "CHIEF SCOUT", "Physiotherapist", None,
+        ))
+        with self.assertRaises(TypeError):
+            self.editor.original_source_role_labels(None, indices)
+        with self.assertRaises(TypeError):
+            self.editor.original_source_role_labels(strings, None)
+
     def test_rejected_native_input_and_disabled_empty_row_never_toggle(self):
         rejected = self.editor.with_native_row_event(0, accepted_by_native_gate=False)
         self.assertEqual(rejected.rows, self.editor.rows)

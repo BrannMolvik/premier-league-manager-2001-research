@@ -75,6 +75,28 @@ class OriginalSupportStartEditorProjection:
             draft_surname=original_user.surname,
         )
 
+    def original_source_role_labels(self, strings, indices) -> tuple[str | None, ...]:
+        """Read the original, per-row role labels from the verified EA files.
+
+        CSupportStaff type at +0x04 is returned unchanged by native
+        0x42CB40 vft+0x14, then 0x4D0725 invokes 0x4CDCD0 label switch.
+        A source null pointer renders the original EMPTY row, not a
+        fabricated seventh role or localized staff name. Actual unique
+        staff personal names remain unavailable without original RNG
+        name-pool initialization; do not imply they were reconstructed.
+        """
+        from original_supportstart_staff_labels import (
+            original_supportstart_staff_type_label,
+        )
+        from ea_language_strings import EAStringTable, EAStringIndex
+        if type(strings) is not EAStringTable or type(indices) is not EAStringIndex:
+            raise TypeError("Require authentic validated original English language resources")
+        return tuple(
+            None if row.staff is None
+            else original_supportstart_staff_type_label(row.staff, strings, indices)
+            for row in self.source_slots
+        )
+
     def with_edited_name(self, first_name: str, surname: str) -> "OriginalSupportStartEditorProjection":
         # Retained original user object supplies CP1252 and source-name bounds.
         replace(self.original_user, first_name=first_name, surname=surname)
