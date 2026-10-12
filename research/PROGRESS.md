@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery545 PR641 7-slot staff contract merged and original PSupportStart return byte audited
+
+- [PR641](https://github.com/BrannMolvik/premier-league-manager-2001-research/pull/641) strict original 7 source TeamSelect selector slots merged `164060699535d1e7ab25319d9d36524af5f0f84c` after exact head `322bdbb1b61f8da1ae62a4687d425cfcbd487893` Gate13 workflow `38195183810` SUCCESS and asset `38195183808` SUCCESS, no reviewers/threads. Gate13 includes new `test_original_teamselect_native` handoff regression; no full reconstruction-suite run claimed, dedicated new `test_support_staff` cases not separately executed by that workflow. No original staff source RNG replay or GUI accepted.
+- Original source 0x450BB0 sets PSupportStart modal object width760/height500 and current club caption, invokes GUI 0x5EB540/0x532650/0x654210, then copies byte +0x1DE4 to return value; original event1 stores 0 and triggers 0x6539F0 message code0x400, event2 first commits staff+user name 0x4D0830 then stores1 and triggers same source message. Exact parent scene after 0x4D91C0 still open. Independently read five original Support 444 header shapes (336x20,336x19,336x19,75x10,75x10), distinct from on-screen positions. [Reproduce](GATE13_PSUPPORTSTART_MODAL_RESULT_AND_CONTROL_BOUNDS_RECOVERY545.md). All Gates 13–17 OPEN, original EXE not run.
+
 ### 12 October 2026 KST — Recovery545 exact original six initial staff to seven PSupportStart selector player journey
 
 - Reattached to canonical `main` acae41a5, independent original EXE SHA-256 matched `833bf95e...b7cc3`; static x86 only.
