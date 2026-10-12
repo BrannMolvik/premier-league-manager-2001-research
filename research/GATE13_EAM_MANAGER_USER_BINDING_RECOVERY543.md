@@ -1,87 +1,110 @@
-# Recovery543: original selected-user MANAGERNAME source pointer ownership
+# Recovery543 corrected: source DBRUser+0x5B4 is selected **club** pointer, not manager pointer
 
-## Source and test boundary
+## Critical correction of first Recovery543 interpretation
 
-Investigated only the owner's private original `footballmanager.exe`, SHA-256
-`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`,
-4,714,541 bytes. Re-materialized the already uploaded private Drive original
-from source folder 03, independently recalculated SHA-256, and statically
-examined x86 through `objdump -D -Mintel`. The original was **not executed**.
-A separate local audit verified 13 native instruction addresses in the
-SHA-authenticated original file. No proprietary source bytes were committed.
+The earlier Recovery543 audit incorrectly called the pointer in native
+`DBRUser+0x5B4` a **manager object**. A deliberate cross-check against
+`0x403E10`, `0x413020`, `0x426090`, and
+`0x4261B8` conclusively disproves that label: it is an original
+**DBRClub pointer**. The prior interpretation is **WRONG/SUPERSEDED**,
+not a valid source contract. The source first-screen selected entity
+`[[first_screen+0x3C]+0x4C]` is the selected **club**, not a manager.
+This distinction changes which identity is required for Inbox
+`{MANAGERNAME:1}`.
 
-## Proven original new/selected-user manager chain
+## Verified source evidence, no original execution
 
-1. Native first-screen/new-user handler `0x4D8E90`, in its supported
-   `0x4D8EB5` branch, reads the manager **object pointer** from
-   `[[first_screen+0x3C]+0x4C]` at `0x4D8EBE..0x4D8EC4`.
-   It runs `0x4D9800` using that manager pointer at `0x4D8ECB`,
-   then reads manager `+0x40` (an index) and writes it to its
-   selected registration entry at `0x4D8ED0..0x4D8ED9`.
-   This distinguishes the selected **manager object pointer** from its index.
-2. The same native handler registers that selected manager pointer in
-   `0x874C10::0x413BB0` at `0x4D8EEC..0x4D8EF8`.
-   `0x413BB0` adds the user to the `+0x9CC` linked list and passes
-   its original manager pointer to `DBRUser::0x4258D0`
-   (`0x413C4F..0x413C54`). The latter stores that pointer verbatim at
-   `DBRUser+0x5B4` (`0x4258F2`). It is **not** a club alias and
-   **not** a numeric manager index stored in the user field.
-3. Current user selection `0x4139D0` obtains selected user position from
-   `registry+0x9C4`, calls linked-list positional accessor
-   `0x413B10` on `registry+0x9CC`. This returns the **user pointer**.
-   Original initial Inbox `0x56FE01` invokes that current-user accessor,
-   reads `user+0x5B4` (`0x56FE0C`) and passes that exact manager
-   pointer to typed `MANAGERNAME` context constructor `0x612FD0`
-   (`0x56FE20..0x56FE2D`).
-4. `0x612FD0` reads the pointed-to manager object's DWORD `+0x40`,
-   retaining its low 16 bits as the typed manager index
-   (`0x612FEA..0x612FF1`). Native name handler `0x613040` uses
-   manager table base `0x875628` and `index * 0x40`
-   (`0x613043..0x613052`). Native `0x414F30` and `0x414FA0`
-   obtain the name fragments, and `0x613067` uses original
-   literal `%s %s` (VA `0x81858C`) via `0x66876F`.
-   The actual name is thus tied to the registered manager record,
-   not a selected club caption or an arbitrary AI manager entry.
-5. The original `DBRUser+0xD0` is a **different, blank-initialized**
-   club-alias string (`0x424F3F`). Its empty value is not evidence
-   that `MANAGERNAME` is empty.
+Actual owner-supplied private original `footballmanager.exe` is 4,714,541
+bytes, SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+Static x86 disassembly only; did not launch the original or test Win11 GUI.
 
-## Reconstruction discrepancy and non-acceptance
+1. Original TeamSelect handler `0x4D8EBE..0x4D8EF8` reads the **selected
+   club pointer** from `[[screen+0x3C]+0x4C]`, calls `0x4D9800`
+   to prepare club-related view, reads **DBRClub+0x40 manager index**,
+   and registers the same **club pointer** through `0x413BB0`.
+2. `0x413BB0` traverses previously registered users,
+   dereferences their `DBRUser+0x5B4` **club pointers**, and
+   compares previous `club+0x04` to candidate `club+0x04`
+   (`0x413BD8..0x413BE6`) to prevent duplicate chosen clubs.
+   In the new-user branch, it allocates DBRUser, attaches it to
+   the registry `+0x9CC`, and passes the **club pointer**
+   to DBRUser setup `0x4258D0` (`0x413C4F..0x413C54`).
+   `0x4258F2` writes it verbatim to `user+0x5B4`.
+3. `DBRUser::0x426090` immediately dereferences the **club pointer**
+   at user+0x5B4 and calls `0x403E10` on it. The latter reads
+   **club+0x40 manager index**; it validates manager table record
+   `manager[index*0x40]+0x24` and can clear invalid assignments
+   (`0x403E10..0x403E3C`). It is not a manager-pointer validator.
+4. At `0x4260A4..0x426116`, source setup obtains source manager first
+   and surname strings via `DBRClub+0x40` indexing the table
+   `0x875628` (0x40-byte records) at +0x08/+0x0C, and copies
+   them to DBRUser's own name buffers at `+0x05` and `+0x25`;
+   source fallback text applies only when the selected club
+   has no valid previous manager.
+5. At `0x426162..0x4261E1`, it searches the original manager table
+   via `0x4151C0` for a new/free manager slot, handles the old
+   manager, **writes the new manager index into the selected club's
+   +0x40 at `0x4261B8`**, then writes that club's +0x04 ID
+   to new manager[index*0x40]+0x24 (`0x4261C1..0x4261D2`).
+   This is an important mutable club-to-user-manager rebind;
+   treating the selected club's imported pre-registration
+   manager index as the ongoing identity is wrong.
+6. Current registered user `0x4139D0` returns registry-selected
+   user; original Inbox `0x56FE01..0x56FE2D` passes
+   **user+0x5B4 selected club pointer** to
+   typed MANAGERNAME constructor `0x612FD0`, which extracts
+   the club's **current manager index from club+0x40**
+   (`0x612FEA`). `0x613040` indexes original manager table
+   by `index*0x40`, loads first and surname through
+   `0x414F30/0x414FA0`, then formats original `%s %s`
+   literal `0x81858C`. Therefore the correct user-specific
+   greeting depends on the **registered selected club's
+   currently rebound manager index and actual manager name**,
+   not on an arbitrary registered-manager key or blank
+   DBRUser+0xD0 club alias.
+7. Independent first-screen capacity source `0x4DA4D0`
+   checks current number of users at `0x8755E4` against six.
+   This six-user cap was ALREADY recorded in
+   `gate17_multi_human_start_source_trace.py`, and is not
+   presented as a new discovery.
 
-Current `GameState.bind_original_user_mail_recipient` assigns
+## Modern reconstruction comparison and unresolved boundary
+
+`GameState.bind_original_user_mail_recipient` currently derives
 `native_user_recipient_key` by scanning modern `state.managers`
-for an initial `!` name (or reusing the club's imported manager index
-under a fallback); the native source instead preserves an explicitly selected
-manager object pointer and derives the typed name from its `+0x40` index.
-A mailbox recipient index alone does **not** certify the manager-name field
-or provenance of the source first-screen selection. The modern presentation
-bridge has no verified selected-native-manager-object identity/name state;
-therefore **do not** map `native_user_recipient_key`, imported club
-`manager_id`, `native_user_club_caption`, or a guessed name to
-`{MANAGERNAME:1}`. Existing Inbox selected-body rendering remains
-unimplemented/fail-closed. This discrepancy is SOURCE-VERIFIED, but a
-complete port-side identity remedy is NOT VERIFIED.
+for a `first_name.startswith('!')` manager (or a fallback).
+`state.user_controlled_club_id` and current club manager
+`state.clubs[club_id].manager_id` are separate fields.
+Original source requires provenance of actual selected club,
+manager replacement at `0x4261B8`, original manager name source
+and ordering, including 2–6 human users. The modern heuristic
+cannot by itself establish that this actual original rebind
+happened or that the manager's first/surname name is authentic.
+Do NOT derive a visible Inbox `Dear` from the
+pre-registration imported AI manager, `native_user_recipient_key`
+alone, or the club alias.
 
-## Reproduction and next action
+**Required next P0:** inspect modern new-game human selection and its manager
+assignment, compare to original `0x426090` entire rebind/name
+lifecycle, including original `0x4151C0`, and establish how the
+registered current user's new manager name is actually populated
+after selection. Then implement/test explicit source-selected
+club→current manager identity and authentic typed
+`MANAGERNAME`; next reconcile native shared CRT TLS random
+stream and first-click Inbox side effects. Keep PR638
+DRAFT/BLOCKED; original selected body/PEAMMessage/ESC,
+R1 all modes, full 2–6 humans/countries/leagues, and
+Gates13–17 Win11 GUI release remain OPEN.
 
-Use the same SHA-verified original file (private), without launching it:
+## Reproduce with private exact-byte original
 
 ```bash
 sha256sum footballmanager.exe
-objdump -D -Mintel --start-address=0x4d8e90 --stop-address=0x4d8f0b footballmanager.exe
-objdump -D -Mintel --start-address=0x413bb0 --stop-address=0x413c87 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d8e90 --stop-address=0x4d8f19 footballmanager.exe
+objdump -D -Mintel --start-address=0x413bb0 --stop-address=0x413c89 footballmanager.exe
 objdump -D -Mintel --start-address=0x4258d0 --stop-address=0x425901 footballmanager.exe
-objdump -D -Mintel --start-address=0x4139d0 --stop-address=0x413b36 footballmanager.exe
+objdump -D -Mintel --start-address=0x426090 --stop-address=0x4261e5 footballmanager.exe
+objdump -D -Mintel --start-address=0x403e10 --stop-address=0x403e3d footballmanager.exe
 objdump -D -Mintel --start-address=0x56fdfe --stop-address=0x56fe4e footballmanager.exe
 objdump -D -Mintel --start-address=0x612fd0 --stop-address=0x613079 footballmanager.exe
 ```
-
-**P0 next:** investigate how `0x4D9800` and the first-screen
-`[first_screen+0x3C]+0x4C` original manager record is created/selected
-and named, whether the modern clean-user creation records that same identity,
-then implement explicit per-selected-human original manager binding and
-negative-case tests before showing actual MANAGERNAME. In parallel,
-resolve native shared CRT seed from startup->calendar->Inbox first click.
-PR638 stays DRAFT/BLOCKED. Continue selected Inbox native text palette,
-PEAMMessage, and R1 full match journey after source qualification.
-Gate13–17 and genuine Windows 11 GUI acceptance remain OPEN.

@@ -1,3 +1,8 @@
+### 12 October 2026 KST — Recovery543 correction: selected club pointer and original manager slot rebind
+
+- **Corrects the preceding Recovery543 interpretation:** native `DBRUser+0x5B4` is a DBRClub pointer, not a manager object pointer. Original cross-check `0x403E10`, `0x413BB0` club+4 duplicate guard, `0x426090` manager name sourcing and `0x4261B8` reassignment prove it. Original Inbox MANAGERNAME reads the selected club's *current/rebound* manager index at club+0x40, then formats the name through source manager table. Prior incorrect manager-pointer wording is superseded.
+- Verified on canonical SHA-256 original using static x86 only, without executing the original. User manager name binding in modern port remains unqualified, first-click RNG PR638 DRAFT/BLOCKED, all Gates13–17 open. [Corrected source proof](GATE13_EAM_MANAGER_USER_BINDING_RECOVERY543.md).
+
 ### 12 October 2026 KST — Recovery543 native current-user MANAGERNAME pointer chain, still no authentic selected preview
 
 - Re-materialized the separately uploaded private 4,714,541-byte original executable and independently checked the exact canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Static objdump/x86 only; did NOT execute the original.
