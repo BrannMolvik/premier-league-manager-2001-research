@@ -81,3 +81,93 @@ def source_support_staff_name_from_observed_player_pair(
                 "Original Core.str name is not CP1252"
             ) from exc
     return OriginalSupportStaffSelectedName(positions[0],positions[1],first,last)
+
+
+class BoundedSharedCrtRng:
+    """Caller-owned bounded CRT source; this function never seeds or clones it."""
+
+    def randbelow(self, bound: int) -> int: ...
+
+
+@dataclass(frozen=True)
+class OriginalSupportStaffSourceNameReplay:
+    selected_name: OriginalSupportStaffSelectedName
+    source_name_pairs_attempted: int
+
+    @property
+    def bounded_rng_calls(self) -> int:
+        """Two original 0x421BA0 choices per attempted pair."""
+        return self.source_name_pairs_attempted * 2
+
+
+def consume_original_supportstaff_name_from_shared_rng(
+    rng: BoundedSharedCrtRng,
+    source_player_pool: tuple[Player, ...],
+    route: OriginalNameGroupCandidateRoute,
+) -> OriginalSupportStaffSourceNameReplay:
+    """Replay exactly ONE original 0x4CA660 staff name-generation call.
+
+    Original 0x421C00 first draws BOTH player records, then 0x4CA660
+    checks the first-name '-' sentinel and retries the ENTIRE two-draw pair.
+    The report-setup name helper is different: it retries first choice alone.
+    This standalone source primitive requires caller's genuine shared CRT
+    at the correct native callsite; it does not establish that seed/state.
+    No new private RNG is ever instantiated here, and it is not wired to
+    ordinary live GameState until its exact startup stream is reconciled.
+    """
+    if type(route) is not OriginalNameGroupCandidateRoute:
+        raise TypeError("Require original source name-route record")
+    if (type(source_player_pool) is not tuple
+            or not source_player_pool
+            or len(source_player_pool) != route.global_player_count):
+        raise OriginalSupportStaffNameSourceError(
+            "Require source-ordered original player records"
+        )
+    if not callable(getattr(rng, "randbelow", None)):
+        raise TypeError("Require caller-owned shared CRT RNG")
+    if route.candidate_source == "filtered_nationality_players":
+        eligible = route.source_record_positions
+    elif route.candidate_source == "global_players":
+        eligible = tuple(range(route.global_player_count))
+    else:
+        raise OriginalSupportStaffNameSourceError(
+            "Unknown original player-name pool branch"
+        )
+    if not eligible or len(set(eligible)) != len(eligible):
+        raise OriginalSupportStaffNameSourceError("Invalid source name candidate pool")
+    if not any(
+        route.eligible_source_player_position(position)
+        and type(position) is int
+        and 0 <= position < len(source_player_pool)
+        and type(source_player_pool[position]) is Player
+        and source_player_pool[position].index == position
+        and source_player_pool[position].first_name != "-"
+        for position in eligible
+    ):
+        raise OriginalSupportStaffNameSourceError(
+            "Source nationality/player pool has no non-sentinel first name"
+        )
+
+    attempts = 0
+    while True:
+        first_index = rng.randbelow(len(eligible))
+        second_index = rng.randbelow(len(eligible))
+        if (type(first_index) is not int or type(second_index) is not int
+                or not 0 <= first_index < len(eligible)
+                or not 0 <= second_index < len(eligible)):
+            raise OriginalSupportStaffNameSourceError(
+                "Original shared CRT returned out-of-bounds player choice"
+            )
+        attempts += 1
+        first = eligible[first_index]
+        second = eligible[second_index]
+        if source_player_pool[first].first_name == "-":
+            continue
+        return OriginalSupportStaffSourceNameReplay(
+            source_support_staff_name_from_observed_player_pair(
+                source_player_pool, route,
+                original_first_player_position=first,
+                original_surname_player_position=second,
+            ),
+            attempts,
+        )
