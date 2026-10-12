@@ -186,6 +186,63 @@ def main(path: str) -> None:
     print("PASS 0x413020 user event dispatch; NOT a no-op registrar")
     print("WARNING these event constructors' first human reachability UNKNOWN")
 
+    # Original 0x613EE0: virtual+0x10 result is NOT the event-removal
+    # predicate; the second caller-pushed argument at [esp+0x14] is.
+    # Every syntactic direct caller pushes explicit 1 and current global date.
+    original_timed_queue_edges = (
+        ("613eec", "mov    DWORD PTR [ebx+0x10],0x0"),
+        ("613f00", "cmp    DWORD PTR [ecx+0x4],eax"),
+        ("613f03", "jg     0x613f29"),
+        ("613f07", "call   DWORD PTR [edx+0x10]"),
+        ("613f0a", "mov    eax,DWORD PTR [esp+0x14]"),
+        ("613f0e", "test   eax,eax"),
+        ("613f1c", "call   0x4ea190"),
+        ("613f37", "mov    eax,DWORD PTR [ebx+0x10]"),
+        ("613f40", "call   0x614080"),
+        ("613f62", "mov    ecx,DWORD PTR [eax+0x6b4]"),
+        ("613f68", "call   0x5cf990"),
+        ("41a35c", "push   0x1"),
+        ("41a364", "call   0x613ee0"),
+        ("41a46d", "push   0x1"),
+        ("41a475", "call   0x613ee0"),
+        ("432164", "push   0x1"),
+        ("43216c", "call   0x613ee0"),
+        ("4a807c", "push   0x1"),
+        ("4a8084", "call   0x613ee0"),
+        ("5e332d", "push   0x1"),
+        ("5e3335", "call   0x613ee0"),
+        ("616830", "call   0x404110"),
+        ("616816", "cmp    al,BYTE PTR [ebp+0x14]"),
+        ("4041bf", "call   0x4037b0"),
+        ("4041c4", "cmp    al,0x1"),
+        ("4041d1", "call   0x426220"),
+        ("4f7f0f", "call   0x616620"),
+        ("4f7f1b", "call   0x616620"),
+        ("4f994e", "call   0x616620"),
+        ("4259c0", "call   0x5cf830"),
+        ("5cf838", "call   0x42c9f0"),
+        ("42ca19", "call   0x686fe3"),
+        ("42ca25", "call   0x686fe3"),
+    )
+    for address, expected in original_timed_queue_edges:
+        actual = instruction(address)
+        if expected not in actual:
+            raise AssertionError(("Native queue or scheduler edge changed", address, actual))
+    expected_direct_owners = {
+        "613ee0": ("41a364", "41a475", "43216c", "4a8084", "5e3335"),
+        "616620": ("4f7f0f", "4f7f1b", "4f994e"),
+        "404110": ("616830",),
+        "426220": ("4041d1",),
+    }
+    for target, callsites in expected_direct_owners.items():
+        actual = direct_calls(target)
+        if actual != callsites:
+            raise AssertionError(("Unexpected direct callers", target, actual))
+    print("PASS 5 original timed-queue direct sites all pass remove flag 1")
+    print("PASS timed callback return ignored for node removal; +0x6B4 followup")
+    print("PASS native schedule 616620 -> 404110 -> 426220 guarded chain")
+    print("WARNING direct callers do NOT prove first-user queue population")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
