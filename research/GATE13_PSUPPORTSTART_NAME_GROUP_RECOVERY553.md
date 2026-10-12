@@ -131,3 +131,45 @@ objdump -D -Mintel --start-address=0x411440 --stop-address=0x411558 footballmana
 objdump -D -Mintel --start-address=0x410480 --stop-address=0x4104bc footballmanager.exe
 objdump -D -Mintel --start-address=0x421ba0 --stop-address=0x421c49 footballmanager.exe
 ```
+
+## Recovery553 additional source-qualified club-name candidate projection
+
+Original `0x421BA0` group-club >10 case returns an actual native
+`0x874B90` CLUB pointer, not a first/surname PLAYER pointer.
+Native `0x421C00` uses `selected_first_record+0x08` and
+`selected_second_record+0x0C`. Original club loader
+`0x4022D0` resolves those from the real original
+Master.dat `club+4` name and `club+6` short-name
+indices, respectively, through the original English.str.
+The result can resemble an unusual staff name, but
+**no invented personal name may replace that source
+branch simply because it seems odd**.
+
+The new bounded
+`original_supportstart_club_name_source.py`
+requires a source-proven group>10 route and two
+explicit source-observed *club positions* within
+its true native country group; then reads
+only the original club text fields from the
+unchanged 1246-club source records, with strict
+source sentinel, CP1252 and member validation.
+It does not perform the original shared CRT RNG
+calls or invent which indices were chosen.
+Its focused tests demonstrate a synthetic
+first-club full-name plus second-club short-name
+projection (not an actual staff name), and
+reject all unqualified group/position/encoding
+cases.
+
+This is an additional source-reader building block,
+**not** live SupportStart render/edit acceptance.
+The exact random choice/first-text sentinel retries,
+source UI event-hit callback and multimanager
+persistence still require original-first verification.
+
+Original private source reproductions:
+```bash
+objdump -D -Mintel --start-address=0x4022d0 --stop-address=0x40232a footballmanager.exe
+objdump -D -Mintel --start-address=0x411440 --stop-address=0x411558 footballmanager.exe
+objdump -D -Mintel --start-address=0x421ba0 --stop-address=0x421c49 footballmanager.exe
+```
