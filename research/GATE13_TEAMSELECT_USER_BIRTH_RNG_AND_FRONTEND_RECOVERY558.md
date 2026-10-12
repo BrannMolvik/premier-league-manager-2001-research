@@ -232,3 +232,29 @@ objdump -D -Mintel --start-address=0x4CF790 --stop-address=0x4CF857 footballmana
 ```
 
 **Next specific source task:** inspect direct original PSupportStart destructor `0x4CF7B0` down to every nontrivial owned callback and generic child vtable teardown, then parent `0x4D91C0` post-return and TeamSelect registration/lifecycle; qualify real staged-staff behavior on Cancel. Separately trace original pre-first-human `0x614080` indirect helpers and shared CRT checkpoint. The branch remains source-only; no original process launch, exact-HEAD Python tests, GUI playtest or Gate13–17 release acceptance.
+
+
+### Recovery561 next verification: PSupportStart row destruction is GUI child destruction, not a direct staff-list restore
+
+Tracing the actual SupportStart deleting destructor `0x4CF790 -> 0x4CF7B0` down one additional level:
+
+- At `0x4CF936..0x4CF94B`, the destructor pushes callback `0x4D89E0`, count 7, stride `0x4C`, and data pointer `this+0x2224` into native vector-destructor helper `0x66820D`. This is **exactly the seven PSupportStart selector-control array**, not an original six-staff DBRUser list.
+- Function `0x4D89E0` is a five-byte unconditional jump directly to generic GUI group destructor **`0x5D4600`**. This sets the GUI vtable `0x7D68AC`, loops `group+0x2C` registered control children and invokes each child's **virtual+0x04 deleting destructor**, frees the group's child-control pointer array, then calls base control destructor `0x64F350`.
+- `0x64F350` resets generic native input-owner state (clearing globals `0x984814` and `0x984818` if equal to the destroyed widget); it does not touch support-staff linked-list heads. Other direct `0x4CF7B0` callees in the bounded range are the same base controls/destructors and resource cleanup `0x64D780`, whose indirect base resource calls are still unqualified as a complete negative trace.
+- This narrows the **seven selector child destructor path** to UI lifetime cleanup. It does not on its own prove that all PSupportStart Cancel paths restore/retain DBRUser+0x5D0/+0x5B8/+0x5C4, because previous `0x4DA4F0` list-transfer and subsequent TeamSelect game-model callbacks are separate. Do not model Cancel as a clean reversal simply from a deleting destructor.
+
+### Recovery561 exact pre-staff event-list dispatch is conditional
+
+`0x412EF0` invokes generic event-queue `0x614080` with `ECX=0x947AA8` before staff list initialization. The actual `0x614080` function checks owner+0x0C: when nonzero, it ONLY writes owner+0x10=1 and returns (**zero direct or indirect RNG calls in this branch**). Otherwise it walks pending nodes through +0x04; if nonempty, it dispatches polymorphic event targets vft+0x04 and +0x18, potentially removing nodes by `0x4EA190`. Therefore a claim of no RNG consumption here requires proving the event queue is empty/short-circuited for the exact first-user click. Simply observing no direct call to RNG in `0x412EF0` is NOT sufficient. This is a concrete runtime-state predicate, not a perpetual generic blocker; target the `0x947AA8` owner initialization and producer at the first TeamSelect event.
+
+Reproduce:
+```
+objdump -D -Mintel --start-address=0x4CF92A --stop-address=0x4CF9B0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4D89E0 --stop-address=0x4D89E5 footballmanager.exe
+objdump -D -Mintel --start-address=0x5D4600 --stop-address=0x5D4670 footballmanager.exe
+objdump -D -Mintel --start-address=0x64F350 --stop-address=0x64F376 footballmanager.exe
+objdump -D -Mintel --start-address=0x614080 --stop-address=0x6140EF footballmanager.exe
+objdump -D -Mintel --start-address=0x412EF0 --stop-address=0x412F30 footballmanager.exe
+```
+
+**Next source actions:** investigate owner global `0x947AA8` initialization and when it has queued nodes on normal TeamSelect user creation, original `0x4258D0` + `0x426090` virtual subcall reachability, and any post-Apply/Cancel movement in the TeamSelect main model. These must precede a source-exact shared CRT claim. The Windows 11 host currently lacks the immediate source user/event/modal transaction; its original fidelity is still incomplete, and no original GUI acceptance, exact-head new Python test result or Gate13 closure is claimed.
