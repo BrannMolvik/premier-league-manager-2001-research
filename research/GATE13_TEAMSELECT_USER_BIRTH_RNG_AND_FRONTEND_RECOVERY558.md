@@ -489,3 +489,29 @@ objdump -s -j .data --start-address=0x8180C0 --stop-address=0x8180E0 footballman
 ```
 
 **NEXT:** trace world/new-game/database producer reachability following this exact empty-state initializer and before TeamSelect's **two** queue-drain locations. Filter the 175 original enqueues by real call graph rather than assuming all 175 are active; focus on source actual event types which draw CRT or persist. Then integrate source-consistent user creation/staff/SupportStart Apply/Cancel/return, without premature GUI acceptance or Gate13 closure.
+
+
+## Recovery564: original TeamSelect CONTINUE drains/destroys remaining global events before competition initialization
+
+**New concrete post-user chronological boundary.** This source-native progression comes from fresh disassembly of the owner's SHA256-authenticated original `footballmanager.exe`, not a simulated Python event queue or original-process launch:
+
+1. Original TeamSelect event callback `0x4DA480` checks its passed selected control `[arg+0x20]`. On event identifier **0x2A (42)**, its branch `0x4DA493..0x4DA4A5` obtains original screen `+0x64/+0x68` selected human/club context and calls actual new-game transition function **`0x4C41C0`**. This is **a distinct later event from the original selected-club/new-user callback `0x4D8E90`** and the editor callback `0x4D91C0`.
+2. `0x4C41C0` begins new career/world setup: resets `0x8755D4`, initializes original match/calendar/session context using `0x432A20` and `0x432D20`, then resets the game owner/control lists. Importantly, at **`0x4C4263..0x4C4275`** it obtains original queue owner head **`[0x947AAC]` = `[0x947AA8+0x04]`**, pushes that head pointer and calls **`0x4E9830` with `ECX=0x947AA8`**. This is not the earlier conditional event drain at `0x4259B5/0x412F1F`.
+3. Original `0x4E9830..0x4E9893` walks the supplied linked-list node through each node+0x04, and if queue owner+0x00 is nonzero and event+0x00 is nonnull, invokes that event object's **virtual+0x00 deleting destructor with pushed 1**; it frees the entire corresponding queue-node chain via `0x686FE3`, then **clears owner head `+0x04=0` and tail `+0x08=0`** if the passed head is indeed the owning first node. Because `0x4C426E` passes precisely owner+0x04, **this is a full original global-event queue clear at normal Continue**, not merely one event's conditional dispatch.
+4. `0x4C42EE` then invokes `0x4E2EB0`, `0x4C42FA` shifts menu status, and at **`0x4C4304` it calls `0x413830`** (previously source-recovered precompetition initialization). Thus the explicitly cleared queue precedes 0x413830 and `0x4C4379 -> 0x4F7380` source competition grouping and source staff/youth/bootstrap `0x4C43A6` etc. The original game expects pending events to be discarded/destroyed on this transition; simply retaining prior PSupportStart/new-human queued events into original season competition setup would be wrong.
+5. **A separate source gameplay event allocator `0x6194D0`** (the real upstream owner of guarded `0x619EB0 -> 0x41AAE0 -> 0x409240 -> RNG(5)` event production) has exactly TWO **direct** callsites in the entire original `.text`: `0x4A8103` and `0x4C48B8`. At `0x4A80EE..0x4A8103` the former is behind `(dateIndex+5) mod 7 == 0` weekly-calendar test, NOT initial TeamSelect selected-club callback. The latter at `0x4C48B8` occurs much later **inside the original `0x4C41C0` Continue transition itself**, after `0x413830` and team/world setup and after the explicit precompetition queue clear. Thus a source direct call to this particular `0x6194D0` allocator cannot produce its special RNG(5) event **during the earlier selected-human click before normal Continue**, unless there is as-yet-unidentified indirect/function-pointer invocation. Source direct call evidence does not rule out other enqueuers or indirect calls, nor prove an exact shared CRT first-human seed state.
+6. `0x6194D0` accesses actual current human registry `0x8755E4/0x874C10` and generated game/world candidate pools. Its source `0x61955C..0x6195BC` enumerates human users, iterates actual original club object references and calls source `0x417360` human-managed-club predicate, then conditionally `RNG(10)` at `0x6195C0`. That further qualifies this routine as **human/world-session-sensitive allocator**, not unconditional pre-human original database parsing.
+
+**Consequences for source-exact staged transaction:** The source initial user path may still have dynamic queued events at both `0x4259B5` and `0x412F1F`; only their actually reachable producers need to be audited. But by the later event0x2A Continue transition, whatever events survive those drains are explicitly destroyed/cleared before competition setup. Preserve both distinct lifecycle phases. Do not insert the special `0x409353 RNG(5)` as a mandatory first-click staff draw, and do not retain pre-Continue pending events into newly built competitions.
+
+**Still unknown:** concrete queue population from all other source producer classes between global ctor `0x6139A0` and first-human selected click; indirect function-pointer/vft paths to `0x6194D0`; exact CRT checkpoint and native PSupportStart Cancel linked-list outcome, and true original click/host GUI. Source-only evidence, **no original executable process launched**, no exact-head Python tests, CI or physical Windows11 acceptance; Gates13–17 OPEN.
+
+Reproduce:
+```bash
+objdump -D -Mintel --start-address=0x4DA480 --stop-address=0x4DA4D5 footballmanager.exe
+objdump -D -Mintel --start-address=0x4C41C0 --stop-address=0x4C438C footballmanager.exe
+objdump -D -Mintel --start-address=0x4E9830 --stop-address=0x4E9894 footballmanager.exe
+objdump -D -Mintel --start-address=0x4C4880 --stop-address=0x4C48E0 footballmanager.exe
+objdump -D -Mintel --start-address=0x4A80E9 --stop-address=0x4A813B footballmanager.exe
+objdump -D -Mintel --start-address=0x6194D0 --stop-address=0x6195C9 footballmanager.exe
+```
