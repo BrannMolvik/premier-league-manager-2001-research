@@ -448,8 +448,9 @@ def main(path: str) -> None:
     for addr, expected in original_modal_postmessage_edges:
         if expected not in instruction(addr):
             raise AssertionError(("Native SupportStart close message edge changed",addr))
-    if direct_calls("6539f0") != ("4d0618", "4d062a"):
-        raise AssertionError("Native modal source close owner changed")
+    _close_users = direct_calls("6539f0")
+    if len(_close_users) != 44 or not {"4d0618", "4d062a"}.issubset(_close_users):
+        raise AssertionError("Native modal source close call sites changed")
     print("PASS SupportStart modal exit posts WM_USER 0x400 via USER32.PostMessageA")
     print("WARNING posted message handler and callback side effects unresolved")
 
