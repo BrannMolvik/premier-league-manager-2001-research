@@ -140,3 +140,26 @@ objdump -D -Mintel --start-address=0x64E320 --stop-address=0x64E339 footballmana
 ```
 
 **NEXT:** source-resolve localization pointer index offset and special type13 label; trace actual modal Cancel cleanup/restoration and input-owner hit/selection callbacks. Then integrate selected native human/staff birth and GUI on one true CRT. Gates13–17 and original/Win11 GUI acceptance remain OPEN.
+
+## Recovery560: reuse Recovery551 SOURCE-CLOSED staff role localization, do not rediscover
+
+**Correction to the late Recovery559 paragraph above:** role-label provenance was NOT unresolved in the canonical repository. Already-merged `research/GATE13_PSUPPORTSTART_STAFF_LOCALIZATION_RECOVERY551.md` and `reconstruction/original_supportstart_staff_labels.py` source-qualified ALL SIX ordinary starting staff labels and all sixteen supported role cases, including special type13. The actual CSupportStaff constructor stores type at +0x04, verified vft+0x14 `0x42CB40` returns that same type, and PSupportStart `0x4D0725` forwards it to native `0x4CDCD0`. The original language initializer `0x64A312` separately populates 0x9821E4 from `English.idx` position2437, resolving type13 **Physiotherapist**. This predates Recovery559; no new localized-data inference is needed.
+
+Independently reopened the unchanged private original 369,644-byte English.str SHA256 `aa594a55...` and English.idx 5,428-byte SHA256 `98fcbe9e...`. Parsed their real uint32-offset string table and uint16 string index IDs directly: native cases (1,2,3,4,5,13) return exactly:
+```
+ASSISTANT MANAGER
+STADIUM MANAGER
+YOUTH TEAM MANAGER
+BUSINESS CONSULTANT
+CHIEF SCOUT
+Physiotherapist
+```
+The type13 entry is English.idx slot2437, NOT the neighboring slot1889 MASSEUR. Original staff role mapping in existing `support_staff.py` main is already corrected: ASSISTANT_MANAGER_TYPE=1, not the old wrong2. No new fix needed there.
+
+Updated branch `reconstruction/original_supportstart_initial_modal_rows.py` to optionally accept BOTH existing `EAStringTable` and `EAStringIndex` and use the existing `original_supportstart_native_staff_label` resolver for the original **first** text buffer `+0x70+0x80*i`. The original **second** buffer `+0x4F0+0x80*i` still holds the complete source staff name and the seventh row remains empty. With no original language pair, first-buffer role is intentionally unresolved (None); incomplete or invalid language inputs fail closed rather than inventing a string. Extended existing source rows tests to assert all six authentic labels and the special Physiotherapist role using the actual repository original assets. **Private source bytes reverified in shell; new GitHub Python tests not yet executed on exact feature head.**
+
+Also staged `original_supportstart_modal_result.py` and its synthetic tests: after native `0x64F960` acceptance, `0x652F80` bit15 must be set to open modal; inner event1 Cancel returns0 without `0x4D0830`, event2 Apply returns1 with it; outer `0x4D91C0` returns saved event-acceptance EBX regardless of the inner modal result. This is a source-defined **result projection only**, not a mouse/keyboard controller and not proof of native Cancel linked-list restoration. Confirmed by fresh static original disassembly of `0x4D91C0..0x4D9238`, `0x450BB0..0x450CE8`, and old native `0x4D05E0..0x4D0631`.
+
+**Still unverified:** source modal input owner/hit acceptance, original DbrUser/Staff linked-list post-Cancel lifecycle (native destructor `0x4CF7B0` and `0x5EB920` include indirect GUI owner callbacks, so a bounded absence of direct staff-list calls is not general rollback proof), intervening indirect original CRT from new-user constructor `0x4258D0` and manager binding `0x426090`, exact seed checkpoint, actual live Windows PSupportStart, 2–6 human, release. No original executable launch or genuine Windows GUI acceptance.
+
+**Exact next:** verify any native transient pre-staff callsite random consumption and complete modal close list semantics; then source-wire original TeamSelect immediate DBRUser/13 name pairs/six staff/actual seven-row PSupportStart and original assets using ONE same process CRT with true club context; meaningful milestone PR and exact-head tests/assets/Win11 acceptance. Gate13–17 OPEN.
