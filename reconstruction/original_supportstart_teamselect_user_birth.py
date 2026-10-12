@@ -1,8 +1,10 @@
 """Bounded native TeamSelect user-birth direct-CRT transaction (not live GUI).
 
 The source-verified ordinary selected-human path calls 0x413BB0 ->
-0x4258D0 -> 0x42C400 (13 independent first/surname pairs), then
-0x4C9CD0 -> six 0x4C9B30 staff factory calls in type order 1,2,3,4,5,13.
+0x4258D0 -> 0x42C400 (13 independent first/surname pairs), THEN native
+0x4259B5 event queue drain and 0x426090 manager binder, THEN 0x412F1F
+second queue drain, THEN 0x4C9CD0 six 0x4C9B30 staff factories in order
+1,2,3,4,5,13. These intervening effects are NOT implemented here.
 This module composes the independently recovered DIRECT draw components
 against ONE caller-owned, already-positioned shared CRT instance.
 
@@ -66,6 +68,7 @@ def replay_original_teamselect_user_birth_direct_rng(
     name_route: OriginalNameGroupCandidateRoute,
     selection_context: int,
     require_shipped_club_count: bool = True,
+    acknowledge_omitted_native_event_and_binder_effects: bool = False,
 ) -> SourceOriginalTeamSelectUserBirthReceipt:
     """Replay source 13 name pairs and six staff on ONE shared CRT.
 
@@ -78,7 +81,23 @@ def replay_original_teamselect_user_birth_direct_rng(
     original CRT unexpectedly fails DURING a draw, the caller must treat
     its whole process state as unqualified; there is no fake rollback
     of the original random stream.
+
+    **STRICT INTEGRATION GUARD:** Source original has TWO 0x947AA8 event
+    queue drains and a manager-binder between 13 names and six staff.
+    Without source-qualified queue membership/callbacks and intervening
+    native effects, this function models DIRECT draw calls ONLY and may
+    NOT be used for original-exact player-visible GameState initialization.
+    A caller must explicitly acknowledge the missing effects; this
+    acknowledgement does not establish or suppress any actual native CRT
+    draws. Never enable this flag in gameplay merely to force startup.
     """
+    if (type(acknowledge_omitted_native_event_and_binder_effects) is not bool
+            or not acknowledge_omitted_native_event_and_binder_effects):
+        raise OriginalTeamSelectUserBirthError(
+            "Source-exact TeamSelect needs 0x4259B5 and 0x412F1F "
+            "queue drains plus 0x426090 manager binder between user names "
+            "and staff; direct-only replay requires explicit test-only acknowledgement"
+        )
     if not callable(getattr(rng, "randbelow", None)):
         raise OriginalTeamSelectUserBirthError("Require caller-owned shared CRT")
     if type(selected_club_id) is not int or selected_club_id < 0:
