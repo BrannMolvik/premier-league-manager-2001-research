@@ -49,3 +49,23 @@ objdump -s -j .rdata --start-address=0x7c9a80 --stop-address=0x7c9cc0 footballma
 ```
 
 **Next:** trace the fresh-start caller and exact source file/record producer for the `0x876C50` 0x40-byte pool, reconcile special-kind1 and +0x50 count semantics, then qualify all constructor and preconstructor CRT draws before any live SupportStart staff state modification. Continue to original seven-row modal, Apply/Cancel/TeamSelect return, selected Inbox, R1 full match, broader original leagues/multihuman and Gate13–17 Windows11 acceptance. No PR/CI triggered by this evidence checkpoint.
+
+
+## Recovery556 follow-up: exact source pool owner and serialized-array boundary
+
+Full original .text cross-reference scan of global `0x876C50` identified its construction, not just consumers:
+
+- `0x4F38A0` zero-initializes `0x876C4C` count and `0x876C50` pointer, gives owner `0x876C48` a vtable at `0x7C9984`, and stores **`0x876C48` into indirection `0x874BA4`**.
+- `0x4F38E0` obtains its owner+0x04 count and allocates **0x40 bytes per record**, initializing each element with vtable `0x7C9998`. Thus the original `0x876C50` record stride is confirmed by the native allocator, not guessed from its consumers.
+- `0x4F70E0` walks this same 0x40-byte pool, using its native +0x14 byte type and +0x08 source linkage to construct the polymorphic candidate object. `0x4F7380` then maps eligible object pointers to country +0x40/+0x48 arrays. `0x4F8FF0` gets the actual country mapping from original source owner +0x24, not from the candidate name/player nationality.
+- `0x4DA069`, `0x4DA0B0`, `0x4DA0C0` and `0x4DA2FF` retrieve source owner via `0x874BA4` and virtual pointer access; they are **downstream staff/mode consumers**, not proof of where the source pool was read from disk.
+- No original file path or whole-catalog producer for the 0x40-byte records has yet been proven. The source vtable linkage supplies an exact independent cross-reference target for the next recovery: find **the actual loader invoking the 0x7C9984 owner** and its authenticated original file/record stream before claiming the eligible records, country populations or original deterministic RNG seed.
+
+The source pool `0x876C50`, original club country vector `0x874BE0+0x38` and player-name group `0x874BD0` are **three different source owners**. Do not conflate them or initialize the port's visible SupportStart lists from a synthetic guessed collection.
+
+Reproduction:
+```bash
+objdump -D -Mintel --start-address=0x4f38a0 --stop-address=0x4f3920 footballmanager.exe
+objdump -D -Mintel --start-address=0x4f70e0 --stop-address=0x4f7257 footballmanager.exe
+objdump -s -j .rdata --start-address=0x7c9984 --stop-address=0x7c99b0 footballmanager.exe
+```
