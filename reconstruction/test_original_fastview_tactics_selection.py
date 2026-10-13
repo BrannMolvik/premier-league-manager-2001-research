@@ -40,6 +40,8 @@ from original_fastview_tactics_selection import (
     SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH,
     source_fastview_original_staged_record_visitor_dispatch,
     OriginalFastViewStagedEditVisitorDispatch,
+    source_fastview_633240_count_replacement_records,
+    source_fastview_633020_result_without_replacement_records,
 )
 
 
@@ -757,6 +759,76 @@ class OriginalFastViewEightRecordVisitorSourceTests(unittest.TestCase):
         self.assertEqual(
             struct.unpack("<I", pe.read(0x7D803C + 4, 4))[0],
             0x634E40
+        )
+
+
+
+class SourceFastViewReplacementOnlyCounterCorrectionTests(unittest.TestCase):
+    """A nonempty original edit list can have ZERO replacement records."""
+
+    def test_native_count_ignores_seven_other_original_edit_classes(self):
+        all_classes = tuple(vtable for vtable, _, _ in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH)
+        self.assertEqual(source_fastview_633240_count_replacement_records(
+            original_staged_record_vtables=()), 0)
+        self.assertEqual(source_fastview_633240_count_replacement_records(
+            original_staged_record_vtables=all_classes[:-1]), 0)
+        self.assertEqual(source_fastview_633240_count_replacement_records(
+            original_staged_record_vtables=all_classes), 1)
+        self.assertEqual(source_fastview_633240_count_replacement_records(
+            original_staged_record_vtables=(0x7D7F90, 0x7D7F48, 0x7D7F90)), 2)
+
+    def test_native_zero_count_permits_other_class_only_before_independent_gates(self):
+        for record_types in ((), (0x7D7F84,), (0x7D7F3C, 0x7D7F48, 0x7D7F78)):
+            with self.subTest(records=record_types):
+                self.assertEqual(
+                    source_fastview_633020_result_without_replacement_records(
+                        original_staged_record_vtables=record_types
+                    ), 0
+                )
+        for record_types in ((0x7D7F90,), (0x7D7F3C, 0x7D7F90),
+                             (0x7D7F90, 0x7D7F90)):
+            with self.subTest(records=record_types), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_633020_result_without_replacement_records(
+                    original_staged_record_vtables=record_types
+                )
+
+    def test_class_inventory_requires_source_known_exact_type(self):
+        for record_types in (None, [], [0x7D7F90], (0x7D7F30,),
+                             (0x7D8014,), (True,), ("0x7D7F90",),
+                             (-1,), (0x100000000,)):
+            with self.subTest(records=record_types):
+                with self.assertRaises(SourceFastViewTacticsSelectionError):
+                    source_fastview_633240_count_replacement_records(
+                        original_staged_record_vtables=record_types
+                    )
+                with self.assertRaises(SourceFastViewTacticsSelectionError):
+                    source_fastview_633020_result_without_replacement_records(
+                        original_staged_record_vtables=record_types
+                    )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner-authorized original PE not mounted")
+    def test_original_count_visitor_only_replacement_slot_is_nontrivial(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        original_counter = 0x7D803C
+        self.assertEqual(struct.unpack("<I", pe.read(original_counter + 4, 4))[0],
+                         0x634E40)
+        self.assertEqual(pe.read(0x634E40, 8),
+                         bytes.fromhex("8b 41 04 ff 00 c2 04 00"))
+        self.assertEqual(pe.read(0x6596D0, 3),
+                         bytes.fromhex("c2 04 00"))
+        for slot in range(8, 0x21, 4):
+            with self.subTest(slot=hex(slot)):
+                self.assertEqual(
+                    struct.unpack("<I", pe.read(original_counter + slot, 4))[0],
+                    0x6596D0
+                )
+        self.assertEqual(
+            struct.unpack("<I", pe.read(0x7D7F90 + 4, 4))[0],
+            0x633600
         )
 
 if __name__ == "__main__":
