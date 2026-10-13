@@ -413,4 +413,20 @@ class OriginalFastViewHeaderNativeOwnerTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
+
+class OriginalFastViewHumanLow16LookupSeparationTests(unittest.TestCase):
+    def test_human_membership_raw_dword_and_formation_owner_word_mask_differ(self):
+        from original_fastview_native_player_roster_stage import (
+            source_fastview_original_human_club_4037b0,
+            source_fastview_original_formation_owner_413b40,
+        )
+        refs=(0x10001,1,45)
+        self.assertEqual(source_fastview_original_human_club_4037b0(original_club_reference_dword=0x10001,original_human_registry_club_ids_in_link_order=refs),0)
+        self.assertEqual(source_fastview_original_formation_owner_413b40(original_club_reference_dword=0x10001,original_human_registry_club_ids_in_link_order=refs),1)
+        self.assertEqual(source_fastview_original_formation_owner_413b40(original_club_reference_dword=45,original_human_registry_club_ids_in_link_order=refs),2)
+        self.assertIsNone(source_fastview_original_formation_owner_413b40(original_club_reference_dword=78,original_human_registry_club_ids_in_link_order=refs))
+        self.assertIsNone(source_fastview_original_formation_owner_413b40(original_club_reference_dword=0x10001,original_human_registry_club_ids_in_link_order=(0x10001,)))
+        with self.assertRaises(SourceFastViewNativePlayerRosterError):
+            source_fastview_original_formation_owner_413b40(original_club_reference_dword=True,original_human_registry_club_ids_in_link_order=refs)
+
 if __name__=='__main__': unittest.main()
