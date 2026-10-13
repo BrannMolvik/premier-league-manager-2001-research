@@ -176,6 +176,17 @@ NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES = (
 )
 NATIVE_AUXILIARY_EVENT_FIELD_OFFSET = 0x20
 
+# The first (source 0x6503F0) family is explicitly created with x/y and
+# a 40x16 rectangle, which its wrapper passes to base 0x64F380.
+# The second is NOT 40x16: 0x5D71A0 forwards the original input arg
+# 0x877820 into 0x651A50, which reads that resource's +0x14 (width)
+# and +0x18 (height) before 0x64F380. Do not invent those runtime values.
+NATIVE_FIRST_AUXILIARY_ROW_SIZE = (40, 16)
+NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA = 0x877820
+NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS = (0x14, 0x18)
+NATIVE_SECOND_AUXILIARY_RECT_WRAPPER = 0x651A50
+
+
 
 @dataclass(frozen=True)
 class OriginalFastViewTacticsAuxiliaryRowControl:
@@ -186,6 +197,31 @@ class OriginalFastViewTacticsAuxiliaryRowControl:
     native_y: int
     source_constructor_va: int
     artwork_identity_verified: bool = False
+
+    def native_source_rect_from_original_dimensions(
+        self, *, original_resource_dimensions: tuple[int, int] | None = None
+    ) -> tuple[int, int, int, int]:
+        """Retain the native rectangle writer's source geometry, not a click.
+
+        0x23D65A source constructor 0x6503F0 passes 40x16 explicitly.
+        0x8877AE source constructor 0x5D71A0 obtains width/height from the
+        original 0x877820 image owner. If the live original owner values are
+        unknown, fail closed rather than substitute 40x16 or 800x600.
+        No result here proves native pointer hit or mutable player effects.
+        """
+        if self.source_constructor_va == 0x6503F0:
+            if original_resource_dimensions is not None:
+                raise ValueError("first family rectangle does not use caller resource dimensions")
+            width, height = NATIVE_FIRST_AUXILIARY_ROW_SIZE
+        elif self.source_constructor_va == 0x5D71A0:
+            if type(original_resource_dimensions) is not tuple or len(original_resource_dimensions) != 2:
+                raise ValueError("original live resource width and height are required")
+            width, height = original_resource_dimensions
+            if any(type(v) is not int or not (0 < v <= 0xFFFFFFFF) for v in (width, height)):
+                raise ValueError("only original unsigned resource dimensions can be supplied")
+        else:
+            raise ValueError("unrecognized original auxiliary native constructor")
+        return (self.native_x, self.native_y, width, height)
 
     def __post_init__(self) -> None:
         if type(self.source_row) is not int or not (0 <= self.source_row < NATIVE_TACTICS_PLAYER_ROWS):
