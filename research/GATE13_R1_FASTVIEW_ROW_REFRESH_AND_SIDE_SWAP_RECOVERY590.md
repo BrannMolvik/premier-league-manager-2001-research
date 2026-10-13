@@ -44,3 +44,12 @@ The branch contains source-bounded projections in `reconstruction/original_fastv
 1. Reverse full `0x633020` / `0x633240` / `0x6331A0` validator inputs, side effects, and AL polarity, plus original `0x6335D0` edit-node ownership and actual `0x651AC0` pointer/selection return. Use source-proven bounded tests, no synthetic click permission.
 2. Resolve how 0x52F690's mutable original dropdown strings/options map to the native second-family control's selection and renderer. Connect actual modal owner/true two-sided writeback without double-dispatch; require negative/out-of-range paths.
 3. Integrate live original mode2 only when source-complete; then original PResults event processing and normal management return. Verify actual Windows 11 GUI separately. Continue full Gate13, later Gates14–17, all selectable leagues/countries, 2–6 users, Save/Load and release audit. Do not mark Gate13 complete because the source helper tests pass.
+
+
+## Recovery590 follow-up: polymorphic validator and original edit-node identity
+
+A second independent 19/19 authenticated original PE instruction-site check passed locally (59/59 combined static checks in this recovery). This does not validate a live match or GUI.
+
+The original native 0x633020 function first invokes 0x633240 at 0x633040, short-circuiting to zero when that result is zero (0x63304E/0x633058). Otherwise, it allocates/transfers temporary linked nodes, loops the source records, invokes 0x6331A0 at 0x633107 and OR-accumulates the result. The native 0x633240 and 0x6331A0 use virtual slot +4 of polymorphic original linked-list records. Function 0x6331A0 seeds scratch state through 0x6348E0 and obtains a result via 0x634DF0. The full polymorphic predicate identities, validator effects and ownership are still UNKNOWN. A substituted validator that returns zero unconditionally would incorrectly permit 0x6C2770 and must NOT be used.
+
+The original queued replacement edit-node constructor 0x6335D0 calls 0x633400 to establish the source-player index in object DWORD +4, assigns original vtable 0x7D7F90, then records destination-player index in object DWORD +8. The caller 0x52EC28..0x52EC90 appends this source 12-byte object into the original edit list after running 0x6C2770, incrementing screen+0x48AC. The node itself does not prove the eventual modal/match consumer, persisted replacement, or synchronous two-sided writeback; those are the exact next source dependencies. No live queue implementation or Windows 11 acceptance is claimed.
