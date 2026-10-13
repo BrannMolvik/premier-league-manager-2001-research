@@ -93,19 +93,19 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
 
 
     def test_native_51f3c0_unsigned_event_names_sort_without_normalization(self):
-        from original_fastview_native_event_selection import source_fastview_original_event_name_less_51f3c0
-        cmp=source_fastview_original_event_name_less_51f3c0
+        from original_fastview_native_event_selection import source_fastview_original_event_order_swap_51f3c0
+        cmp=source_fastview_original_event_order_swap_51f3c0
         def less(a,b):
             return cmp(first_event_virtual14_returned_name_nul=a,
                        second_event_virtual14_returned_name_nul=b)
-        self.assertTrue(less(b"A\0",b"Ab\0"))
-        self.assertFalse(less(b"Ab\0",b"A\0"))
+        self.assertFalse(less(b"A\0",b"Ab\0"))
+        self.assertTrue(less(b"Ab\0",b"A\0"))
         self.assertFalse(less(b"A\0",b"A\0ignored"))
-        self.assertTrue(less(b"ABC\0",b"ABD\0"))
-        self.assertTrue(less(b"HELLO\0",b"hello\0"))
-        self.assertTrue(less(b"\x7f\0",b"\x80\0"))
-        self.assertFalse(less(b"\x80\0",b"\x7f\0"))
-        self.assertTrue(less(b"\0",b"A\0"))
+        self.assertFalse(less(b"ABC\0",b"ABD\0"))
+        self.assertFalse(less(b"HELLO\0",b"hello\0"))
+        self.assertFalse(less(b"\x7f\0",b"\x80\0"))
+        self.assertTrue(less(b"\x80\0",b"\x7f\0"))
+        self.assertFalse(less(b"\0",b"A\0"))
         self.assertFalse(less(b"\0",b"\0"))
         for a,b in ((b"A",b"B\0"),(b"A\0",b"B"),
                     (None,b"A\0"),(b"A\0",bytearray(b"B\0"))):
