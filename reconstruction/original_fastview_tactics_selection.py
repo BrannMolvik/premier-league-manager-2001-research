@@ -197,3 +197,122 @@ class OriginalFastViewTacticsSelectionDraft:
         data = bytearray(self.original_side_bytes)
         pack_into("<I", data, 4 * word_index, new_value)
         return OriginalFastViewTacticsSelectionDraft(bytes(data))
+
+
+# Authenticated source 0x52F690 refresh, called only for original first
+# callback high-event family 0x8877AE..0x8877B8. The original writes
+# list/name/display buffers and invokes virtual +0x3C redraw. These
+# projections DO NOT replace that mutable source code or invoke GUI events.
+SOURCE_FASTVIEW_ROW_REFRESH_VA = 0x52F690
+SOURCE_FASTVIEW_ROW_REFRESH_MAPPED_ROWS_OFFSET = 0xB46
+SOURCE_FASTVIEW_ROW_REFRESH_CLUB_ROSTER_COUNT_VA = 0xA14BCC
+SOURCE_FASTVIEW_ROW_REFRESH_CLUB_RECORD_STRIDE = 1556
+SOURCE_FASTVIEW_ROW_REFRESH_PLAYER_RECORD_STRIDE = 72
+SOURCE_FASTVIEW_ROW_REFRESH_NATIVE_CANDIDATE_START = 11
+SOURCE_FASTVIEW_ROW_REFRESH_SOURCE_ENABLED_OFFSET = 0xB58
+SOURCE_FASTVIEW_ROW_REFRESH_SOURCE_BYPASS_OFFSET = 0xB45
+SOURCE_FASTVIEW_ROW_REFRESH_SOURCE_SCOPED_FLAG_VA = 0xA14C0C
+SOURCE_FASTVIEW_ROW_REFRESH_REMAP_OFFSET = 0x4848
+SOURCE_FASTVIEW_ROW_REFRESH_TEXT_POINTERS_OFFSET = 0x4864
+SOURCE_FASTVIEW_ROW_REFRESH_TEXT_BUFFER_OFFSET = 0x4768
+SOURCE_FASTVIEW_ROW_REFRESH_REDRAW_SOURCE_VSLOT = 0x3C
+SOURCE_FASTVIEW_ROW_REFRESH_REDRAW_ALL_SENTINEL = 11
+SOURCE_FASTVIEW_ROW_REFRESH_REDRAW_ALL_FIELD_OFFSET = 0xA68
+SOURCE_FASTVIEW_ROW_REFRESH_REDRAW_MODE_BYTE_OFFSET = 0xB44
+SOURCE_FASTVIEW_ROW_REFRESH_REDRAW_ROW_TRIPLET_OFFSET = 0xB6D
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativeCandidate:
+    """Index eligible for original 0x52F690 name/display list, not UI text."""
+    source_roster_slot: int
+    mapped_player_index: int
+
+
+def source_fastview_native_candidates_52f690(
+    *,
+    visible_row: int,
+    source_club_roster_count: int,
+    source_mapped_player_by_roster_slot: tuple[int, ...],
+    source_enabled_by_player_index: tuple[int, ...],
+    source_club_guard_by_player_index: tuple[int, ...],
+    source_current_row_bypass_byte: int,
+) -> tuple[SourceFastViewNativeCandidate, ...]:
+    """Read-only source ordering/filter of optional rows 11..count-1.
+
+    Original source: 0x52F6A1..0x52F6F1 derives guard bypass from +0xB45
+    OR club[+0x38] of the player mapped by the clicked visible row.
+    0x52F721..0x52F7F7 then visits source slots starting at 11, accepting
+    +0xB58[map[slot]] != 0 and (bypass OR club[+0x38] == 0).
+    It ALSO formats original names and mutates a native dropdown/list owner.
+    Neither that rendering nor any selection/writeback is implemented here.
+    """
+    def _byte(v: int) -> bool:
+        return type(v) is int and 0 <= v <= 255
+
+    if type(visible_row) is not int or not 0 <= visible_row < 11:
+        raise SourceFastViewTacticsSelectionError("original clicked visible row required")
+    # The native loop assumes count >= 11; a smaller value is not a valid
+    # reconstructed world input and would otherwise risk non-termination.
+    if type(source_club_roster_count) is not int or source_club_roster_count < 11:
+        raise SourceFastViewTacticsSelectionError("native club roster count >= 11 required")
+    if any(type(seq) is not tuple for seq in (
+        source_mapped_player_by_roster_slot,
+        source_enabled_by_player_index,
+        source_club_guard_by_player_index,
+    )):
+        raise SourceFastViewTacticsSelectionError("native source owner snapshots must be tuples")
+    if len(source_mapped_player_by_roster_slot) < source_club_roster_count:
+        raise SourceFastViewTacticsSelectionError("source map is shorter than native club count")
+    if not _byte(source_current_row_bypass_byte):
+        raise SourceFastViewTacticsSelectionError("native +0xB45 byte required")
+    if any(not _byte(v) for v in source_mapped_player_by_roster_slot):
+        raise SourceFastViewTacticsSelectionError("source mapping entries must be BYTEs")
+    if any(not _byte(v) for seq in (
+        source_enabled_by_player_index, source_club_guard_by_player_index
+    ) for v in seq):
+        raise SourceFastViewTacticsSelectionError("native guard/enable flags must be BYTEs")
+    max_mapped_index = max(source_mapped_player_by_roster_slot[:source_club_roster_count])
+    if (max_mapped_index >= len(source_enabled_by_player_index) or
+            max_mapped_index >= len(source_club_guard_by_player_index)):
+        raise SourceFastViewTacticsSelectionError("original mapped-player status is unavailable")
+    current_index = source_mapped_player_by_roster_slot[visible_row]
+    bypass = (source_current_row_bypass_byte != 0 or
+              source_club_guard_by_player_index[current_index] != 0)
+    accepted = []
+    for source_slot in range(SOURCE_FASTVIEW_ROW_REFRESH_NATIVE_CANDIDATE_START,
+                             source_club_roster_count):
+        player = source_mapped_player_by_roster_slot[source_slot]
+        if source_enabled_by_player_index[player] == 0:
+            continue
+        if not bypass and source_club_guard_by_player_index[player] != 0:
+            continue
+        accepted.append(SourceFastViewNativeCandidate(source_slot, player))
+    return tuple(accepted)
+
+
+def source_fastview_redraw_rows_52f690(
+    *, visible_row: int, native_popup_selection: int,
+    native_redraw_all_mode_byte: int, native_mapped_player_triplet_flag: int
+) -> tuple[int, ...]:
+    """Exact original +0x3C redraw targets, NOT mouse hit or text selection.
+
+    0x52F818..0x52F851: all 11 when +0xA68 == 11 OR (+0xB44 != 0 AND
+    +0xB6D + 3 * mapped_player_index != 0). Otherwise 0x52F855..0x52F880
+    refreshes only the clicked visible-row child if its triplet flag is set.
+    """
+    if type(visible_row) is not int or not 0 <= visible_row < 11:
+        raise SourceFastViewTacticsSelectionError("native visible row required")
+    if type(native_popup_selection) is not int or not 0 <= native_popup_selection <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native popup DWORD required")
+    if any(type(v) is not int or not 0 <= v <= 255 for v in (
+        native_redraw_all_mode_byte, native_mapped_player_triplet_flag
+    )):
+        raise SourceFastViewTacticsSelectionError("native redraw status bytes required")
+    if native_popup_selection == 11 or (
+        native_redraw_all_mode_byte != 0 and native_mapped_player_triplet_flag != 0
+    ):
+        return tuple(range(11))
+    if native_mapped_player_triplet_flag != 0:
+        return (visible_row,)
+    return ()
