@@ -161,6 +161,60 @@ class OriginalPResultsSourceEventTests(unittest.TestCase):
             source_original_presults_native_current_date_two_pass_6168c0(
                 original_ordered_date_nodes=[base])
 
+
+    def test_original_human_pointer_and_country_gate_callbacks_do_not_use_names(self):
+        from original_presults_native_event_work import (
+            source_original_presults_human_event_616990,
+            source_original_presults_country_event_510c90,
+        )
+        from struct import pack_into
+        users=(0x1000,0x2000,0x3000)
+        self.assertTrue(source_original_presults_human_event_616990(
+            original_human_count_global_8755e4=3,
+            original_manager_club_pointers_by_413b10_index=users,
+            original_event_first_club_pointer=0x3000,
+            original_event_second_club_pointer=0x4000))
+        self.assertFalse(source_original_presults_human_event_616990(
+            original_human_count_global_8755e4=3,
+            original_manager_club_pointers_by_413b10_index=users,
+            original_event_first_club_pointer=0x3333,
+            original_event_second_club_pointer=0x4444))
+        self.assertTrue(source_original_presults_human_event_616990(
+            original_human_count_global_8755e4=1,
+            original_manager_club_pointers_by_413b10_index=users[:1],
+            original_event_first_club_pointer=0x1000,
+            original_event_second_club_pointer=None))
+        a=bytearray(0x86)
+        b=bytearray(0x86)
+        pack_into("<H",a,0x84,1);pack_into("<H",b,0x84,1)
+        pack_into("<I",a,0x14,42);pack_into("<I",b,0x14,11)
+        country=(7,11,13)
+        self.assertTrue(source_original_presults_country_event_510c90(
+            original_event_first_club_record=bytes(a),
+            original_event_second_club_record=bytes(b),
+            original_533830_country_indexes_germany_france_england=country))
+        pack_into("<I",a,0x14,7)
+        self.assertTrue(source_original_presults_country_event_510c90(
+            original_event_first_club_record=bytes(a),
+            original_event_second_club_record=None,
+            original_533830_country_indexes_germany_france_england=country))
+        with self.assertRaises(OriginalPResultsEventSourceError):
+            source_original_presults_country_event_510c90(
+                original_event_first_club_record=bytes(a),
+                original_event_second_club_record=bytes(b),
+                original_533830_country_indexes_germany_france_england=country)
+        pack_into("<H",a,0x84,0)
+        pack_into("<I",b,0x14,42)
+        self.assertFalse(source_original_presults_country_event_510c90(
+            original_event_first_club_record=bytes(a),
+            original_event_second_club_record=bytes(b),
+            original_533830_country_indexes_germany_france_england=country))
+        with self.assertRaises(OriginalPResultsEventSourceError):
+            source_original_presults_country_event_510c90(
+                original_event_first_club_record=bytes(a),
+                original_event_second_club_record=None,
+                original_533830_country_indexes_germany_france_england=country)
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),"owner original PE unavailable")
     def test_private_original_event_producer_opcode_gate(self):
         from gate13_button_source_trace import OriginalPE32
