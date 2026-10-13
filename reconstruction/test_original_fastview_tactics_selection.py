@@ -12,6 +12,12 @@ from original_fastview_tactics_selection import (
     SourceFastViewPopupPostedMessage,
     SourceFastViewNativeDropdownModalResult,
     source_fastview_native_dropdown_posted_wm_user_result,
+    source_fastview_native_popup_option_dimensions_449610,
+    SourceFastViewNativePopupOptionDimensions,
+    SourceFastViewPopupNativeOptionRow,
+    source_fastview_popup_native_option_rows_6510f0,
+    source_fastview_original_popup_option_activation_653a10,
+    SourceFastViewOriginalPopupOptionActivation,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1854,6 +1860,225 @@ class SourceFastViewActualX133Win32ModalResultTests(unittest.TestCase):
             (0x651B24,"89 5e 3c"),
         ):
             with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewX133PopupNativeOptionGeometryTests(unittest.TestCase):
+    """Actual native 0x449610 list sentinel count, not guessed mouse geometry."""
+
+    def test_empty_and_eleven_plus_optional_native_entries(self):
+        for count in (0, 1, 11, 17, 26):
+            entries=tuple(range(1,count+1)) + (0,)
+            with self.subTest(count=count):
+                self.assertEqual(
+                    source_fastview_native_popup_option_dimensions_449610(
+                        list_first_dwords_with_null=entries),
+                    SourceFastViewNativePopupOptionDimensions(
+                        native_count=count,
+                        native_inner_width=144,
+                        native_height=15*count+3,
+                    )
+                )
+
+    def test_original_count_is_nonzero_first_dword_not_total_byte_size(self):
+        self.assertEqual(source_fastview_native_popup_option_dimensions_449610(
+            list_first_dwords_with_null=(0x1000,0xFFFF0000,0xABCD,0)),
+            SourceFastViewNativePopupOptionDimensions(3,144,48))
+
+    def test_rejects_missing_multiple_or_early_null_sentinels(self):
+        bad=((),(1,),(0,0),(1,0,0),(1,0,2,0),
+             (None,0),(True,0),(-1,0),(0x100000000,0),
+             [1,0],("1",0))
+        for x in bad:
+            with self.subTest(bad=repr(x)),self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_native_popup_option_dimensions_449610(
+                    list_first_dwords_with_null=x)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original EXE not mounted")
+    def test_original_constructor_and_native_sentinel_count_source_bytes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va,hx in (
+            (0x52D218,"c7 06 28 fe 7b 00"),
+            (0x52D21E,"89 46 68"),
+            (0x52D2A4,"c7 46 70 96 00 00 00"),
+            (0x52D2AB,"e8 60 c3 f1 ff"),
+            (0x449610,"8b 41 70"),
+            (0x449613,"8b 51 68"),
+            (0x449616,"83 e8 06"),
+            (0x449619,"c7 41 6c 00 00 00 00"),
+            (0x449620,"89 41 78"),
+            (0x449629,"8b 41 6c"),
+            (0x44962C,"40"),
+            (0x44962D,"89 41 6c"),
+            (0x449630,"83 3c c2 00"),
+            (0x449636,"8b 41 6c"),
+            (0x449639,"8d 04 40"),
+            (0x44963C,"8d 54 80 03"),
+            (0x449640,"89 51 74"),
+        ):
+            with self.subTest(address=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewNativeNestedListRowIdentityTests(unittest.TestCase):
+    """Native allocated row indices, not a pixel hit acceptance model."""
+
+    def test_native_count_and_row_index_fields_follow_real_allocator(self):
+        rows=source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=3,native_first_index=0)
+        self.assertEqual(rows,(
+            SourceFastViewPopupNativeOptionRow(0,4,0),
+            SourceFastViewPopupNativeOptionRow(1,52,1),
+            SourceFastViewPopupNativeOptionRow(2,100,2)
+        ))
+        self.assertEqual(source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=2,native_first_index=5),(
+            SourceFastViewPopupNativeOptionRow(0,4,5),
+            SourceFastViewPopupNativeOptionRow(1,52,6)))
+        self.assertEqual(source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=0,native_first_index=0),())
+
+    def test_native_option_control_overflow_and_invalid_types_are_not_simulated(self):
+        for count,index in ((-1,0),(2,-1),(1,True),(True,0),(2,None),
+                            (1,"0"),(2,0xFFFFFFFF),((0x7FFFFFFF-4)//48+1,0)):
+            with self.subTest(count=count,index=index),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_native_option_rows_6510f0(
+                    native_option_count=count,native_first_index=index)
+        self.assertEqual(source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=1,native_first_index=0xFFFFFFFF),
+            (SourceFastViewPopupNativeOptionRow(0,4,0xFFFFFFFF),))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original game executable not mounted")
+    def test_nested_list_setup_and_child_index_are_original_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7BFD5C+0xB0,4))[0],0x446740)
+        for va,hx in (
+            (0x44941B,"8d be 3c 01 00 00"),
+            (0x449434,"8b 4e 68"),
+            (0x449437,"8b 46 6c"),
+            (0x449442,"6a 08"),
+            (0x449444,"6a 0f"),
+            (0x449449,"8d 04 40"),
+            (0x44944C,"8d 04 80"),
+            (0x449451,"6a 02"),
+            (0x449453,"6a 03"),
+            (0x449457,"ff 92 b0 00 00 00"),
+            (0x446774,"e8 77 a9 20 00"),
+            (0x65113E,"89 4e 34"),
+            (0x651141,"8d 0c 7f"),
+            (0x651144,"c1 e1 04"),
+            (0x651147,"83 c1 04"),
+            (0x651168,"68 00 c6 48 00"),
+            (0x65116D,"68 80 12 65 00"),
+            (0x651176,"6a 30"),
+            (0x651179,"89 38"),
+            (0x65117B,"e8 41 76 01 00"),
+            (0x6511A5,"8b 4e 3c"),
+            (0x6511A8,"89 70 64"),
+            (0x6511AB,"03 cf"),
+            (0x6511B4,"89 48 68"),
+            (0x6511FC,"47"),
+            (0x651204,"83 c3 30"),
+            (0x65128A,"c7 06 18 81 7d 00")
+        ):
+            with self.subTest(address=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewNativePopupOptionSelectedIndexSourceTests(unittest.TestCase):
+    """Source chain: 0x449470 item -> 0x653A10 -> PostMessageA -> 0x532B80."""
+
+    def test_native_item_activation_preserves_option_stride_index_and_posted_word(self):
+        for index in (0,1,4,10):
+            with self.subTest(index=index):
+                original=source_fastview_original_popup_option_activation_653a10(
+                    original_option_ordinal=index,original_list_index_base=0,
+                    original_option_count=11,native_callback_argument=1)
+                self.assertEqual(original,SourceFastViewOriginalPopupOptionActivation(
+                    native_option_ordinal=index,
+                    source_item_record_byte_offset=8*index,
+                    native_option_index_dword=index,
+                    posted_wm_user=SourceFastViewPopupPostedMessage(0x400,index,0)
+                ))
+                event=original.posted_wm_user
+                self.assertEqual(source_fastview_native_dropdown_posted_wm_user_result(
+                    native_message=event.win32_message,
+                    native_wparam=event.native_wparam_word
+                ), SourceFastViewNativeDropdownModalResult(index,0,True))
+
+    def test_nonzero_native_item_base_is_preserved_but_word_truncated_on_post(self):
+        activated=source_fastview_original_popup_option_activation_653a10(
+            original_option_ordinal=2,original_list_index_base=0x10000,
+            original_option_count=3,native_callback_argument=0xFFFFFFFF)
+        self.assertEqual(activated.native_option_index_dword,0x10002)
+        self.assertEqual(activated.posted_wm_user,
+                         SourceFastViewPopupPostedMessage(0x400,2,0))
+        no_post=source_fastview_original_popup_option_activation_653a10(
+            original_option_ordinal=2,original_list_index_base=0x10000,
+            original_option_count=3,native_callback_argument=0)
+        self.assertIsNone(no_post.posted_wm_user)
+
+    def test_unverified_native_index_or_input_never_posts(self):
+        good=dict(original_option_ordinal=0,original_list_index_base=0,
+                  original_option_count=1,native_callback_argument=1)
+        for changed in (
+            {"original_option_ordinal":-1},
+            {"original_option_ordinal":1},
+            {"original_option_count":0},
+            {"original_option_count":True},
+            {"original_list_index_base":True},
+            {"original_option_count":(0x7FFFFFFF-4)//48+1},
+            {"original_list_index_base":0xFFFFFFFF,
+             "original_option_ordinal":1,
+             "original_option_count":2},
+            {"native_callback_argument":-1},
+            {"native_callback_argument":"1"},
+        ):
+            with self.subTest(changed=changed),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_original_popup_option_activation_653a10(
+                    **(good | changed))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Private original EXE not mounted")
+    def test_original_item_vtable_row_index_and_post_message_callback_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7BFD5C+0x9C,4))[0],0x449470)
+        self.assertEqual(struct.unpack("<I",pe.read(0x7C0334+0x10,4))[0],0x653A10)
+        for va,hx in (
+            (0x44948B,"68 7c 01 00 00"),
+            (0x4494AC,"8b 43 4c"),
+            (0x4494B7,"8d 14 c8"),
+            (0x4494D1,"89 46 70"),
+            (0x449551,"c7 06 34 03 7c 00"),
+            (0x6511A5,"8b 4e 3c"),
+            (0x6511A8,"89 70 64"),
+            (0x6511AB,"03 cf"),
+            (0x6511B4,"89 48 68"),
+            (0x653A10,"8b 44 24 04"),
+            (0x653A14,"85 c0"),
+            (0x653A16,"74 10"),
+            (0x653A18,"66 8b 41 68"),
+            (0x653A1C,"8b 49 08"),
+            (0x653A1F,"50"),
+            (0x653A20,"8b 49 24"),
+            (0x653A23,"e8 c8 ff ff ff")
+        ):
+            with self.subTest(address=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
 

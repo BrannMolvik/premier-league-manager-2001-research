@@ -1397,3 +1397,188 @@ def source_fastview_native_dropdown_posted_wm_user_result(
     if native_wparam == SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL:
         return SourceFastViewNativeDropdownModalResult(0xFFFF, 1, False)
     return SourceFastViewNativeDropdownModalResult(native_wparam, 0, True)
+
+
+# Next actual dropdown list ownership source after original PR670:
+# human x133 0x52D120 allocates popup -> ctor 0x52D1F0
+# writes child+0x38 list pointer into popup+0x68 at 0x52D21E.
+# Ctor sets popup+0x70=0x96 (150) at 0x52D2A4, then calls
+# original 0x449610 at 0x52D2AB (opcode e8 60 c3 f1 ff).
+# 0x449610 computes popup+0x78=popup+0x70-6 (144), resets
+# popup+0x6C list count, scans DWORD first entries at +8 bytes
+# from list owner until DWORD0, and writes popup+0x74=15*N+3.
+# This is *content dimension math*, NOT pointer hitboxes,
+# text strings, scroll or item click / selection calculations.
+SOURCE_FASTVIEW_POPUP_LIST_GEOMETRY_VA = 0x449610
+SOURCE_FASTVIEW_POPUP_LIST_POINTER_OFFSET = 0x68
+SOURCE_FASTVIEW_POPUP_OPTION_FIRST_DWORD_STRIDE = 8
+SOURCE_FASTVIEW_POPUP_NATIVE_FRAME_WIDTH = 150
+SOURCE_FASTVIEW_POPUP_INNER_CONTENT_WIDTH = 144
+SOURCE_FASTVIEW_POPUP_OPTION_ROW_PITCH = 15
+SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION = 3
+SOURCE_FASTVIEW_POPUP_NUMBER_OF_OPTIONS_OFFSET = 0x6C
+SOURCE_FASTVIEW_POPUP_OPTIONS_HEIGHT_OFFSET = 0x74
+SOURCE_FASTVIEW_POPUP_CONTENT_WIDTH_OFFSET = 0x78
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativePopupOptionDimensions:
+    native_count: int
+    native_inner_width: int
+    native_height: int
+
+
+def source_fastview_native_popup_option_dimensions_449610(
+    *, list_first_dwords_with_null: tuple[int, ...]
+) -> SourceFastViewNativePopupOptionDimensions:
+    """Project only native 0x449610 sentinel count and dimensions.
+
+    Input must represent the exact original list+8*i first DWORD at
+    each 8-byte record, including a single NULL terminal. The original
+    scans until the first NULL. Fail closed for truncated/noncanonical
+    input instead of dereferencing arbitrary host pointers. No GUI
+    position, selection-index or clickable-row assumption is made.
+    """
+    if (type(list_first_dwords_with_null) is not tuple or
+            not list_first_dwords_with_null):
+        raise SourceFastViewTacticsSelectionError("native terminated option records required")
+    if any(type(d) is not int or d < 0 or d > 0xFFFFFFFF
+           for d in list_first_dwords_with_null):
+        raise SourceFastViewTacticsSelectionError("original list-entry DWORDs required")
+    if list_first_dwords_with_null[-1] != 0 or 0 in list_first_dwords_with_null[:-1]:
+        raise SourceFastViewTacticsSelectionError(
+            "original native option inventory must end with exactly one sentinel"
+        )
+    count = len(list_first_dwords_with_null) - 1
+    if count > (0x7FFFFFFF - SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION)//15:
+        raise SourceFastViewTacticsSelectionError(
+            "unqualified original native 32-bit option height overflow"
+        )
+    return SourceFastViewNativePopupOptionDimensions(
+        native_count=count,
+        native_inner_width=SOURCE_FASTVIEW_POPUP_INNER_CONTENT_WIDTH,
+        native_height=SOURCE_FASTVIEW_POPUP_OPTION_ROW_PITCH * count
+                      + SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION,
+    )
+
+
+# The original popup vtable+4 0x449300 creates native nested list at
+# popup+0x13C (vtable 0x7BFD5C). At 0x449434..0x449457 it invokes
+# nested virtual+B0=0x446740 with live popup+0x68 source list, N
+# computed at +0x6C, child+0x78 width, row pitch 15, record stride 8,
+# and content height 15*N. Adapter 0x446740 calls 0x6510F0, which
+# allocates 4+48*N bytes for N native row child records, constructor
+# 0x651280 (vtable 0x7D8118), stores child+0x64=parent list, and
+# child+0x68=parent+0x3C native index base + ordinal. This is not
+# evidence for screen-space hit rectangles or delivery order.
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_PARENT_OFFSET = 0x13C
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_VTABLE = 0x7BFD5C
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_SETUP_SLOT = 0xB0
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_SETUP_ADAPTER_VA = 0x446740
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_ALLOCATOR_VA = 0x6510F0
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_CONSTRUCTOR_VA = 0x651280
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_VTABLE = 0x7D8118
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_SIZE = 0x30
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_ARRAY_COUNT_HEADER = 4
+SOURCE_FASTVIEW_POPUP_OPTION_CHILD_NATIVE_INDEX_OFFSET = 0x68
+SOURCE_FASTVIEW_POPUP_OPTION_CHILD_OWNER_OFFSET = 0x64
+
+
+@dataclass(frozen=True)
+class SourceFastViewPopupNativeOptionRow:
+    ordinal: int
+    native_row_blob_byte_offset: int
+    native_callback_index: int
+
+
+def source_fastview_popup_native_option_rows_6510f0(
+    *, native_option_count: int, native_first_index: int
+) -> tuple[SourceFastViewPopupNativeOptionRow, ...]:
+    """Read-only native constructed-row identities without click inference.
+
+    Native 0x6510F0 creates 0x30-byte children in ordinal order,
+    assigning each child+0x68 = parent+0x3C + ordinal. For the x133
+    popup, the source +8 record stride and 15px nominal pitch are
+    supplied earlier by original 0x449300/0x446740, not generated here.
+    """
+    if type(native_option_count) is not int or not 0 <= native_option_count <= (0x7FFFFFFF - 4)//0x30:
+        raise SourceFastViewTacticsSelectionError("qualified native option row count required")
+    if type(native_first_index) is not int or not 0 <= native_first_index <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original native row index base DWORD required")
+    if native_first_index + native_option_count > 0x100000000:
+        raise SourceFastViewTacticsSelectionError("unqualified native row index DWORD overflow")
+    return tuple(
+        SourceFastViewPopupNativeOptionRow(
+            ordinal=i,
+            native_row_blob_byte_offset=4+i*0x30,
+            native_callback_index=native_first_index+i,
+        )
+        for i in range(native_option_count)
+    )
+
+
+# Original native popup option *activation* source (not pixel hit):
+# 0x6510F0's vft+0x9C 0x449470 constructs each rich option at
+# +0x17C bytes and stores list_parent+0x4C option data item pointer
+# +8*row_index into the option object+0x70. Its final class vtable
+# 0x7C0334 has vft+0x10=0x653A10. The original 0x6511B4 writes
+# option+0x68 = list_parent+0x3C + ordinal. At 0x653A10 a NONZERO
+# callback argument (DWORD) loads the *WORD* at item+0x68, follows
+# item+0x08 list-parent pointer then owner+0x24 popup pointer, and
+# invokes 0x6539F0. That method POSTS WM_USER=0x400 and native WORD
+# index to the parent modal, which returns this index to 0x651AC0.
+# No pixel hit-testing, event timing or actual mouse transport proven.
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_FACTORY_VA = 0x449470
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ALLOC_BYTES = 0x17C
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_VTABLE = 0x7C0334
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_EVENT_VFT_OFFSET = 0x10
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_EVENT_METHOD_VA = 0x653A10
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_SOURCE_ITEM_POINTER_OFFSET = 0x70
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_INDEX_DWORD_OFFSET = 0x68
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_LIST_PARENT_OFFSET = 0x08
+SOURCE_FASTVIEW_POPUP_LIST_TO_POPUP_OWNER_OFFSET = 0x24
+
+
+@dataclass(frozen=True)
+class SourceFastViewOriginalPopupOptionActivation:
+    native_option_ordinal: int
+    source_item_record_byte_offset: int
+    native_option_index_dword: int
+    posted_wm_user: SourceFastViewPopupPostedMessage | None
+
+
+def source_fastview_original_popup_option_activation_653a10(
+    *, original_option_ordinal: int,
+    original_list_index_base: int,
+    original_option_count: int,
+    native_callback_argument: int,
+) -> SourceFastViewOriginalPopupOptionActivation:
+    """Source-bounded row-object callback result, NOT mouse hit inference.
+
+    The native vft+0x10 callback posts only when its input argument
+    is nonzero. On activation the original item+0x68 DWORD is read as
+    a WORD (selected index wraps modulo 2^16) before calling 0x6539F0.
+    The list item data pointer is list+8*ordinal. Must independently
+    prove a real HWND and pointer/controller route to deliver the
+    POST; this function does not send an event or edit a match.
+    """
+    values=(original_option_ordinal,original_list_index_base,
+            original_option_count,native_callback_argument)
+    if any(type(v) is not int or not 0 <= v <= 0xFFFFFFFF for v in values):
+        raise SourceFastViewTacticsSelectionError("original option callback DWORDs required")
+    if original_option_count > (0x7FFFFFFF-4)//SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_SIZE:
+        raise SourceFastViewTacticsSelectionError("native child-array size overflow")
+    if original_option_ordinal >= original_option_count:
+        raise SourceFastViewTacticsSelectionError("original item ordinal outside list")
+    if original_list_index_base+original_option_ordinal > 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original child index DWORD overflow")
+    source_index=original_list_index_base+original_option_ordinal
+    posted=(source_fastview_popup_posted_message_from_event(
+        native_event_word=source_index & 0xFFFF)
+        if native_callback_argument else None)
+    return SourceFastViewOriginalPopupOptionActivation(
+        native_option_ordinal=original_option_ordinal,
+        source_item_record_byte_offset=8*original_option_ordinal,
+        native_option_index_dword=source_index,
+        posted_wm_user=posted,
+    )
