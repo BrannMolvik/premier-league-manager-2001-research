@@ -162,3 +162,35 @@ def source_fastview_original_nested_modal_trace_532b80(
                 updated,tuple(dispatched))
     raise OriginalFastViewMessageSourceError(
         "no original Win32 modal return observed; postmodal player writeback unavailable")
+
+
+NATIVE_FASTVIEW_VIEW_CLOSE_IF_ACTIVE_VA = 0x653A10
+
+
+def source_fastview_original_conditional_view_close_653a10(
+    *, original_close_request_is_nonzero: bool,
+    original_view_owner_event_word_plus68: int | None,
+    original_nested_window_hwnd: int | None,
+) -> OriginalFastViewWin32PostedEvent | None:
+    """0x653A10: only a nonzero close request posts 0x400 via 0x6539F0.
+
+    Source 0x653A10 tests input DWORD, then reads WORD [owner+0x68]
+    and follows [owner+0x08]->+0x24 to the nested original window
+    posting owner. It calls 0x6539F0, whose PostMessageA masks wParam
+    to 16 bits; it neither closes the window directly nor simulates
+    any match. When no request, native source reads neither field.
+    """
+    if type(original_close_request_is_nonzero) is not bool:
+        raise OriginalFastViewMessageSourceError("native close request BOOL required")
+    if not original_close_request_is_nonzero:
+        if original_view_owner_event_word_plus68 is not None or original_nested_window_hwnd is not None:
+            raise OriginalFastViewMessageSourceError(
+                "native unvisited close-owner fields must not be supplied")
+        return None
+    if (type(original_view_owner_event_word_plus68) is not int or
+        not 0 <= original_view_owner_event_word_plus68 <= 0xFFFF):
+        raise OriginalFastViewMessageSourceError(
+            "actual native owner WORD+0x68 event code required")
+    return source_fastview_original_post_wm_user_6539f0(
+        original_hwnd_from_view_plus64=original_nested_window_hwnd,
+        original_event_dword=original_view_owner_event_word_plus68)
