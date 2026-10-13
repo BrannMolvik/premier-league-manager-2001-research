@@ -45,7 +45,6 @@ class OriginalPResultsNativeQueuedEvent:
     must be supplied from its actual effects (no guessed completion).
     """
     original_event_pointer: int
-    source_virtual_0c_nonzero: bool
     before_event8: int
     before_payload44: int
     first_pass_616990_human_owned: bool | None = None
@@ -56,11 +55,10 @@ class OriginalPResultsNativeQueuedEvent:
     def __post_init__(self):
         if (type(self.original_event_pointer) is not int or
                 not 0<self.original_event_pointer<=0xFFFFFFFF or
-                type(self.source_virtual_0c_nonzero) is not bool or
                 any(type(x) is not int or not 0<=x<=0xFFFFFFFF
                     for x in (self.before_event8,self.before_payload44))):
             raise OriginalPResultsEventSourceError(
-                "native pointer, original virtual+0x0C predicate and DWORD event/payload values required")
+                "native execution event pointer and reached DWORD event/payload values required")
         for name in ("first_pass_616990_human_owned",
                      "first_pass_510c90_country_member"):
             val=getattr(self,name)
