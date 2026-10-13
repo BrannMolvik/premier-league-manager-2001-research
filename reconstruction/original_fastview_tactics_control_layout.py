@@ -27,6 +27,9 @@ NATIVE_TACTICS_PLAYER_ROWS = 11
 # a hardcoded number or necessarily equal to the third arrow's right edge.
 NATIVE_RIGHT_VARIANT2_BASE_GLOBAL_VA = 0x947304
 NATIVE_RIGHT_VARIANT2_X_ADDEND = 0x1A4
+NATIVE_RIGHT_VARIANT2_BOX_RESOURCE_PATH = "FM2001_Art/Generic/GenericButtonsAndBars/name_input_box_7.444"
+NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_WIDTH = 124
+NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X = 124 + 0x1A4
 
 
 @dataclass(frozen=True)
@@ -45,6 +48,15 @@ class OriginalFastViewTacticsArrowPosition:
             raise ValueError("unresolved x must preserve its native source owner")
         if self.native_x is not None and self.dynamic_x_global_va is not None:
             raise ValueError("native position cannot be both static and dynamic")
+
+    def resolved_native_x(self, *, original_box_width: int | None = None) -> int:
+        """Use caller-provided live width for dynamic original x, never invent it."""
+        if self.dynamic_x_global_va is None:
+            assert self.native_x is not None
+            return self.native_x
+        if type(original_box_width) is not int or original_box_width < 0:
+            raise ValueError("original source dynamic box width required")
+        return original_box_width + self.dynamic_x_addend
 
 
 def original_fastview_player_arrow_positions() -> tuple[OriginalFastViewTacticsArrowPosition, ...]:
