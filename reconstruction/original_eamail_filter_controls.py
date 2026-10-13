@@ -96,3 +96,78 @@ def original_eamail_filter_native_window_candidate(
     y = source_screen_point[1] - source_panel_origin[1]
     return (rect[0] <= x < rect[0] + rect[2]
             and rect[1] <= y < rect[1] + rect[3])
+
+
+# 0x46E8E8 initializes EBP=2. The ten 0x46EA34..0x46F05F
+# registrations use EBP, then literal 3,4,...,11; 0x5D48C0 ->
+# 0x64F3C0 propagates native control+0x20 and PEAMail owner+0x24.
+# The PEAMail final vft 0x7BE674 +0x0C = 0x42DE00 returns 1.
+# Native 0x4721C0 switch cases 2..11 all dispatch 0x4722C3,
+# which matches group+0x20, clears original selected preview and
+# calls 0x472680 filtered list rebuild then 0x472880 sort.
+ORIGINAL_EAMAIL_FIRST_FILTER_EVENT_ID = 2
+ORIGINAL_EAMAIL_LAST_FILTER_EVENT_ID = 11
+ORIGINAL_EAMAIL_MODAL_OWNER_CALLBACK_VA = 0x42DE00
+ORIGINAL_EAMAIL_FILTER_GROUP_SELECTION_VA = 0x5D49F0
+ORIGINAL_EAMAIL_FILTER_REBUILD_VA = 0x472680
+
+
+@dataclass(frozen=True)
+class OriginalEAMailDeliveredFilterEvent:
+    """Original list-event result, not a self-authenticating physical click."""
+
+    native_control_event_id: int
+    source_filter_index: int
+    previously_selected_filter_index: int
+    selected_filter_index: int
+    native_selected_changed: bool
+    native_filtered_list_rebuild: bool
+    original_preview_selection_cleared: bool
+
+
+def project_original_eamail_delivered_filter_event(
+    *,
+    native_control_event_id: int,
+    previously_selected_filter_index: int,
+    source_filter_event_delivered: bool,
+) -> OriginalEAMailDeliveredFilterEvent:
+    """Project qualified PEAMail native delivered event IDs2..11.
+
+    Native 0x5D49B0 links all ten radio owners through +0x38 into a
+    0x4C-stride group, first group+0x40=1 on constructor first row,
+    remaining group+0x40=0. 0x5D4AC0 checks control state bit1,
+    group+0x38 and PEA callback; 0x5D49F0 select(1) clears selected
+    group members and marks just one +0x40=1. Repeated source
+    select of the active radio is idempotent. The actual delivered
+    callback at 0x4722C3 handles IDs2..11 and REBUILDS the filtered
+    mailbox/read-only 8-row list irrespective of whether the native
+    selected value changed; original selected detail is cleared.
+
+    A Win32 rectangle/prefilter alone is not an accepted native event:
+    callers must supply a separate genuine PEA control-event receipt
+    before setting source_filter_event_delivered=True. No fabricated
+    Win32 input, name, delivered mail, RNG or preview body is created.
+    """
+    if (type(native_control_event_id) is not int
+            or not ORIGINAL_EAMAIL_FIRST_FILTER_EVENT_ID
+            <= native_control_event_id <= ORIGINAL_EAMAIL_LAST_FILTER_EVENT_ID):
+        raise ValueError("Require actual native PEA filter event ID 2..11")
+    if (type(previously_selected_filter_index) is not int
+            or not 0 <= previously_selected_filter_index < NATIVE_FILTER_COUNT):
+        raise ValueError("Require exact prior native filter radio identity 0..9")
+    if type(source_filter_event_delivered) is not bool:
+        raise ValueError("Require an explicit source-delivered event receipt")
+    if not source_filter_event_delivered:
+        raise ValueError(
+            "A source window/input candidate is not a delivered PEA filter event"
+        )
+    index = native_control_event_id - ORIGINAL_EAMAIL_FIRST_FILTER_EVENT_ID
+    return OriginalEAMailDeliveredFilterEvent(
+        native_control_event_id=native_control_event_id,
+        source_filter_index=index,
+        previously_selected_filter_index=previously_selected_filter_index,
+        selected_filter_index=index,
+        native_selected_changed=index != previously_selected_filter_index,
+        native_filtered_list_rebuild=True,
+        original_preview_selection_cleared=True,
+    )
