@@ -1323,3 +1323,85 @@ def source_fastview_x133_original_selected_player_from_ordinal(
     ):
         raise SourceFastViewTacticsSelectionError("valid original native option index required")
     return original_options[native_child_selected_ordinal].actual_player_index
+
+
+@dataclass(frozen=True)
+class SourceFastViewX133ZeroPriorSelectedEditValue:
+    """Original source x133 option/player/side values, NOT a GUI action."""
+    source_visible_row: int
+    source_option_ordinal: int
+    source_current_player_index: int
+    source_replacement_player_index: int
+    original_side_after: OriginalFastViewTacticsSelectionDraft
+    original_new_staged_record: SourceFastViewNativeReplacementRecord
+
+
+def source_fastview_x133_zero_prior_selected_edit_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, source_x133_input_route: OriginalFastViewX133InputRoute,
+    native_source_player_mapping: tuple[int, ...],
+    native_original_club_roster_count: int,
+    native_enabled_by_player_index: tuple[int, ...],
+    native_club_guard_by_player_index: tuple[int, ...],
+    native_current_row_bypass_byte: int,
+) -> SourceFastViewX133ZeroPriorSelectedEditValue:
+    """Original x133 refresh -> choice ordinal -> player -> side value ONLY.
+
+    Requires original x133 FIRST +0x0C native row refresh and SECOND
+    +0x10 callbacks, successful original child 0x651AC0 selection and
+    status0. Native 0x52F690 builds optional player list in source
+    roster order; original selected *ordinal* maps to a player BYTE
+    by native screen+0x4848[ordinal], not row or roster-slot identity.
+    With source-proven EMPTY staged edit list, 0x633020 returns AL0,
+    original 0x6C2770 changes a 280-byte source side buffer and native
+    caller queues original 0x6335D0 replacement with from/to DWORDs.
+
+    Caller-supplied input-route and roster snapshots DO NOT prove
+    actual Win32 input, native list state, valid current club/side,
+    authentic named popup, modal, world writeback, match or PResults.
+    This helper mutates NO GUI, event source, list, or live match.
+    """
+    if type(original_side) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("original side draft required")
+    if type(source_x133_input_route) is not OriginalFastViewX133InputRoute:
+        raise SourceFastViewTacticsSelectionError("source x133 callback route required")
+    route=source_x133_input_route
+    if (route.source_parent_callback_slots != (0x0C,0x10) or
+            not route.source_first_callback_reached or
+            route.source_first_callback_vetoed_child or
+            route.source_first_callback_refresh_row is None or
+            not route.source_inner_child_reached or
+            route.source_inner_child_outcome is None or
+            not route.source_inner_child_outcome.source_handled or
+            route.source_inner_child_outcome.source_status_byte != 0 or
+            route.source_inner_child_outcome.source_saved_selected_index is None):
+        raise SourceFastViewTacticsSelectionError("x133 original row callback gates not met")
+    row=route.source_first_callback_refresh_row
+    if type(native_source_player_mapping) is not tuple or len(native_source_player_mapping) <= row:
+        raise SourceFastViewTacticsSelectionError("original source current row map unavailable")
+    mapped_from=native_source_player_mapping[row]
+    candidates=source_fastview_native_candidates_52f690(
+        visible_row=row,
+        source_club_roster_count=native_original_club_roster_count,
+        source_mapped_player_by_roster_slot=native_source_player_mapping,
+        source_enabled_by_player_index=native_enabled_by_player_index,
+        source_club_guard_by_player_index=native_club_guard_by_player_index,
+        source_current_row_bypass_byte=native_current_row_bypass_byte,
+    )
+    options=source_fastview_x133_original_option_slots_from_candidates(
+        original_source_candidates=candidates
+    )
+    selection=route.source_inner_child_outcome.source_saved_selected_index
+    mapped_to=source_fastview_x133_original_selected_player_from_ordinal(
+        original_options=options,native_child_selected_ordinal=selection
+    )
+    edited=source_fastview_6c2770_side_payload_value_only(
+        original_side,
+        source_from_player_index=mapped_from,
+        source_to_player_index=mapped_to,
+        source_club_guard_flags=native_club_guard_by_player_index,
+    )
+    return SourceFastViewX133ZeroPriorSelectedEditValue(
+        row,selection,mapped_from,mapped_to,edited,
+        SourceFastViewNativeReplacementRecord(mapped_from,mapped_to)
+    )
