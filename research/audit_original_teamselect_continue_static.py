@@ -1456,6 +1456,37 @@ def main(path: str) -> None:
             raise AssertionError(("Original concrete event vtable changed",hex(slot)))
     print("PASS original generic queue drain vs timed registered-human callback")
 
+    # Recovery578: startup calls source CRT _time32-like converter
+    # 0x66A767 -> 0x67314F before srand 0x66950F. Original native
+    # GetLocalTime/GetSystemTime/GetTimeZoneInformation from imported
+    # Windows APIs; calendar year 1970..2038, with timezone/DST.
+    # Actual process seed at 0x531098 is unobserved, no guessed epoch.
+    original_source_os_time_seed_578 = (
+        ("531098", "call   0x66a767"),
+        ("53109e", "call   0x66950f"),
+        ("66950f", "call   0x66d553"),
+        ("669518", "mov    DWORD PTR [eax+0x14],ecx"),
+        ("66a774", "call   DWORD PTR ds:0x7bd178"),
+        ("66a77e", "call   DWORD PTR ds:0x7bd174"),
+        ("66a7d3", "call   DWORD PTR ds:0x7bd170"),
+        ("66a7c5", "mov    eax,ds:0x9fab30"),
+        ("66a7fc", "push   esi"),
+        ("66a80b", "mov    ds:0x9fab30,eax"),
+        ("66a830", "call   0x67314f"),
+        ("66a83f", "mov    DWORD PTR [ecx],eax"),
+        ("673159", "sub    ebx,0x76c"),
+        ("67315f", "cmp    ebx,0x46"),
+        ("673168", "cmp    ebx,0x8a"),
+        ("67320b", "or     eax,0xffffffff"),
+        ("6731c5", "add    ecx,DWORD PTR ds:0x84de68"),
+        ("673201", "add    ecx,DWORD PTR ds:0x84de70"),
+    )
+    for address, expected in original_source_os_time_seed_578:
+        if expected not in instruction(address):
+            raise AssertionError(("Original OS-derived CRT seed moved",address))
+    print("PASS original Windows-local time conversion precedes single CRT srand")
+    print("WARNING actual native OS time and first-click RNG offset unknown")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
