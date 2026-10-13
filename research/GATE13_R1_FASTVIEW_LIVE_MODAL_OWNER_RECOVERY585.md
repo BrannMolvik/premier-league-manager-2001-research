@@ -107,3 +107,27 @@ Authenticated original private `footballmanager.exe` 4,714,541 bytes, SHA-256 `8
 **Verification / limits:** New opt-in test methods were appended on the **existing** feature branch `worker/gate13-r1-fastview-live-modal-owner-585`, guarding 41 source address checks across construction, two branches, Win32 event result and restoration. Independent ad hoc read-only VA mapping checked 63 unique sites against the hashed PE (the larger number includes supplementary verification beyond the committed 41). Exact tests in their GitHub branch context and reconstruction suite/CI are **not yet run**; no original binary was executed. No match-mode GUI was integrated; Gate13–17 remain OPEN.
 
 **Next source-backed investigation (do not duplicate completed checks):** trace the original `0x521FA0` effect chain into `0x51CBD0` and `0x518070`, trace the real input/control events and modal returns of both `0x52D6C0` and `0x52F890` classes to identify which can emit nonzero `WM_USER.wParam`, and explicitly look for (or fail-close) indirect writes to the 3 native two-side buffers. Only then design the actual original mode2 once-only match and result return inside the normal port, rather than fabricate a detached Quick-style FastView. Revisit source-independent high-impact management workflow if that proof remains blocked. The source bytes live privately; do not commit them, do not create an early PR/CI for this research checkpoint, and do not close a gate without real Windows GUI acceptance.
+
+
+## Recovery587 continuation: actual dual-class nested event maps, conditional commit vs close
+
+Read-only PE data/vtable recovery identifies the **final concrete classes**, not merely their shared parent: original `0x52D6C0` ends with vft `0x7CACFC` and vft+0x10 **`0x52E3F0`**; `0x52F890` ends with vft `0x7CB214` and vft+0x10 **`0x5302A0`**. This is why both conditional branches in `0x522280` cannot share an invented generic input handler.
+
+The first class `0x52E3F0` source event dispatcher reads **event+0x20**, subtracts 1, and accepts the bounded range **1–68** (`0x52E428 cmp eax,0x43`). The verified original indexed byte table `0x52ECF0` and 14-branch target array `0x52ECB8` decode to the following *source control handlers* (not yet button names):
+
+| Native event ID(s) | Target/source contract |
+| --- | --- |
+| 1 | `0x52E854`, own action still to investigate |
+| 2 | `0x52E8D2`, posts **zero** via `0x6539F0`, with EBP known zero from `0x52E40E` |
+| 3 | `0x52E8DF`, invokes `0x632B70`, and if true invokes `0x6C1CB0`; then posts **Boolean** `0/1` result via `0x6539F0` |
+| 4–58 | default `0x52E975` (no specific case handler in this dispatcher) |
+| 59–60 | `0x52E947`, `0x52E928` |
+| 61–68 | `0x52E440,0x52E4AE,0x52E51D,0x52E593,0x52E606,0x52E69B,0x52E72D,0x52E7C2` |
+
+The second class `0x5302A0` checks event+0x20==1 then posts **zero** via `0x6539F0`. This identifies *actual source exit producers* for the nested modal and a conditional follow-up owner effect, not a generic ESC/close replacement. For the first class, event3's nonzero path is precisely the one that can cause parent `0x522280` to invoke nontrivial `0x521FA0` on return. The precise semantic purpose of `0x632B70` and `0x6C1CB0` is still unproven.
+
+**Counterexample correction:** a separate inherited/base vtable `0x7CAC64+0x34=0x52D350` implements ESC → `0xFFFF`, but the *actual final class* vtables have `0x7CACFC+0x34=0x428AE0` and `0x7CB214+0x34=0x428AE0` (**no-op**). Do not transfer the inherited/base keyboard behavior to the final nested screens without tracing a reached callback. The original *outer* FastView keyboard ESC→zero is independently qualified and remains valid. Actual nested keyboard route may involve other control ownership; leave it unresolved.
+
+Reproduction: parse SHA-verified original PE32, read `vft+0x10` and `+0x34` for `0x7CACFC/0x7CB214`; decode `pe.read(0x52ECF0,68)` and little-endian `<14I` at `0x52ECB8`; inspect `0x52E3F0..0x52E975`, `0x5302A0..0x5302B8`. Opt-in branch tests now assert the **entire** table and bounded event/return source sites, but have not been executed as branch CI, original game GUI or original binary runtime.
+
+**Next high-impact task:** trace first-class event3 `0x632B70/0x6C1CB0` through the true match/player owner, and 59–68 controls that affect nested source state, to determine if they can edit the three original side buffers `0x877CF4/0x877BB4/0x877A74`. Trace first-class event1 `0x52E854` for selection changes, and reconcile both nested exits with original match completion. Only source-complete validated effects can be connected to real mode2 gameplay.
