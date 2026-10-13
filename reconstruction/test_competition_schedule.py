@@ -65,6 +65,10 @@ class CompetitionScheduleTests(unittest.TestCase):
 
         self.assertEqual(len(nodes), 1)
         self.assertEqual(nodes[0].node_kind, "cup_match")
+        self.assertEqual((nodes[0].original_native_constructor_evidence.original_native_constructor_va,
+                          nodes[0].original_native_constructor_evidence.original_native_serialized_type_code),
+                         (0x510520,2))
+        self.assertFalse(nodes[0].original_native_constructor_evidence.is_live_original_event)
         self.assertEqual(
             (nodes[0].scheduled_week, nodes[0].scheduled_weekday),
             (12, 6),
@@ -111,6 +115,9 @@ class CompetitionScheduleTests(unittest.TestCase):
             ],
         )
         self.assertEqual(nodes[1].node_token, ("cup_result", 5, 77, 0))
+        self.assertEqual(tuple((node.original_native_constructor_evidence.original_native_serialized_type_code,
+                                node.original_native_constructor_evidence.original_native_vtable_va)
+                               for node in nodes),((4,0x7C9EF8),(5,0x7C9F70)))
         self.assertEqual(
             (
                 nodes[0].extra_time_capable,
@@ -193,6 +200,9 @@ class CompetitionScheduleTests(unittest.TestCase):
             competition_id=0,
         )
 
+        self.assertEqual(tuple((node.original_native_constructor_evidence.original_native_serialized_type_code,
+                                node.original_native_constructor_evidence.original_native_constructor_callsite_va)
+                               for node in nodes),((1,0x617490),)*3)
         self.assertEqual(
             [
                 (
@@ -244,6 +254,9 @@ class CompetitionScheduleTests(unittest.TestCase):
         )[0]
 
         self.assertEqual(node.node_kind, "league_match")
+        # 0x6170F0 generates pairings; its native constructor instantiation
+        # is not automatically qualified from a symbolic Python emission.
+        self.assertIsNone(node.original_native_constructor_evidence)
         self.assertEqual(node.schedule_index, 4)
         self.assertEqual((node.scheduled_week, node.scheduled_weekday), (14, 6))
         self.assertEqual(node.participant_0_ref.direct_club_id, 30)
@@ -259,6 +272,10 @@ class CompetitionScheduleTests(unittest.TestCase):
         )
 
         self.assertEqual(len(nodes), 30)
+        self.assertTrue(all(node.original_native_constructor_evidence.original_native_serialized_type_code == 1
+                            and node.original_native_constructor_evidence.original_native_constructor_callsite_va is None
+                            and not node.original_native_constructor_evidence.is_live_original_event
+                            for node in nodes))
         self.assertEqual(
             (
                 nodes[0].schedule_index,
