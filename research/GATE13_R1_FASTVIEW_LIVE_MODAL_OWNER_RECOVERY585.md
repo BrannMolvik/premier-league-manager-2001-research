@@ -299,3 +299,34 @@ The formerly deferred native x-expression **`[0x947304] + 0x1A4`** now has an or
 A new pure source-layout helper `OriginalFastViewTacticsArrowPosition.resolved_native_x(original_box_width=...) ` refuses to invent a live dynamic width and returns x544 when supplied the independently original-proven initial 124. A focused test now checks source `0x5F26B9` width constructor, owner `0x5F26C6`, `0x64E58F` write and the actual `0x52830F` consumer as well as 44 previous geometric callsites. Independent local PE reads verified the chain; exact GitHub branch tests/CI and Win11 GUI still unrun at this report update.
 
 **Next:** source-map actual first-class event IDs 59–68 to the reached screen's child widgets and source hit regions, establish `name_input_box_7` control's clipping/frame display and the rest of tactics art owners, then connect verified control model to authentic modal transitions. Keep the live mode2 unavailable until real player/state/validation/results ordering is verified.
+
+
+## Recovery588: all eight native human tactics setting event widgets placed and original source art identified
+
+The previously qualified *numeric* four-setting event pairs **61–68** are now connected to the actually constructed native control objects and their source-renderer rectangles. They are **NOT the same graphics or controls as the 11 player-row `tactics_arrow_*.444` sprites**; using those 11×16 arrows as buttons for attack/passing/defense/aggression would be a false reconstruction.
+
+| Actual original child event | Setting source DWORD index | Input-child native x | Native y | Source construction |
+| ---: | ---: | ---: | ---: | --- |
+| 61 (decrease) | 1 | 576 | 278 | `0x52AEE0 → 0x52AF18` |
+| 62 (increase) | 1 | 733 | 278 | `0x52AFCD → 0x52B00A` |
+| 63 (decrease) | 2 | 576 | 334 | `0x52B06E → 0x52B0A6` |
+| 64 (increase) | 2 | 733 | 334 | `0x52B156 → 0x52B191` |
+| 65 (decrease) | 3 | 576 | 390 | `0x52B1F2 → 0x52B22A` |
+| 66 (increase) | 3 | 733 | 390 | `0x52B2DA → 0x52B312` |
+| 67 (decrease) | 4 | 576 | 446 | `0x52B376 → 0x52B3AE` |
+| 68 (increase) | 4 | 733 | 446 | `0x52B45E → 0x52B496` |
+
+The class constructor registers exact IDs 61–68 on children and then calls `0x64F380` on **those same source children** with the listed native x/y plus resource-provided width and height. All **eight ID-push sites and eight geometry push pairs, 16/16 first-hand original byte checks**, independently passed. These positions, combined with original selector DWORD bounds and string-key semantics recovered previously, are a meaningful original UI contract, though pointer hit-state, click-result input delivery and remaining control subtrees are not yet independently accepted.
+
+Original source resource for these eight widgets is **`FM2001_Art/Generic/GenericButtonsAndBars/scroller_hori.444`**, filename literal at `0x835018`, loader at `0x5F2C40` into native original owner `0x947070`. The native `0x5F2C90` wrapper selects an original **25×18** source crop to child sprite owner **0x947050**; the `0x5F2CD0` wrapper selects the other vertical crop (source y=18) to child sprite owner **0x947030**. The resulting original child owners are explicitly assigned in the human tactics constructor (`0x52AF24`, `0x52B016` and sibling sites). These are **source-native horizontal scroller graphics**, not a plausible new dropdown design.
+
+From the owner's verified extracted private Drive source tree, two actual 444 files were newly retrieved and SHA-256 checked, with **no proprietary source bytes committed**:
+
+| Original private file | Google Drive ID | Real bytes | EA444 header (width×height) | Actual SHA-256 |
+| --- | --- | ---: | --- | --- |
+| `GenericButtonsAndBars/scroller_hori.444` | `1Ku4p38APZIU8F9WenbApHRSGU7KDKkDs` | 5,612 | 100×36 | `84407c5bf69adc1af56aab46fe30d8da876c54c0538ec70963453bf6b2800a09` |
+| `GenericButtonsAndBars/scroller_bar_hori.444` | `1johcXpVJp7SYK2wK2RVi9_BNhJdpdV2Y` | 2,656 | 100×18 | `6edfba6b058a34582284eb5a2c05ba1c63d2c35fd9a458273cf435b967c6aedc` |
+
+The second file identity/bytes are independently verified, but its actual per-child role in *these eight events* has **not** been established by this trace; do not substitute it without source ownership evidence. For `scroller_hori`, 11 additional exact original PE source loader/crop/owner assertions independently passed. The persisted code `original_fastview_tactics_control_layout.py` now records the eight native event control coordinates and scroller atlas/frame crop source facts; matching regression tests exist on the same WIP feature branch.
+
+**Remaining high-impact original mode2 blockers:** full `0x6503F0/0x64F380` click hit-state conditions and original event bubbling into `0x52E3F0`; source player-row edit/preview native effects `0x532E40/0x532EB0/0x6C2830`; `0x632B70` global registry validation and first/second side mutation; original outer FastView closure and PResults/management return. No player-visible native mode2 implemented or original Win11 acceptance. Do not merge/close gate based solely on complete layout constants.
