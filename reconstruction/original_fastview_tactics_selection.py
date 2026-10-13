@@ -102,3 +102,32 @@ class OriginalFastViewTacticsSelectionDraft:
             pack_into("<I", data, 4 * index, value)
             return OriginalFastViewTacticsSelectionDraft(bytes(data))
         raise SourceFastViewTacticsSelectionError("not one of four verified +/- native selector pairs")
+
+    def with_original_player_row_step_value_only(
+        self, event_id: int, *, mapped_source_row: int
+    ) -> "OriginalFastViewTacticsSelectionDraft":
+        """Source-bounded payload DWORD change, not the full original event.
+
+        High native event IDs encode a *visible* row0..10, but the actual DWORD
+        index is BYTE screen+0xB46+visible_row. This mapping must be supplied
+        from the original live screen; never assume visible row==payload row.
+        The reached handler also allocates a 0x6334C0 edit, appends its source
+        linked-list node and increments a native edit count, none of which this
+        nonlive immutable projection attempts to simulate.
+        """
+        event = source_classify_fastview_player_control_event(event_id)
+        if event.family not in ("player_row_step_decrease", "player_row_step_increase"):
+            raise SourceFastViewTacticsSelectionError("native row event has nonnumeric source effects")
+        if type(mapped_source_row) is not int or not (0 <= mapped_source_row < 11):
+            raise SourceFastViewTacticsSelectionError("original 11-row byte mapping required")
+        word_index = 42 + mapped_source_row  # (screen+0xAFC)-(screen+0xA54) = 0xA8
+        current, = unpack_from("<I", self.original_side_bytes, 4 * word_index)
+        if not 0 <= current <= 10:
+            raise SourceFastViewTacticsSelectionError("unverified player-row selector DWORD")
+        if event.family == "player_row_step_decrease":
+            new_value = 10 if current == 0 else current - 1
+        else:
+            new_value = 0 if current == 10 else current + 1
+        data = bytearray(self.original_side_bytes)
+        pack_into("<I", data, 4 * word_index, new_value)
+        return OriginalFastViewTacticsSelectionDraft(bytes(data))
