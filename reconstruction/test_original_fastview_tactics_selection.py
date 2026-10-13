@@ -7,6 +7,9 @@ from pathlib import Path
 from original_fastview_tactics_selection import (
     source_fastview_x133_popup_clip_52d190,
     source_fastview_popup_escape_event_value_only,
+    source_fastview_popup_posted_message_from_event,
+    source_fastview_popup_virtual20_posted_event_value_only,
+    SourceFastViewPopupPostedMessage,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1716,6 +1719,63 @@ class SourceFastViewPopupEscapeRoutingTests(unittest.TestCase):
             (0x6539FF,"68 00 04 00 00"),
             (0x659650,"8b 44 24 0c"),
             (0x659663,"ff 15 d8 d2 7b 00")
+        ):
+            with self.subTest(address=hex(addr)):
+                self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class SourceFastViewPopupQueuedWin32EventTests(unittest.TestCase):
+    def test_escape_and_nonzero_virtual20_both_request_same_posted_sentinel(self):
+        expected=SourceFastViewPopupPostedMessage(
+            win32_message=0x400,native_wparam_word=0xFFFF,native_lparam=0)
+        self.assertEqual(source_fastview_popup_escape_event_value_only(
+            original_key_word=0x1B),0xFFFF)
+        self.assertEqual(source_fastview_popup_posted_message_from_event(
+            native_event_word=0xFFFF),expected)
+        self.assertIsNone(source_fastview_popup_virtual20_posted_event_value_only(
+            native_event_argument=0))
+        for event in (1,2,0xFFFFFFFF):
+            self.assertEqual(source_fastview_popup_virtual20_posted_event_value_only(
+                native_event_argument=event),expected)
+
+    def test_native_event_sender_masks_parameter_word_but_not_dispatch_type(self):
+        self.assertEqual(source_fastview_popup_posted_message_from_event(
+            native_event_word=0x12345678),
+            SourceFastViewPopupPostedMessage(
+                win32_message=0x400,native_wparam_word=0x5678,native_lparam=0))
+        self.assertEqual(source_fastview_popup_posted_message_from_event(
+            native_event_word=0x10000).native_wparam_word,0)
+        for bad in (True,False,None,-1,"65535",0x100000000):
+            with self.subTest(value=repr(bad)),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_posted_message_from_event(native_event_word=bad)
+            with self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_popup_virtual20_posted_event_value_only(
+                    native_event_argument=bad)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original owner-authorized exe not mounted")
+    def test_original_queued_post_thunk_and_distinct_native_event_sources(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7CAC64+0x20,4))[0],0x446690)
+        self.assertEqual(struct.unpack("<I",pe.read(0x7CAC64+0x34,4))[0],0x52D350)
+        for addr,hx in (
+            (0x446690,"8b 44 24 04"),
+            (0x446694,"85 c0"),
+            (0x446696,"74 0a"),
+            (0x446698,"68 ff ff 00 00"),
+            (0x44669D,"e8 4e d3 20 00"),
+            (0x6539F4,"8b 49 64"),
+            (0x6539F7,"25 ff ff 00 00"),
+            (0x6539FC,"6a 00 50"),
+            (0x6539FF,"68 00 04 00 00"),
+            (0x653A04,"e8 47 5c 00 00"),
+            (0x659658,"8b 49 04"),
+            (0x659663,"ff 15 d8 d2 7b 00"),
+            (0x532BBF,"81 7c 24 14 00 04 00 00"),
+            (0x532BC7,"74 30"),
+            (0x532BC9,"8d 54 24 10 52 ff d5"),
         ):
             with self.subTest(address=hex(addr)):
                 self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
