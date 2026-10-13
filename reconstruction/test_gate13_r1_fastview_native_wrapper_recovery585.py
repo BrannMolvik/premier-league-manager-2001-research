@@ -30,5 +30,25 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(expected)), expected)
 
 
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_live_modal_pump_and_source_match_state_writeback(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source = (
+            (0x53266A, "8d 4e 18"),           # native manager child
+            (0x53266D, "e8 9e 1b 12 00"),     # 0x654210 native activation
+            (0x5332B9, "83 fe 02"),           # two-side setup
+            (0x533421, "83 f9 08"),           # eight source entries
+            (0x533413, "83 f8 0f"),           # original clamp upper bound
+            (0x533CD1, "b9 14 00 00 00"),     # twenty source DWORDs
+            (0x533CE0, "f3 a5"),              # state copy operation
+        )
+        for address, encoded in source:
+            with self.subTest(address=hex(address)):
+                expected = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(expected)), expected)
+
+
 if __name__ == "__main__":
     unittest.main()
