@@ -17,3 +17,7 @@ Read-only strict signed input projection `source_fastview_x133_popup_clip_52d190
 ## Next exact source task
 
 Source-qualify popup `0x52D1F0` nested child controls, actual pointer and 0x651AC0 source selection index through the x133 modal, then the actual two-sided once-only mode2 edit transaction, original match calculation, PResults, and normal management return. Audit actual Windows 11 GUI separately; original multi-human, countries/leagues, saves and Gates13–17 remain incomplete. Preserve WIP feature branch and milestone batching, no tiny PR/CI for isolated facts.
+
+## Recovery593 additional original popup Escape event route
+
+Further direct original disassembly of 0x52D350..0x52D362 proves a native popup key handler compares incoming WORD against 0x1B (Escape). On that key ONLY it pushes WORD sentinel 0xFFFF to 0x6539F0; unrelated keys return without this call. Native 0x6539F0 masks the event value to 16 bits, obtains control+0x64 event-owner pointer, and dispatches an event code 0x400 to 0x659650 with the sentinel and a zero argument. **This proves an Escape-to-owner event route, NOT that the parent modal closes or that edited data are reverted.** Actual handling of 0x400 and source owner identity must be resolved before wiring a real cancel key. Static source instructions matched private authenticated original PE; no original process run.
