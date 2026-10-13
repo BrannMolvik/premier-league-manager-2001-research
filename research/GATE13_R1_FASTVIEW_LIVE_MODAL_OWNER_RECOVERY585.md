@@ -365,3 +365,23 @@ An additional **34 original PE exact-address assertions** were independently che
 **New bounded code:** `OriginalFastViewTacticsSelectionDraft.with_original_player_row_step_value_only` now reproduces *only* the source numeric part of the third/fourth families: it requires an explicit caller-supplied authentic row mapping, indexes the real 280-byte payload at DWORD **42+mapped** (since `0xAFC-0xA54 = 0xA8`), cycles 0..10 with wrap, preserves every other byte and fails closed on unknown values. It **intentionally does not** simulate the original edit object/list side effects. The companion unit tests exercise all eleven mapped rows, wrap and invalid unmapped input. Exact branch CI/unittest still unrun; do not promote numeric-only draft to a working player click.
 
 **Next integration dependency:** recover the original per-control event producer and `screen+0xB46` mapping, prove `0x633020` linked-list and `0x6C2170` source object semantics, then implement actual source transactional player edits (with original per-event mutation and persistence) before connecting live mode2 to PResults and management return. Keep original UI and match state honest and fail closed until independently verified.
+
+
+## Recovery588 correction: SIX 11-row original FastView event families (66 total) and actual constructor producers
+
+**This later verified recovery supersedes the earlier five-family / 55-control inventory above.** The first five ranges were correct as far as traced, but the earlier audit was incomplete: a distinct *sibling input callback* at `0x52ED9A` consumes an additional original sixth high-ID family **`0x23D65A..0x23D664`** (exactly 11 IDs). Its original `0x52EDA4/0x52EDAB` comparisons bound that family, then source `0x52EDC1` tests actual row-mapped `screen+0xA6C+4*row !=1` before calling **`0x6C2170`** at `0x52EDE6`, passing source event handler's saved flag. The complete semantic input/result is not yet proven; label it **conditional native side action**, not a new independent tactic or known substitution.
+
+Importantly, original initializer `0x52E280` now verifies the **actual 11-row event-ID producer**, not just consumer-range checks. It sets `esi=0x8877AE` at `0x52E2FB` and loops while `esi-0x8877AE < 11` at `0x52E371`. For each row, it derives event IDs by subtracting these **exact five native deltas** from the same `esi`:
+
+| Source producer | Row 0 event | Evidence |
+| --- | --- | --- |
+| base `esi` | `0x8877AE` | `0x52E2FB`, stored to original screen `+0x265C+0x44*row` |
+| `esi-0x64A154` | **`0x23D65A`** | `0x52E31B`, child virtual registration |
+| `esi-0x6410F0` | `0x2466BE` | `0x52E32C` |
+| `esi-0x640D08` | `0x246AA6` | `0x52E332` |
+| `esi-0x640920` | `0x246E8E` | `0x52E34C` |
+| `esi-0x640538` | `0x247276` | `0x52E352` |
+
+Thus **all 66 source high-ID events are native-produced for the same eleven rows**, while their processing occurs in multiple callbacks. The four original 11-row arrow visual families and the additional owner +0x265C, registered original callback list are distinct controls; do not blindly assume each visual arrow produces one particular family until the exact registration ownership is matched.
+
+The branch's source-only event decoder and standard tests were corrected from five/55 to **six/66**; all previous five IDs remain valid. Eleven new address/loop/condition native byte checks independently passed using the same authenticated source PE. No original program execution or Win11 gameplay acceptance. **Next:** trace which original child/control has which produced ID, read list owner and hit states; source model the sixth conditional native mutation only after its gate/side flag and recipient mapping are known. Retain the other source dynamic side effects and original modal closure as unresolved; Gate13–17 remain OPEN.
