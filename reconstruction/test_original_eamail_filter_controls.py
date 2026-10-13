@@ -190,5 +190,37 @@ class OriginalEAMailFilterControlTests(unittest.TestCase):
         self.assertEqual(presenter.eamail_scroll_offset, 0)
         self.assertIsNone(presenter.eamail_sort_index)
 
+
+    @unittest.skipUnless(__import__('os').environ.get('FM2001_ORIGINAL_EXE'),
+                         'Original private EXE unavailable for static audit')
+    def test_private_pea_group_and_ten_native_event_dispatch(self):
+        """Re-audit actual original callback/vtable and jump table; never execute EXE."""
+        import os
+        import struct
+        from pathlib import Path
+        from gate13_button_source_trace import OriginalPE32
+
+        pe = OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        def dword(va):
+            return struct.unpack('<I', pe.read(va, 4))[0]
+        self.assertEqual(dword(0x7D6CC8 + 0x98), 0x5D49F0)
+        self.assertEqual(dword(0x7BE674 + 0x0C), 0x42DE00)
+        self.assertEqual(dword(0x7BE674 + 0x10), 0x428AE0)
+        self.assertEqual(pe.read(0x42DE00, 8),
+                         bytes.fromhex('b801000000c20800'))
+        self.assertEqual(pe.read(0x46E8E8, 5),
+                         bytes.fromhex('bd02000000'))
+        self.assertEqual(pe.read(0x46EA3A, 2),
+                         bytes.fromhex('56 55'))
+        self.assertEqual(pe.read(0x46EA5C, 3),
+                         bytes.fromhex('6a0157'))
+        # The exact original PEAMail::0x4721C0 switch table contains
+        # ten branches to 0x4722C3, one for each native filter ID2..11.
+        for event in range(2, 12):
+            jump_index = pe.read(0x47236C + event - 1, 1)[0]
+            self.assertEqual(dword(0x472354 + 4 * jump_index), 0x4722C3)
+        self.assertEqual(pe.read(0x4722C3, 2),
+                         bytes.fromhex('55 8d')[:2])
+
 if __name__ == "__main__":
     unittest.main()
