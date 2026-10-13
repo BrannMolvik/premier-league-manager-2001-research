@@ -16,6 +16,7 @@ on:
       - "reconstruction/original_fastview_tactics_selection.py"
       - "reconstruction/original_fastview_two_sided_live_writeback.py"
       - "reconstruction/test_original_fastview_tactics_selection.py"
+      - "reconstruction/test_original_fastview_two_sided_live_writeback.py"
       - "reconstruction/original_fastview_tactics_control_layout.py"
       - "reconstruction/test_original_fastview_tactics_control_layout.py"
       - "reconstruction/test_gate13_r1_fastview_native_wrapper_recovery585.py"
@@ -260,6 +261,7 @@ jobs:
             test_front_end_settings \
             test_match_detail_mode \
             test_original_fastview_tactics_selection \
+            test_original_fastview_two_sided_live_writeback \
             test_original_fastview_tactics_control_layout \
             test_gate13_r1_fastview_native_wrapper_recovery585 \
             test_original_prematch_panel \
