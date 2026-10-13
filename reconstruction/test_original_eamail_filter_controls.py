@@ -222,5 +222,73 @@ class OriginalEAMailFilterControlTests(unittest.TestCase):
         self.assertEqual(pe.read(0x4722C3, 2),
                          bytes.fromhex('55 8d')[:2])
 
+
+
+class OriginalEAMailGroupedNativeCallbackGateTests(unittest.TestCase):
+    def test_inactive_original_radio_can_attempt_callback_but_not_deliver(self):
+        from original_eamail_filter_controls import (
+            original_eamail_native_grouped_callback_candidate as eligible,
+            project_original_eamail_delivered_filter_event as delivered,
+        )
+        base = dict(native_control_state_dword=0x2, native_event_id=3,
+                    shared_group_registered=True, native_event_argument_present=True,
+                    owner_pre_callback_accepted=True, currently_selected=False)
+        self.assertTrue(eligible(**base))
+        for change in ({"native_control_state_dword": 0},
+                       {"native_event_id": 0}, {"native_event_id": 12},
+                       {"shared_group_registered": False},
+                       {"native_event_argument_present": False},
+                       {"owner_pre_callback_accepted": False},
+                       {"currently_selected": True}):
+            with self.subTest(change=change):
+                self.assertFalse(eligible(**(base | change)))
+        # Repeated click on the originally selected radio is not proof of a
+        # second source-delivered event, though delivery would rebuild the list.
+        self.assertFalse(eligible(**(base | {
+            "native_event_id": 2, "currently_selected": True,
+        })))
+        with self.assertRaises(ValueError):
+            delivered(native_control_event_id=3,
+                      previously_selected_filter_index=0,
+                      source_filter_event_delivered=False)
+
+    def test_reject_unqualified_group_event_receipts(self):
+        from original_eamail_filter_controls import (
+            original_eamail_native_grouped_callback_candidate as eligible,
+        )
+        base = dict(native_control_state_dword=2, native_event_id=3,
+                    shared_group_registered=True, native_event_argument_present=True,
+                    owner_pre_callback_accepted=True, currently_selected=False)
+        for bad in (False, None, -1, 0x100000000, "2"):
+            with self.subTest(state=bad), self.assertRaises(ValueError):
+                eligible(**(base | {"native_control_state_dword": bad}))
+        for bad in (True, None, -1, 0x100000000, "3"):
+            with self.subTest(event=bad), self.assertRaises(ValueError):
+                eligible(**(base | {"native_event_id": bad}))
+        for gate in ("shared_group_registered", "native_event_argument_present",
+                     "owner_pre_callback_accepted", "currently_selected"):
+            for bad in (None, 1, "true"):
+                with self.subTest(gate=gate, bad=bad), self.assertRaises(ValueError):
+                    eligible(**(base | {gate: bad}))
+
+    @unittest.skipUnless(__import__("os").environ.get("FM2001_ORIGINAL_EXE"),
+                         "Canonical private EXE unavailable")
+    def test_original_group_native_callback_bytes(self):
+        import os
+        from pathlib import Path
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for addr, hexdump in (
+                (0x5D49B9, "89 71 38"),
+                (0x5D4ACC, "8b 46 38"),
+                (0x5D4AD3, "8b 46 20"),
+                (0x5D4AE3, "8b 4e 24"),
+                (0x5D4AF5, "8a 46 40"),
+                (0x5D4B02, "ff 90 98 00 00 00")):
+            with self.subTest(addr=hex(addr)):
+                self.assertEqual(pe.read(addr, len(bytes.fromhex(hexdump))),
+                                 bytes.fromhex(hexdump))
+
+
 if __name__ == "__main__":
     unittest.main()

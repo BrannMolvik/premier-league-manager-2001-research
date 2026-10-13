@@ -171,3 +171,47 @@ def project_original_eamail_delivered_filter_event(
         native_filtered_list_rebuild=True,
         original_preview_selection_cleared=True,
     )
+
+
+# 0x5D49B0 writes shared radio-group owner at +0x38.
+# 0x5D4AC0 calls vft+0x98 selection and owner+0x10 only when eligible.
+# This result never proves a Win32 click or a PEAMail delivered event.
+NATIVE_FILTER_SHARED_GROUP_POINTER_OFFSET = 0x38
+NATIVE_FILTER_SELECTED_FLAG_OFFSET = 0x40
+NATIVE_FILTER_OWNER_CALLBACK_OFFSET = 0x24
+NATIVE_FILTER_EVENT_ID_OFFSET = 0x20
+
+
+def original_eamail_native_grouped_callback_candidate(
+    *,
+    native_control_state_dword: int,
+    native_event_id: int,
+    shared_group_registered: bool,
+    native_event_argument_present: bool,
+    owner_pre_callback_accepted: bool,
+    currently_selected: bool,
+) -> bool:
+    """Only the original 0x5D4AC0 grouped callback attempt gate.
+
+    True permits source group vft+0x98 and owner virtual+0x10 calls, not
+    an accepted PEA dispatch. The actual 0x428AE0 owner+0x10 is a no-op.
+    """
+    if (type(native_control_state_dword) is not int
+            or not 0 <= native_control_state_dword <= 0xFFFFFFFF):
+        raise ValueError("Native radio control state must be DWORD")
+    if (type(native_event_id) is not int
+            or not 0 <= native_event_id <= 0xFFFFFFFF):
+        raise ValueError("Native radio event ID must be DWORD")
+    if any(type(flag) is not bool for flag in (
+            shared_group_registered, native_event_argument_present,
+            owner_pre_callback_accepted, currently_selected)):
+        raise ValueError("Original grouped callback gates must be bool receipts")
+    return bool(
+        (native_control_state_dword & 0x2)
+        and shared_group_registered
+        and ORIGINAL_EAMAIL_FIRST_FILTER_EVENT_ID <= native_event_id
+        <= ORIGINAL_EAMAIL_LAST_FILTER_EVENT_ID
+        and native_event_argument_present
+        and owner_pre_callback_accepted
+        and not currently_selected
+    )
