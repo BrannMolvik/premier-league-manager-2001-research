@@ -484,5 +484,28 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_live_tactics_preview_recomputes_eleven_source_slots_over_nineteen_passes(self):
+        """Separate derived-side reindexing from score and real-player mutation."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x6C2839, "c7 44 24 10 01 00 00 00"), # pass starts at 1
+            (0x6C284B, "8a 84 1f f2 00 00 00"),    # source selector byte
+            (0x6C2855, "8b 54 b7 18"),             # side slot input
+            (0x6C285A, "e8 f1 f5 ff ff"),          # 0x6c1e50 source compare
+            (0x6C2866, "89 6c b7 60"),             # reassign slot index
+            (0x6C286C, "83 fb 0b"),                # 11 rows
+            (0x6C2876, "83 f8 14"),                # passes 1..19
+            (0x52EFDC, "e8 4f 38 19 00"),          # only from live preview
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
