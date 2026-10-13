@@ -1117,3 +1117,106 @@ def source_fastview_two_distinct_prior_replacements_followup_value_only(
     return SourceFastViewOneReplacementFollowupValue(
         0, True, fresh, tuple(records)
     )
+
+
+# All eleven x133 FastView controls at screen+0x263C+0x44*row are
+# constructed as an actual 0x52DD30 object array by the original
+# FastViewTactics constructor 0x52D894..0x52D8A9 (native CRT vector
+# constructor 0x6687C1, count11, stride0x44). Original 0x52DD30 calls
+# 0x651A30 and assigns derived vtable 0x7CB010; virtual+0x6C is
+# 0x52D0D0, +0x98 0x52D120 and +0x9C 0x52D190.
+# Its outer input handler may dispatch original parent+0x0C FIRST,
+# veto the child if return zero, and otherwise invokes 0x651AC0.
+# The inner 0x651AC0 calls base 0x64F7A0 with callback argument ZERO,
+# suppressing base parent callbacks; it may itself call parent+0x10
+# once. This sequence is source-proven for the x133 fifth-family child,
+# NOT a blanket rule for all original input controls.
+SOURCE_FASTVIEW_X133_VECTOR_CTOR_OWNER_VA = 0x52D894
+SOURCE_FASTVIEW_X133_VECTOR_CTOR_VA = 0x6687C1
+SOURCE_FASTVIEW_X133_CHILD_CTOR_VA = 0x52DD30
+SOURCE_FASTVIEW_X133_CHILD_DERIVED_VTABLE_VA = 0x7CB010
+SOURCE_FASTVIEW_X133_INPUT_OUTER_VA = 0x52D0D0
+SOURCE_FASTVIEW_X133_INPUT_INNER_VA = 0x651AC0
+SOURCE_FASTVIEW_X133_INPUT_OUTER_FIRST_CALLBACK_VSLOT = 0x0C
+SOURCE_FASTVIEW_X133_INPUT_INNER_SECOND_CALLBACK_VSLOT = 0x10
+SOURCE_FASTVIEW_X133_CHILD_ROW_COUNT = 11
+SOURCE_FASTVIEW_X133_CHILD_ROW_STRIDE = 0x44
+SOURCE_FASTVIEW_X133_CHILD_ROW_ZERO_OFFSET = 0x263C
+
+
+@dataclass(frozen=True)
+class OriginalFastViewX133InputRoute:
+    """Original callback delivery stages, not a synthetic mouse input."""
+    source_first_callback_reached: bool
+    source_first_callback_refresh_row: int | None
+    source_first_callback_vetoed_child: bool
+    source_inner_child_reached: bool
+    source_inner_child_outcome: SourceFastViewAuxChildInputOutcome | None
+    source_parent_callback_slots: tuple[int, ...]
+
+
+def source_fastview_x133_native_input_route_52d0d0(
+    *, native_child_flags: int,
+    native_registered_event_id: int | None,
+    original_parent_first_callback_return: int | None,
+    inner_original_base_dispatch_result: int | None,
+    inner_original_native_selection_index: int | None,
+    original_child_second_callback_argument_nonzero: bool,
+) -> OriginalFastViewX133InputRoute:
+    """Source-order 0x52D0D0 -> 0x651AC0 x133 child dispatch contract.
+
+    The source outer first-callback is gated by native bit1 set, bit4
+    clear, and registered child event+0x20 nonzero. With these gates,
+    parent vft+0x0C is invoked (0x52E3C0 for FastViewTactics), which
+    on 0x8877AE..0x8877B8 rows calls the SOURCE row refresh 0x52F690.
+    Parent first return zero vetoes ALL inner child processing.
+    When outer first-callback not eligible, it nevertheless forwards
+    to the child. The inner child calls base with SECOND arg0 so it
+    cannot duplicate callbacks, but can itself invoke parent +0x10
+    after selection under independent child event/input gates.
+
+    This is not a pointer hit-test, mouse-up semantic, modal owner,
+    player replacement permission, or genuine match writeback.
+    """
+    if type(native_child_flags) is not int or not 0 <= native_child_flags <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native child flags DWORD required")
+    if native_registered_event_id is not None and (
+        type(native_registered_event_id) is not int or
+        not 0 <= native_registered_event_id <= 0xFFFFFFFF
+    ):
+        raise SourceFastViewTacticsSelectionError("original child event DWORD required")
+    if type(original_child_second_callback_argument_nonzero) is not bool:
+        raise SourceFastViewTacticsSelectionError("original child second argument gate required")
+    registered = native_registered_event_id is not None and native_registered_event_id != 0
+    first_reached = (
+        source_fastview_native_base_dispatch_flags_allow_processing(native_child_flags)
+        and registered
+    )
+    if first_reached:
+        if type(original_parent_first_callback_return) is not int or not (
+            0 <= original_parent_first_callback_return <= 0xFFFFFFFF
+        ):
+            raise SourceFastViewTacticsSelectionError("native first parent callback result required")
+        first_row = source_fastview_first_callback_8877ae_row(native_registered_event_id)
+        if original_parent_first_callback_return == 0:
+            if inner_original_base_dispatch_result is not None or inner_original_native_selection_index is not None:
+                raise SourceFastViewTacticsSelectionError("source outer parent veto prevents inner input")
+            return OriginalFastViewX133InputRoute(True, first_row, True, False, None, (0x0C,))
+    else:
+        if original_parent_first_callback_return is not None:
+            raise SourceFastViewTacticsSelectionError("unreached parent first callback must not be invented")
+        first_row = None
+    if type(inner_original_base_dispatch_result) is not int or not (
+        0 <= inner_original_base_dispatch_result <= 0xFFFFFFFF
+    ):
+        raise SourceFastViewTacticsSelectionError("original reached inner base return required")
+    inner = source_fastview_aux_child_input_outcome_651ac0(
+        base_dispatch_result=inner_original_base_dispatch_result,
+        native_selection_index=inner_original_native_selection_index,
+        child_has_registered_event=registered,
+        child_input_callback_argument_nonzero=original_child_second_callback_argument_nonzero,
+    )
+    slots = ((0x0C,) if first_reached else ()) + inner.source_parent_callbacks_from_this_child_route
+    return OriginalFastViewX133InputRoute(
+        first_reached, first_row, False, True, inner, slots
+    )
