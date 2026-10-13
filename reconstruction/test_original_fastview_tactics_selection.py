@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from original_fastview_tactics_selection import (
+    source_fastview_x133_popup_clip_52d190,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1632,6 +1633,54 @@ class OriginalFastViewX133NativeCallbackOrderTests(unittest.TestCase):
             with self.subTest(slot=slot):
                 self.assertEqual(struct.unpack("<I",pe.read(0x7CB010+slot,4))[0],target)
 
+
+
+class NativeX133PopupFactoryClipTests(unittest.TestCase):
+    def test_source_context_relative_clip(self):
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=133, child_y=278, parent_x=20, parent_y=139,
+            context_x=300, context_y=200), (153, 417, 300, 200))
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=133, child_y=278, parent_x=20, parent_y=139,
+            context_x=700, context_y=500), (100, 100, 700, 500))
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=133, child_y=278, parent_x=20, parent_y=139,
+            context_x=647, context_y=183), (153, 417, 647, 183))
+
+    def test_does_not_invent_left_or_top_clamping(self):
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=-20, child_y=-30, parent_x=0, parent_y=0,
+            context_x=0, context_y=0), (-20, -30, 0, 0))
+
+    def test_unverified_coordinates_fail_closed(self):
+        args=dict(child_x=133,child_y=278,parent_x=20,parent_y=139,
+                  context_x=100,context_y=100)
+        for bad in ({"child_x":True},{"context_y":"100"},
+                    {"parent_x":0x80000000},{"child_y":-0x80000001}):
+            with self.subTest(bad=bad),self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_x133_popup_clip_52d190(**(args | bad))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original source PE not mounted")
+    def test_original_popup_factory_and_clip_instructions(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va,hx in (
+            (0x52D139,"68 8c 01 00 00"),
+            (0x52D156,"8b 4e 38"),
+            (0x52D15C,"e8 8f 00 00 00"),
+            (0x52D190,"8b 51 24"),
+            (0x52D194,"8b 71 0c"),
+            (0x52D198,"8b 42 0c"),
+            (0x52D19B,"8b 79 10"),
+            (0x52D19E,"8b 52 10"),
+            (0x52D1A9,"8b 71 70"),
+            (0x52D1AF,"81 ff 20 03 00 00"),
+            (0x52D1C5,"81 fb 58 02 00 00"),
+            (0x52D1DD,"e8 3e 61 12 00")
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
 if __name__ == "__main__":
     unittest.main()
