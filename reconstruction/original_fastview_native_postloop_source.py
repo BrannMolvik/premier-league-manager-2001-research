@@ -172,3 +172,60 @@ def source_fastview_original_postloop_slot_and_reset_533270(
             0 if original_877534_pointer_is_nonzero else 1),
         source_grid_a14828_108_after_reset=b"\x00"*108,
     )
+
+
+@dataclass(frozen=True)
+class SourceFastViewOriginalEntireSetupValueStage:
+    """One source-ordered 0x533270 projection; not real match state."""
+    two_sided_roster_and_tactics: object
+    native_three_statistics_globals: SourceFastViewOriginalThreeGlobalValues
+    native_match_slots_and_reset: SourceFastViewOriginalPostLoopSlotAndResetValues
+
+
+def source_fastview_original_complete_value_stage_533270(
+    *, original_live_match_object: bytes,
+    original_side0,
+    original_side1,
+    original_human_registry_club_ids_in_link_order: tuple[int, ...],
+    original_country_name_indexes_germany_france_england: tuple[int, int, int],
+    original_three_global_buffers_before: tuple[bytes, bytes, bytes],
+    original_uninitialized_stack_values_when_mode_four: tuple[int, int, int] | None,
+    original_global_slots_a257b8_before: bytes,
+    original_grid_a14828_before: bytes,
+    original_877534_pointer_is_nonzero: bool,
+) -> SourceFastViewOriginalEntireSetupValueStage:
+    """Read-only joined 0x533270 native TWO-sided, statistics, 24-slot init.
+
+    Original source stage ownership/read order:
+     1) 0x533370→6C1D00 / 0x533B20→6C1D30 for side0 then side1;
+     2) 0x631270/631290/6CC890 for mode-dependent 2 or 4 iterations;
+     3) 0x62B6B0/6CA900 for 24 source match byte slots;
+     4) 0x6CBD80/6CA8F0/6CA910 original scalar and pointer writes;
+     5) 0x6C2890 108-byte two-row native reset.
+    Returns only immutable *source values* after EVERY bounded dependency
+    has been validated, with no local/global state changes. Does not
+    resolve original DBRPlayer/DBRClub native heap identities, perform
+    the FastView 0x5331C0 modal, mutate GameState or process PResults.
+    """
+    from original_fastview_native_full_side_setup import (
+        source_fastview_original_first_two_side_init_533270,
+    )
+    sides = source_fastview_original_first_two_side_init_533270(
+        original_match_object=original_live_match_object,
+        source_side0=original_side0,
+        source_side1=original_side1,
+        original_human_registry_club_ids_in_link_order=(
+            original_human_registry_club_ids_in_link_order),
+        original_country_name_indexes_germany_france_england=(
+            original_country_name_indexes_germany_france_england))
+    statistics = source_fastview_original_postloop_global_values_533270(
+        original_live_match_object=original_live_match_object,
+        original_three_global_buffers_before=original_three_global_buffers_before,
+        original_uninitialized_stack_values_when_mode_four=(
+            original_uninitialized_stack_values_when_mode_four))
+    slots = source_fastview_original_postloop_slot_and_reset_533270(
+        original_match_object=original_live_match_object,
+        original_global_slots_a257b8_before=original_global_slots_a257b8_before,
+        original_grid_a14828_before=original_grid_a14828_before,
+        original_877534_pointer_is_nonzero=original_877534_pointer_is_nonzero)
+    return SourceFastViewOriginalEntireSetupValueStage(sides,statistics,slots)
