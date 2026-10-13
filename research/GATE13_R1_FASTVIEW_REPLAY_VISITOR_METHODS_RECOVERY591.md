@@ -36,3 +36,28 @@ Original replacement visitor 0x634B00 (+0x04; only staged replacement vtable 0x7
 New WIP source-only projections and regression cases cover both special callback branches and replacement visitor's four branch precedences. Opt-in private original-PE probes are included under FM2001_ORIGINAL_EXE. Branch Python unit tests/GitHub CI are NOT yet run; no PR or GUI acceptance. Full live source graph still requires original transient list construction, mutable side effects for matched chain, a complete first/second native input event ordering, original match modal results and normal management return.
 
 **Next integration:** replay-source result should become an atomic typed edit-list-and-side transaction with true native provenance, once-only dispatch and rollback/negative tests, but only after full original source effects and all record classes are qualified. Avoid using these pure branch strings to authorize user mouse actions or creating another tiny PR for this partial trace.
+
+## Recovery592 native mutable transaction and source-order chained side writes
+
+14 October 2026 KST, same owner-authorized private original footballmanager.exe, 4,714,541 bytes SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. Static disassembly via objdump -D -M intel, verified original .text VA0x401000 / file offset0x1000 mapping. 15/15 direct original PE opcode probes matched 0x634C1D..0x634CF4. The original game was NOT run and bytes were NOT committed.
+
+### The nonempty 0x633020 path is not a read-only validation query
+
+Native 0x633020 first calls replacement-only count visitor 0x633240. Zero gives immediate AL0 at 0x63317E. Otherwise 0x633063..0x6330A1 allocates temporary linked-list storage and transfers nodes. Critically, 0x6330A8..0x6330EA unlinks nodes from the ORIGINAL list, writes both neighboring node pointers at 0x6330CF/0x6330D6, calls native node free 0x686FE3, and decrements original list+8 count. At 0x633107 each pass invokes 0x6331A0 with the original staged-list owner and original match-side payload pointer. The loop at 0x63315A..0x633161 iterates once per original replacement-count returned from 0x633240, and OR-accumulates returned AL at 0x633117.
+
+Native visitor 0x6331A0 -> 0x6348E0 -> 0x634B00 can reconstruct edit records and, on matched chain branch, MUTATE the actual source 280-byte match-side buffer (original caller 0x52EBF5 screen+0xA54 passed at 0x52EC08). Thus nonzero AL can prevent the later fresh 0x6C2770 call without proving that replay itself had no side/list effects. Original 0x633020 is a mutable replay transaction, NOT a pure eligibility predicate. A compatibility port must not unconditionally skip or rollback earlier source replay effects simply from final AL.
+
+### Native 0x634B00 matched chain side writes: byte-exact scope
+
+Entry only occurs when prior visitor status8/status9 zero, visitor skip DWORD+4 is zero, and old replacement destination from 0x6335F0 equals requested source (visitor+0x0C). Prior native code already allocates/replaces an edit record at 0x634B92..0x634C1A. On the actual original side buffer, 0x634C1D..0x634CF4 does:
+
+1. Set byte side[0x104+from]=1, then side[0x104+to]=0.
+2. Call 0x634DB0(side,from) to find FIRST position of the requested source in original side[0xF2..0xF2+count); original function returns count when not present. This call occurs at 0x634C41 BEFORE the following ordering writes.
+3. Set side[0xF2+to]=original_side[0xF2+from]; set side[0xF2+from]=BYTE(from); finally set side[0xF2+found_position]=BYTE(to). These writes are sequential, alias sensitive and are NOT a generic two-index swap.
+4. Copy DWORD side[0x18+4*from] to target DWORD side[0x18+4*to], and source DWORD side[0x60+4*from] to target DWORD side[0x60+4*to].
+5. Increment side BYTE+0xF1 for nonzero original club guard[from], decrement for nonzero guard[to], with BYTE wrap. Unlike fresh 0x6C2770 this branch does NOT decrement BYTE+0xF0.
+6. Set VISITOR byte+9=1 at 0x634CF4; this is outside side buffer and changes subsequent visitor callback branches.
+
+The WIP function source_fastview_634b00_matched_chain_payload_value_only models ONLY the native side-byte/DWORD write ordering, immutable and fail-closed for absent active-from, unsupported indices, invalid club guard values or overlap of 0xF2's dedicated 18-byte ordering region with 0x104 status bytes. It DOES NOT create native records, simulate mouse input, or authorize a match writeback. Tests include source row order [3,0,1,2,4,5,6,7,8,9,10,11], from3/to7, sequential alias behavior, counter increment/decrement, status bytes, unchanged BYTE+0xF0 and 15 original opcode identities. Full branch tests/CI remain unexecuted at this checkpoint.
+
+NEXT: source-prove full 0x633020 original list drain and reconstructed list, record ownership/destructor + status branches for chained multiple replacements, 0x651AC0 original mouse producer duplicate callback sequencing; integrate only a complete actual native mode2 two-sided match state flow through PResults and management return. Separate physical Windows11 acceptance and Gate13–17 audit are still OPEN.
