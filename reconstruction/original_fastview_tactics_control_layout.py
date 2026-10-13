@@ -23,6 +23,12 @@ NATIVE_CPU_POPUP = "FM2001_Art/FastView/tactics_popup_2.444"
 NATIVE_TACTICS_FIRST_PLAYER_Y = 278
 NATIVE_TACTICS_PLAYER_ROW_STEP = 17
 NATIVE_TACTICS_PLAYER_ROWS = 11
+# Four original eleven-row arrow object arrays and their genuine high
+# input event producers. Vtable +0x08 child constructors create the sprites,
+# while reached FastViewTactics::0x52E280 assigns each child event+0x20.
+NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS = (0x1CF4, 0x2038, 0x34D8, 0x3CEC)
+NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES = (0x246E8E, 0x247276, 0x2466BE, 0x246AA6)
+NATIVE_HUMAN_PLAYER_ARROW_EVENT_FIELD_OFFSET = 0x20
 # The fourth arrow x is source-calculated from [0x947304]+0x1A4, not
 # a hardcoded number or necessarily equal to the third arrow's right edge.
 NATIVE_RIGHT_VARIANT2_BASE_GLOBAL_VA = 0x947304
@@ -72,6 +78,24 @@ class OriginalFastViewTacticsArrowPosition:
             raise ValueError("unresolved x must preserve its native source owner")
         if self.native_x is not None and self.dynamic_x_global_va is not None:
             raise ValueError("native position cannot be both static and dynamic")
+
+    @property
+    def source_original_native_event_id(self) -> int | None:
+        """Source-reached player-row child event; unrelated bottom pair = unknown."""
+        if self.source_row is None:
+            return None
+        if type(self.source_row) is not int or not (0 <= self.source_row < NATIVE_TACTICS_PLAYER_ROWS):
+            raise ValueError("unverified original native player-row index")
+        return NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES[self.arrow_variant_index] + self.source_row
+
+    @property
+    def source_original_parent_offset(self) -> int | None:
+        if self.source_row is None:
+            return None
+        if type(self.source_row) is not int or not (0 <= self.source_row < NATIVE_TACTICS_PLAYER_ROWS):
+            raise ValueError("unverified original native player-row index")
+        return (NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS[self.arrow_variant_index]
+                + self.source_row * 0x4C)
 
     def resolved_native_x(self, *, original_box_width: int | None = None) -> int:
         """Use caller-provided live width for dynamic original x, never invent it."""
