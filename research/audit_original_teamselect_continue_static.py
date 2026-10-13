@@ -1564,7 +1564,7 @@ def main(path: str) -> None:
     scouting_col = struct.unpack_from("<I", binary, 0x7c2e6c - 0x400000 - 4)[0]
     scouting_td = struct.unpack_from("<I", binary, scouting_col - 0x400000 + 12)[0]
     scouting_name_start = scouting_td - 0x400000 + 8
-    scouting_rtti = binary[scouting_name_start:binary.index(b"\\x00", scouting_name_start)]
+    scouting_rtti = binary[scouting_name_start:binary.index(b"\x00", scouting_name_start)]
     if scouting_rtti != b".?AVPScouting2K@@":
         raise AssertionError(("Scouting owner RTTI mismatch", scouting_rtti))
     if direct_calls("4ae970") != ("4ae0fd",):

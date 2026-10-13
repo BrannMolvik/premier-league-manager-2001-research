@@ -22,11 +22,11 @@ SOURCE_WINDOW_EVENT_DISPATCH = 0x4ADB50
 FIRST_RESEED_CALLER = 0x4AEA48
 SECOND_RESEED_CALLER = 0x4AED01
 
-class OriginalManagerEvent31Error(ValueError):
+class OriginalScoutingEvent31Error(ValueError):
     pass
 
 @dataclass(frozen=True)
-class OriginalManagerEvent31SourcePath:
+class OriginalScoutingEvent31SourcePath:
     native_event_id: int
     original_vtable: int
     native_first_reseed_callsite: int
@@ -36,12 +36,12 @@ class OriginalManagerEvent31SourcePath:
     actual_shared_crt_seed_verified: bool = False
 
 
-def project_original_manager_event31_reseed_path(
+def project_original_scouting_event31_reseed_path(
     *,
     native_event_id: int,
     native_window_vtable: int,
     source_manager_list_pointer_is_null: bool,
-) -> OriginalManagerEvent31SourcePath:
+) -> OriginalScoutingEvent31SourcePath:
     """Exact accepted event31 branch *if actually dispatched*.
 
     The source first 0x4AF7F0 call is unconditional once this handler
@@ -51,12 +51,12 @@ def project_original_manager_event31_reseed_path(
     Neither seed inputs nor number of shuffle draws are reconstructed.
     """
     if type(native_event_id) is not int or native_event_id != SOURCE_EVENT_ID:
-        raise OriginalManagerEvent31Error("Require exact source event31")
+        raise OriginalScoutingEvent31Error("Require exact source event31")
     if type(native_window_vtable) is not int or native_window_vtable != SOURCE_WINDOW_VTABLE:
-        raise OriginalManagerEvent31Error("Require actual original PScouting2K event vtable")
+        raise OriginalScoutingEvent31Error("Require actual original PScouting2K event vtable")
     if type(source_manager_list_pointer_is_null) is not bool:
-        raise OriginalManagerEvent31Error("Require observed original list-pointer state")
-    return OriginalManagerEvent31SourcePath(
+        raise OriginalScoutingEvent31Error("Require observed original list-pointer state")
+    return OriginalScoutingEvent31SourcePath(
         native_event_id, native_window_vtable, FIRST_RESEED_CALLER,
         SECOND_RESEED_CALLER if source_manager_list_pointer_is_null else None,
     )
