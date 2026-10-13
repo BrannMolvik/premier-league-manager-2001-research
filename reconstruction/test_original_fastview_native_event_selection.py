@@ -154,8 +154,8 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             original_selected_event_owner_pointer_plus4c=123,
             original_selected_event_indirect_name_nul=b"Zulu\0",
             original_linked_candidate_events=(
-                candidate(100),candidate(201,"Red",False,value8=1),
-                candidate(202,"Blue",False,value44=0x40),
+                candidate(100),candidate(201,"Red",None,value8=1),
+                candidate(202,"Blue",None,value44=0x40),
                 candidate(203,"Different",None,owner=444),
                 candidate(204,"Special",False,code40=0xFFFF),
                 candidate(205,"Callback true",True),
