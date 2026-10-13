@@ -62,9 +62,9 @@ class OriginalFastViewTacticsSelectionDraftTests(unittest.TestCase):
             source_draft((1, 4, 0, 0)).with_original_selector_event_value_only(63)
 
 
-    def test_exact_five_native_high_event_families_decode_all_fifty_five_controls(self):
+    def test_exact_six_native_high_event_families_decode_all_sixty_six_controls(self):
         self.assertEqual(SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT, 11)
-        self.assertEqual(len(SOURCE_PLAYER_CONTROL_EVENT_FAMILIES), 5)
+        self.assertEqual(len(SOURCE_PLAYER_CONTROL_EVENT_FAMILIES), 6)
         all_seen = set()
         for first, family in SOURCE_PLAYER_CONTROL_EVENT_FAMILIES:
             for row in range(11):
@@ -76,7 +76,7 @@ class OriginalFastViewTacticsSelectionDraftTests(unittest.TestCase):
                     self.assertEqual(answer.player_row_index, row)
                     self.assertNotIn(event, all_seen)
                     all_seen.add(event)
-        self.assertEqual(len(all_seen), 55)
+        self.assertEqual(len(all_seen), 66)
 
 
     def test_all_player_row_numeric_wraps_use_supplied_source_map_not_visible_row(self):
