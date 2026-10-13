@@ -10,6 +10,8 @@ from original_fastview_tactics_control_layout import (
     NATIVE_ARROW_IMAGE_SIZE,
     NATIVE_ARROW_FRAME_SIZE,
     NATIVE_TACTICS_PLAYER_ROWS,
+    original_fastview_arrow_frame_word_for_native_flags,
+    NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK,
     NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS,
     NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES,
     NATIVE_HUMAN_PLAYER_ARROW_EVENT_FIELD_OFFSET,
@@ -178,6 +180,57 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 expected = bytes.fromhex(hexdump)
                 self.assertEqual(pe.read(va, len(expected)), expected)
+
+    def test_original_native_arrow_frame_selects_word_using_bit_two_only(self):
+        self.assertEqual(NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK, 4)
+        for value in (0, 1, 2, 3, 8, 0xFFFF_FFFB):
+            with self.subTest(flags=value):
+                self.assertEqual(original_fastview_arrow_frame_word_for_native_flags(
+                    value, 0x1234, 0xABCD), 0x1234)
+        for value in (4, 5, 6, 7, 12, 0xFFFF_FFFF):
+            with self.subTest(flags=value):
+                self.assertEqual(original_fastview_arrow_frame_word_for_native_flags(
+                    value, 0x1234, 0xABCD), 0xABCD)
+
+    def test_original_native_arrow_frame_refuses_invented_signed_or_nonword_state(self):
+        for bad in (True, False, -1, 2**32, None, "4"):
+            with self.subTest(flags=repr(bad)), self.assertRaises(ValueError):
+                original_fastview_arrow_frame_word_for_native_flags(bad, 0, 1)
+        for bad in (True, -1, 65536, None, "0"):
+            with self.subTest(frame=repr(bad)), self.assertRaises(ValueError):
+                original_fastview_arrow_frame_word_for_native_flags(4, 0, bad)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original EXE source not mounted")
+    def test_private_source_arrow_frame_word_selection_from_actual_native_flags(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source_sites = (
+            (0x651E49, "e8 52 fd ff ff"),     # child calls original 0x651BA0 base
+            (0x651E5A, "89 4e 34"),           # stores child selector metadata
+            (0x651E62, "89 56 38"),
+            (0x651E6A, "89 46 3c"),
+            (0x651E72, "66 89 4e 44"),        # true candidate frame WORD
+            (0x651E7B, "66 89 56 46"),        # alternate frame WORD
+            (0x651E7F, "66 89 46 40"),
+            (0x651E83, "66 89 4e 42"),
+            (0x651F43, "e8 48 d6 ff ff"),     # 0x651F40 reads source bit2 getter
+            (0x651F4C, "66 8b 46 46"),        # flag true returns +0x46
+            (0x651F52, "66 8b 46 44"),        # flag false returns +0x44
+            (0x651F6A, "66 89 41 44"),        # original frame setter
+            (0x651F6E, "66 89 51 46"),
+            (0x651F72, "e8 89 d6 ff ff"),     # requests redraw, 0x64f600
+            (0x64F590, "8b 41 18"),           # source flags DWORD +0x18
+            (0x64F593, "c1 e8 02"),
+            (0x64F596, "83 e0 01"),
+            (0x64F600, "8b c1"),              # base refresh routine
+            (0x64F602, "8b 48 24"),
+            (0x64F60D, "e8 3e 3d 00 00"),     # 0x653350 redraw path
+        )
+        for address, encoded in source_sites:
+            with self.subTest(address=hex(address)):
+                expected = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(expected)), expected)
 
     def test_unsupported_layout_claims_are_rejected(self):
         with self.assertRaises(ValueError):
