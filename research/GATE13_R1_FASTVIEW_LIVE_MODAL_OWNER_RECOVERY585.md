@@ -385,3 +385,23 @@ Importantly, original initializer `0x52E280` now verifies the **actual 11-row ev
 Thus **all 66 source high-ID events are native-produced for the same eleven rows**, while their processing occurs in multiple callbacks. The four original 11-row arrow visual families and the additional owner +0x265C, registered original callback list are distinct controls; do not blindly assume each visual arrow produces one particular family until the exact registration ownership is matched.
 
 The branch's source-only event decoder and standard tests were corrected from five/55 to **six/66**; all previous five IDs remain valid. Eleven new address/loop/condition native byte checks independently passed using the same authenticated source PE. No original program execution or Win11 gameplay acceptance. **Next:** trace which original child/control has which produced ID, read list owner and hit states; source model the sixth conditional native mutation only after its gate/side flag and recipient mapping are known. Retain the other source dynamic side effects and original modal closure as unresolved; Gate13–17 remain OPEN.
+
+
+## Recovery588: all 44 original tactics player arrow sprites now mapped to their actual native event IDs
+
+The six-range original source producer at `0x52E280` has been cross-checked **against the actual constructor object offsets and four source arrow asset callsites**. This resolves the formerly unproven correspondence of four visual arrow variants to four high-ID input event families:
+
+| Source original sprite (private art) | Parent object offset (row0) | Player rows' exact child ID field | Original per-row event family | Original action source |
+| --- | ---: | ---: | --- | --- |
+| left at x69, `tactics_arrow_left.444` | `screen+0x1CF4` | child+0x20 = `screen+0x1D14` | `0x246E8E + row` | `0x6C2170`, source flag0 |
+| right at x120, `tactics_arrow_right.444` | `screen+0x2038` | child+0x20 = `screen+0x2058` | `0x247276 + row` | `0x6C2170`, source flag1 |
+| left at x407, `tactics_arrow_left_2.444` | `screen+0x34D8` | child+0x20 = `screen+0x34F8` | `0x2466BE + row` | source mapped-row decrement 0..10, queued edit |
+| right at source-initial x544, `tactics_arrow_right_2.444` | `screen+0x3CEC` | child+0x20 = `screen+0x3D0C` | `0x246AA6 + row` | source mapped-row increment 0..10, queued edit |
+
+Each array repeats on a true **0x4C** original parent object stride for exactly **11 rows**. Constructor `0x527FC6` derives row0 object `+0x1CF4` before native `0x651E30` arrow x69; `0x52800D` row0 `+0x2038` before x120; `0x5281F9` row0 `+0x34D8` before x407; `0x5282D7` row0 `+0x3CEC` before dynamic x `[0x947304]+420`. The reached initializer at `0x52E34C/352/32C/332` derives four original event bases from the same source seed, and `0x52E359/35F/344/34A` writes those IDs **directly to child+0x20** at the matching four object-array offsets. This ties the authentic art to actual hit/event owner, not mere visual coincidence.
+
+The two other 11-ID high event families are sourced by separate original child/control arrays: `0x8877AE + row` stored in child `screen+0x265C+0x44*row`, and `0x23D65A + row` registered on child `screen+0x1A34+0x40*row` through vtable+8. Their physical artwork/control rectangles and native callback routes are distinct and still require source verification.
+
+**Original source audit:** 15 new independent PE byte assertions confirmed four constructor object origins, original computed high IDs, actual direct writes to original child+0x20, and eleven-iteration loop. All matched the original EXE SHA833bf95e; opt-in native source tests and pure 44-arrow event binding tests are on the same worker feature branch. The bounded `original_fastview_tactics_control_layout.py` now exposes `source_original_native_event_id` and `source_original_parent_offset` per player arrow. This does not yet implement original child input handling, edit list mutations, match simulator/RNG coupling, CPU tactics or Windows11 UI.
+
+**Next:** qualify native `0x651E30` direct mouse routing with retained child+0x20 source events to `FastViewTactics` callbacks and verify any active-region/animation frame distinctions; trace remaining two eleven-ID control arrays and list/effect semantics in real Side/career state, then integrate these 44 known original controls into the genuine live FastView modal with original returned match state. Native CPU branch and real Win11 GUI acceptance remain outstanding; Gate13–17 OPEN.
