@@ -575,5 +575,41 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_original_human_fastview_five_high_event_player_row_families(self):
+        """The source handles 55 high numbered player controls besides IDs 1..68."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x52E97C, "3d 76 72 24 00"),  # family1 starts 0x247276
+            (0x52E983, "3d 81 72 24 00"),  # family1 exclusive end +11
+            (0x52E9B1, "e8 ba 37 19 00"),  # original side action 0x6c2170
+            (0x52E9CD, "3d 8e 6e 24 00"),  # family2 starts 0x246e8e
+            (0x52E9D4, "3d 99 6e 24 00"),  # family2 end +11
+            (0x52E9E9, "6a 00"),           # second side action flag 0
+            (0x52EA04, "3d be 66 24 00"),  # family3 starts 0x2466be
+            (0x52EA0F, "3d c9 66 24 00"),  # family3 end +11
+            (0x52EA31, "8b 8c be fc 0a 00 00"),  # row index from true screen bytes
+            (0x52EA46, "c7 84 be fc 0a 00 00 0a 00 00 00"), # wraps 0..10
+            (0x52EA76, "e8 45 4a 10 00"),  # source working list object
+            (0x52EAC7, "89 8e ac 48 00 00"),  # linked list count increment
+            (0x52EAD2, "3d a6 6a 24 00"),  # family4 starts 0x246aa6
+            (0x52EADD, "3d b1 6a 24 00"),  # family4 end +11
+            (0x52EB0D, "83 f8 0b"),        # increment wraps index11 to 0
+            (0x52EB12, "c7 84 be fc 0a 00 00 00 00 00 00"),
+            (0x52EB42, "e8 79 49 10 00"),  # second working list object
+            (0x52EBA2, "3d ae 77 88 00"),  # family5 starts 0x8877ae
+            (0x52EBAD, "3d b9 77 88 00"),  # family5 end +11
+            (0x52EBDC, "e8 cf 2e 12 00"),  # original child input state gate
+            (0x52EC0D, "e8 0e 44 10 00"),  # 0x633020 genuine validator
+            (0x52EC23, "e8 48 3b 19 00"),  # 0x6c2770 nontrivial side mutation
+        )
+        for address, encoded in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(want)), want)
+
 if __name__ == "__main__":
     unittest.main()
