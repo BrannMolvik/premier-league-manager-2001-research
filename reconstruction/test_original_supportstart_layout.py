@@ -86,6 +86,5 @@ class OriginalSupportStartNativePlacementTests(unittest.TestCase):
                 original_supportstart_action_native_screen_rect(
                     event, viewport_size=(800,600))
 
-
 if __name__ == "__main__":
     unittest.main()
