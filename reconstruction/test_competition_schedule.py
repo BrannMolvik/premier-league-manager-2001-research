@@ -254,9 +254,13 @@ class CompetitionScheduleTests(unittest.TestCase):
         )[0]
 
         self.assertEqual(node.node_kind, "league_match")
-        # 0x6170F0 generates pairings; its native constructor instantiation
-        # is not automatically qualified from a symbolic Python emission.
-        self.assertIsNone(node.original_native_constructor_evidence)
+        # Native 0x617310 dispatches League v+0x3C to 0x616FC0,
+        # which emits 0x5104F0 and calls 0x4F3B50->0x615950.
+        # This is constructor CLASS only, not a real native event ID.
+        self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_va,0x5104F0)
+        self.assertEqual(node.original_native_constructor_evidence.original_native_serialized_type_code,1)
+        self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_callsite_va,0x617047)
+        self.assertFalse(node.original_native_constructor_evidence.is_live_original_event)
         self.assertEqual(node.schedule_index, 4)
         self.assertEqual((node.scheduled_week, node.scheduled_weekday), (14, 6))
         self.assertEqual(node.participant_0_ref.direct_club_id, 30)
