@@ -134,3 +134,30 @@ def original_fastview_bottom_arrow_positions() -> tuple[OriginalFastViewTacticsA
         OriginalFastViewTacticsArrowPosition(None, 0, 303, 481),
         OriginalFastViewTacticsArrowPosition(None, 1, 379, 481),
     )
+
+# Original PictureControl child 0x651F40 selects one of two WORD frames using
+# native base-control flag bit2 (source getter 0x64F590). This is NOT a
+# designation of mouse hover/press; that semantic requires a separate trace.
+NATIVE_FASTVIEW_ARROW_FRAME_CONTROL_SOURCE_VA = 0x651F40
+NATIVE_FASTVIEW_ARROW_FRAME_FLAG_SOURCE_VA = 0x64F590
+NATIVE_FASTVIEW_ARROW_FRAME_REFRESH_SOURCE_VA = 0x64F600
+NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK = 0x04
+
+
+def original_fastview_arrow_frame_word_for_native_flags(
+    native_flags: int,
+    frame_word_at_44: int,
+    frame_word_at_46: int,
+) -> int:
+    """Source-exact frame WORD read, not synthetic pointer-state interpretation.
+
+    Source 0x64F590 extracts (control+0x18 >> 2) & 1.
+    Source 0x651F40 uses +0x46 when that bit is set, otherwise +0x44.
+    This function does not touch the original control or draw any pixels.
+    """
+    if type(native_flags) is not int or not (0 <= native_flags <= 0xFFFFFFFF):
+        raise ValueError("authentic unsigned source DWORD flags required")
+    for value in (frame_word_at_44, frame_word_at_46):
+        if type(value) is not int or not (0 <= value <= 0xFFFF):
+            raise ValueError("authentic unsigned 16-bit native frame index required")
+    return frame_word_at_46 if (native_flags & NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK) else frame_word_at_44
