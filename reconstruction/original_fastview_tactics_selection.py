@@ -1263,3 +1263,32 @@ def source_fastview_x133_popup_clip_52d190(
     if context_y + height > 600:
         height = 600 - context_y
     return (width, height, context_x, context_y)
+
+
+# Native popup constructed at 0x52D1F0 has final vtable 0x7CAC64,
+# whose +0x34 key handler 0x52D350 checks WORD 0x1B (Escape).
+# It routes WORD 0xFFFF via 0x6539F0 -> 0x659650:
+# 0x6539F0 masks to 16 bits, follows owner +0x64 and sends event
+# message 0x400 through the external thunk pointer 0x7BD2D8.
+# The destination/side effects of that thunk are NOT source qualified.
+SOURCE_FASTVIEW_POPUP_VTABLE = 0x7CAC64
+SOURCE_FASTVIEW_POPUP_KEY_CALLBACK_OFFSET = 0x34
+SOURCE_FASTVIEW_POPUP_ESCAPE_HANDLER_VA = 0x52D350
+SOURCE_FASTVIEW_POPUP_ESCAPE_KEY_WORD = 0x1B
+SOURCE_FASTVIEW_POPUP_ESCAPE_SENTINEL = 0xFFFF
+SOURCE_FASTVIEW_POPUP_EVENT_SENDER_VA = 0x6539F0
+SOURCE_FASTVIEW_POPUP_EVENT_ROUTER_VA = 0x659650
+SOURCE_FASTVIEW_POPUP_EVENT_CODE = 0x400
+
+
+def source_fastview_popup_escape_event_value_only(*, original_key_word: int) -> int | None:
+    """Only original 0x52D350's Escape dispatch, never modal cancellation.
+
+    None means the original handler returns without this specific event.
+    A returned WORD 0xFFFF means 0x6539F0 is called, NOT a proved menu
+    close/lineup rollback or post-match navigation.
+    """
+    if type(original_key_word) is not int or not 0 <= original_key_word <= 0xFFFF:
+        raise SourceFastViewTacticsSelectionError("original key WORD required")
+    return (SOURCE_FASTVIEW_POPUP_ESCAPE_SENTINEL
+            if original_key_word == SOURCE_FASTVIEW_POPUP_ESCAPE_KEY_WORD else None)
