@@ -14,6 +14,7 @@ on:
       - "reconstruction/match_detail_mode.py"
       - "reconstruction/test_match_detail_mode.py"
       - "reconstruction/original_fastview_tactics_selection.py"
+      - "reconstruction/original_fastview_two_sided_live_writeback.py"
       - "reconstruction/test_original_fastview_tactics_selection.py"
       - "reconstruction/original_fastview_tactics_control_layout.py"
       - "reconstruction/test_original_fastview_tactics_control_layout.py"
