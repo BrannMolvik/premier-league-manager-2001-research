@@ -75,3 +75,67 @@ def source_original_schedule_event_constructor_510380(
     return OriginalScheduleEventConstructorValue(
         bytes(event),(original_collection_serial_counter_before+1)&0xFFFFFFFF,
         original_collection_pointer,ident)
+
+
+
+SOURCE_ORIGINAL_EVENT_COLLECTION_SELECTOR_VA = 0x4F3B50
+SOURCE_ORIGINAL_EVENT_OWNER_CONSTRUCTOR_VA = 0x5103D0
+
+
+@dataclass(frozen=True)
+class OriginalScheduleEventOwnerSelection:
+    """Source-only constructor output from original virtual+0x30 selection.
+
+    A runtime caller must supply the ACTUAL original owner's virtual result.
+    No reconstructed schedule kind, team, or fixture ID can stand in for it.
+    """
+    original_owner_virtual30_result_eax: int
+    selected_collection_pointer: int
+    source_constructed_event: OriginalScheduleEventConstructorValue
+
+
+def source_original_event_collection_selector_4f3b50(
+    *, original_owner_virtual30_result_eax: int,
+) -> int:
+    """Original 0x4F3B50 dispatch: test AL, not the entire EAX.
+
+    The shipped original invokes owner vtable+0x30, then selects 0x947AF0
+    only when its low eight bits are NONZERO, else 0x947AD8. No metadata
+    field of the current clean-room PrimaryScheduleShadow proves this
+    virtual result; this helper therefore accepts only explicit source
+    callback evidence, never infers it.
+    """
+    if (type(original_owner_virtual30_result_eax) is not int or
+            not 0 <= original_owner_virtual30_result_eax <= 0xFFFFFFFF):
+        raise OriginalScheduleEventConstructorSourceError(
+            "actual original owner virtual+0x30 EAX result required")
+    return (SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA
+            if original_owner_virtual30_result_eax & 0xFF
+            else SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA)
+
+
+def source_original_event_constructor_from_owner_5103d0(
+    *, original_uninitialized_event_record: bytes,
+    original_owner_virtual30_result_eax: int,
+    original_selected_collection_serial_counter_before: int,
+) -> OriginalScheduleEventOwnerSelection:
+    """Chain shipped 0x5103D0 -> 0x4F3B50 -> 0x510380 without guessing.
+
+    The serial is read from the SELECTED original collection's +0x0C.
+    The native nonselected collection is not dereferenced or incremented
+    in this path. Native Side/child vtable writes after base constructor
+    are deliberately out of scope.
+    """
+    selected = source_original_event_collection_selector_4f3b50(
+        original_owner_virtual30_result_eax=original_owner_virtual30_result_eax)
+    constructed = source_original_schedule_event_constructor_510380(
+        original_uninitialized_event_record=original_uninitialized_event_record,
+        original_collection_pointer=selected,
+        original_collection_serial_counter_before=(
+            original_selected_collection_serial_counter_before),
+    )
+    return OriginalScheduleEventOwnerSelection(
+        original_owner_virtual30_result_eax=original_owner_virtual30_result_eax,
+        selected_collection_pointer=selected,
+        source_constructed_event=constructed,
+    )
