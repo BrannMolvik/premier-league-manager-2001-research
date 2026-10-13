@@ -241,5 +241,60 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_nested_fastview_two_real_event_dispatchers_and_native_jump_table(self):
+        """Full 68-entry source dispatch classification, not guessed control names."""
+        import struct
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CAD0C, 4))[0], 0x52E3F0)
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CB224, 4))[0], 0x5302A0)
+        # Original 0x52E3F0 accepts event IDs 1 through 68.
+        self.assertEqual(pe.read(0x52E428, 3), bytes.fromhex("83 f8 43"))
+        cases = pe.read(0x52ECF0, 68)
+        targets = struct.unpack("<14I", pe.read(0x52ECB8, 14 * 4))
+        self.assertEqual(targets, (
+            0x52E854, 0x52E8D2, 0x52E8DF, 0x52E947,
+            0x52E928, 0x52E440, 0x52E4AE, 0x52E51D,
+            0x52E593, 0x52E606, 0x52E69B, 0x52E72D,
+            0x52E7C2, 0x52E975))
+        expected = {1: 0, 2: 1, 3: 2, 59: 3, 60: 4,
+                    61: 5, 62: 6, 63: 7, 64: 8, 65: 9,
+                    66: 10, 67: 11, 68: 12}
+        self.assertEqual(
+            {i + 1: k for i, k in enumerate(cases) if k != 13}, expected)
+        self.assertEqual([i + 1 for i, k in enumerate(cases) if k == 13],
+                         list(range(4, 59)))
+        # Final actual nested class keyboard slots differ from inherited base.
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CAC98, 4))[0], 0x52D350)
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CAD30, 4))[0], 0x428AE0)
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CB248, 4))[0], 0x428AE0)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_nested_fastview_one_branch_may_post_bool_result(self):
+        """Only source-bounded accepted/cancel event return, no UI semantic labels."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        guards = (
+            (0x52E8D2, "55 8b ce e8 16 51 12 00"),  # event2 posts EBP=0
+            (0x52E8F5, "e8 76 42 10 00"),           # event3 return-source check
+            (0x52E903, "8b 8e 90 00 00 00"),       # only success path runs extra action
+            (0x52E911, "e8 9a 33 19 00"),          # conditional original side effect
+            (0x52E919, "66 33 d2"),                 # zero DWORD before source BOOL
+            (0x52E91E, "8a d3"),                    # BOOL copied to exit wParam
+            (0x52E921, "e8 ca 50 12 00"),          # event3 posts BOOL exit
+            (0x5302A8, "8b 40 20 48 75 07"),       # alternate event 1 check
+            (0x5302AE, "6a 00"),                    # alternate event1 posts zero
+            (0x5302B0, "e8 3b 37 12 00"),          # native result delivery
+        )
+        for address, code in guards:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
