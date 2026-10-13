@@ -187,6 +187,14 @@ NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE = 0x20
 NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA = 0x87BEA0
 NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA = 0x877820
 NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS = (0x14, 0x18)
+# Original 0x52CFF0 pushes initial width 0x9C and height 0x10 to
+# 0x64E460, which writes fields +0x14/+0x18 on owner 0x877820.
+# Source 0x651A50 still reads those LIVE fields when it creates each
+# 11-row control. This is the verified initial size, not an immutable
+# geometry contract for all subsequent input/render frames.
+NATIVE_SECOND_AUXILIARY_SOURCE_INITIAL_DIMENSIONS = (156, 16)
+NATIVE_SECOND_AUXILIARY_INIT_SOURCE_VA = 0x52CFF0
+NATIVE_SECOND_AUXILIARY_OWNER_CTOR_VA = 0x64E460
 NATIVE_SECOND_AUXILIARY_RECT_WRAPPER = 0x651A50
 
 
@@ -219,6 +227,14 @@ class OriginalFastViewTacticsAuxiliaryRowControl:
         """Native 0x6503F0 receives original 0x87BEA0 (not an art file ID)."""
         return (NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA
                 if self.source_constructor_va == 0x6503F0 else None)
+
+    def source_initial_native_rect(self) -> tuple[int, int, int, int]:
+        """Original constructor initial rectangle, not a live pointer hit."""
+        if self.source_constructor_va == 0x6503F0:
+            return (self.native_x, self.native_y, *NATIVE_FIRST_AUXILIARY_ROW_SIZE)
+        if self.source_constructor_va == 0x5D71A0:
+            return (self.native_x, self.native_y, *NATIVE_SECOND_AUXILIARY_SOURCE_INITIAL_DIMENSIONS)
+        raise ValueError("unknown native auxiliary control constructor")
 
     def native_source_rect_from_original_dimensions(
         self, *, original_resource_dimensions: tuple[int, int] | None = None
