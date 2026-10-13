@@ -71,16 +71,16 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
             for row, va in enumerate(source_sites):
                 with self.subTest(owner=hex(owner), row=row):
                     y = 278 + 17 * row
-                    expected = b"\\x68" + pack("<I", owner)
+                    expected = bytes([0x68]) + pack("<I", owner)
                     if x is None:
-                        expected += b"\\x05" + pack("<I", 420)
-                    expected += b"\\x68" + pack("<I", y)
+                        expected += bytes([0x05]) + pack("<I", 420)
+                    expected += bytes([0x68]) + pack("<I", y)
                     if x is None:
-                        expected += b"\\x50"
+                        expected += bytes([0x50])
                     elif x < 128:
-                        expected += b"\\x6a" + bytes([x])
+                        expected += bytes([0x6a]) + bytes([x])
                     else:
-                        expected += b"\\x68" + pack("<I", x)
+                        expected += bytes([0x68]) + pack("<I", x)
                     self.assertEqual(pe.read(va, len(expected)), expected)
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
@@ -91,7 +91,7 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
         for va, owner, x in ((0x52AE1D, 0x946E90, 303),
                              (0x52AE7A, 0x946E50, 379)):
             with self.subTest(control=hex(owner)):
-                expected = b"\\x68" + pack("<I", owner) + b"\\x68" + pack("<I", 481) + b"\\x68" + pack("<I", x)
+                expected = bytes([0x68]) + pack("<I", owner) + bytes([0x68]) + pack("<I", 481) + bytes([0x68]) + pack("<I", x)
                 self.assertEqual(pe.read(va, len(expected)), expected)
         for va in (0x527DFD, 0x52B746):
             # native 0x64F380 receives y=139 then x=20 and writes
