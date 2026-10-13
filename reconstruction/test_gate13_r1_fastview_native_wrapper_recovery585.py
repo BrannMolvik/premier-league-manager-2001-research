@@ -507,5 +507,44 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_authentic_fastview_tactics_popup_and_arrow_source_loader_chains(self):
+        """Exact asset string ownership and verified existing native sprite wrappers."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        paths = {
+            0x8389A4: b"fm2001_art\\FastView\\tactics_popup_1.444",
+            0x8389CC: b"fm2001_art\\FastView\\tactics_popup_2.444",
+            0x835208: b"fm2001_art\\fastview\\tactics_arrow_left.444",
+            0x835234: b"fm2001_art\\fastview\\tactics_arrow_right.444",
+            0x835260: b"fm2001_art\\fastview\\tactics_arrow_left_2.444",
+            0x835290: b"fm2001_art\\fastview\\tactics_arrow_right_2.444",
+        }
+        for address, filename in paths.items():
+            with self.subTest(filename=filename):
+                self.assertEqual(pe.read(address, len(filename) + 1),
+                                 filename + bytes([0]))
+        sites = (
+            (0x5FD4A4, "68 a4 89 83 00"),  # real source popup1 filename
+            (0x5FD4A9, "b9 70 26 94 00"), # popup1 native resource owner
+            (0x5FD4AE, "e8 9d 02 05 00"), # genuine resource load
+            (0x5FD4F4, "68 cc 89 83 00"), # popup2 file
+            (0x5FD4F9, "b9 50 26 94 00"),
+            (0x5FD4FE, "e8 4d 02 05 00"),
+            (0x527DCE, "68 70 26 94 00"), # original popup1 sprite wrapper
+            (0x52B715, "68 50 26 94 00"), # original popup2 sprite wrapper
+            (0x5F3044, "68 08 52 83 00"), # left original file
+            (0x5F30D4, "68 34 52 83 00"), # right original file
+            (0x5F3164, "68 60 52 83 00"), # left variant2
+            (0x5F31F4, "68 90 52 83 00"), # right variant2
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
