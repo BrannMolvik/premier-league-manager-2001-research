@@ -1220,3 +1220,46 @@ def source_fastview_x133_native_input_route_52d0d0(
     return OriginalFastViewX133InputRoute(
         first_reached, first_row, False, True, inner, slots
     )
+
+
+# The authentic x133 child vft+0x98 0x52D120 allocates 0x18C bytes
+# and calls native popup constructor 0x52D1F0(child+0x38). This does
+# not show the popup, choose a row or prove pointer hit geometry.
+# Its distinct vft+0x9C 0x52D190 constructs a context-relative
+# screen clip by adding child x/y to parent x/y, then clamping the
+# *right/bottom* against original 800x600. No negative-edge clipping
+# is shown by the recovered native source; do not invent it.
+SOURCE_FASTVIEW_X133_POPUP_FACTORY_VA = 0x52D120
+SOURCE_FASTVIEW_X133_POPUP_FACTORY_ALLOC_BYTES = 0x18C
+SOURCE_FASTVIEW_X133_POPUP_CONSTRUCTOR_VA = 0x52D1F0
+SOURCE_FASTVIEW_X133_POPUP_FACTORY_CHILD_LIST_OFFSET = 0x38
+SOURCE_FASTVIEW_X133_POPUP_DRAW_VA = 0x52D190
+SOURCE_FASTVIEW_X133_POPUP_DRAW_VIRTUAL_PARENT_OFFSET = 0x24
+SOURCE_FASTVIEW_X133_POPUP_DRAW_NATIVE_RECT = (800, 600)
+SOURCE_FASTVIEW_X133_POPUP_DRAW_BLITTER_VA = 0x653320
+
+
+def source_fastview_x133_popup_clip_52d190(
+    *, child_x: int, child_y: int, parent_x: int, parent_y: int,
+    context_x: int, context_y: int
+) -> tuple[int, int, int, int]:
+    """Reproduce only original vft+0x9C right/bottom clip arithmetic.
+
+    Native source 0x52D190 reads parent via child+0x24, obtains child
+    [+0x10,+0x0C] and parent [+0x0C,+0x10] component sums,
+    uses context+0x70/+0x74 and caps resulting width against x=800
+    and height against y=600. Its six-argument blitter 0x653320
+    receives computed (width,height,context_x,context_y,4,1).
+    Input coordinates are source-supplied signed DWORDs. This is
+    neither mouse hit-testing nor popup item/selection geometry.
+    """
+    values = (child_x, child_y, parent_x, parent_y, context_x, context_y)
+    if any(type(v) is not int or not -0x80000000 <= v <= 0x7FFFFFFF for v in values):
+        raise SourceFastViewTacticsSelectionError("original signed coordinate DWORDs required")
+    width = child_x + parent_x
+    height = child_y + parent_y
+    if context_x + width > 800:
+        width = 800 - context_x
+    if context_y + height > 600:
+        height = 600 - context_y
+    return (width, height, context_x, context_y)
