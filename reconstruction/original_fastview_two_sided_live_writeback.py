@@ -110,3 +110,141 @@ def source_fastview_post_modal_two_side_block_values_533ca0(
         )
         outputs.append(bytes(updated))
     return SourceFastViewTwoSideBlockState(outputs[0], outputs[1])
+
+
+# ORIGINAL 0x533270 initializes both live side snapshots in one loop:
+# 0x533370 -> 0x6C1D00 copies 389 DWORDs of the native original
+# stage owner to 0xA14AD0 + 1556*side. 0x533B20 -> 0x6C1D30
+# then copies 70 DWORDs to 0xA14898 + 280*side and transforms
+# that 280B side buffer using full owner +0xFC count, +0x100 byte,
+# +0x13C+0x48*ordinal native starter flags and 0x6C1E50's
+# source-only position/rank compatibility rules.
+SOURCE_FASTVIEW_TWO_SIDE_STAGE_SETUP_VA = 0x533270
+SOURCE_FASTVIEW_CLUB_STAGE_POPULATOR_VA = 0x533370
+SOURCE_FASTVIEW_TACTICAL_STAGE_POPULATOR_VA = 0x533B20
+SOURCE_FASTVIEW_FULL_SIDE_COPY_VA = 0x6C1D00
+SOURCE_FASTVIEW_TACTICAL_SIDE_INIT_VA = 0x6C1D30
+SOURCE_FASTVIEW_TACTICAL_RANK_COMPAT_VA = 0x6C1E50
+SOURCE_FASTVIEW_FULL_SIDE_BYTES = 0x185 * 4
+SOURCE_FASTVIEW_TACTICAL_SIDE_BYTES = 0x46 * 4
+SOURCE_FASTVIEW_GLOBAL_FULL_SIDE_VA = 0xA14AD0
+SOURCE_FASTVIEW_GLOBAL_TACTICAL_SIDE_VA = 0xA14898
+SOURCE_FASTVIEW_FULL_SIDE_COUNT_DWORD_OFFSET = 0xFC
+SOURCE_FASTVIEW_FULL_SIDE_FLAG_BYTE_OFFSET = 0x100
+SOURCE_FASTVIEW_FULL_SIDE_STARTER_FLAGS_OFFSET = 0x13C
+SOURCE_FASTVIEW_FULL_SIDE_PLAYER_STRIDE = 0x48
+SOURCE_FASTVIEW_TACTICAL_COUNT_DWORD_OFFSET = 0x14
+SOURCE_FASTVIEW_TACTICAL_POSITION_DWORDS_OFFSET = 0x18
+SOURCE_FASTVIEW_TACTICAL_POSITION_RANK_DWORDS_OFFSET = 0x60
+SOURCE_FASTVIEW_TACTICAL_CURRENT_FLAG_BYTE_OFFSET = 0xF0
+SOURCE_FASTVIEW_TACTICAL_AVAILABLE_BYTE_OFFSET = 0xF1
+SOURCE_FASTVIEW_TACTICAL_ORDER_BYTES_OFFSET = 0xF2
+SOURCE_FASTVIEW_TACTICAL_RESERVE_BYTES_OFFSET = 0x104
+# Full owner 0x13C+0x48*(N-1) must remain within its 1556 bytes:
+# original roster size beyond 18 cannot fit both native source arrays.
+SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MIN = 11
+SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MAX = 18
+
+
+def _original_position_rank_compatible_6c1e50(position: int, rank: int) -> bool:
+    """Exact original native 0x6C1E50 equality and position alias pairs."""
+    if position == rank:
+        return True
+    aliases = (
+        frozenset((18, 19)),
+        frozenset((9, 12, 15)),
+        frozenset((4, 8)),
+        frozenset((2, 6)),
+        frozenset((3, 7)),
+    )
+    return any(position in group and rank in group for group in aliases)
+
+
+def source_fastview_native_tactical_280_init_6c1d30(
+    *, native_full_side_1556: bytes,
+    native_raw_tactical_280: bytes,
+) -> bytes:
+    """Original source-bounded single-side 0x6C1D30 280-byte value result.
+
+    This models original ordering, compatible position ranking and per-
+    player reserve/status flags in the global scratch buffer. It does
+    not write the live club source, perform a player substitution,
+    calculate a match or commit original 0x533CA0 player setters.
+    Fail closed when authentic count/ownership cannot be established.
+    """
+    from struct import unpack_from, pack_into
+
+    if type(native_full_side_1556) is not bytes or len(native_full_side_1556) != SOURCE_FASTVIEW_FULL_SIDE_BYTES:
+        raise OriginalFastViewTwoSideWritebackError("native original 1556-byte side owner required")
+    if type(native_raw_tactical_280) is not bytes or len(native_raw_tactical_280) != SOURCE_FASTVIEW_TACTICAL_SIDE_BYTES:
+        raise OriginalFastViewTwoSideWritebackError("native original 280-byte tactical source required")
+    count = unpack_from("<I", native_full_side_1556, SOURCE_FASTVIEW_FULL_SIDE_COUNT_DWORD_OFFSET)[0]
+    raw_count = unpack_from("<I", native_raw_tactical_280, SOURCE_FASTVIEW_TACTICAL_COUNT_DWORD_OFFSET)[0]
+    if count != raw_count or not SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MIN <= count <= SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MAX:
+        raise OriginalFastViewTwoSideWritebackError(
+            "original staged counts must agree and have 11..18 verified player records"
+        )
+    side = bytearray(native_raw_tactical_280)
+    for ordinal in range(count):
+        side[SOURCE_FASTVIEW_TACTICAL_ORDER_BYTES_OFFSET + ordinal] = ordinal
+    cursor = 0
+    # EBP values 1..19; for each, source loops exactly 11 ranked
+    # starters (not every listed substitute), calling 0x6C1E50.
+    for rank in range(1, 20):
+        for ordinal in range(11):
+            position = unpack_from(
+                "<I", side, SOURCE_FASTVIEW_TACTICAL_POSITION_DWORDS_OFFSET + ordinal * 4
+            )[0]
+            if _original_position_rank_compatible_6c1e50(position, rank):
+                pack_into(
+                    "<I", side,
+                    SOURCE_FASTVIEW_TACTICAL_POSITION_RANK_DWORDS_OFFSET + ordinal * 4,
+                    cursor,
+                )
+                cursor += 1
+    side[SOURCE_FASTVIEW_TACTICAL_CURRENT_FLAG_BYTE_OFFSET] = 3
+    available = native_full_side_1556[SOURCE_FASTVIEW_FULL_SIDE_FLAG_BYTE_OFFSET]
+    for ordinal in range(count):
+        side[SOURCE_FASTVIEW_TACTICAL_ORDER_BYTES_OFFSET + ordinal] = ordinal
+        side[SOURCE_FASTVIEW_TACTICAL_RESERVE_BYTES_OFFSET + ordinal] = (
+            1 if ordinal >= 11 else 0
+        )
+        if ordinal < 11 and native_full_side_1556[
+            SOURCE_FASTVIEW_FULL_SIDE_STARTER_FLAGS_OFFSET
+            + SOURCE_FASTVIEW_FULL_SIDE_PLAYER_STRIDE * ordinal
+        ]:
+            available = (available - 1) & 0xFF
+    side[SOURCE_FASTVIEW_TACTICAL_AVAILABLE_BYTE_OFFSET] = available
+    return bytes(side)
+
+
+@dataclass(frozen=True)
+class SourceFastViewTwoSideNativeTacticalScratch:
+    original_full_side_global_memory: bytes
+    original_tactics_side0: bytes
+    original_tactics_side1: bytes
+
+
+def source_fastview_native_two_side_setup_533270(
+    *, native_full_side0_1556: bytes, native_full_side1_1556: bytes,
+    native_raw_tactics_side0_280: bytes, native_raw_tactics_side1_280: bytes,
+) -> SourceFastViewTwoSideNativeTacticalScratch:
+    """Two source-ordered 0x6C1D00/0x6C1D30 stages before modal.
+
+    Pure: both sides are fully verified and computed before any result
+    object is returned. Original source 0x533270 performs additional
+    calendar, effects and user-data initialization NOT modeled here.
+    """
+    first = source_fastview_native_tactical_280_init_6c1d30(
+        native_full_side_1556=native_full_side0_1556,
+        native_raw_tactical_280=native_raw_tactics_side0_280,
+    )
+    second = source_fastview_native_tactical_280_init_6c1d30(
+        native_full_side_1556=native_full_side1_1556,
+        native_raw_tactical_280=native_raw_tactics_side1_280,
+    )
+    return SourceFastViewTwoSideNativeTacticalScratch(
+        original_full_side_global_memory=native_full_side0_1556+native_full_side1_1556,
+        original_tactics_side0=first,
+        original_tactics_side1=second,
+    )
