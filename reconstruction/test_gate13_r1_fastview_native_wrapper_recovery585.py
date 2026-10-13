@@ -659,5 +659,30 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 want = bytes.fromhex(encoded)
                 self.assertEqual(pe.read(address, len(want)), want)
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_six_original_player_event_producers_and_second_native_callback(self):
+        """The sixth 11-row class lives in the sibling callback, not vtable+0x10."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x52E2FB, "be ae 77 88 00"),       # source row0 seed
+            (0x52E31B, "8d 8e ac 5e 9b ff"),    # seed minus 0x64a154: 0x23d65a
+            (0x52E32C, "8d 96 10 ef 9b ff"),    # 0x2466be
+            (0x52E332, "8d 8e f8 f2 9b ff"),    # 0x246aa6
+            (0x52E34C, "8d 96 e0 f6 9b ff"),    # 0x246e8e
+            (0x52E352, "8d 8e c8 fa 9b ff"),    # 0x247276
+            (0x52E371, "83 fa 0b"),             # exactly eleven row IDs
+            (0x52EDA4, "3d 5a d6 23 00"),      # second callback sixth-family min
+            (0x52EDAB, "3d 65 d6 23 00"),      # sixth-family exclusive end
+            (0x52EDC1, "83 bc 86 6c 0a 00 00 01"), # original per-row gate
+            (0x52EDE6, "e8 85 33 19 00"),      # source 0x6c2170 conditional
+        )
+        for address, encoded in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(want)), want)
+
 if __name__ == "__main__":
     unittest.main()
