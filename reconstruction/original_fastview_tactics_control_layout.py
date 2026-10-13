@@ -32,6 +32,19 @@ NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_WIDTH = 124
 NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X = 124 + 0x1A4
 
 
+# These eight actual native input control positions are distinct from the
+# player-row arrows. Native 0x52E3F0 dispatch IDs 61..68 edit four tactical
+# numeric fields; their constructors register these exact IDs and 0x64F380
+# stores the original source coordinates. The original hit-test and final
+# artwork crop are not asserted by this contract.
+NATIVE_HUMAN_TACTICS_SELECTOR_CONTROL_POSITIONS = (
+    (61, 576, 278), (62, 733, 278),
+    (63, 576, 334), (64, 733, 334),
+    (65, 576, 390), (66, 733, 390),
+    (67, 576, 446), (68, 733, 446),
+)
+
+
 @dataclass(frozen=True)
 class OriginalFastViewTacticsArrowPosition:
     source_row: int | None
