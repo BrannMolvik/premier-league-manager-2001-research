@@ -10,6 +10,8 @@ from original_leaguematch_native_process_owners import (
     SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS,
     source_original_leaguematch_process_owners_for_native_record,
     source_original_wrapped_prepare_511120_post_base,
+    source_original_leaguematch_native_virtual30_low_byte,
+    source_original_match_owned_event_collection_4f3b50,
 )
 
 
@@ -71,6 +73,43 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
                                  ((0xD24,0),) if base_result else ())
                 self.assertEqual(got.returned_al_nonzero,base_result)
 
+    def test_native_virtual30_distinguishes_unconditional_zero_and_source_kind2(self):
+        primary={0x7C4C24,0x7C4CE4,0x7C9E14}
+        special=set(SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS)-primary
+        for vt in primary:
+            with self.subTest(vtable=hex(vt)):
+                record=native_match(vt)
+                self.assertEqual(source_original_leaguematch_native_virtual30_low_byte(
+                    original_match_record=record),0)
+                self.assertEqual(source_original_match_owned_event_collection_4f3b50(
+                    original_match_record=record),0x947AD8)
+                with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
+                    source_original_leaguematch_native_virtual30_low_byte(
+                        original_match_record=record,original_reached_virtual28_kind=2)
+        for vt in special:
+            for kind,flag,al in ((2,0,1),(2,4,0),(2,0x100,1),(3,0,0),(0,0,0)):
+                with self.subTest(vtable=hex(vt),kind=kind,flag=flag):
+                    record=bytearray(native_match(vt))
+                    pack_into("<I",record,0x44,flag)
+                    got=source_original_leaguematch_native_virtual30_low_byte(
+                        original_match_record=bytes(record),
+                        original_reached_virtual28_kind=kind)
+                    self.assertEqual(got,al)
+                    self.assertEqual(source_original_match_owned_event_collection_4f3b50(
+                        original_match_record=bytes(record),
+                        original_reached_virtual28_kind=kind),
+                        0x947AF0 if al else 0x947AD8)
+            for kind in (None,True,-1,0x100000000,"2"):
+                with self.subTest(vtable=hex(vt),kind=kind),self.assertRaises(
+                    OriginalLeagueMatchProcessOwnerError):
+                    source_original_leaguematch_native_virtual30_low_byte(
+                        original_match_record=native_match(vt),
+                        original_reached_virtual28_kind=kind)
+            with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
+                source_original_leaguematch_native_virtual30_low_byte(
+                    original_match_record=native_match(vt)[:0x44],
+                    original_reached_virtual28_kind=2)
+
     def test_original_native_unknown_inputs_are_not_inferred_or_defaulted(self):
         for record in (b"",bytes(3),bytearray(native_match(0x7C9D9C)),
                        native_match(0xDEADBEEF)):
@@ -114,6 +153,10 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
                 for off,value in zip((0x28,0x30,0x34,0x38,0x3C,0x44),members):
                     self.assertEqual(pe.read(vt+off,4),pack("<I",value))
         sites={
+            0x651980:"32 c0 c3",
+            0x5112C0:"56",0x5112C5:"ff 50 28",
+            0x5112C8:"83 f8 02",0x5112CD:"f6 46 44 04",
+            0x5112D3:"b0 01",0x5112D7:"32 c0",
             0x5130B7:"c7 84 24 6c 11 00 00 00 00 00 00",
             0x5130C2:"ff 50 34",0x5130C5:"84 c0",
             0x5130C9:"8d 54 24 08",
