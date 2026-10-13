@@ -1,0 +1,22 @@
+# Recovery600: Native FastView event 0x51FC37 special title and 0x510C30 getter reachability
+
+**14 October 2026 KST.** Baseline main `11b77bd13d27f7c24a11bb796d277c4c5aac4840`, after PR683 merge (exact head `e8c20d7d148767c52fc82b6c3452b8e5b1d59fd0`, focused Gate13 run `38469496634` and asset run `38469496621`, both SUCCESS). Active WIP `worker/gate13-r1-fastview-special-title-source-600`. Gates13–17 remain OPEN.
+
+## Authenticated original source
+
+Original owner-approved `footballmanager.exe` 4,714,541B, SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, independently checked locally, **statically disassembled only**, not executed. Actual original native literal bytes at VA `0x829754` read `20 76 20 00` (ASCII ` v ` NUL); this is not guessed modern typography.
+
+From 0x51FA70 linked event cursor, candidate WORD+0x40 equal to **0xFFFF** jumps at 0x51FB65 to **0x51FC37**, not ordinary collection. Native path zeroes nested state BYTE+0x2B4, obtains first club object through event+0x14 virtual+0, then its indirect name at result+0x0C pointer and original bytes through NUL. It copies/appends this string to native temporary title at nested+0x2BC via 0x40EF60/0x40EF40, appends original literal `0x829754` with native 0x526AF0, then resolves second club through event+0x28 virtual+0, indirect title +0x0C, appends via 0x526AF0, and **jumps directly to 0x5211DE**. This leaves the ordinary 0x526DF0 sort and selected ordinal route. The temporary string allocation/failure/reference cleanup and actual UI are separate unverified source effects. Do not present this as a working native modal.
+
+Original `0x510C30` human-owner event filter at native 0x510C5B compares event FIRST club pointer with current linked human's club pointer; **on first-match it jumps immediately to success**. It accesses SECOND club virtual+0 only if first misses that manager, before proceeding to the next manager. Consequently, a first-club match with human ordinal0 never reaches or requires the second event club pointer; for first-club match with human ordinal2, earlier ordinals0/1 already require that second getter to have returned a qualified source pointer. This branch ordering matters for invalid/native-unreached-pointer handling; the previous PR683 projection eagerly checked both pointers even on first-manager first-club hit.
+
+## Bounded source implementation and verification
+
+- `reconstruction/original_fastview_native_event_human_owners.py`: source-correct lazily reached second-event pointer validation, including exact all-human ordinal scan and first-pointer short-circuit.
+- `reconstruction/test_original_fastview_native_event_human_owners.py`: first human first-club match with second pointer absent/malformed intentionally succeeds (getter unreached); late ordinal first-club match with absent second fails closed because earlier human getter reached.
+- `reconstruction/original_fastview_special_event_title.py`: immutable typed NUL-byte `first original club title + b" v " + second original club title + NUL`, only when source candidate WORD+0x40 is exactly 0xFFFF; zero 0x2B4 source byte and original direct-jump receipt. Caller MUST supply genuine two original indirect C strings, not guessed names; no object allocation/real GUI.
+- `reconstruction/test_original_fastview_special_event_title.py`: byte-faithful case/0x80 contrast, original literal, multiple NUL, absent source fields, wrong branch and original private PE exact opcode assertions. Focused Gate13 CI includes both new files.
+
+Tests and CI are required at the exact PR head before merge; the original opt-in executable verification is separate from GitHub tests, where owner-private binary must be absent. This source transformation DOES NOT recover the complete 0x51FA70 or its 0x5211DE resource/UI descendant, native PResults, modal player edit and postgame writeback, complete mode2, management return, 2–6 humans outside native callback, full country scope, SaveLoad or real Win11 GUI acceptance. **Gates13–17 OPEN.**
+
+**Next:** trace 0x5211DE special-path descendant, match event producer and actual nested 0x532B80 Win32 modal callback/child UI, original 0x533CA0 ordered world effects, PResults→ordinary management. Preserve the host Quick-only guard until true source-authenticated mode2 is playable.
