@@ -57,6 +57,9 @@ from original_fastview_tactics_selection import (
     source_fastview_x133_native_input_route_52d0d0,
     OriginalFastViewX133InputRoute,
     SOURCE_FASTVIEW_X133_CHILD_DERIVED_VTABLE_VA,
+    SourceFastViewX133NativeOption,
+    source_fastview_x133_original_option_slots_from_candidates,
+    source_fastview_x133_original_selected_player_from_ordinal,
 )
 
 
@@ -1632,6 +1635,99 @@ class OriginalFastViewX133NativeCallbackOrderTests(unittest.TestCase):
             with self.subTest(slot=slot):
                 self.assertEqual(struct.unpack("<I",pe.read(0x7CB010+slot,4))[0],target)
 
+
+
+
+class OriginalFastViewX133PopupListOrdinalSourceTests(unittest.TestCase):
+    """0x52F690 original option and actual player maps, not pointer hits."""
+
+    def test_selected_option_ordinal_is_not_roster_slot_or_player_index(self):
+        candidates=(
+            SourceFastViewNativeCandidate(11,13),
+            SourceFastViewNativeCandidate(14,2),
+            SourceFastViewNativeCandidate(17,9)
+        )
+        slots=source_fastview_x133_original_option_slots_from_candidates(
+            original_source_candidates=candidates)
+        self.assertEqual(slots, (
+            SourceFastViewX133NativeOption(0,11,13),
+            SourceFastViewX133NativeOption(1,14,2),
+            SourceFastViewX133NativeOption(2,17,9),
+        ))
+        self.assertEqual(tuple(x.original_native_pair_offset for x in slots),
+                         (0x4864,0x486C,0x4874))
+        self.assertEqual(tuple(x.original_native_player_map_offset for x in slots),
+                         (0x4848,0x484C,0x4850))
+        self.assertEqual(tuple(x.original_native_text_buffer_offset for x in slots),
+                         (0x4768,0x4788,0x47A8))
+        self.assertEqual(
+            source_fastview_x133_original_selected_player_from_ordinal(
+                original_options=slots,native_child_selected_ordinal=1),2)
+        self.assertEqual(
+            source_fastview_x133_original_selected_player_from_ordinal(
+                original_options=slots,native_child_selected_ordinal=0),13)
+
+    def test_zero_original_optional_players_has_null_only_and_no_selection(self):
+        self.assertEqual(source_fastview_x133_original_option_slots_from_candidates(
+            original_source_candidates=()),())
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_x133_original_selected_player_from_ordinal(
+                original_options=(),native_child_selected_ordinal=0)
+
+    def test_malformed_original_options_and_sentinel_are_not_valid_apply(self):
+        good=source_fastview_x133_original_option_slots_from_candidates(
+            original_source_candidates=(
+                SourceFastViewNativeCandidate(11,12),
+                SourceFastViewNativeCandidate(15,7)))
+        for idx in (True,False,-1,None,2,0xFFFF,1.0,"1"):
+            with self.subTest(idx=repr(idx)),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_x133_original_selected_player_from_ordinal(
+                    original_options=good,native_child_selected_ordinal=idx)
+        for invalid in (
+            [SourceFastViewNativeCandidate(11,12)],
+            (SourceFastViewNativeCandidate(10,12),),
+            (SourceFastViewNativeCandidate(11,12),SourceFastViewNativeCandidate(11,7)),
+            (SourceFastViewNativeCandidate(11,12),SourceFastViewNativeCandidate(12,12)),
+            (SourceFastViewNativeCandidate(11,-1),),
+            (SourceFastViewNativeCandidate(True,4),),
+            (SourceFastViewNativeCandidate(11,4),None),
+        ):
+            with self.subTest(invalid=invalid),self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_x133_original_option_slots_from_candidates(
+                    original_source_candidates=invalid)
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_x133_original_selected_player_from_ordinal(
+                original_options=(SourceFastViewX133NativeOption(2,11,7),),
+                native_child_selected_ordinal=0)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-private original PE not mounted")
+    def test_exact_original_x133_list_source_owner_mapping_and_null_terminator(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        probes=(
+            (0x5280B4,"8d be 64 48 00 00"),
+            (0x5280C0,"57"),
+            (0x5280D8,"e8 c3 f0 0a 00"),
+            (0x651A90,"89 4e 38"),
+            (0x52F6A7,"c7 44 24 14 00 00 00 00"),
+            (0x52F707,"8d 86 64 48 00 00"),
+            (0x52F70D,"8d 9e 68 47 00 00"),
+            (0x52F717,"8d 86 48 48 00 00"),
+            (0x52F7D2,"89 3a"),
+            (0x52F7D4,"89 48 04"),
+            (0x52F7D7,"89 18"),
+            (0x52F80D,"c7 84 c6 64 48 00 00 00 00 00 00"),
+            (0x651B24,"89 5e 3c"),
+            (0x52EBE9,"8b bf 78 26 00 00"),
+            (0x52EC01,"8b bc be 48 48 00 00"),
+        )
+        self.assertEqual(len(probes),15)
+        for va,hx in probes:
+            with self.subTest(va=hex(va)):
+                expected=bytes.fromhex(hx)
+                self.assertEqual(pe.read(va,len(expected)),expected)
 
 if __name__ == "__main__":
     unittest.main()
