@@ -15,11 +15,10 @@ from original_presults_native_event_work import (
 
 
 def execution(pointer,**kwargs):
-    return OriginalPResultsNativeQueuedEvent(
-        original_event_pointer=pointer,
-        source_virtual_0c_nonzero=True,
-        before_event8=0,before_payload44=0,
-        **kwargs)
+    return OriginalPResultsNativeQueuedEvent(**(
+        dict(original_event_pointer=pointer,
+             source_virtual_0c_nonzero=True,
+             before_event8=0,before_payload44=0) | kwargs))
 
 
 class OriginalPResultsSourceEventTests(unittest.TestCase):
