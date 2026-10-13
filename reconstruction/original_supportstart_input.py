@@ -590,3 +590,53 @@ def original_supportstart_source_window_click_accepts_row(
         native_row_control_dword & 0x0002
         and not (native_row_control_dword & 0x0010)
     )
+
+
+def project_original_supportstart_source_pointer_down(
+    row: OriginalSupportStartRowBitState,
+    *,
+    row_index: int,
+    source_screen_point: tuple[int, int],
+    viewport_size: tuple[int, int],
+) -> OriginalSupportStartRowNativeDispatchObservation:
+    """Project a source-qualified seven-row down event and native pressed state.
+
+    REQUIRES an actual upstream native PSupportStart modal/window route and
+    source post-window-callback row snapshot. Reject an unaccepted window
+    child event: do not synthesize a click merely from an arbitrary point.
+
+    Original seven group owner vft+0x08 forwards native group ID8..14
+    to all registered children as +0x20, and modal owner as +0x24.
+    Final PSupportStart callback virtual+0x0C (0x42DE00) returns 1.
+    For both input-eligible +0x44/+0x48 child classes, virtual+0x6C
+    is 0x64F7A0, which accepts iff bit0x02 and not bit0x10 when
+    the original event pointer is present. The 0x5D4790 registration
+    loop checks child bit0x01 first. Event IDs8..14 invoke modal
+    0x4D05E0's redraw-only case, not Apply or Cancel.
+    """
+    if type(row) is not OriginalSupportStartRowBitState:
+        raise TypeError("Require original native row/children DWORD snapshot")
+    if not original_supportstart_source_window_click_accepts_row(
+        row_index=row_index,
+        source_screen_point=source_screen_point,
+        viewport_size=viewport_size,
+        native_row_control_dword=row.parent,
+    ):
+        raise ValueError("No accepted original PSupportStart row window input")
+    candidate_children = tuple(
+        index for index,(flag,child) in enumerate(
+            zip(ORIGINAL_ROW_REGISTRATION_FLAGS,row.children)
+        )
+        if (flag & ORIGINAL_ROW_CHILD_INPUT_FLAG) and (child & 0x01)
+    )
+    observed_child_results = tuple(
+        bool((row.children[index] & 0x02) and not (row.children[index] & 0x10))
+        for index in candidate_children
+    )
+    return project_original_supportstart_row_native_dispatch(
+        row,
+        native_second_argument_present=True,
+        observed_parent_acceptance=True,
+        observed_child_acceptances=observed_child_results,
+        source_row_index=row_index,
+    )
