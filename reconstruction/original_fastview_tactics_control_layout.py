@@ -37,6 +37,17 @@ NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X = 124 + 0x1A4
 # numeric fields; their constructors register these exact IDs and 0x64F380
 # stores the original source coordinates. The original hit-test and final
 # artwork crop are not asserted by this contract.
+# Event61..68 controls are NOT reused eleven-player tactics_arrow_* sprites.
+# Their reached native owner is GenericButtonsAndBars/scroller_hori.444;
+# the constructor crops one 25x18 region from its original 100x36 atlas.
+NATIVE_HUMAN_TACTICS_SCROLLER_ART = "FM2001_Art/Generic/GenericButtonsAndBars/scroller_hori.444"
+NATIVE_HUMAN_TACTICS_SCROLLER_ATLAS_SIZE = (100, 36)
+NATIVE_HUMAN_TACTICS_SCROLLER_CROP_SIZE = (25, 18)
+NATIVE_HUMAN_TACTICS_SCROLLER_LEFT_OWNER = 0x947050
+NATIVE_HUMAN_TACTICS_SCROLLER_RIGHT_OWNER = 0x947030
+NATIVE_HUMAN_TACTICS_SCROLLER_LEFT_SOURCE_Y = 0
+NATIVE_HUMAN_TACTICS_SCROLLER_RIGHT_SOURCE_Y = 18
+
 NATIVE_HUMAN_TACTICS_SELECTOR_CONTROL_POSITIONS = (
     (61, 576, 278), (62, 733, 278),
     (63, 576, 334), (64, 733, 334),
