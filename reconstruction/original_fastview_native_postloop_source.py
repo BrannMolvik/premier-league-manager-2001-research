@@ -100,3 +100,75 @@ def source_fastview_original_postloop_global_values_533270(
         original_globals_a25930_bytes=original_globals[2],
         native_631290_wrote_outputs=native_outputs,
     )
+
+
+SOURCE_FASTVIEW_POSTLOOP_24_BYTE_READER_VA = 0x62B6B0
+SOURCE_FASTVIEW_POSTLOOP_24_SLOT_GLOBAL_WRITER_VA = 0x6CA900
+SOURCE_FASTVIEW_POSTLOOP_24_SOURCE_BYTE_START = 0x112D
+SOURCE_FASTVIEW_POSTLOOP_24_SOURCE_COUNT = 24
+SOURCE_FASTVIEW_POSTLOOP_24_GLOBAL_VA = 0xA257B8
+SOURCE_FASTVIEW_POSTLOOP_MATCH_POINTER_OFFSET = 0xB60
+SOURCE_FASTVIEW_POSTLOOP_MATCH_VALUE_OFFSET = 0xB68
+SOURCE_FASTVIEW_POSTLOOP_MATCH_POINTER_WRITER_VA = 0x6CBD80
+SOURCE_FASTVIEW_POSTLOOP_MATCH_VALUE_WRITER_VA = 0x6CA8F0
+SOURCE_FASTVIEW_POSTLOOP_ORIGINAL_MODE_POINTER_VA = 0x877534
+SOURCE_FASTVIEW_POSTLOOP_SOURCE_MODE_WRITER_VA = 0x6CA910
+SOURCE_FASTVIEW_POSTLOOP_SOURCE_GRID_RESET_VA = 0x6C2890
+SOURCE_FASTVIEW_POSTLOOP_GRID_108_BYTES_VA = 0xA14828
+
+
+@dataclass(frozen=True)
+class SourceFastViewOriginalPostLoopSlotAndResetValues:
+    original_24_dword_global_a257b8: bytes
+    original_match_b60_pointer_offset_intent: int
+    original_match_b68_dword_to_a25874: int
+    original_877534_null_mode_to_a2578c: int
+    source_grid_a14828_108_after_reset: bytes
+
+
+def source_fastview_original_postloop_slot_and_reset_533270(
+    *, original_match_object: bytes,
+    original_global_slots_a257b8_before: bytes,
+    original_grid_a14828_before: bytes,
+    original_877534_pointer_is_nonzero: bool,
+) -> SourceFastViewOriginalPostLoopSlotAndResetValues:
+    """Exact later 0x533305..0x533359 original stage writes, value-only.
+
+    Original loops ESI=0..23: ECX=match, calls 0x62B6B0 reading
+    zero-extended BYTE match+0x112D+i through stack output DWORD,
+    then 0x6CA900 stores that DWORD at global0xA257B8+4*i.
+    Next 0x6CBD80 stores POINTER (match+0xB60) at global0xA258C0;
+    this model preserves only the pointer-relative offset intent,
+    since a real original address cannot be manufactured.
+    It writes original match DWORD+0xB68 to 0xA25874 via 0x6CA8F0.
+    0x6CA910 stores DWORD 1 iff global0x877534 was NULL, otherwise 0,
+    at 0xA2578C. Finally 0x6C2890 loops two 18-entry grids
+    (3 bytes per cell) clearing exactly global A14828..A14893
+    (108 bytes). This is NOT live match/tick processing.
+    """
+    if (type(original_match_object) is not bytes or
+            len(original_match_object)<SOURCE_FASTVIEW_POSTLOOP_24_SOURCE_BYTE_START+24):
+        raise SourceFastViewOriginalPostLoopError(
+            "actual original match+0x112D..+0x1144 24 source bytes required")
+    if (type(original_global_slots_a257b8_before) is not bytes or
+            len(original_global_slots_a257b8_before)!=24*4):
+        raise SourceFastViewOriginalPostLoopError(
+            "original 24 DWORD global slots before stage required")
+    if (type(original_grid_a14828_before) is not bytes or
+            len(original_grid_a14828_before)!=108):
+        raise SourceFastViewOriginalPostLoopError(
+            "original 108-byte two-row grid required")
+    if type(original_877534_pointer_is_nonzero) is not bool:
+        raise SourceFastViewOriginalPostLoopError(
+            "qualified original global 0x877534 NULL predicate required")
+    updated=bytearray(original_global_slots_a257b8_before)
+    for i in range(24):
+        pack_into("<I", updated, i*4, original_match_object[0x112D+i])
+    return SourceFastViewOriginalPostLoopSlotAndResetValues(
+        original_24_dword_global_a257b8=bytes(updated),
+        original_match_b60_pointer_offset_intent=SOURCE_FASTVIEW_POSTLOOP_MATCH_POINTER_OFFSET,
+        original_match_b68_dword_to_a25874=unpack_from("<I",original_match_object,0xB68)[0],
+        original_877534_null_mode_to_a2578c=(
+            0 if original_877534_pointer_is_nonzero else 1),
+        source_grid_a14828_108_after_reset=b"\x00"*108,
+    )
