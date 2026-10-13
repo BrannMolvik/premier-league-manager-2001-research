@@ -29,6 +29,8 @@ from original_fastview_tactics_selection import (
     source_fastview_native_candidates_52f690,
     source_fastview_redraw_rows_52f690,
     source_fastview_6c2770_side_payload_value_only,
+    SourceFastViewAuxChildInputOutcome,
+    source_fastview_aux_child_input_outcome_651ac0,
 )
 
 
@@ -521,6 +523,92 @@ class NativeFastViewSideSwapSourceTests(unittest.TestCase):
             (0x52EC46, "e8 85 49 10 00"),
         )
         for va, hx in probes:
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(hx))), bytes.fromhex(hx))
+
+
+
+class SourceFastViewAuxiliaryNativeSelectionTests(unittest.TestCase):
+    """Do not treat native parent callback as proof of an applied edit."""
+
+    def test_pre_base_denial_has_no_result_fields_or_second_callback(self):
+        self.assertEqual(
+            source_fastview_aux_child_input_outcome_651ac0(
+                base_dispatch_result=0, native_selection_index=None,
+                child_has_registered_event=True,
+                child_input_callback_argument_nonzero=True,
+            ),
+            SourceFastViewAuxChildInputOutcome(False, None, None, False),
+        )
+
+    def test_sentinal_selection_still_allows_second_parent_callback(self):
+        self.assertEqual(
+            source_fastview_aux_child_input_outcome_651ac0(
+                base_dispatch_result=1, native_selection_index=0xFFFF,
+                child_has_registered_event=True,
+                child_input_callback_argument_nonzero=True,
+            ),
+            SourceFastViewAuxChildInputOutcome(False, 1, None, True),
+        )
+
+    def test_bounded_selected_index_and_callback_matrix(self):
+        for ev in (False, True):
+            for arg in (False, True):
+                with self.subTest(event=ev, arg=arg):
+                    actual = source_fastview_aux_child_input_outcome_651ac0(
+                        base_dispatch_result=1, native_selection_index=9,
+                        child_has_registered_event=ev,
+                        child_input_callback_argument_nonzero=arg,
+                    )
+                    self.assertEqual(actual,
+                        SourceFastViewAuxChildInputOutcome(True, 0, 9, ev and arg))
+        self.assertEqual(
+            source_fastview_aux_child_input_outcome_651ac0(
+                base_dispatch_result=1, native_selection_index=0,
+                child_has_registered_event=True,
+                child_input_callback_argument_nonzero=True),
+            SourceFastViewAuxChildInputOutcome(True, 0, 0, True),
+        )
+
+    def test_unproven_native_pointer_selection_inputs_fail_closed(self):
+        valid = dict(base_dispatch_result=1, native_selection_index=1,
+                     child_has_registered_event=True,
+                     child_input_callback_argument_nonzero=False)
+        for bad in ({"base_dispatch_result": True},
+                    {"base_dispatch_result": -1},
+                    {"base_dispatch_result": 0x100000000},
+                    {"base_dispatch_result": 0, "native_selection_index": 1},
+                    {"native_selection_index": None},
+                    {"native_selection_index": -1},
+                    {"native_selection_index": 0x10000},
+                    {"child_has_registered_event": 1},
+                    {"child_input_callback_argument_nonzero": 0}):
+            with self.subTest(bad=bad), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_aux_child_input_outcome_651ac0(**(valid | bad))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized private original exe not mounted")
+    def test_exact_original_651ac0_selected_index_and_callback_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source = (
+            (0x651ACB, "e8 d0 dc ff ff"),
+            (0x651AD0, "85 c0"),
+            (0x651AD2, "75 05"),
+            (0x651ADF, "ff 90 98 00 00 00"),
+            (0x651AEC, "ff 92 9c 00 00 00"),
+            (0x651AFA, "ff 50 20"),
+            (0x651B0B, "81 fb ff ff 00 00"),
+            (0x651B13, "c6 46 40 01"),
+            (0x651B1E, "c6 46 40 00"),
+            (0x651B24, "89 5e 3c"),
+            (0x651B3F, "8b 46 20"),
+            (0x651B46, "8b 44 24 18"),
+            (0x651B4E, "8b 4e 24 55 56 8b 01 ff 50 10"),
+        )
+        for va, hx in source:
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va, len(bytes.fromhex(hx))), bytes.fromhex(hx))
 
