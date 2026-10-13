@@ -96,6 +96,42 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             with self.subTest(a=a,b=b),self.assertRaises(OriginalFastViewEventCollectionSourceError):
                 less(a,b)
 
+    def test_native_51fa70_original_source_filtered_pointers_are_name_sorted(self):
+        from original_fastview_native_event_selection import source_fastview_original_unique_named_event_sort_51fa70
+        original=((0x3333,b"Zulu\0"),(0x5555,b"Alpha\0"),(0x7777,b"Yankee\0"))
+        sorted_source=source_fastview_original_unique_named_event_sort_51fa70(
+            original_selected_event_pointer=0x3333,
+            original_51fa70_filtered_candidate_pointers_and_indirect_names=original)
+        self.assertEqual(sorted_source.original_sorted_source_event_pointers,
+                         (0x5555,0x7777,0x3333))
+        self.assertEqual(sorted_source.original_selected_event_sorted_ordinal,2)
+        self.assertEqual(original,((0x3333,b"Zulu\0"),(0x5555,b"Alpha\0"),(0x7777,b"Yankee\0")))
+        singleton=source_fastview_original_unique_named_event_sort_51fa70(
+            original_selected_event_pointer=1,
+            original_51fa70_filtered_candidate_pointers_and_indirect_names=((1,b"\0"),))
+        self.assertEqual(singleton.original_sorted_source_event_pointers,(1,))
+        self.assertEqual(singleton.original_selected_event_sorted_ordinal,0)
+
+    def test_original_sort_filters_and_duplicate_ties_fail_not_invented(self):
+        from original_fastview_native_event_selection import source_fastview_original_unique_named_event_sort_51fa70 as sort
+        good=dict(original_selected_event_pointer=5,
+                  original_51fa70_filtered_candidate_pointers_and_indirect_names=((5,b"A\0"),(7,b"B\0")))
+        for bad in (
+            {'original_selected_event_pointer':0},
+            {'original_selected_event_pointer':True},
+            {'original_selected_event_pointer':9},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':()},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':[(5,b"A\0")]},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':((7,b"B\0"),(5,b"A\0"))},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':((5,b"A\0"),(7,b"A\0"))},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':((5,b"A\0"),(5,b"B\0"))},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':((5,b"A"),(7,b"B\0"))},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':((5,b"A\0"),(7,bytearray(b"B\0")))},
+            {'original_51fa70_filtered_candidate_pointers_and_indirect_names':((5,b"A\0"),(7,b"B\0"))*65},
+        ):
+            with self.subTest(bad=repr(bad)[:100]),self.assertRaises(OriginalFastViewEventCollectionSourceError):
+                sort(**(good|bad))
+
     @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'private owner original executable not mounted')
     def test_original_5112e0_vft30_and_native_51f9f0_source_opcode_sites(self):
         from gate13_button_source_trace import OriginalPE32
@@ -126,6 +162,15 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             0x51f415:"1b c0",
             0x51f422:"8a c1",
             0x51fbba:"e8 31 72 00 00",
+            0x51fab2:"e8 de 8e 14 00",
+            0x51fac9:"89 bd a4 00 00 00",
+            0x51fada:"41",
+            0x51fb71:"89 9c 8d a4 00 00 00",
+            0x51fb7e:"40",
+            0x51fbd5:"39 38",
+            0x51fbe4:"2d a4 00 00 00",
+            0x51fbe9:"c1 f8 02",
+            0x51fbec:"89 85 a4 02 00 00",
         }
         for va,hex_bytes in sites.items():
             with self.subTest(va=hex(va)):
