@@ -15,10 +15,11 @@ from original_native_saved_event_link_writer import (
 from original_native_loaded_event_link import SOURCE_ORIGINAL_EVENT_LOAD_V24_BY_VTABLE
 
 
-def native(vtable,ident=0,own_field10=0x12345678):
+def native(vtable,ident=0,own_field10=0x12345678,link_pointer=0):
     r=bytearray(0x5C)
     pack_into("<I",r,0,vtable)
     pack_into("<I",r,0x0C,ident)
+    pack_into("<I",r,8,link_pointer)
     pack_into("<I",r,0x10,own_field10)
     return bytes(r)
 
@@ -42,6 +43,7 @@ class NativeSavedEventLinkWriterTests(unittest.TestCase):
             with self.subTest(vt=hex(vt)):
                 receipt=source_original_saved_event_link_index_5107f0(
                     original_native_source_event_record=native(vt,0,0xFFEEDDCC),
+                    original_native_link_target_address=None,
                     original_native_link_target_event_record=None)
                 self.assertEqual(receipt.original_source_virtual20_write_va,method)
                 self.assertEqual(receipt.original_serialized_event_dword_10,0xFFEEDDCC)
@@ -58,20 +60,28 @@ class NativeSavedEventLinkWriterTests(unittest.TestCase):
         ):
             with self.subTest(ident=hex(ident)):
                 r=source_original_saved_event_link_index_5107f0(
-                    original_native_source_event_record=native(0x7C9D9C,3),
+                    original_native_source_event_record=native(0x7C9D9C,3,link_pointer=0xABCD0000),
+                    original_native_link_target_address=0xABCD0000,
                     original_native_link_target_event_record=native(0x7C9FE8,ident))
                 self.assertEqual(r.original_serialized_link_reference_index,expected)
                 self.assertEqual(r.source_index_collides_with_null_sentinel,collides)
                 self.assertTrue(r.original_link_target_present)
 
     def test_invalid_native_source_or_target_is_never_inferred(self):
-        good=dict(original_native_source_event_record=native(0x7C9D9C),
+        good=dict(original_native_source_event_record=native(0x7C9D9C,link_pointer=0xABCD0000),
+                  original_native_link_target_address=0xABCD0000,
                   original_native_link_target_event_record=native(0x7C9FE8,2))
         for change in (
             {'original_native_source_event_record':None},
             {'original_native_source_event_record':native(0xDEADBEEF)},
             {'original_native_source_event_record':native(0x7C9D9C)[:0x13]},
             {'original_native_source_event_record':bytearray(native(0x7C9D9C))},
+            {'original_native_link_target_address':None},
+            {'original_native_link_target_address':0},
+            {'original_native_link_target_address':True},
+            {'original_native_link_target_address':0xDEADBEEF},
+            {'original_native_source_event_record':native(0x7C9D9C)},
+            {'original_native_link_target_event_record':None},
             {'original_native_link_target_event_record':native(0xDEADBEEF)},
             {'original_native_link_target_event_record':native(0x7C9FE8)[:0x0F]},
             {'original_native_link_target_event_record':bytearray(native(0x7C9FE8))},
