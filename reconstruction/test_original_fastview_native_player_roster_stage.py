@@ -339,4 +339,186 @@ class OriginalFastViewNativeDefaultOptionTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
+
+class OriginalFastViewHeaderNativeOwnerTests(unittest.TestCase):
+    def test_original_club_human_registry_search_includes_both_match_sides(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_human_club_4037b0
+        clubs=(100, 250, 500, 725)
+        self.assertEqual(source_fastview_original_human_club_4037b0(original_club_reference_dword=100, original_human_registry_club_ids_in_link_order=clubs),0)
+        self.assertEqual(source_fastview_original_human_club_4037b0(original_club_reference_dword=725, original_human_registry_club_ids_in_link_order=clubs),3)
+        self.assertIsNone(source_fastview_original_human_club_4037b0(original_club_reference_dword=800, original_human_registry_club_ids_in_link_order=clubs))
+        self.assertIsNone(source_fastview_original_human_club_4037b0(original_club_reference_dword=800, original_human_registry_club_ids_in_link_order=()))
+        self.assertEqual(source_fastview_original_human_club_4037b0(original_club_reference_dword=100, original_human_registry_club_ids_in_link_order=(100,100)),0)
+        for change in ({'original_club_reference_dword':-1}, {'original_club_reference_dword':True},
+                       {'original_human_registry_club_ids_in_link_order':(100,)*7},
+                       {'original_human_registry_club_ids_in_link_order':(100,True)},
+                       {'original_human_registry_club_ids_in_link_order':[100,250]},
+                       {'original_human_registry_club_ids_in_link_order':(100,-1)}):
+            with self.subTest(change=repr(change)),self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_original_human_club_4037b0(**(dict(original_club_reference_dword=100,original_human_registry_club_ids_in_link_order=clubs)|change))
+
+    def test_original_country_predicate_needs_exact_resolved_global_names(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_country_header_5337c0
+        club=bytearray(b'\x00'*0xDA)
+        pack_into('<H',club,0x84,1)
+        ids=(7,11,14)
+        for country,expected in ((7,True),(11,True),(14,True),(22,False)):
+            pack_into('<I',club,0x14,country)
+            self.assertEqual(source_fastview_original_country_header_5337c0(original_club_record=bytes(club),original_533830_country_indexes_germany_france_england=ids),expected)
+        pack_into('<H',club,0x84,0)
+        self.assertFalse(source_fastview_original_country_header_5337c0(original_club_record=bytes(club),original_533830_country_indexes_germany_france_england=ids))
+        pack_into('<H',club,0x84,1)
+        pack_into('<I',club,0x14,0xFFFFFFFF)
+        self.assertTrue(source_fastview_original_country_header_5337c0(original_club_record=bytes(club),original_533830_country_indexes_germany_france_england=(-1,11,14)))
+        for change in ({'original_club_record':club[:0x85]}, {'original_club_record':club},
+                       {'original_533830_country_indexes_germany_france_england':(7,11)},
+                       {'original_533830_country_indexes_germany_france_england':(7,11,True)},
+                       {'original_533830_country_indexes_germany_france_england':(7,11,-2)},
+                       {'original_533830_country_indexes_germany_france_england':(7,11,0x80000000)}):
+            with self.subTest(change=repr(change)[:85]),self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_original_country_header_5337c0(**(dict(original_club_record=bytes(club),original_533830_country_indexes_germany_france_england=ids)|change))
+
+    def test_shipped_533980_mode_return_is_source_word_d8_not_arbitrary_game_mode(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_header_mode_word_533980
+        data=bytearray(0xDA);pack_into('<H',data,0xD8,0xFEDC)
+        self.assertEqual(source_fastview_original_header_mode_word_533980(original_club_record=bytes(data)),0xFEDC)
+        for bad in (data,bytes(data[:-1]),None):
+            with self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_original_header_mode_word_533980(original_club_record=bad)
+
+    @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'private original PE not mounted')
+    def test_original_human_and_country_owner_pe_opcode_sites(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        samples={
+          0x4037b0:'51',0x4037b1:'b9 10 4c 87 00',0x4037b6:'e8 25 02 01 00',
+          0x4139e0:'8b 44 24 04',0x4139e4:'8b 40 04',0x4139e8:'e8 03 00 00 00',
+          0x4139f0:'8b 81 cc 09 00 00',0x4139fe:'8b 10',
+          0x413a00:'8b 92 b4 05 00 00',0x413a06:'39 4a 04',
+          0x413a0b:'8b 40 04',0x413a17:'b0 01',
+          0x413b40:'8b 81 cc 09 00 00',0x413b4e:'81 e1 ff ff 00 00',
+          0x413b56:'8b 92 b4 05 00 00',0x413b5c:'39 4a 04',
+          0x403850:'56',0x403853:'e8 58 ff ff ff',
+          0x40385c:'8b 46 04',0x403865:'e8 d6 02 01 00',
+          0x5337c0:'53',0x5337c6:'66 83 bf 84 00 00 00 00',
+          0x5337d1:'68 cc a2 82 00',0x5337db:'68 c4 a2 82 00',
+          0x5337e7:'68 bc a2 82 00',0x5337f3:'8b 4f 14',
+          0x5337f9:'3b ce',0x533803:'3b c8',
+          0x53380c:'e8 8f 5e 12 00',0x533815:'8b 4f 14',
+          0x533819:'3b cb',0x53381c:'0f 94 c0',
+          0x6596a0:'33 c0 c3',0x533980:'e8 1b 5d 12 00',
+          0x533985:'83 e8 00',
+        }
+        for va,hx in samples.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class OriginalFastViewHumanLow16LookupSeparationTests(unittest.TestCase):
+    def test_human_membership_raw_dword_and_formation_owner_word_mask_differ(self):
+        from original_fastview_native_player_roster_stage import (
+            source_fastview_original_human_club_4037b0,
+            source_fastview_original_formation_owner_413b40,
+        )
+        refs=(0x10001,1,45)
+        self.assertEqual(source_fastview_original_human_club_4037b0(original_club_reference_dword=0x10001,original_human_registry_club_ids_in_link_order=refs),0)
+        self.assertEqual(source_fastview_original_formation_owner_413b40(original_club_reference_dword=0x10001,original_human_registry_club_ids_in_link_order=refs),1)
+        self.assertEqual(source_fastview_original_formation_owner_413b40(original_club_reference_dword=45,original_human_registry_club_ids_in_link_order=refs),2)
+        self.assertIsNone(source_fastview_original_formation_owner_413b40(original_club_reference_dword=78,original_human_registry_club_ids_in_link_order=refs))
+        self.assertIsNone(source_fastview_original_formation_owner_413b40(original_club_reference_dword=0x10001,original_human_registry_club_ids_in_link_order=(0x10001,)))
+        with self.assertRaises(SourceFastViewNativePlayerRosterError):
+            source_fastview_original_formation_owner_413b40(original_club_reference_dword=True,original_human_registry_club_ids_in_link_order=refs)
+
+
+class OriginalFastViewNativeTitlesAndReferenceTests(unittest.TestCase):
+    def test_original_403600_human_alternate_text_nonempty_vs_fallback(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_controlled_club_label_403600
+        args=dict(original_4037b0_is_human=True,original_42c6d0_user_text_nul=b'HumanName\x00',
+                  original_club_fallback_name_nul=b'ClubName\x00')
+        self.assertEqual(source_fastview_original_controlled_club_label_403600(**args),b'HumanName\x00')
+        self.assertEqual(source_fastview_original_controlled_club_label_403600(**(args|{'original_42c6d0_user_text_nul':b'\0'})),b'ClubName\x00')
+        self.assertEqual(source_fastview_original_controlled_club_label_403600(**(args|{'original_4037b0_is_human':False,'original_42c6d0_user_text_nul':None})),b'ClubName\x00')
+        for bad in ({'original_4037b0_is_human':True,'original_42c6d0_user_text_nul':None},
+                    {'original_4037b0_is_human':1},
+                    {'original_4037b0_is_human':False},
+                    {'original_42c6d0_user_text_nul':b'name without nul'},
+                    {'original_club_fallback_name_nul':b'bad'},
+                    {'original_club_fallback_name_nul':bytearray(b'club\0')}):
+            with self.subTest(bad=repr(bad)[:80]),self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_original_controlled_club_label_403600(**(args|bad))
+
+    def test_original_533480_two_independent_titles_plus_source_identity_and_mode(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_native_header_titles_533480
+        before=b'\xA7'*1556
+        club=bytearray(0xDA)
+        pack_into('<I',club,4,1234567)
+        pack_into('<H',club,0xD8,0xCDEF)
+        args=dict(original_staged_side_1556=before,original_club_record=bytes(club),
+                  source_40da70_resolved_nul_title=b'Human A\0trailing',
+                  source_40da90_resolved_nul_title=b'SourceLabel\0',
+                  source_4037b0_human_controlled=True)
+        got=source_fastview_original_native_header_titles_533480(**args)
+        self.assertEqual(got[:8],b'Human A\0')
+        self.assertEqual(got[8:0x40],b'\xA7'*(0x40-8))
+        self.assertEqual(got[0x40:0x4C],b'SourceLabel\0')
+        self.assertEqual(got[0x4C:0x80],b'\xA7'*(0x80-0x4C))
+        self.assertEqual(tuple(unpack_from('<3I',got,0x80)),(1234567,1,0xCDEF))
+        self.assertEqual(got[0x8C:],before[0x8C:])
+        self.assertEqual(before,b'\xA7'*1556)
+        self.assertEqual(source_fastview_original_native_header_titles_533480(**(args|{'source_4037b0_human_controlled':False}))[0x84:0x88],b'\x00'*4)
+
+    def test_original_string_length_and_source_identity_fail_closed(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_native_header_titles_533480
+        args=dict(original_staged_side_1556=b'\xC8'*1556,
+                  original_club_record=bytes(0xDA),
+                  source_40da70_resolved_nul_title=b'x\0',
+                  source_40da90_resolved_nul_title=b'y\0',
+                  source_4037b0_human_controlled=False)
+        for change in ({'original_staged_side_1556':b'\xC8'*1555},
+                       {'original_staged_side_1556':bytearray(b'\xC8'*1556)},
+                       {'original_club_record':bytes(0xD9)},
+                       {'original_club_record':bytearray(0xDA)},
+                       {'source_40da70_resolved_nul_title':b'a'*64+b'\0'},
+                       {'source_40da70_resolved_nul_title':b'a'*63+b'\0'*1},
+                       {'source_40da90_resolved_nul_title':b'a'*64+b'\0'},
+                       {'source_40da90_resolved_nul_title':b'No terminator'},
+                       {'source_40da70_resolved_nul_title':bytearray(b'bad\0')},
+                       {'source_4037b0_human_controlled':1}):
+            changed=args|change
+            if change.get('source_40da70_resolved_nul_title')==b'a'*63+b'\0':
+                output=source_fastview_original_native_header_titles_533480(**changed)
+                self.assertEqual(output[63],0)
+                continue
+            with self.subTest(change=repr(change)[:75]),self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_original_native_header_titles_533480(**changed)
+
+    @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'private original PE not mounted')
+    def test_original_strings_owner_static_opcode_verification(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        samples={
+            0x533480:'83 ec 14',0x53348b:'8b cb',
+            0x53348d:'e8 de a5 ed ff',0x53349d:'f2 ae',0x5334ac:'f3 a5',
+            0x5334b3:'f3 a4',0x5334bc:'e8 cf a5 ed ff',
+            0x5334c1:'8b 40 04',0x5334c6:'75 05',
+            0x5334c8:'b8 68 d6 7b 00',0x5334d4:'8d 55 40',
+            0x5334e6:'f3 a5',0x5334f3:'f3 a4',
+            0x5334fa:'8a 40 ff',0x533501:'3c ff',
+            0x533505:'fe c8',0x53350c:'e8 d2 3a 15 00',
+            0x533514:'8b 4b 04',0x533517:'89 8d 80 00 00 00',
+            0x53351f:'e8 8c 02 ed ff',0x53352a:'89 85 84 00 00 00',
+            0x533530:'e8 4b 04 00 00',0x53353a:'89 85 88 00 00 00',
+            0x40da70:'56',0x40da74:'e8 87 5b ff ff',0x40da80:'8b 46 0c',
+            0x40da90:'6a ff',0x40daae:'8a 4c 24 24',
+            0x40dae3:'e8 78 14 00 00',0x40db14:'e8 b7 21 1e 00',
+            0x40db3d:'e8 5e 0d 00 00',0x40db4a:'8a 41 ff',
+            0x40db55:'fe c8',0x40db5e:'e8 80 94 27 00',
+            0x403600:'56',0x403607:'e8 a4 01 00 00',
+            0x403613:'e8 38 02 00 00',0x40361a:'e8 b1 90 02 00',
+            0x403630:'8b c2',
+        }
+        for va,hx in samples.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
 if __name__=='__main__': unittest.main()

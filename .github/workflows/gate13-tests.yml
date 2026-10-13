@@ -19,6 +19,8 @@ on:
       - "reconstruction/test_original_fastview_player_world_writeback.py"
       - "reconstruction/original_fastview_native_player_roster_stage.py"
       - "reconstruction/test_original_fastview_native_player_roster_stage.py"
+      - "reconstruction/original_fastview_native_full_side_setup.py"
+      - "reconstruction/test_original_fastview_native_full_side_setup.py"
       - "reconstruction/test_original_fastview_tactics_selection.py"
       - "reconstruction/test_original_fastview_two_sided_live_writeback.py"
       - "reconstruction/original_fastview_tactics_control_layout.py"
@@ -268,6 +270,7 @@ jobs:
             test_original_fastview_two_sided_live_writeback \
             test_original_fastview_player_world_writeback \
             test_original_fastview_native_player_roster_stage \
+            test_original_fastview_native_full_side_setup \
             test_original_fastview_tactics_control_layout \
             test_gate13_r1_fastview_native_wrapper_recovery585 \
             test_original_prematch_panel \

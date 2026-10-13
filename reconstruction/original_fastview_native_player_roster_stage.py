@@ -292,3 +292,180 @@ def source_fastview_original_side_option_533ab0(
     if type(original_registry_slot_bytes) is not bytes or len(original_registry_slot_bytes) < 0x2C:
         raise SourceFastViewNativePlayerRosterError("native registry slot BYTE+0x2B required")
     return original_registry_slot_bytes[0x2B]
+
+
+SOURCE_FASTVIEW_CLUB_HUMAN_REGISTRY_TEST_VA = 0x4037B0
+SOURCE_FASTVIEW_NATIVE_HUMAN_CLUB_LOOP_VA = 0x4139F0
+SOURCE_FASTVIEW_NATIVE_HUMAN_LOOKUP_VA = 0x413B40
+SOURCE_FASTVIEW_NATIVE_CLUB_COUNTRY_TEST_VA = 0x5337C0
+SOURCE_FASTVIEW_NATIVE_COUNTRY_INDEX_LOOKUP_VA = 0x533830
+SOURCE_FASTVIEW_NATIVE_SHIPPED_MODE_STUB_VA = 0x6596A0
+SOURCE_FASTVIEW_NATIVE_CLUB_MODE_FIELD_VA = 0x533980
+
+
+def source_fastview_original_human_club_4037b0(
+    *, original_club_reference_dword: int,
+    original_human_registry_club_ids_in_link_order: tuple[int, ...],
+) -> int | None:
+    """0x4037B0→0x4139E0→0x4139F0 global human linked-list membership.
+
+    Source iterates global owner 0x874C10+0x9CC, follows node+0x04,
+    dereferences each DBRUser+0x5B4 and compares its DWORD+0x04 to
+    supplied club object+0x04. Native 0x413B40 returns the first matching
+    user from the same list, NOT only the current human manager. Return
+    its original list ordinal, or None when no member. Real pointer→ID
+    identity and registry contents must come from actual authenticated
+    original/port session, not from guessed selected-club defaults.
+    """
+    if type(original_club_reference_dword) is not int or not 0 <= original_club_reference_dword <= 0xFFFFFFFF:
+        raise SourceFastViewNativePlayerRosterError("native source club+0x04 DWORD required")
+    if (type(original_human_registry_club_ids_in_link_order) is not tuple
+        or len(original_human_registry_club_ids_in_link_order)>6
+        or any(type(v) is not int or not 0<=v<=0xFFFFFFFF
+               for v in original_human_registry_club_ids_in_link_order)):
+        raise SourceFastViewNativePlayerRosterError("qualified original 0..6 human club linked-list IDs required")
+    try:
+        return original_human_registry_club_ids_in_link_order.index(original_club_reference_dword)
+    except ValueError:
+        return None
+
+
+def source_fastview_original_country_header_5337c0(
+    *, original_club_record: bytes,
+    original_533830_country_indexes_germany_france_england: tuple[int, int, int],
+) -> bool:
+    """Shipped 0x5337C0 club+0x84 nonzero + three exact country-ID tests.
+
+    0x533830 obtains GLOBAL database indexes for fixed original string
+    literals Germany/France/England via the original name registry. It may
+    return -1 for an unresolvable name. Original compares the raw DWORD
+    value to club+0x14 (even if the lookup returns -1); its 0x6596A0
+    mode call is proven to unconditionally return zero in the shipped
+    original PE, so the England comparison is reachable. Never substitute
+    guessed country-ID constants or the reconstructed league index.
+    """
+    if type(original_club_record) is not bytes or len(original_club_record)<0x86:
+        raise SourceFastViewNativePlayerRosterError("source club+0x84 and country+0x14 required")
+    ids=original_533830_country_indexes_germany_france_england
+    if (type(ids) is not tuple or len(ids)!=3
+        or any(type(i) is not int or not -1<=i<=0x7FFFFFFF for i in ids)):
+        raise SourceFastViewNativePlayerRosterError("three qualified native 533830 database country lookup indexes required")
+    if unpack_from('<H',original_club_record,0x84)[0] == 0:
+        return False
+    native_club_country_dword=unpack_from('<I',original_club_record,0x14)[0]
+    return any(native_club_country_dword==(i&0xFFFFFFFF) for i in ids)
+
+
+def source_fastview_original_header_mode_word_533980(*, original_club_record: bytes) -> int:
+    """Original 0x6596A0 always eax=0; 0x533980 reads WORD club+0xD8."""
+    if type(original_club_record) is not bytes or len(original_club_record)<0xDA:
+        raise SourceFastViewNativePlayerRosterError("qualified club record through +0xD9 required")
+    return unpack_from('<H',original_club_record,0xD8)[0]
+
+
+def source_fastview_original_formation_owner_413b40(
+    *, original_club_reference_dword: int,
+    original_human_registry_club_ids_in_link_order: tuple[int, ...],
+) -> int | None:
+    """0x403850 native 0x413B40 masks the club argument to LOW 16 bits.
+
+    The upstream 0x4037B0 membership test 0x4139F0 compares the full
+    DWORD; only after that succeeds does 0x403850 invoke 0x413B40.
+    The latter explicitly masks club reference with 0xFFFF BEFORE it
+    looks up the first matching manager linked-list entry. Keep both
+    distinct when source club DWORD happens to exceed 16-bit range.
+    """
+    if source_fastview_original_human_club_4037b0(
+        original_club_reference_dword=original_club_reference_dword,
+        original_human_registry_club_ids_in_link_order=original_human_registry_club_ids_in_link_order,
+    ) is None:
+        return None
+    low16=original_club_reference_dword & 0xFFFF
+    try:
+        return original_human_registry_club_ids_in_link_order.index(low16)
+    except ValueError:
+        return None
+
+
+SOURCE_FASTVIEW_NATIVE_CLUB_PRIMARY_LABEL_VA = 0x40DA70
+SOURCE_FASTVIEW_NATIVE_CLUB_SECONDARY_LABEL_VA = 0x40DA90
+SOURCE_FASTVIEW_NATIVE_CLUB_HUMAN_LABEL_CHECK_VA = 0x403600
+SOURCE_FASTVIEW_NATIVE_CLUB_HUMAN_USER_LABEL_VA = 0x42C6D0
+SOURCE_FASTVIEW_NATIVE_CLUB_SECONDARY_FALLBACK_VA = 0x7BD668
+
+
+def source_fastview_original_native_header_titles_533480(
+    *, original_staged_side_1556: bytes,
+    original_club_record: bytes,
+    source_40da70_resolved_nul_title: bytes,
+    source_40da90_resolved_nul_title: bytes,
+    source_4037b0_human_controlled: bool,
+) -> bytes:
+    """Original 0x533480 header first/second C strings and ID metadata.
+
+    0x40DA70 calls native 0x403600 for nonempty controlled-manager
+    replacement, otherwise reads club+0x0C indirect string. 0x40DA90
+    assembles a different temporary text object from club+0xE0 and calls
+    0x5EFCD0/0x40E8A0, then 0x533480 reads returned object+4; an
+    original null object+4 pointer uses static global 0x7BD668.
+    Caller MUST provide both actual original returned NUL-byte strings
+    after those producers; never substitute a club label by guess.
+    Native string length is unchecked; this safe value-only model
+    refuses C strings which could overwrite adjacent original header
+    sections instead of simulating raw source memory corruption.
+    Original code ALSO decrements/frees the 0x40DA90 temporary owned
+    string's reference count through 0x686FE3 if needed. That is a
+    caller-owned reference lifecycle and is not executed here.
+    """
+    if type(original_staged_side_1556) is not bytes or len(original_staged_side_1556) != SOURCE_FASTVIEW_ROSTER_SIDE_BYTES:
+        raise SourceFastViewNativePlayerRosterError("exact original 1556-byte header stage required")
+    if type(original_club_record) is not bytes or len(original_club_record)<0xDA:
+        raise SourceFastViewNativePlayerRosterError("qualified original club+0xD8 WORD required")
+    if type(source_4037b0_human_controlled) is not bool:
+        raise SourceFastViewNativePlayerRosterError("source 4037B0 boolean required")
+    original_titles=(source_40da70_resolved_nul_title,source_40da90_resolved_nul_title)
+    for raw in original_titles:
+        if type(raw) is not bytes or b'\x00' not in raw:
+            raise SourceFastViewNativePlayerRosterError("original native title must be NUL-terminated immutable bytes")
+        # Contiguous source fields overlap unless each strcpy including
+        # terminator fits before the next region. Overflow is not replayed.
+        if raw.index(b'\x00')+1>0x40:
+            raise SourceFastViewNativePlayerRosterError("original title would overflow its bounded header field")
+    stage=bytearray(original_staged_side_1556)
+    for start,raw in ((0,source_40da70_resolved_nul_title),
+                      (0x40,source_40da90_resolved_nul_title)):
+        n=raw.index(b'\x00')+1
+        stage[start:start+n]=raw[:n]
+    pack_into('<I',stage,0x80,unpack_from('<I',original_club_record,4)[0])
+    pack_into('<I',stage,0x84,int(source_4037b0_human_controlled))
+    pack_into('<I',stage,0x88,source_fastview_original_header_mode_word_533980(
+        original_club_record=original_club_record))
+    return bytes(stage)
+
+
+def source_fastview_original_controlled_club_label_403600(
+    *, original_4037b0_is_human: bool,
+    original_42c6d0_user_text_nul: bytes | None,
+    original_club_fallback_name_nul: bytes,
+) -> bytes:
+    """Exact reached native 0x403600/0x40DA70 nonempty human-name choice.
+
+    Original native 0x403600 emits a nonnull pointer only if 4037B0 is
+    true AND 403850→42C6D0 yields a nonempty NUL C string. Native
+    0x40DA70 then uses that pointer; null falls back to club+0x0C
+    indirect name. Does not construct an original user or infer its text.
+    """
+    if type(original_4037b0_is_human) is not bool:
+        raise SourceFastViewNativePlayerRosterError("qualified original 4037B0 result required")
+    if (type(original_club_fallback_name_nul) is not bytes
+        or b'\x00' not in original_club_fallback_name_nul):
+        raise SourceFastViewNativePlayerRosterError("source club+0x0C dereferenced C string required")
+    if not original_4037b0_is_human:
+        if original_42c6d0_user_text_nul is not None:
+            raise SourceFastViewNativePlayerRosterError("unreached human name must not be supplied")
+        return original_club_fallback_name_nul
+    if (type(original_42c6d0_user_text_nul) is not bytes
+        or b'\x00' not in original_42c6d0_user_text_nul):
+        raise SourceFastViewNativePlayerRosterError("original human 42C6D0 title required")
+    return (original_42c6d0_user_text_nul if original_42c6d0_user_text_nul[0]
+            else original_club_fallback_name_nul)
