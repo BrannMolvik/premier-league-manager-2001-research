@@ -139,4 +139,75 @@ class OriginalFastViewNativeRosterTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
+
+class OriginalFastViewClubHeaderDirectFieldTests(unittest.TestCase):
+    def test_original_d4_fa_writes_source_copy_repeat_and_byte_wrapping(self):
+        from original_fastview_native_player_roster_stage import source_fastview_native_side_header_direct_fields_533480
+        club=bytearray((i*17)&0xFF for i in range(0x90))
+        club[0x44]=0xFF;club[0x47]=0xFF
+        club[0x84]=5
+        before=b'\xC7'*1556
+        got=source_fastview_native_side_header_direct_fields_533480(
+            original_staged_side_1556=before,original_club_record=bytes(club),original_5337c0_result=True)
+        self.assertEqual(got[0xD4:0xDC],club[0x84:0x8C])
+        self.assertEqual(got[0xDC:0xE0],bytes([0,club[0x4A],club[0x4B],club[0x4C]]))
+        self.assertEqual(got[0xE0:0xE4],bytes([0,club[0x56],club[0x57],club[0x58]]))
+        self.assertEqual(got[0xE4:0xE8],got[0xDC:0xE0])
+        self.assertEqual(got[0xE8:0xEC],got[0xE0:0xE4])
+        for target,source in ((0xEC,0x45),(0xED,0x50),(0xEE,0x51),
+                              (0xF0,0x48),(0xF1,0x5C),(0xF2,0x5D),
+                              (0xF4,0x46),(0xF5,0x53),(0xF6,0x54),
+                              (0xF8,0x49),(0xF9,0x5F),(0xFA,0x60)):
+            self.assertEqual(got[target],club[source])
+        for unchanged in (0,0xD3,0xEF,0xF3,0xF7,0xFB,0xFC,0x103,0x104,1555):
+            self.assertEqual(got[unchanged],0xC7)
+        self.assertEqual(before,b'\xC7'*1556)
+
+    def test_original_club_no_5337c0_result_zeroes_only_four_words(self):
+        from original_fastview_native_player_roster_stage import source_fastview_native_side_header_direct_fields_533480
+        club=bytes(range(0x90))
+        got=source_fastview_native_side_header_direct_fields_533480(
+            original_staged_side_1556=b'\x8A'*1556, original_club_record=club,
+            original_5337c0_result=False)
+        self.assertEqual(got[0xD4:0xDC],b'\x00'*8)
+        self.assertEqual(got[0xDC],0x45)
+        for kwargs in ({'original_club_record':club[:0x8B]},
+                       {'original_staged_side_1556':b'bad'},
+                       {'original_club_record':bytearray(club)},
+                       {'original_5337c0_result':1},
+                       {'original_5337c0_result':True,'original_club_record':bytes(0x90)}):
+            with self.subTest(kwargs=str(kwargs)[:100]),self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_native_side_header_direct_fields_533480(
+                    **(dict(original_staged_side_1556=b'\x8A'*1556,
+                            original_club_record=club,original_5337c0_result=False)|kwargs))
+
+    @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'original private PE not mounted')
+    def test_original_533480_direct_header_opcode_sites(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        samples={
+            0x533647:'53',0x533648:'e8 73 01 00 00',
+            0x533650:'84 c0',0x533654:'0f bf 8b 84 00 00 00',
+            0x533661:'66 89 8d d4 00 00 00',
+            0x53366a:'0f bf 8b 86 00 00 00',
+            0x533677:'66 89 8d d6 00 00 00',
+            0x533680:'0f bf 8b 88 00 00 00',
+            0x53368d:'66 89 8d d8 00 00 00',
+            0x533696:'0f bf 83 8a 00 00 00',
+            0x5336a1:'66 89 85 da 00 00 00',
+            0x5336a8:'8a 53 44',0x5336ab:'fe c2',
+            0x5336ae:'88 95 dc 00 00 00',
+            0x5336cf:'8a 43 47',0x5336d2:'fe c0',
+            0x5336f6:'8a 4b 44',0x5336f9:'fe c1',
+            0x533742:'8a 43 45',0x533745:'88 85 ec 00 00 00',
+            0x53375d:'8a 43 48',0x533760:'88 85 f0 00 00 00',
+            0x533778:'8a 43 46',0x53377b:'88 85 f4 00 00 00',
+            0x533793:'8a 43 49',0x533796:'88 85 f8 00 00 00',
+            0x5337a5:'8a 53 60',0x5337a8:'88 95 fa 00 00 00',
+            0x5337c6:'66 83 bf 84 00 00 00 00',
+        }
+        for va,hx in samples.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
 if __name__=='__main__': unittest.main()
