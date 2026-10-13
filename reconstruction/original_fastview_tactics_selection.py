@@ -1638,3 +1638,72 @@ def source_fastview_popup_first_native_row_hit_6516f0(
                 pointer_y >= rect.y_top and pointer_y < rect.y_bottom):
             return i
     return None
+
+
+# Source-closed conditional native rich row pointer callback:
+# 0x4491A0 registers exactly ONE input nested child +0x13C, final
+# vtable 0x7BE340; child vft+8=0x64F3C0 invoked at 0x4492B1
+# with event-enabled=1 and rich-row parent as owner, so
+# child+0x20=1 and child+0x24=row item. Child native 0x64F300 ctor
+# sets flags +0x18=0x183 (bit1 enabled; bit4 clear).
+# Actual row vft+0x6C 0x650F00 -> base 0x650C30 routes pointer
+# to rich item 0x653480: loops registered child ptrs at item+0x20
+# (count item+0x3C=1) and checks bit0 of child's +0x18 and
+# half-open rectangle on pointer normalized by item+0x0C/+0x10.
+# On accepted hit 0x653480 passes SECOND callback arg ONE into
+# child vft+0x6C=0x64F7A0. That gated base calls item parent
+# vft+0x0C=0x42DE00 (RET 1), then parent vft+0x10=0x653A10
+# to PostMessageA selected index (verified merged PR671).
+# The other rich item child+0x10C is registered with event=0;
+# source does not equate all graphics controls to clickable items.
+SOURCE_FASTVIEW_POPUP_RICH_ROW_SETUP_VA = 0x4491A0
+SOURCE_FASTVIEW_POPUP_RICH_ROW_ACTIVE_CONTROL_OFFSET = 0x13C
+SOURCE_FASTVIEW_POPUP_RICH_ROW_ACTIVE_CONTROL_VTABLE = 0x7BE340
+SOURCE_FASTVIEW_POPUP_RICH_ROW_ACTIVE_CONTROL_REGISTERED_EVENT = 1
+SOURCE_FASTVIEW_POPUP_RICH_ROW_ACTIVE_CONTROL_NATIVE_FLAGS = 0x183
+SOURCE_FASTVIEW_POPUP_RICH_ROW_POINTER_FORWARDER_VA = 0x653480
+SOURCE_FASTVIEW_POPUP_RICH_ROW_FIRST_CALLBACK_VA = 0x42DE00
+SOURCE_FASTVIEW_POPUP_RICH_ROW_ACTIVE_POINTER_SECOND_ARG = 1
+
+
+def source_fastview_original_popup_rich_row_child_pointer_gate(
+    *, pointer_x: int, pointer_y: int,
+    rich_item_origin_x: int, rich_item_origin_y: int,
+    active_child_rectangle: SourceFastViewPopupOriginalRowHitRectangle,
+    native_child_flags: int,
+    native_child_registered_event: int,
+) -> bool:
+    """Read-only native 0x653480 +0x64F7A0 enabled pointer callback gates.
+
+    Does not derive a rectangle from the original 15px content pitch.
+    The native rich item origin and actual nested child rectangle MUST
+    come from source-qualified live controls, not fabricated screen
+    positions. A True only proves enabled nested child vft+0x6C gets
+    a nonzero callback argument; it DOES NOT send mouse/Win32 events.
+    """
+    values=(pointer_x,pointer_y,rich_item_origin_x,rich_item_origin_y)
+    if any(type(v) is not int or not -0x80000000 <= v <= 0x7FFFFFFF for v in values):
+        raise SourceFastViewTacticsSelectionError("original signed pointer/origin DWORDs required")
+    if type(native_child_flags) is not int or not 0 <= native_child_flags <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original native child flags DWORD required")
+    if type(native_child_registered_event) is not int or not 0 <= native_child_registered_event <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original native child registered event DWORD required")
+    if type(active_child_rectangle) is not SourceFastViewPopupOriginalRowHitRectangle:
+        raise SourceFastViewTacticsSelectionError("native child rectangle type required")
+    coords=(active_child_rectangle.x_left,active_child_rectangle.y_top,
+            active_child_rectangle.x_right,active_child_rectangle.y_bottom)
+    if any(type(v) is not int or not -0x80000000 <= v <= 0x7FFFFFFF for v in coords):
+        raise SourceFastViewTacticsSelectionError("original native child boundary DWORDs required")
+    if not (native_child_flags & 1):
+        return False
+    x=pointer_x-rich_item_origin_x
+    y=pointer_y-rich_item_origin_y
+    if not (active_child_rectangle.x_left <= x < active_child_rectangle.x_right and
+            active_child_rectangle.y_top <= y < active_child_rectangle.y_bottom):
+        return False
+    # Nested base 0x64F7A0 requires bit1 enabled, bit4 clear and
+    # nonzero child+0x20 for parent callbacks. The original second
+    # callback input is nonzero (1), and rich item first +0x0C
+    # returns one unconditionally as 0x42DE00.
+    return bool((native_child_flags & 2) and not (native_child_flags & 0x10)
+                and native_child_registered_event)
