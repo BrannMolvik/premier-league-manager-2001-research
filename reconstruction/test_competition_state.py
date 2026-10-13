@@ -1,11 +1,13 @@
 import unittest
 from dataclasses import dataclass
+from datetime import date
 from types import SimpleNamespace
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
-from competition_state import LeagueRow, PremierLeagueState
+from competition_state import LeagueRow, PremierLeagueState, season_weekday_date
 from cup_progression import CupResultRegistry
 from game_state import GameState
+from verify import CANONICAL_PL_ROUND_DATE_EXPECTATIONS
 
 
 @dataclass(frozen=True)
@@ -24,6 +26,26 @@ class Round:
 
 
 class LeagueStateTests(unittest.TestCase):
+    def test_canonical_verifier_dates_follow_recovered_primary_calendar_anchor(self):
+        packed = {
+            0: (7, 6),
+            1: (8, 3),
+            18: (26, 2),
+            20: (27, 1),
+            37: (46, 7),
+        }
+        self.assertEqual(
+            CANONICAL_PL_ROUND_DATE_EXPECTATIONS,
+            {
+                round_index: season_weekday_date(2000, week, weekday).isoformat()
+                for round_index, (week, weekday) in packed.items()
+            },
+        )
+        self.assertEqual(
+            CANONICAL_PL_ROUND_DATE_EXPECTATIONS[0],
+            date(2000, 8, 26).isoformat(),
+        )
+
     def setUp(self):
         self.fixtures = [
             Fixture(0, 0, 1, 2),
