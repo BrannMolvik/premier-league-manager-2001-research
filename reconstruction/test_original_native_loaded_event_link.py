@@ -9,6 +9,7 @@ from original_native_loaded_event_link import (
     OriginalLoadedEventLinkSourceError,
     SOURCE_ORIGINAL_EVENT_LOAD_V24_BY_VTABLE,
     source_original_loaded_event_base_link_510900,
+    source_original_loaded_leaguematch_saved_fields_510970_5109d0,
 )
 
 
@@ -97,6 +98,76 @@ class OriginalNativeLoadedEventLinkTests(unittest.TestCase):
             with self.subTest(change=str(change)[:85]),self.assertRaises(
                 OriginalLoadedEventLinkSourceError):
                 restored(**change)
+
+    def test_original_restore_510970_preserves_actual_saved_match_flags(self):
+        base=restored(original_native_post_constructor_record=native_event(0x7C4C24,0))
+        first=base.source_after_base_load_event_record
+        got=source_original_loaded_leaguematch_saved_fields_510970_5109d0(
+            original_native_record_after_base_load=first,
+            original_saved_match_flags44_dword=0xFFFFFFFF,
+            original_saved_halfword_3c=0x1234,
+            original_saved_halfword_3e=0,
+            original_saved_halfword_40=0xABCD,
+            original_saved_dword_48=0x00123456)
+        after=got.source_native_match_after_field_load
+        self.assertEqual(got.original_source_virtual24_load_va,0x510970)
+        self.assertEqual(got.source_saved_match_flags44_dword,0xFFFFFFFF)
+        self.assertEqual(unpack_from("<I",after,0x44)[0],0xFFFFFFFF)
+        self.assertEqual([unpack_from("<H",after,a)[0] for a in (0x3C,0x3E,0x40)],
+                         [0x1234,0,0xABCD])
+        self.assertEqual(unpack_from("<I",after,0x48)[0],0x00123456)
+        self.assertEqual(after[8:0x14],first[8:0x14])
+        self.assertEqual(after[0x58:],first[0x58:])
+        self.assertEqual(first[0x44:0x4C],bytes(8))
+
+    def test_original_restore_5109d0_restores_four_extended_saved_bytes(self):
+        for vt in (0x7C9D9C,0x7C9E80,0x7C9EF8,0x7C9F70):
+            base=restored(original_native_post_constructor_record=native_event(vt,1))
+            got=source_original_loaded_leaguematch_saved_fields_510970_5109d0(
+                original_native_record_after_base_load=base.source_after_base_load_event_record,
+                original_saved_match_flags44_dword=0x40,
+                original_saved_halfword_3c=65535,
+                original_saved_halfword_3e=12,
+                original_saved_halfword_40=0,
+                original_saved_dword_48=0x87654321,
+                original_saved_extended_four_bytes_58_to_5b=b"\\x00\\x42\\xFF\\x80")
+            after=got.source_native_match_after_field_load
+            self.assertEqual(got.original_source_virtual24_load_va,0x5109D0)
+            self.assertEqual(after[0x58:0x5C],b"\\x00\\x42\\xFF\\x80")
+            self.assertEqual(unpack_from("<I",after,0x44)[0],0x40)
+            self.assertEqual(unpack_from("<I",after,8)[0],0x22220000)
+
+    def test_original_saved_field_loader_fails_closed_on_unreached_reads(self):
+        valid=dict(
+            original_native_record_after_base_load=native_event(0x7C9D9C,1),
+            original_saved_match_flags44_dword=0,
+            original_saved_halfword_3c=0,
+            original_saved_halfword_3e=0,
+            original_saved_halfword_40=0,
+            original_saved_dword_48=0,
+            original_saved_extended_four_bytes_58_to_5b=b"abcd")
+        for change in (
+            {"original_native_record_after_base_load":native_event(0x7C9FE8,0)},
+            {"original_native_record_after_base_load":bytearray(native_event(0x7C9D9C,1))},
+            {"original_native_record_after_base_load":bytes(0x13)},
+            {"original_native_record_after_base_load":native_event(0x7C9D9C,1)[:0x5B]},
+            {"original_saved_match_flags44_dword":True},
+            {"original_saved_halfword_3c":-1},
+            {"original_saved_halfword_3e":65536},
+            {"original_saved_halfword_40":False},
+            {"original_saved_dword_48":0x100000000},
+            {"original_saved_extended_four_bytes_58_to_5b":None},
+            {"original_saved_extended_four_bytes_58_to_5b":b"abc"},
+            {"original_saved_extended_four_bytes_58_to_5b":bytearray(b"abcd")},
+        ):
+            with self.subTest(change=str(change)[:90]),self.assertRaises(
+                OriginalLoadedEventLinkSourceError):
+                source_original_loaded_leaguematch_saved_fields_510970_5109d0(**(valid|change))
+        valid["original_native_record_after_base_load"]=native_event(0x7C4C24,0)
+        with self.assertRaises(OriginalLoadedEventLinkSourceError):
+            source_original_loaded_leaguematch_saved_fields_510970_5109d0(**valid)
+        valid["original_saved_extended_four_bytes_58_to_5b"]=None
+        source_original_loaded_leaguematch_saved_fields_510970_5109d0(**valid)
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "private original PE not mounted for hosted CI")
