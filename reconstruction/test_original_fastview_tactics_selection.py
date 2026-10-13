@@ -53,6 +53,7 @@ from original_fastview_tactics_selection import (
     source_fastview_633020_one_existing_replacement_replay_value_only,
     SourceFastViewOneReplacementFollowupValue,
     source_fastview_one_prior_replacement_followup_value_only,
+    source_fastview_two_distinct_prior_replacements_followup_value_only,
 )
 
 
@@ -1373,6 +1374,99 @@ class OriginalOnePriorReplacementFullValueTransitionTests(unittest.TestCase):
                 source_fastview_one_prior_replacement_followup_value_only(
                     **(base | change))
         self.assertEqual(orig, SingleOriginalReplacementReplayTransactionTests.draft())
+
+
+
+class TwoDistinctPreviousReplacementNativeReplayTests(unittest.TestCase):
+    """Two exact native class0x7D7F90 nodes only; source iteration 0 then 1."""
+
+    @staticmethod
+    def run_pair(first, second, status=0):
+        side=SingleOriginalReplacementReplayTransactionTests.draft()
+        flags=[0]*12
+        flags[3]=1
+        return source_fastview_two_distinct_prior_replacements_followup_value_only(
+            side, native_child_status_byte=status,
+            original_two_replacement_records=(first,second),
+            native_current_mapped_from_index=3, native_selected_to_index=7,
+            original_club_guard_flags=tuple(flags))
+
+    def test_first_original_replay_pass_matches_second_pass_skips_one_and_forwards(self):
+        value=self.run_pair(SourceFastViewNativeReplacementRecord(2,3),
+                            SourceFastViewNativeReplacementRecord(4,5))
+        self.assertEqual(value.native_validator_al,1)
+        self.assertFalse(value.source_followup_6c2770_was_applied)
+        self.assertEqual(value.original_staged_replacements_after,
+            (SourceFastViewNativeReplacementRecord(2,7),
+             SourceFastViewNativeReplacementRecord(4,5)))
+        self.assertEqual(value.original_side_after.original_side_bytes[0xF0:0xF2],
+                         bytes((11,6)))
+
+    def test_second_original_replay_pass_matches_after_skip_first_record(self):
+        value=self.run_pair(SourceFastViewNativeReplacementRecord(2,4),
+                            SourceFastViewNativeReplacementRecord(4,3))
+        self.assertEqual(value.native_validator_al,1)
+        self.assertFalse(value.source_followup_6c2770_was_applied)
+        self.assertEqual(value.original_staged_replacements_after,
+            (SourceFastViewNativeReplacementRecord(2,4),
+             SourceFastViewNativeReplacementRecord(4,7)))
+        self.assertEqual(value.original_side_after.original_side_bytes[0xF2:0xFE],
+                         bytes((7,0,1,3,4,5,6,2,8,9,10,11)))
+
+    def test_two_native_misses_leave_both_records_and_append_third_new_edit(self):
+        value=self.run_pair(SourceFastViewNativeReplacementRecord(2,4),
+                            SourceFastViewNativeReplacementRecord(5,6))
+        self.assertEqual(value.native_validator_al,0)
+        self.assertTrue(value.source_followup_6c2770_was_applied)
+        self.assertEqual(value.original_staged_replacements_after,
+            (SourceFastViewNativeReplacementRecord(2,4),
+             SourceFastViewNativeReplacementRecord(5,6),
+             SourceFastViewNativeReplacementRecord(3,7)))
+        self.assertEqual(value.original_side_after.original_side_bytes[0xF0:0xF2],
+                         bytes((10,6)))
+
+    def test_duplicate_targets_and_unknown_original_inventory_fail_closed(self):
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            self.run_pair(SourceFastViewNativeReplacementRecord(2,3),
+                          SourceFastViewNativeReplacementRecord(4,3))
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            self.run_pair(SourceFastViewNativeReplacementRecord(2,4),
+                          SourceFastViewNativeReplacementRecord(5,6),status=1)
+        for invalid in (
+            [], (SourceFastViewNativeReplacementRecord(2,4),),
+            (SourceFastViewNativeReplacementRecord(2,4), None),
+            (SourceFastViewNativeReplacementRecord(2,4), SourceFastViewNativeReplacementRecord(4,5), SourceFastViewNativeReplacementRecord(5,6)),
+        ):
+            with self.subTest(invalid=invalid),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_two_distinct_prior_replacements_followup_value_only(
+                    SingleOriginalReplacementReplayTransactionTests.draft(),
+                    native_child_status_byte=0,
+                    original_two_replacement_records=invalid,
+                    native_current_mapped_from_index=3,native_selected_to_index=7,
+                    original_club_guard_flags=(0,)*12)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner original source PE not mounted")
+    def test_original_loop_index_skip_and_second_visit_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va,hx in (
+            (0x63304E,"3b c6"),
+            (0x633100,"53"),
+            (0x633107,"e8 94 00 00 00"),
+            (0x63315E,"43 3b d8"),
+            (0x633161,"0f 85 fa fe ff ff"),
+            (0x634907,"89 48 04"),
+            (0x634B32,"8b 46 04"),
+            (0x634B3B,"48"),
+            (0x634B3E,"89 46 04"),
+            (0x634D3F,"c6 46 08 01"),
+            (0x634CF4,"c6 46 09 01"),
+        ):
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(hx)
+                self.assertEqual(pe.read(va,len(bs)),bs)
 
 if __name__ == "__main__":
     unittest.main()
