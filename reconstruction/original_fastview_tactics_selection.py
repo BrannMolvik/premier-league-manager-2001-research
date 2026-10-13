@@ -42,6 +42,71 @@ SOURCE_PLAYER_CONTROL_EVENT_FAMILIES = (
 )
 SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT = 11
 
+# Authenticated original native dispatch: child+0x20 event and child+0x24
+# parent assigned by 0x64F3C0. 0x64F7A0 invokes parent vft+0x0C
+# conditionally; later invokes parent vft+0x10, and 0x651AC0 can invoke
+# the +0x10 callback through a second reached source path. Neither callback
+# slot is labeled mouse-up/down until the external input producer is traced.
+SOURCE_NATIVE_EVENT_OWNER_REGISTRATION = 0x64F3C0
+SOURCE_NATIVE_BASE_INPUT_DISPATCH = 0x64F7A0
+SOURCE_NATIVE_CHILD_INPUT_DISPATCH = 0x651AC0
+SOURCE_NATIVE_CONTROL_FLAGS_OFFSET = 0x18
+SOURCE_NATIVE_CONTROL_ACTIVE_MASK = 0x02
+SOURCE_NATIVE_CONTROL_BLOCKED_MASK = 0x10
+SOURCE_NATIVE_CHILD_EVENT_OFFSET = 0x20
+SOURCE_NATIVE_CHILD_PARENT_OFFSET = 0x24
+SOURCE_NATIVE_PARENT_CALLBACK_FIRST_SLOT = 0x0C
+SOURCE_NATIVE_PARENT_CALLBACK_SECOND_SLOT = 0x10
+SOURCE_HUMAN_TACTICS_CALLBACK_FIRST = 0x52E3C0
+SOURCE_HUMAN_TACTICS_CALLBACK_SECOND = 0x52E3F0
+SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE = 0x8877AE
+SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_ROW_TARGET = 0x52F690
+SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_ACCEPTED_RETURN = 1
+SOURCE_NATIVE_STATUS_BYTE_GETTER = 0x651AB0
+SOURCE_NATIVE_STATUS_BYTE_OFFSET = 0x40
+
+
+def source_fastview_native_base_dispatch_flags_allow_processing(flags: int) -> bool:
+    """Source preconditions in 0x64F7A0, *not* a complete mouse hit-test.
+
+    For the reached base handler the child must have bit1 set and bit4
+    clear. The native parent callback, pointer parameters, sprite state,
+    global dispatch and all subsequent guards still determine the outcome.
+    """
+    if type(flags) is not int or not (0 <= flags <= 0xFFFFFFFF):
+        raise SourceFastViewTacticsSelectionError("unsigned original control DWORD required")
+    return bool(flags & SOURCE_NATIVE_CONTROL_ACTIVE_MASK) and not bool(
+        flags & SOURCE_NATIVE_CONTROL_BLOCKED_MASK
+    )
+
+
+def source_fastview_first_callback_8877ae_row(event_id: int) -> int | None:
+    """Map only native +0x0C callback 0x52E3C0's 11-ID special call.
+
+    The source callback returns 1 for *all* event IDs; only 0x8877AE..B8
+    calls 0x52F690 with row0..10. Returning None does NOT mean rejection by
+    the original callback, nor does a mapped row mean a completed click.
+    """
+    if type(event_id) is not int or not (0 <= event_id <= 0xFFFFFFFF):
+        raise SourceFastViewTacticsSelectionError("unsigned original event DWORD required")
+    if SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE <= event_id < (
+        SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE + SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT
+    ):
+        return event_id - SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE
+    return None
+
+
+def source_fastview_guarded_status_allows_followup(native_status_byte: int) -> bool:
+    """Necessary-only original +0x40 byte gate before 0x633020.
+
+    When source 0x651AB0 reads a nonzero byte, 0x52EBE3 jumps past the
+    guarded mutation path. Zero alone does not prove source predicates or
+    final side effects and must never be treated as authorization to edit.
+    """
+    if type(native_status_byte) is not int or not (0 <= native_status_byte <= 255):
+        raise SourceFastViewTacticsSelectionError("unsigned original status byte required")
+    return native_status_byte == 0
+
 
 @dataclass(frozen=True)
 class OriginalFastViewPlayerControlEvent:
@@ -51,7 +116,7 @@ class OriginalFastViewPlayerControlEvent:
 
 
 def source_classify_fastview_player_control_event(event_id: int) -> OriginalFastViewPlayerControlEvent:
-    """Read-only source decoder of five original eleven-row event families.
+    """Read-only source decoder of six original eleven-row event families.
 
     Never performs original 0x6C2170, 0x633020, 0x6C2770, linked-list changes,
     preview, or persistent player/match edits. Those remain source dependencies.
