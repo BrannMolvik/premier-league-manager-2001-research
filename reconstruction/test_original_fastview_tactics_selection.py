@@ -45,6 +45,7 @@ from original_fastview_tactics_selection import (
     source_fastview_staged_record_native_replay_method,
     SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS,
     OriginalFastViewReplayMethodResolution,
+    source_fastview_special_replay_record_branch,
 )
 
 
@@ -892,6 +893,73 @@ class OriginalFastViewNativeReplayMethodMapTests(unittest.TestCase):
             with self.subTest(addr=hex(addr)):
                 self.assertEqual(pe.read(addr, len(bytes.fromhex(source))),
                                  bytes.fromhex(source))
+
+
+
+class OriginalFastViewSourceTwoSpecialReplayHandlersTests(unittest.TestCase):
+    """Native visitor methods +0x10/+0x14 return distinct list edit choices."""
+
+    def test_omitting_vs_reconstructing_are_different_native_paths(self):
+        for cls, expected in (
+            (0x7D7F60, "omit_record"),
+            (0x7D7F6C, "reconstruct_0x6334f0_record")
+        ):
+            with self.subTest(cls=hex(cls)):
+                self.assertEqual(
+                    source_fastview_special_replay_record_branch(
+                        native_record_vtable=cls, visitor_status9=1,
+                        native_record_dword_four=4, requested_source_dword=4
+                    ), expected)
+                for flag, old_id, requested in ((0, 4, 4), (1, 4, 5), (255, 0, 4)):
+                    self.assertEqual(
+                        source_fastview_special_replay_record_branch(
+                            native_record_vtable=cls, visitor_status9=flag,
+                            native_record_dword_four=old_id,
+                            requested_source_dword=requested
+                        ), "append_original_record"
+                    )
+
+    def test_unsupported_record_and_synthetic_statuses_fail_closed(self):
+        base = dict(native_record_vtable=0x7D7F60, visitor_status9=0,
+                    native_record_dword_four=3, requested_source_dword=3)
+        cases = (
+            {"native_record_vtable": 0x7D7F90},
+            {"native_record_vtable": 0x7D7F3C},
+            {"native_record_vtable": True},
+            {"visitor_status9": True},
+            {"visitor_status9": 256},
+            {"native_record_dword_four": -1},
+            {"requested_source_dword": 0x100000000},
+            {"requested_source_dword": "3"},
+        )
+        for change in cases:
+            with self.subTest(change=change), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_special_replay_record_branch(**(base | change))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original source PE not mounted")
+    def test_exact_original_conditional_branch_bytes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va, expected in (
+            (0x634928, "8a 46 09 84 c0"),
+            (0x63492D, "74 0c"),
+            (0x634931, "e8 7a ec ff ff"),
+            (0x634936, "3b 46 0c"),
+            (0x634939, "74 42"),
+            (0x634990, "64 a1 00 00 00 00"),
+            (0x6349AF, "8a 46 09 84 c0"),
+            (0x6349B4, "0f 84 a1 00 00 00"),
+            (0x6349BC, "e8 ef eb ff ff"),
+            (0x6349C1, "3b 46 0c"),
+            (0x6349C4, "0f 85 91 00 00 00"),
+            (0x6349F8, "8b cf e8 f1 ea ff ff"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(expected))),
+                                 bytes.fromhex(expected))
 
 if __name__ == "__main__":
     unittest.main()
