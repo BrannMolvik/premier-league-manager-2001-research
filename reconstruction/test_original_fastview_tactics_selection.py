@@ -25,6 +25,9 @@ from original_fastview_tactics_selection import (
     SOURCE_HUMAN_TACTICS_CALLBACK_SECOND,
     SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE,
     SOURCE_NATIVE_STATUS_BYTE_GETTER,
+    SourceFastViewNativeCandidate,
+    source_fastview_native_candidates_52f690,
+    source_fastview_redraw_rows_52f690,
 )
 
 
@@ -260,6 +263,177 @@ class NativeFastViewCallbackSourceBoundaryTests(unittest.TestCase):
             struct.unpack("<I", pe.read(SOURCE_HUMAN_TACTICS_VTABLE + 0x10, 4))[0],
             SOURCE_HUMAN_TACTICS_CALLBACK_SECOND
         )
+
+
+class NativeFastViewRefreshOriginalSourceTests(unittest.TestCase):
+    """Source read-only roster/renderer control, not a played match."""
+
+    @staticmethod
+    def _fixture():
+        source_map = tuple(range(16))
+        enabled = [1] * 16
+        enabled[12] = 0
+        guards = [0] * 16
+        guards[13] = 1
+        return source_map, tuple(enabled), tuple(guards)
+
+    def test_extra_candidates_start_after_original_first_eleven_and_keep_slot_order(self):
+        mapping, enabled, guards = self._fixture()
+        kwargs = dict(
+            visible_row=0, source_club_roster_count=16,
+            source_mapped_player_by_roster_slot=mapping,
+            source_enabled_by_player_index=enabled,
+            source_club_guard_by_player_index=guards,
+        )
+        self.assertEqual(
+            source_fastview_native_candidates_52f690(
+                source_current_row_bypass_byte=0, **kwargs),
+            (SourceFastViewNativeCandidate(11, 11),
+             SourceFastViewNativeCandidate(14, 14),
+             SourceFastViewNativeCandidate(15, 15)),
+        )
+        # A nonzero native current-row bypass byte suppresses ONLY the
+        # club guard check. It never overrides the enabled-byte gate.
+        self.assertEqual(
+            source_fastview_native_candidates_52f690(
+                source_current_row_bypass_byte=1, **kwargs),
+            (SourceFastViewNativeCandidate(11, 11),
+             SourceFastViewNativeCandidate(13, 13),
+             SourceFastViewNativeCandidate(14, 14),
+             SourceFastViewNativeCandidate(15, 15)),
+        )
+        # The selected visible row has its own BYTE remap. Its club guard
+        # nonzero also turns on the same bypass, independent of +0xB45.
+        guards = list(guards)
+        guards[0] = 1
+        kwargs["source_club_guard_by_player_index"] = tuple(guards)
+        self.assertEqual(
+            source_fastview_native_candidates_52f690(
+                source_current_row_bypass_byte=0, **kwargs),
+            source_fastview_native_candidates_52f690(
+                source_current_row_bypass_byte=1, **kwargs),
+        )
+
+    def test_actual_mapped_player_indices_not_source_slot_numbers(self):
+        mapping = tuple(range(11)) + (15, 14, 13, 12, 11)
+        enabled = tuple(1 if i in (11, 12, 13, 14, 15) else 0 for i in range(16))
+        guards = (0,) * 16
+        self.assertEqual(
+            source_fastview_native_candidates_52f690(
+                visible_row=0, source_club_roster_count=16,
+                source_mapped_player_by_roster_slot=mapping,
+                source_enabled_by_player_index=enabled,
+                source_club_guard_by_player_index=guards,
+                source_current_row_bypass_byte=0,
+            ),
+            tuple(SourceFastViewNativeCandidate(11 + i, 15 - i) for i in range(5)),
+        )
+        self.assertEqual(
+            source_fastview_native_candidates_52f690(
+                visible_row=0, source_club_roster_count=11,
+                source_mapped_player_by_roster_slot=tuple(range(11)),
+                source_enabled_by_player_index=(1,) * 11,
+                source_club_guard_by_player_index=(0,) * 11,
+                source_current_row_bypass_byte=0,
+            ),
+            (),
+        )
+
+    def test_redraw_all_vs_one_vs_no_rows_are_distinct_native_paths(self):
+        kwargs = dict(visible_row=7, native_popup_selection=0)
+        self.assertEqual(
+            source_fastview_redraw_rows_52f690(
+                native_redraw_all_mode_byte=0,
+                native_mapped_player_triplet_flag=0, **kwargs), ())
+        self.assertEqual(
+            source_fastview_redraw_rows_52f690(
+                native_redraw_all_mode_byte=0,
+                native_mapped_player_triplet_flag=2, **kwargs), (7,))
+        self.assertEqual(
+            source_fastview_redraw_rows_52f690(
+                native_redraw_all_mode_byte=1,
+                native_mapped_player_triplet_flag=2, **kwargs), tuple(range(11)))
+        self.assertEqual(
+            source_fastview_redraw_rows_52f690(
+                visible_row=7, native_popup_selection=11,
+                native_redraw_all_mode_byte=0,
+                native_mapped_player_triplet_flag=0), tuple(range(11)))
+
+    def test_fail_closed_for_invalid_or_unproven_memory_snapshots(self):
+        mapping, enabled, guards = self._fixture()
+        kwargs = dict(
+            visible_row=0, source_club_roster_count=16,
+            source_mapped_player_by_roster_slot=mapping,
+            source_enabled_by_player_index=enabled,
+            source_club_guard_by_player_index=guards,
+            source_current_row_bypass_byte=0,
+        )
+        invalid = (
+            {"visible_row": True}, {"visible_row": 11},
+            {"source_club_roster_count": 10},
+            {"source_club_roster_count": 17},
+            {"source_club_roster_count": True},
+            {"source_current_row_bypass_byte": 256},
+            {"source_mapped_player_by_roster_slot": list(mapping)},
+            {"source_mapped_player_by_roster_slot": mapping[:12]},
+            {"source_mapped_player_by_roster_slot": mapping[:-1] + (-1,)},
+            {"source_enabled_by_player_index": enabled[:14]},
+            {"source_club_guard_by_player_index": guards[:-1]},
+        )
+        for update in invalid:
+            with self.subTest(update=update), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_native_candidates_52f690(**(kwargs | update))
+        redraw = dict(visible_row=0, native_popup_selection=0,
+                      native_redraw_all_mode_byte=0, native_mapped_player_triplet_flag=0)
+        for change in ({"visible_row": False}, {"visible_row": -1},
+                       {"native_popup_selection": -1},
+                       {"native_popup_selection": 0x100000000},
+                       {"native_redraw_all_mode_byte": 256},
+                       {"native_mapped_player_triplet_flag": True}):
+            with self.subTest(change=change), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_redraw_rows_52f690(**(redraw | change))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner-verified private original EXE not mounted")
+    def test_authenticated_original_pe_offsets_for_refresh_and_dual_click_branch(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source = (
+            (0x52F69B, "8b 86 90 00 00 00"),
+            (0x52F6A1, "8a 9e 45 0b 00 00"),
+            (0x52F6C1, "8a 94 31 46 0b 00 00"),
+            (0x52F6C8, "8b a8 cc 4b a1 00"),
+            (0x52F6E6, "8a 9c c8 0c 4c a1 00"),
+            (0x52F723, "8a 84 0e 46 0b 00 00"),
+            (0x52F72C, "8a 84 3e 58 0b 00 00"),
+            (0x52F75A, "80 bc 82 0c 4c a1 00 00"),
+            (0x52F7D2, "89 3a"),
+            (0x52F7D4, "89 48 04"),
+            (0x52F7D7, "89 18"),
+            (0x52F80D, "c7 84 c6 64 48 00 00 00 00 00 00"),
+            (0x52F818, "8b 86 68 0a 00 00"),
+            (0x52F822, "8a 86 44 0b 00 00"),
+            (0x52F833, "8a 84 0a cf 03 00 00"),
+            (0x52F83E, "8d be 3c 26 00 00"),
+            (0x52F848, "ff 52 3c"),
+            (0x52F872, "8b 94 8e 3c 26 00 00"),
+            (0x52F880, "ff 52 3c"),
+            (0x52EBDC, "e8 cf 2e 12 00"),
+            (0x52EC0D, "e8 0e 44 10 00"),
+            (0x52EC15, "84 c0"),
+            (0x52EC17, "75 7d"),
+            (0x52EC23, "e8 48 3b 19 00"),
+            (0x651B4E, "8b 4e 24 55 56 8b 01 ff 50 10"),
+        )
+        for va, hex_bytes in source:
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(hex_bytes))),
+                                 bytes.fromhex(hex_bytes))
+
 
 if __name__ == "__main__":
     unittest.main()
