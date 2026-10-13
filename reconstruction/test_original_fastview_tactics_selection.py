@@ -18,6 +18,8 @@ from original_fastview_tactics_selection import (
     source_fastview_popup_native_option_rows_6510f0,
     source_fastview_original_popup_option_activation_653a10,
     SourceFastViewOriginalPopupOptionActivation,
+    SourceFastViewPopupOriginalRowHitRectangle,
+    source_fastview_popup_first_native_row_hit_6516f0,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -2079,6 +2081,73 @@ class OriginalFastViewNativePopupOptionSelectedIndexSourceTests(unittest.TestCas
             (0x653A23,"e8 c8 ff ff ff")
         ):
             with self.subTest(address=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewPopupFirstPointerHitSourceTests(unittest.TestCase):
+    """Native list vft+0x6C chooses FIRST row whose RECT contains pointer."""
+
+    def test_original_half_open_rectangle_edges_and_first_match(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        rects=(R(10,20,150,35),R(10,35,150,50),R(10,20,150,35))
+        for x,y,expected in ((10,20,0),(149,34,0),(10,35,1),(149,49,1),
+                             (150,20,None),(9,20,None),(10,19,None),
+                             (100,50,None),(10,34,0)):
+            with self.subTest(point=(x,y)):
+                self.assertEqual(source_fastview_popup_first_native_row_hit_6516f0(
+                    pointer_x=x,pointer_y=y,ordered_native_row_rects=rects),expected)
+
+    def test_overlapping_original_rects_prefer_first_and_empty_list_no_hit(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        self.assertEqual(source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=6,pointer_y=7,
+            ordered_native_row_rects=(R(0,0,100,100),R(0,0,100,100))),0)
+        self.assertIsNone(source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=1,pointer_y=1,ordered_native_row_rects=()))
+
+    def test_unverified_pointer_input_or_native_rect_type_rejected(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        good=dict(pointer_x=10,pointer_y=20,
+                  ordered_native_row_rects=(R(10,20,150,35),))
+        for changes in ({"pointer_x":True},{"pointer_y":"20"},
+                        {"pointer_x":0x80000000},
+                        {"ordered_native_row_rects":[R(0,0,10,10)]},
+                        {"ordered_native_row_rects":(None,)},
+                        {"ordered_native_row_rects":(R(True,0,10,10),)},
+                        {"ordered_native_row_rects":(R(0,0,0x80000000,10),)}):
+            with self.subTest(changes=changes),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_first_native_row_hit_6516f0(**(good | changes))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner authorized original EXE missing")
+    def test_original_first_hit_vft_and_native_rect_opcodes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7BFD5C+0x6C,4))[0],0x6516F0)
+        for va,hx in (
+            (0x6516F0,"53 55 56 57"),
+            (0x6516F4,"8b 7c 24 14"),
+            (0x6516F8,"6a 00"),
+            (0x6516FD,"e8 9e e0 ff ff"),
+            (0x651702,"8b 56 30"),
+            (0x65170B,"8b 76 2c"),
+            (0x65170E,"8b 1f"),
+            (0x651710,"8b 6f 04"),
+            (0x651713,"8d 46 0c"),
+            (0x651716,"3b 58 fc"),
+            (0x65171B,"3b 58 04"),
+            (0x651720,"3b 28"),
+            (0x651724,"3b 68 08"),
+            (0x651729,"41"),
+            (0x65172A,"83 c0 30"),
+            (0x65173E,"8b 14 30"),
+            (0x65174A,"ff 52 6c"),
+            (0x651754,"5f 5e 5d 33 c0"),
+        ):
+            with self.subTest(source=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
 
