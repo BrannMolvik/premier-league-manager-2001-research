@@ -42,6 +42,9 @@ from original_fastview_tactics_selection import (
     OriginalFastViewStagedEditVisitorDispatch,
     source_fastview_633240_count_replacement_records,
     source_fastview_633020_result_without_replacement_records,
+    source_fastview_staged_record_native_replay_method,
+    SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS,
+    OriginalFastViewReplayMethodResolution,
 )
 
 
@@ -830,6 +833,65 @@ class SourceFastViewReplacementOnlyCounterCorrectionTests(unittest.TestCase):
             struct.unpack("<I", pe.read(0x7D7F90 + 4, 4))[0],
             0x633600
         )
+
+
+
+class OriginalFastViewNativeReplayMethodMapTests(unittest.TestCase):
+    """Replay visitor may mutate side state; these tests only resolve CALL targets."""
+
+    def test_every_source_record_virtual_four_calls_the_distinct_replay_slot(self):
+        expected_by_slot = dict(SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS)
+        self.assertEqual(len(expected_by_slot), 8)
+        self.assertEqual(expected_by_slot[0x04], 0x634B00)
+        self.assertEqual(expected_by_slot[0x10], 0x634990)
+        self.assertEqual(expected_by_slot[0x14], 0x634920)
+        self.assertEqual(
+            {slot for slot, call in expected_by_slot.items() if call == 0x634AB0},
+            {0x08, 0x0C, 0x18, 0x1C, 0x20}
+        )
+        for table, wrapper, offset in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH:
+            with self.subTest(vtable=hex(table)):
+                self.assertEqual(
+                    source_fastview_staged_record_native_replay_method(
+                        native_record_vtable=table
+                    ),
+                    OriginalFastViewReplayMethodResolution(
+                        table, wrapper, expected_by_slot[offset], offset
+                    )
+                )
+
+    def test_unknown_original_types_cannot_reach_replay_methods(self):
+        for wrong in (True, 0x7D7F30, 0x7D8014, 0x7D7F9C, -1, None, "0x7d7f90"):
+            with self.subTest(wrong=repr(wrong)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_staged_record_native_replay_method(
+                    native_record_vtable=wrong
+                )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original owner-authorized PE is not mounted")
+    def test_exact_original_replay_visitor_vtable_and_mutation_entrypoints(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for offset, method in SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS:
+            with self.subTest(offset=hex(offset)):
+                self.assertEqual(
+                    struct.unpack("<I", pe.read(0x7D8014 + offset, 4))[0],
+                    method
+                )
+        for addr, source in (
+            (0x634AB0, "53 8b 59 14 56 57"),
+            (0x634B00, "6a ff 68 b7 4c 7b 00"),
+            (0x634990, "64 a1 00 00 00 00"),
+            (0x634920, "55 8b 6c 24 08 56"),
+            (0x634C1D, "8b 46 1c"),
+            (0x634CF4, "c6 46 09 01"),
+            (0x634DF0, "8a 41 09 c3"),
+        ):
+            with self.subTest(addr=hex(addr)):
+                self.assertEqual(pe.read(addr, len(bytes.fromhex(source))),
+                                 bytes.fromhex(source))
 
 if __name__ == "__main__":
     unittest.main()
