@@ -161,3 +161,55 @@ def original_fastview_arrow_frame_word_for_native_flags(
         if type(value) is not int or not (0 <= value <= 0xFFFF):
             raise ValueError("authentic unsigned 16-bit native frame index required")
     return frame_word_at_46 if (native_flags & NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK) else frame_word_at_44
+
+
+# Two additional authentic 11-row native controls. These are *not* the
+# tactics-arrow sprites. Source constructor calls 0x6503F0 and 0x5D71A0
+# take x80 and x133 respectively, with y278+17*row. Their original IDs
+# are registered through distinct control+0x20 ownership routes.
+# Graphics, native hit widths/heights and complete event side effects remain
+# unverified; never paint arrow art or wire actions from these coordinates.
+NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES = (
+    # source event base, parent object row0 offset, row stride, x, constructor
+    (0x23D65A, 0x1A34, 0x40, 80, 0x6503F0),
+    (0x8877AE, 0x263C, 0x44, 133, 0x5D71A0),
+)
+NATIVE_AUXILIARY_EVENT_FIELD_OFFSET = 0x20
+
+
+@dataclass(frozen=True)
+class OriginalFastViewTacticsAuxiliaryRowControl:
+    source_event_id: int
+    source_row: int
+    parent_offset: int
+    native_x: int
+    native_y: int
+    source_constructor_va: int
+    artwork_identity_verified: bool = False
+
+    def __post_init__(self) -> None:
+        if type(self.source_row) is not int or not (0 <= self.source_row < NATIVE_TACTICS_PLAYER_ROWS):
+            raise ValueError("original auxiliary player-row index required")
+        if self.artwork_identity_verified:
+            raise ValueError("auxiliary event artwork identity not yet source proven")
+
+
+def original_fastview_auxiliary_player_row_controls(
+) -> tuple[OriginalFastViewTacticsAuxiliaryRowControl, ...]:
+    """Source coordinates/event owners for 22 additional native controls.
+
+    Does not equate x/y with an independently proven click rectangle; native
+    constructors and owner child pointers need deeper resource/hit tracing.
+    """
+    positions = []
+    for row in range(NATIVE_TACTICS_PLAYER_ROWS):
+        for event_base, first_offset, stride, x, constructor_va in NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES:
+            positions.append(OriginalFastViewTacticsAuxiliaryRowControl(
+                source_event_id=event_base + row,
+                source_row=row,
+                parent_offset=first_offset + stride * row,
+                native_x=x,
+                native_y=NATIVE_TACTICS_FIRST_PLAYER_Y + NATIVE_TACTICS_PLAYER_ROW_STEP * row,
+                source_constructor_va=constructor_va,
+            ))
+    return tuple(positions)
