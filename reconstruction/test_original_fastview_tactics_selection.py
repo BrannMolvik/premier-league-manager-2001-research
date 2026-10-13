@@ -5,6 +5,13 @@ import os
 from pathlib import Path
 
 from original_fastview_tactics_selection import (
+    source_fastview_x133_popup_clip_52d190,
+    source_fastview_popup_escape_event_value_only,
+    source_fastview_popup_posted_message_from_event,
+    source_fastview_popup_virtual20_posted_event_value_only,
+    SourceFastViewPopupPostedMessage,
+    SourceFastViewNativeDropdownModalResult,
+    source_fastview_native_dropdown_posted_wm_user_result,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1632,6 +1639,223 @@ class OriginalFastViewX133NativeCallbackOrderTests(unittest.TestCase):
             with self.subTest(slot=slot):
                 self.assertEqual(struct.unpack("<I",pe.read(0x7CB010+slot,4))[0],target)
 
+
+
+class NativeX133PopupFactoryClipTests(unittest.TestCase):
+    def test_source_context_relative_clip(self):
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=133, child_y=278, parent_x=20, parent_y=139,
+            context_x=300, context_y=200), (153, 400, 300, 200))
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=133, child_y=278, parent_x=20, parent_y=139,
+            context_x=700, context_y=500), (100, 100, 700, 500))
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=133, child_y=278, parent_x=20, parent_y=139,
+            context_x=647, context_y=183), (153, 417, 647, 183))
+
+    def test_does_not_invent_left_or_top_clamping(self):
+        self.assertEqual(source_fastview_x133_popup_clip_52d190(
+            child_x=-20, child_y=-30, parent_x=0, parent_y=0,
+            context_x=0, context_y=0), (-20, -30, 0, 0))
+
+    def test_unverified_coordinates_fail_closed(self):
+        args=dict(child_x=133,child_y=278,parent_x=20,parent_y=139,
+                  context_x=100,context_y=100)
+        for bad in ({"child_x":True},{"context_y":"100"},
+                    {"parent_x":0x80000000},{"child_y":-0x80000001}):
+            with self.subTest(bad=bad),self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_x133_popup_clip_52d190(**(args | bad))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original source PE not mounted")
+    def test_original_popup_factory_and_clip_instructions(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va,hx in (
+            (0x52D139,"68 8c 01 00 00"),
+            (0x52D156,"8b 4e 38"),
+            (0x52D15C,"e8 8f 00 00 00"),
+            (0x52D190,"8b 51 24"),
+            (0x52D194,"8b 71 0c"),
+            (0x52D198,"8b 42 0c"),
+            (0x52D19B,"8b 79 10"),
+            (0x52D19E,"8b 52 10"),
+            (0x52D1A9,"8b 71 70"),
+            (0x52D1AF,"81 ff 20 03 00 00"),
+            (0x52D1C5,"81 fb 58 02 00 00"),
+            (0x52D1DD,"e8 3e 61 12 00")
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class SourceFastViewPopupEscapeRoutingTests(unittest.TestCase):
+    def test_original_key_escape_emits_only_source_sentinel(self):
+        self.assertEqual(source_fastview_popup_escape_event_value_only(
+            original_key_word=0x1B), 0xFFFF)
+        for other in (0, 1, 13, 32, 0x1A, 0x1C, 0xFFFF):
+            with self.subTest(key=other):
+                self.assertIsNone(source_fastview_popup_escape_event_value_only(
+                    original_key_word=other))
+
+    def test_original_key_word_range_is_strict(self):
+        for invalid in (None, True, False, -1, 0x10000, "ESC", 27.0):
+            with self.subTest(invalid=invalid), self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_escape_event_value_only(original_key_word=invalid)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private EXE not mounted")
+    def test_exact_original_keyhandler_and_owner_message_forwarder(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CAC64+0x34,4))[0],0x52D350)
+        for addr,hx in (
+            (0x52D350,"66 83 7c 24 08 1b"),
+            (0x52D356,"75 0a"),
+            (0x52D358,"68 ff ff 00 00"),
+            (0x52D35D,"e8 8e 66 12 00"),
+            (0x6539F0,"8b 44 24 04"),
+            (0x6539F4,"8b 49 64"),
+            (0x6539F7,"25 ff ff 00 00"),
+            (0x6539FF,"68 00 04 00 00"),
+            (0x659650,"8b 44 24 0c"),
+            (0x659663,"ff 15 d8 d2 7b 00")
+        ):
+            with self.subTest(address=hex(addr)):
+                self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class SourceFastViewPopupQueuedWin32EventTests(unittest.TestCase):
+    def test_escape_and_nonzero_virtual20_both_request_same_posted_sentinel(self):
+        expected=SourceFastViewPopupPostedMessage(
+            win32_message=0x400,native_wparam_word=0xFFFF,native_lparam=0)
+        self.assertEqual(source_fastview_popup_escape_event_value_only(
+            original_key_word=0x1B),0xFFFF)
+        self.assertEqual(source_fastview_popup_posted_message_from_event(
+            native_event_word=0xFFFF),expected)
+        self.assertIsNone(source_fastview_popup_virtual20_posted_event_value_only(
+            native_event_argument=0))
+        for event in (1,2,0xFFFFFFFF):
+            self.assertEqual(source_fastview_popup_virtual20_posted_event_value_only(
+                native_event_argument=event),expected)
+
+    def test_native_event_sender_masks_parameter_word_but_not_dispatch_type(self):
+        self.assertEqual(source_fastview_popup_posted_message_from_event(
+            native_event_word=0x12345678),
+            SourceFastViewPopupPostedMessage(
+                win32_message=0x400,native_wparam_word=0x5678,native_lparam=0))
+        self.assertEqual(source_fastview_popup_posted_message_from_event(
+            native_event_word=0x10000).native_wparam_word,0)
+        for bad in (True,False,None,-1,"65535",0x100000000):
+            with self.subTest(value=repr(bad)),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_posted_message_from_event(native_event_word=bad)
+            with self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_popup_virtual20_posted_event_value_only(
+                    native_event_argument=bad)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original owner-authorized exe not mounted")
+    def test_original_queued_post_thunk_and_distinct_native_event_sources(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7CAC64+0x20,4))[0],0x446690)
+        self.assertEqual(struct.unpack("<I",pe.read(0x7CAC64+0x34,4))[0],0x52D350)
+        for addr,hx in (
+            (0x446690,"8b 44 24 04"),
+            (0x446694,"85 c0"),
+            (0x446696,"74 0a"),
+            (0x446698,"68 ff ff 00 00"),
+            (0x44669D,"e8 4e d3 20 00"),
+            (0x6539F4,"8b 49 64"),
+            (0x6539F7,"25 ff ff 00 00"),
+            (0x6539FC,"6a 00 50"),
+            (0x6539FF,"68 00 04 00 00"),
+            (0x653A04,"e8 47 5c 00 00"),
+            (0x659658,"8b 49 04"),
+            (0x659663,"ff 15 d8 d2 7b 00"),
+            (0x532BBF,"81 7c 24 14 00 04 00 00"),
+            (0x532BC7,"74 30"),
+            (0x532BC9,"8d 54 24 10 52 ff d5"),
+        ):
+            with self.subTest(address=hex(addr)):
+                self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+
+class SourceFastViewActualX133Win32ModalResultTests(unittest.TestCase):
+    """Actual global controller -> modal loop -> child+0x40 invalid state."""
+
+    def test_posted_escape_round_trips_to_invalid_dropdown_without_selected_index(self):
+        event=source_fastview_popup_posted_message_from_event(native_event_word=0xFFFF)
+        self.assertEqual(source_fastview_native_dropdown_posted_wm_user_result(
+            native_message=event.win32_message,
+            native_wparam=event.native_wparam_word
+        ), SourceFastViewNativeDropdownModalResult(
+            selected_index_dword=0xFFFF,
+            invalid_selection_status_byte=1,
+            writes_selected_index=False
+        ))
+
+    def test_posted_ordinary_index_returns_native_selection_and_valid_status(self):
+        for index in (0, 1, 10, 254, 65534):
+            event=source_fastview_popup_posted_message_from_event(
+                native_event_word=index)
+            with self.subTest(index=index):
+                self.assertEqual(source_fastview_native_dropdown_posted_wm_user_result(
+                    native_message=event.win32_message,
+                    native_wparam=event.native_wparam_word
+                ), SourceFastViewNativeDropdownModalResult(index,0,True))
+
+    def test_other_win32_messages_do_not_complete_the_modal_selection(self):
+        for message in (0, 1, 0x100, 0x200, 0x201, 0x401):
+            self.assertIsNone(source_fastview_native_dropdown_posted_wm_user_result(
+                native_message=message,native_wparam=0xFFFF))
+
+    def test_invalid_native_message_field_types_rejected(self):
+        for bad in (-1,True,False,"0x400",None,0x100000000):
+            for key in ("native_message","native_wparam"):
+                values={"native_message":0x400,"native_wparam":0xFFFF}
+                values[key]=bad
+                with self.subTest(field=key,bad=repr(bad)),self.assertRaises(
+                    SourceFastViewTacticsSelectionError):
+                    source_fastview_native_dropdown_posted_wm_user_result(**values)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original executable not mounted")
+    def test_x133_original_popup_to_global_modal_wm_user_result_complete_link(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for table, offset, expected in (
+            (0x7CAC64,0x20,0x446690), (0x7CAC64,0x34,0x52D350),
+            (0x7CB294,0x00,0x532B80),(0x7CB294,0x20,0x532650)
+        ):
+            with self.subTest(vtable=hex(table),offset=hex(offset)):
+                self.assertEqual(struct.unpack("<I",pe.read(table+offset,4))[0],
+                                 expected)
+        for va,hx in (
+            (0x5D71AD,"68 60 79 87 00"),
+            (0x5D71CD,"e8 7e a8 07 00"),
+            (0x651A96,"89 46 30"),
+            (0x53262F,"c7 07 94 b2 7c 00"),
+            (0x651AF2,"8b 4e 30"),
+            (0x651AFA,"ff 50 20"),
+            (0x532650,"56 8b f1"),
+            (0x53266A,"8d 4e 18"),
+            (0x53266D,"e8 9e 1b 12 00"),
+            (0x654221,"56"),
+            (0x654222,"89 7e 64"),
+            (0x65425C,"ff 10"),
+            (0x532BBF,"81 7c 24 14 00 04 00 00"),
+            (0x532BF9,"8b 44 24 18"),
+            (0x651B0B,"81 fb ff ff 00 00"),
+            (0x651B13,"c6 46 40 01"),
+            (0x651B24,"89 5e 3c"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
 
 if __name__ == "__main__":
     unittest.main()

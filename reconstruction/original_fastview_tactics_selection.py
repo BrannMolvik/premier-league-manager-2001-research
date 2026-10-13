@@ -1220,3 +1220,180 @@ def source_fastview_x133_native_input_route_52d0d0(
     return OriginalFastViewX133InputRoute(
         first_reached, first_row, False, True, inner, slots
     )
+
+
+# The authentic x133 child vft+0x98 0x52D120 allocates 0x18C bytes
+# and calls native popup constructor 0x52D1F0(child+0x38). This does
+# not show the popup, choose a row or prove pointer hit geometry.
+# Its distinct vft+0x9C 0x52D190 constructs a context-relative
+# screen clip by adding child x/y to parent x/y, then clamping the
+# *right/bottom* against original 800x600. No negative-edge clipping
+# is shown by the recovered native source; do not invent it.
+SOURCE_FASTVIEW_X133_POPUP_FACTORY_VA = 0x52D120
+SOURCE_FASTVIEW_X133_POPUP_FACTORY_ALLOC_BYTES = 0x18C
+SOURCE_FASTVIEW_X133_POPUP_CONSTRUCTOR_VA = 0x52D1F0
+SOURCE_FASTVIEW_X133_POPUP_FACTORY_CHILD_LIST_OFFSET = 0x38
+SOURCE_FASTVIEW_X133_POPUP_DRAW_VA = 0x52D190
+SOURCE_FASTVIEW_X133_POPUP_DRAW_VIRTUAL_PARENT_OFFSET = 0x24
+SOURCE_FASTVIEW_X133_POPUP_DRAW_NATIVE_RECT = (800, 600)
+SOURCE_FASTVIEW_X133_POPUP_DRAW_BLITTER_VA = 0x653320
+
+
+def source_fastview_x133_popup_clip_52d190(
+    *, child_x: int, child_y: int, parent_x: int, parent_y: int,
+    context_x: int, context_y: int
+) -> tuple[int, int, int, int]:
+    """Reproduce only original vft+0x9C right/bottom clip arithmetic.
+
+    Native source 0x52D190 reads parent via child+0x24, obtains child
+    [+0x10,+0x0C] and parent [+0x0C,+0x10] component sums,
+    uses context+0x70/+0x74 and caps resulting width against x=800
+    and height against y=600. Its six-argument blitter 0x653320
+    receives computed (width,height,context_x,context_y,4,1).
+    Input coordinates are source-supplied signed DWORDs. This is
+    neither mouse hit-testing nor popup item/selection geometry.
+    """
+    values = (child_x, child_y, parent_x, parent_y, context_x, context_y)
+    if any(type(v) is not int or not -0x80000000 <= v <= 0x7FFFFFFF for v in values):
+        raise SourceFastViewTacticsSelectionError("original signed coordinate DWORDs required")
+    width = child_x + parent_x
+    height = child_y + parent_y
+    if context_x + width > 800:
+        width = 800 - context_x
+    if context_y + height > 600:
+        height = 600 - context_y
+    return (width, height, context_x, context_y)
+
+
+# Native popup constructed at 0x52D1F0 has final vtable 0x7CAC64,
+# whose +0x34 key handler 0x52D350 checks WORD 0x1B (Escape).
+# It routes WORD 0xFFFF via 0x6539F0 -> 0x659650:
+# 0x6539F0 masks to 16 bits, follows owner +0x64 and sends event
+# message 0x400 through the external thunk pointer 0x7BD2D8.
+# The destination/side effects of that thunk are NOT source qualified.
+SOURCE_FASTVIEW_POPUP_VTABLE = 0x7CAC64
+SOURCE_FASTVIEW_POPUP_KEY_CALLBACK_OFFSET = 0x34
+SOURCE_FASTVIEW_POPUP_ESCAPE_HANDLER_VA = 0x52D350
+SOURCE_FASTVIEW_POPUP_ESCAPE_KEY_WORD = 0x1B
+SOURCE_FASTVIEW_POPUP_ESCAPE_SENTINEL = 0xFFFF
+SOURCE_FASTVIEW_POPUP_EVENT_SENDER_VA = 0x6539F0
+SOURCE_FASTVIEW_POPUP_EVENT_ROUTER_VA = 0x659650
+SOURCE_FASTVIEW_POPUP_EVENT_CODE = 0x400
+
+
+def source_fastview_popup_escape_event_value_only(*, original_key_word: int) -> int | None:
+    """Only original 0x52D350's Escape dispatch, never modal cancellation.
+
+    None means the original handler returns without this specific event.
+    A returned WORD 0xFFFF means 0x6539F0 is called, NOT a proved menu
+    close/lineup rollback or post-match navigation.
+    """
+    if type(original_key_word) is not int or not 0 <= original_key_word <= 0xFFFF:
+        raise SourceFastViewTacticsSelectionError("original key WORD required")
+    return (SOURCE_FASTVIEW_POPUP_ESCAPE_SENTINEL
+            if original_key_word == SOURCE_FASTVIEW_POPUP_ESCAPE_KEY_WORD else None)
+
+
+# Original popup final vtable 0x7CAC64 also has virtual+0x20
+# 0x446690: a nonzero argument emits the SAME 0xFFFF via 0x6539F0
+# as the Escape+0x34 handler. Both requests go through a queued
+# Win32 PostMessageA(HWND, WM_USER=0x400, wParam=0xFFFF, lParam=0).
+# Original import thunk 0x7BD2D8 is USER32.PostMessageA, not SendMessage.
+# The +0x64 owner is dereferenced to get HWND at +0x04 by 0x659650.
+# A separate original message-pump virtual 0x532B80 recognizes 0x400
+# after GetMessageA and returns without Translate/DispatchMessage;
+# actual reachability of that pump FROM x133 popup remains unproven.
+SOURCE_FASTVIEW_POPUP_NONZERO_EVENT_METHOD_VA = 0x446690
+SOURCE_FASTVIEW_POPUP_NONZERO_EVENT_METHOD_OFFSET = 0x20
+SOURCE_FASTVIEW_POPUP_WIN32_POSTMESSAGE_IMPORT_VA = 0x7BD2D8
+SOURCE_FASTVIEW_POPUP_MESSAGE_PUMP_FILTER_VA = 0x532B80
+SOURCE_FASTVIEW_POPUP_EVENT_OWNER_POINTER_OFFSET = 0x64
+SOURCE_FASTVIEW_POPUP_EVENT_OWNER_HWND_OFFSET = 0x04
+
+
+@dataclass(frozen=True)
+class SourceFastViewPopupPostedMessage:
+    """Unsent native Win32 queue request; NEVER a completed modal action."""
+    win32_message: int
+    native_wparam_word: int
+    native_lparam: int
+
+
+def source_fastview_popup_posted_message_from_event(
+    *, native_event_word: int
+) -> SourceFastViewPopupPostedMessage:
+    """Source 0x6539F0/0x659650 *request*, no window/process execution.
+
+    This projects a posted message only; caller must separately have
+    actual original +0x64 event owner and verified HWND; no user click,
+    GUI close, state rollback or selected-index interpretation occurs.
+    """
+    if type(native_event_word) is not int or not 0 <= native_event_word <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original unsigned native event DWORD required")
+    return SourceFastViewPopupPostedMessage(
+        win32_message=SOURCE_FASTVIEW_POPUP_EVENT_CODE,
+        native_wparam_word=native_event_word & 0xFFFF,
+        native_lparam=0,
+    )
+
+
+def source_fastview_popup_virtual20_posted_event_value_only(
+    *, native_event_argument: int
+) -> SourceFastViewPopupPostedMessage | None:
+    """0x446690: nonzero DWORD generates asynchronous sentinel event."""
+    if type(native_event_argument) is not int or not 0 <= native_event_argument <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original callback argument DWORD required")
+    if native_event_argument == 0:
+        return None
+    return source_fastview_popup_posted_message_from_event(native_event_word=0xFFFF)
+
+
+# Source-closed for the x133 child built at screen+0x263C+0x44*row:
+# 0x5D71A0 pushes GLOBAL 0x877960 as the eighth native constructor
+# input, stored child+0x30 by 0x651A50. Global GUI object ctor
+# 0x532570 installs vtable 0x7CB294. x133 0x651AC0 calls its vft+0x20
+# 0x532650 with the newly built popup and zero. That calls 0x654210:
+# it writes popup+0x64 event owner, invokes popup setup 0x6542B0,
+# then invokes the original GUI object vft+0 0x532B80.
+# 0x532B80 consumes GetMessageA WM_USER=0x400 and returns MSG.wParam
+# without TranslateMessageA / DispatchMessageA; other messages use
+# those functions and keep pumping. Popup Escape and virtual+0x20
+# queue PostMessageA(hwnd,0x400,0xffff,0). 0x651AC0 compares its
+# modal result against 0xffff to set child+0x40=1 (invalid) and skip
+# the array-selected-index update. No match modal exit is implied.
+SOURCE_FASTVIEW_X133_GLOBAL_UI_CONTROLLER_VA = 0x877960
+SOURCE_FASTVIEW_X133_GLOBAL_UI_VTABLE = 0x7CB294
+SOURCE_FASTVIEW_X133_GLOBAL_UI_MODAL_SLOT = 0x20
+SOURCE_FASTVIEW_X133_GLOBAL_UI_MODAL_METHOD_VA = 0x532650
+SOURCE_FASTVIEW_X133_UI_MODAL_WRAPPER_VA = 0x654210
+SOURCE_FASTVIEW_X133_UI_MODAL_EVENT_PUMP_VA = 0x532B80
+SOURCE_FASTVIEW_X133_UI_MODAL_POPUP_SETUP_VA = 0x6542B0
+SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL = 0xFFFF
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativeDropdownModalResult:
+    selected_index_dword: int
+    invalid_selection_status_byte: int
+    writes_selected_index: bool
+
+
+def source_fastview_native_dropdown_posted_wm_user_result(
+    *, native_message: int, native_wparam: int
+) -> SourceFastViewNativeDropdownModalResult | None:
+    """Source 0x532B80 -> 0x651AC0 for an already delivered WM_USER.
+
+    None means non-WM_USER is dispatched normally and the modal keeps
+    pumping (not a selected option). 0xFFFF means native child+0x40=1,
+    no source array selection write. Other full DWORD results are stored
+    in child+0x3C and mark status0. Actual list bounds, HWND lifetime,
+    message delivery and parent callback remain separate source gates.
+    """
+    for value in (native_message, native_wparam):
+        if type(value) is not int or not 0 <= value <= 0xFFFFFFFF:
+            raise SourceFastViewTacticsSelectionError("native Win32 message DWORDs required")
+    if native_message != SOURCE_FASTVIEW_POPUP_EVENT_CODE:
+        return None
+    if native_wparam == SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL:
+        return SourceFastViewNativeDropdownModalResult(0xFFFF, 1, False)
+    return SourceFastViewNativeDropdownModalResult(native_wparam, 0, True)
