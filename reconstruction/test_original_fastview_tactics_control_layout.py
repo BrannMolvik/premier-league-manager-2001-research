@@ -16,6 +16,13 @@ from original_fastview_tactics_control_layout import (
     NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X,
     NATIVE_RIGHT_VARIANT2_BOX_RESOURCE_PATH,
     NATIVE_HUMAN_TACTICS_SELECTOR_CONTROL_POSITIONS,
+    NATIVE_HUMAN_TACTICS_SCROLLER_ART,
+    NATIVE_HUMAN_TACTICS_SCROLLER_ATLAS_SIZE,
+    NATIVE_HUMAN_TACTICS_SCROLLER_CROP_SIZE,
+    NATIVE_HUMAN_TACTICS_SCROLLER_LEFT_OWNER,
+    NATIVE_HUMAN_TACTICS_SCROLLER_RIGHT_OWNER,
+    NATIVE_HUMAN_TACTICS_SCROLLER_LEFT_SOURCE_Y,
+    NATIVE_HUMAN_TACTICS_SCROLLER_RIGHT_SOURCE_Y,
     original_fastview_player_arrow_positions,
     original_fastview_bottom_arrow_positions,
     OriginalFastViewTacticsArrowPosition,
@@ -84,6 +91,40 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
                 self.assertEqual(pe.read(native_event_site, 2), bytes([0x6A, event]))
                 expected = bytes([0x68]) + pack("<I", y) + bytes([0x68]) + pack("<I", x)
                 self.assertEqual(pe.read(native_geometry_site, len(expected)), expected)
+
+    def test_native_selector_uses_original_scroller_art_not_player_arrows(self):
+        self.assertEqual(NATIVE_HUMAN_TACTICS_SCROLLER_ART,
+                         "FM2001_Art/Generic/GenericButtonsAndBars/scroller_hori.444")
+        self.assertEqual(NATIVE_HUMAN_TACTICS_SCROLLER_ATLAS_SIZE, (100, 36))
+        self.assertEqual(NATIVE_HUMAN_TACTICS_SCROLLER_CROP_SIZE, (25, 18))
+        self.assertEqual((NATIVE_HUMAN_TACTICS_SCROLLER_LEFT_OWNER,
+                          NATIVE_HUMAN_TACTICS_SCROLLER_RIGHT_OWNER),
+                         (0x947050, 0x947030))
+        self.assertEqual((NATIVE_HUMAN_TACTICS_SCROLLER_LEFT_SOURCE_Y,
+                          NATIVE_HUMAN_TACTICS_SCROLLER_RIGHT_SOURCE_Y), (0, 18))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original EXE source not mounted")
+    def test_native_selector_resource_loader_and_crop_not_arrow_substitution(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x5F2C44, "68 18 50 83 00"),  # source scroller_hori filename
+            (0x5F2C49, "b9 70 70 94 00"),  # actual filename loader owner
+            (0x5F2C99, "6a 12 6a 19"),     # 18x25 crop
+            (0x5F2CA1, "68 70 70 94 00"),  # same original resource owner
+            (0x5F2CA6, "b9 50 70 94 00"),  # left button sprite owner
+            (0x5F2CD9, "6a 12 6a 19"),     # same crop size, different source y
+            (0x5F2CDD, "6a 12 6a 00"),     # variant source offset 18, x0
+            (0x5F2CE1, "68 70 70 94 00"),
+            (0x5F2CE6, "b9 30 70 94 00"),  # right button sprite owner
+            (0x52AF24, "c7 47 2c 50 70 94 00"), # original selector left
+            (0x52B016, "89 5f 2c"),        # selector right sprite pointer assigned
+        )
+        for address, encoded in sites:
+            with self.subTest(address=hex(address)):
+                expected = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(expected)), expected)
 
     def test_unsupported_layout_claims_are_rejected(self):
         with self.assertRaises(ValueError):
