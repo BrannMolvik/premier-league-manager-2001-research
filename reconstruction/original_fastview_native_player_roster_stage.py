@@ -385,3 +385,87 @@ def source_fastview_original_formation_owner_413b40(
         return original_human_registry_club_ids_in_link_order.index(low16)
     except ValueError:
         return None
+
+
+SOURCE_FASTVIEW_NATIVE_CLUB_PRIMARY_LABEL_VA = 0x40DA70
+SOURCE_FASTVIEW_NATIVE_CLUB_SECONDARY_LABEL_VA = 0x40DA90
+SOURCE_FASTVIEW_NATIVE_CLUB_HUMAN_LABEL_CHECK_VA = 0x403600
+SOURCE_FASTVIEW_NATIVE_CLUB_HUMAN_USER_LABEL_VA = 0x42C6D0
+SOURCE_FASTVIEW_NATIVE_CLUB_SECONDARY_FALLBACK_VA = 0x7BD668
+
+
+def source_fastview_original_native_header_titles_533480(
+    *, original_staged_side_1556: bytes,
+    original_club_record: bytes,
+    source_40da70_resolved_nul_title: bytes,
+    source_40da90_resolved_nul_title: bytes,
+    source_4037b0_human_controlled: bool,
+) -> bytes:
+    """Original 0x533480 header first/second C strings and ID metadata.
+
+    0x40DA70 calls native 0x403600 for nonempty controlled-manager
+    replacement, otherwise reads club+0x0C indirect string. 0x40DA90
+    assembles a different temporary text object from club+0xE0 and calls
+    0x5EFCD0/0x40E8A0, then 0x533480 reads returned object+4; an
+    original null object+4 pointer uses static global 0x7BD668.
+    Caller MUST provide both actual original returned NUL-byte strings
+    after those producers; never substitute a club label by guess.
+    Native string length is unchecked; this safe value-only model
+    refuses C strings which could overwrite adjacent original header
+    sections instead of simulating raw source memory corruption.
+    Original code ALSO decrements/frees the 0x40DA90 temporary owned
+    string's reference count through 0x686FE3 if needed. That is a
+    caller-owned reference lifecycle and is not executed here.
+    """
+    if type(original_staged_side_1556) is not bytes or len(original_staged_side_1556) != SOURCE_FASTVIEW_ROSTER_SIDE_BYTES:
+        raise SourceFastViewNativePlayerRosterError("exact original 1556-byte header stage required")
+    if type(original_club_record) is not bytes or len(original_club_record)<0xDA:
+        raise SourceFastViewNativePlayerRosterError("qualified original club+0xD8 WORD required")
+    if type(source_4037b0_human_controlled) is not bool:
+        raise SourceFastViewNativePlayerRosterError("source 4037B0 boolean required")
+    original_titles=(source_40da70_resolved_nul_title,source_40da90_resolved_nul_title)
+    for raw in original_titles:
+        if type(raw) is not bytes or b'\x00' not in raw:
+            raise SourceFastViewNativePlayerRosterError("original native title must be NUL-terminated immutable bytes")
+        # Contiguous source fields overlap unless each strcpy including
+        # terminator fits before the next region. Overflow is not replayed.
+        if raw.index(b'\x00')+1>0x40:
+            raise SourceFastViewNativePlayerRosterError("original title would overflow its bounded header field")
+    stage=bytearray(original_staged_side_1556)
+    for start,raw in ((0,source_40da70_resolved_nul_title),
+                      (0x40,source_40da90_resolved_nul_title)):
+        n=raw.index(b'\x00')+1
+        stage[start:start+n]=raw[:n]
+    pack_into('<I',stage,0x80,unpack_from('<I',original_club_record,4)[0])
+    pack_into('<I',stage,0x84,int(source_4037b0_human_controlled))
+    pack_into('<I',stage,0x88,source_fastview_original_header_mode_word_533980(
+        original_club_record=original_club_record))
+    return bytes(stage)
+
+
+def source_fastview_original_controlled_club_label_403600(
+    *, original_4037b0_is_human: bool,
+    original_42c6d0_user_text_nul: bytes | None,
+    original_club_fallback_name_nul: bytes,
+) -> bytes:
+    """Exact reached native 0x403600/0x40DA70 nonempty human-name choice.
+
+    Original native 0x403600 emits a nonnull pointer only if 4037B0 is
+    true AND 403850→42C6D0 yields a nonempty NUL C string. Native
+    0x40DA70 then uses that pointer; null falls back to club+0x0C
+    indirect name. Does not construct an original user or infer its text.
+    """
+    if type(original_4037b0_is_human) is not bool:
+        raise SourceFastViewNativePlayerRosterError("qualified original 4037B0 result required")
+    if (type(original_club_fallback_name_nul) is not bytes
+        or b'\x00' not in original_club_fallback_name_nul):
+        raise SourceFastViewNativePlayerRosterError("source club+0x0C dereferenced C string required")
+    if not original_4037b0_is_human:
+        if original_42c6d0_user_text_nul is not None:
+            raise SourceFastViewNativePlayerRosterError("unreached human name must not be supplied")
+        return original_club_fallback_name_nul
+    if (type(original_42c6d0_user_text_nul) is not bytes
+        or b'\x00' not in original_42c6d0_user_text_nul):
+        raise SourceFastViewNativePlayerRosterError("original human 42C6D0 title required")
+    return (original_42c6d0_user_text_nul if original_42c6d0_user_text_nul[0]
+            else original_club_fallback_name_nul)
