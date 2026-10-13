@@ -31,6 +31,12 @@ from original_fastview_tactics_selection import (
     source_fastview_6c2770_side_payload_value_only,
     SourceFastViewAuxChildInputOutcome,
     source_fastview_aux_child_input_outcome_651ac0,
+    source_fastview_633020_result_when_original_list_empty,
+    SOURCE_FASTVIEW_REPLACEMENT_COUNT_VISITOR_VA,
+    SOURCE_FASTVIEW_REPLACEMENT_COUNT_VTABLE,
+    SOURCE_FASTVIEW_REPLACEMENT_EDIT_VTABLE,
+    SOURCE_FASTVIEW_REPLACEMENT_EDIT_FORWARD_METHOD_VA,
+    SOURCE_FASTVIEW_REPLACEMENT_REPLAY_VISITOR_VA,
 )
 
 
@@ -612,6 +618,82 @@ class SourceFastViewAuxiliaryNativeSelectionTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va, len(bytes.fromhex(hx))), bytes.fromhex(hx))
 
+
+
+
+class SourceFastViewOriginalValidatorEmptyListTests(unittest.TestCase):
+    """Bounded first-call outcome; nonempty edit replay stays unmodeled."""
+
+    def test_native_empty_edit_list_short_circuits_with_zero_al(self):
+        self.assertEqual(
+            source_fastview_633020_result_when_original_list_empty(
+                original_staged_edit_count=0),
+            0
+        )
+
+    def test_nonempty_source_edit_list_never_implies_accepted_or_rejected(self):
+        for count in (1, 2, 11, 100, 0xFFFFFFFF):
+            with self.subTest(count=count), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_633020_result_when_original_list_empty(
+                    original_staged_edit_count=count
+                )
+
+    def test_invalid_source_counts_fail_closed(self):
+        for count in (-1, None, False, True, 0.0, 1.0, "0", 0x100000000):
+            with self.subTest(count=repr(count)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_633020_result_when_original_list_empty(
+                    original_staged_edit_count=count
+                )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private EXE not mounted")
+    def test_authenticated_633020_count_visitor_and_polymorphic_replay_gates(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(SOURCE_FASTVIEW_REPLACEMENT_COUNT_VISITOR_VA, 0x633240)
+        self.assertEqual(SOURCE_FASTVIEW_REPLACEMENT_COUNT_VTABLE, 0x7D803C)
+        self.assertEqual(SOURCE_FASTVIEW_REPLACEMENT_EDIT_VTABLE, 0x7D7F90)
+        self.assertEqual(SOURCE_FASTVIEW_REPLACEMENT_EDIT_FORWARD_METHOD_VA, 0x633600)
+        self.assertEqual(SOURCE_FASTVIEW_REPLACEMENT_REPLAY_VISITOR_VA, 0x6331A0)
+        probes = (
+            (0x52EBFB, "8d 86 a4 48 00 00"),
+            (0x52EC0D, "e8 0e 44 10 00"),
+            (0x52EC15, "84 c0 75 7d"),
+            (0x63303F, "57 e8 fb 01 00 00"),
+            (0x63304E, "3b c6"),
+            (0x633058, "0f 84 20 01 00 00"),
+            (0x63317E, "8a c1"),
+            (0x63317F, "c1"),
+            (0x633261, "8d 4c 24 10"),
+            (0x633265, "89 74 24 0c"),
+            (0x633287, "8b 11 ff 52 04"),
+            (0x633295, "8b 74 24 08"),
+            (0x6332AE, "8b c6"),
+            (0x6331FF, "8b 01 ff 50 04"),
+            (0x63320D, "8d 4c 24 0c"),
+            (0x633211, "e8 da 1b 00 00"),
+            (0x634DF0, "8a 41 09 c3"),
+            (0x634E40, "8b 41 04 ff 00 c2 04 00"),
+            (0x633600, "8b c1"),
+            (0x633607, "8b 11 ff 52 04"),
+            (0x6335E1, "c7 06 90 7f 7d 00"),
+        )
+        for va, h in probes:
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(h))), bytes.fromhex(h))
+        import struct as _struct
+        self.assertEqual(
+            _struct.unpack("<I", pe.read(0x7D803C + 4, 4))[0],
+            0x634E40
+        )
+        self.assertEqual(
+            _struct.unpack("<I", pe.read(0x7D7F90 + 4, 4))[0],
+            0x633600
+        )
 
 if __name__ == "__main__":
     unittest.main()
