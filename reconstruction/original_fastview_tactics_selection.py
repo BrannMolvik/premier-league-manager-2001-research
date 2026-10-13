@@ -1515,3 +1515,70 @@ def source_fastview_popup_native_option_rows_6510f0(
         )
         for i in range(native_option_count)
     )
+
+
+# Original native popup option *activation* source (not pixel hit):
+# 0x6510F0's vft+0x9C 0x449470 constructs each rich option at
+# +0x17C bytes and stores list_parent+0x4C option data item pointer
+# +8*row_index into the option object+0x70. Its final class vtable
+# 0x7C0334 has vft+0x10=0x653A10. The original 0x6511B4 writes
+# option+0x68 = list_parent+0x3C + ordinal. At 0x653A10 a NONZERO
+# callback argument (DWORD) loads the *WORD* at item+0x68, follows
+# item+0x08 list-parent pointer then owner+0x24 popup pointer, and
+# invokes 0x6539F0. That method POSTS WM_USER=0x400 and native WORD
+# index to the parent modal, which returns this index to 0x651AC0.
+# No pixel hit-testing, event timing or actual mouse transport proven.
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_FACTORY_VA = 0x449470
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ALLOC_BYTES = 0x17C
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_VTABLE = 0x7C0334
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_EVENT_VFT_OFFSET = 0x10
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_EVENT_METHOD_VA = 0x653A10
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_SOURCE_ITEM_POINTER_OFFSET = 0x70
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_INDEX_DWORD_OFFSET = 0x68
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_LIST_PARENT_OFFSET = 0x08
+SOURCE_FASTVIEW_POPUP_LIST_TO_POPUP_OWNER_OFFSET = 0x24
+
+
+@dataclass(frozen=True)
+class SourceFastViewOriginalPopupOptionActivation:
+    native_option_ordinal: int
+    source_item_record_byte_offset: int
+    native_option_index_dword: int
+    posted_wm_user: SourceFastViewPopupPostedMessage | None
+
+
+def source_fastview_original_popup_option_activation_653a10(
+    *, original_option_ordinal: int,
+    original_list_index_base: int,
+    original_option_count: int,
+    native_callback_argument: int,
+) -> SourceFastViewOriginalPopupOptionActivation:
+    """Source-bounded row-object callback result, NOT mouse hit inference.
+
+    The native vft+0x10 callback posts only when its input argument
+    is nonzero. On activation the original item+0x68 DWORD is read as
+    a WORD (selected index wraps modulo 2^16) before calling 0x6539F0.
+    The list item data pointer is list+8*ordinal. Must independently
+    prove a real HWND and pointer/controller route to deliver the
+    POST; this function does not send an event or edit a match.
+    """
+    values=(original_option_ordinal,original_list_index_base,
+            original_option_count,native_callback_argument)
+    if any(type(v) is not int or not 0 <= v <= 0xFFFFFFFF for v in values):
+        raise SourceFastViewTacticsSelectionError("original option callback DWORDs required")
+    if original_option_count > (0x7FFFFFFF-4)//SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_SIZE:
+        raise SourceFastViewTacticsSelectionError("native child-array size overflow")
+    if original_option_ordinal >= original_option_count:
+        raise SourceFastViewTacticsSelectionError("original item ordinal outside list")
+    if original_list_index_base+original_option_ordinal > 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original child index DWORD overflow")
+    source_index=original_list_index_base+original_option_ordinal
+    posted=(source_fastview_popup_posted_message_from_event(
+        native_event_word=source_index & 0xFFFF)
+        if native_callback_argument else None)
+    return SourceFastViewOriginalPopupOptionActivation(
+        native_option_ordinal=original_option_ordinal,
+        source_item_record_byte_offset=8*original_option_ordinal,
+        native_option_index_dword=source_index,
+        posted_wm_user=posted,
+    )
