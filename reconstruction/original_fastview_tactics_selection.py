@@ -1220,3 +1220,106 @@ def source_fastview_x133_native_input_route_52d0d0(
     return OriginalFastViewX133InputRoute(
         first_reached, first_row, False, True, inner, slots
     )
+
+
+# Native x133 child option list identity and actual user-choice remap:
+# FastView constructor 0x5280B4 sets edi = screen+0x4864 and passes it
+# to 0x5D71A0 -> 0x651A50; that constructor stores the list pointer
+# as child+0x38. First parent callback 0x52E3C0 calls 0x52F690,
+# which constructs original list-pair entries (text DWORD pointer,
+# UINT32 ordinal) at screen+0x4864+8*ordinal and maps each ordinal
+# to a real source player index at screen+0x4848+4*ordinal. Native
+# text buffers are at screen+0x4768+0x20*ordinal. 0x52F80D writes
+# a NULL text pointer terminal. Native 0x651AC0 obtains selection
+# from collection vft+0x20 and writes its *ordinal* at child+0x3C
+# (unless 0xFFFF sentinel); human 0x52E3F0 subsequently resolves the
+# actual selected player via original screen+0x4848[ordinal].
+# This is NOT a source full name/44 renderer or a mouse hit-test.
+SOURCE_FASTVIEW_X133_OPTIONS_SCREEN_OFFSET = 0x4864
+SOURCE_FASTVIEW_X133_PLAYER_INDEX_SCREEN_OFFSET = 0x4848
+SOURCE_FASTVIEW_X133_TEXT_SCREEN_OFFSET = 0x4768
+SOURCE_FASTVIEW_X133_TEXT_BUFFER_STRIDE = 0x20
+SOURCE_FASTVIEW_X133_OPTION_PAIR_STRIDE = 8
+SOURCE_FASTVIEW_X133_PLAYER_INDEX_STRIDE = 4
+SOURCE_FASTVIEW_X133_OPTION_CTOR_OWNER_VA = 0x5280B4
+SOURCE_FASTVIEW_X133_OPTION_APPEND_VA = 0x52F7D2
+SOURCE_FASTVIEW_X133_OPTION_TERMINATE_VA = 0x52F80D
+SOURCE_FASTVIEW_X133_SELECTED_ORDINAL_FIELD_OFFSET = 0x3C
+
+
+@dataclass(frozen=True)
+class SourceFastViewX133NativeOption:
+    """Original source array offsets and player indices only, not text."""
+    ordinal: int
+    source_roster_slot: int
+    actual_player_index: int
+
+    @property
+    def original_native_text_buffer_offset(self) -> int:
+        return SOURCE_FASTVIEW_X133_TEXT_SCREEN_OFFSET + self.ordinal * SOURCE_FASTVIEW_X133_TEXT_BUFFER_STRIDE
+
+    @property
+    def original_native_pair_offset(self) -> int:
+        return SOURCE_FASTVIEW_X133_OPTIONS_SCREEN_OFFSET + self.ordinal * SOURCE_FASTVIEW_X133_OPTION_PAIR_STRIDE
+
+    @property
+    def original_native_player_map_offset(self) -> int:
+        return SOURCE_FASTVIEW_X133_PLAYER_INDEX_SCREEN_OFFSET + self.ordinal * SOURCE_FASTVIEW_X133_PLAYER_INDEX_STRIDE
+
+
+def source_fastview_x133_original_option_slots_from_candidates(
+    *, original_source_candidates: tuple[SourceFastViewNativeCandidate, ...]
+) -> tuple[SourceFastViewX133NativeOption, ...]:
+    """Source original 0x52F690 pairs, in accepted roster-slot order.
+
+    Accepts only already-verified original candidate order from
+    source_fastview_native_candidates_52f690. It does not fabricate
+    original club/player names, art, option navigation, popup pixels,
+    hit regions, or a selected dropdown value. Required original pair
+    text pointers and terminal NULL are native runtime state, not
+    re-created by this immutable ordinal projection.
+    """
+    if type(original_source_candidates) is not tuple:
+        raise SourceFastViewTacticsSelectionError("original candidates must be tuple")
+    seen = set()
+    last_slot = 10
+    options = []
+    for ordinal, source in enumerate(original_source_candidates):
+        if type(source) is not SourceFastViewNativeCandidate:
+            raise SourceFastViewTacticsSelectionError("unverified source candidate type")
+        if (type(source.source_roster_slot) is not int or
+            not 11 <= source.source_roster_slot < 256 or
+            source.source_roster_slot <= last_slot or
+            type(source.mapped_player_index) is not int or
+            not 0 <= source.mapped_player_index < 256 or
+            source.mapped_player_index in seen):
+            raise SourceFastViewTacticsSelectionError(
+                "native source roster ordering/player remap snapshot required"
+            )
+        last_slot = source.source_roster_slot
+        seen.add(source.mapped_player_index)
+        options.append(SourceFastViewX133NativeOption(
+            ordinal, source.source_roster_slot, source.mapped_player_index))
+    return tuple(options)
+
+
+def source_fastview_x133_original_selected_player_from_ordinal(
+    *, original_options: tuple[SourceFastViewX133NativeOption, ...],
+    native_child_selected_ordinal: int
+) -> int:
+    """Native screen+0x4848[child+0x3C] mapping, never slot identity.
+
+    Use only following a source-proven status0 native popup choice.
+    An 0xFFFF sentinel or out-of-range index is not a replacement.
+    Caller must separately check the original +0x40 child status.
+    """
+    if type(original_options) is not tuple or any(
+        type(v) is not SourceFastViewX133NativeOption or
+        v.ordinal != i for i,v in enumerate(original_options)
+    ):
+        raise SourceFastViewTacticsSelectionError("exact original native option ordinal sequence required")
+    if type(native_child_selected_ordinal) is not int or not (
+        0 <= native_child_selected_ordinal < len(original_options)
+    ):
+        raise SourceFastViewTacticsSelectionError("valid original native option index required")
+    return original_options[native_child_selected_ordinal].actual_player_index
