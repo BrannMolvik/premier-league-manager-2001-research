@@ -407,6 +407,11 @@ SOURCE_FASTVIEW_AUX_CHILD_PARENT_OFFSET = 0x24
 SOURCE_FASTVIEW_AUX_CHILD_SELECTED_RENDER_OWNER_OFFSET = 0x34
 SOURCE_FASTVIEW_AUX_CHILD_ROW_ITEM_ARRAY_OFFSET = 0x38
 SOURCE_FASTVIEW_AUX_CHILD_PARENT_CALLBACK_VSLOT = 0x10
+# The wrapper 0x651AC6 deliberately PUSHes 0 as the base 0x64F7A0
+# SECOND argument; both native base parent callback+0x0C and +0x10
+# explicitly require that argument nonzero at 0x64F7CF/0x64F811.
+# Thus this exact child wrapper cannot double-deliver from its base call.
+SOURCE_FASTVIEW_AUX_CHILD_BASE_PARENT_CALLBACK_ARG = 0
 
 
 @dataclass(frozen=True)
@@ -416,6 +421,17 @@ class SourceFastViewAuxChildInputOutcome:
     source_status_byte: int | None
     source_saved_selected_index: int | None
     native_parent_second_callback_reached: bool
+
+    @property
+    def source_parent_callbacks_from_this_child_route(self) -> tuple[int, ...]:
+        """Callback slots from exactly native 0x651AC0 wrapper, not all controls.
+
+        Its nested base 0x64F7A0 runs with callback-permission arg0 and
+        invokes NEITHER parent callback. The child can invoke +0x10
+        ONCE at 0x651B55 when its separate gates pass, including after
+        0xFFFF sentinel status1. Never infer actual click acceptance.
+        """
+        return (0x10,) if self.native_parent_second_callback_reached else ()
 
 
 def source_fastview_aux_child_input_outcome_651ac0(
@@ -846,3 +862,361 @@ def source_fastview_634b00_matched_chain_payload_value_only(
         - (1 if original_club_guard_flags[requested_to_index] != 0 else 0)
     ) & 0xFF
     return OriginalFastViewTacticsSelectionDraft(bytes(side))
+
+
+# 0x633020 with EXACTLY ONE prior 0x7D7F90 replacement record
+# (and no other staged records) runs exactly one 0x6331A0 replay pass.
+# Its visitor is initialized with skip DWORD+4=0 (native loop index
+# EBX=0), BYTE status8=0 and BYTE status9=0. The single old record's
+# virtual+4 calls 0x634B00:
+# - old.to == requested.from => new replacement (old.from, requested.to)
+#   is constructed at 0x634BB8, old deleted and the 0x634C1D side
+#   change executes, setting visitor+9=1 and validator AL1.
+# - old.to != requested.from => old record is re-appended unchanged at
+#   0x634CFD..0x634D3F, sets visitor+8=1, visitor+9 stays0, AL0.
+# After AL0, original 0x52EC23 invokes fresh 0x6C2770. Neither that
+# later call nor original click/status/selection gates run here.
+SOURCE_FASTVIEW_SINGLE_REPLACEMENT_REPLAY_CALLER_VA = 0x633107
+SOURCE_FASTVIEW_SINGLE_REPLACEMENT_REPLAY_INITIAL_SKIP = 0
+SOURCE_FASTVIEW_SINGLE_REPLACEMENT_CLASS_VTABLE = 0x7D7F90
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativeReplacementRecord:
+    """Original 0x6335D0 record's two DWORD fields (+4,+8)."""
+    native_from_index: int
+    native_to_index: int
+
+    def __post_init__(self) -> None:
+        for value in (self.native_from_index, self.native_to_index):
+            if type(value) is not int or not 0 <= value <= 0xFFFFFFFF:
+                raise SourceFastViewTacticsSelectionError(
+                    "original native replacement record DWORD required"
+                )
+
+
+@dataclass(frozen=True)
+class SourceFastViewOneReplacementReplayValue:
+    """Only original one-existing-record replay outcome, NOT live GUI."""
+    replay_validator_al: int
+    replacement_record_after_replay: SourceFastViewNativeReplacementRecord
+    side_after_replay: OriginalFastViewTacticsSelectionDraft
+    fresh_replacement_source_call_reachable: bool
+
+
+def source_fastview_633020_one_existing_replacement_replay_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, original_single_replacement_record: SourceFastViewNativeReplacementRecord,
+    requested_from_index: int, requested_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> SourceFastViewOneReplacementReplayValue:
+    """Source-exact one-record replay, with independent prior caller gates.
+
+    This helper requires caller-proven original native list inventory:
+    EXACTLY ONE previously staged class0x7D7F90 replacement, NO other
+    types. It cannot discover that from a mouse click or a total count.
+    The source 0x633020 clears the list and replays one node before
+    returning. For this 1-record case, the only reached 0x634B00
+    branches are matched chain or mismatched prior destination.
+
+    The result does not perform the subsequent 0x6C2770 fresh write
+    even when AL0, does not commit the side buffer, and does not model
+    native event, match state, PResults, or management return. All
+    external +0x40/dropdown/row/club/side validity must still be proven.
+    """
+    if type(original_side) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("authentic side draft required")
+    if type(original_single_replacement_record) is not SourceFastViewNativeReplacementRecord:
+        raise SourceFastViewTacticsSelectionError("authenticated single source replacement record required")
+    if type(requested_from_index) is not int or not 0 <= requested_from_index <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native requested source DWORD required")
+    if type(requested_to_index) is not int or not 0 <= requested_to_index <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native requested destination DWORD required")
+    if type(original_club_guard_flags) is not tuple or any(
+        type(value) is not int or not 0 <= value <= 255 for value in original_club_guard_flags
+    ):
+        raise SourceFastViewTacticsSelectionError("native club guard BYTE snapshot required")
+    old = original_single_replacement_record
+    if old.native_to_index != requested_from_index:
+        return SourceFastViewOneReplacementReplayValue(
+            replay_validator_al=0,
+            replacement_record_after_replay=old,
+            side_after_replay=original_side,
+            fresh_replacement_source_call_reachable=True,
+        )
+    edited_side = source_fastview_634b00_matched_chain_payload_value_only(
+        original_side, requested_from_index=requested_from_index,
+        requested_to_index=requested_to_index,
+        original_club_guard_flags=original_club_guard_flags,
+    )
+    # Original 0x634BB8 passes new target and the previous replacement's
+    # +4 from-player field, recreating a single native 0x6335D0 record.
+    new_record = SourceFastViewNativeReplacementRecord(
+        old.native_from_index, requested_to_index
+    )
+    return SourceFastViewOneReplacementReplayValue(
+        replay_validator_al=1,
+        replacement_record_after_replay=new_record,
+        side_after_replay=edited_side,
+        fresh_replacement_source_call_reachable=False,
+    )
+
+
+@dataclass(frozen=True)
+class SourceFastViewOneReplacementFollowupValue:
+    """Original bounded after-validator state; no live game-world mutation."""
+    native_validator_al: int
+    source_followup_6c2770_was_applied: bool
+    original_side_after: OriginalFastViewTacticsSelectionDraft
+    original_staged_replacements_after: tuple[SourceFastViewNativeReplacementRecord, ...]
+
+
+def source_fastview_one_prior_replacement_followup_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, native_child_status_byte: int,
+    original_single_replacement_record: SourceFastViewNativeReplacementRecord,
+    native_current_mapped_from_index: int,
+    native_selected_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> SourceFastViewOneReplacementFollowupValue:
+    """Exact 1-prior-replacement value effects of 0x633020 + caller 0x52EC23.
+
+    Caller MUST independently source-qualify actual native pointer/child
+    callback delivery, current club/side, selected dropdown, row/player
+    mapping and original edit-list inventory exactly one replacement with
+    no other native records. This is a pure bounded transition, never an
+    authorization to dispatch a click or commit a match.
+
+    When the old target matches requested new source, native 0x634B00
+    rewrites its one staged record and original side, then returns AL1,
+    so human 0x52EC17 SKIPS fresh 0x6C2770.
+    Otherwise the old record is preserved, AL0, and the real handler
+    0x52EC23 invokes 0x6C2770, then queues new 0x6335D0 record and
+    increments native edit-list count. The existing source-constrained
+    0x6C2770 helper intentionally fails closed if it cannot locate
+    required original ordering indices rather than fabricating them.
+    """
+    if not source_fastview_guarded_status_allows_followup(native_child_status_byte):
+        raise SourceFastViewTacticsSelectionError("native row +0x40 status disallows followup")
+    replay = source_fastview_633020_one_existing_replacement_replay_value_only(
+        original_side,
+        original_single_replacement_record=original_single_replacement_record,
+        requested_from_index=native_current_mapped_from_index,
+        requested_to_index=native_selected_to_index,
+        original_club_guard_flags=original_club_guard_flags,
+    )
+    if replay.replay_validator_al != 0:
+        return SourceFastViewOneReplacementFollowupValue(
+            1, False, replay.side_after_replay,
+            (replay.replacement_record_after_replay,)
+        )
+    fresh_side = source_fastview_6c2770_side_payload_value_only(
+        replay.side_after_replay,
+        source_from_player_index=native_current_mapped_from_index,
+        source_to_player_index=native_selected_to_index,
+        source_club_guard_flags=original_club_guard_flags,
+    )
+    return SourceFastViewOneReplacementFollowupValue(
+        0, True, fresh_side,
+        (
+            replay.replacement_record_after_replay,
+            SourceFastViewNativeReplacementRecord(
+                native_current_mapped_from_index,
+                native_selected_to_index,
+            ),
+        ),
+    )
+
+
+def source_fastview_two_distinct_prior_replacements_followup_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, native_child_status_byte: int,
+    original_two_replacement_records: tuple[
+        SourceFastViewNativeReplacementRecord,
+        SourceFastViewNativeReplacementRecord,
+    ],
+    native_current_mapped_from_index: int,
+    native_selected_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> SourceFastViewOneReplacementFollowupValue:
+    """Source-bounded TWO prior replacements, distinct original targets.
+
+    Source 0x633020 calls 0x6331A0 precisely once per original native
+    replacement-class node. 0x6348E0 initializes visitor DWORD+4 from
+    the outer loop index. 0x634B00 forwards/skips previous replacement
+    nodes while decrementing that index, then processes the current
+    node; its replay status8/status9 is local to THAT visitor pass.
+    Earlier matched chains still contribute to the outer OR of AL.
+    This narrow projection admits two prior replacement records ONLY,
+    with distinct previous targets so no unverified repeated alias
+    chain on the same requested source can occur.
+
+    Each pass preserves native old-node relative order; a matching
+    record is replaced in-place in that source order, updates the
+    original side via 0x634C1D and yields AL1 for that pass; no match
+    preserves that original record and yields AL0. When neither
+    pass chains, 0x52EC23 applies fresh 0x6C2770 then the caller
+    appends one 0x6335D0 record. This helper models only original
+    values under caller-qualified native event/list state; it never
+    simulates Win32 controls, commits match state or invents a PResult.
+    """
+    if not source_fastview_guarded_status_allows_followup(native_child_status_byte):
+        raise SourceFastViewTacticsSelectionError("native +0x40 child status blocks original edit")
+    if (type(original_two_replacement_records) is not tuple or
+            len(original_two_replacement_records) != 2 or
+            any(type(x) is not SourceFastViewNativeReplacementRecord
+                for x in original_two_replacement_records)):
+        raise SourceFastViewTacticsSelectionError("exact two original replacement-only nodes required")
+    first, second = original_two_replacement_records
+    if first.native_to_index == second.native_to_index:
+        raise SourceFastViewTacticsSelectionError(
+            "duplicate prior replacement targets require separate native chain alias proof"
+        )
+    if type(original_side) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("original side draft required")
+    if type(native_current_mapped_from_index) is not int or not (
+        0 <= native_current_mapped_from_index <= 0xFFFFFFFF
+    ) or type(native_selected_to_index) is not int or not (
+        0 <= native_selected_to_index <= 0xFFFFFFFF
+    ):
+        raise SourceFastViewTacticsSelectionError("original native source and target DWORDs required")
+    if type(original_club_guard_flags) is not tuple or any(
+        type(f) is not int or not 0 <= f <= 255 for f in original_club_guard_flags
+    ):
+        raise SourceFastViewTacticsSelectionError("native club BYTE guards required")
+
+    updated_side = original_side
+    records = []
+    any_matched = False
+    for prior in (first, second):
+        if prior.native_to_index == native_current_mapped_from_index:
+            updated_side = source_fastview_634b00_matched_chain_payload_value_only(
+                updated_side,
+                requested_from_index=native_current_mapped_from_index,
+                requested_to_index=native_selected_to_index,
+                original_club_guard_flags=original_club_guard_flags,
+            )
+            records.append(SourceFastViewNativeReplacementRecord(
+                prior.native_from_index, native_selected_to_index
+            ))
+            any_matched = True
+        else:
+            records.append(prior)
+    if any_matched:
+        return SourceFastViewOneReplacementFollowupValue(
+            1, False, updated_side, tuple(records)
+        )
+    fresh = source_fastview_6c2770_side_payload_value_only(
+        updated_side, source_from_player_index=native_current_mapped_from_index,
+        source_to_player_index=native_selected_to_index,
+        source_club_guard_flags=original_club_guard_flags,
+    )
+    records.append(SourceFastViewNativeReplacementRecord(
+        native_current_mapped_from_index, native_selected_to_index
+    ))
+    return SourceFastViewOneReplacementFollowupValue(
+        0, True, fresh, tuple(records)
+    )
+
+
+# All eleven x133 FastView controls at screen+0x263C+0x44*row are
+# constructed as an actual 0x52DD30 object array by the original
+# FastViewTactics constructor 0x52D894..0x52D8A9 (native CRT vector
+# constructor 0x6687C1, count11, stride0x44). Original 0x52DD30 calls
+# 0x651A30 and assigns derived vtable 0x7CB010; virtual+0x6C is
+# 0x52D0D0, +0x98 0x52D120 and +0x9C 0x52D190.
+# Its outer input handler may dispatch original parent+0x0C FIRST,
+# veto the child if return zero, and otherwise invokes 0x651AC0.
+# The inner 0x651AC0 calls base 0x64F7A0 with callback argument ZERO,
+# suppressing base parent callbacks; it may itself call parent+0x10
+# once. This sequence is source-proven for the x133 fifth-family child,
+# NOT a blanket rule for all original input controls.
+SOURCE_FASTVIEW_X133_VECTOR_CTOR_OWNER_VA = 0x52D894
+SOURCE_FASTVIEW_X133_VECTOR_CTOR_VA = 0x6687C1
+SOURCE_FASTVIEW_X133_CHILD_CTOR_VA = 0x52DD30
+SOURCE_FASTVIEW_X133_CHILD_DERIVED_VTABLE_VA = 0x7CB010
+SOURCE_FASTVIEW_X133_INPUT_OUTER_VA = 0x52D0D0
+SOURCE_FASTVIEW_X133_INPUT_INNER_VA = 0x651AC0
+SOURCE_FASTVIEW_X133_INPUT_OUTER_FIRST_CALLBACK_VSLOT = 0x0C
+SOURCE_FASTVIEW_X133_INPUT_INNER_SECOND_CALLBACK_VSLOT = 0x10
+SOURCE_FASTVIEW_X133_CHILD_ROW_COUNT = 11
+SOURCE_FASTVIEW_X133_CHILD_ROW_STRIDE = 0x44
+SOURCE_FASTVIEW_X133_CHILD_ROW_ZERO_OFFSET = 0x263C
+
+
+@dataclass(frozen=True)
+class OriginalFastViewX133InputRoute:
+    """Original callback delivery stages, not a synthetic mouse input."""
+    source_first_callback_reached: bool
+    source_first_callback_refresh_row: int | None
+    source_first_callback_vetoed_child: bool
+    source_inner_child_reached: bool
+    source_inner_child_outcome: SourceFastViewAuxChildInputOutcome | None
+    source_parent_callback_slots: tuple[int, ...]
+
+
+def source_fastview_x133_native_input_route_52d0d0(
+    *, native_child_flags: int,
+    native_registered_event_id: int | None,
+    original_parent_first_callback_return: int | None,
+    inner_original_base_dispatch_result: int | None,
+    inner_original_native_selection_index: int | None,
+    original_child_second_callback_argument_nonzero: bool,
+) -> OriginalFastViewX133InputRoute:
+    """Source-order 0x52D0D0 -> 0x651AC0 x133 child dispatch contract.
+
+    The source outer first-callback is gated by native bit1 set, bit4
+    clear, and registered child event+0x20 nonzero. With these gates,
+    parent vft+0x0C is invoked (0x52E3C0 for FastViewTactics), which
+    on 0x8877AE..0x8877B8 rows calls the SOURCE row refresh 0x52F690.
+    Parent first return zero vetoes ALL inner child processing.
+    When outer first-callback not eligible, it nevertheless forwards
+    to the child. The inner child calls base with SECOND arg0 so it
+    cannot duplicate callbacks, but can itself invoke parent +0x10
+    after selection under independent child event/input gates.
+
+    This is not a pointer hit-test, mouse-up semantic, modal owner,
+    player replacement permission, or genuine match writeback.
+    """
+    if type(native_child_flags) is not int or not 0 <= native_child_flags <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native child flags DWORD required")
+    if native_registered_event_id is not None and (
+        type(native_registered_event_id) is not int or
+        not 0 <= native_registered_event_id <= 0xFFFFFFFF
+    ):
+        raise SourceFastViewTacticsSelectionError("original child event DWORD required")
+    if type(original_child_second_callback_argument_nonzero) is not bool:
+        raise SourceFastViewTacticsSelectionError("original child second argument gate required")
+    registered = native_registered_event_id is not None and native_registered_event_id != 0
+    first_reached = (
+        source_fastview_native_base_dispatch_flags_allow_processing(native_child_flags)
+        and registered
+    )
+    if first_reached:
+        if type(original_parent_first_callback_return) is not int or not (
+            0 <= original_parent_first_callback_return <= 0xFFFFFFFF
+        ):
+            raise SourceFastViewTacticsSelectionError("native first parent callback result required")
+        first_row = source_fastview_first_callback_8877ae_row(native_registered_event_id)
+        if original_parent_first_callback_return == 0:
+            if inner_original_base_dispatch_result is not None or inner_original_native_selection_index is not None:
+                raise SourceFastViewTacticsSelectionError("source outer parent veto prevents inner input")
+            return OriginalFastViewX133InputRoute(True, first_row, True, False, None, (0x0C,))
+    else:
+        if original_parent_first_callback_return is not None:
+            raise SourceFastViewTacticsSelectionError("unreached parent first callback must not be invented")
+        first_row = None
+    if type(inner_original_base_dispatch_result) is not int or not (
+        0 <= inner_original_base_dispatch_result <= 0xFFFFFFFF
+    ):
+        raise SourceFastViewTacticsSelectionError("original reached inner base return required")
+    inner = source_fastview_aux_child_input_outcome_651ac0(
+        base_dispatch_result=inner_original_base_dispatch_result,
+        native_selection_index=inner_original_native_selection_index,
+        child_has_registered_event=registered,
+        child_input_callback_argument_nonzero=original_child_second_callback_argument_nonzero,
+    )
+    slots = ((0x0C,) if first_reached else ()) + inner.source_parent_callbacks_from_this_child_route
+    return OriginalFastViewX133InputRoute(
+        first_reached, first_row, False, True, inner, slots
+    )
