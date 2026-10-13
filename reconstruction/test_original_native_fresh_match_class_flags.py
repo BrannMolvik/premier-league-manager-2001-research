@@ -2,12 +2,17 @@
 from __future__ import annotations
 import os
 from pathlib import Path
+from dataclasses import replace
 from itertools import product
 from struct import pack
 import unittest
 
+from original_schedule_event_native_constructor import (
+    source_original_schedule_event_constructor_510380,
+)
 from original_native_fresh_match_class_flags import (
     OriginalFreshMatchFlagsSourceError,
+    source_original_fresh_match_event_serial_510380,
     SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS,
     SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS,
     SOURCE_ORIGINAL_INHERITS_CUP_FLAGS_NATIVE_KINDS,
@@ -80,6 +85,60 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
             with self.subTest(vtable=vt,inputs=args),self.assertRaises(
                 OriginalFreshMatchFlagsSourceError):
                 original_fresh(vt,args)
+
+    def test_original_fresh_collection_selected_serial_even_odd_and_increment(self):
+        for vt,args in (
+            (0x7C4C24,None),
+            (0x7C9D9C,(0,0,0)),
+            (0x7C9D9C,(0,1,0)),
+            (0x7C9EF8,(1,0,1)),
+        ):
+            for before in (0,1,0x7FFFFFFF,0xFFFFFFFF):
+                with self.subTest(vtable=hex(vt),flags=args,serial=before):
+                    source=original_fresh(vt,args)
+                    got=source_original_fresh_match_event_serial_510380(
+                        qualified_fresh_source_match=source,
+                        original_selected_collection_counter_before=before)
+                    direct=source_original_schedule_event_constructor_510380(
+                        original_uninitialized_event_record=bytes(0x14),
+                        original_collection_pointer=source.source_native_date_collection_pointer,
+                        original_collection_serial_counter_before=before)
+                    self.assertEqual(got.source_original_event_id_dword_0c,
+                                     direct.source_event_id_dword_0c)
+                    self.assertEqual(got.original_selected_collection_counter_after,
+                                     direct.source_collection_counter_after_constructor)
+                    self.assertEqual(got.source_original_event8_immediately_after_constructor,0)
+                    self.assertFalse(got.original_live_registry_pointer_is_known)
+
+    def test_forged_or_unqualified_initial_flags_and_owner_refuse_event_id(self):
+        valid=original_fresh(0x7C9D9C,(0,1,0))
+        forged=(
+            replace(valid,initial_original_flags44=0x20),
+            replace(valid,initial_original_flags44=True),
+            replace(valid,source_native_date_collection_pointer=0x947AF0),
+            replace(valid,source_native_date_collection_pointer=0xDEADBEEF),
+            replace(valid,source_original_event8_is_zero_immediately_after_constructor=False),
+            replace(valid,original_event_identity_is_known=True),
+            replace(valid,source_native_virtual28_kind=1),
+            replace(valid,original_native_class_vtable=0x7C4CE4),
+            replace(original_fresh(0x7C4C24),initial_original_flags44=4),
+        )
+        for item in forged:
+            with self.subTest(forged=item),self.assertRaises(
+                OriginalFreshMatchFlagsSourceError):
+                source_original_fresh_match_event_serial_510380(
+                    qualified_fresh_source_match=item,
+                    original_selected_collection_counter_before=3)
+        for bad in (None,True,False,-1,0x100000000,"5",2.0):
+            with self.subTest(counter=bad),self.assertRaises(
+                OriginalFreshMatchFlagsSourceError):
+                source_original_fresh_match_event_serial_510380(
+                    qualified_fresh_source_match=valid,
+                    original_selected_collection_counter_before=bad)
+        with self.assertRaises(OriginalFreshMatchFlagsSourceError):
+            source_original_fresh_match_event_serial_510380(
+                qualified_fresh_source_match=None,
+                original_selected_collection_counter_before=0)
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "private canonical original PE is not present in hosted CI")
