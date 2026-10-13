@@ -215,6 +215,48 @@ class OriginalPResultsSourceEventTests(unittest.TestCase):
                 original_event_second_club_record=None,
                 original_533830_country_indexes_germany_france_england=country)
 
+
+    def test_real_native_event_receipt_to_immutable_original_progress_timeline(self):
+        from original_presults_native_event_work import (
+            source_original_presults_immutable_tick_receipts_4a71f0,
+            OriginalPResultsDatedEventReceipt,
+            OriginalPResultsSourceCallback,
+        )
+        real=source_original_presults_native_current_date_two_pass_6168c0(
+            original_ordered_date_nodes=(
+                execution(101,first_pass_616990_human_owned=True),
+                execution(102,first_pass_616990_human_owned=False,
+                          first_pass_510c90_country_member=True)))
+        receipt=source_original_presults_immutable_tick_receipts_4a71f0(
+            source_6168c0_event_receipt=real,
+            original_before_processed_64=1,
+            original_live_denominator_68=4)
+        self.assertEqual(tuple(r.processed_count for r in receipt),(2,3))
+        self.assertEqual(tuple(r.total_count for r in receipt),(4,4))
+        self.assertEqual(tuple(r.native_width for r in receipt),(400,600))
+        # Native first/second event callbacks need not equal pre-count.
+        self.assertEqual(source_original_presults_immutable_tick_receipts_4a71f0(
+            source_6168c0_event_receipt=OriginalPResultsDatedEventReceipt((),False),
+            original_before_processed_64=0,original_live_denominator_68=0),())
+        over=source_original_presults_immutable_tick_receipts_4a71f0(
+            source_6168c0_event_receipt=OriginalPResultsDatedEventReceipt((
+                OriginalPResultsSourceCallback(1,2,0x10,0x4A71F0),),True),
+            original_before_processed_64=4,original_live_denominator_68=1)
+        self.assertEqual(over[0].processed_count,5)
+        self.assertEqual(over[0].native_width,4000)
+        for changes in (
+            {'source_6168c0_event_receipt':None},
+            {'original_before_processed_64':-1},
+            {'original_before_processed_64':True},
+            {'original_live_denominator_68':True},
+            {'original_before_processed_64':0x7FFFFFFF},
+        ):
+            with self.subTest(changes=changes),self.assertRaises(OriginalPResultsEventSourceError):
+                source_original_presults_immutable_tick_receipts_4a71f0(
+                    **(dict(source_6168c0_event_receipt=real,
+                            original_before_processed_64=1,
+                            original_live_denominator_68=4)|changes))
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),"owner original PE unavailable")
     def test_private_original_event_producer_opcode_gate(self):
         from gate13_button_source_trace import OriginalPE32
