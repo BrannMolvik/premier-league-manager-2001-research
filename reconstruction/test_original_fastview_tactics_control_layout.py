@@ -8,6 +8,16 @@ from original_fastview_tactics_control_layout import (
     NATIVE_TACTICS_PANEL_RECT,
     NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES,
     NATIVE_AUXILIARY_EVENT_FIELD_OFFSET,
+    NATIVE_FIRST_AUXILIARY_ROW_SIZE,
+    NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET,
+    NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE,
+    NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA,
+    NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA,
+    NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS,
+    NATIVE_SECOND_AUXILIARY_SOURCE_INITIAL_DIMENSIONS,
+    NATIVE_SECOND_AUXILIARY_INIT_SOURCE_VA,
+    NATIVE_SECOND_AUXILIARY_OWNER_CTOR_VA,
+    NATIVE_SECOND_AUXILIARY_RECT_WRAPPER,
     original_fastview_auxiliary_player_row_controls,
     OriginalFastViewTacticsAuxiliaryRowControl,
     NATIVE_FASTVIEW_MODAL_SIZE,
@@ -395,6 +405,150 @@ class NativeFastViewRemainingRowControlsTests(unittest.TestCase):
                          bytes.fromhex("8d 8e ac 5e 9b ff"))
         self.assertEqual(pe.read(0x52E323, 5),
                          bytes.fromhex("8b cd ff 50 08"))
+
+
+
+class NativeFastViewSourceSizedAuxiliaryRectangleTests(unittest.TestCase):
+    """Keep exact native rect provenance without guessing a click acceptance."""
+
+    def test_all_original_explicit_rects_and_dynamic_owner_fail_closed(self):
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_ROW_SIZE, (40, 16))
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA, 0x877820)
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS, (0x14, 0x18))
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_RECT_WRAPPER, 0x651A50)
+        controls = original_fastview_auxiliary_player_row_controls()
+        for row in range(11):
+            fixed, dynamic = controls[2*row:2*row+2]
+            with self.subTest(row=row):
+                self.assertEqual(
+                    fixed.native_source_rect_from_original_dimensions(),
+                    (80, 278 + 17*row, 40, 16)
+                )
+                with self.assertRaises(ValueError):
+                    dynamic.native_source_rect_from_original_dimensions()
+                # These are caller-supplied original owner fields, not
+                # reconstructed assumptions about the global bitmap resource.
+                self.assertEqual(
+                    dynamic.native_source_rect_from_original_dimensions(
+                        original_resource_dimensions=(16, 16)
+                    ), (133, 278 + 17*row, 16, 16))
+                with self.assertRaises(ValueError):
+                    fixed.native_source_rect_from_original_dimensions(
+                        original_resource_dimensions=(40, 16))
+
+        dynamic = controls[1]
+        for invalid in (None, (0, 16), (16, 0), (True, 16),
+                        (16, False), (-1, 16), (0x100000000, 1),
+                        (16.0, 16), [16, 16], (16,), (16, 16, 16),
+                        ("16", 16)):
+            with self.subTest(dimensions=repr(invalid)), self.assertRaises(ValueError):
+                dynamic.native_source_rect_from_original_dimensions(
+                    original_resource_dimensions=invalid)
+
+    def test_original_877820_initial_resource_dimensions_and_current_live_fields(self):
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_SOURCE_INITIAL_DIMENSIONS, (156, 16))
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_INIT_SOURCE_VA, 0x52CFF0)
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_OWNER_CTOR_VA, 0x64E460)
+        controls = original_fastview_auxiliary_player_row_controls()
+        for row in range(11):
+            fixed, dynamic = controls[2*row:2*row+2]
+            self.assertEqual(fixed.source_initial_native_rect(),
+                             (80, 278+17*row, 40, 16))
+            self.assertEqual(dynamic.source_initial_native_rect(),
+                             (133, 278+17*row, 156, 16))
+            self.assertEqual(dynamic.native_source_rect_from_original_dimensions(
+                original_resource_dimensions=(156, 16)),
+                dynamic.source_initial_native_rect())
+            # Do not replace live resource-derived geometry with a constant.
+            self.assertEqual(dynamic.native_source_rect_from_original_dimensions(
+                original_resource_dimensions=(140, 18)),
+                (133, 278+17*row, 140, 18))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Authenticated original executable is not mounted")
+    def test_private_original_initial_width_height_and_native_owner_setters(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source_sites = (
+            (0x52CFF0, "68 00 01 00 00 6a 00 6a 01 6a 10 68 9c 00 00 00"),
+            (0x52D000, "6a 00 6a 00 6a 00 68 20 78 87 00"),
+            (0x52D015, "e8 46 14 12 00"),
+            (0x64E464, "8b 9c 24 88 00 00 00"),
+            (0x64E471, "8b b4 24 8c 00 00 00"),
+            (0x64E4E0, "89 70 14"),
+            (0x64E4F0, "89 58 18"),
+            (0x651A57, "8b 48 18 8b 50 14"),
+        )
+        for va, value in source_sites:
+            with self.subTest(va=hex(va)):
+                expected = bytes.fromhex(value)
+                self.assertEqual(pe.read(va, len(expected)), expected)
+
+    def test_each_first_auxiliary_row_uses_real_screen_text_pointer(self):
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET, 0x374)
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE, 0x20)
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA, 0x87BEA0)
+        controls = original_fastview_auxiliary_player_row_controls()
+        for row in range(11):
+            first, second = controls[2*row:2*row+2]
+            with self.subTest(row=row):
+                self.assertEqual(first.native_original_text_buffer_offset,
+                                 0x374+0x20*row)
+                self.assertEqual(first.native_original_text_resource_owner_va,
+                                 0x87BEA0)
+                self.assertIsNone(second.native_original_text_buffer_offset)
+                self.assertIsNone(second.native_original_text_resource_owner_va)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Authenticated original executable is not mounted")
+    def test_original_all_eleven_text_pointer_source_sites(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        first_call_sites = (
+            0x527FBE, 0x5283AC, 0x5287BA, 0x528BE3, 0x52900C,
+            0x52943B, 0x529879, 0x529CC3, 0x52A116, 0x52A56C,
+            0x52A9C2,
+        )
+        for row, va in enumerate(first_call_sites):
+            with self.subTest(row=row):
+                self.assertEqual(
+                    pe.read(va-0x1B, 6),
+                    b"\\x8d\\x86" + pack("<I", 0x374 + 0x20*row)
+                )
+                self.assertEqual(
+                    pe.read(va-18, 5),
+                    b"\\x68" + pack("<I", 0x87BEA0)
+                )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Authenticated original executable is not mounted")
+    def test_all_fixed_row_40x16_and_dynamic_rect_source_chain(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        first_call_sites = (
+            0x527FBE, 0x5283AC, 0x5287BA, 0x528BE3, 0x52900C,
+            0x52943B, 0x529879, 0x529CC3, 0x52A116, 0x52A56C,
+            0x52A9C2,
+        )
+        for row, va in enumerate(first_call_sites):
+            with self.subTest(row=row):
+                y = 278+17*row
+                self.assertEqual(
+                    pe.read(va-13, 11),
+                    b"\x6a\x10\x6a\x28\x68" + pack("<I", y) + b"\x6a\x50"
+                )
+        for va, data in (
+            (0x650465, "e8 16 ef ff ff"),   # first control to base rectangle
+            (0x5280C7, "68 20 78 87 00"), # second's actual resource arg3
+            (0x5280C2, "68 40 78 87 00"), # distinct fourth argument
+            (0x5D71AD, "68 60 79 87 00"), # native event owner argument
+            (0x651A50, "8b 44 24 0c"),   # resource pointer from arg3
+            (0x651A57, "8b 48 18 8b 50 14"),  # height, width from owner
+            (0x651A78, "e8 03 d9 ff ff"), # dynamic dims to base rectangle
+        ):
+            with self.subTest(va=hex(va)):
+                expected = bytes.fromhex(data)
+                self.assertEqual(pe.read(va, len(expected)), expected)
 
 if __name__ == "__main__":
     unittest.main()
