@@ -1,7 +1,7 @@
 """Source-specific FM2001 MSVC CRT srand routes, NOT observed execution.
 
 Native original 0x66950F srand has exactly four direct callers:
-0x53109E clock startup, 0x4AF876 world/state XOR, 0x50DE2E
+0x53109E clock startup, 0x4AF876 PScouting2K event31 XOR, 0x50DE2E
 save-time rand-then-srand, and 0x50E16E serialized state restore.
 The caller must qualify WHICH original path actually ran.
 Original EXE is private and never executed here.
@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from match_schedule import MsvcCrtRng
 
 APPLICATION_CLOCK_SEED = 0x53109E
-WORLDGEN_XOR_SEED = 0x4AF876
+SCOUTING_XOR_SEED = 0x4AF876
 SAVE_RAND_THEN_SEED = 0x50DE2E
 RESTORE_SERIALIZED_SEED = 0x50E16E
 
@@ -60,17 +60,19 @@ def project_original_application_clock_seed(
     return _reseed(rng,observed_time32_seconds,APPLICATION_CLOCK_SEED,0)
 
 
-def project_original_worldgen_xor_seed(
+def project_original_scouting_xor_seed(
     rng: MsvcCrtRng, *, observed_xor_seed: int
 ) -> OriginalCrtReseedReceipt:
-    """0x4AF7F0 computes source object XOR; 0x4AF876 calls srand.
+    """PScouting2K event31 -> 0x4AF7F0 object XOR -> 0x4AF876 srand.
 
+    Only original PScouting2K ID31 dispatcher has direct callers to 0x4AF7F0.
+    This route is NOT proven part of TeamSelect first-human startup.
     The object fields, call timing and earlier ancestor draw effects
     must be source-observed separately; we invent NONE of them.
     """
     _owner(rng)
     _value(observed_xor_seed)
-    return _reseed(rng,observed_xor_seed,WORLDGEN_XOR_SEED,0)
+    return _reseed(rng,observed_xor_seed,SCOUTING_XOR_SEED,0)
 
 
 def project_original_save_rand_then_seed(

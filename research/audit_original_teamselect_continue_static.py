@@ -1488,7 +1488,7 @@ def main(path: str) -> None:
     print("WARNING actual native OS time and first-click RNG offset unknown")
 
     # Recovery578 important: startup OS srand is NOT the only srand!
-    # Four direct callers of CRT 0x66950F, worldgen XOR reseed with
+    # Four direct callers of CRT 0x66950F, scouting event31 XOR reseed with
     # two native callers, raw rand + save reseed, saved DWORD restore.
     original_all_srand_direct_callers_578 = (
         "4af876", "50de2e", "50e16e", "53109e",

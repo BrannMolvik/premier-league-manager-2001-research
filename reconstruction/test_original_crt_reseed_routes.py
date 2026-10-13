@@ -2,9 +2,9 @@
 import unittest
 from match_schedule import MsvcCrtRng
 from original_crt_reseed_routes import (
-    APPLICATION_CLOCK_SEED,WORLDGEN_XOR_SEED,SAVE_RAND_THEN_SEED,
+    APPLICATION_CLOCK_SEED,SCOUTING_XOR_SEED,SAVE_RAND_THEN_SEED,
     RESTORE_SERIALIZED_SEED,OriginalCrtReseedError,
-    project_original_application_clock_seed,project_original_worldgen_xor_seed,
+    project_original_application_clock_seed,project_original_scouting_xor_seed,
     project_original_save_rand_then_seed,project_original_restore_serialized_seed,
 )
 
@@ -21,10 +21,10 @@ class OriginalCrtReseedTests(unittest.TestCase):
         reference.seed(expected)
         self.assertEqual(original.rand15(),reference.rand15())
 
-    def test_source_worldgen_xor_supplied_seed_changes_same_owner(self):
+    def test_source_scouting_xor_supplied_seed_changes_same_owner(self):
         rng = MsvcCrtRng(500)
-        receipt = project_original_worldgen_xor_seed(rng,observed_xor_seed=0xdeadbeef)
-        self.assertEqual(receipt.native_srand_callsite,WORLDGEN_XOR_SEED)
+        receipt = project_original_scouting_xor_seed(rng,observed_xor_seed=0xdeadbeef)
+        self.assertEqual(receipt.native_srand_callsite,SCOUTING_XOR_SEED)
         self.assertEqual((receipt.state_after,receipt.direct_raw_draws_before_seed),
                          (0xdeadbeef,0))
         self.assertEqual(rng.state,0xdeadbeef)
@@ -56,7 +56,7 @@ class OriginalCrtReseedTests(unittest.TestCase):
         for bad in (None,True,-1,0x100000000,1.2,"123"):
             rng=MsvcCrtRng(123)
             with self.subTest(bad=bad),self.assertRaises(OriginalCrtReseedError):
-                project_original_worldgen_xor_seed(rng,observed_xor_seed=bad)
+                project_original_scouting_xor_seed(rng,observed_xor_seed=bad)
             self.assertEqual(rng.state,123)
             with self.assertRaises(OriginalCrtReseedError):
                 project_original_restore_serialized_seed(
