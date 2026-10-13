@@ -14,6 +14,8 @@ from original_fastview_tactics_selection import (
     source_fastview_native_dropdown_posted_wm_user_result,
     source_fastview_native_popup_option_dimensions_449610,
     SourceFastViewNativePopupOptionDimensions,
+    SourceFastViewPopupNativeOptionRow,
+    source_fastview_popup_native_option_rows_6510f0,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1917,6 +1919,76 @@ class OriginalFastViewX133PopupNativeOptionGeometryTests(unittest.TestCase):
             (0x449639,"8d 04 40"),
             (0x44963C,"8d 54 80 03"),
             (0x449640,"89 51 74"),
+        ):
+            with self.subTest(address=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewNativeNestedListRowIdentityTests(unittest.TestCase):
+    """Native allocated row indices, not a pixel hit acceptance model."""
+
+    def test_native_count_and_row_index_fields_follow_real_allocator(self):
+        rows=source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=3,native_first_index=0)
+        self.assertEqual(rows,(
+            SourceFastViewPopupNativeOptionRow(0,4,0),
+            SourceFastViewPopupNativeOptionRow(1,52,1),
+            SourceFastViewPopupNativeOptionRow(2,100,2)
+        ))
+        self.assertEqual(source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=2,native_first_index=5),(
+            SourceFastViewPopupNativeOptionRow(0,4,5),
+            SourceFastViewPopupNativeOptionRow(1,52,6)))
+        self.assertEqual(source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=0,native_first_index=0),())
+
+    def test_native_option_control_overflow_and_invalid_types_are_not_simulated(self):
+        for count,index in ((-1,0),(2,-1),(1,True),(True,0),(2,None),
+                            (1,"0"),(2,0xFFFFFFFF),((0x7FFFFFFF-4)//48+1,0)):
+            with self.subTest(count=count,index=index),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_native_option_rows_6510f0(
+                    native_option_count=count,native_first_index=index)
+        self.assertEqual(source_fastview_popup_native_option_rows_6510f0(
+            native_option_count=1,native_first_index=0xFFFFFFFF),
+            (SourceFastViewPopupNativeOptionRow(0,4,0xFFFFFFFF),))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original game executable not mounted")
+    def test_nested_list_setup_and_child_index_are_original_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7BFD5C+0xB0,4))[0],0x446740)
+        for va,hx in (
+            (0x44941B,"8d be 3c 01 00 00"),
+            (0x449434,"8b 4e 68"),
+            (0x449437,"8b 46 6c"),
+            (0x449442,"6a 08"),
+            (0x449444,"6a 0f"),
+            (0x449449,"8d 04 40"),
+            (0x44944C,"8d 04 80"),
+            (0x449451,"6a 02"),
+            (0x449453,"6a 03"),
+            (0x449457,"ff 92 b0 00 00 00"),
+            (0x446774,"e8 77 a9 20 00"),
+            (0x65113E,"89 4e 34"),
+            (0x651141,"8d 0c 7f"),
+            (0x651144,"c1 e1 04"),
+            (0x651147,"83 c1 04"),
+            (0x651168,"68 00 c6 48 00"),
+            (0x65116D,"68 80 12 65 00"),
+            (0x651176,"6a 30"),
+            (0x651179,"89 38"),
+            (0x65117B,"e8 41 76 01 00"),
+            (0x6511A5,"8b 4e 3c"),
+            (0x6511A8,"89 70 64"),
+            (0x6511AB,"03 cf"),
+            (0x6511B4,"89 48 68"),
+            (0x6511FC,"47"),
+            (0x651204,"83 c3 30"),
+            (0x65128A,"c7 06 18 81 7d 00")
         ):
             with self.subTest(address=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
