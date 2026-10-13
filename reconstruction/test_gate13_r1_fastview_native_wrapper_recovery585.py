@@ -403,7 +403,7 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                                           pe.read(table_address, 4 * len(keys)))
                 for addr, key in zip(addresses, keys):
                     self.assertEqual(pe.read(addr, len(key) + 1),
-                                     key.encode("ascii") + b"\\0")
+                                     key.encode("ascii") + bytes([0]))
         guards = (
             (0x52E440, "8b 86 58 0a 00 00"), # event 61 decrease Play
             (0x52E44F, "c7 86 58 0a 00 00 03 00 00 00"), # Play wraps to 3
