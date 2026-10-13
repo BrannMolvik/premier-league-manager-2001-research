@@ -48,6 +48,9 @@ from original_fastview_tactics_selection import (
     source_fastview_special_replay_record_branch,
     source_fastview_replacement_replay_branch_634b00,
     source_fastview_634b00_matched_chain_payload_value_only,
+    SourceFastViewNativeReplacementRecord,
+    SourceFastViewOneReplacementReplayValue,
+    source_fastview_633020_one_existing_replacement_replay_value_only,
 )
 
 
@@ -1216,6 +1219,99 @@ class OriginalFastViewChainMatchSideWriteOrderTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 raw = bytes.fromhex(literal)
                 self.assertEqual(pe.read(va, len(raw)), raw)
+
+
+
+class SingleOriginalReplacementReplayTransactionTests(unittest.TestCase):
+    """One prior replacement, original 0x633020 single replay pass, no live GUI."""
+
+    @staticmethod
+    def draft():
+        side = bytearray(280)
+        struct.pack_into("<I", side, 0x14, 12)
+        side[0xF2:0xFE] = bytes((3, 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11))
+        side[0xF0:0xF2] = bytes((11, 5))
+        struct.pack_into("<I", side, 0x18 + 4*3, 0x11223344)
+        struct.pack_into("<I", side, 0x60 + 4*3, 0x55667788)
+        return OriginalFastViewTacticsSelectionDraft(bytes(side))
+
+    def test_prior_target_matches_new_source_chains_record_and_mutates_side(self):
+        original = self.draft()
+        prior = SourceFastViewNativeReplacementRecord(2, 3)
+        guards = [0]*12
+        guards[3] = 1
+        actual = source_fastview_633020_one_existing_replacement_replay_value_only(
+            original, original_single_replacement_record=prior,
+            requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple(guards))
+        self.assertEqual(actual.replay_validator_al, 1)
+        self.assertFalse(actual.fresh_replacement_source_call_reachable)
+        self.assertEqual(actual.replacement_record_after_replay,
+                         SourceFastViewNativeReplacementRecord(2, 7))
+        self.assertEqual(actual.side_after_replay.original_side_bytes[0xF2:0xFE],
+                         bytes((7,0,1,3,4,5,6,2,8,9,10,11)))
+        self.assertEqual(actual.side_after_replay.original_side_bytes[0xF0:0xF2],
+                         bytes((11, 6)))
+        self.assertEqual(original, self.draft())
+        self.assertEqual(prior, SourceFastViewNativeReplacementRecord(2,3))
+
+    def test_prior_target_mismatch_replays_record_without_side_mutation(self):
+        original = self.draft()
+        prior = SourceFastViewNativeReplacementRecord(2, 4)
+        actual = source_fastview_633020_one_existing_replacement_replay_value_only(
+            original, original_single_replacement_record=prior,
+            requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=(0,)*12)
+        self.assertEqual(actual, SourceFastViewOneReplacementReplayValue(
+            0, prior, original, True))
+        # Subsequent fresh 0x6C2770 is only reachable, not implemented.
+
+    def test_malformed_native_world_cannot_enter_one_record_path(self):
+        base = dict(original_side=self.draft(),
+                    original_single_replacement_record=SourceFastViewNativeReplacementRecord(2,3),
+                    requested_from_index=3, requested_to_index=7,
+                    original_club_guard_flags=(0,)*12)
+        for change in ({"original_side": None},
+                       {"original_single_replacement_record": None},
+                       {"requested_from_index": True},
+                       {"requested_from_index": -1},
+                       {"requested_to_index": 0x100000000},
+                       {"original_club_guard_flags": [0]*12},
+                       {"original_club_guard_flags": (0,)*7}):
+            with self.subTest(change=change), self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_633020_one_existing_replacement_replay_value_only(**(base | change))
+        for src, dst in ((True,3),(2,-1),(2,0x100000000)):
+            with self.assertRaises(SourceFastViewTacticsSelectionError):
+                SourceFastViewNativeReplacementRecord(src,dst)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized source PE not mounted")
+    def test_original_single_replacement_constructor_branch_and_replay_pass_sites(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source = (
+            (0x633040,"e8 fb 01 00 00"),
+            (0x63304E,"3b c6"),
+            (0x633058,"0f 84 20 01 00 00"),
+            (0x633107,"e8 94 00 00 00"),
+            (0x633117,"0a c8"),
+            (0x63315E,"43 3b d8"),
+            (0x6331DD,"e8 fe 16 00 00"),
+            (0x6335B0,"8b 41 04 c3"),
+            (0x6335E1,"c7 06 90 7f 7d 00"),
+            (0x6335E7,"89 4e 08"),
+            (0x6335F0,"8b 41 08 c3"),
+            (0x634B37,"3b c5"),
+            (0x634B84,"e8 67 ea ff ff"),
+            (0x634B89,"3b 46 0c"),
+            (0x634BB8,"e8 13 ea ff ff"),
+            (0x634D3F,"c6 46 08 01"),
+            (0x634CF4,"c6 46 09 01"),
+        )
+        for va, literal in source:
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(literal)
+                self.assertEqual(pe.read(va,len(bs)),bs)
 
 if __name__ == "__main__":
     unittest.main()
