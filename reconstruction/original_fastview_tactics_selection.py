@@ -407,6 +407,11 @@ SOURCE_FASTVIEW_AUX_CHILD_PARENT_OFFSET = 0x24
 SOURCE_FASTVIEW_AUX_CHILD_SELECTED_RENDER_OWNER_OFFSET = 0x34
 SOURCE_FASTVIEW_AUX_CHILD_ROW_ITEM_ARRAY_OFFSET = 0x38
 SOURCE_FASTVIEW_AUX_CHILD_PARENT_CALLBACK_VSLOT = 0x10
+# The wrapper 0x651AC6 deliberately PUSHes 0 as the base 0x64F7A0
+# SECOND argument; both native base parent callback+0x0C and +0x10
+# explicitly require that argument nonzero at 0x64F7CF/0x64F811.
+# Thus this exact child wrapper cannot double-deliver from its base call.
+SOURCE_FASTVIEW_AUX_CHILD_BASE_PARENT_CALLBACK_ARG = 0
 
 
 @dataclass(frozen=True)
@@ -416,6 +421,17 @@ class SourceFastViewAuxChildInputOutcome:
     source_status_byte: int | None
     source_saved_selected_index: int | None
     native_parent_second_callback_reached: bool
+
+    @property
+    def source_parent_callbacks_from_this_child_route(self) -> tuple[int, ...]:
+        """Callback slots from exactly native 0x651AC0 wrapper, not all controls.
+
+        Its nested base 0x64F7A0 runs with callback-permission arg0 and
+        invokes NEITHER parent callback. The child can invoke +0x10
+        ONCE at 0x651B55 when its separate gates pass, including after
+        0xFFFF sentinel status1. Never infer actual click acceptance.
+        """
+        return (0x10,) if self.native_parent_second_callback_reached else ()
 
 
 def source_fastview_aux_child_input_outcome_651ac0(
