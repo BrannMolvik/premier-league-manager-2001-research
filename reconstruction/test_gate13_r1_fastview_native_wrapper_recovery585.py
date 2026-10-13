@@ -153,5 +153,35 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                                  bytes.fromhex(encoded))
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_fastview_source_pointer_event_sibling_controls(self):
+        """No invented click effects: guard the actual two sibling event branches."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        guards = (
+            (0x521E06, "38 9e b6 02 00 00"),  # modal input guard
+            (0x521E12, "38 9e b7 02 00 00"),  # second event-acceptance guard
+            (0x521E34, "3d 46 a9 0b 00"),     # source event 0xBA946
+            (0x521E3B, "3d 47 a9 0b 00"),     # source event 0xBA947
+            (0x521E5E, "e8 1d 04 00 00"),     # guarded nested 0x522280
+            (0x521E6C, "2d 32 ad 0b 00"),     # source event 0xBAD32
+            (0x521E7E, "8d 8e 78 04 00 00"), # 0xBAD33 child +0x478
+            (0x521E84, "e8 f7 10 13 00"),    # native child 0x652F80 test
+            (0x521F0A, "8d 8e 24 04 00 00"), # 0xBAD32 child +0x424
+            (0x521F10, "e8 6b 10 13 00"),    # native child 0x652F80 test
+            (0x5222A3, "c6 86 b5 02 00 00 01"), # nested owner transition
+            (0x522328, "e8 a3 06 01 00"),    # global redraw/update before child
+            (0x522396, "68 58 02 00 00"),    # nested child height 600
+            (0x52239B, "68 20 03 00 00"),    # nested child width 800
+            (0x5223AC, "e8 6f 0f 13 00"),    # source 0x653320 child setup
+        )
+        for address, encoded in guards:
+            with self.subTest(address=hex(address)):
+                self.assertEqual(pe.read(address, len(bytes.fromhex(encoded))),
+                                 bytes.fromhex(encoded))
+
+
 if __name__ == "__main__":
     unittest.main()
