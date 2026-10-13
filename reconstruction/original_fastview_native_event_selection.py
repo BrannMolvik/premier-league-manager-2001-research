@@ -202,7 +202,7 @@ class OriginalFastViewNativeLinkedEventCandidate:
     """One REAL linked-event iterator return from the original vtable+0x18."""
     original_event_record_pointer: int
     original_event_record_bytes: bytes
-    original_event_indirect_name_nul: bytes
+    original_event_indirect_name_nul: bytes | None
     original_510c30_callback_nonzero: bool | None = None
 
 
@@ -248,10 +248,9 @@ def source_fastview_original_standard_event_members_51fa70(
             candidate.original_event_indirect_name_nul,
             candidate.original_510c30_callback_nonzero)
         if (type(pointer) is not int or not 0<pointer<=0xFFFFFFFF or
-            type(record) is not bytes or len(record)<0x50 or
-            type(name) is not bytes or b"\0" not in name):
+            type(record) is not bytes or len(record)<0x50):
             raise OriginalFastViewEventCollectionSourceError(
-                "actual original event pointer, record+0x4C and C string required")
+                "actual original event pointer and native record+0x4C required")
         if (unpack_from("<I",record,0x08)[0]!=0 or
             unpack_from("<I",record,0x44)[0]&0x40 or
             pointer==original_selected_event_pointer or
@@ -265,6 +264,9 @@ def source_fastview_original_standard_event_members_51fa70(
                 "qualified native 0x510C30 boolean required for reached candidate")
         if result or unpack_from("<H",record,0x40)[0]==0xFFFF:
             continue
+        if type(name) is not bytes or b"\0" not in name:
+            raise OriginalFastViewEventCollectionSourceError(
+                "original indirect C-name required only on reached candidate append")
         if pointer in seen:
             raise OriginalFastViewEventCollectionSourceError(
                 "original candidate pointer repeated, source list/selection ambiguous")
