@@ -545,3 +545,48 @@ def original_supportstart_native_modal_event_dispatch_va(event_id: int) -> int:
     if event_id >= 18:
         return 0x4D063A
     return 0x4D0641
+
+
+def original_supportstart_source_window_click_accepts_row(
+    *,
+    row_index: int,
+    source_screen_point: tuple[int, int],
+    viewport_size: tuple[int, int],
+    native_row_control_dword: int,
+) -> bool:
+    """Exact original PSupportStart source mouse DOWN acceptance predicate.
+
+    The original 0x653480 event takes an (x,y) pixel pointer, shifts by
+    modal origin, invokes modal vft+0x10 with event=NULL (0x4D05E0,
+    redraw-only path), then iterates enabled child rectangles and calls
+    the selected row vft+0x6C with a non-null event pointer and literal 1.
+
+    PSupportStart 0x4C7B70 registers each of the seven StaffGroupToggle
+    rows using row vft+0x08(8+index, modal owner), which 0x5D48C0 ->
+    0x64F3C0 stores as callback ID +0x20 (nonzero) and owner +0x24.
+    The FINAL modal owner vft+0x0C is 0x42DE00 (always returns 1).
+    Thus original row-parent 0x64F7A0 accepts when bits 0x02 set and
+    0x10 clear; no opaque callback veto remains for these seven rows.
+    Parent result is ORed with children in 0x5D4790, so child rejection
+    cannot undo an accepted parent; accepted row 0x5D6270 toggles bit15.
+
+    Native source window/modal registered objects and current DWORD must
+    be genuine upstream state. This predicate does NOT generate a mouse
+    event, infer row identity from pixels, perform user/staff mutation or
+    assert ordinary TeamSelect/Windows GUI integration. It covers only
+    the source PSupportStart window's pointer-down dispatch, NOT release.
+    """
+    from original_supportstart_layout import (
+        original_supportstart_native_row_window_event_candidate,
+    )
+    if not original_supportstart_native_row_window_event_candidate(
+        row_index,
+        source_screen_point=source_screen_point,
+        viewport_size=viewport_size,
+        native_row_control_dword=native_row_control_dword,
+    ):
+        return False
+    return bool(
+        native_row_control_dword & 0x0002
+        and not (native_row_control_dword & 0x0010)
+    )
