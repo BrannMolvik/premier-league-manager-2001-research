@@ -52,6 +52,8 @@ on:
       - "reconstruction/test_original_startup_player_crt_pipeline.py"
       - "reconstruction/original_first_human_nested_random.py"
       - "reconstruction/test_original_first_human_nested_random.py"
+      - "reconstruction/original_registered_human_event_dispatch.py"
+      - "reconstruction/test_original_registered_human_event_dispatch.py"
       - "reconstruction/original_teamselect_queue_lifecycle.py"
       - "reconstruction/test_original_teamselect_queue_lifecycle.py"
       - "reconstruction/original_supportstart_input.py"
