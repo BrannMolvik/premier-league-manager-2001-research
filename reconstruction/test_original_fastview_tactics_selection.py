@@ -20,6 +20,7 @@ from original_fastview_tactics_selection import (
     SourceFastViewOriginalPopupOptionActivation,
     SourceFastViewPopupOriginalRowHitRectangle,
     source_fastview_popup_first_native_row_hit_6516f0,
+    source_fastview_original_popup_rich_row_child_pointer_gate,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -2146,6 +2147,101 @@ class OriginalFastViewPopupFirstPointerHitSourceTests(unittest.TestCase):
             (0x65173E,"8b 14 30"),
             (0x65174A,"ff 52 6c"),
             (0x651754,"5f 5e 5d 33 c0"),
+        ):
+            with self.subTest(source=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewNativeRichRowNestedPointerCallbackTests(unittest.TestCase):
+    """Physical rich-row nested child gate is NOT just the 15px popup pitch."""
+
+    def test_registered_source_second_nested_child_accepts_relative_pointer(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        values=dict(rich_item_origin_x=100,rich_item_origin_y=300,
+                    active_child_rectangle=R(5,1,130,14),
+                    native_child_flags=0x183,native_child_registered_event=1)
+        self.assertTrue(source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=105,pointer_y=301,**values))
+        self.assertTrue(source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=229,pointer_y=313,**values))
+        for px,py in ((104,301),(105,300),(230,301),(105,314)):
+            with self.subTest(point=(px,py)):
+                self.assertFalse(source_fastview_original_popup_rich_row_child_pointer_gate(
+                    pointer_x=px,pointer_y=py,**values))
+
+    def test_click_only_emitted_from_enabled_registered_child_no_false_positive(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        args=dict(pointer_x=110,pointer_y=307,
+                  rich_item_origin_x=100,rich_item_origin_y=300,
+                  active_child_rectangle=R(0,0,120,14),
+                  native_child_flags=0x183,native_child_registered_event=1)
+        for delta in ({"native_child_flags":0x181},
+                      {"native_child_flags":0x193},
+                      {"native_child_flags":0x182},
+                      {"native_child_registered_event":0}):
+            with self.subTest(delta=delta):
+                self.assertFalse(source_fastview_original_popup_rich_row_child_pointer_gate(
+                    **(args|delta)))
+        self.assertTrue(source_fastview_original_popup_rich_row_child_pointer_gate(**args))
+
+    def test_native_invalid_coords_flags_and_child_rect_cannot_authorize_callback(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        args=dict(pointer_x=1,pointer_y=2,
+                  rich_item_origin_x=0,rich_item_origin_y=0,
+                  active_child_rectangle=R(0,0,10,10),
+                  native_child_flags=0x183,native_child_registered_event=1)
+        for changed in ({"pointer_x":True},{"rich_item_origin_x":-0x80000001},
+                        {"pointer_y":"2"},{"native_child_flags":-1},
+                        {"native_child_flags":True},{"native_child_registered_event":False},
+                        {"active_child_rectangle":R(0,True,10,10)},
+                        {"active_child_rectangle":None}):
+            with self.subTest(changed=changed),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_original_popup_rich_row_child_pointer_gate(**(args|changed))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner original executable not mounted")
+    def test_original_registered_nesting_and_win32_pointer_route_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for vtable,offset,target in (
+            (0x7BE340,0x6C,0x64F7A0),
+            (0x7C0334,0x0C,0x42DE00),
+            (0x7C0334,0x10,0x653A10),
+            (0x7D8118,0x6C,0x650F00)
+        ):
+            with self.subTest(vtable=hex(vtable),offset=hex(offset)):
+                self.assertEqual(struct.unpack("<I",pe.read(vtable+offset,4))[0],target)
+        for va,hx in (
+            (0x4491C5,"c7 46 38 02 00 00 00"),
+            (0x4491CC,"c7 46 3c 01 00 00 00"),
+            (0x4492A5,"8b 4e 20"),
+            (0x4492A8,"89 39"),
+            (0x4492AC,"56"),
+            (0x4492AD,"6a 01"),
+            (0x4492B1,"ff 52 08"),
+            (0x64F3C0,"8b 44 24 04"),
+            (0x64F3C8,"89 41 20"),
+            (0x64F3CB,"89 51 24"),
+            (0x64F30B,"c7 40 18 83 01 00 00"),
+            (0x653480,"83 ec 08"),
+            (0x6534A2,"2b d7"),
+            (0x6534C7,"f6 41 18 01"),
+            (0x6534CD,"3b 51 08"),
+            (0x6534D2,"3b 51 10"),
+            (0x6534D7,"3b 41 0c"),
+            (0x6534DC,"3b 41 14"),
+            (0x6534E7,"6a 01"),
+            (0x6534EA,"ff 52 6c"),
+            (0x64F7A5,"8b 46 18"),
+            (0x64F7AF,"0f 84 9f 00 00 00"),
+            (0x64F7BA,"0f 85 94 00 00 00"),
+            (0x64F811,"85 ed"),
+            (0x64F81C,"ff 50 10"),
+            (0x42DE00,"b8 01 00 00 00"),
+            (0x42DE05,"c2 08 00"),
         ):
             with self.subTest(source=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
