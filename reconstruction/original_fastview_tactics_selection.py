@@ -800,9 +800,21 @@ def source_fastview_634b00_matched_chain_payload_value_only(
         raise SourceFastViewTacticsSelectionError("original club player BYTE flags required")
     side = bytearray(draft.original_side_bytes)
     (count,) = unpack_from("<I", side, SOURCE_FASTVIEW_CHAIN_COUNT_OFFSET)
-    if not 1 <= count <= len(side) - SOURCE_FASTVIEW_CHAIN_ORDER_OFFSET:
-        raise SourceFastViewTacticsSelectionError("verified native side ordering count required")
+    # The original +0x104 byte array starts immediately after the
+    # source +0xF2 order's 18-byte dedicated region. An oversized count
+    # would alias unrelated status bytes; do not treat that unproven
+    # native memory state as a valid immutable side record.
+    source_order_capacity = (
+        SOURCE_FASTVIEW_CHAIN_STATUS_ON_OFFSET - SOURCE_FASTVIEW_CHAIN_ORDER_OFFSET
+    )
+    if not 1 <= count <= source_order_capacity:
+        raise SourceFastViewTacticsSelectionError("bounded native side ordering count required")
+    if (type(requested_from_index) is not int or
+            not 0 <= requested_from_index < count):
+        raise SourceFastViewTacticsSelectionError("original active source must index native side order")
     for idx in (requested_from_index, requested_to_index):
+        if type(idx) is not int or not 0 <= idx < source_order_capacity:
+            raise SourceFastViewTacticsSelectionError("original dedicated order BYTE index required")
         if type(idx) is not int or not 0 <= idx <= 0xFF:
             raise SourceFastViewTacticsSelectionError("original requested player index BYTE required")
         if idx >= len(original_club_guard_flags):
