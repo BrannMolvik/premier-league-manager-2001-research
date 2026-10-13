@@ -15,6 +15,9 @@ from competition_startup import (
     CupPairingDescriptor,
     MaterializedCupRound,
 )
+from original_native_procedural_event_emitter import (
+    source_original_procedural_event_emitter_616fc0,
+)
 from procedural_league import (
     ProceduralLeagueMatchEmission,
     materialize_scot_premier_split_match_emissions,
@@ -262,6 +265,15 @@ class CompetitionScheduleTests(unittest.TestCase):
         self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_callsite_va,0x617047)
         self.assertFalse(node.original_native_constructor_evidence.is_live_original_event)
         self.assertEqual(node.schedule_index, 4)
+        source_emitter=source_original_procedural_event_emitter_616fc0(
+            original_team_count_plus_3c=4,
+            original_cycle_index=emission.cycle_index,
+            original_pair_round_index=emission.round_index,
+            original_scottish_override_active=False)
+        self.assertEqual(source_emitter.original_date_array_index,node.schedule_index)
+        self.assertEqual(source_emitter.original_native_constructor_class,
+                         node.original_native_constructor_evidence)
+        self.assertTrue(source_emitter.source_match_constructor_called)
         self.assertEqual((node.scheduled_week, node.scheduled_weekday), (14, 6))
         self.assertEqual(node.participant_0_ref.direct_club_id, 30)
         self.assertEqual(node.participant_1_ref.direct_club_id, 40)
