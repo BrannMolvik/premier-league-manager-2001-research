@@ -90,8 +90,13 @@ class OriginalFastViewEventHumanOwnerSourceTests(unittest.TestCase):
             original_human_manager_club_ids_in_link_order=(12,)))
         self.assertFalse(source_fastview_original_selected_event_both_human_51fb1c(
             original_event_first_club_id_from_getter=12,
-            original_event_second_club_id_from_getter=25,
+            original_event_second_club_id_from_getter=None,
             original_human_manager_club_ids_in_link_order=()))
+        with self.assertRaises(OriginalFastViewHumanEventSourceError):
+            source_fastview_original_selected_event_both_human_51fb1c(
+                original_event_first_club_id_from_getter=12,
+                original_event_second_club_id_from_getter=25,
+                original_human_manager_club_ids_in_link_order=())
 
     def test_source_510c30_callback_controls_real_linked_event_append(self):
         args=self.args()
