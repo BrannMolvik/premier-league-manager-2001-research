@@ -10,6 +10,9 @@ from original_fastview_tactics_control_layout import (
     NATIVE_ARROW_IMAGE_SIZE,
     NATIVE_ARROW_FRAME_SIZE,
     NATIVE_TACTICS_PLAYER_ROWS,
+    NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS,
+    NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES,
+    NATIVE_HUMAN_PLAYER_ARROW_EVENT_FIELD_OFFSET,
     NATIVE_RIGHT_VARIANT2_BASE_GLOBAL_VA,
     NATIVE_RIGHT_VARIANT2_X_ADDEND,
     NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_WIDTH,
@@ -125,6 +128,56 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
             with self.subTest(address=hex(address)):
                 expected = bytes.fromhex(encoded)
                 self.assertEqual(pe.read(address, len(expected)), expected)
+
+    def test_all_forty_four_arrow_art_objects_have_exact_native_event_id(self):
+        self.assertEqual(NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS,
+                         (0x1CF4, 0x2038, 0x34D8, 0x3CEC))
+        self.assertEqual(NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES,
+                         (0x246E8E, 0x247276, 0x2466BE, 0x246AA6))
+        self.assertEqual(NATIVE_HUMAN_PLAYER_ARROW_EVENT_FIELD_OFFSET, 0x20)
+        arrows = original_fastview_player_arrow_positions()
+        for row in range(11):
+            for v in range(4):
+                with self.subTest(row=row, variant=v):
+                    arrow = arrows[4 * row + v]
+                    self.assertEqual(
+                        arrow.source_original_native_event_id,
+                        NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES[v] + row
+                    )
+                    self.assertEqual(
+                        arrow.source_original_parent_offset,
+                        NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS[v] + 0x4C * row
+                    )
+        for arrow in original_fastview_bottom_arrow_positions():
+            self.assertIsNone(arrow.source_original_native_event_id)
+            self.assertIsNone(arrow.source_original_parent_offset)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original EXE source not mounted")
+    def test_native_four_arrow_child_origins_and_high_event_source_writers(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x527FC6, "8d be f4 1c 00 00"), # row0 first arrow child +0x1cf4
+            (0x52800D, "8d be 38 20 00 00"), # second +0x2038
+            (0x5281F9, "8d 9e d8 34 00 00"), # third +0x34d8
+            (0x5282D7, "8d 9e ec 3c 00 00"), # fourth +0x3cec
+            (0x52E2FB, "be ae 77 88 00"),    # true source ID base
+            (0x52E34C, "8d 96 e0 f6 9b ff"),# arrow0 base from source ESIs
+            (0x52E352, "8d 8e c8 fa 9b ff"),# arrow1
+            (0x52E32C, "8d 96 10 ef 9b ff"),# arrow2
+            (0x52E332, "8d 8e f8 f2 9b ff"),# arrow3
+            (0x52E359, "89 97 08 e0 ff ff"),# arrow0 ID field at +0x1d14
+            (0x52E35F, "89 8f 4c e3 ff ff"),# arrow1 ID field at +0x2058
+            (0x52E344, "89 97 ec f7 ff ff"),# arrow2 ID field at +0x34f8
+            (0x52E34A, "89 0f"),            # arrow3 ID field at +0x3d0c
+            (0x52E36E, "83 c7 4c"),        # native 0x4c sprite array stride
+            (0x52E371, "83 fa 0b"),        # 11 full source rows
+        )
+        for va, hexdump in sites:
+            with self.subTest(va=hex(va)):
+                expected = bytes.fromhex(hexdump)
+                self.assertEqual(pe.read(va, len(expected)), expected)
 
     def test_unsupported_layout_claims_are_rejected(self):
         with self.assertRaises(ValueError):
