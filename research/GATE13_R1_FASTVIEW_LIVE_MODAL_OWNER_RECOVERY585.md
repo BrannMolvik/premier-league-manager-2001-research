@@ -255,3 +255,33 @@ The existing mode2 source branch now contains two new implementation/test files,
 - Original private executable x86 byte tests, source research and six original private native art receipts remain on the same feature branch; no PR opened, no CI billed, no main-branch modifications.
 
 This is recoverable preparation for the original FastViewTactics modal, **not** a completion or acceptance milestone for source mode2 R1 or Gate13. Next meaningful integration requires real native artwork/control geometry, list-owner preview/Apply/Cancel side effects, pre/postmatch state and result callbacks, and ordinary Windows 11 player acceptance.
+
+
+## Recovery588: both native tactics popup placements and complete eleven-row arrow constructor coordinates
+
+The original authenticated PE was inspected again read-only in Recovery588, and the previous six Drive-sourced tactics 444 files remain unchanged. This establishes an **entire original 11-row control geometry family**, instead of only isolated sprite resource names. No original EXE execution or live GUI observation was performed.
+
+1. The reached original human `FastViewTactics` screen uses the **native popup1 owner `0x942670`**, original source wrapper at `0x527DCE`, and sets the sprite through `0x64F380` at source `0x527E09` with **x=20, y=139**. The original CPU `FastViewCPUTactics` screen uses **popup2 `0x942650`** at `0x52B715`, and the matching source geometry setter at `0x52B752`, **also x=20, y=139**. Both are source-native 760×400 image bounds inside a native 800×600 modal. The `0x64F380` code at `0x64F38F..0x64F3B3` really stores x in child+8 and y in child+12 and derives right/bottom from the source width/height; this is stronger than a mere coincidental literal. No claim about final palette compositing or camera appearance is made.
+2. The original human tactics class constructor creates a separate **11-row family** of four `0x651E30` image/control objects per row, sourced from original four arrow resources `0x946E90` (left), `0x946E50` (right), `0x946E10` (left variant2) and `0x946DD0` (right variant2). Their coordinates from actual source push arguments are:
+
+| Original row index | Native y | Left x | Right x | Left variant2 x | Right variant2 x |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 0 | 278 | 69 | 120 | 407 | `[0x947304]+420` |
+| 1 | 295 | 69 | 120 | 407 | `[0x947304]+420` |
+| 2 | 312 | 69 | 120 | 407 | `[0x947304]+420` |
+| 3 | 329 | 69 | 120 | 407 | `[0x947304]+420` |
+| 4 | 346 | 69 | 120 | 407 | `[0x947304]+420` |
+| 5 | 363 | 69 | 120 | 407 | `[0x947304]+420` |
+| 6 | 380 | 69 | 120 | 407 | `[0x947304]+420` |
+| 7 | 397 | 69 | 120 | 407 | `[0x947304]+420` |
+| 8 | 414 | 69 | 120 | 407 | `[0x947304]+420` |
+| 9 | 431 | 69 | 120 | 407 | `[0x947304]+420` |
+| 10 | 448 | 69 | 120 | 407 | `[0x947304]+420` |
+
+   **Critical unknown deliberately preserved:** the fourth arrow does NOT use a recoverably constant x of 418, 420, or 407 in the source. The initial row at `0x52830F` loads original global `[0x947304]` before the `0x528314` push, and the `add eax,0x1A4` is executed after pushing the sprite owner; other rows follow the same owner/add/Y/actual EAX push shape. The runtime value of this global and whether it derives from a screen anchor are **not independently established**. Do not substitute a guessed pixel coordinate.
+3. An **additional lower pair** of first-variant left/right arrows is constructed at **(303,481)** and **(379,481)**, source sites `0x52AE1D` and `0x52AE7A`. These are separate from the eleven repeated row quartets. Their physical user role/event mapping is not yet proven by the constant positions alone. The original arrow files are header **11×48** (likely three stacked 11×16 states; native wrapper passes width11/height16); source frame selection and clipping still require original control method investigation.
+4. Reproduction: take owner-authenticated original `footballmanager.exe` SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; for each actual owner immediate xref inside constructor `0x527C00..0x52B000`, decode following original `push y` and `push x` (or `add eax,420; push y; push eax` for the dynamic fourth) and trace `0x651E30 → 0x651BA0 → 0x64F380` for target x/y semantics. Independent local PE read-only test passed **49/49 direct source checks**: 44 repeated arrow controls, the two lower controls, both native popup placement callsites and the base geometry writer. These are independent local checks; the exact branch integration tests and Windows11 GUI were NOT executed.
+
+**Persisted working code (unmerged):** `reconstruction/original_fastview_tactics_control_layout.py` now contains a source-only immutable record of all 46 arrow controls and panel geometry, with fourth variant x explicitly dynamic. `test_original_fastview_tactics_control_layout.py` guards 11 row geometry and has opt-in original PE assertions for all 44 instances plus the two extra controls. It does not expose click behavior, artwork rasterization, status changes, or a live mode2 match. No proprietary bytes were added to the repository.
+
+**Next source question**: recover `[0x947304]` actual producer and its relationship to source GUI coordinates, plus native event-to-child mapping and five state objects in FastViewTactics; trace effects of the 11-row 0x651E30 controls and lower pair through the reached event handler. Only then implement original player-visible click/raster routes with source-validated transaction and modal return.
