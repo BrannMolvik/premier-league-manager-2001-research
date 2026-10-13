@@ -71,3 +71,31 @@ objdump -D -Mintel --start-address=0x5d48c0 --stop-address=0x5d48f8 footballmana
 ```
 
 **Acceptance:** cumulative source-frame mapping independently VERIFIED against original static bytes and the existing merged source module; no new branch implementation test run. Existing merged tests are not a GUI acceptance claim. Player-visible SupportStart and original-process/Windows11 GUI acceptance NOT VERIFIED. Gate13–17 remain OPEN.
+
+## Recovery581 follow-up: seven native group callbacks resolved, bounded click acceptance now SOURCE-VERIFIED
+
+**Original-source countercheck completed 13 October 2026 KST.** This refines the earlier statement above that callback+0x24 was necessarily unresolved: **the callback identity and result for all seven ordinary PSupportStart row parents are in fact static-source recoverable**. It does not license invented state, user names or a completed GUI.
+
+1. The final `StaffGroupToggle` vft at `0x7C6780` has vft+0x08 = `0x5D48C0` (verified direct original PE `.rdata` bytes). Native `0x4C7B70` registers the seven exact row objects `PSupportStart+0x2224+0x4C*i` in child slots 8..14. At row0 `0x4C8017..0x4C803E`, it pushes modal-owner `esi`, then native group index **8**, and calls that row's vft+0x08; row1 `0x4C8068..0x4C8090` uses index **9**, with corresponding source index continuation through 14. The real call arguments are **first group ID (8..14), second modal-owner pointer**, not arbitrary coordinates.
+2. `0x5D48C0..0x5D48D5` calls native `0x64F3C0` with those two values. It explicitly writes `row+0x20 = 8+i` and `row+0x24 = PSupportStart owner`, and forwards the same pair to registered visual children. The source ID is nonzero for every one of the seven parent rows.
+3. The **final** PSupportStart vtable at `0x7C6DDC` has virtual+0x0C = `0x42DE00`. Direct native disassembly `0x42DE00..0x42DE07` is `mov eax,1; ret 8`, an unconditional acceptance. Hence the previously opaque `0x64F7D3..0x64F7DF` callback calls this PSupportStart owner and returns **1** for the genuine seven registered row parents. This is a concrete class/callsite proof, not a guess about which callback responds to a visual rectangle.
+4. Native `0x653480..0x653502` receives the original window pixel pair, shifts by the window origin, invokes the modal owner's vft+0x10 with **NULL first event arg**, then tests each row's enabled bit0 and half-open rectangle and calls row virtual+0x6C with a real local point pointer and nonnull literal `1`. The owner's final vft+0x10 = `0x4D05E0`; when called with NULL, `0x4D05E0..0x4D0641` bypasses action events1..20 and merely invokes `0x653350` with its window redraw rectangle. This original ingress does **not** dispatch Apply/Cancel as a side effect of the prefilter.
+5. For a genuinely registered PSupportStart row reached through that ingress, the parent `0x64F7A0` accepts when its current DWORD state has bit1 (`0x2`) set and pressed bit4 (`0x10`) clear; the source owner callback **cannot veto**. Parent acceptance is ORed with eligible child input results in `0x5D4790`, so child rejection cannot overturn it. Original `0x5D6270` then flips that row's parent bit15. The source hit predicate is therefore the enabled bit0 and half-open native row bounds, combined with parent bit1 and not bit4, **given the actual modal window, registered row identity, current source state and original pointer-down event**. Empty/disabled rows still fail the parent's state check; a held pressed row fails until native release. The input predicate does not separately prove an actual Win11 GUI player clicked that row.
+6. `reconstruction/original_supportstart_input.py` now includes `original_supportstart_source_window_click_accepts_row`, which composes the *already source-qualified* original layout window prefilter and the callback-resolved parent state gate. Targeted tests in `test_original_supportstart_input.py` cover inclusive/exclusive pixel edges, blocked empty/disabled/pressed rows, seventh row and malformed data. The bounded source function is **not yet wired to Tk/current selected-user state**, and no new CI/Windows playtest has been run. Further UI work must still restore original row rendering, name/staff data, Apply/Cancel state mutations and real modal return, preserving original events/queued RNG.
+
+**Independent counterexample check:** Original constructor `0x64F300` alone is insufficient evidence to omit +0x20; **actual native `0x4C803E` vft+0x08 passes nonzero 8 and the modal owner**. Conversely, the case of a plain Bitmap or a different non-SupportStart native control whose `+0x24` points elsewhere is NOT covered by this seven-row result and remains unknown until independently traced. Never generalize unconditional acceptance to all native controls, to Apply/Cancel buttons, or to GUI event delivery. Separately, originally reported independent 15-pixel star slices were wrong and reverted; authentic star-strip crops are **cumulative**.
+
+Reproduction, private original EXE outside Git (byte hash as above):
+
+```bash
+objdump -s -j .rdata --start-address=0x7c6780 --stop-address=0x7c6795 footballmanager.exe
+objdump -s -j .rdata --start-address=0x7c6ddc --stop-address=0x7c6df2 footballmanager.exe
+objdump -D -Mintel --start-address=0x4c8014 --stop-address=0x4c8095 footballmanager.exe
+objdump -D -Mintel --start-address=0x5d48c0 --stop-address=0x5d48f8 footballmanager.exe
+objdump -D -Mintel --start-address=0x64f3c0 --stop-address=0x64f3d1 footballmanager.exe
+objdump -D -Mintel --start-address=0x42de00 --stop-address=0x42de08 footballmanager.exe
+objdump -D -Mintel --start-address=0x653480 --stop-address=0x653503 footballmanager.exe
+objdump -D -Mintel --start-address=0x4d05e0 --stop-address=0x4d0679 footballmanager.exe
+```
+
+**Updated next task:** verify the original mouse-up path and source row initialization/live staff records, then connect the original seven-row PSupportStart graphics/interaction and native Apply/Cancel transaction to the ordinary TeamSelect frontend. The claimed input route now has a narrow static original-source proof; standalone source tests/byte proof still do NOT close the complete player workflow, Gate13 or Windows11 acceptance.
