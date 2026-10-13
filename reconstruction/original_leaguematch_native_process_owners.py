@@ -122,3 +122,62 @@ def source_original_wrapped_prepare_511120_post_base(
     return OriginalLeagueMatchWrappedPrepareReceipt(
         original_base_510d60_al_nonzero, kind, writes,
         original_base_510d60_al_nonzero)
+
+
+
+SOURCE_LEAGUEMATCH_PRIMARY_EVENT_V30_VA = 0x651980
+SOURCE_LEAGUEMATCH_CONDITIONAL_SECONDARY_V30_VA = 0x5112C0
+SOURCE_LEAGUEMATCH_EVENT_BIT2 = 0x04
+
+
+def source_original_leaguematch_native_virtual30_low_byte(
+    *, original_match_record: bytes,
+    original_reached_virtual28_kind: int | None = None,
+) -> int:
+    """Source exact original vtable+0x30 return AL for a native match.
+
+    0x651980 unconditionally XOR AL,AL and never calls virtual+0x28.
+    0x5112C0 DOES call virtual+0x28, then returns AL=1 iff kind==2
+    AND original match byte+0x44 bit2 is clear. Neither function proves
+    that a particular reconstructed schedule record is an original
+    runtime match owner passed into 0x4F3B50.
+    """
+    owners = source_original_leaguematch_process_owners_for_native_record(
+        original_match_record=original_match_record)
+    v30 = owners.virtual30_owner_va
+    if v30 == SOURCE_LEAGUEMATCH_PRIMARY_EVENT_V30_VA:
+        if original_reached_virtual28_kind is not None:
+            raise OriginalLeagueMatchProcessOwnerError(
+                "source 0x651980 skips virtual+0x28; extra reached result invalid")
+        return 0
+    if v30 != SOURCE_LEAGUEMATCH_CONDITIONAL_SECONDARY_V30_VA:
+        raise OriginalLeagueMatchProcessOwnerError(
+            "original native vtable+0x30 owner not source-qualified")
+    if type(original_match_record) is not bytes or len(original_match_record)<0x48:
+        raise OriginalLeagueMatchProcessOwnerError("source native match+0x44 flag DWORD required")
+    kind=original_reached_virtual28_kind
+    if type(kind) is not int or not 0<=kind<=0xFFFFFFFF:
+        raise OriginalLeagueMatchProcessOwnerError(
+            "original vtable+0x28 reached actual kind required")
+    flags44=unpack_from("<I",original_match_record,0x44)[0]
+    return int(kind==2 and not flags44 & SOURCE_LEAGUEMATCH_EVENT_BIT2)
+
+
+def source_original_match_owned_event_collection_4f3b50(
+    *, original_match_record: bytes,
+    original_reached_virtual28_kind: int | None = None,
+) -> int:
+    """Qualified LeagueMatch owner only: +0x30 AL -> 0x4F3B50 collection.
+
+    The result must not be installed on every PrimaryScheduleShadowEntry:
+    matching an ORIGINAL runtime LeagueMatch vtable and its reached kind
+    are prerequisites. Other native owner classes need separate proof.
+    """
+    from original_schedule_event_native_constructor import (
+        source_original_event_collection_selector_4f3b50,
+    )
+    al=source_original_leaguematch_native_virtual30_low_byte(
+        original_match_record=original_match_record,
+        original_reached_virtual28_kind=original_reached_virtual28_kind)
+    return source_original_event_collection_selector_4f3b50(
+        original_owner_virtual30_result_eax=al)
