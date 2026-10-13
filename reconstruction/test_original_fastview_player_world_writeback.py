@@ -13,6 +13,8 @@ from original_fastview_player_world_writeback import (
     source_fastview_native_postmodal_player_write_intents_533ca0,
     source_fastview_original_player_low5_low4_getters_4ea3c0,
     source_fastview_original_player_low5_low4_setters_4ea330,
+    source_fastview_original_player_field_pre_modal_capture_533bf0,
+    SourceFastViewPlayerPreModalGlobals,
 )
 
 
@@ -176,6 +178,65 @@ class OriginalFastViewNativePerPlayerWriteIntentTests(unittest.TestCase):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
 
+
+
+
+class OriginalFastViewOriginalPlayerPreModalRoundTripTests(unittest.TestCase):
+    def test_capture_native_players_two_sides_and_preserve_other_global_bytes(self):
+        first=(b"\x00\x00\x00\xE1\xF2",b"\x00\x00\x00\xFA\xC5")
+        second=(b"\x00\x00\x00\x97\xAB",)
+        before5=b"\x88"*320
+        before4=b"\x77"*320
+        result=source_fastview_original_player_field_pre_modal_capture_533bf0(
+            original_player_subobjects_by_side=(first,second),
+            original_low5_globals_before=before5,
+            original_low4_globals_before=before4)
+        self.assertEqual(tuple(struct.unpack_from("<2I",result.original_low5_globals_320,0)),(1,26))
+        self.assertEqual(tuple(struct.unpack_from("<2I",result.original_low4_globals_320,0)),(2,5))
+        self.assertEqual(struct.unpack_from("<I",result.original_low5_globals_320,0xA0)[0],23)
+        self.assertEqual(struct.unpack_from("<I",result.original_low4_globals_320,0xA0)[0],11)
+        self.assertEqual(result.original_low5_globals_320[0x20:0x30],b"\x88"*16)
+        self.assertEqual(result.original_low4_globals_320[0x20:0x30],b"\x77"*16)
+        self.assertEqual(before5,b"\x88"*320)
+        self.assertEqual(before4,b"\x77"*320)
+
+    def test_pre_modal_getters_restore_exact_packed_lower_fields_after_intent(self):
+        sides,_,_=sample_native_postmodal_world()
+        left=(b"\x11\x22\x33\xE7\xB4",)*12
+        right=(b"\x11\x22\x33\xC1\xFB",)*11
+        captured=source_fastview_original_player_field_pre_modal_capture_533bf0(
+            original_player_subobjects_by_side=(left,right),
+            original_low5_globals_before=b"\xCC"*320,
+            original_low4_globals_before=b"\xDD"*320)
+        rows=source_fastview_native_postmodal_player_write_intents_533ca0(
+            live_sides_after_modal=sides,native_player_counts=(12,11),
+            global_player_low5_dwords=captured.original_low5_globals_320,
+            global_player_low4_dwords=captured.original_low4_globals_320)
+        self.assertEqual(len(rows),23)
+        for intent in rows:
+            old=(left if intent.side_index==0 else right)[intent.player_ordinal]
+            updated=source_fastview_original_player_low5_low4_setters_4ea330(
+                original_player_attribute_bytes=old,
+                native_low5_parameter_dword=intent.original_low5_parameter_dword,
+                native_low4_parameter_byte=intent.original_low4_parameter_byte)
+            self.assertEqual(updated,old)
+
+    def test_source_pre_capture_unknown_owner_count_types_and_bytes_are_rejected(self):
+        base=dict(original_player_subobjects_by_side=((b"\0"*5,),()),
+                  original_low5_globals_before=b"\x00"*320,
+                  original_low4_globals_before=b"\x00"*320)
+        for bad in (
+            {"original_player_subobjects_by_side":None},
+            {"original_player_subobjects_by_side":([],())},
+            {"original_player_subobjects_by_side":((bytearray(b"\0"*5),),())},
+            {"original_player_subobjects_by_side":((b"\0"*5,)*21,())},
+            {"original_low5_globals_before":b"\x00"*319},
+            {"original_low4_globals_before":bytearray(b"\x00"*320)},
+        ):
+            with self.subTest(bad=repr(bad)),self.assertRaises(
+                SourceFastViewPlayerWorldWritebackError):
+                source_fastview_original_player_field_pre_modal_capture_533bf0(
+                    **(base|bad))
 
 if __name__=="__main__":
     unittest.main()
