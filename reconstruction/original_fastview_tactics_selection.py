@@ -708,3 +708,45 @@ def source_fastview_special_replay_record_branch(
     if native_record_vtable == SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE:
         return "omit_record"
     return "reconstruct_0x6334f0_record"
+
+
+# Native 0x634B00 replacement-record visitor has FOUR distinct reached
+# source branches; class 0x7D7F90's native forwarding virtual+4 calls
+# this method only under the source 0x7D8014 replay visitor. This is a
+# branch classifier, NOT linked-list writes, replay or completed match.
+SOURCE_FASTVIEW_REPLAY_REPLACEMENT_VISITOR_VA = 0x634B00
+SOURCE_FASTVIEW_REPLAY_PREVIOUS_TARGET_GETTER_VA = 0x6335F0
+SOURCE_FASTVIEW_REPLAY_CHAIN_CTOR_VA = 0x6335D0
+
+
+def source_fastview_replacement_replay_branch_634b00(
+    *, visitor_status8: int, visitor_status9: int,
+    native_skip_replacement_count: int,
+    previous_replacement_target_dword: int,
+    requested_source_dword: int,
+) -> str:
+    """Read-only original ordered branch selection for visitor 0x634B00.
+
+    0x634B1C..0x634B2C: status9 OR status8 -> append existing record.
+    0x634B32..0x634B79: nonzero remaining skip decremented and a
+    list node with no payload is appended, without target comparison.
+    0x634B82..0x634B8C: old replacement target compared with current
+    requested source (visitor +0x0C); if equal the original *also*
+    constructs chained edit and mutates side data, otherwise forwards
+    the existing record and sets status8. These further mutations are
+    intentionally NOT implemented by returning a branch identifier.
+    """
+    for x in (visitor_status8, visitor_status9):
+        if type(x) is not int or not 0 <= x <= 255:
+            raise SourceFastViewTacticsSelectionError("original visitor status BYTE required")
+    for x in (native_skip_replacement_count, previous_replacement_target_dword,
+              requested_source_dword):
+        if type(x) is not int or not 0 <= x <= 0xFFFFFFFF:
+            raise SourceFastViewTacticsSelectionError("original visitor native DWORD required")
+    if visitor_status9 or visitor_status8:
+        return "forward_old_record_after_prior_status"
+    if native_skip_replacement_count:
+        return "decrement_skip_and_append_empty_link"
+    if previous_replacement_target_dword == requested_source_dword:
+        return "chained_replacement_side_rewrite"
+    return "forward_old_record_mark_status8"
