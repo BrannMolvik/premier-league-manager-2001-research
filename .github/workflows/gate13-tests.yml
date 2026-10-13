@@ -51,6 +51,8 @@ on:
       - "reconstruction/test_original_native_saved_event_link_writer.py"
       - "reconstruction/original_native_schedule_producer_source.py"
       - "reconstruction/test_original_native_schedule_producer_source.py"
+      - "reconstruction/original_native_procedural_event_emitter.py"
+      - "reconstruction/test_original_native_procedural_event_emitter.py"
       - "reconstruction/competition_schedule.py"
       - "reconstruction/test_competition_schedule.py"
       - "reconstruction/original_fastview_native_event_human_owners.py"
@@ -322,6 +324,7 @@ jobs:
             test_original_native_loaded_event_link \
             test_original_native_saved_event_link_writer \
             test_original_native_schedule_producer_source \
+            test_original_native_procedural_event_emitter \
             test_original_fastview_native_event_human_owners \
             test_original_fastview_native_event_selection \
             test_original_fastview_tactics_control_layout \
