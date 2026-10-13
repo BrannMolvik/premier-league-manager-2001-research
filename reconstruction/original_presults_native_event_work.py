@@ -259,3 +259,64 @@ def source_original_presults_precount_4a7210(
                     raise OriginalPResultsEventSourceError(
                         "signed native progress pre-count overflow not qualified")
     return total
+
+
+def source_original_presults_human_event_616990(
+    *, original_human_count_global_8755e4: int,
+    original_manager_club_pointers_by_413b10_index: tuple[int, ...],
+    original_event_first_club_pointer: int | None,
+    original_event_second_club_pointer: int | None,
+) -> bool:
+    """0x616990 pointer identity is the same reached native loop as 0x510C30.
+
+    The original source loops all original human DBRUser +0x5B4 CLUB
+    POINTERS and compares first/second event virtual+0 club pointers.
+    This differs from country predicate 0x510C90 and must not be
+    replaced with numerical source club IDs or a current-manager test.
+    Native first hit skips later original getter calls.
+    """
+    from original_fastview_native_event_human_owners import (
+        source_fastview_original_human_event_510c30,
+    )
+    return source_fastview_original_human_event_510c30(
+        original_human_count_global_8755e4=original_human_count_global_8755e4,
+        original_manager_club_pointers_by_413b10_index=(
+            original_manager_club_pointers_by_413b10_index),
+        original_event_first_club_pointer=original_event_first_club_pointer,
+        original_event_second_club_pointer=original_event_second_club_pointer,
+    ).original_callback_510c30_nonzero
+
+
+def source_original_presults_country_event_510c90(
+    *, original_event_first_club_record: bytes,
+    original_event_second_club_record: bytes | None,
+    original_533830_country_indexes_germany_france_england: tuple[int, int, int],
+) -> bool:
+    """Original 0x510C90 first-club 0x4037C0 then conditional second club.
+
+    Source 0x510C93 reads first club virtual+0 and calls 0x4037C0.
+    Nonzero immediately returns true: the second accessor is NOT
+    called. Zero reads event+0x28 club virtual+0 and tests 0x4037C0.
+    The predicates require the authentic actual club records and
+    authenticated 0x533830 country registry indexes. No inference
+    from currently selected league/team name is permitted.
+    """
+    from original_fastview_native_player_roster_stage import (
+        source_fastview_original_country_header_5337c0,
+    )
+    first=source_fastview_original_country_header_5337c0(
+        original_club_record=original_event_first_club_record,
+        original_533830_country_indexes_germany_france_england=(
+            original_533830_country_indexes_germany_france_england))
+    if first:
+        if original_event_second_club_record is not None:
+            raise OriginalPResultsEventSourceError(
+                "source first-country callback succeeded; second club never dereferenced")
+        return True
+    if original_event_second_club_record is None:
+        raise OriginalPResultsEventSourceError(
+            "original second club must be source-qualified after first country false")
+    return source_fastview_original_country_header_5337c0(
+        original_club_record=original_event_second_club_record,
+        original_533830_country_indexes_germany_france_england=(
+            original_533830_country_indexes_germany_france_england))
