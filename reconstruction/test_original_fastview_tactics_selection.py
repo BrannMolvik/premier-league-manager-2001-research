@@ -6,6 +6,7 @@ from pathlib import Path
 
 from original_fastview_tactics_selection import (
     source_fastview_x133_popup_clip_52d190,
+    source_fastview_popup_escape_event_value_only,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1681,6 +1682,43 @@ class NativeX133PopupFactoryClipTests(unittest.TestCase):
         ):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class SourceFastViewPopupEscapeRoutingTests(unittest.TestCase):
+    def test_original_key_escape_emits_only_source_sentinel(self):
+        self.assertEqual(source_fastview_popup_escape_event_value_only(
+            original_key_word=0x1B), 0xFFFF)
+        for other in (0, 1, 13, 32, 0x1A, 0x1C, 0xFFFF):
+            with self.subTest(key=other):
+                self.assertIsNone(source_fastview_popup_escape_event_value_only(
+                    original_key_word=other))
+
+    def test_original_key_word_range_is_strict(self):
+        for invalid in (None, True, False, -1, 0x10000, "ESC", 27.0):
+            with self.subTest(invalid=invalid), self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_escape_event_value_only(original_key_word=invalid)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private EXE not mounted")
+    def test_exact_original_keyhandler_and_owner_message_forwarder(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I", pe.read(0x7CAC64+0x34,4))[0],0x52D350)
+        for addr,hx in (
+            (0x52D350,"66 83 7c 24 08 1b"),
+            (0x52D356,"75 0a"),
+            (0x52D358,"68 ff ff 00 00"),
+            (0x52D35D,"e8 8e 66 12 00"),
+            (0x6539F0,"8b 44 24 04"),
+            (0x6539F4,"8b 49 64"),
+            (0x6539F7,"25 ff ff 00 00"),
+            (0x6539FF,"68 00 04 00 00"),
+            (0x659650,"8b 44 24 0c"),
+            (0x659663,"ff 15 d8 d2 7b 00")
+        ):
+            with self.subTest(address=hex(addr)):
+                self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
 if __name__ == "__main__":
     unittest.main()
