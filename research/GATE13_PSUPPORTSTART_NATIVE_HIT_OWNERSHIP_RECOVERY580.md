@@ -114,3 +114,25 @@ objdump -D -Mintel --start-address=0x5d4800 --stop-address=0x5d485e footballmana
 ```
 
 **Outstanding:** actual live TeamSelect->PSupportStart registration and authentic staff/user/CRT records, source-original text glyph placement/row composition, hit semantics for Apply/Cancel, complete close/result state, and interactive Windows11 output. No exact-head test run/PR/CI for this branch yet; keep Gate13–17 OPEN.
+
+## Recovery582: authentic Cancel/Apply actions fire on mouse DOWN
+
+13 October 2026 KST. Independently disassembled unchanged original executable SHA-256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3, static only; original EXE not launched.
+
+- Original PSupportStart constructor 0x4CF1B1..0x4CF1DB assigns native action1 owner+0x1EB8 final vtable 0x7C0DA0, action2 owner+0x1F08 final vtable 0x7C0C58. 0x4C7CC6..0x4C7D2A binds event IDs 1 and 2 with Exit/Tick source sprites and local bounds (729,1,30,30)/(697,1,30,30). Both vtables +0x6C = 0x5D39C0 and +0x70 = 0x5D3A20. These differ from StaffGroupToggle's +0x6C = 0x5D6270.
+- Original 0x653480 accepts a native Win32 DOWN point, subtracts the registered modal origin, prefilters enabled bit0 and half-open action rectangle and dispatches vft+0x6C(point_pointer, nonzero=1).
+- Native action 0x5D39C0 calls vft+0x14(1) setting state bit0x04, then 0x64F7A0. After bit0x02 enabled and bit0x10 not pressed, the nonzero ID+owner callback at native +0x20/+0x24 calls PSupportStart final vft+0x0C = 0x42DE00 (constant 1). The 0x64F7A0 accepted branch sets bit0x10 through virtual+0x1C(1) and IMMEDIATELY invokes PSupportStart owner vft+0x10 = 0x4D05E0. Crucially it passes the control pointer as argument 1 and the pointer to local (x,y) as argument 2: source 0x4D05EE reads CONTROL+0x20 event ID 1/2, not mouse point+0x20.
+- Native event1 handler 0x4D061F sets modal result0 and posts WM_USER without calling Apply. Event2 handler 0x4D0606 invokes full selected-user staff and editable-name Apply 0x4D0830 BEFORE result1 and WM_USER. This is a MOUSE-DOWN action, not a mouse-up commit. Native 0x653510/0x5D3A20 handle release separately. Outer TeamSelect 0x4D91C0 still returns saved event-acceptance rather than inner modal result.
+- New reconstruction/original_supportstart_action_pointer.py composes verified original modal Win32 candidate, native action rectangle/state gates and existing full OriginalSupportStartEditorProjection.close(1|2) transaction. New tests cover Cancel, Apply, double-click, exact half-open hit boundaries, gap, disabled/pressed controls, overlapping staff row, mismatched window/viewport, and noncaptured inputs. Native source acceptance and pure result projection are not a player-visible UI or an actual modern GameState mutation.
+
+Native source reproduction commands with the private original binary (never commit it):
+
+    sha256sum footballmanager.exe
+    objdump -D -Mintel --start-address=0x4cf1b1 --stop-address=0x4cf1e2 footballmanager.exe
+    objdump -D -Mintel --start-address=0x4c7cc6 --stop-address=0x4c7d30 footballmanager.exe
+    objdump -s -j .rdata --start-address=0x7c0c58 --stop-address=0x7c0dc0 footballmanager.exe
+    objdump -D -Mintel --start-address=0x5d39c0 --stop-address=0x5d3a11 footballmanager.exe
+    objdump -D -Mintel --start-address=0x64f7a0 --stop-address=0x64f860 footballmanager.exe
+    objdump -D -Mintel --start-address=0x4d05e0 --stop-address=0x4d0641 footballmanager.exe
+
+NEXT: execute affected tests on the actual branch and source-check the complete seven-row source event input + native Apply/Cancel modal return. The ordinary original_game_host.py still lacks playable SupportStart: genuine selected-user/staff shared CRT source records, original 760x500 rendering, user editing, state writes and return remain missing. Do not replace that with guesswork. Exact-head CI, original-process observation and Windows11 GUI acceptance remain unverified; Gates13-17 OPEN.
