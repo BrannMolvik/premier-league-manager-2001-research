@@ -1292,3 +1292,57 @@ def source_fastview_popup_escape_event_value_only(*, original_key_word: int) -> 
         raise SourceFastViewTacticsSelectionError("original key WORD required")
     return (SOURCE_FASTVIEW_POPUP_ESCAPE_SENTINEL
             if original_key_word == SOURCE_FASTVIEW_POPUP_ESCAPE_KEY_WORD else None)
+
+
+# Original popup final vtable 0x7CAC64 also has virtual+0x20
+# 0x446690: a nonzero argument emits the SAME 0xFFFF via 0x6539F0
+# as the Escape+0x34 handler. Both requests go through a queued
+# Win32 PostMessageA(HWND, WM_USER=0x400, wParam=0xFFFF, lParam=0).
+# Original import thunk 0x7BD2D8 is USER32.PostMessageA, not SendMessage.
+# The +0x64 owner is dereferenced to get HWND at +0x04 by 0x659650.
+# A separate original message-pump virtual 0x532B80 recognizes 0x400
+# after GetMessageA and returns without Translate/DispatchMessage;
+# actual reachability of that pump FROM x133 popup remains unproven.
+SOURCE_FASTVIEW_POPUP_NONZERO_EVENT_METHOD_VA = 0x446690
+SOURCE_FASTVIEW_POPUP_NONZERO_EVENT_METHOD_OFFSET = 0x20
+SOURCE_FASTVIEW_POPUP_WIN32_POSTMESSAGE_IMPORT_VA = 0x7BD2D8
+SOURCE_FASTVIEW_POPUP_MESSAGE_PUMP_FILTER_VA = 0x532B80
+SOURCE_FASTVIEW_POPUP_EVENT_OWNER_POINTER_OFFSET = 0x64
+SOURCE_FASTVIEW_POPUP_EVENT_OWNER_HWND_OFFSET = 0x04
+
+
+@dataclass(frozen=True)
+class SourceFastViewPopupPostedMessage:
+    """Unsent native Win32 queue request; NEVER a completed modal action."""
+    win32_message: int
+    native_wparam_word: int
+    native_lparam: int
+
+
+def source_fastview_popup_posted_message_from_event(
+    *, native_event_word: int
+) -> SourceFastViewPopupPostedMessage:
+    """Source 0x6539F0/0x659650 *request*, no window/process execution.
+
+    This projects a posted message only; caller must separately have
+    actual original +0x64 event owner and verified HWND; no user click,
+    GUI close, state rollback or selected-index interpretation occurs.
+    """
+    if type(native_event_word) is not int or not 0 <= native_event_word <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original unsigned native event DWORD required")
+    return SourceFastViewPopupPostedMessage(
+        win32_message=SOURCE_FASTVIEW_POPUP_EVENT_CODE,
+        native_wparam_word=native_event_word & 0xFFFF,
+        native_lparam=0,
+    )
+
+
+def source_fastview_popup_virtual20_posted_event_value_only(
+    *, native_event_argument: int
+) -> SourceFastViewPopupPostedMessage | None:
+    """0x446690: nonzero DWORD generates asynchronous sentinel event."""
+    if type(native_event_argument) is not int or not 0 <= native_event_argument <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original callback argument DWORD required")
+    if native_event_argument == 0:
+        return None
+    return source_fastview_popup_posted_message_from_event(native_event_word=0xFFFF)
