@@ -99,3 +99,75 @@ def source_original_loaded_event_base_link_510900(
     pack_into("<I",after,8,pointer)
     return OriginalLoadedEventBaseLinkReceipt(
         vt,method,ident,selected,index,pointer,bytes(after))
+
+
+
+SOURCE_ORIGINAL_LOADED_MATCH_BASIC_V24_VA = 0x510970
+SOURCE_ORIGINAL_LOADED_MATCH_EXTENDED_V24_VA = 0x5109D0
+
+
+@dataclass(frozen=True)
+class OriginalLoadedLeagueMatchFieldReceipt:
+    """Exact post-0x510900 source class +0x24 saved-field writes only."""
+    source_match_vtable: int
+    original_source_virtual24_load_va: int
+    source_saved_match_flags44_dword: int
+    source_native_match_after_field_load: bytes
+
+
+def source_original_loaded_leaguematch_saved_fields_510970_5109d0(
+    *, original_native_record_after_base_load: bytes,
+    original_saved_match_flags44_dword: int,
+    original_saved_halfword_3c: int,
+    original_saved_halfword_3e: int,
+    original_saved_halfword_40: int,
+    original_saved_dword_48: int,
+    original_saved_extended_four_bytes_58_to_5b: bytes | None = None,
+) -> OriginalLoadedLeagueMatchFieldReceipt:
+    """Original 0x510970 and 0x5109D0 verified source direct reads.
+
+    Source 0x510970 calls 0x510900 first, then restores +0x44
+    DWORD, +0x3C/+0x3E/+0x40 WORDs, and +0x48 DWORD. Source
+    0x5109D0 calls 0x510970 first, then restores +0x58..0x5B
+    four consecutive bytes. This is a saved-record boundary only;
+    a subsequent native match callback can mutate these flags.
+    """
+    r=original_native_record_after_base_load
+    if type(r) is not bytes or len(r)<4:
+        raise OriginalLoadedEventLinkSourceError("authentic native match record required")
+    vt=unpack_from("<I",r,0)[0]
+    method=SOURCE_ORIGINAL_EVENT_LOAD_V24_BY_VTABLE.get(vt)
+    if method not in (
+        SOURCE_ORIGINAL_LOADED_MATCH_BASIC_V24_VA,
+        SOURCE_ORIGINAL_LOADED_MATCH_EXTENDED_V24_VA,
+    ):
+        raise OriginalLoadedEventLinkSourceError(
+            "original vtable does not have source-qualified LeagueMatch field loader")
+    extended=method==SOURCE_ORIGINAL_LOADED_MATCH_EXTENDED_V24_VA
+    if len(r)<(0x5C if extended else 0x4C):
+        raise OriginalLoadedEventLinkSourceError(
+            "original source match scratch missing saved-field offsets")
+    ints=(original_saved_match_flags44_dword,original_saved_dword_48)
+    halfs=(original_saved_halfword_3c,original_saved_halfword_3e,
+           original_saved_halfword_40)
+    if (any(type(i) is not int or not 0<=i<=0xFFFFFFFF for i in ints)
+            or any(type(i) is not int or not 0<=i<=0xFFFF for i in halfs)):
+        raise OriginalLoadedEventLinkSourceError(
+            "real original stored DWORD/WORD field values required")
+    extra=original_saved_extended_four_bytes_58_to_5b
+    if extended:
+        if type(extra) is not bytes or len(extra)!=4:
+            raise OriginalLoadedEventLinkSourceError(
+                "source extended original four saved bytes required")
+    elif extra is not None:
+        raise OriginalLoadedEventLinkSourceError(
+            "source basic +0x24 loader does not reach four extended fields")
+    after=bytearray(r)
+    pack_into("<I",after,0x44,original_saved_match_flags44_dword)
+    for addr,value in zip((0x3C,0x3E,0x40),halfs):
+        pack_into("<H",after,addr,value)
+    pack_into("<I",after,0x48,original_saved_dword_48)
+    if extended:
+        after[0x58:0x5C]=extra
+    return OriginalLoadedLeagueMatchFieldReceipt(
+        vt,method,original_saved_match_flags44_dword,bytes(after))
