@@ -91,3 +91,33 @@ def source_fastview_original_current_event_51f9f0(
         chosen_source_event_base_global_va=base_va,
         original_offset_from_source_base=index,
         original_source_event_record_pointer=chosen[index])
+
+
+NATIVE_FASTVIEW_EVENT_COMPARE_BY_INDIRECT_NAME_VA = 0x51F3C0
+NATIVE_FASTVIEW_EVENT_LIST_SORT_VA = 0x526DF0
+
+
+def source_fastview_original_event_name_less_51f3c0(
+    *, first_event_virtual14_returned_name_nul: bytes,
+    second_event_virtual14_returned_name_nul: bytes,
+) -> bool:
+    """Exact original name comparator passed to 0x526DF0 sort.
+
+    Native 0x51F3C0 invokes each candidate event+0x14 vtable+0,
+    dereferences its return+0x0C then follows its C-string pointer.
+    Caller supplies those REAL returned byte strings after original
+    dereferences; no names are inferred from modern GameState.
+    The source compares original unsigned byte values, returning 1
+    when first string is strictly lexicographically less. Equal names
+    return 0. Byte case, accents and non-ASCII are not normalized.
+    Reproducing 0x526DF0's complete ordering/tie algorithm and the
+    original 0x51FA70 child candidate selection is a separate step.
+    """
+    a,b=first_event_virtual14_returned_name_nul,second_event_virtual14_returned_name_nul
+    if (type(a) is not bytes or b"\x00" not in a
+        or type(b) is not bytes or b"\x00" not in b):
+        raise OriginalFastViewEventCollectionSourceError(
+            "two source-indirect original NUL-terminated event-name byte strings required")
+    a=a[:a.index(b"\x00")]
+    b=b[:b.index(b"\x00")]
+    return a<b
