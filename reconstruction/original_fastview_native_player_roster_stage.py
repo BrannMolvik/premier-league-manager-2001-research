@@ -292,3 +292,72 @@ def source_fastview_original_side_option_533ab0(
     if type(original_registry_slot_bytes) is not bytes or len(original_registry_slot_bytes) < 0x2C:
         raise SourceFastViewNativePlayerRosterError("native registry slot BYTE+0x2B required")
     return original_registry_slot_bytes[0x2B]
+
+
+SOURCE_FASTVIEW_CLUB_HUMAN_REGISTRY_TEST_VA = 0x4037B0
+SOURCE_FASTVIEW_NATIVE_HUMAN_CLUB_LOOP_VA = 0x4139F0
+SOURCE_FASTVIEW_NATIVE_HUMAN_LOOKUP_VA = 0x413B40
+SOURCE_FASTVIEW_NATIVE_CLUB_COUNTRY_TEST_VA = 0x5337C0
+SOURCE_FASTVIEW_NATIVE_COUNTRY_INDEX_LOOKUP_VA = 0x533830
+SOURCE_FASTVIEW_NATIVE_SHIPPED_MODE_STUB_VA = 0x6596A0
+SOURCE_FASTVIEW_NATIVE_CLUB_MODE_FIELD_VA = 0x533980
+
+
+def source_fastview_original_human_club_4037b0(
+    *, original_club_reference_dword: int,
+    original_human_registry_club_ids_in_link_order: tuple[int, ...],
+) -> int | None:
+    """0x4037B0→0x4139E0→0x4139F0 global human linked-list membership.
+
+    Source iterates global owner 0x874C10+0x9CC, follows node+0x04,
+    dereferences each DBRUser+0x5B4 and compares its DWORD+0x04 to
+    supplied club object+0x04. Native 0x413B40 returns the first matching
+    user from the same list, NOT only the current human manager. Return
+    its original list ordinal, or None when no member. Real pointer→ID
+    identity and registry contents must come from actual authenticated
+    original/port session, not from guessed selected-club defaults.
+    """
+    if type(original_club_reference_dword) is not int or not 0 <= original_club_reference_dword <= 0xFFFFFFFF:
+        raise SourceFastViewNativePlayerRosterError("native source club+0x04 DWORD required")
+    if (type(original_human_registry_club_ids_in_link_order) is not tuple
+        or len(original_human_registry_club_ids_in_link_order)>6
+        or any(type(v) is not int or not 0<=v<=0xFFFFFFFF
+               for v in original_human_registry_club_ids_in_link_order)):
+        raise SourceFastViewNativePlayerRosterError("qualified original 0..6 human club linked-list IDs required")
+    try:
+        return original_human_registry_club_ids_in_link_order.index(original_club_reference_dword)
+    except ValueError:
+        return None
+
+
+def source_fastview_original_country_header_5337c0(
+    *, original_club_record: bytes,
+    original_533830_country_indexes_germany_france_england: tuple[int, int, int],
+) -> bool:
+    """Shipped 0x5337C0 club+0x84 nonzero + three exact country-ID tests.
+
+    0x533830 obtains GLOBAL database indexes for fixed original string
+    literals Germany/France/England via the original name registry. It may
+    return -1 for an unresolvable name. Original compares the raw DWORD
+    value to club+0x14 (even if the lookup returns -1); its 0x6596A0
+    mode call is proven to unconditionally return zero in the shipped
+    original PE, so the England comparison is reachable. Never substitute
+    guessed country-ID constants or the reconstructed league index.
+    """
+    if type(original_club_record) is not bytes or len(original_club_record)<0x86:
+        raise SourceFastViewNativePlayerRosterError("source club+0x84 and country+0x14 required")
+    ids=original_533830_country_indexes_germany_france_england
+    if (type(ids) is not tuple or len(ids)!=3
+        or any(type(i) is not int or not -1<=i<=0x7FFFFFFF for i in ids)):
+        raise SourceFastViewNativePlayerRosterError("three qualified native 533830 database country lookup indexes required")
+    if unpack_from('<H',original_club_record,0x84)[0] == 0:
+        return False
+    native_club_country_dword=unpack_from('<I',original_club_record,0x14)[0]
+    return any(native_club_country_dword==(i&0xFFFFFFFF) for i in ids)
+
+
+def source_fastview_original_header_mode_word_533980(*, original_club_record: bytes) -> int:
+    """Original 0x6596A0 always eax=0; 0x533980 reads WORD club+0xD8."""
+    if type(original_club_record) is not bytes or len(original_club_record)<0xDA:
+        raise SourceFastViewNativePlayerRosterError("qualified club record through +0xD9 required")
+    return unpack_from('<H',original_club_record,0xD8)[0]
