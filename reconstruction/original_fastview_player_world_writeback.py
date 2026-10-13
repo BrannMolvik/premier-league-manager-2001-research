@@ -141,3 +141,48 @@ def source_fastview_original_player_low5_low4_setters_4ea330(
     updated[3] = (updated[3] & 0xE0) | (native_low5_parameter_dword & 0x1F)
     updated[4] = (updated[4] & 0xF0) | (native_low4_parameter_byte & 0x0F)
     return bytes(updated)
+
+
+@dataclass(frozen=True)
+class SourceFastViewPlayerPreModalGlobals:
+    original_low5_globals_320: bytes
+    original_low4_globals_320: bytes
+
+
+def source_fastview_original_player_field_pre_modal_capture_533bf0(
+    *, original_player_subobjects_by_side: tuple[tuple[bytes, ...], tuple[bytes, ...]],
+    original_low5_globals_before: bytes,
+    original_low4_globals_before: bytes,
+) -> SourceFastViewPlayerPreModalGlobals:
+    """Original 0x533BF0 getter+capture values from source-supplied players.
+
+    Real source 0x533BF0 iterates native side record+0x294 count, resolves
+    each source player ID from side club+0x244+2*i via registry 0x875644,
+    takes its pointer+0x248 and calls low5 getter 0x4EA3C0 and low4
+    getter 0x4EA3D0, storing both as DWORD at 0xA0*side+4*i.
+    Caller must separately establish real player-ID->subobject order.
+    Zero-length lists are source possible; unknown lists fail closed.
+    Neither original global buffer is initialized to zeros here.
+    """
+    from struct import pack_into
+
+    if (type(original_player_subobjects_by_side) is not tuple or
+            len(original_player_subobjects_by_side) != 2 or
+            any(type(side) is not tuple or len(side) > 20
+                for side in original_player_subobjects_by_side)):
+        raise SourceFastViewPlayerWorldWritebackError(
+            "two original enumerated per-side player subobject tuples required")
+    for data in (original_low5_globals_before, original_low4_globals_before):
+        if type(data) is not bytes or len(data) != SOURCE_FASTVIEW_NATIVE_PLAYER_GLOBAL_BYTES:
+            raise SourceFastViewPlayerWorldWritebackError(
+                "original per-player global memory must be 320 immutable bytes")
+    first=bytearray(original_low5_globals_before)
+    second=bytearray(original_low4_globals_before)
+    for side, players in enumerate(original_player_subobjects_by_side):
+        for ordinal, player in enumerate(players):
+            low5,low4 = source_fastview_original_player_low5_low4_getters_4ea3c0(
+                original_player_attribute_bytes=player)
+            offset = side*SOURCE_FASTVIEW_NATIVE_PLAYER_GLOBAL_SIDE_STRIDE + 4*ordinal
+            pack_into("<I",first,offset,low5)
+            pack_into("<I",second,offset,low4)
+    return SourceFastViewPlayerPreModalGlobals(bytes(first),bytes(second))
