@@ -28,6 +28,7 @@ from original_fastview_tactics_selection import (
     SourceFastViewNativeCandidate,
     source_fastview_native_candidates_52f690,
     source_fastview_redraw_rows_52f690,
+    source_fastview_6c2770_side_payload_value_only,
 )
 
 
@@ -433,6 +434,95 @@ class NativeFastViewRefreshOriginalSourceTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va, len(bytes.fromhex(hex_bytes))),
                                  bytes.fromhex(hex_bytes))
+
+
+
+class NativeFastViewSideSwapSourceTests(unittest.TestCase):
+    """Source primitive value tests; does not bypass native validator."""
+
+    def fixture(self):
+        words = [0] * 70
+        words[5] = 11
+        words[8] = 0x11223344
+        words[11] = 0xAABBCCDD
+        words[26] = 0x76543210
+        words[29] = 0xABCDEF00
+        data = bytearray(struct.pack("<70I", *words))
+        data[0xF0] = 11
+        data[0xF1] = 3
+        data[0xF2:0xFD] = bytes(range(11))
+        data[0x109] = 9
+        return OriginalFastViewTacticsSelectionDraft(bytes(data))
+
+    def test_source_swap_and_two_counters_and_word_copies(self):
+        original = self.fixture()
+        flags = [0] * 20
+        flags[2] = 1
+        out = source_fastview_6c2770_side_payload_value_only(
+            original, source_from_player_index=2,
+            source_to_player_index=5, source_club_guard_flags=tuple(flags))
+        self.assertEqual(out.original_side_bytes[0xF2:0xFD],
+                         bytes((0, 1, 5, 3, 4, 2, 6, 7, 8, 9, 10)))
+        self.assertEqual(out.original_side_bytes[0xF0:0xF2], bytes((10, 4)))
+        self.assertEqual(out.original_side_bytes[0x109], 0)
+        self.assertEqual(struct.unpack_from("<I", out.original_side_bytes, 0x18 + 4 * 5)[0],
+                         0x11223344)
+        self.assertEqual(struct.unpack_from("<I", out.original_side_bytes, 0x60 + 4 * 5)[0],
+                         0x76543210)
+        self.assertEqual(original, self.fixture())
+        flags[2], flags[5] = 0, 1
+        other = source_fastview_6c2770_side_payload_value_only(
+            original, source_from_player_index=2,
+            source_to_player_index=5, source_club_guard_flags=tuple(flags))
+        self.assertEqual(other.original_side_bytes[0xF1], 2)
+
+    def test_invalid_unknown_native_record_fail_closed(self):
+        base = dict(draft=self.fixture(), source_from_player_index=2,
+                    source_to_player_index=5, source_club_guard_flags=(0,) * 20)
+        for modified in ({"source_from_player_index": True},
+                         {"source_to_player_index": 20},
+                         {"source_club_guard_flags": (0,) * 4},
+                         {"source_club_guard_flags": [0] * 20},
+                         {"source_from_player_index": 19},
+                         {"draft": None}):
+            with self.subTest(modified=modified), self.assertRaises(SourceFastViewTacticsSelectionError):
+                source_fastview_6c2770_side_payload_value_only(**(base | modified))
+        data = bytearray(self.fixture().original_side_bytes)
+        struct.pack_into("<I", data, 0x14, 0)
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_6c2770_side_payload_value_only(
+                OriginalFastViewTacticsSelectionDraft(bytes(data)),
+                source_from_player_index=2, source_to_player_index=5,
+                source_club_guard_flags=(0,) * 20)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_authentic_6c2770_instruction_stubs_and_branch_gate(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        probes = (
+            (0x6C2770, "8b 44 24 04"),
+            (0x6C277A, "8b 68 14"),
+            (0x6C2787, "8a 8c 30 f2 00 00 00"),
+            (0x6C27A5, "8a 8c 38 f2 00 00 00"),
+            (0x6C27BD, "fe c9"),
+            (0x6C27C5, "c6 84 10 04 01 00 00 00"),
+            (0x6C27DB, "8b 4c 98 18"),
+            (0x6C27DF, "89 4c 90 18"),
+            (0x6C27E3, "8b 4c 98 60"),
+            (0x6C27E7, "89 4c 90 60"),
+            (0x6C2800, "8a 9c ce 0c 4c a1 00"),
+            (0x6C280B, "fe 80 f1 00 00 00"),
+            (0x6C2815, "8a 8c d6 0c 4c a1 00"),
+            (0x6C2823, "fe 88 f1 00 00 00"),
+            (0x52EC15, "84 c0"),
+            (0x52EC17, "75 7d"),
+            (0x52EC23, "e8 48 3b 19 00"),
+            (0x52EC46, "e8 85 49 10 00"),
+        )
+        for va, hx in probes:
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(hx))), bytes.fromhex(hx))
 
 
 if __name__ == "__main__":
