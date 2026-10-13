@@ -56,6 +56,7 @@ class OriginalSavedEventBaseLinkReceipt:
 
 def source_original_saved_event_link_index_5107f0(
     *, original_native_source_event_record: bytes,
+    original_native_link_target_address: int | None,
     original_native_link_target_event_record: bytes | None,
 ) -> OriginalSavedEventBaseLinkReceipt:
     """Original base +0x20 writer: raw +0x10, then target-ID>>1.
@@ -75,11 +76,19 @@ def source_original_saved_event_link_index_5107f0(
     method=allowed.get(vt)
     if method is None or vt not in SOURCE_ORIGINAL_EVENT_LOAD_V24_BY_VTABLE:
         raise OriginalSavedEventLinkSourceError("source original event v+0x20 not authenticated")
+    actual_pointer=unpack_from("<I",source,8)[0]
     target=original_native_link_target_event_record
-    if target is None:
+    addr=original_native_link_target_address
+    if actual_pointer==0:
+        if target is not None or addr is not None:
+            raise OriginalSavedEventLinkSourceError(
+                "original source event+8 NULL; target cannot be supplied")
         saved_index=SOURCE_ORIGINAL_EVENT_NULL_LINK_SENTINEL
         linked=False
     else:
+        if type(addr) is not int or addr!=actual_pointer:
+            raise OriginalSavedEventLinkSourceError(
+                "actual original source event+8 pointer and target address must match")
         if type(target) is not bytes or len(target)<0x10:
             raise OriginalSavedEventLinkSourceError("original link target+0x0C id required")
         target_vtable=unpack_from("<I",target,0)[0]
