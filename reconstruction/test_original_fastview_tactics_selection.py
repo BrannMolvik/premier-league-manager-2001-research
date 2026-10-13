@@ -4,6 +4,13 @@ import unittest
 import os
 from pathlib import Path
 
+from original_fastview_two_sided_live_writeback import (
+    SourceFastViewTwoSideBlockState,
+    OriginalFastViewTwoSideWritebackError,
+    source_fastview_pre_modal_two_side_block_values_533bf0,
+    source_fastview_post_modal_two_side_block_values_533ca0,
+)
+
 from original_fastview_tactics_selection import (
     source_fastview_x133_popup_clip_52d190,
     source_fastview_popup_escape_event_value_only,
@@ -2293,6 +2300,102 @@ class OriginalFastViewCompleteConditionalRowSelectionChainTests(unittest.TestCas
         self.assertIsNone(source_fastview_original_popup_option_activation_653a10(
             original_option_ordinal=0,original_list_index_base=0,
             original_option_count=1,native_callback_argument=0).posted_wm_user)
+
+
+
+class OriginalFastViewOuterModalTwoSidedWorldBlockTests(unittest.TestCase):
+    """Native modal 0x5331C0: pre two-side copy, modal, post two-side copy."""
+
+    def test_native_pre_modal_capture_reads_20_dwords_from_both_club_owners(self):
+        first=bytearray(b"A"*0x300)
+        second=bytearray(b"B"*0x300)
+        first[0x244:0x294]=b"C"*0x50
+        second[0x244:0x294]=b"D"*0x50
+        sides=SourceFastViewTwoSideBlockState(bytes(first),bytes(second))
+        globals_in=b"G"*0x140
+        captured=source_fastview_pre_modal_two_side_block_values_533bf0(
+            live_side_records=sides,original_global_side_memory=globals_in)
+        self.assertEqual(len(captured),0x140)
+        self.assertEqual(captured[:0x50],b"C"*0x50)
+        self.assertEqual(captured[0x50:0xA0],b"G"*0x50)
+        self.assertEqual(captured[0xA0:0xF0],b"D"*0x50)
+        self.assertEqual(captured[0xF0:],b"G"*0x50)
+        self.assertEqual(sides.first_side_bytes[0x244:0x294],b"C"*0x50)
+
+    def test_native_after_modal_copies_both_80byte_blocks_with_no_other_world_writes(self):
+        original=SourceFastViewTwoSideBlockState(b"a"*0x300,b"b"*0x300)
+        global_after=bytearray(b"#"*0x140)
+        global_after[:0x50]=b"X"*0x50
+        global_after[0xA0:0xF0]=b"Y"*0x50
+        output=source_fastview_post_modal_two_side_block_values_533ca0(
+            live_side_records=original,
+            original_global_side_memory_after_modal=bytes(global_after))
+        self.assertEqual(output.first_side_bytes[:0x244],b"a"*0x244)
+        self.assertEqual(output.first_side_bytes[0x244:0x294],b"X"*0x50)
+        self.assertEqual(output.first_side_bytes[0x294:],b"a"*(0x300-0x294))
+        self.assertEqual(output.second_side_bytes[:0x244],b"b"*0x244)
+        self.assertEqual(output.second_side_bytes[0x244:0x294],b"Y"*0x50)
+        self.assertEqual(output.second_side_bytes[0x294:],b"b"*(0x300-0x294))
+        self.assertEqual(original.first_side_bytes,b"a"*0x300)
+
+    def test_source_data_pre_modal_then_single_side_edit_preserves_other_side(self):
+        before=SourceFastViewTwoSideBlockState(
+            b"\x11"*0x300,b"\x22"*0x300)
+        g0=source_fastview_pre_modal_two_side_block_values_533bf0(
+            live_side_records=before,original_global_side_memory=b"\x00"*0x140)
+        updated=bytearray(g0)
+        updated[0x20:0x24]=b"\x12\x34\x56\x78"
+        staged=source_fastview_post_modal_two_side_block_values_533ca0(
+            live_side_records=before,
+            original_global_side_memory_after_modal=bytes(updated))
+        self.assertEqual(staged.first_side_bytes[0x244+0x20:0x244+0x24],
+                         b"\x12\x34\x56\x78")
+        self.assertEqual(staged.second_side_bytes,b"\x22"*0x300)
+
+    def test_missing_original_side_bytes_or_invalid_mutable_memory_rejected(self):
+        for first,second in ((b"X"*0x293,b"Y"*0x300),
+                             (b"X"*0x300,b"Y"*0x293),
+                             (bytearray(b"X"*0x300),b"Y"*0x300)):
+            with self.subTest(first=len(first),second=len(second)),self.assertRaises(
+                OriginalFastViewTwoSideWritebackError):
+                SourceFastViewTwoSideBlockState(first,second)
+        good=SourceFastViewTwoSideBlockState(b"X"*0x300,b"Y"*0x300)
+        for wrong in (None,b"\x00"*0x13F,b"\x00"*0x141,bytearray(b"\x00"*0x140)):
+            with self.subTest(value=repr(type(wrong))),self.assertRaises(
+                OriginalFastViewTwoSideWritebackError):
+                source_fastview_pre_modal_two_side_block_values_533bf0(
+                    live_side_records=good,original_global_side_memory=wrong)
+            with self.assertRaises(OriginalFastViewTwoSideWritebackError):
+                source_fastview_post_modal_two_side_block_values_533ca0(
+                    live_side_records=good,original_global_side_memory_after_modal=wrong)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original owner-authorized source exe not mounted")
+    def test_original_outer_modal_phase_order_and_both_side_native_copy(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va,hx in (
+            (0x5331FD,"56 e8 6d 00 00 00"),
+            (0x533203,"e8 e8 ea 18 00"),
+            (0x533209,"e8 e2 09 00 00"),
+            (0x533236,"e8 15 f4 ff ff"),
+            (0x53323B,"56 e8 5f 0a 00 00"),
+            (0x533253,"e8 78 c4 fe ff"),
+            (0x533C1D,"b9 14 00 00 00"),
+            (0x533C24,"8d b8 f4 7c 87 00"),
+            (0x533C2A,"f3 a5"),
+            (0x533C87,"42"),
+            (0x533CCE,"c1 e0 05"),
+            (0x533CD1,"b9 14 00 00 00"),
+            (0x533CD8,"8d b0 f4 7c 87 00"),
+            (0x533CE0,"f3 a5"),
+            (0x533CF8,"85 c9"),
+            (0x533D0A,"83 fb 0b"),
+            (0x533D69,"42"),
+        ):
+            with self.subTest(original_va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
 
 if __name__ == "__main__":
     unittest.main()
