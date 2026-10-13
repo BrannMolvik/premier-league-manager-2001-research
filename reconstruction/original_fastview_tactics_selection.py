@@ -1460,3 +1460,58 @@ def source_fastview_native_popup_option_dimensions_449610(
         native_height=SOURCE_FASTVIEW_POPUP_OPTION_ROW_PITCH * count
                       + SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION,
     )
+
+
+# The original popup vtable+4 0x449300 creates native nested list at
+# popup+0x13C (vtable 0x7BFD5C). At 0x449434..0x449457 it invokes
+# nested virtual+B0=0x446740 with live popup+0x68 source list, N
+# computed at +0x6C, child+0x78 width, row pitch 15, record stride 8,
+# and content height 15*N. Adapter 0x446740 calls 0x6510F0, which
+# allocates 4+48*N bytes for N native row child records, constructor
+# 0x651280 (vtable 0x7D8118), stores child+0x64=parent list, and
+# child+0x68=parent+0x3C native index base + ordinal. This is not
+# evidence for screen-space hit rectangles or delivery order.
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_PARENT_OFFSET = 0x13C
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_VTABLE = 0x7BFD5C
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_SETUP_SLOT = 0xB0
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_SETUP_ADAPTER_VA = 0x446740
+SOURCE_FASTVIEW_POPUP_NESTED_LIST_ALLOCATOR_VA = 0x6510F0
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_CONSTRUCTOR_VA = 0x651280
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_VTABLE = 0x7D8118
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_SIZE = 0x30
+SOURCE_FASTVIEW_POPUP_NATIVE_OPTION_ROW_ARRAY_COUNT_HEADER = 4
+SOURCE_FASTVIEW_POPUP_OPTION_CHILD_NATIVE_INDEX_OFFSET = 0x68
+SOURCE_FASTVIEW_POPUP_OPTION_CHILD_OWNER_OFFSET = 0x64
+
+
+@dataclass(frozen=True)
+class SourceFastViewPopupNativeOptionRow:
+    ordinal: int
+    native_row_blob_byte_offset: int
+    native_callback_index: int
+
+
+def source_fastview_popup_native_option_rows_6510f0(
+    *, native_option_count: int, native_first_index: int
+) -> tuple[SourceFastViewPopupNativeOptionRow, ...]:
+    """Read-only native constructed-row identities without click inference.
+
+    Native 0x6510F0 creates 0x30-byte children in ordinal order,
+    assigning each child+0x68 = parent+0x3C + ordinal. For the x133
+    popup, the source +8 record stride and 15px nominal pitch are
+    supplied earlier by original 0x449300/0x446740, not generated here.
+    """
+    if type(native_option_count) is not int or not 0 <= native_option_count <= (0x7FFFFFFF - 4)//0x30:
+        raise SourceFastViewTacticsSelectionError("qualified native option row count required")
+    if type(native_first_index) is not int or not 0 <= native_first_index <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("original native row index base DWORD required")
+    if native_first_index + native_option_count > 0x100000000:
+        raise SourceFastViewTacticsSelectionError("unqualified native row index DWORD overflow")
+    return tuple(
+        SourceFastViewPopupNativeOptionRow(
+            ordinal=i,
+            native_row_blob_byte_offset=4+i*0x30,
+            native_callback_index=native_first_index+i,
+        )
+        for i in range(native_option_count)
+    )
