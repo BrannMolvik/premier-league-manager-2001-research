@@ -40,6 +40,7 @@ class OriginalNativeScheduleConstructorEvidence:
 # so no one particular branch/callsite is claimed for a symbolic emission.
 SOURCE_NATIVE_STARTUP_MATCH_PRODUCERS = {
     "fixed_league_match": (0x6173D0, 0x617490, 0x5104F0, 1),
+    "league_match": (0x616FC0, 0x617047, 0x5104F0, 1),
     "cup_match": (0x4F64D0, 0x4F66C9, 0x510520, 2),
     "first_leg_match": (0x4F6820, 0x4F6A02, 0x510640, 4),
     "second_leg_match": (0x4F6820, 0x4F6A64, 0x510680, 5),
@@ -47,6 +48,8 @@ SOURCE_NATIVE_STARTUP_MATCH_PRODUCERS = {
 }
 SOURCE_SCOTTISH_SPLIT_CLASS_CALLSITES = (0x4FADBE, 0x4FAE30)
 SOURCE_PROCEDURAL_PAIR_GENERATOR_VA = 0x6170F0
+SOURCE_GENERIC_PROCEDURAL_EVENT_EMITTER_VA = 0x616FC0
+SOURCE_SCOTTISH_PROCEDURAL_EVENT_OVERRIDE_VA = 0x6170A0
 
 
 def source_original_schedule_constructor_for_verified_producer(
@@ -56,11 +59,16 @@ def source_original_schedule_constructor_for_verified_producer(
 ) -> OriginalNativeScheduleConstructorEvidence:
     """Require explicit original production source, never a naked node kind.
 
-    The generated procedural League pairs from 0x6170F0 are NOT declared
-    native class instances merely because a fixed League event emitter
-    at 0x6173D0 uses 0x5104F0. That producer-to-event transition needs a
-    separate original source trace. Scottish split uses one of two
-    original class-identical source calls and leaves callsite unknown.
+    The generated procedural League pairs from 0x6170F0 must be
+    distinguished from their ACTUAL native event emitter 0x616FC0,
+    called for generic League via vtable+0x3C at 0x617310.
+    The emitter allocates 0x50, constructs 0x5104F0 at 0x617047,
+    resolves its original calendar owner at 0x617071 and inserts
+    through 0x615950 at 0x617078. Scottish League vtable+0x3C
+    may instead reach 0x6170A0, whose final synthetic cycle is
+    retained as pairs rather than constructed as matches.
+    This only qualifies emitted class, NOT live original event identity.
+    Scottish split uses two class-identical calls and leaves site unknown.
     """
     if type(source_emission_kind) is not str:
         raise OriginalScheduleProducerSourceError("original source emission kind required")
