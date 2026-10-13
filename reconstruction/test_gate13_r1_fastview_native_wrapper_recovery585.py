@@ -183,5 +183,63 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                                  bytes.fromhex(encoded))
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_nested_modal_screen_choice_result_and_restoration(self):
+        """Guard native two-panel modal construction and conditional parent return."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x5222A3, "c6 86 b5 02 00 00 01"), # parent busy on nested opening
+            (0x5222BD, "ff 50 34"), (0x5222CE, "ff 52 34"),
+            (0x5222DF, "ff 50 34"), (0x5222EE, "ff 52 34"), # four child transitions
+            (0x522354, "e8 f7 14 ee ff"), (0x52235B, "74 5a"), # branch predicate
+            (0x52235D, "68 b0 48 00 00"), (0x52237F, "e8 3c b3 00 00"), # class A
+            (0x522396, "68 58 02 00 00"), (0x52239B, "68 20 03 00 00"),
+            (0x5223AC, "e8 6f 0f 13 00"), # class A 800x600 host
+            (0x5223B7, "68 4c 2d 00 00"), (0x5223DB, "e8 b0 d4 00 00"), # class B
+            (0x5223F6, "68 58 02 00 00"), (0x5223FB, "68 20 03 00 00"),
+            (0x52240C, "e8 0f 0f 13 00"), # class B 800x600 host
+            (0x522423, "e8 28 02 01 00"), # nested synchronous modal
+            (0x522428, "85 c0"), (0x522445, "e8 56 fb ff ff"), # conditional update
+            (0x52244E, "c6 86 b5 02 00 00 00"), # clear busy flag
+            (0x522455, "ff 52 30"), (0x52245D, "ff 50 30"),
+            (0x522464, "ff 52 30"), (0x522473, "ff 50 30"), # restore children
+            (0x52249F, "e8 ac 0e 13 00"), # parent redraw
+            (0x5224B4, "ff 12"), # destroy nested owned child
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_original_modal_wm_user_wparam_return_and_escape(self):
+        """Native Escape 0 versus nonzero nested result, not a generic close."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x521DB5, "6a 00 e8 34 1c 13 00"), # Escape posts 0
+            (0x6539F7, "25 ff ff 00 00"),       # original WORD mask
+            (0x6539FC, "6a 00"), (0x6539FE, "50"),
+            (0x6539FF, "68 00 04 00 00"),       # WM_USER
+            (0x659663, "ff 15 d8 d2 7b 00"),    # original PostMessageA
+            (0x532BBF, "81 7c 24 14 00 04 00 00"),
+            (0x532BF9, "8b 44 24 18"),          # MSG.wParam returned
+            (0x654258, "8b 07 8b cf ff 10"),    # modal owner callback
+            (0x65429B, "8b c7"),                # return value relayed
+            (0x522428, "85 c0"),                # conditional branch
+            (0x522445, "e8 56 fb ff ff"),      # nonzero -> source 0x521fa0
+            (0x521FC7, "e8 54 fc 19 00"),      # nested update downstream
+            (0x522052, "e8 19 60 ff ff"),      # nested update downstream
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
