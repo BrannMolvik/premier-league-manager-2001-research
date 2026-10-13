@@ -638,6 +638,47 @@ class SourceFastViewAuxiliaryNativeSelectionTests(unittest.TestCase):
 
 
 
+
+    def test_original_651ac0_wrapper_does_not_double_dispatch_base_parent_callbacks(self):
+        for event_flag in (False, True):
+            for callback_flag in (False, True):
+                with self.subTest(event=event_flag, callback=callback_flag):
+                    out = source_fastview_aux_child_input_outcome_651ac0(
+                        base_dispatch_result=1, native_selection_index=0xFFFF,
+                        child_has_registered_event=event_flag,
+                        child_input_callback_argument_nonzero=callback_flag,
+                    )
+                    self.assertEqual(out.source_parent_callbacks_from_this_child_route,
+                                     (0x10,) if event_flag and callback_flag else ())
+        denied = source_fastview_aux_child_input_outcome_651ac0(
+            base_dispatch_result=0, native_selection_index=None,
+            child_has_registered_event=True,
+            child_input_callback_argument_nonzero=True,
+        )
+        self.assertEqual(denied.source_parent_callbacks_from_this_child_route, ())
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner-private original EXE not mounted")
+    def test_child_calls_base_with_zero_parent_callback_arg_exact_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va, expected in (
+            (0x651AC6, "6a 00"),
+            (0x651ACA, "55"),
+            (0x651ACB, "e8 d0 dc ff ff"),
+            (0x64F7CF, "85 ed"),
+            (0x64F7D1, "74 0e"),
+            (0x64F811, "85 ed"),
+            (0x64F813, "74 0a"),
+            (0x651B3F, "8b 46 20"),
+            (0x651B46, "8b 44 24 18"),
+            (0x651B4E, "8b 4e 24 55 56 8b 01 ff 50 10"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(expected))),
+                                 bytes.fromhex(expected))
+
+
 class SourceFastViewOriginalValidatorEmptyListTests(unittest.TestCase):
     """Bounded first-call outcome; nonempty edit replay stays unmodeled."""
 
