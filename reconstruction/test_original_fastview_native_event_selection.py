@@ -62,19 +62,35 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             {'original_5112e0_virtual30_return_byte':-1},
             {'original_native_event_current_9847fc':True},
             {'original_native_event_current_9847fc':0x100000000},
-            {'original_nonzero_event_base_947af8':None},
+            {'original_zero_event_base_947ae0':None},
             {'original_zero_event_base_947ae0':-1},
             {'original_zero_events_by_native_index':(0x2000,)},
             {'original_zero_events_by_native_index':(0,0x2010)},
             {'original_zero_events_by_native_index':[0x2000,0x2010]},
             {'original_zero_events_by_native_index':(0x2000,True)},
-            {'original_nonzero_events_by_native_index':(0x1000,None)},
+            {'original_zero_events_by_native_index':(0x2000,None)},
         )
         for change in changes:
             with self.subTest(change=repr(change)),self.assertRaises(OriginalFastViewEventCollectionSourceError):
                 source_fastview_original_current_event_51f9f0(**(a|change))
         self.assertEqual(source_fastview_original_current_event_51f9f0(
             **a).original_source_event_record_pointer,0x2010)
+        # Original only dereferences the mode-selected native array/base.
+        skipped=source_fastview_original_current_event_51f9f0(**(a|{
+            'original_nonzero_event_base_947af8':None,
+            'original_nonzero_events_by_native_index':None}))
+        self.assertEqual(skipped.original_source_event_record_pointer,0x2010)
+        self.assertEqual(source_fastview_original_current_event_51f9f0(**(a|{
+            'original_5112e0_virtual30_return_byte':1,
+            'original_zero_event_base_947ae0':None,
+            'original_zero_events_by_native_index':None
+        })).original_source_event_record_pointer,0x1040)
+        for change in (
+            {'original_5112e0_virtual30_return_byte':1,'original_nonzero_event_base_947af8':None},
+            {'original_5112e0_virtual30_return_byte':1,'original_nonzero_events_by_native_index':None}):
+            with self.subTest(change=repr(change)),self.assertRaises(OriginalFastViewEventCollectionSourceError):
+                source_fastview_original_current_event_51f9f0(**(a|change))
+
 
     def test_native_51f3c0_unsigned_event_names_sort_without_normalization(self):
         from original_fastview_native_event_selection import source_fastview_original_event_name_less_51f3c0
