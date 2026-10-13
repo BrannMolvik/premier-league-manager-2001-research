@@ -456,8 +456,9 @@ def source_fastview_aux_child_input_outcome_651ac0(
     )
 
 
-# 0x633240 counts original staged edit nodes via the polymorphic vft+4
-# visitor. The original base record virtual +4 is NOT a benign no-op;
+# 0x633240 counts only *replacement-class* staged edit nodes via the
+# polymorphic vft+4 visitor. Seven other source record types forward to
+# visitor slots +0x08..+0x20, which are native 0x6596D0 no-op stubs. The original base record virtual +4 is NOT a benign no-op;
 # vft 0x7D7F90 (0x6335D0 replacement record) +4 -> 0x633600,
 # forwards to count-visitor vft 0x7D803C+4 -> 0x634E40.
 # 0x633020 returns AL==0 *when this count is zero*; for nonzero
@@ -484,10 +485,13 @@ def source_fastview_633020_result_when_original_list_empty(
     """Read-only 0x633020 AL when authentic staged replacement list empty.
 
     Source 0x633020 first calls 0x633240 and checks EAX==0 at 0x63304E.
-    The zero-count path branches to 0x63317E and returns AL=0. This is
+    The zero-count path branches to 0x63317E and returns AL=0. An empty
+    *total* staged list is sufficient but not necessary: other source edit
+    classes do not increment the replacement visitor's counter. This is
     independent of earlier child status and dropdown event dispatch.
-    A positive node count MUST NOT be modeled as AL=0/1 here: it needs
-    complete original polymorphic replay and a valid list identity.
+    A positive TOTAL node count MUST NOT be modeled by this restricted
+    helper: it needs an authenticated eight-type record inventory to tell
+    whether the original replacement visitor still returned zero.
     This helper does not produce an edit or write match-side state.
     """
     if (type(original_staged_edit_count) is not int or
@@ -546,3 +550,64 @@ def source_fastview_original_staged_record_visitor_dispatch(
         if native_record_vtable == vtable:
             return OriginalFastViewStagedEditVisitorDispatch(vtable, target, offset)
     raise SourceFastViewTacticsSelectionError("unverified native FastView staged edit class")
+
+
+# Source 0x633240's visitor (0x7D803C): only offset +0x04 increments
+# the counter; +0x08/+0x0C/+0x10/+0x14/+0x18/+0x1C/+0x20 all
+# point to original 0x6596D0 (ret 4, does not touch counter). Therefore
+# a nonempty original staged list containing NO 0x7D7F90 replacement
+# records STILL returns zero from native 0x633240/0x633020.
+# This corrects Recovery590/591's overbroad "counts all edits" claim.
+SOURCE_FASTVIEW_COUNT_VISITOR_NOOP_VA = 0x6596D0
+SOURCE_FASTVIEW_COUNT_VISITOR_INCREMENT_SLOT = 0x04
+SOURCE_FASTVIEW_REPLACEMENT_RECORD_CLASS_VTABLE = 0x7D7F90
+SOURCE_FASTVIEW_STAGED_TOTAL_NODE_COUNT_OFFSET = 0x48AC
+
+
+def source_fastview_633240_count_replacement_records(
+    *, original_staged_record_vtables: tuple[int, ...]
+) -> int:
+    """Source-equivalent bounded 0x633240 counter for eight known record types.
+
+    Requires the actual original staged-list record-class inventory; this
+    is NOT equivalent to screen+0x48AC total node count. The exact source
+    counts only visitor+0x04 0x7D7F90 replacement records. All other seven
+    verified source edit classes dispatch native no-op visitor callbacks.
+    Unknown or invalid record classes fail closed before any simulated
+    counting. No edits, callbacks or original GUI state are changed.
+    """
+    if type(original_staged_record_vtables) is not tuple:
+        raise SourceFastViewTacticsSelectionError(
+            "native staged edit record-class inventory must be a tuple"
+        )
+    valid = {row[0] for row in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH}
+    count = 0
+    for vtable in original_staged_record_vtables:
+        if type(vtable) is not int or vtable not in valid:
+            raise SourceFastViewTacticsSelectionError(
+                "original native staged record vtable not source verified"
+            )
+        if vtable == SOURCE_FASTVIEW_REPLACEMENT_RECORD_CLASS_VTABLE:
+            count += 1
+    return count
+
+
+def source_fastview_633020_result_without_replacement_records(
+    *, original_staged_record_vtables: tuple[int, ...]
+) -> int:
+    """Bounded native validator AL==0 when its replacement count is zero.
+
+    Unlike the earlier *total-list-empty* projection, this also admits
+    genuine other-type-only edit inventories. A replacement-class node
+    triggers the original 0x6331A0 polymorphic replay, which this helper
+    must NOT pretend to understand. All earlier control status/range
+    guards and possible callback duplicates remain independent.
+    """
+    count = source_fastview_633240_count_replacement_records(
+        original_staged_record_vtables=original_staged_record_vtables
+    )
+    if count:
+        raise SourceFastViewTacticsSelectionError(
+            "native replacement-class replay is not yet source-complete"
+        )
+    return 0
