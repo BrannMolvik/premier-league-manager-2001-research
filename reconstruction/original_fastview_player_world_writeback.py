@@ -307,3 +307,67 @@ def source_fastview_original_substitute_pre_restore_reset_4ea370(
         native_low5_parameter_dword=original_player_subobject_bytes[0],
         native_low4_parameter_byte=0,
     )
+
+
+# Original starter 0x4182F0 conditional tail:
+# source 0x417340 result nonzero -> skip;
+# otherwise player+0x14 BIT13 set -> skip; otherwise 0x41EDF0.
+# 0x41EDF0 itself requires player+0x14 BIT12. It clears BIT12,
+# selects native shared count if signed player WORD+0x72 negative,
+# else uses 680-byte registry entry (global0x874B90+0x2A8*index)
+# DWORD+0x1A8. If the selected count is positive, decrements by one.
+# This is a source-only external *intent*; actual registry pointer and
+# 0x417340 implementation remain unknown to the projection.
+SOURCE_FASTVIEW_STARTER_CONDITIONAL_GATE_VA = 0x417340
+SOURCE_FASTVIEW_STARTER_CONDITIONAL_COUNT_METHOD_VA = 0x41EDF0
+SOURCE_FASTVIEW_STARTER_COUNT_ARRAY_GLOBAL_VA = 0x874B90
+SOURCE_FASTVIEW_STARTER_FALLBACK_COUNT_POINTER_GLOBAL_VA = 0x874B94
+SOURCE_FASTVIEW_STARTER_COUNT_ARRAY_STRIDE_BYTES = 0x2A8
+SOURCE_FASTVIEW_STARTER_COUNT_FIELD_OFFSET = 0x1A8
+SOURCE_FASTVIEW_STARTER_ORIGINAL_CLUB_INDEX_WORD_OFFSET = 0x72
+
+
+@dataclass(frozen=True)
+class SourceFastViewStarterConditionalExternalResult:
+    native_flag14_after: int
+    invoked_41edf0: bool
+    clears_0x1000_flag: bool
+    uses_fallback_count_owner: bool | None
+    native_count_after: int | None
+
+
+def source_fastview_original_starter_external_count_41edf0(
+    *, native_flag14_after_direct: int,
+    original_417340_result_byte: int,
+    original_signed_club_index_word: int,
+    native_selected_owner_count_dword: int,
+) -> SourceFastViewStarterConditionalExternalResult:
+    """Exact source gates and projected count, not a league-world write.
+
+    Caller must source-qualify actual 0x417340 return, player+0x72
+    signed club index and selected native external count. No address
+    resolution or real side effect is executed by this value result.
+    """
+    if (type(native_flag14_after_direct) is not int or
+            not 0 <= native_flag14_after_direct <= 0xFFFFFFFF):
+        raise SourceFastViewPlayerWorldWritebackError("original status+0x14 DWORD required")
+    if (type(original_417340_result_byte) is not int or
+            not 0 <= original_417340_result_byte <= 0xFF):
+        raise SourceFastViewPlayerWorldWritebackError("source 0x417340 AL byte required")
+    if (type(original_signed_club_index_word) is not int or
+            not -0x8000 <= original_signed_club_index_word <= 0x7FFF):
+        raise SourceFastViewPlayerWorldWritebackError("original signed 16-bit club index required")
+    if (type(native_selected_owner_count_dword) is not int or
+            not 0 <= native_selected_owner_count_dword <= 0xFFFFFFFF):
+        raise SourceFastViewPlayerWorldWritebackError("original external count DWORD required")
+    if original_417340_result_byte != 0 or native_flag14_after_direct & 0x2000:
+        return SourceFastViewStarterConditionalExternalResult(
+            native_flag14_after_direct, False, False, None, None)
+    if not native_flag14_after_direct & 0x1000:
+        return SourceFastViewStarterConditionalExternalResult(
+            native_flag14_after_direct, True, False, None, None)
+    return SourceFastViewStarterConditionalExternalResult(
+        native_flag14_after_direct & ~0x1000, True, True,
+        original_signed_club_index_word < 0,
+        native_selected_owner_count_dword - 1 if native_selected_owner_count_dword else 0,
+    )
