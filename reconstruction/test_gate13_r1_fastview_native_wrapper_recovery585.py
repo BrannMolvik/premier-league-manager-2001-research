@@ -443,7 +443,7 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
             (0x52EFBF, "f3 a5"),           # UI 280-byte temporary snapshot
             (0x52EFD6, "e8 d5 3e 00 00"), # preview calls 0x532eb0
             (0x52EFDC, "e8 4f 38 19 00"), # preview calls 0x6c2830
-            (0x532E87, "8b 88 48 02 00 00"), # real target packed record
+            (0x532E85, "8b 88 48 02 00 00"), # real target packed record
             (0x532E8D, "e8 be 74 fb ff"),    # 0x4ea350 low-four-bit setter
             (0x532E92, "c7 07 00 00 00 00"), # source record write
             (0x532F72, "e8 b9 73 fb ff"),    # 0x4ea330 low-five-bit setter
