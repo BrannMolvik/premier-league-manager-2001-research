@@ -145,6 +145,7 @@ class NativeSavedEventLinkWriterTests(unittest.TestCase):
                 new=bytearray(len(live))
                 pack_into("<I",new,0,vt)
                 pack_into("<I",new,0x0C,0)
+                pack_into("<I",new,0x10,0xFFFFFFFF)
                 load_link=source_original_loaded_event_base_link_510900(
                     original_native_post_constructor_record=bytes(new),
                     original_saved_event_dword_10=save_link.original_serialized_event_dword_10,
