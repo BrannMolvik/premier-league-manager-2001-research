@@ -1347,6 +1347,53 @@ def main(path: str) -> None:
                                   hex(target), observed))
     print("PASS original nested user versus later RNG-heavy direct callers")
 
+    # Recovery577: native 0x413020 can enqueue via 0x413357, but
+    # its one direct caller is 0x5CFA48, conditionally dispatched from
+    # original native callback vft slot 0x7BD574 -> 0x5CFA20.
+    # Distinguish it from TeamSelect's original user registration
+    # 0x4D8EF8 and second global event queue drain 0x4D8F19.
+    original_user_event_ingress_xrefs_577 = (
+        (0x413020, (0x5cfa48,)),
+        (0x412ef0, (0x4d8f19,)),
+        (0x413bb0, (0x4d8ef8,)),
+        (0x60ce70, (0x425b2c, 0x427594)),
+    )
+    queue_ingress_expected = {v: want for v, want in
+                              original_user_event_ingress_xrefs_577}
+    queue_ingress_actual = {v: [] for v in queue_ingress_expected}
+    for line in listing.splitlines():
+        match = re.match(
+            r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)", line)
+        if match:
+            callee = int(match.group(2), 16)
+            if callee in queue_ingress_actual:
+                queue_ingress_actual[callee].append(int(match.group(1), 16))
+    for target, expected in original_user_event_ingress_xrefs_577:
+        have = tuple(queue_ingress_actual[target])
+        if have != expected:
+            raise AssertionError(("Original queue ingress xrefs changed",
+                                  hex(target), have))
+    for address, expected in (
+        ("5cfa28", "call   DWORD PTR [eax+0x3c]"),
+        ("5cfa2b", "test   eax,eax"),
+        ("5cfa2d", "je     0x5cfa4d"),
+        ("5cfa3c", "mov    ecx,0x874c10"),
+        ("5cfa48", "call   0x413020"),
+        ("413044", "test   edi,edi"),
+        ("413357", "call   0x613ec0"),
+        ("4d8ef8", "call   0x413bb0"),
+        ("4d8f19", "call   0x412ef0"),
+        ("412f1f", "call   0x614080"),
+    ):
+        if expected not in instruction(address):
+            raise AssertionError(("Original native queue producer moved", address))
+    if struct.unpack_from(
+        "<I", binary, 0x7bd574 - 0x400000
+    )[0] != 0x5cfa20:
+        raise AssertionError("Native user-event observer vft source changed")
+    print("PASS conditional user-event global queue enqueue direct caller")
+    print("WARNING indirect event callbacks/actual queue membership unobserved")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
