@@ -1394,6 +1394,30 @@ def main(path: str) -> None:
     print("PASS conditional user-event global queue enqueue direct caller")
     print("WARNING indirect event callbacks/actual queue membership unobserved")
 
+    # Recovery577: concrete successful native event-object constructor
+    # sets its payload vft 0x7BD9B8, whose virtual+0x3C is source
+    # 0x651E20 (mov eax,1; ret). Still conditional on this object
+    # actually being constructed/queued/reached by the event dispatcher.
+    original_user_event_concrete_vft_577 = (
+        ("41331d","mov    DWORD PTR [ebx],0x7bd9b8"),
+        ("413333","mov    DWORD PTR [ebp+0x8],ebx"),
+        ("413336","mov    DWORD PTR [ebp+0x0],0x7bd564"),
+        ("5cfa28","call   DWORD PTR [eax+0x3c]"),
+        ("651e20","mov    eax,0x1"),
+        ("651e25","ret"),
+    )
+    for addr,expected in original_user_event_concrete_vft_577:
+        if expected not in instruction(addr):
+            raise AssertionError(("Native user-event concrete vtable changed",addr))
+    for slot,expected in (
+        (0x7bd564+0x10,0x5cfa20),
+        (0x7bd9b8+0x3c,0x651e20),
+    ):
+        if struct.unpack_from("<I",binary,slot-0x400000)[0] != expected:
+            raise AssertionError(("Original user-event vft slot changed",hex(slot)))
+    print("PASS concrete successful user-event object's +0x3C predicate TRUE")
+    print("WARNING event object actual construction/callback timing UNKNOWN")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
