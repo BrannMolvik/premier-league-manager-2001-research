@@ -51,6 +51,8 @@ from original_fastview_tactics_selection import (
     SourceFastViewNativeReplacementRecord,
     SourceFastViewOneReplacementReplayValue,
     source_fastview_633020_one_existing_replacement_replay_value_only,
+    SourceFastViewOneReplacementFollowupValue,
+    source_fastview_one_prior_replacement_followup_value_only,
 )
 
 
@@ -1312,6 +1314,65 @@ class SingleOriginalReplacementReplayTransactionTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 bs=bytes.fromhex(literal)
                 self.assertEqual(pe.read(va,len(bs)),bs)
+
+
+
+class OriginalOnePriorReplacementFullValueTransitionTests(unittest.TestCase):
+    """Bounded original AL/replay/new-edit state values, NOT actual GUI."""
+
+    def test_matched_chain_retains_one_node_and_skips_direct_fresh_apply(self):
+        orig = SingleOriginalReplacementReplayTransactionTests.draft()
+        flags = [0]*12
+        flags[3] = 1
+        got = source_fastview_one_prior_replacement_followup_value_only(
+            orig, native_child_status_byte=0,
+            original_single_replacement_record=SourceFastViewNativeReplacementRecord(2,3),
+            native_current_mapped_from_index=3, native_selected_to_index=7,
+            original_club_guard_flags=tuple(flags))
+        self.assertEqual(got.native_validator_al, 1)
+        self.assertFalse(got.source_followup_6c2770_was_applied)
+        self.assertEqual(got.original_staged_replacements_after,
+                         (SourceFastViewNativeReplacementRecord(2,7),))
+        self.assertEqual(got.original_side_after.original_side_bytes[0xF0:0xF2],
+                         bytes((11,6)))
+        self.assertEqual(orig, SingleOriginalReplacementReplayTransactionTests.draft())
+
+    def test_unmatched_old_record_preserved_and_new_native_record_appended(self):
+        orig = SingleOriginalReplacementReplayTransactionTests.draft()
+        flags = [0]*12
+        flags[3]=1
+        got = source_fastview_one_prior_replacement_followup_value_only(
+            orig, native_child_status_byte=0,
+            original_single_replacement_record=SourceFastViewNativeReplacementRecord(2,4),
+            native_current_mapped_from_index=3, native_selected_to_index=7,
+            original_club_guard_flags=tuple(flags))
+        self.assertEqual(got.native_validator_al, 0)
+        self.assertTrue(got.source_followup_6c2770_was_applied)
+        self.assertEqual(got.original_staged_replacements_after,
+            (SourceFastViewNativeReplacementRecord(2,4),
+             SourceFastViewNativeReplacementRecord(3,7)))
+        self.assertEqual(got.original_side_after.original_side_bytes[0xF2:0xFE],
+                         bytes((7,0,1,2,4,5,6,3,8,9,10,11)))
+        self.assertEqual(got.original_side_after.original_side_bytes[0xF0:0xF2],
+                         bytes((10,6)))
+        self.assertEqual(orig, SingleOriginalReplacementReplayTransactionTests.draft())
+
+    def test_nonzero_row_status_and_unverified_side_never_apply_values(self):
+        orig = SingleOriginalReplacementReplayTransactionTests.draft()
+        base=dict(original_side=orig,native_child_status_byte=0,
+                  original_single_replacement_record=SourceFastViewNativeReplacementRecord(2,4),
+                  native_current_mapped_from_index=3,native_selected_to_index=7,
+                  original_club_guard_flags=(0,)*12)
+        for change in ({"native_child_status_byte":1},
+                       {"native_child_status_byte":True},
+                       {"native_current_mapped_from_index":-1},
+                       {"native_selected_to_index":18},
+                       {"original_club_guard_flags":(0,)*6}):
+            with self.subTest(change=change),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_one_prior_replacement_followup_value_only(
+                    **(base | change))
+        self.assertEqual(orig, SingleOriginalReplacementReplayTransactionTests.draft())
 
 if __name__ == "__main__":
     unittest.main()
