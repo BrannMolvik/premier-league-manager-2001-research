@@ -1347,6 +1347,146 @@ def main(path: str) -> None:
                                   hex(target), observed))
     print("PASS original nested user versus later RNG-heavy direct callers")
 
+    # Recovery577: native 0x413020 can enqueue via 0x413357, but
+    # its one direct caller is 0x5CFA48, conditionally dispatched from
+    # original native callback vft slot 0x7BD574 -> 0x5CFA20.
+    # Distinguish it from TeamSelect's original user registration
+    # 0x4D8EF8 and second global event queue drain 0x4D8F19.
+    original_user_event_ingress_xrefs_577 = (
+        (0x413020, (0x5cfa48,)),
+        (0x412ef0, (0x4d8f19,)),
+        (0x413bb0, (0x4d8ef8,)),
+        (0x60ce70, (0x425b2c, 0x427594)),
+    )
+    queue_ingress_expected = {v: want for v, want in
+                              original_user_event_ingress_xrefs_577}
+    queue_ingress_actual = {v: [] for v in queue_ingress_expected}
+    for line in listing.splitlines():
+        match = re.match(
+            r"^\s*([0-9a-f]{6}):.*?\bcall\s+0x([0-9a-f]+)", line)
+        if match:
+            callee = int(match.group(2), 16)
+            if callee in queue_ingress_actual:
+                queue_ingress_actual[callee].append(int(match.group(1), 16))
+    for target, expected in original_user_event_ingress_xrefs_577:
+        have = tuple(queue_ingress_actual[target])
+        if have != expected:
+            raise AssertionError(("Original queue ingress xrefs changed",
+                                  hex(target), have))
+    for address, expected in (
+        ("5cfa28", "call   DWORD PTR [eax+0x3c]"),
+        ("5cfa2b", "test   eax,eax"),
+        ("5cfa2d", "je     0x5cfa4d"),
+        ("5cfa3c", "mov    ecx,0x874c10"),
+        ("5cfa48", "call   0x413020"),
+        ("413044", "test   edi,edi"),
+        ("413357", "call   0x613ec0"),
+        ("4d8ef8", "call   0x413bb0"),
+        ("4d8f19", "call   0x412ef0"),
+        ("412f1f", "call   0x614080"),
+    ):
+        if expected not in instruction(address):
+            raise AssertionError(("Original native queue producer moved", address))
+    if struct.unpack_from(
+        "<I", binary, 0x7bd574 - 0x400000
+    )[0] != 0x5cfa20:
+        raise AssertionError("Native user-event observer vft source changed")
+    print("PASS conditional user-event global queue enqueue direct caller")
+    print("WARNING indirect event callbacks/actual queue membership unobserved")
+
+    # Recovery577: concrete successful native event-object constructor
+    # sets its payload vft 0x7BD9B8, whose virtual+0x3C is source
+    # 0x651E20 (mov eax,1; ret). Still conditional on this object
+    # actually being constructed/queued/reached by the event dispatcher.
+    original_user_event_concrete_vft_577 = (
+        ("41331d","mov    DWORD PTR [ebx],0x7bd9b8"),
+        ("413333","mov    DWORD PTR [ebp+0x8],ebx"),
+        ("413336","mov    DWORD PTR [ebp+0x0],0x7bd564"),
+        ("5cfa28","call   DWORD PTR [eax+0x3c]"),
+        ("651e20","mov    eax,0x1"),
+        ("651e25","ret"),
+    )
+    for addr,expected in original_user_event_concrete_vft_577:
+        if expected not in instruction(addr):
+            raise AssertionError(("Native user-event concrete vtable changed",addr))
+    for slot,expected in (
+        (0x7bd564+0x10,0x5cfa20),
+        (0x7bd9b8+0x3c,0x651e20),
+    ):
+        if struct.unpack_from("<I",binary,slot-0x400000)[0] != expected:
+            raise AssertionError(("Original user-event vft slot changed",hex(slot)))
+    print("PASS concrete successful user-event object's +0x3C predicate TRUE")
+    print("WARNING event object actual construction/callback timing UNKNOWN")
+
+    # Recovery578: 0x614080 drain vft+4/+18 is distinct from
+    # 0x613EE0 due-tick vft+10; 0x413020 user event due=now+1.
+    source_registered_user_two_pumps_578 = (
+        ("413327","mov    edx,DWORD PTR ds:0x9847fc"),
+        ("41332d","lea    eax,[edx+0x1]"),
+        ("413330","mov    DWORD PTR [ebp+0x4],eax"),
+        ("613f00","cmp    DWORD PTR [ecx+0x4],eax"),
+        ("613f03","jg     0x613f29"),
+        ("613f07","call   DWORD PTR [edx+0x10]"),
+        ("6140a5","call   DWORD PTR [eax+0x4]"),
+        ("6140b0","call   DWORD PTR [edx+0x18]"),
+        ("6140e0","call   0x4ea190"),
+        ("404610","mov    ecx,DWORD PTR [ecx+0x8]"),
+        ("404615","jmp    DWORD PTR [eax+0x24]"),
+        ("40dfb0","xor    eax,eax"),
+        ("40dfb2","ret"),
+        ("5cfa28","call   DWORD PTR [eax+0x3c]"),
+        ("5cfa48","call   0x413020"),
+        ("651e20","mov    eax,0x1"),
+        ("651e25","ret"),
+        ("5e330e","mov    DWORD PTR [eax],0x7bd564"),
+        ("5e3322","call   0x613ec0"),
+        ("5e3335","call   0x613ee0"),
+        ("404640","push   esi"),
+        ("404651","mov    DWORD PTR [eax],0x7bd5a8"),
+    )
+    for a,target in source_registered_user_two_pumps_578:
+        if target not in instruction(a):
+            raise AssertionError(("Original event pump source changed",a))
+    for slot,target in (
+        (0x7bd564+0x00,0x404620),(0x7bd564+0x04,0x40dfb0),
+        (0x7bd564+0x10,0x5cfa20),(0x7bd564+0x18,0x404610),
+        (0x7bd9b8+0x24,0x40dfb0),(0x7bd9b8+0x3c,0x651e20),
+    ):
+        if struct.unpack_from("<I",binary,slot-0x400000)[0] != target:
+            raise AssertionError(("Original concrete event vtable changed",hex(slot)))
+    print("PASS original generic queue drain vs timed registered-human callback")
+
+    # Recovery578: startup calls source CRT _time32-like converter
+    # 0x66A767 -> 0x67314F before srand 0x66950F. Original native
+    # GetLocalTime/GetSystemTime/GetTimeZoneInformation from imported
+    # Windows APIs; calendar year 1970..2038, with timezone/DST.
+    # Actual process seed at 0x531098 is unobserved, no guessed epoch.
+    original_source_os_time_seed_578 = (
+        ("531098", "call   0x66a767"),
+        ("53109e", "call   0x66950f"),
+        ("66950f", "call   0x66d553"),
+        ("669518", "mov    DWORD PTR [eax+0x14],ecx"),
+        ("66a774", "call   DWORD PTR ds:0x7bd178"),
+        ("66a77e", "call   DWORD PTR ds:0x7bd174"),
+        ("66a7d3", "call   DWORD PTR ds:0x7bd170"),
+        ("66a7c5", "mov    eax,ds:0x9fab30"),
+        ("66a7fc", "push   esi"),
+        ("66a80b", "mov    ds:0x9fab30,eax"),
+        ("66a830", "call   0x67314f"),
+        ("66a83f", "mov    DWORD PTR [ecx],eax"),
+        ("673159", "sub    ebx,0x76c"),
+        ("67315f", "cmp    ebx,0x46"),
+        ("673168", "cmp    ebx,0x8a"),
+        ("67320b", "or     eax,0xffffffff"),
+        ("6731c5", "add    ecx,DWORD PTR ds:0x84de68"),
+        ("673201", "add    ecx,DWORD PTR ds:0x84de70"),
+    )
+    for address, expected in original_source_os_time_seed_578:
+        if expected not in instruction(address):
+            raise AssertionError(("Original OS-derived CRT seed moved",address))
+    print("PASS original Windows-local time conversion precedes single CRT srand")
+    print("WARNING actual native OS time and first-click RNG offset unknown")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
