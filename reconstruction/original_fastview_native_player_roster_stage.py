@@ -232,3 +232,63 @@ def source_fastview_native_formation_groups_533480(
             pack_into('<I',result,offset+4*i,ordinal)
         pack_into('<I',result,count_offset,len(found))
     return bytes(result)
+
+
+SOURCE_FASTVIEW_ROSTER_EXTERNAL_OPTIONS_VA = 0x533AB0
+SOURCE_FASTVIEW_ROSTER_DEFAULT_OPTION = 11
+SOURCE_FASTVIEW_ROSTER_OPTION_REGISTRY_GLOBAL_VA = 0x876C50
+SOURCE_FASTVIEW_ROSTER_OPTION_REGISTRY_STRIDE = 0x40
+SOURCE_FASTVIEW_ROSTER_OPTION_RECORD_BYTE_OFFSET = 0x2B
+
+
+def source_fastview_original_side_option_533ab0(
+    *, original_club_word18: int,
+    original_62ac80_virtual30_result: int | None,
+    original_62ac80_signed_word20: int | None,
+    original_computed_registry_pointer_nonzero: bool | None,
+    original_registry_slot_bytes: bytes | None,
+) -> int:
+    """0x533AB0's conditional default11 vs original mode/registry BYTE+0x2B.
+
+    The original club pointer is from 0x405890(match side club). When its
+    WORD+0x18 is zero, return 11 without reading any other source. Else
+    0x62AC80(match)->+0x4C selects a separate owner; its virtual+0x30
+    returns AL. Nonzero returns 11. Zero allows signed owner WORD+0x20;
+    negative returns 11. Nonnegative selects global 0x876C50 plus 64B
+    per ID, and returns BYTE+0x2B iff the *computed native pointer* is
+    nonzero. The caller must establish that pointer computation and the
+    exact referenced source bytes; it cannot be inferred from current clubs.
+    """
+    if type(original_club_word18) is not int or not 0 <= original_club_word18 <= 0xFFFF:
+        raise SourceFastViewNativePlayerRosterError("native club WORD+0x18 required")
+    if original_club_word18 == 0:
+        if any(v is not None for v in (original_62ac80_virtual30_result,
+                                     original_62ac80_signed_word20,
+                                     original_computed_registry_pointer_nonzero,
+                                     original_registry_slot_bytes)):
+            raise SourceFastViewNativePlayerRosterError("unreached original mode/registry must not be supplied")
+        return SOURCE_FASTVIEW_ROSTER_DEFAULT_OPTION
+    if type(original_62ac80_virtual30_result) is not int or not 0 <= original_62ac80_virtual30_result <= 255:
+        raise SourceFastViewNativePlayerRosterError("source owner virtual+0x30 byte result required")
+    if original_62ac80_virtual30_result != 0:
+        if any(v is not None for v in (original_62ac80_signed_word20,
+                                     original_computed_registry_pointer_nonzero,
+                                     original_registry_slot_bytes)):
+            raise SourceFastViewNativePlayerRosterError("unreached native registry fields supplied")
+        return SOURCE_FASTVIEW_ROSTER_DEFAULT_OPTION
+    if (type(original_62ac80_signed_word20) is not int or
+            not -0x8000 <= original_62ac80_signed_word20 <= 0x7FFF):
+        raise SourceFastViewNativePlayerRosterError("signed source owner WORD+0x20 required")
+    if original_62ac80_signed_word20 < 0:
+        if original_computed_registry_pointer_nonzero is not None or original_registry_slot_bytes is not None:
+            raise SourceFastViewNativePlayerRosterError("negative original registry index bypasses pointer")
+        return SOURCE_FASTVIEW_ROSTER_DEFAULT_OPTION
+    if type(original_computed_registry_pointer_nonzero) is not bool:
+        raise SourceFastViewNativePlayerRosterError("verified native computed pointer gate required")
+    if not original_computed_registry_pointer_nonzero:
+        if original_registry_slot_bytes is not None:
+            raise SourceFastViewNativePlayerRosterError("native null pointer cannot have source slot bytes")
+        return SOURCE_FASTVIEW_ROSTER_DEFAULT_OPTION
+    if type(original_registry_slot_bytes) is not bytes or len(original_registry_slot_bytes) < 0x2C:
+        raise SourceFastViewNativePlayerRosterError("native registry slot BYTE+0x2B required")
+    return original_registry_slot_bytes[0x2B]
