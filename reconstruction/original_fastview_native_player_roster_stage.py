@@ -169,3 +169,66 @@ def source_fastview_native_side_header_direct_fields_533480(
                           (0xF8,0x49),(0xF9,0x5F),(0xFA,0x60)):
         side[target]=original_club_record[source]
     return bytes(side)
+
+
+SOURCE_FASTVIEW_ROSTER_GROUP_MATCH_VA = 0x5339C0
+SOURCE_FASTVIEW_ROSTER_GROUP_TARGET_OFFSETS = (0x90, 0xA8, 0xC0)
+SOURCE_FASTVIEW_ROSTER_GROUP_COUNT_OFFSETS = (0x8C, 0xA4, 0xBC)
+SOURCE_FASTVIEW_ROSTER_GROUP_MAX = 5
+
+
+def source_fastview_native_formation_groups_533480(
+    *, original_staged_side_1556: bytes,
+    original_4037b0_has_formation: bool,
+    source_formation_player_id_groups: tuple[tuple[int, ...], ...] | None,
+) -> bytes:
+    """Exact direct 0x533480/0x5339C0 first-match ordinal index side effects.
+
+    The native code uses a 0x48-byte row stride and reads player DWORD ID
+    at staged side+0x128, comparing it to formation WORD IDs. Three group
+    input orders use original 0x403850 offsets +0x664/+0x66C/+0x668.
+    For each matching ID, the first staged ordinal goes into the group's
+    next DWORD slot; missing members do not consume a slot. Each of the
+    three output arrays has room for FIVE DWORDs before the next owner
+    region; refuse unqualified larger groups rather than corrupting.
+    When 0x4037B0 returns zero, original skips the groups and zeroes only
+    three count DWORDs; original formation group pointers are not read.
+    """
+    if type(original_staged_side_1556) is not bytes or len(original_staged_side_1556) != SOURCE_FASTVIEW_ROSTER_SIDE_BYTES:
+        raise SourceFastViewNativePlayerRosterError("exact original 1556-byte roster stage required")
+    if type(original_4037b0_has_formation) is not bool:
+        raise SourceFastViewNativePlayerRosterError("original 0x4037B0 predicate required")
+    if not original_4037b0_has_formation:
+        if source_formation_player_id_groups is not None:
+            raise SourceFastViewNativePlayerRosterError("original unvisited formation cannot be supplied")
+        result=bytearray(original_staged_side_1556)
+        for offset in SOURCE_FASTVIEW_ROSTER_GROUP_COUNT_OFFSETS:
+            pack_into('<I',result,offset,0)
+        return bytes(result)
+    if (type(source_formation_player_id_groups) is not tuple
+        or len(source_formation_player_id_groups) != 3):
+        raise SourceFastViewNativePlayerRosterError("three original formation role groups required")
+    for group in source_formation_player_id_groups:
+        if (type(group) is not tuple or len(group)>SOURCE_FASTVIEW_ROSTER_GROUP_MAX
+            or any(type(player_id) is not int or not 0<=player_id<=0xFFFF for player_id in group)):
+            raise SourceFastViewNativePlayerRosterError("original formation group must contain 0..5 WORD IDs")
+    count=unpack_from('<I',original_staged_side_1556,0xFC)[0]
+    if not 11<=count<=18:
+        raise SourceFastViewNativePlayerRosterError("authenticated 11..18 original staged player count required")
+    source_player_ids=tuple(unpack_from('<I',original_staged_side_1556,0x128+i*0x48)[0]
+                            for i in range(count))
+    result=bytearray(original_staged_side_1556)
+    for group,offset,count_offset in zip(source_formation_player_id_groups,
+                                          SOURCE_FASTVIEW_ROSTER_GROUP_TARGET_OFFSETS,
+                                          SOURCE_FASTVIEW_ROSTER_GROUP_COUNT_OFFSETS):
+        found=[]
+        for original_formation_player_id in group:
+            try:
+                ordinal=source_player_ids.index(original_formation_player_id)
+            except ValueError:
+                continue
+            found.append(ordinal)
+        for i,ordinal in enumerate(found):
+            pack_into('<I',result,offset+4*i,ordinal)
+        pack_into('<I',result,count_offset,len(found))
+    return bytes(result)
