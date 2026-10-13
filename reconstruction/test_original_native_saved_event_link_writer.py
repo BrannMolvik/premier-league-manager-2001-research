@@ -11,8 +11,13 @@ from original_native_saved_event_link_writer import (
     SOURCE_ORIGINAL_BOTH_CALENDAR_LOAD_CALLS,
     SOURCE_ORIGINAL_EVENT_WRITE_V20_BY_VTABLE,
     source_original_saved_event_link_index_5107f0,
+    source_original_saved_leaguematch_fields_510850_5108b0,
 )
-from original_native_loaded_event_link import SOURCE_ORIGINAL_EVENT_LOAD_V24_BY_VTABLE
+from original_native_loaded_event_link import (
+    SOURCE_ORIGINAL_EVENT_LOAD_V24_BY_VTABLE,
+    source_original_loaded_event_base_link_510900,
+    source_original_loaded_leaguematch_saved_fields_510970_5109d0,
+)
 
 
 def native(vtable,ident=0,own_field10=0x12345678,link_pointer=0):
@@ -90,6 +95,78 @@ class NativeSavedEventLinkWriterTests(unittest.TestCase):
                 OriginalSavedEventLinkSourceError):
                 source_original_saved_event_link_index_5107f0(**(good|change))
 
+    def test_original_match_field_writer_exact_families_and_values(self):
+        for vt in (0x7C4C24,0x7C9E14,0x7C9D9C,0x7C9E80,0x7C9EF8,0x7C9F70):
+            with self.subTest(vtable=hex(vt)):
+                r=bytearray(native(vt))
+                pack_into("<I",r,0x44,0x1234C0DE)
+                pack_into("<H",r,0x3C,0x3412)
+                pack_into("<H",r,0x3E,0x1234)
+                pack_into("<H",r,0x40,0)
+                pack_into("<I",r,0x48,0x87654321)
+                r[0x58:0x5C]=bytes((0,0x80,0xAA,0xFF))
+                receipt=source_original_saved_leaguematch_fields_510850_5108b0(
+                    original_native_source_match_record=bytes(r))
+                expected_extended=vt in (0x7C9D9C,0x7C9E80,0x7C9EF8,0x7C9F70)
+                self.assertEqual(receipt.original_source_native_save_v20_va,
+                                 0x5108B0 if expected_extended else 0x510850)
+                self.assertEqual(receipt.original_saved_flags_dword_44,0x1234C0DE)
+                self.assertEqual((receipt.original_saved_halfword_3c,
+                                  receipt.original_saved_halfword_3e,
+                                  receipt.original_saved_halfword_40,
+                                  receipt.original_saved_dword_48),
+                                 (0x3412,0x1234,0,0x87654321))
+                self.assertEqual(receipt.original_saved_extended_bytes_58_to_5b,
+                                 bytes((0,0x80,0xAA,0xFF)) if expected_extended else None)
+        for record in (native(0x7C9FE8),native(0x7C9D9C)[:0x5B],
+                       native(0x7C4C24)[:0x4B],native(0xDEADBEEF),
+                       bytearray(native(0x7C9D9C)),None):
+            with self.subTest(record=str(record)[:60]),self.assertRaises(
+                OriginalSavedEventLinkSourceError):
+                source_original_saved_leaguematch_fields_510850_5108b0(
+                    original_native_source_match_record=record)
+
+    def test_reached_original_saved_reference_and_flags_can_roundtrip_when_registry_is_proven(self):
+        for vt in (0x7C4C24,0x7C9E14,0x7C9D9C,0x7C9E80,0x7C9EF8,0x7C9F70):
+            with self.subTest(vtable=hex(vt)):
+                live=bytearray(native(vt,0,own_field10=0xFFFFFFFF,link_pointer=0xABCD0000))
+                pack_into("<I",live,0x44,0x40)
+                pack_into("<H",live,0x3C,65432)
+                pack_into("<H",live,0x3E,0xABCD)
+                pack_into("<H",live,0x40,13)
+                pack_into("<I",live,0x48,0x87654321)
+                live[0x58:0x5C]=bytes((0,1,2,0xFF))
+                save_link=source_original_saved_event_link_index_5107f0(
+                    original_native_source_event_record=bytes(live),
+                    original_native_link_target_address=0xABCD0000,
+                    original_native_link_target_event_record=native(0x7C9FE8,2))
+                save_fields=source_original_saved_leaguematch_fields_510850_5108b0(
+                    original_native_source_match_record=bytes(live))
+                new=bytearray(len(live))
+                pack_into("<I",new,0,vt)
+                pack_into("<I",new,0x0C,0)
+                load_link=source_original_loaded_event_base_link_510900(
+                    original_native_post_constructor_record=bytes(new),
+                    original_saved_event_dword_10=save_link.original_serialized_event_dword_10,
+                    original_saved_link_registry_index=save_link.original_serialized_link_reference_index,
+                    original_source_selected_registry_pointer_entries=(0x12340000,0xABCD0000))
+                restored=source_original_loaded_leaguematch_saved_fields_510970_5109d0(
+                    original_native_record_after_base_load=load_link.source_after_base_load_event_record,
+                    original_saved_match_flags44_dword=save_fields.original_saved_flags_dword_44,
+                    original_saved_halfword_3c=save_fields.original_saved_halfword_3c,
+                    original_saved_halfword_3e=save_fields.original_saved_halfword_3e,
+                    original_saved_halfword_40=save_fields.original_saved_halfword_40,
+                    original_saved_dword_48=save_fields.original_saved_dword_48,
+                    original_saved_extended_four_bytes_58_to_5b=save_fields.original_saved_extended_bytes_58_to_5b)
+                final=restored.source_native_match_after_field_load
+                for off,size in ((8,4),(0x10,4),(0x3C,2),(0x3E,2),(0x40,2),
+                                 (0x44,4),(0x48,4)):
+                    self.assertEqual(final[off:off+size],live[off:off+size])
+                if save_fields.original_saved_extended_bytes_58_to_5b is not None:
+                    self.assertEqual(final[0x58:0x5C],live[0x58:0x5C])
+                else:
+                    self.assertEqual(final[0x58:0x5C],bytes(4))
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "original private original PE missing in hosted CI")
     def test_exact_private_source_save_writer_and_both_calendar_sites(self):
@@ -118,6 +195,14 @@ class NativeSavedEventLinkWriterTests(unittest.TestCase):
             0x61657D:"e8 5e fe ff ff",
             0x616599:"e8 b2 fe ff ff",
             0x616461:"ff 50 24",
+            0x510859:"e8 92 ff ff ff",
+            0x510861:"8d 46 44",
+            0x510867:"e8 3b 77 15 00",
+            0x510875:"e8 2d 77 15 00",
+            0x5108A2:"e8 00 77 15 00",
+            0x5108B9:"e8 92 ff ff ff",
+            0x5108C1:"8d 46 58",
+            0x5108C7:"e8 db 76 15 00",
         }
         for addr,hx in sites.items():
             with self.subTest(addr=hex(addr)):
