@@ -1,6 +1,8 @@
 """Tests only a source-verified subset of native human FastView tactics input."""
 import struct
 import unittest
+import os
+from pathlib import Path
 
 from original_fastview_tactics_selection import (
     OriginalFastViewTacticsSelectionDraft,
@@ -10,7 +12,20 @@ from original_fastview_tactics_selection import (
     SOURCE_PLAYER_CONTROL_EVENT_FAMILIES,
     SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT,
     source_classify_fastview_player_control_event,
-)
+    source_fastview_native_base_dispatch_flags_allow_processing,
+    source_fastview_first_callback_8877ae_row,
+    source_fastview_guarded_status_allows_followup,
+    SOURCE_HUMAN_TACTICS_VTABLE,
+    SOURCE_NATIVE_EVENT_OWNER_REGISTRATION,
+    SOURCE_NATIVE_BASE_INPUT_DISPATCH,
+    SOURCE_NATIVE_CHILD_INPUT_DISPATCH,
+    SOURCE_NATIVE_PARENT_CALLBACK_FIRST_SLOT,
+    SOURCE_NATIVE_PARENT_CALLBACK_SECOND_SLOT,
+    SOURCE_HUMAN_TACTICS_CALLBACK_FIRST,
+    SOURCE_HUMAN_TACTICS_CALLBACK_SECOND,
+    SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE,
+    SOURCE_NATIVE_STATUS_BYTE_GETTER,
+))
 
 
 def source_draft(values=(1, 0, 0, 0)):
@@ -150,6 +165,101 @@ class OriginalFastViewTacticsSelectionDraftTests(unittest.TestCase):
                 with self.assertRaises(SourceFastViewTacticsSelectionError):
                     source_classify_fastview_player_control_event(event)
 
+
+
+class NativeFastViewCallbackSourceBoundaryTests(unittest.TestCase):
+    """Do not promote source callback branches into complete click semantics."""
+
+    def test_all_eleven_first_callback_events_and_unrelated_accepted_events(self):
+        self.assertEqual(SOURCE_NATIVE_EVENT_OWNER_REGISTRATION, 0x64F3C0)
+        self.assertEqual(SOURCE_NATIVE_BASE_INPUT_DISPATCH, 0x64F7A0)
+        self.assertEqual(SOURCE_NATIVE_CHILD_INPUT_DISPATCH, 0x651AC0)
+        self.assertEqual(SOURCE_HUMAN_TACTICS_VTABLE, 0x7CACFC)
+        self.assertEqual(SOURCE_NATIVE_PARENT_CALLBACK_FIRST_SLOT, 0x0C)
+        self.assertEqual(SOURCE_NATIVE_PARENT_CALLBACK_SECOND_SLOT, 0x10)
+        self.assertEqual(SOURCE_HUMAN_TACTICS_CALLBACK_FIRST, 0x52E3C0)
+        self.assertEqual(SOURCE_HUMAN_TACTICS_CALLBACK_SECOND, 0x52E3F0)
+        for row in range(11):
+            self.assertEqual(
+                source_fastview_first_callback_8877ae_row(
+                    SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE + row
+                ), row
+            )
+        for other in (0, 1, 61, 68, 0x23D65A, 0x2466BE, 0x8877AD,
+                      0x8877B9, 0xFFFFFFFF):
+            self.assertIsNone(source_fastview_first_callback_8877ae_row(other))
+        for bad in (True, False, None, -1, 0x100000000, "0x8877ae", 1.0):
+            with self.subTest(bad=repr(bad)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_first_callback_8877ae_row(bad)
+
+    def test_native_flags_must_pass_both_independent_preconditions(self):
+        for f in (0x2, 0x3, 0x6, 0xA, 0xFFFFFFEF):
+            with self.subTest(flags=hex(f)):
+                self.assertTrue(source_fastview_native_base_dispatch_flags_allow_processing(f))
+        for f in (0, 1, 4, 0x10, 0x12, 0x13, 0xFFFFFFFF):
+            with self.subTest(flags=hex(f)):
+                self.assertFalse(source_fastview_native_base_dispatch_flags_allow_processing(f))
+        for bad in (True, False, None, -1, 2**32, "2", 2.0):
+            with self.subTest(bad=repr(bad)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_native_base_dispatch_flags_allow_processing(bad)
+
+    def test_status_byte_zero_only_necessary_not_sufficient_for_source_action(self):
+        self.assertEqual(SOURCE_NATIVE_STATUS_BYTE_GETTER, 0x651AB0)
+        self.assertTrue(source_fastview_guarded_status_allows_followup(0))
+        for nonzero in (1, 2, 127, 255):
+            self.assertFalse(source_fastview_guarded_status_allows_followup(nonzero))
+        for bad in (True, False, -1, None, 256, 0.0, "0"):
+            with self.subTest(bad=repr(bad)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_guarded_status_allows_followup(bad)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner-verified private original EXE not mounted")
+    def test_original_pe_exact_native_dual_callback_and_status_gates(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source = (
+            (0x64F3C0, "8b 44 24 04 8b 54 24 08 89 41 20 89 51 24 c2 08 00"),
+            (0x52E3C0, "8b 44 24 04 8b 40 20 3d ae 77 88 00"),
+            (0x52E3CE, "3d b9 77 88 00"),
+            (0x52E3DA, "50 e8 b0 12 00 00"),
+            (0x52E3E0, "b8 01 00 00 00 c2 08 00"),
+            (0x64F7A5, "8b 46 18 8b c8 d1 e9 f6 c1 01"),
+            (0x64F7B5, "c1 e8 04 a8 01"),
+            (0x64F7C0, "8b 46 20"),
+            (0x64F7D3, "8b 4e 24 53 56 8b 11 ff 52 0c"),
+            (0x64F818, "53 56 8b 01 ff 50 10"),
+            (0x651ADF, "ff 90 98 00 00 00"),
+            (0x651AEC, "ff 92 9c 00 00 00"),
+            (0x651AFA, "ff 50 20"),
+            (0x651B3F, "8b 46 20 85 c0 74 12"),
+            (0x651B4E, "8b 4e 24 55 56 8b 01 ff 50 10"),
+            (0x651AB0, "8a 41 40 c3"),
+            (0x52EBD6, "8d 8f 3c 26 00 00"),
+            (0x52EBDC, "e8 cf 2e 12 00"),
+            (0x52EBE1, "84 c0"),
+            (0x52EBE3, "0f 85 b9 00 00 00"),
+            (0x651B0B, "81 fb ff ff 00 00"),
+            (0x651B13, "c6 46 40 01"),
+            (0x651B1E, "c6 46 40 00"),
+        )
+        for va, code in source:
+            with self.subTest(va=hex(va)):
+                expected = bytes.fromhex(code)
+                self.assertEqual(pe.read(va, len(expected)), expected)
+        self.assertEqual(
+            struct.unpack("<I", pe.read(SOURCE_HUMAN_TACTICS_VTABLE + 0x0C, 4))[0],
+            SOURCE_HUMAN_TACTICS_CALLBACK_FIRST
+        )
+        self.assertEqual(
+            struct.unpack("<I", pe.read(SOURCE_HUMAN_TACTICS_VTABLE + 0x10, 4))[0],
+            SOURCE_HUMAN_TACTICS_CALLBACK_SECOND
+        )
 
 if __name__ == "__main__":
     unittest.main()
