@@ -613,3 +613,51 @@ def source_fastview_633020_result_without_replacement_records(
             "native replacement-class replay is not yet source-complete"
         )
     return 0
+
+
+# Native 0x6331A0 replay visitor vtable 0x7D8014 uses eight slots
+# +0x04..+0x20. Actual PE DWORD table (not original type names):
+# replacement +4 -> 0x634B00; 5 of the other classes forward to
+# list-forwarding 0x634AB0; two have independent conditional handlers
+# 0x634990 and 0x634920. These methods are NOT assumed passive:
+# 0x634AB0 appends original record pointers into the native list.
+SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS = (
+    (0x04, 0x634B00),
+    (0x08, 0x634AB0),
+    (0x0C, 0x634AB0),
+    (0x10, 0x634990),
+    (0x14, 0x634920),
+    (0x18, 0x634AB0),
+    (0x1C, 0x634AB0),
+    (0x20, 0x634AB0),
+)
+
+
+@dataclass(frozen=True)
+class OriginalFastViewReplayMethodResolution:
+    native_record_vtable: int
+    source_record_dispatch_va: int
+    source_visitor_method_va: int
+    source_visitor_virtual_offset: int
+
+
+def source_fastview_staged_record_native_replay_method(
+    *, native_record_vtable: int
+) -> OriginalFastViewReplayMethodResolution:
+    """Source-only original record virtual +4 -> visitor virtual dispatch.
+
+    Does not run any of 0x634920, 0x634990, 0x634AB0 or 0x634B00;
+    none may be promoted to no-op or one-shot UI save. Validating which
+    callback the real original *would reach* is necessary before model-
+    driven linked-list replay or complete human FastView mode2 support.
+    """
+    record = source_fastview_original_staged_record_visitor_dispatch(
+        native_record_vtable=native_record_vtable
+    )
+    for slot, method in SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS:
+        if slot == record.visitor_callback_offset:
+            return OriginalFastViewReplayMethodResolution(
+                record.record_vtable,
+                record.record_virtual_four_target, method, slot
+            )
+    raise SourceFastViewTacticsSelectionError("unverified original visitor method")
