@@ -46,6 +46,7 @@ from original_fastview_tactics_selection import (
     SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS,
     OriginalFastViewReplayMethodResolution,
     source_fastview_special_replay_record_branch,
+    source_fastview_replacement_replay_branch_634b00,
 )
 
 
@@ -960,6 +961,91 @@ class OriginalFastViewSourceTwoSpecialReplayHandlersTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va, len(bytes.fromhex(expected))),
                                  bytes.fromhex(expected))
+
+
+
+class OriginalFastViewReplacementReplayFourNativeBranchesTests(unittest.TestCase):
+    """0x634B00 branch outcomes preserve original status/skip precedence."""
+
+    def test_status_flags_short_circuit_before_skip_or_matching(self):
+        for flag8, flag9 in ((0, 1), (1, 0), (255, 0), (1, 1)):
+            with self.subTest(flags=(flag8, flag9)):
+                self.assertEqual(
+                    source_fastview_replacement_replay_branch_634b00(
+                        visitor_status8=flag8, visitor_status9=flag9,
+                        native_skip_replacement_count=3,
+                        previous_replacement_target_dword=7,
+                        requested_source_dword=7,
+                    ),
+                    "forward_old_record_after_prior_status"
+                )
+
+    def test_source_skip_count_decrements_before_old_target_comparison(self):
+        for old_target, current_source in ((2, 2), (2, 3)):
+            self.assertEqual(
+                source_fastview_replacement_replay_branch_634b00(
+                    visitor_status8=0, visitor_status9=0,
+                    native_skip_replacement_count=1,
+                    previous_replacement_target_dword=old_target,
+                    requested_source_dword=current_source,
+                ),
+                "decrement_skip_and_append_empty_link"
+            )
+
+    def test_zero_skip_uses_original_previous_destination_match(self):
+        for old_to, current_from, expected in (
+            (4, 4, "chained_replacement_side_rewrite"),
+            (4, 5, "forward_old_record_mark_status8"),
+            (0, 0, "chained_replacement_side_rewrite")
+        ):
+            self.assertEqual(
+                source_fastview_replacement_replay_branch_634b00(
+                    visitor_status8=0, visitor_status9=0,
+                    native_skip_replacement_count=0,
+                    previous_replacement_target_dword=old_to,
+                    requested_source_dword=current_from
+                ), expected
+            )
+
+    def test_native_byte_and_dword_contracts_are_strict(self):
+        base = dict(visitor_status8=0, visitor_status9=0,
+                    native_skip_replacement_count=0,
+                    previous_replacement_target_dword=3, requested_source_dword=3)
+        for update in ({"visitor_status8": True}, {"visitor_status9": 256},
+                       {"native_skip_replacement_count": True},
+                       {"native_skip_replacement_count": -1},
+                       {"previous_replacement_target_dword": -1},
+                       {"requested_source_dword": 0x100000000},
+                       {"requested_source_dword": "3"}):
+            with self.subTest(update=update), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_replacement_replay_branch_634b00(**(base | update))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private source PE not mounted")
+    def test_exact_original_branch_preconditions_and_chain_constructor(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va, code in (
+            (0x634B1C, "8a 46 09 84 c0"),
+            (0x634B21, "0f 85 1e 02 00 00"),
+            (0x634B27, "8a 46 08 84 c0"),
+            (0x634B2C, "0f 85 13 02 00 00"),
+            (0x634B32, "8b 46 04"),
+            (0x634B37, "3b c5"),
+            (0x634B39, "76 43"),
+            (0x634B3B, "48"),
+            (0x634B82, "8b cb"),
+            (0x634B84, "e8 67 ea ff ff"),
+            (0x634B89, "3b 46 0c"),
+            (0x634B8C, "0f 85 6b 01 00 00"),
+            (0x634BB8, "e8 13 ea ff ff"),
+            (0x634CF4, "c6 46 09 01"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(code))),
+                                 bytes.fromhex(code))
 
 if __name__ == "__main__":
     unittest.main()
