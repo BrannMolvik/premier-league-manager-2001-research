@@ -330,3 +330,22 @@ From the owner's verified extracted private Drive source tree, two actual 444 fi
 The second file identity/bytes are independently verified, but its actual per-child role in *these eight events* has **not** been established by this trace; do not substitute it without source ownership evidence. For `scroller_hori`, 11 additional exact original PE source loader/crop/owner assertions independently passed. The persisted code `original_fastview_tactics_control_layout.py` now records the eight native event control coordinates and scroller atlas/frame crop source facts; matching regression tests exist on the same WIP feature branch.
 
 **Remaining high-impact original mode2 blockers:** full `0x6503F0/0x64F380` click hit-state conditions and original event bubbling into `0x52E3F0`; source player-row edit/preview native effects `0x532E40/0x532EB0/0x6C2830`; `0x632B70` global registry validation and first/second side mutation; original outer FastView closure and PResults/management return. No player-visible native mode2 implemented or original Win11 acceptance. Do not merge/close gate based solely on complete layout constants.
+
+
+## Recovery588: 55 additional original human tactics per-player events uncovered beyond IDs1–68
+
+The prior `FastViewTactics` low-event switch at `0x52E3F0` accepts source IDs1–68 and assigns ID4–58 to a common **fallback target `0x52E975`**. Crucially that branch is NOT an inert no-op: its subsequent **five large non-contiguous event ranges** select *eleven* native row actions each. Treating IDs4–58 as the entire player-row event inventory was incorrect; the actual user-selected player controls supply high numeric event IDs.
+
+| Authentic event range inclusive | 11 source rows | Reached native action (bounded evidence) |
+| --- | --- | --- |
+| `0x247276..0x247280` | 0–10 | calls `0x6C2170` with side, original source team/list context and **flag1** |
+| `0x246E8E..0x246E98` | 0–10 | same `0x6C2170` but **flag0** |
+| `0x2466BE..0x2466C8` | 0–10 | **decrements** the selected row's value at `screen+0xAFC+4*row`, wraps -1 to 10, constructs `0x6334C0` source 12-byte edit object, appends it to `screen+0x48A8` linked list and increments `+0x48AC` |
+| `0x246AA6..0x246AB0` | 0–10 | **increments** the selected row's value at the same screen+0xAFC array, wraps index 11 to 0, enqueues the source 12-byte edit record with `0x6334C0` |
+| `0x8877AE..0x8877B8` | 0–10 | checks indexed `screen+0x263C+0x44*row` native child state via `0x651AB0`; then calls original real state guard `0x633020`, optionally `0x6C2770`, and appends a source edit through `0x6335D0`. Exact conditional semantics and player-record effects need follow-up. |
+
+Source range checks sit at `0x52E97C/983`, `0x52E9CD/D4`, `0x52EA04/0F`, `0x52EAD2/DD`, `0x52EBA2/AD`. They are *exclusive* upper bounds (first ID + 11). A separate independent local static-source read checked **22 native hex sites** covering all five ranges and representative mutation/conditional callsites, with 22/22 matching canonical 4,714,541-byte original SHA `833bf95e...`. The opt-in original PE byte test now preserves these checks.
+
+`reconstruction/original_fastview_tactics_selection.py` now exposes **read-only** `source_classify_fastview_player_control_event`, which maps exactly the five source 11-ID families to native row0..10 without simulating any `0x6C2170/0x6C2770` side effects or guessing their football labels. The companion standard unit-test file now asserts all 55 valid events and fail-closed neighbors, bool, noninteger and unrelated low-ID events. Code and tests are on existing feature branch; **exact branch tests/CI remain unrun**, and neither original executable nor current port was graphically played. This is source-audited event ownership, **not** a completed in-match tactics editor.
+
+**Next highest-impact:** trace original `0x6C2170`, `0x6C2770`, `0x633020` and original constructor event ID producer/hit controls to establish the precise role/substitution/selection semantics and owned record mutations; then reconcile native staging and modal result with the outer FastView full match lifecycle. Implement source-proven reversible paths but do not infer that Cancel backs out edits already committed during preview. Gates13–17 remain OPEN.
