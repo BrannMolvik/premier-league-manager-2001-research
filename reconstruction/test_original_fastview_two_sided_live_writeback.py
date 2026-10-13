@@ -13,6 +13,7 @@ from original_fastview_two_sided_live_writeback import (
     SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MAX,
     source_fastview_native_tactical_280_init_6c1d30,
     source_fastview_native_two_side_setup_533270,
+    source_fastview_native_raw_tactical_280_from_packed_533b70,
 )
 
 
@@ -170,6 +171,119 @@ class OriginalFastViewTactical280NativeSourceTests(unittest.TestCase):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(source))),
                                  bytes.fromhex(source))
 
+
+
+
+class OriginalFastViewPackedMatchSide533B70Tests(unittest.TestCase):
+    def test_original_packed_fields_and_three_disjoint_byte_arrays(self):
+        packed=bytearray(0x28+18)
+        struct.pack_into("<I",packed,0,0x1234ABCD)
+        for i in range(18):
+            packed[4+i]=21+i
+            packed[0x16+i]=i+1
+            packed[0x28+i]=200+i
+        original=b"\xCE"*280
+        out=source_fastview_native_raw_tactical_280_from_packed_533b70(
+            original_raw_stack_280=original,
+            original_packed_side=bytes(packed),
+            native_player_count=18)
+        self.assertEqual(len(out),280)
+        self.assertEqual(struct.unpack_from("<6I",out,0),(
+            0xCD,(0x1234ABCD>>8)&3,(0x1234ABCD>>14)&3,
+            (0x1234ABCD>>16)&3,(0x1234ABCD>>12)&3,18
+        ))
+        self.assertEqual(struct.unpack_from("<18I",out,0x18),
+                         tuple(range(1,19)))
+        self.assertEqual(struct.unpack_from("<18I",out,0x60),
+                         tuple(range(200,218)))
+        self.assertEqual(struct.unpack_from("<18I",out,0xA8),
+                         tuple(range(21,39)))
+        self.assertEqual(out[0xF0:],original[0xF0:])
+        self.assertEqual(original,b"\xCE"*280)
+
+    def test_native_setup_accepts_authenticated_raw_builder_for_both_sides(self):
+        def packed(n,position):
+            payload=bytearray(0x28+n)
+            for i in range(n):payload[0x16+i]=position
+            return bytes(payload)
+        owner_l,_=make_stage(11,2)
+        owner_r,_=make_stage(18,4)
+        l=source_fastview_native_raw_tactical_280_from_packed_533b70(
+            original_raw_stack_280=b"\x00"*280,
+            original_packed_side=packed(11,1),native_player_count=11)
+        rr=source_fastview_native_raw_tactical_280_from_packed_533b70(
+            original_raw_stack_280=b"\x00"*280,
+            original_packed_side=packed(18,2),native_player_count=18)
+        both=source_fastview_native_two_side_setup_533270(
+            native_full_side0_1556=owner_l,native_full_side1_1556=owner_r,
+            native_raw_tactics_side0_280=l,native_raw_tactics_side1_280=rr)
+        self.assertEqual(struct.unpack_from("<I",both.original_tactics_side0,0x14)[0],11)
+        self.assertEqual(struct.unpack_from("<I",both.original_tactics_side1,0x14)[0],18)
+        self.assertEqual(both.original_tactics_side0[0xF2:0xF2+11],bytes(range(11)))
+        self.assertEqual(both.original_tactics_side1[0xF2:0xF2+18],bytes(range(18)))
+        self.assertEqual(both.original_full_side_global_memory,owner_l+owner_r)
+
+    def test_native_packed_source_must_preserve_unwritten_stack_bytes(self):
+        src=bytearray(0x28+11)
+        for i in range(11):src[0x16+i]=1
+        out=source_fastview_native_raw_tactical_280_from_packed_533b70(
+            original_raw_stack_280=b"\xAB"*280,
+            original_packed_side=bytes(src),
+            native_player_count=11)
+        # 0x533B70 writes through +0xD4 for 11 players; unknown
+        # scratch trailing bytes are retained until 0x6C1D30 edits.
+        self.assertEqual(out[0xF0:],b"\xAB"*(280-0xF0))
+
+    def test_short_or_malformed_packed_source_cannot_invent_live_tactics(self):
+        src=b"\x00"*(0x28+11)
+        for changes in (
+            {"original_raw_stack_280":b"\x00"*279},
+            {"original_raw_stack_280":bytearray(b"\x00"*280)},
+            {"original_packed_side":src[:-1]},
+            {"original_packed_side":bytearray(src)},
+            {"native_player_count":10},
+            {"native_player_count":19},
+            {"native_player_count":True},
+        ):
+            params=dict(original_raw_stack_280=b"\x00"*280,
+                        original_packed_side=src,
+                        native_player_count=11)
+            with self.subTest(changes=changes),self.assertRaises(
+                OriginalFastViewTwoSideWritebackError):
+                source_fastview_native_raw_tactical_280_from_packed_533b70(
+                    **(params | changes))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private executable not mounted")
+    def test_native_533b70_source_caller_and_packed_field_opcodes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        samples={
+            0x533B20:"8b 4c 24 0c",
+            0x533B2D:"8b 81 a4 05 00 00",
+            0x533B35:"8b 81 54 0b 00 00",
+            0x533B41:"89 42 14",
+            0x533B47:"8b 81 a8 05 00 00",
+            0x533B58:"8b 81 58 0b 00 00",
+            0x533B79:"8b 02",
+            0x533B7B:"c1 e8 08",
+            0x533B7E:"83 e0 03",
+            0x533B8C:"89 0e",
+            0x533B90:"c1 e8 0e",
+            0x533B9B:"c1 e9 10",
+            0x533BA6:"c1 e8 0c",
+            0x533BAF:"8b 46 14",
+            0x533BCA:"8a 50 ee",
+            0x533BCD:"89 51 b4",
+            0x533BD2:"8a 10",
+            0x533BD4:"89 51 fc",
+            0x533BD9:"8a 50 dc",
+            0x533BDD:"89 51 44",
+            0x533BE3:"8d 14 07",
+        }
+        for va,hx in samples.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
 if __name__ == "__main__":
     unittest.main()
