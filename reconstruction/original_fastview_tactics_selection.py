@@ -500,3 +500,49 @@ def source_fastview_633020_result_when_original_list_empty(
             "nonempty original polymorphic replacement replay not yet source complete"
         )
     return 0
+
+
+# Original 0x633240 and 0x6331A0 traverse the native staged edit list
+# with element vft+4. All EIGHT observed native record vtables forward
+# to a *different* visitor callback slot, not one generic replacement.
+# Original PE rdata 0x7D7F3C..0x7D7F90 (12-byte vtable records) and code
+# 0x633450..0x633600, original SHA256 documented in source report.
+# This is an immutable class/dispatch map, not a real validator/replay.
+SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH = (
+    # record vtable, record.vft+4 trampoline, visitor virtual byte offset
+    (0x7D7F3C, 0x633450, 0x20),
+    (0x7D7F48, 0x633480, 0x1C),
+    (0x7D7F54, 0x6334B0, 0x18),
+    (0x7D7F60, 0x6334E0, 0x14),
+    (0x7D7F6C, 0x633530, 0x10),
+    (0x7D7F78, 0x633580, 0x0C),
+    (0x7D7F84, 0x6335C0, 0x08),
+    (0x7D7F90, 0x633600, 0x04),
+)
+SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE = 0x7D8014
+SOURCE_FASTVIEW_COUNT_VISITOR_VTABLE = 0x7D803C
+
+
+@dataclass(frozen=True)
+class OriginalFastViewStagedEditVisitorDispatch:
+    """Which native visitor vft slot a source-known edit class invokes."""
+    record_vtable: int
+    record_virtual_four_target: int
+    visitor_callback_offset: int
+
+
+def source_fastview_original_staged_record_visitor_dispatch(
+    *, native_record_vtable: int
+) -> OriginalFastViewStagedEditVisitorDispatch:
+    """Classify one authenticated original staged edit record vtable only.
+
+    Every source record class has separate virtual behavior in 0x633240
+    count and 0x6331A0 replay. The actual native visitor implementations
+    0x634920..0x634B00 are NOT replaced by this map.
+    """
+    if type(native_record_vtable) is not int or not 0 <= native_record_vtable <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native source DWORD vtable required")
+    for vtable, target, offset in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH:
+        if native_record_vtable == vtable:
+            return OriginalFastViewStagedEditVisitorDispatch(vtable, target, offset)
+    raise SourceFastViewTacticsSelectionError("unverified native FastView staged edit class")
