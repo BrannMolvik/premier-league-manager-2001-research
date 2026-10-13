@@ -47,6 +47,7 @@ from original_fastview_tactics_selection import (
     OriginalFastViewReplayMethodResolution,
     source_fastview_special_replay_record_branch,
     source_fastview_replacement_replay_branch_634b00,
+    source_fastview_634b00_matched_chain_payload_value_only,
 )
 
 
@@ -1046,6 +1047,123 @@ class OriginalFastViewReplacementReplayFourNativeBranchesTests(unittest.TestCase
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va, len(bytes.fromhex(code))),
                                  bytes.fromhex(code))
+
+
+
+class OriginalFastViewChainMatchSideWriteOrderTests(unittest.TestCase):
+    """Byte-exact in-memory projection; no live edit, owner or mouse event."""
+
+    @staticmethod
+    def _payload():
+        data = bytearray(280)
+        struct.pack_into("<I", data, 0x14, 12)
+        data[0xF2:0xFE] = bytes((3, 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11))
+        data[0xF0] = 11
+        data[0xF1] = 5
+        data[0x104 + 3] = 0
+        data[0x104 + 7] = 1
+        struct.pack_into("<I", data, 0x18 + 4 * 3, 0x11112222)
+        struct.pack_into("<I", data, 0x18 + 4 * 7, 0x33334444)
+        struct.pack_into("<I", data, 0x60 + 4 * 3, 0xAAAABBBB)
+        struct.pack_into("<I", data, 0x60 + 4 * 7, 0xCCCCDDDD)
+        return OriginalFastViewTacticsSelectionDraft(bytes(data))
+
+    def test_native_chain_match_sequential_write_order_not_naive_swap(self):
+        draft = self._payload()
+        flags = [0] * 12
+        flags[3] = 1
+        changed = source_fastview_634b00_matched_chain_payload_value_only(
+            draft, requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple(flags)
+        )
+        self.assertEqual(
+            changed.original_side_bytes[0xF2:0xFE],
+            bytes((7, 0, 1, 3, 4, 5, 6, 2, 8, 9, 10, 11))
+        )
+        self.assertEqual(changed.original_side_bytes[0x104 + 3], 1)
+        self.assertEqual(changed.original_side_bytes[0x104 + 7], 0)
+        self.assertEqual(changed.original_side_bytes[0xF0], 11)  # chain does NOT decrement
+        self.assertEqual(changed.original_side_bytes[0xF1], 6)
+        self.assertEqual(
+            struct.unpack_from("<I", changed.original_side_bytes, 0x18 + 4 * 7)[0],
+            0x11112222
+        )
+        self.assertEqual(
+            struct.unpack_from("<I", changed.original_side_bytes, 0x60 + 4 * 7)[0],
+            0xAAAABBBB
+        )
+        self.assertEqual(draft, self._payload())  # input is immutable
+        self.assertEqual(len(changed.original_side_bytes), 280)
+
+    def test_native_guard_count_decrement_and_wrap(self):
+        draft = self._payload()
+        flags = [0] * 12
+        flags[7] = 1
+        changed = source_fastview_634b00_matched_chain_payload_value_only(
+            draft, requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple(flags))
+        self.assertEqual(changed.original_side_bytes[0xF1], 4)
+        same = source_fastview_634b00_matched_chain_payload_value_only(
+            draft, requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple([1] * 12))
+        self.assertEqual(same.original_side_bytes[0xF1], 5)
+
+    def test_fail_closed_when_prior_source_missing_or_wrong_types(self):
+        draft = self._payload()
+        common = dict(draft=draft, requested_from_index=3,
+                      requested_to_index=7, original_club_guard_flags=(0,) * 12)
+        bad = (
+            {"requested_from_index": True},
+            {"requested_to_index": -1},
+            {"requested_to_index": 20},
+            {"original_club_guard_flags": [0] * 12},
+            {"original_club_guard_flags": (0,) * 7},
+            {"original_club_guard_flags": (0,) * 11 + (256,)},
+            {"draft": bytearray(draft.original_side_bytes)},
+            {"requested_from_index": 12},
+        )
+        for changed in bad:
+            with self.subTest(changed=changed), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_634b00_matched_chain_payload_value_only(
+                    **(common | changed)
+                )
+        absent = bytearray(draft.original_side_bytes)
+        absent[0xF2:0xFE] = bytes(range(12))
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_634b00_matched_chain_payload_value_only(
+                OriginalFastViewTacticsSelectionDraft(bytes(absent)),
+                requested_from_index=15, requested_to_index=7,
+                original_club_guard_flags=(0,) * 20
+            )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-private original PE not mounted")
+    def test_authenticated_634c1d_634cf4_actual_native_write_order(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        expected = (
+            (0x634C1D, "8b 46 1c"),
+            (0x634C23, "c6 84 08 04 01 00 00 01"),
+            (0x634C31, "c6 84 02 04 01 00 00 00"),
+            (0x634C41, "e8 6a 01 00 00"),
+            (0x634C52, "8a 94 11 f2 00 00 00"),
+            (0x634C59, "88 94 0f f2 00 00 00"),
+            (0x634C68, "88 9c 11 f2 00 00 00"),
+            (0x634C75, "88 94 01 f2 00 00 00"),
+            (0x634C85, "8b 4c 88 18"),
+            (0x634C89, "89 4c 90 18"),
+            (0x634C96, "8b 54 90 60"),
+            (0x634C9A, "89 54 88 60"),
+            (0x634CC3, "fe 80 f1 00 00 00"),
+            (0x634CEE, "fe 88 f1 00 00 00"),
+            (0x634CF4, "c6 46 09 01"),
+        )
+        for va, literal in expected:
+            with self.subTest(va=hex(va)):
+                raw = bytes.fromhex(literal)
+                self.assertEqual(pe.read(va, len(raw)), raw)
 
 if __name__ == "__main__":
     unittest.main()
