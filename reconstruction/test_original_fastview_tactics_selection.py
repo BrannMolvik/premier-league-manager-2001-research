@@ -7,6 +7,9 @@ from original_fastview_tactics_selection import (
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
     SourceFastViewTacticsSelectionError,
+    SOURCE_PLAYER_CONTROL_EVENT_FAMILIES,
+    SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT,
+    source_classify_fastview_player_control_event,
 )
 
 
@@ -57,6 +60,37 @@ class OriginalFastViewTacticsSelectionDraftTests(unittest.TestCase):
             source_draft((0, 0, 0, 0)).with_original_selector_event_value_only(61)
         with self.assertRaises(SourceFastViewTacticsSelectionError):
             source_draft((1, 4, 0, 0)).with_original_selector_event_value_only(63)
+
+
+    def test_exact_five_native_high_event_families_decode_all_fifty_five_controls(self):
+        self.assertEqual(SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT, 11)
+        self.assertEqual(len(SOURCE_PLAYER_CONTROL_EVENT_FAMILIES), 5)
+        all_seen = set()
+        for first, family in SOURCE_PLAYER_CONTROL_EVENT_FAMILIES:
+            for row in range(11):
+                event = first + row
+                with self.subTest(event=hex(event)):
+                    answer = source_classify_fastview_player_control_event(event)
+                    self.assertEqual(answer.family, family)
+                    self.assertEqual(answer.native_event_id, event)
+                    self.assertEqual(answer.player_row_index, row)
+                    self.assertNotIn(event, all_seen)
+                    all_seen.add(event)
+        self.assertEqual(len(all_seen), 55)
+
+    def test_nearby_unrecognized_or_noninteger_native_events_fail_closed(self):
+        valid = {first + row
+                 for first, _ in SOURCE_PLAYER_CONTROL_EVENT_FAMILIES
+                 for row in range(11)}
+        invalid = (None, True, False, 61, 62, 68, 0, -1, 4.0, "0x247276")
+        for first, _ in SOURCE_PLAYER_CONTROL_EVENT_FAMILIES:
+            invalid += (first - 1, first + 11)
+        for event in invalid:
+            if type(event) is int and event in valid:
+                continue
+            with self.subTest(event=repr(event)):
+                with self.assertRaises(SourceFastViewTacticsSelectionError):
+                    source_classify_fastview_player_control_event(event)
 
 
 if __name__ == "__main__":
