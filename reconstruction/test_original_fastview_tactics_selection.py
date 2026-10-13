@@ -1095,6 +1095,37 @@ class OriginalFastViewChainMatchSideWriteOrderTests(unittest.TestCase):
         self.assertEqual(draft, self._payload())  # input is immutable
         self.assertEqual(len(changed.original_side_bytes), 280)
 
+    def test_native_order_alias_position_equals_destination_preserves_last_write(self):
+        draft = self._payload()
+        raw = bytearray(draft.original_side_bytes)
+        # The source from-player 3 is currently at destination index 7.
+        raw[0xF2:0xFE] = bytes((0, 1, 2, 4, 5, 6, 7, 3, 8, 9, 10, 11))
+        target = source_fastview_634b00_matched_chain_payload_value_only(
+            OriginalFastViewTacticsSelectionDraft(bytes(raw)),
+            requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=(0,) * 12
+        )
+        # Native writes order[to] = original order[from], then order[from]
+        # = from, then order[position_of_from] = to, LAST WRITE WINS.
+        self.assertEqual(
+            target.original_side_bytes[0xF2:0xFE],
+            bytes((0, 1, 2, 3, 5, 6, 7, 7, 8, 9, 10, 11))
+        )
+        self.assertEqual(target.original_side_bytes[0x104 + 3], 1)
+        self.assertEqual(target.original_side_bytes[0x104 + 7], 0)
+
+    def test_native_order_alias_position_equals_from_last_write_overwrites_source(self):
+        draft = self._payload()
+        raw = bytearray(draft.original_side_bytes)
+        raw[0xF2:0xFE] = bytes(range(12))  # source player 3 at order[3]
+        target = source_fastview_634b00_matched_chain_payload_value_only(
+            OriginalFastViewTacticsSelectionDraft(bytes(raw)),
+            requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=(0,) * 12
+        )
+        self.assertEqual(target.original_side_bytes[0xF2 + 3], 7)
+        self.assertEqual(target.original_side_bytes[0xF2 + 7], 3)
+
     def test_native_guard_count_decrement_and_wrap(self):
         draft = self._payload()
         flags = [0] * 12
