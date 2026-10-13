@@ -846,3 +846,101 @@ def source_fastview_634b00_matched_chain_payload_value_only(
         - (1 if original_club_guard_flags[requested_to_index] != 0 else 0)
     ) & 0xFF
     return OriginalFastViewTacticsSelectionDraft(bytes(side))
+
+
+# 0x633020 with EXACTLY ONE prior 0x7D7F90 replacement record
+# (and no other staged records) runs exactly one 0x6331A0 replay pass.
+# Its visitor is initialized with skip DWORD+4=0 (native loop index
+# EBX=0), BYTE status8=0 and BYTE status9=0. The single old record's
+# virtual+4 calls 0x634B00:
+# - old.to == requested.from => new replacement (old.from, requested.to)
+#   is constructed at 0x634BB8, old deleted and the 0x634C1D side
+#   change executes, setting visitor+9=1 and validator AL1.
+# - old.to != requested.from => old record is re-appended unchanged at
+#   0x634CFD..0x634D3F, sets visitor+8=1, visitor+9 stays0, AL0.
+# After AL0, original 0x52EC23 invokes fresh 0x6C2770. Neither that
+# later call nor original click/status/selection gates run here.
+SOURCE_FASTVIEW_SINGLE_REPLACEMENT_REPLAY_CALLER_VA = 0x633107
+SOURCE_FASTVIEW_SINGLE_REPLACEMENT_REPLAY_INITIAL_SKIP = 0
+SOURCE_FASTVIEW_SINGLE_REPLACEMENT_CLASS_VTABLE = 0x7D7F90
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativeReplacementRecord:
+    """Original 0x6335D0 record's two DWORD fields (+4,+8)."""
+    native_from_index: int
+    native_to_index: int
+
+    def __post_init__(self) -> None:
+        for value in (self.native_from_index, self.native_to_index):
+            if type(value) is not int or not 0 <= value <= 0xFFFFFFFF:
+                raise SourceFastViewTacticsSelectionError(
+                    "original native replacement record DWORD required"
+                )
+
+
+@dataclass(frozen=True)
+class SourceFastViewOneReplacementReplayValue:
+    """Only original one-existing-record replay outcome, NOT live GUI."""
+    replay_validator_al: int
+    replacement_record_after_replay: SourceFastViewNativeReplacementRecord
+    side_after_replay: OriginalFastViewTacticsSelectionDraft
+    fresh_replacement_source_call_reachable: bool
+
+
+def source_fastview_633020_one_existing_replacement_replay_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, original_single_replacement_record: SourceFastViewNativeReplacementRecord,
+    requested_from_index: int, requested_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> SourceFastViewOneReplacementReplayValue:
+    """Source-exact one-record replay, with independent prior caller gates.
+
+    This helper requires caller-proven original native list inventory:
+    EXACTLY ONE previously staged class0x7D7F90 replacement, NO other
+    types. It cannot discover that from a mouse click or a total count.
+    The source 0x633020 clears the list and replays one node before
+    returning. For this 1-record case, the only reached 0x634B00
+    branches are matched chain or mismatched prior destination.
+
+    The result does not perform the subsequent 0x6C2770 fresh write
+    even when AL0, does not commit the side buffer, and does not model
+    native event, match state, PResults, or management return. All
+    external +0x40/dropdown/row/club/side validity must still be proven.
+    """
+    if type(original_side) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("authentic side draft required")
+    if type(original_single_replacement_record) is not SourceFastViewNativeReplacementRecord:
+        raise SourceFastViewTacticsSelectionError("authenticated single source replacement record required")
+    if type(requested_from_index) is not int or not 0 <= requested_from_index <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native requested source DWORD required")
+    if type(requested_to_index) is not int or not 0 <= requested_to_index <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native requested destination DWORD required")
+    if type(original_club_guard_flags) is not tuple or any(
+        type(value) is not int or not 0 <= value <= 255 for value in original_club_guard_flags
+    ):
+        raise SourceFastViewTacticsSelectionError("native club guard BYTE snapshot required")
+    old = original_single_replacement_record
+    if old.native_to_index != requested_from_index:
+        return SourceFastViewOneReplacementReplayValue(
+            replay_validator_al=0,
+            replacement_record_after_replay=old,
+            side_after_replay=original_side,
+            fresh_replacement_source_call_reachable=True,
+        )
+    edited_side = source_fastview_634b00_matched_chain_payload_value_only(
+        original_side, requested_from_index=requested_from_index,
+        requested_to_index=requested_to_index,
+        original_club_guard_flags=original_club_guard_flags,
+    )
+    # Original 0x634BB8 passes new target and the previous replacement's
+    # +4 from-player field, recreating a single native 0x6335D0 record.
+    new_record = SourceFastViewNativeReplacementRecord(
+        old.native_from_index, requested_to_index
+    )
+    return SourceFastViewOneReplacementReplayValue(
+        replay_validator_al=1,
+        replacement_record_after_replay=new_record,
+        side_after_replay=edited_side,
+        fresh_replacement_source_call_reachable=False,
+    )
