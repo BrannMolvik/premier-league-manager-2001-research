@@ -12,6 +12,9 @@ from original_fastview_tactics_control_layout import (
     NATIVE_TACTICS_PLAYER_ROWS,
     NATIVE_RIGHT_VARIANT2_BASE_GLOBAL_VA,
     NATIVE_RIGHT_VARIANT2_X_ADDEND,
+    NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_WIDTH,
+    NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X,
+    NATIVE_RIGHT_VARIANT2_BOX_RESOURCE_PATH,
     original_fastview_player_arrow_positions,
     original_fastview_bottom_arrow_positions,
     OriginalFastViewTacticsArrowPosition,
@@ -25,6 +28,10 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
         self.assertEqual(NATIVE_ARROW_IMAGE_SIZE, (11, 48))
         self.assertEqual(NATIVE_ARROW_FRAME_SIZE, (11, 16))
         self.assertEqual(NATIVE_TACTICS_PLAYER_ROWS, 11)
+        self.assertEqual(NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_WIDTH, 124)
+        self.assertEqual(NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X, 544)
+        self.assertEqual(NATIVE_RIGHT_VARIANT2_BOX_RESOURCE_PATH,
+                         "FM2001_Art/Generic/GenericButtonsAndBars/name_input_box_7.444")
 
     def test_original_eleven_rows_and_dynamic_fourth_arrow_are_preserved(self):
         arrows = original_fastview_player_arrow_positions()
@@ -36,6 +43,11 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
             self.assertEqual([a.native_x for a in group], [69, 120, 407, None])
             self.assertEqual(group[3].dynamic_x_global_va, NATIVE_RIGHT_VARIANT2_BASE_GLOBAL_VA)
             self.assertEqual(group[3].dynamic_x_addend, NATIVE_RIGHT_VARIANT2_X_ADDEND)
+            self.assertEqual(group[3].resolved_native_x(original_box_width=124), 544)
+            self.assertEqual(group[3].resolved_native_x(original_box_width=100), 520)
+            with self.assertRaises(ValueError):
+                group[3].resolved_native_x()
+            self.assertEqual(group[0].resolved_native_x(), 69)
         self.assertEqual(tuple((a.native_x, a.native_y) for a in
                                original_fastview_bottom_arrow_positions()),
                          ((303, 481), (379, 481)))
@@ -97,6 +109,16 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
             # native 0x64F380 receives y=139 then x=20 and writes
             # [child+0x08/+0x0C] and derived right/bottom fields.
             self.assertEqual(pe.read(va, 7), bytes.fromhex("68 8b 00 00 00 6a 14"))
+        # Source box owner 0x9472F0 records its native width at +0x14,
+        # which is 0x947304; initial width is 124, not an inferred label width.
+        self.assertEqual(pe.read(0x5F26B9, 8),
+                         bytes.fromhex("6a 10 6a 7c 6a 00 6a 00"))
+        self.assertEqual(pe.read(0x5F26C6, 5),
+                         bytes.fromhex("b9 f0 72 94 00"))
+        self.assertEqual(pe.read(0x64E58F, 6),
+                         bytes.fromhex("89 5e 14 89 6e 18"))
+        self.assertEqual(pe.read(0x52830F, 5),
+                         bytes.fromhex("a1 04 73 94 00"))
         self.assertEqual(pe.read(0x64F38F, 0x25),
                          bytes.fromhex(
                              "89 48 08 03 ce 89 50 0c 89 48 10 8b 4c 24 14 "
