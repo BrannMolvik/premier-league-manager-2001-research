@@ -944,3 +944,69 @@ def source_fastview_633020_one_existing_replacement_replay_value_only(
         side_after_replay=edited_side,
         fresh_replacement_source_call_reachable=False,
     )
+
+
+@dataclass(frozen=True)
+class SourceFastViewOneReplacementFollowupValue:
+    """Original bounded after-validator state; no live game-world mutation."""
+    native_validator_al: int
+    source_followup_6c2770_was_applied: bool
+    original_side_after: OriginalFastViewTacticsSelectionDraft
+    original_staged_replacements_after: tuple[SourceFastViewNativeReplacementRecord, ...]
+
+
+def source_fastview_one_prior_replacement_followup_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, native_child_status_byte: int,
+    original_single_replacement_record: SourceFastViewNativeReplacementRecord,
+    native_current_mapped_from_index: int,
+    native_selected_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> SourceFastViewOneReplacementFollowupValue:
+    """Exact 1-prior-replacement value effects of 0x633020 + caller 0x52EC23.
+
+    Caller MUST independently source-qualify actual native pointer/child
+    callback delivery, current club/side, selected dropdown, row/player
+    mapping and original edit-list inventory exactly one replacement with
+    no other native records. This is a pure bounded transition, never an
+    authorization to dispatch a click or commit a match.
+
+    When the old target matches requested new source, native 0x634B00
+    rewrites its one staged record and original side, then returns AL1,
+    so human 0x52EC17 SKIPS fresh 0x6C2770.
+    Otherwise the old record is preserved, AL0, and the real handler
+    0x52EC23 invokes 0x6C2770, then queues new 0x6335D0 record and
+    increments native edit-list count. The existing source-constrained
+    0x6C2770 helper intentionally fails closed if it cannot locate
+    required original ordering indices rather than fabricating them.
+    """
+    if not source_fastview_guarded_status_allows_followup(native_child_status_byte):
+        raise SourceFastViewTacticsSelectionError("native row +0x40 status disallows followup")
+    replay = source_fastview_633020_one_existing_replacement_replay_value_only(
+        original_side,
+        original_single_replacement_record=original_single_replacement_record,
+        requested_from_index=native_current_mapped_from_index,
+        requested_to_index=native_selected_to_index,
+        original_club_guard_flags=original_club_guard_flags,
+    )
+    if replay.replay_validator_al != 0:
+        return SourceFastViewOneReplacementFollowupValue(
+            1, False, replay.side_after_replay,
+            (replay.replacement_record_after_replay,)
+        )
+    fresh_side = source_fastview_6c2770_side_payload_value_only(
+        replay.side_after_replay,
+        source_from_player_index=native_current_mapped_from_index,
+        source_to_player_index=native_selected_to_index,
+        source_club_guard_flags=original_club_guard_flags,
+    )
+    return SourceFastViewOneReplacementFollowupValue(
+        0, True, fresh_side,
+        (
+            replay.replacement_record_after_replay,
+            SourceFastViewNativeReplacementRecord(
+                native_current_mapped_from_index,
+                native_selected_to_index,
+            ),
+        ),
+    )
