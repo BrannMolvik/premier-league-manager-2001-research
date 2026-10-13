@@ -130,10 +130,10 @@ class OriginalNativeLoadedEventLinkTests(unittest.TestCase):
                 original_saved_halfword_3e=12,
                 original_saved_halfword_40=0,
                 original_saved_dword_48=0x87654321,
-                original_saved_extended_four_bytes_58_to_5b=b"\\x00\\x42\\xFF\\x80")
+                original_saved_extended_four_bytes_58_to_5b=bytes((0,0x42,0xFF,0x80)))
             after=got.source_native_match_after_field_load
             self.assertEqual(got.original_source_virtual24_load_va,0x5109D0)
-            self.assertEqual(after[0x58:0x5C],b"\\x00\\x42\\xFF\\x80")
+            self.assertEqual(after[0x58:0x5C],bytes((0,0x42,0xFF,0x80)))
             self.assertEqual(unpack_from("<I",after,0x44)[0],0x40)
             self.assertEqual(unpack_from("<I",after,8)[0],0x22220000)
 
