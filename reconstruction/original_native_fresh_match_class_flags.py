@@ -30,6 +30,9 @@ SOURCE_ORIGINAL_BASE_MATCH_INIT_VA = 0x5103D0
 SOURCE_ORIGINAL_BASE_MATCH_FLAGS_INITIALIZE_VA = 0x5104CF
 SOURCE_ORIGINAL_CUP_MATCH_FLAGS_CONSTRUCTOR_VA = 0x510520
 SOURCE_ORIGINAL_CUP_MATCH_FLAGS_COMPOSE_VA = 0x510567
+SOURCE_ORIGINAL_CLASS3_FORCED_FLAGS_ARGUMENTS_VA = (0x51061D,0x51061F)
+SOURCE_ORIGINAL_CLASS4_ZERO_FLAGS_ARGUMENTS_VA = (0x510654,0x510656,0x510658)
+SOURCE_ORIGINAL_CLASS5_FORCED_MIDDLE_FLAG_VA = 0x51069D
 SOURCE_ORIGINAL_CUP_FLAG_BITS = 0x0E
 
 # Every actual known native subclass that executes source 0x5103D0.
@@ -46,8 +49,8 @@ SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS = {
     0x7C9F70: 5,
     0x7C9E14: 6,
 }
-SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS = frozenset((1,6))
-SOURCE_ORIGINAL_INHERITS_CUP_FLAGS_NATIVE_KINDS = frozenset((2,3,4,5))
+SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS = frozenset((1,4,6))
+SOURCE_ORIGINAL_INHERITS_CUP_FLAGS_NATIVE_KINDS = frozenset((2,3,5))
 
 
 @dataclass(frozen=True)
@@ -74,6 +77,11 @@ def source_original_fresh_match_flags44_and_collection(
                 | (arg[esp+18]&1))*2 | (old_flags&0xF1)
     and since the immediately called native base sets old_flags=0,
     the fresh flags are low bits1/2/3 only.
+    Class4 constructor 0x510640 hardcodes all three relevant args
+    zero, so no source flag arguments are required. Class3 0x510600
+    hardcodes the two lower args 1/1; class5 0x510680 hardcodes
+    the middle arg 1. Their remaining relevant args must come from
+    the actual reached native wrapper, not a guessed match type.
     Original original v+0x30:
        type1/6: 0x651980 returns AL 0 (primary);
        type2/3/4/5: 0x5112C0 returns AL 1 only iff native kind
@@ -100,6 +108,12 @@ def source_original_fresh_match_flags44_and_collection(
             raise OriginalFreshMatchFlagsSourceError(
                 "three authentic original reached 0x510520 argument DWORDs required")
         a,b,c=args
+        if kind==3 and (a&1,b&1)!=(1,1):
+            raise OriginalFreshMatchFlagsSourceError(
+                "native 0x510600 forces 0x510520 source arguments a=1,b=1")
+        if kind==5 and b&1!=1:
+            raise OriginalFreshMatchFlagsSourceError(
+                "native 0x510680 forces 0x510520 source argument b=1")
         flags=(((c&1)<<3)|((b&1)<<2)|((a&1)<<1))
     else:
         raise OriginalFreshMatchFlagsSourceError("native flag constructor owner unknown")
