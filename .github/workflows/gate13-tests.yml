@@ -27,6 +27,8 @@ on:
       - "reconstruction/test_original_fastview_native_player_registry.py"
       - "reconstruction/original_fastview_original_starter_human_gate.py"
       - "reconstruction/test_original_fastview_original_starter_human_gate.py"
+      - "reconstruction/original_fastview_native_win32_modal_source.py"
+      - "reconstruction/test_original_fastview_native_win32_modal_source.py"
       - "reconstruction/test_original_fastview_tactics_selection.py"
       - "reconstruction/test_original_fastview_two_sided_live_writeback.py"
       - "reconstruction/original_fastview_tactics_control_layout.py"
@@ -280,6 +282,7 @@ jobs:
             test_original_fastview_native_postloop_source \
             test_original_fastview_native_player_registry \
             test_original_fastview_original_starter_human_gate \
+            test_original_fastview_native_win32_modal_source \
             test_original_fastview_tactics_control_layout \
             test_gate13_r1_fastview_native_wrapper_recovery585 \
             test_original_prematch_panel \
