@@ -42,6 +42,12 @@ from original_fastview_tactics_selection import (
     OriginalFastViewStagedEditVisitorDispatch,
     source_fastview_633240_count_replacement_records,
     source_fastview_633020_result_without_replacement_records,
+    source_fastview_staged_record_native_replay_method,
+    SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS,
+    OriginalFastViewReplayMethodResolution,
+    source_fastview_special_replay_record_branch,
+    source_fastview_replacement_replay_branch_634b00,
+    source_fastview_634b00_matched_chain_payload_value_only,
 )
 
 
@@ -830,6 +836,386 @@ class SourceFastViewReplacementOnlyCounterCorrectionTests(unittest.TestCase):
             struct.unpack("<I", pe.read(0x7D7F90 + 4, 4))[0],
             0x633600
         )
+
+
+
+class OriginalFastViewNativeReplayMethodMapTests(unittest.TestCase):
+    """Replay visitor may mutate side state; these tests only resolve CALL targets."""
+
+    def test_every_source_record_virtual_four_calls_the_distinct_replay_slot(self):
+        expected_by_slot = dict(SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS)
+        self.assertEqual(len(expected_by_slot), 8)
+        self.assertEqual(expected_by_slot[0x04], 0x634B00)
+        self.assertEqual(expected_by_slot[0x10], 0x634990)
+        self.assertEqual(expected_by_slot[0x14], 0x634920)
+        self.assertEqual(
+            {slot for slot, call in expected_by_slot.items() if call == 0x634AB0},
+            {0x08, 0x0C, 0x18, 0x1C, 0x20}
+        )
+        for table, wrapper, offset in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH:
+            with self.subTest(vtable=hex(table)):
+                self.assertEqual(
+                    source_fastview_staged_record_native_replay_method(
+                        native_record_vtable=table
+                    ),
+                    OriginalFastViewReplayMethodResolution(
+                        table, wrapper, expected_by_slot[offset], offset
+                    )
+                )
+
+    def test_unknown_original_types_cannot_reach_replay_methods(self):
+        for wrong in (True, 0x7D7F30, 0x7D8014, 0x7D7F9C, -1, None, "0x7d7f90"):
+            with self.subTest(wrong=repr(wrong)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_staged_record_native_replay_method(
+                    native_record_vtable=wrong
+                )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original owner-authorized PE is not mounted")
+    def test_exact_original_replay_visitor_vtable_and_mutation_entrypoints(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for offset, method in SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS:
+            with self.subTest(offset=hex(offset)):
+                self.assertEqual(
+                    struct.unpack("<I", pe.read(0x7D8014 + offset, 4))[0],
+                    method
+                )
+        for addr, source in (
+            (0x634AB0, "53 8b 59 14 56 57"),
+            (0x634B00, "6a ff 68 b7 4c 7b 00"),
+            (0x634990, "64 a1 00 00 00 00"),
+            (0x634920, "55 8b 6c 24 08 56"),
+            (0x634C1D, "8b 46 1c"),
+            (0x634CF4, "c6 46 09 01"),
+            (0x634DF0, "8a 41 09 c3"),
+        ):
+            with self.subTest(addr=hex(addr)):
+                self.assertEqual(pe.read(addr, len(bytes.fromhex(source))),
+                                 bytes.fromhex(source))
+
+
+
+class OriginalFastViewSourceTwoSpecialReplayHandlersTests(unittest.TestCase):
+    """Native visitor methods +0x10/+0x14 return distinct list edit choices."""
+
+    def test_omitting_vs_reconstructing_are_different_native_paths(self):
+        for cls, expected in (
+            (0x7D7F60, "omit_record"),
+            (0x7D7F6C, "reconstruct_0x6334f0_record")
+        ):
+            with self.subTest(cls=hex(cls)):
+                self.assertEqual(
+                    source_fastview_special_replay_record_branch(
+                        native_record_vtable=cls, visitor_status9=1,
+                        native_record_dword_four=4, requested_source_dword=4
+                    ), expected)
+                for flag, old_id, requested in ((0, 4, 4), (1, 4, 5), (255, 0, 4)):
+                    self.assertEqual(
+                        source_fastview_special_replay_record_branch(
+                            native_record_vtable=cls, visitor_status9=flag,
+                            native_record_dword_four=old_id,
+                            requested_source_dword=requested
+                        ), "append_original_record"
+                    )
+
+    def test_unsupported_record_and_synthetic_statuses_fail_closed(self):
+        base = dict(native_record_vtable=0x7D7F60, visitor_status9=0,
+                    native_record_dword_four=3, requested_source_dword=3)
+        cases = (
+            {"native_record_vtable": 0x7D7F90},
+            {"native_record_vtable": 0x7D7F3C},
+            {"native_record_vtable": True},
+            {"visitor_status9": True},
+            {"visitor_status9": 256},
+            {"native_record_dword_four": -1},
+            {"requested_source_dword": 0x100000000},
+            {"requested_source_dword": "3"},
+        )
+        for change in cases:
+            with self.subTest(change=change), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_special_replay_record_branch(**(base | change))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original source PE not mounted")
+    def test_exact_original_conditional_branch_bytes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va, expected in (
+            (0x634928, "8a 46 09 84 c0"),
+            (0x63492D, "74 0c"),
+            (0x634931, "e8 7a ec ff ff"),
+            (0x634936, "3b 46 0c"),
+            (0x634939, "74 42"),
+            (0x634990, "64 a1 00 00 00 00"),
+            (0x6349AF, "8a 46 09 84 c0"),
+            (0x6349B4, "0f 84 a1 00 00 00"),
+            (0x6349BC, "e8 ef eb ff ff"),
+            (0x6349C1, "3b 46 0c"),
+            (0x6349C4, "0f 85 91 00 00 00"),
+            (0x6349F8, "8b cf e8 f1 ea ff ff"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(expected))),
+                                 bytes.fromhex(expected))
+
+
+
+class OriginalFastViewReplacementReplayFourNativeBranchesTests(unittest.TestCase):
+    """0x634B00 branch outcomes preserve original status/skip precedence."""
+
+    def test_status_flags_short_circuit_before_skip_or_matching(self):
+        for flag8, flag9 in ((0, 1), (1, 0), (255, 0), (1, 1)):
+            with self.subTest(flags=(flag8, flag9)):
+                self.assertEqual(
+                    source_fastview_replacement_replay_branch_634b00(
+                        visitor_status8=flag8, visitor_status9=flag9,
+                        native_skip_replacement_count=3,
+                        previous_replacement_target_dword=7,
+                        requested_source_dword=7,
+                    ),
+                    "forward_old_record_after_prior_status"
+                )
+
+    def test_source_skip_count_decrements_before_old_target_comparison(self):
+        for old_target, current_source in ((2, 2), (2, 3)):
+            self.assertEqual(
+                source_fastview_replacement_replay_branch_634b00(
+                    visitor_status8=0, visitor_status9=0,
+                    native_skip_replacement_count=1,
+                    previous_replacement_target_dword=old_target,
+                    requested_source_dword=current_source,
+                ),
+                "decrement_skip_and_append_empty_link"
+            )
+
+    def test_zero_skip_uses_original_previous_destination_match(self):
+        for old_to, current_from, expected in (
+            (4, 4, "chained_replacement_side_rewrite"),
+            (4, 5, "forward_old_record_mark_status8"),
+            (0, 0, "chained_replacement_side_rewrite")
+        ):
+            self.assertEqual(
+                source_fastview_replacement_replay_branch_634b00(
+                    visitor_status8=0, visitor_status9=0,
+                    native_skip_replacement_count=0,
+                    previous_replacement_target_dword=old_to,
+                    requested_source_dword=current_from
+                ), expected
+            )
+
+    def test_native_byte_and_dword_contracts_are_strict(self):
+        base = dict(visitor_status8=0, visitor_status9=0,
+                    native_skip_replacement_count=0,
+                    previous_replacement_target_dword=3, requested_source_dword=3)
+        for update in ({"visitor_status8": True}, {"visitor_status9": 256},
+                       {"native_skip_replacement_count": True},
+                       {"native_skip_replacement_count": -1},
+                       {"previous_replacement_target_dword": -1},
+                       {"requested_source_dword": 0x100000000},
+                       {"requested_source_dword": "3"}):
+            with self.subTest(update=update), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_replacement_replay_branch_634b00(**(base | update))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private source PE not mounted")
+    def test_exact_original_branch_preconditions_and_chain_constructor(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va, code in (
+            (0x634B1C, "8a 46 09 84 c0"),
+            (0x634B21, "0f 85 1e 02 00 00"),
+            (0x634B27, "8a 46 08 84 c0"),
+            (0x634B2C, "0f 85 13 02 00 00"),
+            (0x634B32, "8b 46 04"),
+            (0x634B37, "3b c5"),
+            (0x634B39, "76 43"),
+            (0x634B3B, "48"),
+            (0x634B82, "8b cb"),
+            (0x634B84, "e8 67 ea ff ff"),
+            (0x634B89, "3b 46 0c"),
+            (0x634B8C, "0f 85 6b 01 00 00"),
+            (0x634BB8, "e8 13 ea ff ff"),
+            (0x634CF4, "c6 46 09 01"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va, len(bytes.fromhex(code))),
+                                 bytes.fromhex(code))
+
+
+
+class OriginalFastViewChainMatchSideWriteOrderTests(unittest.TestCase):
+    """Byte-exact in-memory projection; no live edit, owner or mouse event."""
+
+    @staticmethod
+    def _payload():
+        data = bytearray(280)
+        struct.pack_into("<I", data, 0x14, 12)
+        data[0xF2:0xFE] = bytes((3, 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11))
+        data[0xF0] = 11
+        data[0xF1] = 5
+        data[0x104 + 3] = 0
+        data[0x104 + 7] = 1
+        struct.pack_into("<I", data, 0x18 + 4 * 3, 0x11112222)
+        struct.pack_into("<I", data, 0x18 + 4 * 7, 0x33334444)
+        struct.pack_into("<I", data, 0x60 + 4 * 3, 0xAAAABBBB)
+        struct.pack_into("<I", data, 0x60 + 4 * 7, 0xCCCCDDDD)
+        return OriginalFastViewTacticsSelectionDraft(bytes(data))
+
+    def test_native_chain_match_sequential_write_order_not_naive_swap(self):
+        draft = self._payload()
+        flags = [0] * 12
+        flags[3] = 1
+        changed = source_fastview_634b00_matched_chain_payload_value_only(
+            draft, requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple(flags)
+        )
+        self.assertEqual(
+            changed.original_side_bytes[0xF2:0xFE],
+            bytes((7, 0, 1, 3, 4, 5, 6, 2, 8, 9, 10, 11))
+        )
+        self.assertEqual(changed.original_side_bytes[0x104 + 3], 1)
+        self.assertEqual(changed.original_side_bytes[0x104 + 7], 0)
+        self.assertEqual(changed.original_side_bytes[0xF0], 11)  # chain does NOT decrement
+        self.assertEqual(changed.original_side_bytes[0xF1], 6)
+        self.assertEqual(
+            struct.unpack_from("<I", changed.original_side_bytes, 0x18 + 4 * 7)[0],
+            0x11112222
+        )
+        self.assertEqual(
+            struct.unpack_from("<I", changed.original_side_bytes, 0x60 + 4 * 7)[0],
+            0xAAAABBBB
+        )
+        self.assertEqual(draft, self._payload())  # input is immutable
+        self.assertEqual(len(changed.original_side_bytes), 280)
+
+    def test_native_order_alias_position_equals_destination_preserves_last_write(self):
+        draft = self._payload()
+        raw = bytearray(draft.original_side_bytes)
+        # The source from-player 3 is currently at destination index 7.
+        raw[0xF2:0xFE] = bytes((0, 1, 2, 4, 5, 6, 7, 3, 8, 9, 10, 11))
+        target = source_fastview_634b00_matched_chain_payload_value_only(
+            OriginalFastViewTacticsSelectionDraft(bytes(raw)),
+            requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=(0,) * 12
+        )
+        # Native writes order[to] = original order[from], then order[from]
+        # = from, then order[position_of_from] = to, LAST WRITE WINS.
+        self.assertEqual(
+            target.original_side_bytes[0xF2:0xFE],
+            bytes((0, 1, 2, 3, 5, 6, 7, 7, 8, 9, 10, 11))
+        )
+        self.assertEqual(target.original_side_bytes[0x104 + 3], 1)
+        self.assertEqual(target.original_side_bytes[0x104 + 7], 0)
+
+    def test_native_order_alias_position_equals_from_last_write_overwrites_source(self):
+        draft = self._payload()
+        raw = bytearray(draft.original_side_bytes)
+        raw[0xF2:0xFE] = bytes(range(12))  # source player 3 at order[3]
+        target = source_fastview_634b00_matched_chain_payload_value_only(
+            OriginalFastViewTacticsSelectionDraft(bytes(raw)),
+            requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=(0,) * 12
+        )
+        self.assertEqual(target.original_side_bytes[0xF2 + 3], 7)
+        self.assertEqual(target.original_side_bytes[0xF2 + 7], 3)
+
+    def test_native_guard_count_decrement_and_wrap(self):
+        draft = self._payload()
+        flags = [0] * 12
+        flags[7] = 1
+        changed = source_fastview_634b00_matched_chain_payload_value_only(
+            draft, requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple(flags))
+        self.assertEqual(changed.original_side_bytes[0xF1], 4)
+        same = source_fastview_634b00_matched_chain_payload_value_only(
+            draft, requested_from_index=3, requested_to_index=7,
+            original_club_guard_flags=tuple([1] * 12))
+        self.assertEqual(same.original_side_bytes[0xF1], 5)
+
+    def test_fail_closed_when_prior_source_missing_or_wrong_types(self):
+        draft = self._payload()
+        common = dict(draft=draft, requested_from_index=3,
+                      requested_to_index=7, original_club_guard_flags=(0,) * 12)
+        bad = (
+            {"requested_from_index": True},
+            {"requested_to_index": -1},
+            {"requested_to_index": 20},
+            {"original_club_guard_flags": [0] * 12},
+            {"original_club_guard_flags": (0,) * 7},
+            {"original_club_guard_flags": (0,) * 11 + (256,)},
+            {"draft": bytearray(draft.original_side_bytes)},
+            {"requested_from_index": 12},
+        )
+        for changed in bad:
+            with self.subTest(changed=changed), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_634b00_matched_chain_payload_value_only(
+                    **(common | changed)
+                )
+        absent = bytearray(draft.original_side_bytes)
+        absent[0xF2:0xFE] = bytes(range(12))
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_634b00_matched_chain_payload_value_only(
+                OriginalFastViewTacticsSelectionDraft(bytes(absent)),
+                requested_from_index=15, requested_to_index=7,
+                original_club_guard_flags=(0,) * 20
+            )
+
+
+    def test_order_array_overlap_with_original_status_flags_fails_closed(self):
+        draft = self._payload()
+        raw = bytearray(draft.original_side_bytes)
+        # Source+0xF2 holds 18 dedicated ordering bytes before native
+        # player-status region +0x104. A count of 19 would overlap.
+        struct.pack_into("<I", raw, 0x14, 19)
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_634b00_matched_chain_payload_value_only(
+                OriginalFastViewTacticsSelectionDraft(bytes(raw)),
+                requested_from_index=3, requested_to_index=7,
+                original_club_guard_flags=(0,) * 18
+            )
+        # The source's byte-indexed to-player must not be promoted into
+        # the unrelated status region when it falls outside 0..17.
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_634b00_matched_chain_payload_value_only(
+                draft, requested_from_index=3, requested_to_index=18,
+                original_club_guard_flags=(0,) * 20
+            )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-private original PE not mounted")
+    def test_authenticated_634c1d_634cf4_actual_native_write_order(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        expected = (
+            (0x634C1D, "8b 46 1c"),
+            (0x634C23, "c6 84 08 04 01 00 00 01"),
+            (0x634C31, "c6 84 02 04 01 00 00 00"),
+            (0x634C41, "e8 6a 01 00 00"),
+            (0x634C52, "8a 94 11 f2 00 00 00"),
+            (0x634C59, "88 94 0f f2 00 00 00"),
+            (0x634C68, "88 9c 11 f2 00 00 00"),
+            (0x634C75, "88 94 01 f2 00 00 00"),
+            (0x634C85, "8b 4c 88 18"),
+            (0x634C89, "89 4c 90 18"),
+            (0x634C96, "8b 54 90 60"),
+            (0x634C9A, "89 54 88 60"),
+            (0x634CC3, "fe 80 f1 00 00 00"),
+            (0x634CEE, "fe 88 f1 00 00 00"),
+            (0x634CF4, "c6 46 09 01"),
+        )
+        for va, literal in expected:
+            with self.subTest(va=hex(va)):
+                raw = bytes.fromhex(literal)
+                self.assertEqual(pe.read(va, len(raw)), raw)
 
 if __name__ == "__main__":
     unittest.main()

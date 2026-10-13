@@ -613,3 +613,236 @@ def source_fastview_633020_result_without_replacement_records(
             "native replacement-class replay is not yet source-complete"
         )
     return 0
+
+
+# Native 0x6331A0 replay visitor vtable 0x7D8014 uses eight slots
+# +0x04..+0x20. Actual PE DWORD table (not original type names):
+# replacement +4 -> 0x634B00; 5 of the other classes forward to
+# list-forwarding 0x634AB0; two have independent conditional handlers
+# 0x634990 and 0x634920. These methods are NOT assumed passive:
+# 0x634AB0 appends original record pointers into the native list.
+SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS = (
+    (0x04, 0x634B00),
+    (0x08, 0x634AB0),
+    (0x0C, 0x634AB0),
+    (0x10, 0x634990),
+    (0x14, 0x634920),
+    (0x18, 0x634AB0),
+    (0x1C, 0x634AB0),
+    (0x20, 0x634AB0),
+)
+
+
+@dataclass(frozen=True)
+class OriginalFastViewReplayMethodResolution:
+    native_record_vtable: int
+    source_record_dispatch_va: int
+    source_visitor_method_va: int
+    source_visitor_virtual_offset: int
+
+
+def source_fastview_staged_record_native_replay_method(
+    *, native_record_vtable: int
+) -> OriginalFastViewReplayMethodResolution:
+    """Source-only original record virtual +4 -> visitor virtual dispatch.
+
+    Does not run any of 0x634920, 0x634990, 0x634AB0 or 0x634B00;
+    none may be promoted to no-op or one-shot UI save. Validating which
+    callback the real original *would reach* is necessary before model-
+    driven linked-list replay or complete human FastView mode2 support.
+    """
+    record = source_fastview_original_staged_record_visitor_dispatch(
+        native_record_vtable=native_record_vtable
+    )
+    for slot, method in SOURCE_FASTVIEW_REPLAY_VISITOR_VTABLE_METHODS:
+        if slot == record.visitor_callback_offset:
+            return OriginalFastViewReplayMethodResolution(
+                record.record_vtable,
+                record.record_virtual_four_target, method, slot
+            )
+    raise SourceFastViewTacticsSelectionError("unverified original visitor method")
+
+
+# Two original specialized non-replacement replay callbacks:
+# record class 0x7D7F60 -> visitor+0x14 -> 0x634920 (may OMIT),
+# record class 0x7D7F6C -> visitor+0x10 -> 0x634990 (may RECONSTRUCT).
+# The predicates share original scratch BYTE visitor+0x09 and native
+# 0x6335B0 (record+0x04) compared with visitor+0x0C. Source-only outcomes,
+# NOT actual native list or side-state writes, nor source player identity.
+SOURCE_FASTVIEW_REPLAY_FLAG_NINE_OFFSET = 0x09
+SOURCE_FASTVIEW_REPLAY_RECORD_DWORD_FOUR_GETTER_VA = 0x6335B0
+SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE = 0x7D7F60
+SOURCE_FASTVIEW_REPLAY_OMIT_METHOD_VA = 0x634920
+SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_CLASS_VTABLE = 0x7D7F6C
+SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_METHOD_VA = 0x634990
+SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_CTOR_VA = 0x6334F0
+
+
+def source_fastview_special_replay_record_branch(
+    *, native_record_vtable: int, visitor_status9: int,
+    native_record_dword_four: int, requested_source_dword: int
+) -> str:
+    """Return 0x634920/0x634990 source branch, not its side effects.
+
+    If status9 is nonzero and native record +4 equals visitor +0x0C:
+    0x634920 returns without appending the current record to output.
+    0x634990 instead allocates and constructs 0x6334F0 record with
+    other original fields (not implemented) and deletes the old node.
+    Otherwise both callbacks preserve/append the current record.
+    This does NOT complete 0x633020 or authorize a live match edit.
+    """
+    if native_record_vtable not in (
+        SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE,
+        SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_CLASS_VTABLE,
+    ) or type(native_record_vtable) is not int:
+        raise SourceFastViewTacticsSelectionError("unqualified special replay record class")
+    if type(visitor_status9) is not int or not (0 <= visitor_status9 <= 255):
+        raise SourceFastViewTacticsSelectionError("native visitor BYTE +9 required")
+    if any(type(v) is not int or not (0 <= v <= 0xFFFFFFFF) for v in (
+        native_record_dword_four, requested_source_dword
+    )):
+        raise SourceFastViewTacticsSelectionError("native unsigned original record DWORDs required")
+    match = visitor_status9 != 0 and native_record_dword_four == requested_source_dword
+    if not match:
+        return "append_original_record"
+    if native_record_vtable == SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE:
+        return "omit_record"
+    return "reconstruct_0x6334f0_record"
+
+
+# Native 0x634B00 replacement-record visitor has FOUR distinct reached
+# source branches; class 0x7D7F90's native forwarding virtual+4 calls
+# this method only under the source 0x7D8014 replay visitor. This is a
+# branch classifier, NOT linked-list writes, replay or completed match.
+SOURCE_FASTVIEW_REPLAY_REPLACEMENT_VISITOR_VA = 0x634B00
+SOURCE_FASTVIEW_REPLAY_PREVIOUS_TARGET_GETTER_VA = 0x6335F0
+SOURCE_FASTVIEW_REPLAY_CHAIN_CTOR_VA = 0x6335D0
+
+
+def source_fastview_replacement_replay_branch_634b00(
+    *, visitor_status8: int, visitor_status9: int,
+    native_skip_replacement_count: int,
+    previous_replacement_target_dword: int,
+    requested_source_dword: int,
+) -> str:
+    """Read-only original ordered branch selection for visitor 0x634B00.
+
+    0x634B1C..0x634B2C: status9 OR status8 -> append existing record.
+    0x634B32..0x634B79: nonzero remaining skip decremented and a
+    list node with no payload is appended, without target comparison.
+    0x634B82..0x634B8C: old replacement target compared with current
+    requested source (visitor +0x0C); if equal the original *also*
+    constructs chained edit and mutates side data, otherwise forwards
+    the existing record and sets status8. These further mutations are
+    intentionally NOT implemented by returning a branch identifier.
+    """
+    for x in (visitor_status8, visitor_status9):
+        if type(x) is not int or not 0 <= x <= 255:
+            raise SourceFastViewTacticsSelectionError("original visitor status BYTE required")
+    for x in (native_skip_replacement_count, previous_replacement_target_dword,
+              requested_source_dword):
+        if type(x) is not int or not 0 <= x <= 0xFFFFFFFF:
+            raise SourceFastViewTacticsSelectionError("original visitor native DWORD required")
+    if visitor_status9 or visitor_status8:
+        return "forward_old_record_after_prior_status"
+    if native_skip_replacement_count:
+        return "decrement_skip_and_append_empty_link"
+    if previous_replacement_target_dword == requested_source_dword:
+        return "chained_replacement_side_rewrite"
+    return "forward_old_record_mark_status8"
+
+
+# Original 0x634B00 linked replacement-chain match branch mutates its OWN
+# 280-byte transient match-side payload at 0x634C1D..0x634CF4,
+# separately from the new replacement handler 0x6C2770. This is not a
+# live match writeback or the polymorphic 0x633020 list replay.
+SOURCE_FASTVIEW_CHAIN_SOURCE_VA = 0x634C1D
+SOURCE_FASTVIEW_CHAIN_ORDER_LOOKUP_VA = 0x634DB0
+SOURCE_FASTVIEW_CHAIN_STATUS_ON_OFFSET = 0x104
+SOURCE_FASTVIEW_CHAIN_STATUS_OFF_OFFSET = 0x104
+SOURCE_FASTVIEW_CHAIN_ORDER_OFFSET = 0xF2
+SOURCE_FASTVIEW_CHAIN_COUNT_OFFSET = 0x14
+SOURCE_FASTVIEW_CHAIN_SOURCE_WORD_OFFSETS = (0x18, 0x60)
+SOURCE_FASTVIEW_CHAIN_GUARD_COUNTER_OFFSET = 0xF1
+SOURCE_FASTVIEW_CHAIN_VISITOR_STATUS9_SET_VA = 0x634CF4
+
+
+def source_fastview_634b00_matched_chain_payload_value_only(
+    draft: OriginalFastViewTacticsSelectionDraft,
+    *, requested_from_index: int, requested_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> OriginalFastViewTacticsSelectionDraft:
+    """Preserve 0x634C1D..0x634CF4 actual side write ORDER as immutable bytes.
+
+    Entry requires the separate original replay visitor's matching
+    0x634B82 old replacement target == requested_from_index, and all
+    native status8/status9/skip/class/caller conditions. Those are NOT
+    checked or authorized here; use the original branch classifier and
+    complete 0x633020 owner once source-proven, not a row click.
+
+    Native side writes:
+      +0x104[from] = 1; +0x104[to] = 0;
+      +0xF2[to] = previous +0xF2[from];
+      +0xF2[from] = BYTE from;
+      +0xF2[first_position_of_from] = BYTE to;
+      +0x18/+0x60 DWORD[to] = previous DWORD[from];
+      +0xF1 += nonzero_club_guard[from] - nonzero_club_guard[to].
+    The native visitor sets its OWN +9 flag afterwards. This helper
+    does not model that flag, list transfer, edit count, or match state.
+    Absent source order entry fails closed, unlike unsafe native
+    end-position fallback whose prerequisites are not established.
+    """
+    if type(draft) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("original immutable side payload required")
+    if type(original_club_guard_flags) is not tuple or any(
+        type(flag) is not int or not 0 <= flag <= 255 for flag in original_club_guard_flags
+    ):
+        raise SourceFastViewTacticsSelectionError("original club player BYTE flags required")
+    side = bytearray(draft.original_side_bytes)
+    (count,) = unpack_from("<I", side, SOURCE_FASTVIEW_CHAIN_COUNT_OFFSET)
+    # The original +0x104 byte array starts immediately after the
+    # source +0xF2 order's 18-byte dedicated region. An oversized count
+    # would alias unrelated status bytes; do not treat that unproven
+    # native memory state as a valid immutable side record.
+    source_order_capacity = (
+        SOURCE_FASTVIEW_CHAIN_STATUS_ON_OFFSET - SOURCE_FASTVIEW_CHAIN_ORDER_OFFSET
+    )
+    if not 1 <= count <= source_order_capacity:
+        raise SourceFastViewTacticsSelectionError("bounded native side ordering count required")
+    if (type(requested_from_index) is not int or
+            not 0 <= requested_from_index < count):
+        raise SourceFastViewTacticsSelectionError("original active source must index native side order")
+    for idx in (requested_from_index, requested_to_index):
+        if type(idx) is not int or not 0 <= idx < source_order_capacity:
+            raise SourceFastViewTacticsSelectionError("original dedicated order BYTE index required")
+        if type(idx) is not int or not 0 <= idx <= 0xFF:
+            raise SourceFastViewTacticsSelectionError("original requested player index BYTE required")
+        if idx >= len(original_club_guard_flags):
+            raise SourceFastViewTacticsSelectionError("original club player status unavailable")
+        if SOURCE_FASTVIEW_CHAIN_ORDER_OFFSET + idx >= len(side) or (
+            SOURCE_FASTVIEW_CHAIN_STATUS_ON_OFFSET + idx >= len(side)
+        ) or any(
+            offset + 4 * idx + 4 > len(side) for offset in SOURCE_FASTVIEW_CHAIN_SOURCE_WORD_OFFSETS
+        ):
+            raise SourceFastViewTacticsSelectionError("source player index escapes native 280-byte side")
+    start = SOURCE_FASTVIEW_CHAIN_ORDER_OFFSET
+    source_order = side[start:start + count]
+    if requested_from_index not in source_order:
+        raise SourceFastViewTacticsSelectionError("native replay source player absent from side order")
+    pos = source_order.index(requested_from_index)
+    source_old_order_byte = side[start + requested_from_index]
+    side[SOURCE_FASTVIEW_CHAIN_STATUS_ON_OFFSET + requested_from_index] = 1
+    side[SOURCE_FASTVIEW_CHAIN_STATUS_OFF_OFFSET + requested_to_index] = 0
+    side[start + requested_to_index] = source_old_order_byte
+    side[start + requested_from_index] = requested_from_index
+    side[start + pos] = requested_to_index
+    for offset in SOURCE_FASTVIEW_CHAIN_SOURCE_WORD_OFFSETS:
+        value, = unpack_from("<I", draft.original_side_bytes, offset + 4 * requested_from_index)
+        pack_into("<I", side, offset + 4 * requested_to_index, value)
+    key = SOURCE_FASTVIEW_CHAIN_GUARD_COUNTER_OFFSET
+    side[key] = (
+        side[key]
+        + (1 if original_club_guard_flags[requested_from_index] != 0 else 0)
+        - (1 if original_club_guard_flags[requested_to_index] != 0 else 0)
+    ) & 0xFF
+    return OriginalFastViewTacticsSelectionDraft(bytes(side))
