@@ -160,6 +160,18 @@ def source_original_fresh_match_event_serial_510380(
         ]):
         raise OriginalFreshMatchFlagsSourceError(
             "original fresh class/native kind lifecycle is inconsistent")
+    flags=source.initial_original_flags44
+    kind=source.source_native_virtual28_kind
+    if (type(flags) is not int or flags & ~SOURCE_ORIGINAL_CUP_FLAG_BITS or
+        (kind in SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS and flags != 0)):
+        raise OriginalFreshMatchFlagsSourceError(
+            "original constructor flags are inconsistent with reached source class")
+    expected_collection=(
+        SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA if kind==2 and not flags&0x04
+        else SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA)
+    if source.source_native_date_collection_pointer!=expected_collection:
+        raise OriginalFreshMatchFlagsSourceError(
+            "native fresh class/bit2 source cannot select asserted date owner")
     counter=original_selected_collection_counter_before
     if type(counter) is not int or not 0<=counter<=0xFFFFFFFF:
         raise OriginalFreshMatchFlagsSourceError(
