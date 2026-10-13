@@ -611,5 +611,53 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 want = bytes.fromhex(encoded)
                 self.assertEqual(pe.read(address, len(want)), want)
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_native_high_event_row_handlers_really_mutate_and_stage_original_state(self):
+        """0x6c2170, 0x6c2770 and 0x633020 are not paint-only handlers."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source_sites = (
+            (0x6C21A4, "b9 46 00 00 00"),       # first copy 70 DWORDs
+            (0x6C21AF, "f3 a5"),
+            (0x6C21BC, "e8 cf fd ff ff"),       # 0x6c1f90 source role adjustment
+            (0x6C21C1, "8b 45 14"),             # original side participant count
+            (0x6C21EE, "8b 14 18"),             # native source divergence test
+            (0x6C21F1, "3b 13"),
+            (0x6C2201, "6a 10"),                # allocate actual 16-byte edit
+            (0x6C2224, "e8 c7 12 f7 ff"),       # 0x6334f0 list edit record
+            (0x6C228E, "89 48 08"),            # working edit-list count
+            (0x6C22AC, "6a 08"),                # final source event allocation
+            (0x6C22AE, "c7 45 00 16 00 00 00"),# first payload DWORD sentinel22
+            (0x6C22D6, "e8 b5 11 f7 ff"),      # 0x633490 sentinel edit
+            (0x6C2334, "89 43 08"),            # second list count update
+            (0x6C277A, "8b 68 14"),            # native side slot count
+            (0x6C2787, "8a 8c 30 f2 00 00 00"),# source side index map
+            (0x6C27B7, "8a 88 f0 00 00 00"),   # source count flag
+            (0x6C27BD, "fe c9"),               # decrements source count flag
+            (0x6C27C5, "c6 84 10 04 01 00 00 00"), # source row flag cleared
+            (0x6C27CD, "88 94 06 f2 00 00 00"), # source swapped index
+            (0x6C27D4, "88 9c 07 f2 00 00 00"), # inverse swapped index
+            (0x6C27DB, "8b 4c 98 18"),        # copies linked DWORD+0x18
+            (0x6C27DF, "89 4c 90 18"),
+            (0x6C27E3, "8b 4c 98 60"),        # copies linked DWORD+0x60
+            (0x6C27E7, "89 4c 90 60"),
+            (0x6C2800, "8a 9c ce 0c 4c a1 00"),# uses original global status table
+            (0x6C280B, "fe 80 f1 00 00 00"), # conditional native count increment
+            (0x6C2823, "fe 88 f1 00 00 00"), # conditional count decrement
+            (0x63303F, "57"),                 # validator forwards true source list
+            (0x633040, "e8 fb 01 00 00"),    # native source count validation
+            (0x63304E, "3b c6"),              # branch on source node count
+            (0x633058, "0f 84 20 01 00 00"), # empty source returns false
+            (0x633107, "e8 94 00 00 00"),    # complex source linked traversal
+            (0x633117, "0a c8"),              # combine source Boolean results
+            (0x633167, "8a 44 24 40"),        # actual cumulative returned bool
+        )
+        for address, encoded in source_sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(want)), want)
+
 if __name__ == "__main__":
     unittest.main()
