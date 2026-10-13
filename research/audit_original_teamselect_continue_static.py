@@ -1488,7 +1488,7 @@ def main(path: str) -> None:
     print("WARNING actual native OS time and first-click RNG offset unknown")
 
     # Recovery578 important: startup OS srand is NOT the only srand!
-    # Four direct callers of CRT 0x66950F, worldgen XOR reseed with
+    # Four direct callers of CRT 0x66950F, scouting event31 XOR reseed with
     # two native callers, raw rand + save reseed, saved DWORD restore.
     original_all_srand_direct_callers_578 = (
         "4af876", "50de2e", "50e16e", "53109e",
@@ -1529,6 +1529,74 @@ def main(path: str) -> None:
             raise AssertionError(("Original CRT reseed source call moved",a))
     print("PASS all 4 direct CRT srand callers and save/restore/worldgen inputs")
     print("WARNING ordinary new-game route reachability of reseed paths unknown")
+
+    # Recovery580 correction: PScouting2K scouting window vft+10
+    # dispatch event ID31 -> 0x4AE970 -> 0x4AEA48 XOR reseed;
+    # conditional null manager-record+0x14 -> 0x4AEAE0/0x4AED01
+    # second XOR reseed. RTTI rules out calling this a TeamSelect owner.
+    source_original_scouting_event31_580 = (
+        ("47bb30","mov    DWORD PTR [esi],0x7c2e6c"),
+        ("4adb85","mov    eax,DWORD PTR [eax+0x20]"),
+        ("4adb88","dec    eax"),
+        ("4adb89","cmp    eax,0x1e"),
+        ("4adb92","jmp    DWORD PTR [eax*4+0x4ae168]"),
+        ("4ae0fd","call   0x4ae970"),
+        ("4aea44","push   0xffffffff"),
+        ("4aea48","call   0x4af7f0"),
+        ("4aea51","cmp    esi,0x1"),
+        ("4aea57","call   0x64d540"),
+        ("4aea94","test   ecx,ecx"),
+        ("4aea96","jne    0x4aeaab"),
+        ("4aeaa6","call   0x4aeae0"),
+        ("4aed01","call   0x4af7f0"),
+        ("4aed06","cmp    esi,0x1"),
+        ("4aed10","call   0x64d540"),
+    )
+    for a,expected in source_original_scouting_event31_580:
+        if expected not in instruction(a):
+            raise AssertionError(("Original PScouting2K event31 dispatch moved",a))
+    if struct.unpack_from("<I",binary,0x7c2e6c+0x10-0x400000)[0] != 0x4adb50:
+        raise AssertionError("Original scouting event-window vft+0x10 moved")
+    if struct.unpack_from("<I",binary,0x4ae168+30*4-0x400000)[0] != 0x4ae0fb:
+        raise AssertionError("Original 31st event jump table changed")
+    # Original RTTI CompleteObjectLocator is stored directly BEFORE the vft.
+    # The previous "manager GUI" label was wrong: 0x7C2E6C is PScouting2K.
+    scouting_col = struct.unpack_from("<I", binary, 0x7c2e6c - 0x400000 - 4)[0]
+    scouting_td = struct.unpack_from("<I", binary, scouting_col - 0x400000 + 12)[0]
+    scouting_name_start = scouting_td - 0x400000 + 8
+    scouting_rtti = binary[scouting_name_start:binary.index(b"\x00", scouting_name_start)]
+    if scouting_rtti != b".?AVPScouting2K@@":
+        raise AssertionError(("Scouting owner RTTI mismatch", scouting_rtti))
+    if direct_calls("4ae970") != ("4ae0fd",):
+        raise AssertionError("Scouting event31 native parent owner changed")
+    if direct_calls("4af7f0") != ("4aea48", "4aed01"):
+        raise AssertionError("Original scouting XOR reseed callers changed")
+    print("PASS PScouting2K RTTI -> event31 -> one/two XOR CRT reseeds")
+    print("WARNING NOT a verified original first TeamSelect manager creation path")
+
+    # First selected user has TWO reads of the SAME global native queue.
+    # Queue callbacks may consume CRT state, so source static alone cannot
+    # claim either queue was empty or deterministic draw count at first click.
+    original_first_user_queue_routing_580 = (
+        ("42599e", "mov    ecx,0x947aa8"),
+        ("4259b5", "call   0x614080"),
+        ("412f0d", "mov    ecx,0x947aa8"),
+        ("412f1f", "call   0x614080"),
+        ("614085", "mov    eax,DWORD PTR [edi+0xc]"),
+        ("61408c", "mov    DWORD PTR [edi+0x10],0x1"),
+        ("614097", "mov    esi,DWORD PTR [edi+0x4]"),
+        ("6140a5", "call   DWORD PTR [eax+0x4]"),
+        ("6140b0", "call   DWORD PTR [edx+0x18]"),
+        ("6140c7", "call   DWORD PTR [edx+0x18]"),
+        ("6140d2", "call   DWORD PTR [eax+0x18]"),
+        ("6140e0", "call   0x4ea190"),
+    )
+    for a, expected in original_first_user_queue_routing_580:
+        if expected not in instruction(a):
+            raise AssertionError(("Original first user pending queue routing changed", a))
+    print("PASS both first-human 0x614080 drain sites use global 0x947AA8")
+    print("WARNING first-human queue contents/virtual callback CRT effects UNKNOWN")
+
 
     actual_allocators = [
         match.group(1) for match in re.finditer(
