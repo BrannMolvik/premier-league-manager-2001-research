@@ -267,6 +267,9 @@ jobs:
             test_original_supportstart_input \
             test_original_supportstart_staff_labels \
             test_original_supportstart_editor_projection \
+            test_original_supportstart_pointer_candidate \
+            test_original_supportstart_pointer_observation \
+            test_original_supportstart_action_pointer \
             test_original_scouting_resources \
             test_original_squad_resources \
             test_original_squad_presenter \
