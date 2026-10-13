@@ -43,10 +43,10 @@ class OriginalFastViewSelectedEventSource:
 def source_fastview_original_current_event_51f9f0(
     *, original_5112e0_virtual30_return_byte: int,
     original_native_event_current_9847fc: int,
-    original_nonzero_event_base_947af8: int,
-    original_zero_event_base_947ae0: int,
-    original_nonzero_events_by_native_index: tuple[int, ...],
-    original_zero_events_by_native_index: tuple[int, ...],
+    original_nonzero_event_base_947af8: int | None,
+    original_zero_event_base_947ae0: int | None,
+    original_nonzero_events_by_native_index: tuple[int, ...] | None,
+    original_zero_events_by_native_index: tuple[int, ...] | None,
 ) -> OriginalFastViewSelectedEventSource:
     """Source 0x51F9F0 chooses native event reference for 0x51FA70.
 
@@ -57,21 +57,12 @@ def source_fastview_original_current_event_51f9f0(
     reconstructed news, calculated scores or an ordered GUI list.
     Null or missing source pointer cannot enter original 0x51FA70.
     """
-    fields=(original_5112e0_virtual30_return_byte,
-            original_native_event_current_9847fc,
-            original_nonzero_event_base_947af8,
-            original_zero_event_base_947ae0)
-    limits=(255,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF)
-    if any(type(v) is not int or not 0<=v<=limit
-           for v,limit in zip(fields,limits)):
+    if (type(original_5112e0_virtual30_return_byte) is not int or
+        not 0<=original_5112e0_virtual30_return_byte<=255 or
+        type(original_native_event_current_9847fc) is not int or
+        not 0<=original_native_event_current_9847fc<=0xFFFFFFFF):
         raise OriginalFastViewEventCollectionSourceError(
-            "qualified original virtual event mode and native DWORD cursor/bases required")
-    for items in (original_nonzero_events_by_native_index,
-                  original_zero_events_by_native_index):
-        if (type(items) is not tuple or any(type(addr) is not int or
-            not 0 < addr <= 0xFFFFFFFF for addr in items)):
-            raise OriginalFastViewEventCollectionSourceError(
-                "authentic nonnull original native event-record pointer tuple required")
+            "qualified original virtual event mode BYTE and native DWORD cursor required")
     if original_5112e0_virtual30_return_byte:
         base=original_nonzero_event_base_947af8
         chosen=original_nonzero_events_by_native_index
@@ -82,6 +73,11 @@ def source_fastview_original_current_event_51f9f0(
         chosen=original_zero_events_by_native_index
         array_va=NATIVE_FASTVIEW_MODE_ZERO_EVENT_ARRAY_GLOBAL_VA
         base_va=NATIVE_FASTVIEW_MODE_ZERO_EVENT_BASE_GLOBAL_VA
+    if (type(base) is not int or not 0<=base<=0xFFFFFFFF or
+        type(chosen) is not tuple or
+        any(type(addr) is not int or not 0<addr<=0xFFFFFFFF for addr in chosen)):
+        raise OriginalFastViewEventCollectionSourceError(
+            "reached native original event base and nonnull pointer array required")
     index=(original_native_event_current_9847fc-base)&0xFFFFFFFF
     if index>=len(chosen):
         raise OriginalFastViewEventCollectionSourceError(
