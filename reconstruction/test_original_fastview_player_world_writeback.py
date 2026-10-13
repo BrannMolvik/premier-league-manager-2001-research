@@ -20,6 +20,8 @@ from original_fastview_player_world_writeback import (
     source_fastview_original_substitute_pre_restore_reset_4ea370,
     SourceFastViewPlayerDirectStatusStage,
     SourceFastViewPlayerAttributeCacheSwap,
+    source_fastview_original_starter_external_count_41edf0,
+    SourceFastViewStarterConditionalExternalResult,
 )
 
 
@@ -354,6 +356,92 @@ class SourceFastViewPlayerOriginalXIReserveLifecycleTests(unittest.TestCase):
         }
         for va,hx in sites.items():
             with self.subTest(source_va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewStarterExternalSourceCountTests(unittest.TestCase):
+    def test_conditional_starter_callback_exact_two_nested_gates(self):
+        for flags,al,expected in (
+            (0x3000,0,SourceFastViewStarterConditionalExternalResult(
+                0x3000,False,False,None,None)),
+            (0x1000,1,SourceFastViewStarterConditionalExternalResult(
+                0x1000,False,False,None,None)),
+            (0,0,SourceFastViewStarterConditionalExternalResult(
+                0,True,False,None,None)),
+            (0x1010,0,SourceFastViewStarterConditionalExternalResult(
+                0x10,True,True,True,2)),
+        ):
+            with self.subTest(flag=hex(flags),al=al):
+                actual=source_fastview_original_starter_external_count_41edf0(
+                    native_flag14_after_direct=flags,
+                    original_417340_result_byte=al,
+                    original_signed_club_index_word=-1,
+                    native_selected_owner_count_dword=3)
+                self.assertEqual(actual,expected)
+
+    def test_original_indexed_count_zero_has_no_dec_but_clears_status_bit12(self):
+        result=source_fastview_original_starter_external_count_41edf0(
+            native_flag14_after_direct=0x1010,
+            original_417340_result_byte=0,
+            original_signed_club_index_word=2,
+            native_selected_owner_count_dword=0)
+        self.assertEqual(result,SourceFastViewStarterConditionalExternalResult(
+            0x10,True,True,False,0))
+        selected=source_fastview_original_starter_external_count_41edf0(
+            native_flag14_after_direct=0x1000,
+            original_417340_result_byte=0,
+            original_signed_club_index_word=0,
+            native_selected_owner_count_dword=0xFFFFFFFF)
+        self.assertEqual(selected.native_count_after,0xFFFFFFFE)
+
+    def test_unverified_registry_result_and_original_flags_rejected(self):
+        good=dict(native_flag14_after_direct=0x1000,
+                  original_417340_result_byte=0,
+                  original_signed_club_index_word=0,
+                  native_selected_owner_count_dword=1)
+        for change in (
+            {"native_flag14_after_direct":True},
+            {"native_flag14_after_direct":-1},
+            {"original_417340_result_byte":False},
+            {"original_417340_result_byte":256},
+            {"original_signed_club_index_word":-32769},
+            {"original_signed_club_index_word":32768},
+            {"original_signed_club_index_word":"0"},
+            {"native_selected_owner_count_dword":0x100000000},
+            {"native_selected_owner_count_dword":None},
+        ):
+            with self.subTest(change=change),self.assertRaises(
+                SourceFastViewPlayerWorldWritebackError):
+                source_fastview_original_starter_external_count_41edf0(
+                    **(good|change))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "authenticated private source exe not mounted")
+    def test_original_starter_external_count_flag_and_registry_opcode_provenance(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        checks={
+            0x418311:"84 c0", 0x418313:"75 11",
+            0x418318:"c1 e8 0d", 0x41831B:"a8 01",
+            0x418321:"e8 ca 6a 00 00",
+            0x41EDF0:"8b 41 14", 0x41EDF4:"c1 e8 0c",
+            0x41EDF7:"a8 01", 0x41EDFE:"80 e6 ef",
+            0x41EE01:"89 51 14",
+            0x41EE04:"8b 15 90 4b 87 00",
+            0x41EE0A:"0f bf 41 72",
+            0x41EE0E:"8b 35 94 4b 87 00",
+            0x41EE29:"57", 0x41EE2A:"8b b9 a8 01 00 00",
+            0x41EE30:"85 ff", 0x41EE39:"8b c6",
+            0x41EE3C:"ff 88 a8 01 00 00",
+            0x41EE43:"8b c8", 0x41EE45:"c1 e1 04",
+            0x41EE48:"03 c8", 0x41EE4A:"8d 04 89",
+            0x41EE4D:"8b 8c c2 a8 01 00 00",
+            0x41EE54:"49", 0x41EE58:"89 88 a8 01 00 00",
+        }
+        for va,hx in checks.items():
+            with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
 
