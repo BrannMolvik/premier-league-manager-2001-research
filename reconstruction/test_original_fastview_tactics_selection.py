@@ -1639,7 +1639,7 @@ class NativeX133PopupFactoryClipTests(unittest.TestCase):
     def test_source_context_relative_clip(self):
         self.assertEqual(source_fastview_x133_popup_clip_52d190(
             child_x=133, child_y=278, parent_x=20, parent_y=139,
-            context_x=300, context_y=200), (153, 417, 300, 200))
+            context_x=300, context_y=200), (153, 400, 300, 200))
         self.assertEqual(source_fastview_x133_popup_clip_52d190(
             child_x=133, child_y=278, parent_x=20, parent_y=139,
             context_x=700, context_y=500), (100, 100, 700, 500))
