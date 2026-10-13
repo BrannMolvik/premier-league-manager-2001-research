@@ -127,15 +127,15 @@ def source_fastview_original_starter_human_external_4182f0(
         original_club_reference_dword=club_id,
         original_human_registry_club_ids_in_link_order=original_human_registry_club_ids_in_link_order)
     human=matching is not None
-    if human or direct.native_flag14_after & 0x2000:
+    if human or direct.direct_flag14_dword & 0x2000:
         external=SourceFastViewStarterConditionalExternalResult(
-            direct.native_flag14_after,False,False,None,None)
+            direct.direct_flag14_dword,False,False,None,None)
         return SourceFastViewOriginalStarterHumanGate(
             original_player.original_player_id_word,owner10,None,human,
             matching,direct,external,None,None)
-    if not (direct.native_flag14_after & 0x1000):
+    if not (direct.direct_flag14_dword & 0x1000):
         external=SourceFastViewStarterConditionalExternalResult(
-            direct.native_flag14_after,True,False,None,None)
+            direct.direct_flag14_dword,True,False,None,None)
         return SourceFastViewOriginalStarterHumanGate(
             original_player.original_player_id_word,owner10,None,human,
             matching,direct,external,None,None)
@@ -143,7 +143,7 @@ def source_fastview_original_starter_human_external_4182f0(
     selected=_native_club_bytes(source_clubs=original_clubs,signed_index=owner72)
     native_count=unpack_from("<I",selected,SOURCE_FASTVIEW_NATIVE_CLUB_COUNT_DWORD_OFFSET)[0]
     external=source_fastview_original_starter_external_count_41edf0(
-        native_flag14_after_direct=direct.native_flag14_after,
+        native_flag14_after_direct=direct.direct_flag14_dword,
         original_417340_result_byte=0,
         original_signed_club_index_word=owner72,
         native_selected_owner_count_dword=native_count)
