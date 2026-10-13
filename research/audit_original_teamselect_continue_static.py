@@ -1530,6 +1530,37 @@ def main(path: str) -> None:
     print("PASS all 4 direct CRT srand callers and save/restore/worldgen inputs")
     print("WARNING ordinary new-game route reachability of reseed paths unknown")
 
+    # Recovery579 distinct GUI management/event window vft+10
+    # dispatch event ID31 -> 0x4AE970 -> 0x4AEA48 XOR reseed;
+    # conditional null manager-record+0x14 -> 0x4AEAE0/0x4AED01
+    # second XOR reseed. No proof normal first TeamSelect click hits31.
+    source_original_manager_event31_579 = (
+        ("47bb30","mov    DWORD PTR [esi],0x7c2e6c"),
+        ("4adb85","mov    eax,DWORD PTR [eax+0x20]"),
+        ("4adb88","dec    eax"),
+        ("4adb89","cmp    eax,0x1e"),
+        ("4adb92","jmp    DWORD PTR [eax*4+0x4ae168]"),
+        ("4ae0fd","call   0x4ae970"),
+        ("4aea44","push   0xffffffff"),
+        ("4aea48","call   0x4af7f0"),
+        ("4aea51","cmp    esi,0x1"),
+        ("4aea57","call   0x64d540"),
+        ("4aea94","test   ecx,ecx"),
+        ("4aea96","jne    0x4aeaab"),
+        ("4aeaa6","call   0x4aeae0"),
+        ("4aed01","call   0x4af7f0"),
+        ("4aed06","cmp    esi,0x1"),
+        ("4aed10","call   0x64d540"),
+    )
+    for a,expected in source_original_manager_event31_579:
+        if expected not in instruction(a):
+            raise AssertionError(("Original manager event31 dispatch moved",a))
+    if struct.unpack_from("<I",binary,0x7c2e6c+0x10-0x400000)[0] != 0x4adb50:
+        raise AssertionError("Original manager event-window vft+0x10 moved")
+    if struct.unpack_from("<I",binary,0x4ae168+30*4-0x400000)[0] != 0x4ae0fb:
+        raise AssertionError("Original 31st event jump table changed")
+    print("PASS event31 management GUI -> source XOR re-seed branch")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
