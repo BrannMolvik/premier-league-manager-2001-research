@@ -1574,6 +1574,30 @@ def main(path: str) -> None:
     print("PASS PScouting2K RTTI -> event31 -> one/two XOR CRT reseeds")
     print("WARNING NOT a verified original first TeamSelect manager creation path")
 
+    # First selected user has TWO reads of the SAME global native queue.
+    # Queue callbacks may consume CRT state, so source static alone cannot
+    # claim either queue was empty or deterministic draw count at first click.
+    original_first_user_queue_routing_580 = (
+        ("42599e", "mov    ecx,0x947aa8"),
+        ("4259b5", "call   0x614080"),
+        ("412f0d", "mov    ecx,0x947aa8"),
+        ("412f1f", "call   0x614080"),
+        ("614085", "mov    eax,DWORD PTR [edi+0xc]"),
+        ("61408c", "mov    DWORD PTR [edi+0x10],0x1"),
+        ("614097", "mov    esi,DWORD PTR [edi+0x4]"),
+        ("6140a5", "call   DWORD PTR [eax+0x4]"),
+        ("6140b0", "call   DWORD PTR [edx+0x18]"),
+        ("6140c7", "call   DWORD PTR [edx+0x18]"),
+        ("6140d2", "call   DWORD PTR [eax+0x18]"),
+        ("6140e0", "call   0x4ea190"),
+    )
+    for a, expected in original_first_user_queue_routing_580:
+        if expected not in instruction(a):
+            raise AssertionError(("Original first user pending queue routing changed", a))
+    print("PASS both first-human 0x614080 drain sites use global 0x947AA8")
+    print("WARNING first-human queue contents/virtual callback CRT effects UNKNOWN")
+
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
