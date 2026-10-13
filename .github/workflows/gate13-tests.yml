@@ -13,6 +13,11 @@ on:
       - "reconstruction/test_front_end_settings.py"
       - "reconstruction/match_detail_mode.py"
       - "reconstruction/test_match_detail_mode.py"
+      - "reconstruction/original_fastview_tactics_selection.py"
+      - "reconstruction/test_original_fastview_tactics_selection.py"
+      - "reconstruction/original_fastview_tactics_control_layout.py"
+      - "reconstruction/test_original_fastview_tactics_control_layout.py"
+      - "reconstruction/test_gate13_r1_fastview_native_wrapper_recovery585.py"
       - "reconstruction/original_prematch_panel.py"
       - "reconstruction/test_original_prematch_panel.py"
       - "reconstruction/gate14_prematch_surface.py"
@@ -253,6 +258,9 @@ jobs:
             test_front_end_session \
             test_front_end_settings \
             test_match_detail_mode \
+            test_original_fastview_tactics_selection \
+            test_original_fastview_tactics_control_layout \
+            test_gate13_r1_fastview_native_wrapper_recovery585 \
             test_original_prematch_panel \
             test_gate14_prematch_surface \
             test_gate14_prematch_rating_widths \
