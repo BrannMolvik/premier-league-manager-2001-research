@@ -34,6 +34,32 @@ class OriginalFastViewWin32EventLoopTests(unittest.TestCase):
                 source_fastview_original_post_wm_user_6539f0(**(
                     dict(original_hwnd_from_view_plus64=1,original_event_dword=2)|kwargs))
 
+    def test_original_653a10_close_request_is_conditional_wm_user_post(self):
+        from original_fastview_native_win32_modal_source import source_fastview_original_conditional_view_close_653a10
+        self.assertIsNone(source_fastview_original_conditional_view_close_653a10(
+            original_close_request_is_nonzero=False,
+            original_view_owner_event_word_plus68=None,
+            original_nested_window_hwnd=None))
+        msg=source_fastview_original_conditional_view_close_653a10(
+            original_close_request_is_nonzero=True,
+            original_view_owner_event_word_plus68=0xAFFE,
+            original_nested_window_hwnd=0x54321)
+        self.assertEqual((msg.original_hwnd,msg.message,msg.wparam,msg.lparam),
+                         (0x54321,0x400,0xAFFE,0))
+        for change in (
+            {'original_close_request_is_nonzero':0},
+            {'original_close_request_is_nonzero':False},
+            {'original_view_owner_event_word_plus68':0x10000},
+            {'original_view_owner_event_word_plus68':None},
+            {'original_nested_window_hwnd':0},
+            {'original_nested_window_hwnd':None},
+        ):
+            args=dict(original_close_request_is_nonzero=True,
+                      original_view_owner_event_word_plus68=0x55,
+                      original_nested_window_hwnd=5)|change
+            with self.subTest(args=repr(args)),self.assertRaises(OriginalFastViewMessageSourceError):
+                source_fastview_original_conditional_view_close_653a10(**args)
+
     def test_empty_peek_uses_active_view_update_or_waitmessage_not_automatic_exit(self):
         for depth,action in ((0,OriginalFastViewPumpAction.WAIT_FOR_MESSAGE),
                              (1,OriginalFastViewPumpAction.UPDATE_NESTED_VIEW),
@@ -120,6 +146,12 @@ class OriginalFastViewWin32EventLoopTests(unittest.TestCase):
             0x532bf1:"ff 15 b0 d2 7b 00",
             0x532bf9:"8b 44 24 18",
             0x6539f7:"25 ff ff 00 00",
+            0x653a10:"8b 44 24 04",
+            0x653a14:"85 c0",
+            0x653a18:"66 8b 41 68",
+            0x653a1c:"8b 49 08",
+            0x653a20:"50",
+            0x653a23:"e8 c8 ff ff ff",
             0x6539ff:"68 00 04 00 00",
             0x653a04:"e8 47 5c 00 00",
             0x659663:"ff 15 d8 d2 7b 00",
