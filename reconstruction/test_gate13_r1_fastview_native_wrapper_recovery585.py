@@ -381,5 +381,52 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_human_fastview_tactics_four_native_cycling_settings_and_source_keys(self):
+        """Exact native selector values and original string keys, not guessed labels."""
+        import struct
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source_tables = (
+            (0x8498C8, ("NOT_USED", "PlayAttack", "PlayNormal", "PlayDefend")),
+            (0x8498D8, ("WithBallNormal", "WithBallShortPass",
+                        "WithBallLongBall", "WithBallCounter")),
+            (0x8498E8, ("WithoutBallNormal", "WithoutBallContain",
+                        "WithoutBallPress", "WithoutBallOffsideTrap")),
+            (0x8498F8, ("AggressionLow", "AggressionMedium", "AggressionHigh")),
+        )
+        for table_address, keys in source_tables:
+            with self.subTest(table=hex(table_address)):
+                addresses = struct.unpack("<" + str(len(keys)) + "I",
+                                          pe.read(table_address, 4 * len(keys)))
+                for addr, key in zip(addresses, keys):
+                    self.assertEqual(pe.read(addr, len(key) + 1),
+                                     key.encode("ascii") + b"\\0")
+        guards = (
+            (0x52E440, "8b 86 58 0a 00 00"), # event 61 decrease Play
+            (0x52E44F, "c7 86 58 0a 00 00 03 00 00 00"), # Play wraps to 3
+            (0x52E4AE, "8b 8e 58 0a 00 00"), # event62 increase Play
+            (0x52E4BD, "83 f8 04"),           # Play upper bound
+            (0x52E51D, "8b 8e 5c 0a 00 00"), # event63 decrease WithBall
+            (0x52E530, "c7 86 5c 0a 00 00 03 00 00 00"),
+            (0x52E593, "8b 8e 5c 0a 00 00"), # event64 increase WithBall
+            (0x52E5A2, "83 f8 04"),
+            (0x52E606, "8b 8e 60 0a 00 00"), # event65 decrease WithoutBall
+            (0x52E619, "c7 86 60 0a 00 00 03 00 00 00"),
+            (0x52E69B, "8b 8e 60 0a 00 00"), # event66 increase WithoutBall
+            (0x52E6AA, "83 f8 04"),
+            (0x52E72D, "8b 8e 64 0a 00 00"), # event67 decrease Aggression
+            (0x52E740, "c7 86 64 0a 00 00 02 00 00 00"),
+            (0x52E7C2, "8b 8e 64 0a 00 00"), # event68 increase Aggression
+            (0x52E7D1, "83 f8 03"),           # Aggression upper bound
+        )
+        for address, code in guards:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
