@@ -661,3 +661,50 @@ def source_fastview_staged_record_native_replay_method(
                 record.record_virtual_four_target, method, slot
             )
     raise SourceFastViewTacticsSelectionError("unverified original visitor method")
+
+
+# Two original specialized non-replacement replay callbacks:
+# record class 0x7D7F60 -> visitor+0x14 -> 0x634920 (may OMIT),
+# record class 0x7D7F6C -> visitor+0x10 -> 0x634990 (may RECONSTRUCT).
+# The predicates share original scratch BYTE visitor+0x09 and native
+# 0x6335B0 (record+0x04) compared with visitor+0x0C. Source-only outcomes,
+# NOT actual native list or side-state writes, nor source player identity.
+SOURCE_FASTVIEW_REPLAY_FLAG_NINE_OFFSET = 0x09
+SOURCE_FASTVIEW_REPLAY_RECORD_DWORD_FOUR_GETTER_VA = 0x6335B0
+SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE = 0x7D7F60
+SOURCE_FASTVIEW_REPLAY_OMIT_METHOD_VA = 0x634920
+SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_CLASS_VTABLE = 0x7D7F6C
+SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_METHOD_VA = 0x634990
+SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_CTOR_VA = 0x6334F0
+
+
+def source_fastview_special_replay_record_branch(
+    *, native_record_vtable: int, visitor_status9: int,
+    native_record_dword_four: int, requested_source_dword: int
+) -> str:
+    """Return 0x634920/0x634990 source branch, not its side effects.
+
+    If status9 is nonzero and native record +4 equals visitor +0x0C:
+    0x634920 returns without appending the current record to output.
+    0x634990 instead allocates and constructs 0x6334F0 record with
+    other original fields (not implemented) and deletes the old node.
+    Otherwise both callbacks preserve/append the current record.
+    This does NOT complete 0x633020 or authorize a live match edit.
+    """
+    if native_record_vtable not in (
+        SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE,
+        SOURCE_FASTVIEW_REPLAY_RECONSTRUCT_CLASS_VTABLE,
+    ) or type(native_record_vtable) is not int:
+        raise SourceFastViewTacticsSelectionError("unqualified special replay record class")
+    if type(visitor_status9) is not int or not (0 <= visitor_status9 <= 255):
+        raise SourceFastViewTacticsSelectionError("native visitor BYTE +9 required")
+    if any(type(v) is not int or not (0 <= v <= 0xFFFFFFFF) for v in (
+        native_record_dword_four, requested_source_dword
+    )):
+        raise SourceFastViewTacticsSelectionError("native unsigned original record DWORDs required")
+    match = visitor_status9 != 0 and native_record_dword_four == requested_source_dword
+    if not match:
+        return "append_original_record"
+    if native_record_vtable == SOURCE_FASTVIEW_REPLAY_OMIT_CLASS_VTABLE:
+        return "omit_record"
+    return "reconstruct_0x6334f0_record"
