@@ -1,3 +1,9 @@
+### 13 October 2026 KST - Recovery583 original EAMail ten source filter event projector PR662 integrated
+
+- Authenticated original EXE sha833bf95e...b7cc3 static only; ten PEAMail source group IDs2..11, +0x38 group pointer, native radio 0x5D49F0, native event 0x4722C3 → selected-user filter/preview clear/sort. Physical Win32 delivery remains unverified.
+- Integrated bounded presenter state and original mail filter projector, original zero/half-open source candidate and malformed input tests. Source row graphic name boost_type_11.444 does not appear in extracted private directory; no fake fallback to button_type_11.444. No complete ten filter mouse GUI or original runtime observation.
+- PR662 exact head c485fd522bccf4f6a36ed8ca676b661803d6363b Gate13 38351390598 SUCCESS, full 38351390541 SUCCESS, asset policy 38351390505 SUCCESS; no reviewer threads, squash merged c687981ea74b72f2e2b07b80e7f54fc8a97fff22. All Gates13–17/Windows11 release remain open.
+
 ### 13 October 2026 KST - Recovery582 PR661 original SupportStart source controller merged; next Inbox filters
 
 - Verified real private original EXE size4,714,541/SHA256 `833bf95e...b7cc3` and static x86 source for native SupportStart seven-row point-down, accepted callback, parent/eligible child held state and actual release; Exit1/Apply2 0x5D39C0 invokes PSupportStart 0x4D05E0 on mouse DOWN (not mouse-up), event1 cancel no staff/name apply and event2 full projection apply/result1. Original `original_game_host.py` still has NO live modal and source first-user event-queue/CRT/staff binding remain unknown; no Windows GUI acceptance.
