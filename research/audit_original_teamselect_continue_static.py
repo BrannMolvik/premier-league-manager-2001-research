@@ -1418,6 +1418,44 @@ def main(path: str) -> None:
     print("PASS concrete successful user-event object's +0x3C predicate TRUE")
     print("WARNING event object actual construction/callback timing UNKNOWN")
 
+    # Recovery578: 0x614080 drain vft+4/+18 is distinct from
+    # 0x613EE0 due-tick vft+10; 0x413020 user event due=now+1.
+    source_registered_user_two_pumps_578 = (
+        ("413327","mov    edx,DWORD PTR ds:0x9847fc"),
+        ("41332d","lea    eax,[edx+0x1]"),
+        ("413330","mov    DWORD PTR [ebp+0x4],eax"),
+        ("613f00","cmp    DWORD PTR [ecx+0x4],eax"),
+        ("613f03","jg     0x613f29"),
+        ("613f07","call   DWORD PTR [edx+0x10]"),
+        ("6140a5","call   DWORD PTR [eax+0x4]"),
+        ("6140b0","call   DWORD PTR [edx+0x18]"),
+        ("6140e0","call   0x4ea190"),
+        ("404610","mov    ecx,DWORD PTR [ecx+0x8]"),
+        ("404615","jmp    DWORD PTR [eax+0x24]"),
+        ("40dfb0","xor    eax,eax"),
+        ("40dfb2","ret"),
+        ("5cfa28","call   DWORD PTR [eax+0x3c]"),
+        ("5cfa48","call   0x413020"),
+        ("651e20","mov    eax,0x1"),
+        ("651e25","ret"),
+        ("5e330e","mov    DWORD PTR [eax],0x7bd564"),
+        ("5e3322","call   0x613ec0"),
+        ("5e3335","call   0x613ee0"),
+        ("404640","push   esi"),
+        ("404651","mov    DWORD PTR [eax],0x7bd5a8"),
+    )
+    for a,target in source_registered_user_two_pumps_578:
+        if target not in instruction(a):
+            raise AssertionError(("Original event pump source changed",a))
+    for slot,target in (
+        (0x7bd564+0x00,0x404620),(0x7bd564+0x04,0x40dfb0),
+        (0x7bd564+0x10,0x5cfa20),(0x7bd564+0x18,0x404610),
+        (0x7bd9b8+0x24,0x40dfb0),(0x7bd9b8+0x3c,0x651e20),
+    ):
+        if struct.unpack_from("<I",binary,slot-0x400000)[0] != target:
+            raise AssertionError(("Original concrete event vtable changed",hex(slot)))
+    print("PASS original generic queue drain vs timed registered-human callback")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
