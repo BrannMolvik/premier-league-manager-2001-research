@@ -113,3 +113,63 @@ def source_original_fresh_match_flags44_and_collection(
         (SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA if secondary
          else SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA),
         True)
+
+
+
+@dataclass(frozen=True)
+class OriginalFreshEventSerialSourceReceipt:
+    """Pure native constructor arithmetic, not a materialized live event."""
+    source_fresh_match: OriginalFreshMatchFlagsSourceReceipt
+    original_selected_collection_counter_before: int
+    source_original_event_id_dword_0c: int
+    original_selected_collection_counter_after: int
+    source_original_event8_immediately_after_constructor: int = 0
+
+    @property
+    def original_live_registry_pointer_is_known(self) -> bool:
+        return False
+
+
+def source_original_fresh_match_event_serial_510380(
+    *,
+    qualified_fresh_source_match: OriginalFreshMatchFlagsSourceReceipt,
+    original_selected_collection_counter_before: int,
+) -> OriginalFreshEventSerialSourceReceipt:
+    """Join source new-match class collection and 0x510380 event serial.
+
+    Original 0x5103D0 selects native date owner 0x947AD8 or 0x947AF0
+    from reached owner virtual+0x30; 0x510380 then uses ONLY that
+    selected owner's source +0x0C serial. Source event+0x0C is
+       2 * unsigned_serial + (owner==0x947AF0 ? 1 : 0)
+    modulo DWORD, and the selected owner's serial increments by one.
+    Another original event can increment the counter before this
+    operation; a caller MUST supply a genuine source-qualified
+    BEFORE-counter, not count Python fixtures. No native Side/club
+    pointers, event+0x08 subsequent state, queue pointer, or executable
+    callback is synthesized.
+    """
+    if type(qualified_fresh_source_match) is not OriginalFreshMatchFlagsSourceReceipt:
+        raise OriginalFreshMatchFlagsSourceError(
+            "source-qualified original fresh class/flag receipt required")
+    source=qualified_fresh_source_match
+    if (source.original_event_identity_is_known or
+        not source.source_original_event8_is_zero_immediately_after_constructor or
+        source.original_native_class_vtable not in SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS or
+        source.source_native_virtual28_kind!=SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS[
+            source.original_native_class_vtable
+        ]):
+        raise OriginalFreshMatchFlagsSourceError(
+            "original fresh class/native kind lifecycle is inconsistent")
+    counter=original_selected_collection_counter_before
+    if type(counter) is not int or not 0<=counter<=0xFFFFFFFF:
+        raise OriginalFreshMatchFlagsSourceError(
+            "actual selected original collection source serial DWORD required")
+    secondary=(source.source_native_date_collection_pointer==
+               SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA)
+    if not secondary and source.source_native_date_collection_pointer!=SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA:
+        raise OriginalFreshMatchFlagsSourceError("unknown original source collection owner")
+    return OriginalFreshEventSerialSourceReceipt(
+        source,counter,
+        (((counter<<1)&0xFFFFFFFF)|int(secondary)),
+        (counter+1)&0xFFFFFFFF,
+    )
