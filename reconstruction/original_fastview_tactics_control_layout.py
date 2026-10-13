@@ -182,6 +182,9 @@ NATIVE_AUXILIARY_EVENT_FIELD_OFFSET = 0x20
 # 0x877820 into 0x651A50, which reads that resource's +0x14 (width)
 # and +0x18 (height) before 0x64F380. Do not invent those runtime values.
 NATIVE_FIRST_AUXILIARY_ROW_SIZE = (40, 16)
+NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET = 0x374
+NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE = 0x20
+NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA = 0x87BEA0
 NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA = 0x877820
 NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS = (0x14, 0x18)
 NATIVE_SECOND_AUXILIARY_RECT_WRAPPER = 0x651A50
@@ -197,6 +200,25 @@ class OriginalFastViewTacticsAuxiliaryRowControl:
     native_y: int
     source_constructor_va: int
     artwork_identity_verified: bool = False
+
+    @property
+    def native_original_text_buffer_offset(self) -> int | None:
+        """Proven first-family screen text pointer; second-family unknown.
+
+        Original FastViewTactics constructor computes screen+0x374+0x20*row
+        for 0x6503F0 at all eleven source sites. No football text content,
+        characters, localization, or editing semantics are asserted.
+        """
+        if self.source_constructor_va != 0x6503F0:
+            return None
+        return (NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET
+                + self.source_row * NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE)
+
+    @property
+    def native_original_text_resource_owner_va(self) -> int | None:
+        """Native 0x6503F0 receives original 0x87BEA0 (not an art file ID)."""
+        return (NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA
+                if self.source_constructor_va == 0x6503F0 else None)
 
     def native_source_rect_from_original_dimensions(
         self, *, original_resource_dimensions: tuple[int, int] | None = None
