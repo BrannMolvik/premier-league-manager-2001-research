@@ -83,5 +83,34 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(expected)), expected)
 
 
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_native_pre_modal_snapshots_are_the_inverse_of_post_modal_writeback(self):
+        """Read-only exact PE proof of two-side copy plus packed flag capture."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        guards = (
+            (0x533C1D, "b9 14 00 00 00"),         # 20 dwords per source side
+            (0x533C24, "8d b8 f4 7c 87 00"),      # global side buffer destination
+            (0x533C2A, "f3 a5"),                  # team to view copy
+            (0x533C2C, "8b ad 94 02 00 00"),      # record count
+            (0x533C40, "66 8b 33"),               # source player ID word
+            (0x533C48, "8b 88 48 02 00 00"),      # player packed record
+            (0x533C4E, "e8 6d 67 fb ff"),         # get field+3 low 5
+            (0x533C59, "89 87 b4 7b 87 00"),      # snapshot 0x877BB4
+            (0x533C64, "8b 88 48 02 00 00"),      # get packed record again
+            (0x533C6A, "e8 61 67 fb ff"),         # get field+4 low 4
+            (0x533C6F, "25 ff 00 00 00"),         # source masks getter
+            (0x533C77, "89 87 74 7a 87 00"),      # snapshot 0x877A74
+            (0x533C88, "83 fa 01"),               # second side included
+            (0x4EA3C0, "8a 41 03 83 e0 1f c3"),  # original low5 getter
+            (0x4EA3D0, "8a 41 04 24 0f c3"),     # original low4 getter
+        )
+        for address, code in guards:
+            with self.subTest(address=hex(address)):
+                expected = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(expected)), expected)
+
+
 if __name__ == "__main__":
     unittest.main()
