@@ -35,3 +35,21 @@ In the existing active branch:
 3. Build an **actual source-faithful live mode2 FastViewTactics** with proper linked-list edits, the nested modal/outer match once-only, real PResults then normal management return and original-window player journeys, and verify true Windows 11 GUI. Continue other incomplete original modes, 2–6 humans, all originally playable countries/leagues, Save/Load and Gates 14–17 without declaring any gate complete early.
 
 **Status:** source-only partial audit, source verification independent; gameplay integration MISSING; player-visible/Win11 acceptance NOT performed. Gate 13 and all later gates remain OPEN.
+
+
+## Additional 22 native row-control coordinates (same Recovery589 branch)
+
+The remaining two 11-row event families are now tied not only to event IDs but to **original native constructor coordinates and actual per-row object origins**. Using the same SHA-authenticated owner original PE and a separate 22-site constructor-call audit, **22/22 row-coordinate/callee checks** and **4/4 row-event owner/registration byte checks** passed in private static source verification.
+
+| Original high-ID family | Parent row0 object | Row stride | Source event storage/registration | Per-row native placement (all 11 rows) | Actual reached original constructor |
+| --- | --- | --- | --- | --- | --- |
+| `0x23D65A+row` | `screen+0x1A34` | 0x40 | child virtual +8 registration at `0x52E323` | x80, y=`278+17*row` | `0x6503F0` |
+| `0x8877AE+row` | `screen+0x263C` | 0x44 | direct `child+0x20=screen+0x265C+0x44*row` | x133, y=`278+17*row` | `0x5D71A0` |
+
+Independent original constructor CALL addresses by row0..10:
+- first family: `0x527FBE, 0x5283AC, 0x5287BA, 0x528BE3, 0x52900C, 0x52943B, 0x529879, 0x529CC3, 0x52A116, 0x52A56C, 0x52A9C2`;
+- second family: `0x5280D8, 0x5284D2, 0x5288EC, 0x528D15, 0x52913E, 0x529576, 0x5299BD, 0x529E0A, 0x52A260, 0x52A6B6, 0x52AB0C`.
+
+The original 0x6503F0 constructor receives source width0x28 and height0x10 at least on its original first row (x80/y278); the second receives separate owner addresses `0x877840` and `0x877820` at original `0x5D71A0`. Neither their actual sprite/font identity nor their complete hit/click rectangles and effects have been independently proved. Do **not** reuse any of the four 11×16 original arrow sprite graphics as placeholders for these 22 controls.
+
+The existing feature branch now holds `OriginalFastViewTacticsAuxiliaryRowControl` read-only source placement entries and a parameterized all-22 original-PE verification regression in `reconstruction/test_original_fastview_tactics_control_layout.py`. This is an additional source audit milestone, not a playable editor, not native GUI observation, and not a claim that the remaining actions are complete. Next investigate exact `0x5D71A0` and `0x6503F0` native resource/hit semantics, plus `0x52F690` full effects and input producer.
