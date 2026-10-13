@@ -345,7 +345,8 @@ def source_fastview_original_starter_external_count_41edf0(
     """Exact source gates and projected count, not a league-world write.
 
     Caller must source-qualify actual 0x417340 return, player+0x72
-    signed club index and selected native external count. No address
+    signed club index and selected native external count. Original 0x41EE30 uses signed JLE: DWORDs
+    with their top bit set are NOT decremented. No address
     resolution or real side effect is executed by this value result.
     """
     if (type(native_flag14_after_direct) is not int or
@@ -369,5 +370,7 @@ def source_fastview_original_starter_external_count_41edf0(
     return SourceFastViewStarterConditionalExternalResult(
         native_flag14_after_direct & ~0x1000, True, True,
         original_signed_club_index_word < 0,
-        native_selected_owner_count_dword - 1 if native_selected_owner_count_dword else 0,
+        (native_selected_owner_count_dword - 1
+         if 0 < native_selected_owner_count_dword < 0x80000000
+         else native_selected_owner_count_dword),
     )
