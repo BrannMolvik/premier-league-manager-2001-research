@@ -9,6 +9,8 @@ import unittest
 from original_schedule_event_native_constructor import (
     OriginalScheduleEventConstructorSourceError,
     source_original_schedule_event_constructor_510380,
+    source_original_event_collection_selector_4f3b50,
+    source_original_event_constructor_from_owner_5103d0,
 )
 
 
@@ -68,11 +70,73 @@ class OriginalScheduleEventConstructorTests(unittest.TestCase):
             with self.subTest(change=str(change)),self.assertRaises(OriginalScheduleEventConstructorSourceError):
                 source_original_schedule_event_constructor_510380(**(valid|change))
 
+
+    def test_source_virtual30_eax_uses_al_not_full_eax(self):
+        for eax, chosen in (
+            (0,0x947AD8),(0x100,0x947AD8),(0x80000000,0x947AD8),
+            (1,0x947AF0),(0x101,0x947AF0),(0xFFFFFF00,0x947AD8),
+            (0xFFFFFFFF,0x947AF0),
+        ):
+            with self.subTest(eax=hex(eax)):
+                self.assertEqual(
+                    source_original_event_collection_selector_4f3b50(
+                        original_owner_virtual30_result_eax=eax),chosen)
+        for bad in (True,False,None,-1,0x100000000,"1",1.0):
+            with self.subTest(bad=bad),self.assertRaises(
+                OriginalScheduleEventConstructorSourceError
+            ):
+                source_original_event_collection_selector_4f3b50(
+                    original_owner_virtual30_result_eax=bad)
+
+    def test_original_owner_selector_is_actual_constructor_collection(self):
+        initial=bytes([0x4A])*0x30
+        for eax, serial, expected_pointer, expected_ident in (
+            (0,0,0x947AD8,0),
+            (0x100,11,0x947AD8,22),
+            (1,11,0x947AF0,23),
+            (0x80000002,0xFFFFFFFF,0x947AF0,0xFFFFFFFF),
+        ):
+            with self.subTest(eax=hex(eax)):
+                receipt=source_original_event_constructor_from_owner_5103d0(
+                    original_uninitialized_event_record=initial,
+                    original_owner_virtual30_result_eax=eax,
+                    original_selected_collection_serial_counter_before=serial)
+                self.assertEqual(receipt.original_owner_virtual30_result_eax,eax)
+                self.assertEqual(receipt.selected_collection_pointer,expected_pointer)
+                actual=receipt.source_constructed_event
+                self.assertEqual(actual.source_collection_pointer,expected_pointer)
+                self.assertEqual(actual.source_event_id_dword_0c,expected_ident)
+                self.assertEqual(actual.source_collection_counter_after_constructor,
+                                 (serial+1)&0xFFFFFFFF)
+                self.assertEqual(actual.source_native_event_record_after_constructor[0x14:],
+                                 initial[0x14:])
+        for change in (
+            {'original_owner_virtual30_result_eax':True},
+            {'original_owner_virtual30_result_eax':0x100000000},
+            {'original_selected_collection_serial_counter_before':-1},
+            {'original_uninitialized_event_record':bytes(0x10)},
+        ):
+            with self.subTest(change=change),self.assertRaises(
+                OriginalScheduleEventConstructorSourceError
+            ):
+                source_original_event_constructor_from_owner_5103d0(**(
+                    dict(original_uninitialized_event_record=initial,
+                         original_owner_virtual30_result_eax=1,
+                         original_selected_collection_serial_counter_before=7)
+                    |change))
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),"owner original private source not mounted")
     def test_original_510380_native_source_opcode_sites(self):
         from gate13_button_source_trace import OriginalPE32
         pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
+            0x4F3B50:"8b 01", 0x4F3B52:"ff 50 30",
+            0x4F3B55:"84 c0", 0x4F3B57:"b8 f0 7a 94 00",
+            0x4F3B5C:"75 05", 0x4F3B5E:"b8 d8 7a 94 00",
+            0x4F3B63:"c3",
+            0x5103D3:"8b 7c 24 10", 0x5103D9:"8b cf",
+            0x5103DB:"e8 70 37 fe ff", 0x5103E0:"50",
+            0x5103E1:"8b ce", 0x5103E3:"e8 98 ff ff ff",
             0x510380:"8b 54 24 04",
             0x510386:"33 c9",
             0x510388:"81 fa f0 7a 94 00",
