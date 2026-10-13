@@ -71,5 +71,40 @@ class OriginalEAMailFilterControlTests(unittest.TestCase):
                     native_filter_control_dword=0x183)
 
 
+
+    @unittest.skipUnless(__import__('os').environ.get('FM2001_ORIGINAL_EXE'),
+                         'Canonical private original executable not available')
+    def test_private_canonical_original_filter_vtable_and_distinct_filename_literals(self):
+        """Opt-in native PE evidence guard; no executable process is launched."""
+        from pathlib import Path
+        import os
+        import struct
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(
+            Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes()
+        )
+        self.assertEqual(
+            struct.unpack('<I',pe.read(0x7D6CC8 + 0x6C,4))[0],
+            0x5D4AC0,
+        )
+        self.assertEqual(pe.read(0x5D4F10,7),
+                         bytes.fromhex('6a1c68b7000000'))
+        self.assertEqual(pe.read(0x5FFF64,5),
+                         bytes.fromhex('68bc978300'))
+        self.assertEqual(pe.read(0x5F4814,5),
+                         bytes.fromhex('68285b8300'))
+        self.assertEqual(
+            pe.read(0x8397BC, len(
+                b'fm2001_art\\generic\\GenericButtonsAndBars\\boost_type_11.444'
+            ) + 1),
+            b'fm2001_art\\generic\\GenericButtonsAndBars\\boost_type_11.444\x00',
+        )
+        self.assertEqual(
+            pe.read(0x835B28, len(
+                b'fm2001_art\\generic\\GenericButtonsAndBars\\button_type_11.444'
+            ) + 1),
+            b'fm2001_art\\generic\\GenericButtonsAndBars\\button_type_11.444\x00',
+        )
+
 if __name__ == "__main__":
     unittest.main()
