@@ -87,7 +87,7 @@ def source_fastview_original_human_event_510c30(
 
 def source_fastview_original_selected_event_both_human_51fb1c(
     *, original_event_first_club_id_from_getter: int,
-    original_event_second_club_id_from_getter: int,
+    original_event_second_club_id_from_getter: int | None,
     original_human_manager_club_ids_in_link_order: tuple[int, ...],
 ) -> bool:
     """Selected-event branch uses 0x4037B0 CLUB ID, unlike 0x510C30.
@@ -106,7 +106,14 @@ def source_fastview_original_selected_event_both_human_51fb1c(
     first=source_fastview_original_human_club_4037b0(
         original_club_reference_dword=original_event_first_club_id_from_getter,
         original_human_registry_club_ids_in_link_order=original_human_manager_club_ids_in_link_order)
+    if first is None:
+        # Original 0x51FB2D branches directly to 0x51FB85; the
+        # second-club accessor+0 is NOT called on this source path.
+        if original_event_second_club_id_from_getter is not None:
+            raise OriginalFastViewHumanEventSourceError(
+                "second original event-club ID not reached when first club is not human")
+        return False
     second=source_fastview_original_human_club_4037b0(
         original_club_reference_dword=original_event_second_club_id_from_getter,
         original_human_registry_club_ids_in_link_order=original_human_manager_club_ids_in_link_order)
-    return first is not None and second is not None
+    return second is not None
