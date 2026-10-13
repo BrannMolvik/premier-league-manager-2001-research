@@ -12,6 +12,8 @@ from original_fastview_tactics_selection import (
     SourceFastViewPopupPostedMessage,
     SourceFastViewNativeDropdownModalResult,
     source_fastview_native_dropdown_posted_wm_user_result,
+    source_fastview_native_popup_option_dimensions_449610,
+    SourceFastViewNativePopupOptionDimensions,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1854,6 +1856,69 @@ class SourceFastViewActualX133Win32ModalResultTests(unittest.TestCase):
             (0x651B24,"89 5e 3c"),
         ):
             with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewX133PopupNativeOptionGeometryTests(unittest.TestCase):
+    """Actual native 0x449610 list sentinel count, not guessed mouse geometry."""
+
+    def test_empty_and_eleven_plus_optional_native_entries(self):
+        for count in (0, 1, 11, 17, 26):
+            entries=tuple(range(1,count+1)) + (0,)
+            with self.subTest(count=count):
+                self.assertEqual(
+                    source_fastview_native_popup_option_dimensions_449610(
+                        list_first_dwords_with_null=entries),
+                    SourceFastViewNativePopupOptionDimensions(
+                        native_count=count,
+                        native_inner_width=144,
+                        native_height=15*count+3,
+                    )
+                )
+
+    def test_original_count_is_nonzero_first_dword_not_total_byte_size(self):
+        self.assertEqual(source_fastview_native_popup_option_dimensions_449610(
+            list_first_dwords_with_null=(0x1000,0xFFFF0000,0xABCD,0)),
+            SourceFastViewNativePopupOptionDimensions(3,144,48))
+
+    def test_rejects_missing_multiple_or_early_null_sentinels(self):
+        bad=((),(1,),(0,0),(1,0,0),(1,0,2,0),
+             (None,0),(True,0),(-1,0),(0x100000000,0),
+             [1,0],("1",0))
+        for x in bad:
+            with self.subTest(bad=repr(x)),self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_native_popup_option_dimensions_449610(
+                    list_first_dwords_with_null=x)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original EXE not mounted")
+    def test_original_constructor_and_native_sentinel_count_source_bytes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for va,hx in (
+            (0x52D218,"c7 06 28 fe 7b 00"),
+            (0x52D21E,"89 46 68"),
+            (0x52D2A4,"c7 46 70 96 00 00 00"),
+            (0x52D2AB,"e8 60 c3 f1 ff"),
+            (0x449610,"8b 41 70"),
+            (0x449613,"8b 51 68"),
+            (0x449616,"83 e8 06"),
+            (0x449619,"c7 41 6c 00 00 00 00"),
+            (0x449620,"89 41 78"),
+            (0x449629,"8b 41 6c"),
+            (0x44962C,"40"),
+            (0x44962D,"89 41 6c"),
+            (0x449630,"83 3c c2 00"),
+            (0x449636,"8b 41 6c"),
+            (0x449639,"8d 04 40"),
+            (0x44963C,"8d 54 80 03"),
+            (0x449640,"89 51 74"),
+        ):
+            with self.subTest(address=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
 
