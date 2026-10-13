@@ -361,3 +361,27 @@ def source_fastview_original_header_mode_word_533980(*, original_club_record: by
     if type(original_club_record) is not bytes or len(original_club_record)<0xDA:
         raise SourceFastViewNativePlayerRosterError("qualified club record through +0xD9 required")
     return unpack_from('<H',original_club_record,0xD8)[0]
+
+
+def source_fastview_original_formation_owner_413b40(
+    *, original_club_reference_dword: int,
+    original_human_registry_club_ids_in_link_order: tuple[int, ...],
+) -> int | None:
+    """0x403850 native 0x413B40 masks the club argument to LOW 16 bits.
+
+    The upstream 0x4037B0 membership test 0x4139F0 compares the full
+    DWORD; only after that succeeds does 0x403850 invoke 0x413B40.
+    The latter explicitly masks club reference with 0xFFFF BEFORE it
+    looks up the first matching manager linked-list entry. Keep both
+    distinct when source club DWORD happens to exceed 16-bit range.
+    """
+    if source_fastview_original_human_club_4037b0(
+        original_club_reference_dword=original_club_reference_dword,
+        original_human_registry_club_ids_in_link_order=original_human_registry_club_ids_in_link_order,
+    ) is None:
+        return None
+    low16=original_club_reference_dword & 0xFFFF
+    try:
+        return original_human_registry_club_ids_in_link_order.index(low16)
+    except ValueError:
+        return None
