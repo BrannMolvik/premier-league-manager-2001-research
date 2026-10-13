@@ -271,6 +271,28 @@ class OriginalEAMailGroupedNativeCallbackGateTests(unittest.TestCase):
                 with self.subTest(gate=gate, bad=bad), self.assertRaises(ValueError):
                     eligible(**(base | {gate: bad}))
 
+
+    @unittest.skipUnless(__import__("os").environ.get("FM2001_ORIGINAL_EXE"),
+                         "Canonical private original EXE unavailable")
+    def test_native_filter_provider_uses_windows_file_open_not_res_alias(self):
+        import os
+        import struct
+        from pathlib import Path
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        # Original 0x657820 asks for mode 0x80000001 (bit15 off).
+        # Its file provider+0x04 points to 0x687D8E; that native branch
+        # selects 0x68F79F, then imports Windows CreateFileA.
+        self.assertEqual(pe.read(0x657919, 5), bytes.fromhex("68 01 00 00 80"))
+        self.assertEqual(
+            struct.unpack("<I", pe.read(0x7DADA0 + 4, 4))[0], 0x687D8E)
+        self.assertEqual(pe.read(0x687DD5, 6),
+                         bytes.fromhex("f7 c6 00 80 00 00"))
+        self.assertEqual(pe.read(0x687E46, 5),
+                         bytes.fromhex("e8 54 79 00 00"))
+        self.assertEqual(pe.read(0x68F80E, 6),
+                         bytes.fromhex("ff 15 34 d2 7b 00"))
+
     @unittest.skipUnless(__import__("os").environ.get("FM2001_ORIGINAL_EXE"),
                          "Canonical private EXE unavailable")
     def test_original_group_native_callback_bytes(self):
