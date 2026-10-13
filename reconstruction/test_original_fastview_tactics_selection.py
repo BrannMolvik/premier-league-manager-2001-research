@@ -1138,6 +1138,27 @@ class OriginalFastViewChainMatchSideWriteOrderTests(unittest.TestCase):
                 original_club_guard_flags=(0,) * 20
             )
 
+
+    def test_order_array_overlap_with_original_status_flags_fails_closed(self):
+        draft = self._payload()
+        raw = bytearray(draft.original_side_bytes)
+        # Source+0xF2 holds 18 dedicated ordering bytes before native
+        # player-status region +0x104. A count of 19 would overlap.
+        struct.pack_into("<I", raw, 0x14, 19)
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_634b00_matched_chain_payload_value_only(
+                OriginalFastViewTacticsSelectionDraft(bytes(raw)),
+                requested_from_index=3, requested_to_index=7,
+                original_club_guard_flags=(0,) * 18
+            )
+        # The source's byte-indexed to-player must not be promoted into
+        # the unrelated status region when it falls outside 0..17.
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            source_fastview_634b00_matched_chain_payload_value_only(
+                draft, requested_from_index=3, requested_to_index=18,
+                original_club_guard_flags=(0,) * 20
+            )
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                          "owner-private original PE not mounted")
     def test_authenticated_634c1d_634cf4_actual_native_write_order(self):
