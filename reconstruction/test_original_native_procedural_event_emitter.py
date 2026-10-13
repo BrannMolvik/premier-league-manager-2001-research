@@ -94,7 +94,7 @@ class OriginalNativeProceduralEventEmitterTests(unittest.TestCase):
             0x617078:"e8 d3 e8 ff ff",
             0x617057:"49",
             0x617059:"0f af 4c 24 20",
-            0x617063:"03 cf",
+            0x617061:"03 cf",
             0x6170A3:"e8 98 fe ff ff",
             0x6170AF:"3b c1",
             0x6170B1:"75 22",
