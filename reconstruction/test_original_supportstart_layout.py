@@ -86,5 +86,34 @@ class OriginalSupportStartNativePlacementTests(unittest.TestCase):
                 original_supportstart_action_native_screen_rect(
                     event, viewport_size=(800,600))
 
+
+    def test_source_starstrip_five_exact_crops_and_null_out_of_range(self):
+        from original_supportstart_layout import (
+            SOURCE_SUPPORTSTART_STAR_STRIP,
+            SOURCE_SUPPORTSTART_STAR_STRIP_SIZE,
+            SOURCE_SUPPORTSTART_STAR_FRAME_SIZE,
+            original_supportstart_star_frame,
+        )
+        self.assertEqual(SOURCE_SUPPORTSTART_STAR_STRIP,
+                         'FM2001_Art/Support/stars.444')
+        self.assertEqual(SOURCE_SUPPORTSTART_STAR_STRIP_SIZE, (75, 10))
+        self.assertEqual(SOURCE_SUPPORTSTART_STAR_FRAME_SIZE, (15, 10))
+        wrappers = (0x945890, 0x945850, 0x945810, 0x9457D0, 0x945790)
+        for state, wrapper in enumerate(wrappers, start=1):
+            with self.subTest(state=state):
+                frame = original_supportstart_star_frame(state)
+                self.assertEqual(frame.original_state, state)
+                self.assertEqual(frame.source_path, SOURCE_SUPPORTSTART_STAR_STRIP)
+                self.assertEqual(frame.native_wrapper, wrapper)
+                self.assertEqual(frame.source_crop_rect,
+                                 ((state-1)*15, 0, 15, 10))
+                self.assertLessEqual(frame.source_crop_rect[0] + 15, 75)
+        for out_of_range in (-0x80000000, -1, 0, 6, 100, 0xFFFFFFFF):
+            with self.subTest(out_of_range=out_of_range):
+                self.assertIsNone(original_supportstart_star_frame(out_of_range))
+        for invalid in (True, False, None, '1', 1.0):
+            with self.subTest(invalid=invalid), self.assertRaises(TypeError):
+                original_supportstart_star_frame(invalid)
+
 if __name__ == "__main__":
     unittest.main()
