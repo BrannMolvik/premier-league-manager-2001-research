@@ -173,7 +173,6 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
                 candidate(100),candidate(201,"Red",None,value8=1),
                 candidate(202,"Blue",None,value44=0x40),
                 candidate(203,"Different",None,owner=444),
-                candidate(204,"Special",False,code40=0xFFFF),
                 candidate(205,"Callback true",True),
                 candidate(206,"Alpha",False),
                 candidate(207,"Yankee",False),
@@ -221,6 +220,16 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
                 filt(**(base|{'original_linked_candidate_events':variants}))
         self.assertEqual(filt(**(base|{'original_linked_candidate_events':()})),
                          ((3,b"S\0"),))
+        # Original 0x51FB65 jumps out into special title/return, never
+        # reaches the rest of the ordinary iterator or name sort.
+        special=bytearray(0x50)
+        pack_into("<I",special,0x4C,5)
+        pack_into("<H",special,0x40,0xFFFF)
+        with self.assertRaises(OriginalFastViewEventCollectionSourceError):
+            filt(**(base|{'original_linked_candidate_events':(
+                OriginalFastViewNativeLinkedEventCandidate(4,bytes(special),b"Special\0",False),
+                c(8,callback=False))}))
+
         with self.assertRaises(OriginalFastViewEventCollectionSourceError):
             filt(**(base|{'original_linked_candidate_events':[c(4,callback=False)]}))
 
