@@ -248,3 +248,60 @@ def source_fastview_native_two_side_setup_533270(
         original_tactics_side0=first,
         original_tactics_side1=second,
     )
+
+
+# Original 0x533B20 reads selected original match object's
+# side +0x5A4/+0xB54 player count and passes packed side pointer
+# at +0x5A8/+0xB58 to 0x533B70. Native 0x533B70 fills the first
+# five tactical DWORDs, +0x14 player count, and three N-long DWORD
+# arrays at +0x18, +0x60, +0xA8. The original 280B stack scratch
+# contains other bytes NOT written by 0x533B70; a valid source
+# projection MUST retain those bytes, not assume zero initialization.
+SOURCE_FASTVIEW_TACTICAL_RAW_POPULATOR_VA = 0x533B70
+SOURCE_FASTVIEW_TACTICAL_MATCH_SIDE_SELECTION_VA = 0x533B20
+SOURCE_FASTVIEW_TACTICAL_PACKED_POSITIONS_BYTE_OFFSET = 0x16
+SOURCE_FASTVIEW_TACTICAL_PACKED_RANK_BYTE_OFFSET = 0x28
+SOURCE_FASTVIEW_TACTICAL_PACKED_THIRD_BYTE_OFFSET = 0x04
+SOURCE_FASTVIEW_TACTICAL_THIRD_DWORDS_OFFSET = 0xA8
+
+
+def source_fastview_native_raw_tactical_280_from_packed_533b70(
+    *, original_raw_stack_280: bytes, original_packed_side: bytes,
+    native_player_count: int,
+) -> bytes:
+    """Authenticated original packed side -> 280B tactical scratch writes.
+
+    0x533B70 does NOT initialize every byte in its 280B destination.
+    Caller must provide the actual original scratch bytes. The 0x533B20
+    side pointer and full player's data remain separate verification
+    requirements; passing guessed packed bytes cannot validate gameplay.
+    """
+    from struct import unpack_from, pack_into
+    if type(original_raw_stack_280) is not bytes or len(original_raw_stack_280) != SOURCE_FASTVIEW_TACTICAL_SIDE_BYTES:
+        raise OriginalFastViewTwoSideWritebackError("authentic 280-byte original stack scratch required")
+    if type(native_player_count) is not int or not SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MIN <= native_player_count <= SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MAX:
+        raise OriginalFastViewTwoSideWritebackError("original native 11..18 player count required")
+    if (type(original_packed_side) is not bytes or
+            len(original_packed_side) < SOURCE_FASTVIEW_TACTICAL_PACKED_RANK_BYTE_OFFSET + native_player_count):
+        raise OriginalFastViewTwoSideWritebackError(
+            "original packed side source must contain all three player byte arrays"
+        )
+    packed = unpack_from("<I", original_packed_side, 0)[0]
+    scratch = bytearray(original_raw_stack_280)
+    for at, value in (
+        (0x00, packed & 0xFF),
+        (0x04, (packed >> 8) & 3),
+        (0x08, (packed >> 14) & 3),
+        (0x0C, (packed >> 16) & 3),
+        (0x10, (packed >> 12) & 3),
+        (0x14, native_player_count),
+    ):
+        pack_into("<I", scratch, at, value)
+    for i in range(native_player_count):
+        pack_into("<I", scratch, 0x18 + i*4,
+                  original_packed_side[SOURCE_FASTVIEW_TACTICAL_PACKED_POSITIONS_BYTE_OFFSET + i])
+        pack_into("<I", scratch, 0x60 + i*4,
+                  original_packed_side[SOURCE_FASTVIEW_TACTICAL_PACKED_RANK_BYTE_OFFSET + i])
+        pack_into("<I", scratch, SOURCE_FASTVIEW_TACTICAL_THIRD_DWORDS_OFFSET + i*4,
+                  original_packed_side[SOURCE_FASTVIEW_TACTICAL_PACKED_THIRD_BYTE_OFFSET + i])
+    return bytes(scratch)
