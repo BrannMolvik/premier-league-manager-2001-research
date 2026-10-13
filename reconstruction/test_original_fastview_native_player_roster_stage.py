@@ -276,4 +276,67 @@ class OriginalFastViewFormationRosterMapTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
+
+class OriginalFastViewNativeDefaultOptionTests(unittest.TestCase):
+    def test_original_533ab0_default_and_registered_modes(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_side_option_533ab0
+        base=dict(original_club_word18=0,original_62ac80_virtual30_result=None,
+                  original_62ac80_signed_word20=None,original_computed_registry_pointer_nonzero=None,
+                  original_registry_slot_bytes=None)
+        self.assertEqual(source_fastview_original_side_option_533ab0(**base),11)
+        base['original_club_word18']=17
+        base['original_62ac80_virtual30_result']=0xA1
+        self.assertEqual(source_fastview_original_side_option_533ab0(**base),11)
+        base['original_62ac80_virtual30_result']=0
+        base['original_62ac80_signed_word20']=-1
+        self.assertEqual(source_fastview_original_side_option_533ab0(**base),11)
+        base['original_62ac80_signed_word20']=0
+        base['original_computed_registry_pointer_nonzero']=False
+        self.assertEqual(source_fastview_original_side_option_533ab0(**base),11)
+        base['original_computed_registry_pointer_nonzero']=True
+        source=bytearray(0x40);source[0x2B]=0
+        base['original_registry_slot_bytes']=bytes(source)
+        self.assertEqual(source_fastview_original_side_option_533ab0(**base),0)
+        source[0x2B]=254
+        base['original_registry_slot_bytes']=bytes(source)
+        self.assertEqual(source_fastview_original_side_option_533ab0(**base),254)
+    def test_original_option_requires_exact_reached_fields_not_guesses(self):
+        from original_fastview_native_player_roster_stage import source_fastview_original_side_option_533ab0
+        valid=dict(original_club_word18=1,original_62ac80_virtual30_result=0,
+                   original_62ac80_signed_word20=5,original_computed_registry_pointer_nonzero=True,
+                   original_registry_slot_bytes=bytes(0x40))
+        for change in ({'original_club_word18':-1},{'original_club_word18':True},
+                       {'original_62ac80_virtual30_result':True},
+                       {'original_62ac80_virtual30_result':None},
+                       {'original_62ac80_signed_word20':32768},
+                       {'original_62ac80_signed_word20':None},
+                       {'original_computed_registry_pointer_nonzero':None},
+                       {'original_computed_registry_pointer_nonzero':1},
+                       {'original_registry_slot_bytes':bytes(0x2B)},
+                       {'original_registry_slot_bytes':bytearray(0x40)},
+                       {'original_62ac80_signed_word20':-1},
+                       {'original_62ac80_virtual30_result':2},
+                       {'original_club_word18':0}):
+            with self.subTest(change=repr(change)),self.assertRaises(SourceFastViewNativePlayerRosterError):
+                source_fastview_original_side_option_533ab0(**(valid|change))
+    @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'private original PE not mounted')
+    def test_original_533ab0_branch_and_registry_getter_opcode_proof(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ['FM2001_ORIGINAL_EXE']).read_bytes())
+        samples={
+          0x533ab0:'8b 44 24 08',0x533abc:'bf 0b 00 00 00',
+          0x533ac7:'8b 8e b0 05 00 00',0x533acd:'e8 be 1d ed ff',
+          0x533ad2:'66 83 78 18 00',0x533ad9:'8b ce',
+          0x533adb:'e8 a0 71 0f 00',0x533ae0:'8b 70 4c',
+          0x533ae7:'ff 50 30',0x533aea:'84 c0',
+          0x533aee:'66 8b 46 20',0x533af2:'66 85 c0',
+          0x533af7:'8b 15 50 6c 87 00',0x533afd:'0f bf c0',
+          0x533b00:'c1 e0 06',0x533b03:'03 c2',
+          0x533b05:'85 c0',0x533b0c:'8a 48 2b',
+          0x533b13:'8b c7',
+        }
+        for va,hx in samples.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
 if __name__=='__main__': unittest.main()
