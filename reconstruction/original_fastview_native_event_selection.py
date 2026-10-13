@@ -219,9 +219,12 @@ def source_fastview_original_standard_event_members_51fa70(
     and is not appended; other candidates require equal record+0x4C
     source owner, then 0x510C30 result ZERO, then WORD+0x40 !=0xFFFF.
     Only that reached branch appends source pointer at +0xA4+4*count.
-    The 0xFFFF branch creates other original title/flag effects and
-    does not append; those effects and the selected candidate's human
-    flags are intentionally NOT represented by this list-only helper.
+    On the reached 0xFFFF branch, native 0x51FB65 jumps to special
+    0x51FC37 title effects and 0x5211DE return BEFORE the normal sort.
+    This standard-list helper must fail CLOSED there, not silently
+    skip the candidate and claim later ordinary list completion.
+    Selected candidate's independent human flags are likewise NOT
+    represented by this list-only helper.
     Caller supplies original returned iterator nodes, record bytes,
     indirect original name bytes and exact reached callback results.
     """
@@ -260,8 +263,13 @@ def source_fastview_original_standard_event_members_51fa70(
         if type(result) is not bool:
             raise OriginalFastViewEventCollectionSourceError(
                 "qualified native 0x510C30 boolean required for reached candidate")
-        if result or unpack_from("<H",record,0x40)[0]==0xFFFF:
+        if result:
             continue
+        if unpack_from("<H",record,0x40)[0]==0xFFFF:
+            # Source 0x51FB65 jumps to 0x51FC37 and then 0x5211DE:
+            # special title/return, NOT next iterator or 0x526DF0 sort.
+            raise OriginalFastViewEventCollectionSourceError(
+                "original WORD+0x40 0xFFFF takes special title early-return path")
         if type(name) is not bytes or b"\0" not in name:
             raise OriginalFastViewEventCollectionSourceError(
                 "original indirect C-name required only on reached candidate append")

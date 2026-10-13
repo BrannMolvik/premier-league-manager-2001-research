@@ -31,6 +31,10 @@ on:
       - "reconstruction/test_original_fastview_native_win32_modal_source.py"
       - "reconstruction/original_fastview_native_event_selection.py"
       - "reconstruction/test_original_fastview_native_event_selection.py"
+      - "reconstruction/original_fastview_native_event_human_owners.py"
+      - "reconstruction/test_original_fastview_native_event_human_owners.py"
+      - "reconstruction/original_fastview_native_event_human_owners.py"
+      - "reconstruction/test_original_fastview_native_event_human_owners.py"
       - "reconstruction/original_fastview_native_event_selection.py"
       - "reconstruction/test_original_fastview_native_event_selection.py"
       - "reconstruction/test_original_fastview_tactics_selection.py"
@@ -288,6 +292,8 @@ jobs:
             test_original_fastview_original_starter_human_gate \
             test_original_fastview_native_win32_modal_source \
             test_original_fastview_native_event_selection \
+            test_original_fastview_native_event_human_owners \
+            test_original_fastview_native_event_human_owners \
             test_original_fastview_native_event_selection \
             test_original_fastview_tactics_control_layout \
             test_gate13_r1_fastview_native_wrapper_recovery585 \
