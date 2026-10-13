@@ -47,6 +47,26 @@ class OriginalFastViewEventHumanOwnerSourceTests(unittest.TestCase):
         self.assertFalse(none.original_callback_510c30_nonzero)
         self.assertIsNone(none.first_matching_original_human_ordinal)
 
+    def test_first_manager_first_club_match_skips_unreached_second_getter(self):
+        args=self.args()|{
+            "original_event_first_club_pointer":0x100100,
+            "original_event_second_club_pointer":None,
+        }
+        got=source_fastview_original_human_event_510c30(**args)
+        self.assertEqual(
+            (got.first_matching_original_human_ordinal,got.matched_event_club_ordinal),
+            (0,0))
+        # First-club match with manager 2 cannot omit the second accessor:
+        # managers 0/1 would have accessed the second club before reaching 2.
+        with self.assertRaises(OriginalFastViewHumanEventSourceError):
+            source_fastview_original_human_event_510c30(
+                **(args|{"original_event_first_club_pointer":0x300300}))
+        for bad in (0,True,0x100000000):
+            with self.subTest(second=bad):
+                first=source_fastview_original_human_event_510c30(
+                    **(args|{"original_event_second_club_pointer":bad}))
+                self.assertEqual(first.first_matching_original_human_ordinal,0)
+
     def test_zero_or_six_humans_and_duplicate_club_pointer_source_order(self):
         args=self.args()
         self.assertFalse(source_fastview_original_human_event_510c30(
