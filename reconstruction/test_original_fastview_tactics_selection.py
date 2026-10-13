@@ -78,6 +78,64 @@ class OriginalFastViewTacticsSelectionDraftTests(unittest.TestCase):
                     all_seen.add(event)
         self.assertEqual(len(all_seen), 55)
 
+
+    def test_all_player_row_numeric_wraps_use_supplied_source_map_not_visible_row(self):
+        base = [0] * 70
+        base[0] = 22
+        base[1:5] = (1, 0, 0, 0)
+        base[42:53] = list(range(11))
+        draft = OriginalFastViewTacticsSelectionDraft(struct.pack("<70I", *base))
+        decrease, increase = 0x2466BE, 0x246AA6
+        # Visible row0 maps to source player row10; do not assume identity.
+        up = draft.with_original_player_row_step_value_only(
+            increase, mapped_source_row=10
+        )
+        self.assertEqual(struct.unpack_from("<I", up.original_side_bytes, 52 * 4)[0], 0)
+        self.assertEqual(struct.unpack_from("<I", draft.original_side_bytes, 52 * 4)[0], 10)
+        down = draft.with_original_player_row_step_value_only(
+            decrease + 10, mapped_source_row=0
+        )
+        self.assertEqual(struct.unpack_from("<I", down.original_side_bytes, 42 * 4)[0], 10)
+        self.assertEqual(up.original_side_bytes[:52 * 4], draft.original_side_bytes[:52 * 4])
+        self.assertEqual(down.original_side_bytes[43 * 4:], draft.original_side_bytes[43 * 4:])
+        # Same source row can be targeted from a different visible row only
+        # when the runtime mapping explicitly supplies it.
+        for visible in range(11):
+            with self.subTest(visible=visible):
+                nxt = draft.with_original_player_row_step_value_only(
+                    increase + visible, mapped_source_row=10 - visible
+                )
+                self.assertEqual(
+                    struct.unpack_from("<I", nxt.original_side_bytes,
+                                       (42 + 10 - visible) * 4)[0],
+                    (10 - visible + 1) % 11
+                )
+
+    def test_player_row_mutations_fail_closed_without_live_row_mapping(self):
+        base = [0] * 70
+        base[1] = 1
+        draft = OriginalFastViewTacticsSelectionDraft(struct.pack("<70I", *base))
+        for bad_row in (True, False, None, -1, 11, 256, 1.0, "1"):
+            with self.subTest(row=repr(bad_row)), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                draft.with_original_player_row_step_value_only(
+                    0x2466BE, mapped_source_row=bad_row
+                )
+        for wrong_event in (1, 61, 0x247276, 0x246E8E, 0x8877AE):
+            with self.subTest(event=wrong_event), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                draft.with_original_player_row_step_value_only(
+                    wrong_event, mapped_source_row=0
+                )
+        base[42] = 11
+        bad = OriginalFastViewTacticsSelectionDraft(struct.pack("<70I", *base))
+        with self.assertRaises(SourceFastViewTacticsSelectionError):
+            bad.with_original_player_row_step_value_only(
+                0x2466BE, mapped_source_row=0
+            )
+
     def test_nearby_unrecognized_or_noninteger_native_events_fail_closed(self):
         valid = {first + row
                  for first, _ in SOURCE_PLAYER_CONTROL_EVENT_FAMILIES
