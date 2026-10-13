@@ -76,6 +76,26 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
         self.assertEqual(source_fastview_original_current_event_51f9f0(
             **a).original_source_event_record_pointer,0x2010)
 
+    def test_native_51f3c0_unsigned_event_names_sort_without_normalization(self):
+        from original_fastview_native_event_selection import source_fastview_original_event_name_less_51f3c0
+        cmp=source_fastview_original_event_name_less_51f3c0
+        def less(a,b):
+            return cmp(first_event_virtual14_returned_name_nul=a,
+                       second_event_virtual14_returned_name_nul=b)
+        self.assertTrue(less(b"A\0",b"Ab\0"))
+        self.assertFalse(less(b"Ab\0",b"A\0"))
+        self.assertFalse(less(b"A\0",b"A\0ignored"))
+        self.assertTrue(less(b"ABC\0",b"ABD\0"))
+        self.assertTrue(less(b"HELLO\0",b"hello\0"))
+        self.assertTrue(less(b"\x7f\0",b"\x80\0"))
+        self.assertFalse(less(b"\x80\0",b"\x7f\0"))
+        self.assertTrue(less(b"\0",b"A\0"))
+        self.assertFalse(less(b"\0",b"\0"))
+        for a,b in ((b"A",b"B\0"),(b"A\0",b"B"),
+                    (None,b"A\0"),(b"A\0",bytearray(b"B\0"))):
+            with self.subTest(a=a,b=b),self.assertRaises(OriginalFastViewEventCollectionSourceError):
+                less(a,b)
+
     @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'private owner original executable not mounted')
     def test_original_5112e0_vft30_and_native_51f9f0_source_opcode_sites(self):
         from gate13_button_source_trace import OriginalPE32
@@ -94,6 +114,18 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             0x51fa44:"2b ca",0x51fa46:"8b 15 d8 7a 94 00",
             0x51fa4d:"8b 04 8a",0x51fa5b:"e8 10 00 00 00",
             0x51fa9e:"8b 77 4c",
+            0x51f3c0:"8b 44 24 08",
+            0x51f3c6:"8b 50 14",
+            0x51f3cc:"ff 12",
+            0x51f3d2:"8b 40 0c",
+            0x51f3e3:"8a 10",
+            0x51f3e9:"3a d3",
+            0x51f3f9:"3a d3",
+            0x51f403:"84 c9",
+            0x51f407:"33 c0",
+            0x51f415:"1b c0",
+            0x51f422:"8a c1",
+            0x51fbba:"e8 31 72 00 00",
         }
         for va,hex_bytes in sites.items():
             with self.subTest(va=hex(va)):
