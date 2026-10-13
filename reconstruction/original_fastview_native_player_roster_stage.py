@@ -125,3 +125,47 @@ def source_fastview_native_side_roster_stage_533370(
             side[target + 0x39 + i] = max(0, min(15, original_score))
     pack_into("<I", side, SOURCE_FASTVIEW_ROSTER_OPTION_OFFSET, original_533ab0_result)
     return bytes(side)
+
+
+SOURCE_FASTVIEW_ROSTER_CLUB_HEADER_VA = 0x533480
+SOURCE_FASTVIEW_ROSTER_CLUB_HEADER_ELIGIBILITY_VA = 0x5337C0
+
+
+def source_fastview_native_side_header_direct_fields_533480(
+    *, original_staged_side_1556: bytes,
+    original_club_record: bytes,
+    original_5337c0_result: bool,
+) -> bytes:
+    """Only source-direct 0x533480 +0xD4..+0xFA header field writes.
+
+    Native 0x5337C0 conditionally exposes club WORDs +0x84..+0x8A;
+    it also consults original external objects/country-mode and is not
+    reducible to a standalone boolean from club bytes alone. The caller
+    MUST qualify that predicate from original source/runtime. Native
+    text, owner pointers, grouped formation, and other +0..+0xD3
+    writes are NOT modeled by this helper.
+    """
+    if type(original_staged_side_1556) is not bytes or len(original_staged_side_1556) != SOURCE_FASTVIEW_ROSTER_SIDE_BYTES:
+        raise SourceFastViewNativePlayerRosterError("full native side memory required")
+    if type(original_club_record) is not bytes or len(original_club_record) < 0x8C:
+        raise SourceFastViewNativePlayerRosterError("source original club record +0x8A required")
+    if type(original_5337c0_result) is not bool:
+        raise SourceFastViewNativePlayerRosterError("qualified original 0x5337C0 result required")
+    if original_5337c0_result and unpack_from('<H', original_club_record, 0x84)[0] == 0:
+        raise SourceFastViewNativePlayerRosterError("native 0x5337C0 cannot pass with empty club +0x84")
+    side=bytearray(original_staged_side_1556)
+    side[0xD4:0xDC]=(original_club_record[0x84:0x8C] if original_5337c0_result
+                     else b'\x00'*8)
+    first=bytes(((original_club_record[0x44]+1)&0xFF,
+                 original_club_record[0x4A],original_club_record[0x4B],original_club_record[0x4C]))
+    second=bytes(((original_club_record[0x47]+1)&0xFF,
+                  original_club_record[0x56],original_club_record[0x57],original_club_record[0x58]))
+    for target,values in ((0xDC,first),(0xE0,second),(0xE4,first),(0xE8,second)):
+        side[target:target+4]=values
+    # The original deliberately does NOT write +0xEF/+0xF3/+0xF7/+0xFB.
+    for target,source in ((0xEC,0x45),(0xED,0x50),(0xEE,0x51),
+                          (0xF0,0x48),(0xF1,0x5C),(0xF2,0x5D),
+                          (0xF4,0x46),(0xF5,0x53),(0xF6,0x54),
+                          (0xF8,0x49),(0xF9,0x5F),(0xFA,0x60)):
+        side[target]=original_club_record[source]
+    return bytes(side)
