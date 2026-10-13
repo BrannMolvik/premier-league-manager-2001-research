@@ -545,5 +545,51 @@ class OriginalSupportStartInputTests(unittest.TestCase):
             accepts(row_index=0, source_screen_point=(False,281),
                     viewport_size=(800,600), native_row_control_dword=0x183)
 
+
+    def test_source_native_pointer_down_pressed_release_cycle(self):
+        from original_supportstart_input import (
+            project_original_supportstart_source_pointer_down as down,
+            project_original_supportstart_native_row_release as release,
+            original_supportstart_fresh_native_row,
+            original_supportstart_empty_row_after_refresh,
+        )
+        row = original_supportstart_fresh_native_row()
+        kw = dict(row_index=0, source_screen_point=(500,300),
+                  viewport_size=(800,600))
+        first = down(row, **kw)
+        self.assertTrue(first.native_handler_accepted)
+        self.assertEqual(first.source_row_index, 0)
+        self.assertEqual(first.invoked_child_indices,(3,4))
+        self.assertEqual(first.observed_child_acceptances,(True,True))
+        pressed = first.source_after_row_bit15_toggle
+        self.assertEqual(pressed.parent,0x8193)
+        self.assertEqual(pressed.children[3],0x193)
+        self.assertEqual(pressed.children[4],0x193)
+        with self.assertRaises(ValueError):
+            down(pressed, **kw)
+        lifted = release(
+            pressed, source_row_index=0,
+            observed_original_release_for_row=True,
+        ).source_row_after
+        self.assertEqual(lifted.parent,0x8183)
+        self.assertEqual(lifted.children[3],0x183)
+        self.assertEqual(lifted.children[4],0x183)
+        second = down(lifted, **kw)
+        self.assertEqual(second.source_after_row_bit15_toggle.parent,0x193)
+        # Parent can accept with both child callback candidates absent.
+        none_enabled = OriginalSupportStartRowBitState(
+            0x183,(0x183,0x183,0x183,0x180,0x180))
+        parent_only = down(none_enabled, **kw)
+        self.assertEqual(parent_only.invoked_child_indices, ())
+        self.assertTrue(parent_only.native_handler_accepted)
+        blank = original_supportstart_empty_row_after_refresh(
+            original_supportstart_fresh_native_row())
+        with self.assertRaises(ValueError):
+            down(blank,row_index=6,
+                 source_screen_point=(500,540),viewport_size=(800,600))
+        with self.assertRaises(ValueError):
+            down(row,row_index=0,source_screen_point=(757,300),
+                 viewport_size=(800,600))
+
 if __name__ == "__main__":
     unittest.main()
