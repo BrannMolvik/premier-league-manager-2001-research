@@ -1397,3 +1397,66 @@ def source_fastview_native_dropdown_posted_wm_user_result(
     if native_wparam == SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL:
         return SourceFastViewNativeDropdownModalResult(0xFFFF, 1, False)
     return SourceFastViewNativeDropdownModalResult(native_wparam, 0, True)
+
+
+# Next actual dropdown list ownership source after original PR670:
+# human x133 0x52D120 allocates popup -> ctor 0x52D1F0
+# writes child+0x38 list pointer into popup+0x68 at 0x52D21E.
+# Ctor sets popup+0x70=0x96 (150) at 0x52D2A4, then calls
+# original 0x449610 at 0x52D2AB (opcode e8 60 c3 f1 ff).
+# 0x449610 computes popup+0x78=popup+0x70-6 (144), resets
+# popup+0x6C list count, scans DWORD first entries at +8 bytes
+# from list owner until DWORD0, and writes popup+0x74=15*N+3.
+# This is *content dimension math*, NOT pointer hitboxes,
+# text strings, scroll or item click / selection calculations.
+SOURCE_FASTVIEW_POPUP_LIST_GEOMETRY_VA = 0x449610
+SOURCE_FASTVIEW_POPUP_LIST_POINTER_OFFSET = 0x68
+SOURCE_FASTVIEW_POPUP_OPTION_FIRST_DWORD_STRIDE = 8
+SOURCE_FASTVIEW_POPUP_NATIVE_FRAME_WIDTH = 150
+SOURCE_FASTVIEW_POPUP_INNER_CONTENT_WIDTH = 144
+SOURCE_FASTVIEW_POPUP_OPTION_ROW_PITCH = 15
+SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION = 3
+SOURCE_FASTVIEW_POPUP_NUMBER_OF_OPTIONS_OFFSET = 0x6C
+SOURCE_FASTVIEW_POPUP_OPTIONS_HEIGHT_OFFSET = 0x74
+SOURCE_FASTVIEW_POPUP_CONTENT_WIDTH_OFFSET = 0x78
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativePopupOptionDimensions:
+    native_count: int
+    native_inner_width: int
+    native_height: int
+
+
+def source_fastview_native_popup_option_dimensions_449610(
+    *, list_first_dwords_with_null: tuple[int, ...]
+) -> SourceFastViewNativePopupOptionDimensions:
+    """Project only native 0x449610 sentinel count and dimensions.
+
+    Input must represent the exact original list+8*i first DWORD at
+    each 8-byte record, including a single NULL terminal. The original
+    scans until the first NULL. Fail closed for truncated/noncanonical
+    input instead of dereferencing arbitrary host pointers. No GUI
+    position, selection-index or clickable-row assumption is made.
+    """
+    if (type(list_first_dwords_with_null) is not tuple or
+            not list_first_dwords_with_null):
+        raise SourceFastViewTacticsSelectionError("native terminated option records required")
+    if any(type(d) is not int or d < 0 or d > 0xFFFFFFFF
+           for d in list_first_dwords_with_null):
+        raise SourceFastViewTacticsSelectionError("original list-entry DWORDs required")
+    if list_first_dwords_with_null[-1] != 0 or 0 in list_first_dwords_with_null[:-1]:
+        raise SourceFastViewTacticsSelectionError(
+            "original native option inventory must end with exactly one sentinel"
+        )
+    count = len(list_first_dwords_with_null) - 1
+    if count > (0x7FFFFFFF - SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION)//15:
+        raise SourceFastViewTacticsSelectionError(
+            "unqualified original native 32-bit option height overflow"
+        )
+    return SourceFastViewNativePopupOptionDimensions(
+        native_count=count,
+        native_inner_width=SOURCE_FASTVIEW_POPUP_INNER_CONTENT_WIDTH,
+        native_height=SOURCE_FASTVIEW_POPUP_OPTION_ROW_PITCH * count
+                      + SOURCE_FASTVIEW_POPUP_OPTION_HEIGHT_ADDITION,
+    )
