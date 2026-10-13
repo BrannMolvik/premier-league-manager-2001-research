@@ -185,6 +185,16 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
                   original_selected_event_indirect_name_nul=b"S\0")
         self.assertEqual(filt(**(base|{'original_linked_candidate_events':(c(4,owner=6),)})),
                          ((3,b"S\0"),))
+        from dataclasses import replace
+        # Native source never dereferences a filtered-out record's name.
+        filtered=replace(c(4,owner=6),original_event_indirect_name_nul=None)
+        self.assertEqual(filt(**(base|{'original_linked_candidate_events':(filtered,)})),
+                         ((3,b"S\0"),))
+        # The same source name must exist if the branch actually appends it.
+        reached=replace(c(4,callback=False),original_event_indirect_name_nul=None)
+        with self.assertRaises(OriginalFastViewEventCollectionSourceError):
+            filt(**(base|{'original_linked_candidate_events':(reached,)}))
+
         for variants in (
             (c(4),), # Original callback 510C30 was reached; cannot invent result.
             (c(4,callback=True,status=1),), # Callback not reached.
