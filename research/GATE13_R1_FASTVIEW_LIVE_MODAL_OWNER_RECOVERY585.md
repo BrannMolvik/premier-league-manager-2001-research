@@ -162,3 +162,23 @@ Original `0x522280` resolves its selected original side via `screen+0x2A8 -> 0x6
 **Independent proof:** authenticated original PE original RTTI names and vtable addresses checked, plus 19 source-address assertions in the `0x4037B0/0x403850/0x4139E0/0x413B40/0x52D370` chain independently passed on the authorized local PE. Dedicated private-executable opt-in regression added to the same unmerged feature branch; branch CI and Win11 GUI have not run. This is a source-qualified *class choice*, not a complete match/tactics/player-flow acceptance.
 
 **Next:** identify exactly which original `FastViewTactics` controls (native events 1–3 and 59–68), the selection validator `0x632B70`, and the 70-DWORD per-side payload communicate the real edits; verify `FastViewCPUTactics` close/status and outer FastView completion. Build an end-to-end original modal/match/result path only after all required side-specific transitions are accounted for.
+
+
+## Recovery587 continued: source-proven four live human FastView tactical settings and cyclic event pairs
+
+The authenticated original `FastViewTactics` class event dispatcher `0x52E3F0` has four meaningful +/- event pairs **61–68**, and the native label/key dispatchers `0x635E20/40/60/80` select original source string-key pointers from four independent `.data` tables. This source trace now establishes not just the control count, but the **exact native index ranges, wrap behavior, and original localization key identities**:
+
+| Native event IDs (decrease/increase) | Screen DWORD | Allowed indices; exact source string keys | Native wrap |
+| --- | --- | --- | --- |
+| 61 / 62 | `+0xA58` | **1** `PlayAttack`, **2** `PlayNormal`, **3** `PlayDefend`; table index0 `NOT_USED` | 1 ←→ 3 |
+| 63 / 64 | `+0xA5C` | **0** `WithBallNormal`, **1** `WithBallShortPass`, **2** `WithBallLongBall`, **3** `WithBallCounter` | 0 ←→ 3 |
+| 65 / 66 | `+0xA60` | **0** `WithoutBallNormal`, **1** `WithoutBallContain`, **2** `WithoutBallPress`, **3** `WithoutBallOffsideTrap` | 0 ←→ 3 |
+| 67 / 68 | `+0xA64` | **0** `AggressionLow`, **1** `AggressionMedium`, **2** `AggressionHigh` | 0 ←→ 2 |
+
+Exact source table addresses are `0x8498C8` (4 keys), `0x8498D8` (4), `0x8498E8` (4) and `0x8498F8` (3). Entries point to actual original zero-terminated ASCII keys; functions `0x635E20/40/60/80` index these key tables then delegate `0x6350D0` for original string lookup. Keys identify the intended original selector *values* but do not independently certify the final localized glyphs, native physical coordinates or player-visible mouse hit areas. Distinct value ranges and the reserved Play index0 are mandatory fidelity behavior.
+
+For each pair, native case control decrements/increments the stored screen DWORD and wraps at its exact boundary (source addresses `0x52E440/4AE`, `0x52E51D/593`, `0x52E606/69B`, `0x52E72D/7C2`). The handlers update their associated source combo/list owner and call `0x52F150/1A0/1F0/240`, respectively, which select the matching original string key via `0x635E20/40/60/80` and redraw the relevant native child. The resulting saved selection is not assumed to have committed to the 280-byte side buffer before event3 validator succeeds; see separate event3 `0x632B70→0x6C1CB0` acceptance path.
+
+**Independent verification:** 15 exact original NUL-terminated key strings and all 16 selected native event/control source sites were freshly byte-checked against owner-authenticated PE; added an opt-in private native-source test to the existing FastView feature branch (including corrected proper NUL comparison). Exact branch suite and GUI are still unrun. The source's four settings can now be implemented faithfully within **FastViewTactics** after coordinate/child owner/actual value-transfer evidence is complete; do not accidentally expose them on **FastViewCPUTactics** or the Quick-only current port.
+
+**Next priority:** trace how initial native `+0xA58/+0xA5C/+0xA60/+0xA64` values are populated from original 280-byte per-side state, how `0x632B70` converts/validates selected options, and which original assets/control rectangles permit authentic visible user input. Then integrate the mode2 in-game human tactical modal, CPU counterpart, outer gameplay progression and PResults/return with one-time source-proven state updates.
