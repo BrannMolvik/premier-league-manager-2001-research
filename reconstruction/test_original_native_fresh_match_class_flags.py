@@ -38,14 +38,17 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
         self.assertEqual(SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS,
                          {0x7C4C24:1,0x7C9D9C:2,0x7C9E80:3,
                           0x7C9EF8:4,0x7C9F70:5,0x7C9E14:6})
-        self.assertEqual(SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS,{1,6})
-        self.assertEqual(SOURCE_ORIGINAL_INHERITS_CUP_FLAGS_NATIVE_KINDS,{2,3,4,5})
+        self.assertEqual(SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS,{1,4,6})
+        self.assertEqual(SOURCE_ORIGINAL_INHERITS_CUP_FLAGS_NATIVE_KINDS,{2,3,5})
         for vt,kind in SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS.items():
-            flags=None if kind in (1,6) else (0,0,0)
+            flags=(None if kind in (1,4,6) else
+                   (1,1,0) if kind==3 else
+                   (0,1,0) if kind==5 else (0,0,0))
             with self.subTest(vt=hex(vt)):
                 got=original_fresh(vt,flags)
                 self.assertEqual(got.source_native_virtual28_kind,kind)
-                self.assertEqual(got.initial_original_flags44,0)
+                self.assertEqual(got.initial_original_flags44,
+                                 0 if kind in (1,2,4,6) else 0x6 if kind==3 else 0x4)
                 self.assertTrue(got.source_original_event8_is_zero_immediately_after_constructor)
                 self.assertFalse(got.original_event_identity_is_known)
                 self.assertEqual(got.source_native_date_collection_pointer,
@@ -55,7 +58,11 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
         for a,b,c in product((0,1),repeat=3):
             flags=(a<<1)|(b<<2)|(c<<3)
             for vt,kind in SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS.items():
-                if kind in (1,6):
+                if kind in (1,4,6):
+                    continue
+                if kind==3 and (a,b)!=(1,1):
+                    continue
+                if kind==5 and b!=1:
                     continue
                 with self.subTest(kind=kind,args=(a,b,c)):
                     got=original_fresh(vt,(a,b,c))
@@ -64,12 +71,24 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
                                      0x947AF0 if kind==2 and b==0 else 0x947AD8)
                     self.assertEqual(got.initial_original_flags44 & ~0x0E,0)
 
+    def test_actual_native_subclass_constructor_forces_flag_arguments(self):
+        self.assertEqual(original_fresh(0x7C9EF8).initial_original_flags44,0)
+        for c in (0,1):
+            self.assertEqual(original_fresh(0x7C9E80,(1,1,c)).initial_original_flags44,
+                             6|(c<<3))
+        for a,c in product((0,1),repeat=2):
+            self.assertEqual(original_fresh(0x7C9F70,(a,1,c)).initial_original_flags44,
+                             4|(a<<1)|(c<<3))
+        for flags in ((0,0,0),(0,1,0),(1,0,1)):
+            with self.assertRaises(OriginalFreshMatchFlagsSourceError):
+                original_fresh(0x7C9E80,flags)
+
     def test_actual_dword_arguments_only_consume_low_bit(self):
         got=original_fresh(0x7C9D9C,(0xFFFFFFFF,0x100,0xFFFFFFFE))
         self.assertEqual(got.initial_original_flags44,0x2)
         self.assertEqual(got.source_native_date_collection_pointer,0x947AF0)
-        got=original_fresh(0x7C9E80,(0x100,0xFFFFFFFF,0xFFFFFFFE))
-        self.assertEqual(got.initial_original_flags44,0x4)
+        got=original_fresh(0x7C9E80,(0x101,0xFFFFFFFF,0xFFFFFFFE))
+        self.assertEqual(got.initial_original_flags44,0x6)
         self.assertEqual(got.source_native_date_collection_pointer,0x947AD8)
 
     def test_unknown_original_initial_values_refuse_fake_flags_or_date_owner(self):
@@ -82,7 +101,11 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
             (0x7C9D9C,(0,1,-1)),
             (0x7C9D9C,(0,1,0x100000000)),
             (0x7C4C24,(0,0,0)),
+            (0x7C9EF8,(0,0,0)),
             (0x7C9E14,(0,0,0)),
+            (0x7C9E80,(0,1,0)),
+            (0x7C9E80,(1,0,0)),
+            (0x7C9F70,(0,0,0)),
             (True,None),
         ):
             with self.subTest(vtable=vt,inputs=args),self.assertRaises(
@@ -94,7 +117,8 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
             (0x7C4C24,None),
             (0x7C9D9C,(0,0,0)),
             (0x7C9D9C,(0,1,0)),
-            (0x7C9EF8,(1,0,1)),
+            (0x7C9EF8,None),
+            (0x7C9F70,(1,1,1)),
         ):
             for before in (0,1,0x7FFFFFFF,0xFFFFFFFF):
                 with self.subTest(vtable=hex(vt),flags=args,serial=before):
@@ -170,6 +194,12 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
         pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
             0x5104CF:"89 46 44",
+            0x51061D:"6a 01",
+            0x51061F:"6a 01",
+            0x510654:"6a 00",
+            0x510656:"6a 00",
+            0x510658:"6a 00",
+            0x51069D:"6a 01",
             0x510567:"8b 54 24 20",
             0x51056B:"8b 44 24 1c",
             0x51056F:"8b 4c 24 18",
