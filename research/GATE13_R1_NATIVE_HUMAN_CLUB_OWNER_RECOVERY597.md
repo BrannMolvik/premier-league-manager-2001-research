@@ -1,0 +1,31 @@
+# Gate13 Recovery597 follow-up: original FastView human-club owner and header country gate
+
+**Date:** 14 October 2026 KST. **Merged main baseline:** `5775d9ddfc1cde82f6e2fb75a78c8b5a48c64228` (PR676 after exact-head Gate13 run38454387654 and asset run38454387749 SUCCESS). **Active WIP** `worker/gate13-r1-native-header-player-owner-597`; no new PR, CI or user-visible completion claimed. Gates13–17 OPEN.
+
+## Source authenticated, never executed
+
+Owner-private `footballmanager.exe` SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, 4,714,541B; static PE32 instruction checks only. Do not publish/execute original or mistake original code proof for Windows11 acceptance.
+
+## Human team identity and multi-manager source chain
+
+Source `0x4037B0` calls `0x4139E0` then `0x4139F0`. It obtains original club DWORD ID from **club+0x04**, compares it against every global original human-manager node under `0x874C10+0x9CC`, following each linked node +0x04. Node→user's `+0x5B4` club object has DWORD ID at +0x04. First matching full **32-bit** club ID qualifies the club as human-managed; there is no source rule privileging only the current/first human manager. This is a genuine two-sided/2–6 human owner condition. No assumed Premier League owner, default manager, or inferred fake team membership.
+
+Original `0x403850` first invokes the above human membership check, then calls `0x413B40` to locate the user's formation-owner object. **Important subtlety:** `0x413B40` masks its input club DWORD to LOW 16 bits **before** scanning actual linked-list user club DWORD IDs. It therefore can choose a different manager under high-bit collision even though the upstream predicate compared all 32 bits. Do not conflate these two native source calls; source-bounded projections distinguish membership ordinal from formation-provider ordinal and include an intentionally adversarial 0x10001/0x0001 collision test. Original actual club IDs must be established, not synthesized.
+
+The human manager selection then influences `0x40DA70` alternative text display and 0x533480 formation-owner source. Native `0x403600` calls human membership, uses `0x403850` and `0x42C6D0` when human-controlled, and only returns that indirect text if it is nonempty, otherwise it falls back to the original club pointer+0x0C text. The exact text ownership and 0x40DA90 side effects remain unresolved; DO NOT represent this as reconstructed header text or completed GUI.
+
+## Original 0x5337C0 club country header and mode
+
+Source `0x5337C0` checks original club WORD+0x84 nonzero before consulting three original name database lookups via `0x533830`: literal `Germany` at `0x82A2BC`, `France` at `0x82A2C4`, `England` at `0x82A2CC`. It compares original club DWORD country reference +0x14 against Germany and France's resolved **actual global registry indexes** unconditionally. Source mode `0x6596A0` at 0x6596A0 is unambiguously `xor eax,eax; ret` in this shipped executable, so its England branch is also considered; there is no evidence for introducing dynamic 1/2 mode branches into this authentic binary. `0x533830` returns `-1` for an unmatched name, and native comparisons are raw DWORD equality, including edge-case 0xFFFFFFFF club ID. A strict helper requires the three actual resolved global registry indexes, not assumed country enum values.
+
+Native `0x533980` calls the same constant-zero `0x6596A0` and therefore the actual reached branch returns the zero-extended WORD at original club+0xD8, stored by `0x533480` at per-side header+0x88. It does not read a mutable game-mode discriminator in the shipped original.
+
+## WIP code and proof
+
+`reconstruction/original_fastview_native_player_roster_stage.py` contains separate bounded source projections for full32 human-club membership, low16 formation owner selection, club country predicate, and original header mode WORD. `reconstruction/test_original_fastview_native_player_roster_stage.py` extends original player-stage tests with two/multiple-human cases, absent owner, country excluded/include cases, 0xFFFFFFFF and low16-collision counterexamples. Opt-in PE source assertions verify original 0x4037B0/0x4139F0/0x413B40/0x403850/0x5337C0/0x6596A0/0x533980 call boundaries against authenticated original exe.
+
+**Actual local test result:** `FM2001_ORIGINAL_EXE=/mnt/data/footballmanager.exe python -m unittest test_original_fastview_native_player_roster_stage -q` = **20/20 PASS**, with total **157 independently asserted PE source-opcode sites** across current integrated and WIP source-focused tests. This WIP has **not** received a GitHub Actions run or PR review. No original runtime or Windows11 GUI played.
+
+## Exact next: real player-visible mode2, not another isolated demo
+
+Recover the original `0x533830` lookup provider, `0x4037B0` actual user registry mapping, `0x40DA70`/ `0x40DA90` source-authentic text (including original decrement/free path), actual side/match/player pointer IDs and `0x875644` original player registry; connect original `0x533270` per-side 1556/280-byte stages to still-live mode2 `0x5331C0` 80-byte pre-modal transfers, normal modal callbacks, post-modal player state/writeback `0x533CA0`, PResults and return. Protect original Save/Load, all selectable leagues/countries and 2–6 human manager scope. Do not remove existing Quick-only host guard without authentic mode2 transaction and true GUI test. Batch work on this active feature branch; make a new PR/CI only at cohesive reviewable milestone. Gate13 closure and Gates14–17 remain unavailable without actual required verification.
