@@ -132,6 +132,72 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             with self.subTest(bad=repr(bad)[:100]),self.assertRaises(OriginalFastViewEventCollectionSourceError):
                 sort(**(good|bad))
 
+    def test_original_51fa70_linked_filter_then_native_name_sort(self):
+        from struct import pack_into
+        from original_fastview_native_event_selection import (
+            OriginalFastViewNativeLinkedEventCandidate,
+            source_fastview_original_standard_event_members_51fa70,
+            source_fastview_original_unique_named_event_sort_51fa70,
+        )
+        def record(*,value8=0,value44=0,owner=123,code40=4):
+            b=bytearray(0x50)
+            pack_into("<I",b,0x08,value8)
+            pack_into("<I",b,0x44,value44)
+            pack_into("<I",b,0x4C,owner)
+            pack_into("<H",b,0x40,code40)
+            return bytes(b)
+        def candidate(pointer,name="Candidate",callback=None,**kw):
+            return OriginalFastViewNativeLinkedEventCandidate(
+                pointer,record(**kw),name.encode()+b"\0",callback)
+        members=source_fastview_original_standard_event_members_51fa70(
+            original_selected_event_pointer=100,
+            original_selected_event_owner_pointer_plus4c=123,
+            original_selected_event_indirect_name_nul=b"Zulu\0",
+            original_linked_candidate_events=(
+                candidate(100),candidate(201,"Red",False,value8=1),
+                candidate(202,"Blue",False,value44=0x40),
+                candidate(203,"Different",None,owner=444),
+                candidate(204,"Special",False,code40=0xFFFF),
+                candidate(205,"Callback true",True),
+                candidate(206,"Alpha",False),
+                candidate(207,"Yankee",False),
+            ))
+        self.assertEqual(members,((100,b"Zulu\0"),(206,b"Alpha\0"),(207,b"Yankee\0")))
+        sorted_result=source_fastview_original_unique_named_event_sort_51fa70(
+            original_selected_event_pointer=100,
+            original_51fa70_filtered_candidate_pointers_and_indirect_names=members)
+        self.assertEqual(sorted_result.original_sorted_source_event_pointers,(206,207,100))
+        self.assertEqual(sorted_result.original_selected_event_sorted_ordinal,2)
+
+    def test_original_51fa70_callback_required_only_if_source_reached(self):
+        from struct import pack_into
+        from original_fastview_native_event_selection import (
+            OriginalFastViewNativeLinkedEventCandidate,
+            source_fastview_original_standard_event_members_51fa70 as filt,
+        )
+        def c(pointer,owner=5,callback=None,status=0):
+            b=bytearray(0x50)
+            pack_into("<I",b,0x4c,owner)
+            pack_into("<I",b,0x08,status)
+            return OriginalFastViewNativeLinkedEventCandidate(pointer,bytes(b),b"E\0",callback)
+        base=dict(original_selected_event_pointer=3,
+                  original_selected_event_owner_pointer_plus4c=5,
+                  original_selected_event_indirect_name_nul=b"S\0")
+        self.assertEqual(filt(**(base|{'original_linked_candidate_events':(c(4,owner=6),)})),
+                         ((3,b"S\0"),))
+        for variants in (
+            (c(4),), # Original callback 510C30 was reached; cannot invent result.
+            (c(4,callback=True,status=1),), # Callback not reached.
+            (c(3,callback=True),), # Selected never takes callback.
+            (c(4,callback=False),c(4,callback=False)), # Duplicate appended.
+        ):
+            with self.subTest(variant=repr(variants)[:70]),self.assertRaises(OriginalFastViewEventCollectionSourceError):
+                filt(**(base|{'original_linked_candidate_events':variants}))
+        self.assertEqual(filt(**(base|{'original_linked_candidate_events':()})),
+                         ((3,b"S\0"),))
+        with self.assertRaises(OriginalFastViewEventCollectionSourceError):
+            filt(**(base|{'original_linked_candidate_events':[c(4,callback=False)]}))
+
     @unittest.skipUnless(os.environ.get('FM2001_ORIGINAL_EXE'),'private owner original executable not mounted')
     def test_original_5112e0_vft30_and_native_51f9f0_source_opcode_sites(self):
         from gate13_button_source_trace import OriginalPE32
@@ -171,6 +237,16 @@ class OriginalFastViewEventOwnerSourceTests(unittest.TestCase):
             0x51fbe4:"2d a4 00 00 00",
             0x51fbe9:"c1 f8 02",
             0x51fbec:"89 85 a4 02 00 00",
+            0x51fb06:"8b 43 08",
+            0x51fb0d:"8b 4b 44",
+            0x51fb10:"c1 e9 06",
+            0x51fb13:"f6 c1 01",
+            0x51fb18:"3b df",
+            0x51fb49:"39 73 4c",
+            0x51fb50:"e8 db 10 ff ff",
+            0x51fb55:"84 c0",
+            0x51fb60:"66 83 7b 40 ff",
+            0x51fc37:"8d 4b 14",
         }
         for va,hex_bytes in sites.items():
             with self.subTest(va=hex(va)):
