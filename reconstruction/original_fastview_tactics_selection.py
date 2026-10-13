@@ -458,11 +458,13 @@ def source_fastview_aux_child_input_outcome_651ac0(
 
 # 0x633240 counts only *replacement-class* staged edit nodes via the
 # polymorphic vft+4 visitor. Seven other source record types forward to
-# visitor slots +0x08..+0x20, which are native 0x6596D0 no-op stubs. The original base record virtual +4 is NOT a benign no-op;
+# visitor slots +0x08..+0x20, which are native 0x6596D0 no-op stubs. The original base record
+# virtual +4 is NOT a benign no-op;
 # vft 0x7D7F90 (0x6335D0 replacement record) +4 -> 0x633600,
 # forwards to count-visitor vft 0x7D803C+4 -> 0x634E40.
-# 0x633020 returns AL==0 *when this count is zero*; for nonzero
-# staged edits it executes the original 0x6331A0/0x634B00 visitor that
+# 0x633020 returns AL==0 *when this replacement count is zero*;
+# for nonzero replacement-class count it executes the original 0x6331A0/
+# 0x634B00 visitor that
 # may replay edits, set conflict flags or mutate transient linked nodes.
 # A zero count proves only the validator's own outcome, not any earlier
 # +0x40 status, source player/world validity or actual edit permission.
@@ -482,7 +484,7 @@ SOURCE_FASTVIEW_REPLACEMENT_STAGED_LIST_OFFSET = 0x48A4
 def source_fastview_633020_result_when_original_list_empty(
     *, original_staged_edit_count: int
 ) -> int:
-    """Read-only 0x633020 AL when authentic staged replacement list empty.
+    """Read-only 0x633020 AL when native TOTAL staged list is empty.
 
     Source 0x633020 first calls 0x633240 and checks EAX==0 at 0x63304E.
     The zero-count path branches to 0x63317E and returns AL=0. An empty
