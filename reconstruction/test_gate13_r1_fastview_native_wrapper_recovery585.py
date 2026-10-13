@@ -546,5 +546,34 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_human_tactics_confirm_real_list_registry_and_distinct_reset_event(self):
+        """Native event1 reset is distinct from event2 cancel and event3 accepted edit."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x52E854, "8b 16 8b ce ff 52 08"),# event1 screen refresh
+            (0x52E85B, "8b 86 a8 48 00 00"),  # screen source list
+            (0x52E89E, "e8 4d 1a 00 00"),     # reset list/cleanup
+            (0x52E8A7, "8a 86 44 0b 00 00"),# source child count flag
+            (0x52E8C4, "ff 52 38"),           # child modal actions
+            (0x52E8D2, "55 8b ce e8 16 51 12 00"), # event2 cancel sends zero
+            (0x52E8DF, "8b 0d 44 78 87 00"),# event3 global original owner index
+            (0x52E8E5, "8b 86 90 00 00 00"),# event3 edited side
+            (0x52E8ED, "8d 96 a4 48 00 00"),# source UI working list
+            (0x52E8F5, "e8 76 42 10 00"),   # event3 0x632b70 live validator
+            (0x52E8FF, "84 db"),             # actual boolean branch
+            (0x52E909, "8d 86 54 0a 00 00"),# selected side payload
+            (0x52E911, "e8 9a 33 19 00"),   # 0x6c1cb0 source data commit
+            (0x52E921, "e8 ca 50 12 00"),   # native confirm Boolean exit
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
