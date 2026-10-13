@@ -94,7 +94,7 @@ NATIVE_FASTVIEW_EVENT_COMPARE_BY_INDIRECT_NAME_VA = 0x51F3C0
 NATIVE_FASTVIEW_EVENT_LIST_SORT_VA = 0x526DF0
 
 
-def source_fastview_original_event_name_less_51f3c0(
+def source_fastview_original_event_order_swap_51f3c0(
     *, first_event_virtual14_returned_name_nul: bytes,
     second_event_virtual14_returned_name_nul: bytes,
 ) -> bool:
@@ -104,8 +104,10 @@ def source_fastview_original_event_name_less_51f3c0(
     dereferences its return+0x0C then follows its C-string pointer.
     Caller supplies those REAL returned byte strings after original
     dereferences; no names are inferred from modern GameState.
-    The source compares original unsigned byte values, returning 1
-    when first string is strictly lexicographically less. Equal names
+    The comparator returns 1 when the LEFT list item must move AFTER
+    the RIGHT item: the first byte string is lexicographically GREATER
+    than the second. Original 0x526DF0 calls left then right and moves
+    the right element forward when this result is nonzero. Equal names
     return 0. Byte case, accents and non-ASCII are not normalized.
     Reproducing 0x526DF0's complete ordering/tie algorithm and the
     original 0x51FA70 child candidate selection is a separate step.
@@ -117,7 +119,7 @@ def source_fastview_original_event_name_less_51f3c0(
             "two source-indirect original NUL-terminated event-name byte strings required")
     a=a[:a.index(b"\x00")]
     b=b[:b.index(b"\x00")]
-    return a<b
+    return a>b
 
 
 NATIVE_FASTVIEW_EVENT_FILTER_AND_SORT_VA = 0x51FA70
