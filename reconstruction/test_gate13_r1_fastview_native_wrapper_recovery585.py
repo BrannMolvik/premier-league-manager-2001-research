@@ -112,5 +112,46 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(expected)), expected)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_fastview_modal_key_actions_and_postmodal_record_callbacks(self):
+        """Source-only guard: original ESC/Space, native pump, and record callbacks."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        guards = (
+            (0x7CB294, "80 2b 53 00"),         # original global-view vtable[0] = 0x532B80
+            (0x7CA5C0, "a0 1d 52 00"),         # FastView keyboard vtable+0x34 = 0x521DA0
+            (0x51F4AF, "68 58 02 00 00"),     # original height 600
+            (0x51F4B8, "68 20 03 00 00"),     # original width 800
+            (0x654258, "8b 07 8b cf ff 10"),  # invoke registered modal owner vtable[0]
+            (0x654294, "8b cb e8 c5 00 00 00"),  # restore/remove modal owner
+            (0x532BBF, "81 7c 24 14 00 04 00 00"),  # WM_USER (0x400) exit
+            (0x532BD5, "ff 15 ac d2 7b 00"), # imported DispatchMessageA
+            (0x532BEA, "e8 e1 fd ff ff"),     # modal owner message-pump/redraw path
+            (0x532BF1, "ff 15 b0 d2 7b 00"), # imported WaitMessage
+            (0x521DA0, "8a 81 b6 02 00 00"), # native modal keyboard-input guard
+            (0x521DAF, "66 3d 1b 00"),       # ESC
+            (0x521DB5, "6a 00 e8 34 1c 13 00"), # 0x6539F0 modal end event
+            (0x521DBF, "66 3d 20 00"),       # Space
+            (0x521DC5, "8b 91 ac 02 00 00"),# view state +0x2AC
+            (0x521DCE, "89 91 ac 02 00 00"),# increment on Space
+            (0x521DD4, "83 f8 03"),          # three internal states (0,1,2)
+            (0x521DD9, "c7 81 ac 02 00 00 00 00 00 00"), # wrap at 3
+            (0x6539FF, "68 00 04 00 00"),   # post WM_USER
+            (0x533D0A, "83 fb 0b"),          # different real-record callbacks at index 11
+            (0x533D16, "e8 d5 45 ee ff"),    # 0x4182F0 for indices 0..10
+            (0x533D24, "e8 97 45 ee ff"),    # 0x4182C0 for indices >=11
+            (0x4182CD, "0c 20 89 46 14"),    # target +0x14 status bit 0x20
+            (0x4182E4, "e8 87 20 0d 00"),    # additional target packed-object call
+            (0x4182F3, "83 4e 14 10 e8 64 fe ff ff"), # status bit 0x10 + callbacks
+            (0x418311, "84 c0 75 11"),       # conditional downstream callback
+        )
+        for address, encoded in guards:
+            with self.subTest(address=hex(address)):
+                self.assertEqual(pe.read(address, len(bytes.fromhex(encoded))),
+                                 bytes.fromhex(encoded))
+
+
 if __name__ == "__main__":
     unittest.main()
