@@ -2247,5 +2247,52 @@ class OriginalFastViewNativeRichRowNestedPointerCallbackTests(unittest.TestCase)
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
 
+
+
+class OriginalFastViewCompleteConditionalRowSelectionChainTests(unittest.TestCase):
+    """Only source-qualified staged inputs; no invented Win32 click simulation."""
+
+    def test_first_native_hit_then_registered_rich_child_posts_real_word_index(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        # Rectangular coordinates are supplied as original live control
+        # data, not derived from content height or screen position.
+        rows=(R(25,70,169,85),R(25,85,169,100),R(25,100,169,115))
+        pointer=(30,93)
+        selected=source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=pointer[0],pointer_y=pointer[1],
+            ordered_native_row_rects=rows)
+        self.assertEqual(selected,1)
+        # Following original 0x650F00->0x650C30->0x653480, this
+        # value-only model qualifies the single enabled rich child.
+        qualifies=source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=pointer[0],pointer_y=pointer[1],
+            rich_item_origin_x=25,rich_item_origin_y=85,
+            active_child_rectangle=R(0,0,144,15),
+            native_child_flags=0x183,native_child_registered_event=1)
+        self.assertTrue(qualifies)
+        posted=source_fastview_original_popup_option_activation_653a10(
+            original_option_ordinal=selected,original_list_index_base=0,
+            original_option_count=len(rows),native_callback_argument=1)
+        self.assertEqual(posted.posted_wm_user,
+                         SourceFastViewPopupPostedMessage(0x400,1,0))
+        selected_result=source_fastview_native_dropdown_posted_wm_user_result(
+            native_message=posted.posted_wm_user.win32_message,
+            native_wparam=posted.posted_wm_user.native_wparam_word)
+        self.assertEqual(selected_result,
+                         SourceFastViewNativeDropdownModalResult(1,0,True))
+
+    def test_a_matching_outer_row_with_no_registered_inner_event_is_not_click(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        self.assertEqual(source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=10,pointer_y=10,ordered_native_row_rects=(R(0,0,30,30),)),0)
+        self.assertFalse(source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=10,pointer_y=10,
+            rich_item_origin_x=0,rich_item_origin_y=0,
+            active_child_rectangle=R(0,0,30,30),
+            native_child_flags=0x183,native_child_registered_event=0))
+        self.assertIsNone(source_fastview_original_popup_option_activation_653a10(
+            original_option_ordinal=0,original_list_index_base=0,
+            original_option_count=1,native_callback_argument=0).posted_wm_user)
+
 if __name__ == "__main__":
     unittest.main()
