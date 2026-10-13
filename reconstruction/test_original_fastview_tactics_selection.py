@@ -54,6 +54,9 @@ from original_fastview_tactics_selection import (
     SourceFastViewOneReplacementFollowupValue,
     source_fastview_one_prior_replacement_followup_value_only,
     source_fastview_two_distinct_prior_replacements_followup_value_only,
+    source_fastview_x133_native_input_route_52d0d0,
+    OriginalFastViewX133InputRoute,
+    SOURCE_FASTVIEW_X133_CHILD_DERIVED_VTABLE_VA,
 )
 
 
@@ -1508,6 +1511,127 @@ class TwoDistinctPreviousReplacementNativeReplayTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 bs=bytes.fromhex(hx)
                 self.assertEqual(pe.read(va,len(bs)),bs)
+
+
+
+class OriginalFastViewX133NativeCallbackOrderTests(unittest.TestCase):
+    """Eleven actual original x133 ctor children, with +0x0C then +0x10."""
+
+    @staticmethod
+    def outer(**values):
+        base=dict(
+            native_child_flags=0x02,
+            native_registered_event_id=0x8877AE,
+            original_parent_first_callback_return=1,
+            inner_original_base_dispatch_result=1,
+            inner_original_native_selection_index=3,
+            original_child_second_callback_argument_nonzero=True,
+        )
+        return source_fastview_x133_native_input_route_52d0d0(**(base | values))
+
+    def test_all_original_eleven_x133_rows_refresh_then_select_then_second_callback(self):
+        for row in range(11):
+            with self.subTest(row=row):
+                r=self.outer(native_registered_event_id=0x8877AE+row)
+                self.assertEqual(r.source_parent_callback_slots, (0x0C,0x10))
+                self.assertEqual(r.source_first_callback_refresh_row,row)
+                self.assertTrue(r.source_inner_child_reached)
+                self.assertEqual(r.source_inner_child_outcome.source_status_byte,0)
+                self.assertEqual(r.source_inner_child_outcome.source_saved_selected_index,3)
+
+    def test_first_callback_veto_blocks_entire_selection_and_apply(self):
+        r=self.outer(original_parent_first_callback_return=0,
+                     inner_original_base_dispatch_result=None,
+                     inner_original_native_selection_index=None)
+        self.assertEqual(r.source_parent_callback_slots,(0x0C,))
+        self.assertTrue(r.source_first_callback_vetoed_child)
+        self.assertFalse(r.source_inner_child_reached)
+        self.assertIsNone(r.source_inner_child_outcome)
+
+    def test_first_callback_skipped_still_forwards_to_child_with_source_gate(self):
+        r=self.outer(native_child_flags=0,
+                     original_parent_first_callback_return=None,
+                     inner_original_base_dispatch_result=0,
+                     inner_original_native_selection_index=None)
+        self.assertEqual(r.source_parent_callback_slots,())
+        self.assertFalse(r.source_first_callback_reached)
+        self.assertTrue(r.source_inner_child_reached)
+        for event in (None,0):
+            with self.subTest(event=event):
+                other=self.outer(native_registered_event_id=event,
+                                 original_parent_first_callback_return=None)
+                self.assertEqual(other.source_parent_callback_slots,())
+                self.assertTrue(other.source_inner_child_reached)
+
+    def test_ffff_sentinel_still_calls_second_parent_but_blocks_edit_in_receiver(self):
+        r=self.outer(inner_original_native_selection_index=0xFFFF)
+        self.assertEqual(r.source_parent_callback_slots,(0x0C,0x10))
+        self.assertEqual(r.source_inner_child_outcome.source_status_byte,1)
+        self.assertFalse(r.source_inner_child_outcome.source_handled)
+        self.assertFalse(source_fastview_guarded_status_allows_followup(1))
+
+    def test_original_first_callback_for_unrelated_registered_event_has_no_refresh_row(self):
+        r=self.outer(native_registered_event_id=0x23D65A)
+        self.assertTrue(r.source_first_callback_reached)
+        self.assertIsNone(r.source_first_callback_refresh_row)
+        self.assertEqual(r.source_parent_callback_slots,(0x0C,0x10))
+        r2=self.outer(original_child_second_callback_argument_nonzero=False)
+        self.assertEqual(r2.source_parent_callback_slots,(0x0C,))
+
+    def test_first_result_and_inner_selection_cannot_be_invented_when_unreached(self):
+        invalid=(
+            {"native_child_flags":True},
+            {"native_registered_event_id":True},
+            {"native_registered_event_id":-1},
+            {"original_parent_first_callback_return":None},
+            {"original_parent_first_callback_return":True},
+            {"original_parent_first_callback_return":-1},
+            {"original_child_second_callback_argument_nonzero":1},
+            {"inner_original_base_dispatch_result":-1},
+            {"inner_original_native_selection_index":0x10000},
+            {"native_child_flags":0, "original_parent_first_callback_return":1},
+            {"original_parent_first_callback_return":0},
+        )
+        for value in invalid:
+            with self.subTest(bad=value), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                self.outer(**value)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner-authenticated original executable not mounted")
+    def test_source_row_constructor_and_derived_vtable_and_input_order(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        probes=(
+            (0x52D894,"68 30 dd 52 00"),
+            (0x52D899,"6a 0b"),
+            (0x52D89B,"8d 86 3c 26 00 00"),
+            (0x52D8A1,"6a 44"),
+            (0x52D8A9,"e8 13 af 13 00"),
+            (0x52DD33,"6a 09"),
+            (0x52DD35,"e8 f6 3c 12 00"),
+            (0x52DD3A,"c7 06 10 b0 7c 00"),
+            (0x52D0DD,"d1 e9"),
+            (0x52D0DF,"f6 c1 01"),
+            (0x52D0EB,"8b 46 20"),
+            (0x52D0F2,"8b 4e 24"),
+            (0x52D0F5,"57 56 8b 11 ff 52 0c"),
+            (0x52D0FC,"85 c0"),
+            (0x52D0FE,"75 05"),
+            (0x52D10D,"e8 ae 49 12 00"),
+            (0x651AC6,"6a 00"),
+        )
+        self.assertEqual(len(probes),17)
+        for va,hx in probes:
+            with self.subTest(va=hex(va)):
+                bb=bytes.fromhex(hx)
+                self.assertEqual(pe.read(va,len(bb)),bb)
+        self.assertEqual(SOURCE_FASTVIEW_X133_CHILD_DERIVED_VTABLE_VA,0x7CB010)
+        for slot,target in ((0x6C,0x52D0D0),(0x98,0x52D120),(0x9C,0x52D190)):
+            with self.subTest(slot=slot):
+                self.assertEqual(struct.unpack("<I",pe.read(0x7CB010+slot,4))[0],target)
+
 
 if __name__ == "__main__":
     unittest.main()
