@@ -1,5 +1,8 @@
 # Original FastView staged edit polymorphic visitor map: Recovery591
 
+> **Recovery591 correctness correction (supersedes older count descriptions below):** Original 0x633240 does NOT count every staged record. Eight original record vft+4 wrappers forward to different counter visitor slots. Only replacement class vtable 0x7D7F90 forwards to 0x7D803C +4 => 0x634E40 (increments). The other seven forward to original visitor virtual slots +8 through +0x20, which all point to native no-op 0x6596D0 (ret 4). Thus even a nonempty staged list with only non-replacement classes produces count ZERO and 0x633020 AL=0. The old total-empty helper remains a safe sufficient-only projection; the new typed class-inventory counter models this native distinction. Static original PE vtable and no-op method bytes independently checked. A nonzero replacement-class count still requires unresolved 0x6331A0 replay; do not treat any count result as permission to bypass independent input/status/world guards.
+
+
 **Date:** 13 October 2026 KST. **Base:** canonical main 454c64ede1d7e361aaa2d2a386c2d9b130f58f60 (source milestone PR666 merged). **Active gate:** 13 OPEN. Later Gates14–17 OPEN. **Status:** ORIGINAL-STATIC-SOURCE, NO LIVE REPLAY.
 
 ## Provenance
