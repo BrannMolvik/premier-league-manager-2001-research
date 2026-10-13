@@ -1487,6 +1487,49 @@ def main(path: str) -> None:
     print("PASS original Windows-local time conversion precedes single CRT srand")
     print("WARNING actual native OS time and first-click RNG offset unknown")
 
+    # Recovery578 important: startup OS srand is NOT the only srand!
+    # Four direct callers of CRT 0x66950F, worldgen XOR reseed with
+    # two native callers, raw rand + save reseed, saved DWORD restore.
+    original_all_srand_direct_callers_578 = (
+        "4af876", "50de2e", "50e16e", "53109e",
+    )
+    actual_srand_calls = tuple(
+        match.group(1) for match in re.finditer(
+            r"^\s*([0-9a-f]{6}):[^\n]*\bcall\s+0x66950f(?:\s|$)",
+            listing, re.MULTILINE
+        )
+    )
+    if actual_srand_calls != original_all_srand_direct_callers_578:
+        raise AssertionError(("Original CRT srand direct calls changed",actual_srand_calls))
+    original_xor_srand_caller_sites_578 = ("4aea48","4aed01")
+    actual_xor_callers = tuple(
+        match.group(1) for match in re.finditer(
+            r"^\s*([0-9a-f]{6}):[^\n]*\bcall\s+0x4af7f0(?:\s|$)",
+            listing, re.MULTILINE
+        )
+    )
+    if actual_xor_callers != original_xor_srand_caller_sites_578:
+        raise AssertionError(("Original source XOR reseed parent calls changed",actual_xor_callers))
+    for a,expected in (
+        ("4aea48","call   0x4af7f0"),
+        ("4aed01","call   0x4af7f0"),
+        ("4af875","push   eax"),
+        ("4af876","call   0x66950f"),
+        ("50de11","call   0x64d530"),
+        ("64d530","jmp    0x66951c"),
+        ("50de29","mov    edx,DWORD PTR [esp+0x1c]"),
+        ("50de2e","call   0x66950f"),
+        ("50e164","call   0x667e90"),
+        ("50e169","mov    eax,DWORD PTR [esp+0x1c]"),
+        ("50e16e","call   0x66950f"),
+        ("531098","call   0x66a767"),
+        ("53109e","call   0x66950f"),
+    ):
+        if expected not in instruction(a):
+            raise AssertionError(("Original CRT reseed source call moved",a))
+    print("PASS all 4 direct CRT srand callers and save/restore/worldgen inputs")
+    print("WARNING ordinary new-game route reachability of reseed paths unknown")
+
     actual_allocators = [
         match.group(1) for match in re.finditer(
             r"^\s*([0-9a-f]+):[^\n]*call\s+0x6194d0(?:\s|$)",
