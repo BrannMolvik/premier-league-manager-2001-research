@@ -14,6 +14,9 @@ from original_fastview_tactics_control_layout import (
     NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA,
     NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA,
     NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS,
+    NATIVE_SECOND_AUXILIARY_SOURCE_INITIAL_DIMENSIONS,
+    NATIVE_SECOND_AUXILIARY_INIT_SOURCE_VA,
+    NATIVE_SECOND_AUXILIARY_OWNER_CTOR_VA,
     NATIVE_SECOND_AUXILIARY_RECT_WRAPPER,
     original_fastview_auxiliary_player_row_controls,
     OriginalFastViewTacticsAuxiliaryRowControl,
@@ -441,6 +444,45 @@ class NativeFastViewSourceSizedAuxiliaryRectangleTests(unittest.TestCase):
             with self.subTest(dimensions=repr(invalid)), self.assertRaises(ValueError):
                 dynamic.native_source_rect_from_original_dimensions(
                     original_resource_dimensions=invalid)
+
+    def test_original_877820_initial_resource_dimensions_and_current_live_fields(self):
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_SOURCE_INITIAL_DIMENSIONS, (156, 16))
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_INIT_SOURCE_VA, 0x52CFF0)
+        self.assertEqual(NATIVE_SECOND_AUXILIARY_OWNER_CTOR_VA, 0x64E460)
+        controls = original_fastview_auxiliary_player_row_controls()
+        for row in range(11):
+            fixed, dynamic = controls[2*row:2*row+2]
+            self.assertEqual(fixed.source_initial_native_rect(),
+                             (80, 278+17*row, 40, 16))
+            self.assertEqual(dynamic.source_initial_native_rect(),
+                             (133, 278+17*row, 156, 16))
+            self.assertEqual(dynamic.native_source_rect_from_original_dimensions(
+                original_resource_dimensions=(156, 16)),
+                dynamic.source_initial_native_rect())
+            # Do not replace live resource-derived geometry with a constant.
+            self.assertEqual(dynamic.native_source_rect_from_original_dimensions(
+                original_resource_dimensions=(140, 18)),
+                (133, 278+17*row, 140, 18))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Authenticated original executable is not mounted")
+    def test_private_original_initial_width_height_and_native_owner_setters(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source_sites = (
+            (0x52CFF0, "68 00 01 00 00 6a 00 6a 01 6a 10 68 9c 00 00 00"),
+            (0x52D000, "6a 00 6a 00 6a 00 68 20 78 87 00"),
+            (0x52D015, "e8 46 14 12 00"),
+            (0x64E464, "8b 9c 24 88 00 00 00"),
+            (0x64E471, "8b b4 24 8c 00 00 00"),
+            (0x64E4E0, "89 70 14"),
+            (0x64E4F0, "89 58 18"),
+            (0x651A57, "8b 48 18 8b 50 14"),
+        )
+        for va, value in source_sites:
+            with self.subTest(va=hex(va)):
+                expected = bytes.fromhex(value)
+                self.assertEqual(pe.read(va, len(expected)), expected)
 
     def test_each_first_auxiliary_row_uses_real_screen_text_pointer(self):
         self.assertEqual(NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET, 0x374)
