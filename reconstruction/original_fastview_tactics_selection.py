@@ -316,3 +316,81 @@ def source_fastview_redraw_rows_52f690(
     if native_mapped_player_triplet_flag != 0:
         return (visible_row,)
     return ()
+
+
+# 0x52EC15 only reaches 0x6C2770 when the opaque 0x633020
+# collection/validator returns AL==0 after native +0x40 status is zero.
+# Do not invoke the following raw primitive merely because a UI row was
+# clicked. It does not perform that missing validator or queue 0x6335D0.
+SOURCE_FASTVIEW_PLAYER_REPLACE_SOURCE_VA = 0x6C2770
+SOURCE_FASTVIEW_PLAYER_REPLACE_CALL_VA = 0x52EC23
+SOURCE_FASTVIEW_PLAYER_REPLACE_NATIVE_VALIDATOR_CALL_VA = 0x52EC0D
+SOURCE_FASTVIEW_PLAYER_REPLACE_ORDER_OFFSET = 0xF2
+SOURCE_FASTVIEW_PLAYER_REPLACE_COUNT_FIELD_OFFSET = 0x14
+SOURCE_FASTVIEW_PLAYER_REPLACE_BYTE_COUNT_OFFSET = 0xF0
+SOURCE_FASTVIEW_PLAYER_REPLACE_BYTE_FLAG_COUNT_OFFSET = 0xF1
+SOURCE_FASTVIEW_PLAYER_REPLACE_TARGET_RESET_OFFSET = 0x104
+SOURCE_FASTVIEW_PLAYER_REPLACE_COPY_WORD_OFFSETS = (0x18, 0x60)
+
+
+def source_fastview_6c2770_side_payload_value_only(
+    draft: OriginalFastViewTacticsSelectionDraft,
+    *, source_from_player_index: int, source_to_player_index: int,
+    source_club_guard_flags: tuple[int, ...],
+) -> OriginalFastViewTacticsSelectionDraft:
+    """Exact reached 0x6C2770 side-byte edits for bounded valid-world inputs.
+
+    This is the *raw* primitive reached AFTER the separate source +0x40
+    and 0x633020 gates, NOT permission to apply a clicked replacement.
+    Native 0x6C2770 obtains source ordering count from DWORD +0x14,
+    locates both byte indices in +0xF2's first count entries, swaps
+    their positions, copies from-index DWORDs at +0x18/+0x60 onto the
+    to-index, resets +0x104[to] to zero, decrements byte +0xF0,
+    then adjusts byte +0xF1 by the two club +0x38 source guard flags.
+    0x6335D0 edit-node enqueue and actual modal/world effects are separate.
+    """
+    if type(draft) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("original side-buffer draft required")
+    for player in (source_from_player_index, source_to_player_index):
+        if type(player) is not int or player < 0:
+            raise SourceFastViewTacticsSelectionError("native player indices required")
+        if SOURCE_FASTVIEW_PLAYER_REPLACE_TARGET_RESET_OFFSET + player >= SOURCE_SIDE_BUFFER_SIZE:
+            raise SourceFastViewTacticsSelectionError("source byte field would escape side buffer")
+        for offset in SOURCE_FASTVIEW_PLAYER_REPLACE_COPY_WORD_OFFSETS:
+            if offset + 4 * player + 4 > SOURCE_SIDE_BUFFER_SIZE:
+                raise SourceFastViewTacticsSelectionError("source DWORD field would escape side buffer")
+    if type(source_club_guard_flags) is not tuple or any(
+        type(x) is not int or not 0 <= x <= 255 for x in source_club_guard_flags
+    ) or max(source_from_player_index, source_to_player_index) >= len(source_club_guard_flags):
+        raise SourceFastViewTacticsSelectionError("authenticated native club flags required")
+    data = bytearray(draft.original_side_bytes)
+    (source_count,) = unpack_from(
+        "<I", data, SOURCE_FASTVIEW_PLAYER_REPLACE_COUNT_FIELD_OFFSET
+    )
+    if not 1 <= source_count <= SOURCE_SIDE_BUFFER_SIZE - SOURCE_FASTVIEW_PLAYER_REPLACE_ORDER_OFFSET:
+        raise SourceFastViewTacticsSelectionError("unverified native +0x14 player ordering count")
+    order = data[SOURCE_FASTVIEW_PLAYER_REPLACE_ORDER_OFFSET:
+                 SOURCE_FASTVIEW_PLAYER_REPLACE_ORDER_OFFSET + source_count]
+    # The native loop defaults to position zero for absent entries. This
+    # contract intentionally rejects that unsafe world-state boundary; it
+    # does NOT assert that the real validator accepts such missing players.
+    if source_from_player_index not in order or source_to_player_index not in order:
+        raise SourceFastViewTacticsSelectionError("original ordered player indices unavailable")
+    from_slot = order.index(source_from_player_index)
+    to_slot = order.index(source_to_player_index)
+    data[SOURCE_FASTVIEW_PLAYER_REPLACE_ORDER_OFFSET + from_slot] = source_to_player_index
+    data[SOURCE_FASTVIEW_PLAYER_REPLACE_ORDER_OFFSET + to_slot] = source_from_player_index
+    data[SOURCE_FASTVIEW_PLAYER_REPLACE_TARGET_RESET_OFFSET + source_to_player_index] = 0
+    for offset in SOURCE_FASTVIEW_PLAYER_REPLACE_COPY_WORD_OFFSETS:
+        (source_value,) = unpack_from("<I", draft.original_side_bytes,
+                                     offset + 4 * source_from_player_index)
+        pack_into("<I", data, offset + 4 * source_to_player_index, source_value)
+    byte_count = SOURCE_FASTVIEW_PLAYER_REPLACE_BYTE_COUNT_OFFSET
+    data[byte_count] = (data[byte_count] - 1) & 0xFF
+    guarded_count = SOURCE_FASTVIEW_PLAYER_REPLACE_BYTE_FLAG_COUNT_OFFSET
+    data[guarded_count] = (
+        data[guarded_count] +
+        (1 if source_club_guard_flags[source_from_player_index] != 0 else 0) -
+        (1 if source_club_guard_flags[source_to_player_index] != 0 else 0)
+    ) & 0xFF
+    return OriginalFastViewTacticsSelectionDraft(bytes(data))
