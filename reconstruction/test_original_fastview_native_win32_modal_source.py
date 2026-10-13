@@ -150,7 +150,7 @@ class OriginalFastViewWin32EventLoopTests(unittest.TestCase):
             0x653a14:"85 c0",
             0x653a18:"66 8b 41 68",
             0x653a1c:"8b 49 08",
-            0x653a20:"50",
+            0x653a1f:"50",
             0x653a23:"e8 c8 ff ff ff",
             0x6539ff:"68 00 04 00 00",
             0x653a04:"e8 47 5c 00 00",
