@@ -303,10 +303,13 @@ def materialize_procedural_league_schedule_nodes(
     competition_id: int,
     competition_context: int = 0,
 ) -> tuple[StartupScheduleNode, ...]:
-    """Convert generic 0x6170F0 emissions into symbolic LeagueMatch nodes.
+    """Materialize generic 0x6170F0 pairs via native 0x616FC0 emitter.
 
-    schedule_entries is the League+0x60 date array after its dedicated date
-    ordering step. Entries use source week and one-based weekday values.
+    Native 0x6172C3..0x617313 routes pairings through class vtable+0x3C.
+    Ordinary League emission 0x616FC0 allocates the actual 0x5104F0
+    LeagueMatch and dispatches 0x4F3B50->0x615950 date insertion.
+    This records constructor class only, not live event+8/IDs/flags.
+    schedule_entries is source League+0x60 ordered (week, weekday) data.
     """
     competition_id = int(competition_id)
     competition_context = int(competition_context)
@@ -320,6 +323,10 @@ def materialize_procedural_league_schedule_nodes(
         nodes.append(
             StartupScheduleNode(
                 node_kind="league_match",
+                original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
+                    source_emission_kind="league_match",
+                    original_source_producer_va=0x616FC0,
+                    original_native_constructor_callsite_va=0x617047),
                 competition_id=competition_id,
                 competition_context=competition_context,
                 round_id=None,
