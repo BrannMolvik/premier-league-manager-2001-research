@@ -106,5 +106,89 @@ class OriginalEAMailFilterControlTests(unittest.TestCase):
             b'fm2001_art\\generic\\GenericButtonsAndBars\\button_type_11.444\x00',
         )
 
+
+    def test_native_event_ids_2_through_11_are_one_exclusive_group(self):
+        from original_eamail_filter_controls import (
+            project_original_eamail_delivered_filter_event as dispatch,
+        )
+        for index in range(10):
+            with self.subTest(index=index):
+                observed = dispatch(
+                    native_control_event_id=index + 2,
+                    previously_selected_filter_index=0,
+                    source_filter_event_delivered=True,
+                )
+                self.assertEqual(observed.native_control_event_id, index + 2)
+                self.assertEqual(observed.source_filter_index, index)
+                self.assertEqual(observed.selected_filter_index, index)
+                self.assertEqual(observed.previously_selected_filter_index, 0)
+                self.assertEqual(observed.native_selected_changed, index != 0)
+                self.assertTrue(observed.native_filtered_list_rebuild)
+                self.assertTrue(observed.original_preview_selection_cleared)
+        same = dispatch(
+            native_control_event_id=2, previously_selected_filter_index=0,
+            source_filter_event_delivered=True,
+        )
+        self.assertFalse(same.native_selected_changed)
+        self.assertTrue(same.native_filtered_list_rebuild)
+
+    def test_undelivered_mouse_candidate_cannot_be_promoted_to_native_event(self):
+        from original_eamail_filter_controls import (
+            project_original_eamail_delivered_filter_event as dispatch,
+        )
+        for id_value in (-1, 0, 1, 12, True, None, "3", 2.0):
+            with self.subTest(id=id_value), self.assertRaises(ValueError):
+                dispatch(native_control_event_id=id_value,
+                         previously_selected_filter_index=0,
+                         source_filter_event_delivered=True)
+        for previous in (-1, 10, True, None, 0.5):
+            with self.subTest(previous=previous), self.assertRaises(ValueError):
+                dispatch(native_control_event_id=3,
+                         previously_selected_filter_index=previous,
+                         source_filter_event_delivered=True)
+        for qualifier in (False, None, 1, "true"):
+            with self.subTest(qualifier=qualifier), self.assertRaises(ValueError):
+                dispatch(native_control_event_id=3,
+                         previously_selected_filter_index=0,
+                         source_filter_event_delivered=qualifier)
+
+    def test_native_delivery_rebuilds_original_selected_user_mailbox(self):
+        from test_original_eamail_list import inbox
+        from original_management_presenter import (
+            OriginalManagementPresentationError,
+        )
+        _session, presenter = inbox(12)
+        initial = presenter.snapshot()
+        self.assertEqual(presenter.eamail_filter_index, 0)
+        self.assertEqual(len(initial.eamail.native_rows), 8)
+        none, event = presenter.source_accepted_eamail_filter_event(4)
+        self.assertEqual(event.native_control_event_id, 4)
+        self.assertEqual(event.selected_filter_index, 2)
+        self.assertEqual(presenter.eamail_filter_index, 2)
+        self.assertEqual(len(none.eamail.native_rows), 0)
+        self.assertEqual(presenter.eamail_scroll_offset, 0)
+        restored, event = presenter.source_accepted_eamail_filter_event(7)
+        self.assertTrue(event.native_selected_changed)
+        self.assertEqual(event.selected_filter_index, 5)
+        self.assertEqual(len(restored.eamail.native_rows), 8)
+        self.assertEqual(presenter.eamail_filter_index, 5)
+        current, event = presenter.source_accepted_eamail_filter_event(7)
+        self.assertFalse(event.native_selected_changed)
+        self.assertTrue(event.native_filtered_list_rebuild)
+        self.assertEqual(current.eamail.native_rows, restored.eamail.native_rows)
+        presenter.source_accepted_eamail_received_sort()
+        self.assertEqual(presenter.eamail_filter_index, 5)
+        presenter.source_accepted_eamail_scroll(21)
+        self.assertEqual(presenter.eamail_scroll_offset, 1)
+        before = presenter.eamail_filter_index
+        with self.assertRaises(OriginalManagementPresentationError):
+            presenter.source_accepted_eamail_filter_event(3)
+        self.assertEqual(presenter.eamail_filter_index, before)
+        self.assertEqual(presenter.eamail_scroll_offset, 1)
+        presenter.navigate(0x65)
+        self.assertEqual(presenter.eamail_filter_index, 0)
+        self.assertEqual(presenter.eamail_scroll_offset, 0)
+        self.assertIsNone(presenter.eamail_sort_index)
+
 if __name__ == "__main__":
     unittest.main()
