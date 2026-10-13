@@ -55,9 +55,10 @@ def source_fastview_original_human_event_510c30(
     """Native original mode2 event+0x14/0x28 pointer identity test.
 
     A zero human count skips event club pointer dereferences in the
-    original. A positive human count must resolve the exact 0x413B10
-    user pointer and +0x5B4 club pointer for every linked manager,
-    and actual event accessor+0 results. Original walks manager indexes
+    original. A positive human count reads linked managers in original order.
+    The event first-club accessor is required; the second event getter
+    is reached only when the first pointer misses the current manager.
+    No second pointer should be invented for the first-club hit path. Original walks manager indexes
     0..human_count-1 in source order, testing first club before second.
     """
     count=original_human_count_global_8755e4
@@ -73,13 +74,19 @@ def source_fastview_original_human_event_510c30(
             raise OriginalFastViewHumanEventSourceError(
                 "no-human original source returns before dereferencing event clubs")
         return OriginalFastViewHumanEventSourceReceipt(False,None,None)
-    for ptr in (original_event_first_club_pointer,original_event_second_club_pointer):
-        if type(ptr) is not int or not 0<ptr<=0xFFFFFFFF:
-            raise OriginalFastViewHumanEventSourceError(
-                "source event club accessor+0 must return a qualified pointer")
+    if (type(original_event_first_club_pointer) is not int or
+        not 0<original_event_first_club_pointer<=0xFFFFFFFF):
+        raise OriginalFastViewHumanEventSourceError(
+            "first original event club accessor+0 requires a qualified pointer")
     for ordinal,human_pointer in enumerate(clubs):
         if original_event_first_club_pointer==human_pointer:
+            # Native 0x510C5D immediately exits before the second
+            # event-club virtual getter. It must not be required here.
             return OriginalFastViewHumanEventSourceReceipt(True,ordinal,0)
+        if (type(original_event_second_club_pointer) is not int or
+            not 0<original_event_second_club_pointer<=0xFFFFFFFF):
+            raise OriginalFastViewHumanEventSourceError(
+                "second original event club pointer required only on reached path")
         if original_event_second_club_pointer==human_pointer:
             return OriginalFastViewHumanEventSourceReceipt(True,ordinal,1)
     return OriginalFastViewHumanEventSourceReceipt(False,None,None)
