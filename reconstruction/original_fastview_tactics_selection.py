@@ -1582,3 +1582,59 @@ def source_fastview_original_popup_option_activation_653a10(
         native_option_index_dword=source_index,
         posted_wm_user=posted,
     )
+
+
+# Original native nested option list vtable 0x7BFD5C+0x6C=0x6516F0
+# pointer receiver: invokes 0x64F7A0 with a zero second argument,
+# then scans its 0x30-byte row descriptor array in ordinal order.
+# Per row: x >= DWORD+8 and x < DWORD+0x10 and
+#          y >= DWORD+0x0C and y < DWORD+0x14.
+# Only FIRST such row is forwarded to that row's vft+0x6C,
+# 0x650F00. If no row matches, returns EAX=0. The receiving
+# 0x650F00 has additional owner/event gating and a separate
+# 0x650C30 callback; matching the rectangle alone is NOT a click
+# or a source-approved PostMessageA selected-index event.
+SOURCE_FASTVIEW_POPUP_POINTER_LIST_DISPATCH_VA = 0x6516F0
+SOURCE_FASTVIEW_POPUP_ROW_POINTER_DISPATCH_VA = 0x650F00
+SOURCE_FASTVIEW_POPUP_ROW_VTABLE_POINTER_CALLBACK_OFFSET = 0x6C
+SOURCE_FASTVIEW_POPUP_ROW_RECT_STRIDE = 0x30
+SOURCE_FASTVIEW_POPUP_ROW_LEFT_OFFSET = 0x08
+SOURCE_FASTVIEW_POPUP_ROW_TOP_OFFSET = 0x0C
+SOURCE_FASTVIEW_POPUP_ROW_RIGHT_OFFSET = 0x10
+SOURCE_FASTVIEW_POPUP_ROW_BOTTOM_OFFSET = 0x14
+
+
+@dataclass(frozen=True)
+class SourceFastViewPopupOriginalRowHitRectangle:
+    x_left: int
+    y_top: int
+    x_right: int
+    y_bottom: int
+
+
+def source_fastview_popup_first_native_row_hit_6516f0(
+    *, pointer_x: int, pointer_y: int,
+    ordered_native_row_rects: tuple[SourceFastViewPopupOriginalRowHitRectangle, ...],
+) -> int | None:
+    """Source-only original first matching rectangle *owner*, not click.
+
+    0x6516F0 dispatches only first matching ordinal to row vft+0x6C.
+    The physical source of pointer coordinates, child enable flags,
+    original 0x650F00 and true item click-to-selection callback
+    still need independent source proof.
+    """
+    if (type(pointer_x) is not int or type(pointer_y) is not int or
+            any(not -0x80000000 <= v <= 0x7FFFFFFF for v in (pointer_x,pointer_y))):
+        raise SourceFastViewTacticsSelectionError("native signed pointer DWORD coordinates required")
+    if type(ordered_native_row_rects) is not tuple:
+        raise SourceFastViewTacticsSelectionError("source row descriptor tuple required")
+    for i,rect in enumerate(ordered_native_row_rects):
+        if type(rect) is not SourceFastViewPopupOriginalRowHitRectangle:
+            raise SourceFastViewTacticsSelectionError("original native row rectangle type required")
+        coords=(rect.x_left,rect.y_top,rect.x_right,rect.y_bottom)
+        if any(type(v) is not int or not -0x80000000 <= v <= 0x7FFFFFFF for v in coords):
+            raise SourceFastViewTacticsSelectionError("native signed row boundary DWORDs required")
+        if (pointer_x >= rect.x_left and pointer_x < rect.x_right and
+                pointer_y >= rect.y_top and pointer_y < rect.y_bottom):
+            return i
+    return None
