@@ -15,6 +15,7 @@ from original_fastview_tactics_control_layout import (
     NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_WIDTH,
     NATIVE_RIGHT_VARIANT2_SOURCE_INITIAL_X,
     NATIVE_RIGHT_VARIANT2_BOX_RESOURCE_PATH,
+    NATIVE_HUMAN_TACTICS_SELECTOR_CONTROL_POSITIONS,
     original_fastview_player_arrow_positions,
     original_fastview_bottom_arrow_positions,
     OriginalFastViewTacticsArrowPosition,
@@ -51,6 +52,38 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
         self.assertEqual(tuple((a.native_x, a.native_y) for a in
                                original_fastview_bottom_arrow_positions()),
                          ((303, 481), (379, 481)))
+
+    def test_all_eight_native_human_selector_positions(self):
+        self.assertEqual(
+            NATIVE_HUMAN_TACTICS_SELECTOR_CONTROL_POSITIONS,
+            ((61, 576, 278), (62, 733, 278),
+             (63, 576, 334), (64, 733, 334),
+             (65, 576, 390), (66, 733, 390),
+             (67, 576, 446), (68, 733, 446)),
+        )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original EXE source not mounted")
+    def test_eight_native_tactical_event_owner_and_coordinates(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        native_sites = (
+            (61, 0x52AEE0, 0x52AF18, 576, 278),
+            (62, 0x52AFCD, 0x52B00A, 733, 278),
+            (63, 0x52B06E, 0x52B0A6, 576, 334),
+            (64, 0x52B156, 0x52B191, 733, 334),
+            (65, 0x52B1F2, 0x52B22A, 576, 390),
+            (66, 0x52B2DA, 0x52B312, 733, 390),
+            (67, 0x52B376, 0x52B3AE, 576, 446),
+            (68, 0x52B45E, 0x52B496, 733, 446),
+        )
+        self.assertEqual(tuple((event, x, y) for event, _, _, x, y in native_sites),
+                         NATIVE_HUMAN_TACTICS_SELECTOR_CONTROL_POSITIONS)
+        for event, native_event_site, native_geometry_site, x, y in native_sites:
+            with self.subTest(event=event):
+                self.assertEqual(pe.read(native_event_site, 2), bytes([0x6A, event]))
+                expected = bytes([0x68]) + pack("<I", y) + bytes([0x68]) + pack("<I", x)
+                self.assertEqual(pe.read(native_geometry_site, len(expected)), expected)
 
     def test_unsupported_layout_claims_are_rejected(self):
         with self.assertRaises(ValueError):
