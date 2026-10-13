@@ -180,7 +180,7 @@ def materialize_cup_round_schedule_nodes(
             nodes.append(
                 StartupScheduleNode(
                     node_kind="cup_match",
-original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
+                    original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                         source_emission_kind="cup_match",
                         original_source_producer_va=0x4F64D0,
                         original_native_constructor_callsite_va=0x4F66C9),
@@ -215,7 +215,7 @@ original_native_constructor_evidence=source_original_schedule_constructor_for_ve
         nodes.append(
             StartupScheduleNode(
                 node_kind="first_leg_match",
-original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
+                original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                     source_emission_kind="first_leg_match",
                     original_source_producer_va=0x4F6820,
                     original_native_constructor_callsite_va=0x4F6A02),
@@ -242,7 +242,7 @@ original_native_constructor_evidence=source_original_schedule_constructor_for_ve
         nodes.append(
             StartupScheduleNode(
                 node_kind="second_leg_match",
-original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
+                original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                     source_emission_kind="second_leg_match",
                     original_source_producer_va=0x4F6820,
                     original_native_constructor_callsite_va=0x4F6A64),
@@ -385,7 +385,7 @@ def materialize_scot_premier_split_schedule_nodes(
         nodes.append(
             StartupScheduleNode(
                 node_kind="scot_split_league_match",
-original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
+                original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                     source_emission_kind="scot_split_league_match",
                     original_source_producer_va=0x4FAC60),
                 competition_id=competition_id,
@@ -446,7 +446,7 @@ def materialize_fixed_league_schedule_nodes(
             nodes.append(
                 StartupScheduleNode(
                     node_kind="fixed_league_match",
-original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
+                    original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                         source_emission_kind="fixed_league_match",
                         original_source_producer_va=0x6173D0,
                         original_native_constructor_callsite_va=0x617490),
