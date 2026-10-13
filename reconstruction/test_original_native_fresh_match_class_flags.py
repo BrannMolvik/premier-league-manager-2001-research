@@ -7,6 +7,9 @@ from itertools import product
 from struct import pack
 import unittest
 
+from original_native_schedule_producer_source import (
+    source_original_schedule_constructor_for_verified_producer,
+)
 from original_schedule_event_native_constructor import (
     source_original_schedule_event_constructor_510380,
 )
@@ -139,6 +142,26 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
             source_original_fresh_match_event_serial_510380(
                 qualified_fresh_source_match=None,
                 original_selected_collection_counter_before=0)
+
+    def test_real_startup_producer_class_is_not_a_cup_flag_argument(self):
+        generic=source_original_schedule_constructor_for_verified_producer(
+            source_emission_kind="league_match",
+            original_source_producer_va=0x616FC0,
+            original_native_constructor_callsite_va=0x617047)
+        got=source_original_fresh_match_flags44_and_collection(
+            original_native_class_vtable=generic.original_native_vtable_va)
+        self.assertEqual(got.initial_original_flags44,0)
+        self.assertEqual(got.source_native_date_collection_pointer,0x947AD8)
+        cup=source_original_schedule_constructor_for_verified_producer(
+            source_emission_kind="cup_match",
+            original_source_producer_va=0x4F64D0,
+            original_native_constructor_callsite_va=0x4F66C9)
+        with self.assertRaises(OriginalFreshMatchFlagsSourceError):
+            source_original_fresh_match_flags44_and_collection(
+                original_native_class_vtable=cup.original_native_vtable_va)
+        # A Cup class does not prove its constructor's three native flag args.
+        self.assertFalse(generic.is_live_original_event)
+        self.assertFalse(cup.is_live_original_event)
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "private canonical original PE is not present in hosted CI")
