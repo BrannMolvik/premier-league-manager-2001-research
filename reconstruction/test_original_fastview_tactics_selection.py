@@ -10,6 +10,8 @@ from original_fastview_tactics_selection import (
     source_fastview_popup_posted_message_from_event,
     source_fastview_popup_virtual20_posted_event_value_only,
     SourceFastViewPopupPostedMessage,
+    SourceFastViewNativeDropdownModalResult,
+    source_fastview_native_dropdown_posted_wm_user_result,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -1779,6 +1781,81 @@ class SourceFastViewPopupQueuedWin32EventTests(unittest.TestCase):
         ):
             with self.subTest(address=hex(addr)):
                 self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+
+class SourceFastViewActualX133Win32ModalResultTests(unittest.TestCase):
+    """Actual global controller -> modal loop -> child+0x40 invalid state."""
+
+    def test_posted_escape_round_trips_to_invalid_dropdown_without_selected_index(self):
+        event=source_fastview_popup_posted_message_from_event(native_event_word=0xFFFF)
+        self.assertEqual(source_fastview_native_dropdown_posted_wm_user_result(
+            native_message=event.win32_message,
+            native_wparam=event.native_wparam_word
+        ), SourceFastViewNativeDropdownModalResult(
+            selected_index_dword=0xFFFF,
+            invalid_selection_status_byte=1,
+            writes_selected_index=False
+        ))
+
+    def test_posted_ordinary_index_returns_native_selection_and_valid_status(self):
+        for index in (0, 1, 10, 254, 65534):
+            event=source_fastview_popup_posted_message_from_event(
+                native_event_word=index)
+            with self.subTest(index=index):
+                self.assertEqual(source_fastview_native_dropdown_posted_wm_user_result(
+                    native_message=event.win32_message,
+                    native_wparam=event.native_wparam_word
+                ), SourceFastViewNativeDropdownModalResult(index,0,True))
+
+    def test_other_win32_messages_do_not_complete_the_modal_selection(self):
+        for message in (0, 1, 0x100, 0x200, 0x201, 0x401):
+            self.assertIsNone(source_fastview_native_dropdown_posted_wm_user_result(
+                native_message=message,native_wparam=0xFFFF))
+
+    def test_invalid_native_message_field_types_rejected(self):
+        for bad in (-1,True,False,"0x400",None,0x100000000):
+            for key in ("native_message","native_wparam"):
+                values={"native_message":0x400,"native_wparam":0xFFFF}
+                values[key]=bad
+                with self.subTest(field=key,bad=repr(bad)),self.assertRaises(
+                    SourceFastViewTacticsSelectionError):
+                    source_fastview_native_dropdown_posted_wm_user_result(**values)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original executable not mounted")
+    def test_x133_original_popup_to_global_modal_wm_user_result_complete_link(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for table, offset, expected in (
+            (0x7CAC64,0x20,0x446690), (0x7CAC64,0x34,0x52D350),
+            (0x7CB294,0x00,0x532B80),(0x7CB294,0x20,0x532650)
+        ):
+            with self.subTest(vtable=hex(table),offset=hex(offset)):
+                self.assertEqual(struct.unpack("<I",pe.read(table+offset,4))[0],
+                                 expected)
+        for va,hx in (
+            (0x5D71AD,"68 60 79 87 00"),
+            (0x5D71CD,"e8 7e a8 07 00"),
+            (0x651A96,"89 46 30"),
+            (0x53262F,"c7 07 94 b2 7c 00"),
+            (0x651AF2,"8b 4e 30"),
+            (0x651AFA,"ff 50 20"),
+            (0x532650,"56 8b f1"),
+            (0x53266A,"8d 4e 18"),
+            (0x53266D,"e8 9e 1b 12 00"),
+            (0x654221,"56"),
+            (0x654222,"89 7e 64"),
+            (0x65425C,"ff 10"),
+            (0x532BBF,"81 7c 24 14 00 04 00 00"),
+            (0x532BF9,"8b 44 24 18"),
+            (0x651B0B,"81 fb ff ff 00 00"),
+            (0x651B13,"c6 46 40 01"),
+            (0x651B24,"89 5e 3c"),
+        ):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
 
 if __name__ == "__main__":
     unittest.main()
