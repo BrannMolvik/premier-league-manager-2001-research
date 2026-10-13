@@ -1346,3 +1346,54 @@ def source_fastview_popup_virtual20_posted_event_value_only(
     if native_event_argument == 0:
         return None
     return source_fastview_popup_posted_message_from_event(native_event_word=0xFFFF)
+
+
+# Source-closed for the x133 child built at screen+0x263C+0x44*row:
+# 0x5D71A0 pushes GLOBAL 0x877960 as the eighth native constructor
+# input, stored child+0x30 by 0x651A50. Global GUI object ctor
+# 0x532570 installs vtable 0x7CB294. x133 0x651AC0 calls its vft+0x20
+# 0x532650 with the newly built popup and zero. That calls 0x654210:
+# it writes popup+0x64 event owner, invokes popup setup 0x6542B0,
+# then invokes the original GUI object vft+0 0x532B80.
+# 0x532B80 consumes GetMessageA WM_USER=0x400 and returns MSG.wParam
+# without TranslateMessageA / DispatchMessageA; other messages use
+# those functions and keep pumping. Popup Escape and virtual+0x20
+# queue PostMessageA(hwnd,0x400,0xffff,0). 0x651AC0 compares its
+# modal result against 0xffff to set child+0x40=1 (invalid) and skip
+# the array-selected-index update. No match modal exit is implied.
+SOURCE_FASTVIEW_X133_GLOBAL_UI_CONTROLLER_VA = 0x877960
+SOURCE_FASTVIEW_X133_GLOBAL_UI_VTABLE = 0x7CB294
+SOURCE_FASTVIEW_X133_GLOBAL_UI_MODAL_SLOT = 0x20
+SOURCE_FASTVIEW_X133_GLOBAL_UI_MODAL_METHOD_VA = 0x532650
+SOURCE_FASTVIEW_X133_UI_MODAL_WRAPPER_VA = 0x654210
+SOURCE_FASTVIEW_X133_UI_MODAL_EVENT_PUMP_VA = 0x532B80
+SOURCE_FASTVIEW_X133_UI_MODAL_POPUP_SETUP_VA = 0x6542B0
+SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL = 0xFFFF
+
+
+@dataclass(frozen=True)
+class SourceFastViewNativeDropdownModalResult:
+    selected_index_word: int
+    invalid_selection_status_byte: int
+    writes_selected_index: bool
+
+
+def source_fastview_native_dropdown_posted_wm_user_result(
+    *, native_message: int, native_wparam: int
+) -> SourceFastViewNativeDropdownModalResult | None:
+    """Source 0x532B80 -> 0x651AC0 for an already delivered WM_USER.
+
+    None means non-WM_USER is dispatched normally and the modal keeps
+    pumping (not a selected option). 0xFFFF means native child+0x40=1,
+    no source array selection write. Other full DWORD results are stored
+    in child+0x3C and mark status0. Actual list bounds, HWND lifetime,
+    message delivery and parent callback remain separate source gates.
+    """
+    for value in (native_message, native_wparam):
+        if type(value) is not int or not 0 <= value <= 0xFFFFFFFF:
+            raise SourceFastViewTacticsSelectionError("native Win32 message DWORDs required")
+    if native_message != SOURCE_FASTVIEW_POPUP_EVENT_CODE:
+        return None
+    if native_wparam == SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL:
+        return SourceFastViewNativeDropdownModalResult(0xFFFF, 1, False)
+    return SourceFastViewNativeDropdownModalResult(native_wparam, 0, True)
