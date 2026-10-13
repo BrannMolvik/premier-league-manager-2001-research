@@ -134,3 +134,82 @@ def original_fastview_bottom_arrow_positions() -> tuple[OriginalFastViewTacticsA
         OriginalFastViewTacticsArrowPosition(None, 0, 303, 481),
         OriginalFastViewTacticsArrowPosition(None, 1, 379, 481),
     )
+
+# Original PictureControl child 0x651F40 selects one of two WORD frames using
+# native base-control flag bit2 (source getter 0x64F590). This is NOT a
+# designation of mouse hover/press; that semantic requires a separate trace.
+NATIVE_FASTVIEW_ARROW_FRAME_CONTROL_SOURCE_VA = 0x651F40
+NATIVE_FASTVIEW_ARROW_FRAME_FLAG_SOURCE_VA = 0x64F590
+NATIVE_FASTVIEW_ARROW_FRAME_REFRESH_SOURCE_VA = 0x64F600
+NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK = 0x04
+
+
+def original_fastview_arrow_frame_word_for_native_flags(
+    native_flags: int,
+    frame_word_at_44: int,
+    frame_word_at_46: int,
+) -> int:
+    """Source-exact frame WORD read, not synthetic pointer-state interpretation.
+
+    Source 0x64F590 extracts (control+0x18 >> 2) & 1.
+    Source 0x651F40 uses +0x46 when that bit is set, otherwise +0x44.
+    This function does not touch the original control or draw any pixels.
+    """
+    if type(native_flags) is not int or not (0 <= native_flags <= 0xFFFFFFFF):
+        raise ValueError("authentic unsigned source DWORD flags required")
+    for value in (frame_word_at_44, frame_word_at_46):
+        if type(value) is not int or not (0 <= value <= 0xFFFF):
+            raise ValueError("authentic unsigned 16-bit native frame index required")
+    return frame_word_at_46 if (native_flags & NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK) else frame_word_at_44
+
+
+# Two additional authentic 11-row native controls. These are *not* the
+# tactics-arrow sprites. Source constructor calls 0x6503F0 and 0x5D71A0
+# take x80 and x133 respectively, with y278+17*row. Their original IDs
+# are registered through distinct control+0x20 ownership routes.
+# Graphics, native hit widths/heights and complete event side effects remain
+# unverified; never paint arrow art or wire actions from these coordinates.
+NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES = (
+    # source event base, parent object row0 offset, row stride, x, constructor
+    (0x23D65A, 0x1A34, 0x40, 80, 0x6503F0),
+    (0x8877AE, 0x263C, 0x44, 133, 0x5D71A0),
+)
+NATIVE_AUXILIARY_EVENT_FIELD_OFFSET = 0x20
+
+
+@dataclass(frozen=True)
+class OriginalFastViewTacticsAuxiliaryRowControl:
+    source_event_id: int
+    source_row: int
+    parent_offset: int
+    native_x: int
+    native_y: int
+    source_constructor_va: int
+    artwork_identity_verified: bool = False
+
+    def __post_init__(self) -> None:
+        if type(self.source_row) is not int or not (0 <= self.source_row < NATIVE_TACTICS_PLAYER_ROWS):
+            raise ValueError("original auxiliary player-row index required")
+        if self.artwork_identity_verified:
+            raise ValueError("auxiliary event artwork identity not yet source proven")
+
+
+def original_fastview_auxiliary_player_row_controls(
+) -> tuple[OriginalFastViewTacticsAuxiliaryRowControl, ...]:
+    """Source coordinates/event owners for 22 additional native controls.
+
+    Does not equate x/y with an independently proven click rectangle; native
+    constructors and owner child pointers need deeper resource/hit tracing.
+    """
+    positions = []
+    for row in range(NATIVE_TACTICS_PLAYER_ROWS):
+        for event_base, first_offset, stride, x, constructor_va in NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES:
+            positions.append(OriginalFastViewTacticsAuxiliaryRowControl(
+                source_event_id=event_base + row,
+                source_row=row,
+                parent_offset=first_offset + stride * row,
+                native_x=x,
+                native_y=NATIVE_TACTICS_FIRST_PLAYER_Y + NATIVE_TACTICS_PLAYER_ROW_STEP * row,
+                source_constructor_va=constructor_va,
+            ))
+    return tuple(positions)

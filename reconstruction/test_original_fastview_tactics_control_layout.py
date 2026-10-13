@@ -6,10 +6,16 @@ import unittest
 
 from original_fastview_tactics_control_layout import (
     NATIVE_TACTICS_PANEL_RECT,
+    NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES,
+    NATIVE_AUXILIARY_EVENT_FIELD_OFFSET,
+    original_fastview_auxiliary_player_row_controls,
+    OriginalFastViewTacticsAuxiliaryRowControl,
     NATIVE_FASTVIEW_MODAL_SIZE,
     NATIVE_ARROW_IMAGE_SIZE,
     NATIVE_ARROW_FRAME_SIZE,
     NATIVE_TACTICS_PLAYER_ROWS,
+    original_fastview_arrow_frame_word_for_native_flags,
+    NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK,
     NATIVE_HUMAN_PLAYER_ARROW_PARENT_OFFSETS,
     NATIVE_HUMAN_PLAYER_ARROW_EVENT_BASES,
     NATIVE_HUMAN_PLAYER_ARROW_EVENT_FIELD_OFFSET,
@@ -179,6 +185,57 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
                 expected = bytes.fromhex(hexdump)
                 self.assertEqual(pe.read(va, len(expected)), expected)
 
+    def test_original_native_arrow_frame_selects_word_using_bit_two_only(self):
+        self.assertEqual(NATIVE_FASTVIEW_ARROW_FRAME_FLAG_MASK, 4)
+        for value in (0, 1, 2, 3, 8, 0xFFFF_FFFB):
+            with self.subTest(flags=value):
+                self.assertEqual(original_fastview_arrow_frame_word_for_native_flags(
+                    value, 0x1234, 0xABCD), 0x1234)
+        for value in (4, 5, 6, 7, 12, 0xFFFF_FFFF):
+            with self.subTest(flags=value):
+                self.assertEqual(original_fastview_arrow_frame_word_for_native_flags(
+                    value, 0x1234, 0xABCD), 0xABCD)
+
+    def test_original_native_arrow_frame_refuses_invented_signed_or_nonword_state(self):
+        for bad in (True, False, -1, 2**32, None, "4"):
+            with self.subTest(flags=repr(bad)), self.assertRaises(ValueError):
+                original_fastview_arrow_frame_word_for_native_flags(bad, 0, 1)
+        for bad in (True, -1, 65536, None, "0"):
+            with self.subTest(frame=repr(bad)), self.assertRaises(ValueError):
+                original_fastview_arrow_frame_word_for_native_flags(4, 0, bad)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original EXE source not mounted")
+    def test_private_source_arrow_frame_word_selection_from_actual_native_flags(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        source_sites = (
+            (0x651E49, "e8 52 fd ff ff"),     # child calls original 0x651BA0 base
+            (0x651E5A, "89 4e 34"),           # stores child selector metadata
+            (0x651E62, "89 56 38"),
+            (0x651E6A, "89 46 3c"),
+            (0x651E72, "66 89 4e 44"),        # true candidate frame WORD
+            (0x651E7B, "66 89 56 46"),        # alternate frame WORD
+            (0x651E7F, "66 89 46 40"),
+            (0x651E83, "66 89 4e 42"),
+            (0x651F43, "e8 48 d6 ff ff"),     # 0x651F40 reads source bit2 getter
+            (0x651F4C, "66 8b 46 46"),        # flag true returns +0x46
+            (0x651F52, "66 8b 46 44"),        # flag false returns +0x44
+            (0x651F6A, "66 89 41 44"),        # original frame setter
+            (0x651F6E, "66 89 51 46"),
+            (0x651F72, "e8 89 d6 ff ff"),     # requests redraw, 0x64f600
+            (0x64F590, "8b 41 18"),           # source flags DWORD +0x18
+            (0x64F593, "c1 e8 02"),
+            (0x64F596, "83 e0 01"),
+            (0x64F600, "8b c1"),              # base refresh routine
+            (0x64F602, "8b 48 24"),
+            (0x64F60D, "e8 3e 3d 00 00"),     # 0x653350 redraw path
+        )
+        for address, encoded in source_sites:
+            with self.subTest(address=hex(address)):
+                expected = bytes.fromhex(encoded)
+                self.assertEqual(pe.read(address, len(expected)), expected)
+
     def test_unsupported_layout_claims_are_rejected(self):
         with self.assertRaises(ValueError):
             OriginalFastViewTacticsArrowPosition(0, 4, 69, 278)
@@ -252,6 +309,92 @@ class OriginalFastViewTacticsControlLayoutTests(unittest.TestCase):
                              "03 d1 8b 4c 24 18 89 50 14 8b 54 24 1c 85 c9 "
                              "89 48 28 89 50 1c 5e"))
 
+
+
+class NativeFastViewRemainingRowControlsTests(unittest.TestCase):
+    """Evidence for the 22 other row widgets, not fabricated arrow artwork."""
+
+    def test_complete_original_two_other_row_families(self):
+        expected = (
+            (0x23D65A, 0x1A34, 0x40, 80, 0x6503F0),
+            (0x8877AE, 0x263C, 0x44, 133, 0x5D71A0),
+        )
+        self.assertEqual(NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES, expected)
+        self.assertEqual(NATIVE_AUXILIARY_EVENT_FIELD_OFFSET, 0x20)
+        controls = original_fastview_auxiliary_player_row_controls()
+        self.assertEqual(len(controls), 22)
+        for row in range(11):
+            left, right = controls[row * 2:row * 2 + 2]
+            self.assertEqual((left.source_row, right.source_row), (row, row))
+            self.assertEqual((left.source_event_id, right.source_event_id),
+                             (0x23D65A + row, 0x8877AE + row))
+            self.assertEqual((left.parent_offset, right.parent_offset),
+                             (0x1A34 + 0x40 * row, 0x263C + 0x44 * row))
+            self.assertEqual((left.native_x, right.native_x), (80, 133))
+            self.assertEqual((left.native_y, right.native_y), (278 + 17 * row,) * 2)
+            self.assertEqual((left.source_constructor_va, right.source_constructor_va),
+                             (0x6503F0, 0x5D71A0))
+            self.assertFalse(left.artwork_identity_verified)
+            self.assertFalse(right.artwork_identity_verified)
+        with self.assertRaises(ValueError):
+            OriginalFastViewTacticsAuxiliaryRowControl(
+                0x8877AE, 0, 0x263C, 133, 278, 0x5D71A0,
+                artwork_identity_verified=True)
+        with self.assertRaises(ValueError):
+            OriginalFastViewTacticsAuxiliaryRowControl(
+                0x8877AE, 11, 0x263C, 133, 278, 0x5D71A0)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Authenticated private executable not mounted")
+    def test_all_22_original_native_x_y_and_actual_constructor_callees(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        # Every call-site independently retrieved from original native
+        # 0x527C00..0x52B000 constructor, NOT synthesized from the port.
+        source_call_sites = (
+            (0x527FBE, 0x5280D8),
+            (0x5283AC, 0x5284D2),
+            (0x5287BA, 0x5288EC),
+            (0x528BE3, 0x528D15),
+            (0x52900C, 0x52913E),
+            (0x52943B, 0x529576),
+            (0x529879, 0x5299BD),
+            (0x529CC3, 0x529E0A),
+            (0x52A116, 0x52A260),
+            (0x52A56C, 0x52A6B6),
+            (0x52A9C2, 0x52AB0C),
+        )
+        self.assertEqual(len(source_call_sites), 11)
+        for row, (first, second) in enumerate(source_call_sites):
+            y = 278 + row * 17
+            with self.subTest(row=row, family="virtual_0x1A34"):
+                self.assertEqual(
+                    pe.read(first - 9, 7),
+                    b"\x68" + pack("<I", y) + b"\x6a\x50"
+                )
+                self.assertEqual(
+                    pe.read(first, 5),
+                    b"\xe8" + pack("<i", 0x6503F0 - first - 5)
+                )
+            with self.subTest(row=row, family="byte_status_0x263C"):
+                self.assertEqual(
+                    pe.read(second - 12, 10),
+                    b"\x68" + pack("<I", y) + b"\x68" + pack("<I", 133)
+                )
+                self.assertEqual(
+                    pe.read(second, 5),
+                    b"\xe8" + pack("<i", 0x5D71A0 - second - 5)
+                )
+        # Last-family source child event writer at screen+0x265C
+        # and the other family uses distinct child vtable+8 registration.
+        self.assertEqual(pe.read(0x52E2F5, 6),
+                         bytes.fromhex("8d 8b 5c 26 00 00"))
+        self.assertEqual(pe.read(0x52E2A9, 6),
+                         bytes.fromhex("8d ab 34 1a 00 00"))
+        self.assertEqual(pe.read(0x52E31B, 6),
+                         bytes.fromhex("8d 8e ac 5e 9b ff"))
+        self.assertEqual(pe.read(0x52E323, 5),
+                         bytes.fromhex("8b cd ff 50 08"))
 
 if __name__ == "__main__":
     unittest.main()
