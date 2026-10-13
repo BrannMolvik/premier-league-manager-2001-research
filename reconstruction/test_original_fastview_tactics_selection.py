@@ -37,6 +37,9 @@ from original_fastview_tactics_selection import (
     SOURCE_FASTVIEW_REPLACEMENT_EDIT_VTABLE,
     SOURCE_FASTVIEW_REPLACEMENT_EDIT_FORWARD_METHOD_VA,
     SOURCE_FASTVIEW_REPLACEMENT_REPLAY_VISITOR_VA,
+    SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH,
+    source_fastview_original_staged_record_visitor_dispatch,
+    OriginalFastViewStagedEditVisitorDispatch,
 )
 
 
@@ -693,6 +696,67 @@ class SourceFastViewOriginalValidatorEmptyListTests(unittest.TestCase):
         self.assertEqual(
             _struct.unpack("<I", pe.read(0x7D7F90 + 4, 4))[0],
             0x633600
+        )
+
+
+
+class OriginalFastViewEightRecordVisitorSourceTests(unittest.TestCase):
+    """The original dispatcher is eight distinct classes, not one swap callback."""
+
+    def test_all_native_record_classes_have_distinct_descending_visitor_slots(self):
+        self.assertEqual(len(SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH), 8)
+        self.assertEqual(
+            [x[2] for x in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH],
+            list(range(0x20, 0, -4)))
+        self.assertEqual(
+            [x[0] for x in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH],
+            list(range(0x7D7F3C, 0x7D7F91, 12))
+        )
+        for table, target, slot in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH:
+            with self.subTest(vtable=hex(table)):
+                self.assertEqual(
+                    source_fastview_original_staged_record_visitor_dispatch(
+                        native_record_vtable=table
+                    ),
+                    OriginalFastViewStagedEditVisitorDispatch(table, target, slot),
+                )
+
+    def test_unmapped_base_or_nearby_virtual_table_never_becomes_mutable_edit(self):
+        valid = {a for a, _, _ in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH}
+        for candidate in (None, True, False, -1, 0, 0x7D7F24, 0x7D7F30, 0x7D7F3D,
+                          0x7D7F9C, 0x7D8014, 0x7D803C, 0x100000000, "0x7d7f90"):
+            if candidate in valid and type(candidate) is int:
+                continue
+            with self.subTest(candidate=candidate), self.assertRaises(
+                SourceFastViewTacticsSelectionError
+            ):
+                source_fastview_original_staged_record_visitor_dispatch(
+                    native_record_vtable=candidate
+                )
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-authorized original EXE not mounted")
+    def test_original_vtables_and_each_visitor_trampoline_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for table, target, slot in SOURCE_FASTVIEW_STAGED_RECORD_VTABLE_DISPATCH:
+            with self.subTest(vtable=hex(table), slot=hex(slot)):
+                self.assertEqual(
+                    struct.unpack("<I", pe.read(table + 4, 4))[0], target
+                )
+                self.assertEqual(pe.read(target, 7),
+                                 bytes.fromhex("8b c1 8b 4c 24 04 50"))
+                self.assertEqual(pe.read(target + 7, 5),
+                                 bytes.fromhex("8b 11 ff 52") + bytes((slot,)))
+                self.assertEqual(pe.read(target + 12, 3),
+                                 bytes.fromhex("c2 04 00"))
+        self.assertEqual(
+            struct.unpack("<I", pe.read(0x7D8014 + 4, 4))[0],
+            0x634B00
+        )
+        self.assertEqual(
+            struct.unpack("<I", pe.read(0x7D803C + 4, 4))[0],
+            0x634E40
         )
 
 if __name__ == "__main__":
