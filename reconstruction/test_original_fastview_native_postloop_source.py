@@ -133,5 +133,97 @@ class SourceFastViewOriginalPostLoopTests(unittest.TestCase):
                                  bytes.fromhex(hx))
 
 
+
+class SourceFastViewOriginal24SlotsAndResetTests(unittest.TestCase):
+    def test_source_24_match_bytes_to_global_dwords_and_pointer_scalar_and_grid(self):
+        from original_fastview_native_postloop_source import source_fastview_original_postloop_slot_and_reset_533270
+        match=bytearray(b"\xCD"*0x1145)
+        for i in range(24):
+            match[0x112D+i]=(i*11+3)&0xFF
+        pack_into("<I",match,0xB68,0xDEADBEEF)
+        args=dict(original_match_object=bytes(match),
+                  original_global_slots_a257b8_before=b"\xFA"*96,
+                  original_grid_a14828_before=b"\xE3"*108,
+                  original_877534_pointer_is_nonzero=False)
+        got=source_fastview_original_postloop_slot_and_reset_533270(**args)
+        self.assertEqual(len(got.original_24_dword_global_a257b8),96)
+        self.assertEqual(tuple(unpack_from("<24I",got.original_24_dword_global_a257b8)),
+                         tuple((i*11+3)&0xFF for i in range(24)))
+        self.assertEqual(got.original_match_b60_pointer_offset_intent,0xB60)
+        self.assertEqual(got.original_match_b68_dword_to_a25874,0xDEADBEEF)
+        self.assertEqual(got.original_877534_null_mode_to_a2578c,1)
+        self.assertEqual(got.source_grid_a14828_108_after_reset,b"\x00"*108)
+        self.assertEqual(args["original_global_slots_a257b8_before"],b"\xFA"*96)
+        self.assertEqual(args["original_grid_a14828_before"],b"\xE3"*108)
+        other=source_fastview_original_postloop_slot_and_reset_533270(
+            **(args|{"original_877534_pointer_is_nonzero":True}))
+        self.assertEqual(other.original_877534_null_mode_to_a2578c,0)
+        self.assertEqual(other.original_24_dword_global_a257b8,got.original_24_dword_global_a257b8)
+
+    def test_unqualified_original_pointer_or_insufficient_both_side_slots_fails(self):
+        from original_fastview_native_postloop_source import source_fastview_original_postloop_slot_and_reset_533270
+        args=dict(original_match_object=bytes(0x1145),
+                  original_global_slots_a257b8_before=b"\x10"*96,
+                  original_grid_a14828_before=b"\x30"*108,
+                  original_877534_pointer_is_nonzero=True)
+        changes=(
+            {"original_match_object":bytes(0x1144)},
+            {"original_match_object":bytearray(0x1145)},
+            {"original_global_slots_a257b8_before":bytes(95)},
+            {"original_global_slots_a257b8_before":bytearray(96)},
+            {"original_grid_a14828_before":bytes(107)},
+            {"original_grid_a14828_before":bytearray(108)},
+            {"original_877534_pointer_is_nonzero":1},
+            {"original_877534_pointer_is_nonzero":None},
+        )
+        for change in changes:
+            with self.subTest(change=repr(change)[:70]),self.assertRaises(SourceFastViewOriginalPostLoopError):
+                source_fastview_original_postloop_slot_and_reset_533270(**(args|change))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "private original source executable not mounted")
+    def test_native_533270_24_slots_and_last_reset_private_opcode_signatures(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        examples={
+            0x533305:"8d 4c 24 0c",
+            0x53330b:"8b cf",
+            0x53330d:"e8 9e 83 0f 00",
+            0x533318:"e8 e3 75 19 00",
+            0x533320:"46",
+            0x533321:"83 fe 18",
+            0x533326:"8d 87 60 0b 00 00",
+            0x53332d:"e8 4e 8a 19 00",
+            0x533332:"8b 8f 68 0b 00 00",
+            0x533339:"e8 b2 75 19 00",
+            0x53333e:"8b 35 34 75 87 00",
+            0x533346:"85 f6",
+            0x533348:"0f 94 c2",
+            0x53334c:"e8 bf 75 19 00",
+            0x533354:"e8 37 f5 18 00",
+            0x62b6b0:"8b 54 24 04",
+            0x62b6b6:"8a 84 0a 2d 11 00 00",
+            0x62b6c1:"89 01",
+            0x6ca900:"8b 4c 24 04",
+            0x6ca908:"89 04 8d b8 57 a2 00",
+            0x6cbd80:"8b 44 24 04",
+            0x6cbd84:"a3 c0 58 a2 00",
+            0x6ca8f0:"8b 44 24 04",
+            0x6ca8f4:"a3 74 58 a2 00",
+            0x6ca910:"8b 44 24 04",
+            0x6ca914:"a3 8c 57 a2 00",
+            0x6c2890:"b8 2a 48 a1 00",
+            0x6c2897:"b9 12 00 00 00",
+            0x6c289c:"88 50 fe",
+            0x6c289f:"88 50 ff",
+            0x6c28a2:"88 10",
+            0x6c28a4:"83 c0 03",
+            0x6c28aa:"3d 60 48 a1 00",
+            0x6c28b1:"c3",
+        }
+        for va,hx in examples.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
 if __name__=="__main__":
     unittest.main()
