@@ -17,7 +17,6 @@ from original_presults_native_event_work import (
 def execution(pointer,**kwargs):
     return OriginalPResultsNativeQueuedEvent(**(
         dict(original_event_pointer=pointer,
-             source_virtual_0c_nonzero=True,
              before_event8=0,before_payload44=0) | kwargs))
 
 
@@ -112,7 +111,7 @@ class OriginalPResultsSourceEventTests(unittest.TestCase):
         # Its source runtime execution v+0x0C is irrelevant to 6168C0.
         got=source_original_presults_native_current_date_two_pass_6168c0(
             original_ordered_date_nodes=(
-                OriginalPResultsNativeQueuedEvent(44,False,0,0,
+                OriginalPResultsNativeQueuedEvent(44,0,0,
                     first_pass_616990_human_owned=True),))
         self.assertEqual(got.source_progress_tick_count,1)
 
