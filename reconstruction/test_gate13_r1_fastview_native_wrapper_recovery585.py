@@ -428,5 +428,61 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_fastview_selection_preview_has_real_player_record_effects_before_accept(self):
+        """Selecting tactics calls original record mutators even before Apply."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x52E969, "e8 92 05 00 00"), # in modal event59/60 invokes preview
+            (0x52ED95, "e8 66 01 00 00"), # extra input event preview
+            (0x52EFA9, "e8 92 3e 00 00"), # preview calls 0x532e40
+            (0x52EFB4, "b9 46 00 00 00"), # original 70 dwords in UI
+            (0x52EFBF, "f3 a5"),           # UI 280-byte temporary snapshot
+            (0x52EFD6, "e8 d5 3e 00 00"), # preview calls 0x532eb0
+            (0x52EFDC, "e8 4f 38 19 00"), # preview calls 0x6c2830
+            (0x532E87, "8b 88 48 02 00 00"), # real target packed record
+            (0x532E8D, "e8 be 74 fb ff"),    # 0x4ea350 low-four-bit setter
+            (0x532E92, "c7 07 00 00 00 00"), # source record write
+            (0x532F72, "e8 b9 73 fb ff"),    # 0x4ea330 low-five-bit setter
+            (0x532FFC, "e8 ef 52 ee ff"),    # conditional 0x4182f0
+            (0x533007, "e8 b4 52 ee ff"),    # conditional 0x4182c0
+            (0x533041, "e8 7a 73 fb ff"),    # original packed record getter
+            (0x53305B, "e8 70 73 fb ff"),    # second packed record getter
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_human_tactics_apply_validator_has_true_false_and_live_db_effects(self):
+        """The source Apply validator is not a simple visual/form guard."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x52E8F5, "e8 76 42 10 00"), # human tactics validator 0x632b70
+            (0x632B96, "8b 47 08"),         # check original list count
+            (0x632B9D, "5f 32 c0"),         # empty -> false
+            (0x632BC0, "e8 fb 06 00 00"), # construct local owner
+            (0x632BEC, "e8 2f 1c 02 00"), # actual list traversal
+            (0x632C47, "e8 04 15 00 00"), # source merge
+            (0x632CAD, "8b 0d 78 1c 98 00"),# global registry
+            (0x632CB3, "e8 d8 d0 ff ff"), # mutate registry per source row
+            (0x632CD3, "8b 0d 78 1c 98 00"),# global registry
+            (0x632CDA, "e8 31 d1 ff ff"), # second global side-effect
+            (0x632D09, "e8 32 76 ee ff"),# returned registered object update
+            (0x632D86, "b0 01"),          # completed -> true
+            (0x52E911, "e8 9a 33 19 00"), # only then 280-byte commit
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
