@@ -43,14 +43,14 @@ The original row `0x4C96A3..0x4C96BC` passes its source state to `0x4C97D0`, a b
 | Source state | Native wrapper | Native initializer | Input `stars.444` crop (x,y,w,h) |
 | --- | --- | --- | --- |
 | 1 | `0x945890` | `0x5F6310` | (0,0,15,10) |
-| 2 | `0x945850` | `0x5F63A0` | (15,0,15,10) |
-| 3 | `0x945810` | `0x5F6430` | (30,0,15,10) |
-| 4 | `0x9457D0` | `0x5F64C0` | (45,0,15,10) |
-| 5 | `0x945790` | `0x5F6550` | (60,0,15,10) |
+| 2 | `0x945850` | `0x5F63A0` | (0,0,30,10) |
+| 3 | `0x945810` | `0x5F6430` | (0,0,45,10) |
+| 4 | `0x9457D0` | `0x5F64C0` | (0,0,60,10) |
+| 5 | `0x945790` | `0x5F6550` | (0,0,75,10) |
 
-All five native initializers call `0x64E500` with a frame of **15×10**; each preceding initializer calls `0x64D750` with the **same literal `0x836414`**, the exact original `fm2001_art\\support\\stars.444` string. The actual separate original asset was previously byte-verified as 75×10 in Recovery545. Out-of-range states fall through `0x4C9809` to **NULL**; no clamping or duplicate-sprite fallback is justified. The fifth wrapper `0x945790` is also used in non-selector contexts, which does not change this five-state source mapping.
+All five native initializers call `0x64E500` with **height 10, origin (0,0), and cumulative widths 15, 30, 45, 60, 75** (NOT five independent 15-pixel slices). Each preceding initializer calls `0x64D750` with the **same literal `0x836414`**, the exact original `fm2001_art\\support\\stars.444` string. The actual separate original asset was previously byte-verified as 75×10 in Recovery545. Out-of-range states fall through `0x4C9809` to **NULL**; no clamping or duplicate-sprite fallback is justified. The fifth wrapper `0x945790` is also used in non-selector contexts, which does not change this five-state source mapping.
 
-`reconstruction/original_supportstart_layout.py` on the in-flight branch now retains that exact source-frame-to-native-wrapper contract, and its adjacent test adds source-proven crop/NULL boundary cases. This is **art ownership/layout evidence, not a player-visible renderer or native hit test**. The original proprietary image remains outside Git.
+The already-merged `reconstruction/original_supportstart_stars.py` and `test_original_supportstart_stars.py` **correctly implement and verify the cumulative crop**, including the original byte-identical `stars.444` asset. An initial Recovery581 duplicate interpretation incorrectly treated the widths as x-offsets; it was **caught by comparison with the merged source module and reverted on this in-flight branch** before any PR or release. Do not recreate that incorrect independent-slice interpretation. This is **art ownership/layout evidence, not a player-visible renderer or native hit test**. The original proprietary image remains outside Git.
 
 ### Original pixel event ingress, still not final native acceptance
 
@@ -70,4 +70,4 @@ objdump -D -Mintel --start-address=0x64f300 --stop-address=0x64f3d1 footballmana
 objdump -D -Mintel --start-address=0x5d48c0 --stop-address=0x5d48f8 footballmanager.exe
 ```
 
-**Acceptance:** source-frame mapping VERIFIED against original static bytes; implementation tests NOT YET RUN at branch head; player-visible SupportStart and original-process/Windows11 GUI acceptance NOT VERIFIED. Gate13–17 remain OPEN.
+**Acceptance:** cumulative source-frame mapping independently VERIFIED against original static bytes and the existing merged source module; no new branch implementation test run. Existing merged tests are not a GUI acceptance claim. Player-visible SupportStart and original-process/Windows11 GUI acceptance NOT VERIFIED. Gate13–17 remain OPEN.
