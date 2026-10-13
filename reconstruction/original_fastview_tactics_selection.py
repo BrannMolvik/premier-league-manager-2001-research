@@ -454,3 +454,49 @@ def source_fastview_aux_child_input_outcome_651ac0(
             child_has_registered_event and child_input_callback_argument_nonzero
         ),
     )
+
+
+# 0x633240 counts original staged edit nodes via the polymorphic vft+4
+# visitor. The original base record virtual +4 is NOT a benign no-op;
+# vft 0x7D7F90 (0x6335D0 replacement record) +4 -> 0x633600,
+# forwards to count-visitor vft 0x7D803C+4 -> 0x634E40.
+# 0x633020 returns AL==0 *when this count is zero*; for nonzero
+# staged edits it executes the original 0x6331A0/0x634B00 visitor that
+# may replay edits, set conflict flags or mutate transient linked nodes.
+# A zero count proves only the validator's own outcome, not any earlier
+# +0x40 status, source player/world validity or actual edit permission.
+SOURCE_FASTVIEW_REPLACEMENT_VALIDATOR_VA = 0x633020
+SOURCE_FASTVIEW_REPLACEMENT_COUNT_VISITOR_VA = 0x633240
+SOURCE_FASTVIEW_REPLACEMENT_COUNT_METHOD_VA = 0x634E40
+SOURCE_FASTVIEW_REPLACEMENT_COUNT_VTABLE = 0x7D803C
+SOURCE_FASTVIEW_REPLACEMENT_EDIT_VTABLE = 0x7D7F90
+SOURCE_FASTVIEW_REPLACEMENT_EDIT_FORWARD_METHOD_VA = 0x633600
+SOURCE_FASTVIEW_REPLACEMENT_REPLAY_VISITOR_VA = 0x6331A0
+SOURCE_FASTVIEW_REPLACEMENT_REPLAY_CALLBACK_VA = 0x634B00
+SOURCE_FASTVIEW_REPLACEMENT_REPLAY_FLAG_GETTER_VA = 0x634DF0
+SOURCE_FASTVIEW_REPLACEMENT_STAGED_COUNT_OFFSET = 0x48AC
+SOURCE_FASTVIEW_REPLACEMENT_STAGED_LIST_OFFSET = 0x48A4
+
+
+def source_fastview_633020_result_when_original_list_empty(
+    *, original_staged_edit_count: int
+) -> int:
+    """Read-only 0x633020 AL when authentic staged replacement list empty.
+
+    Source 0x633020 first calls 0x633240 and checks EAX==0 at 0x63304E.
+    The zero-count path branches to 0x63317E and returns AL=0. This is
+    independent of earlier child status and dropdown event dispatch.
+    A positive node count MUST NOT be modeled as AL=0/1 here: it needs
+    complete original polymorphic replay and a valid list identity.
+    This helper does not produce an edit or write match-side state.
+    """
+    if (type(original_staged_edit_count) is not int or
+            not 0 <= original_staged_edit_count <= 0xFFFFFFFF):
+        raise SourceFastViewTacticsSelectionError(
+            "original native staged edit count DWORD required"
+        )
+    if original_staged_edit_count != 0:
+        raise SourceFastViewTacticsSelectionError(
+            "nonempty original polymorphic replacement replay not yet source complete"
+        )
+    return 0
