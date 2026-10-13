@@ -99,3 +99,18 @@ objdump -D -Mintel --start-address=0x4d05e0 --stop-address=0x4d0679 footballmana
 ```
 
 **Updated next task:** verify the original mouse-up path and source row initialization/live staff records, then connect the original seven-row PSupportStart graphics/interaction and native Apply/Cancel transaction to the ordinary TeamSelect frontend. The claimed input route now has a narrow static original-source proof; standalone source tests/byte proof still do NOT close the complete player workflow, Gate13 or Windows11 acceptance.
+
+### Recovery581 subsequent source child and release countercheck
+
+A separate direct original `.rdata` inspection verifies final Bitmap `0x7BE530` and NumText `0x7BFF14` BOTH resolve vft+0x08 to `0x64F3C0` and vft+0x6C to `0x64F7A0`. Native parent `0x5D48C0` propagates the exact same nonzero callback ID and PSupportStart-owner pointer through each registered child vft+0x08. Thus the two input-eligible group children also have a source-resolved callback response 1 (when their state permits it) and a source-resolved blocked state response0. `0x5D4790` invokes them only when their registration flag has bit0x04 and their control has bit0x01. `0x4D05E0` event IDs8..14 are the non-action/redraw dispatch branch; they never enter native Apply/Cancel cases 1/2.
+
+The branch now composes `project_original_supportstart_source_pointer_down` from the native window source predicate and real parent/child gates, producing the existing bit0x10 pressed / bit15 toggle observation. The separate original native mouse-up `0x653510` broadcasts vft+0x70 through all registered window children, and group `0x5D4800` calls parent `0x64F860` plus bit0-enabled eligible fourth/fifth children to clear pressed bit0x10. This **does not** revert row selection bit15. New tests cover first click, rejection of repeated down while still pressed, explicit source release, second click, parent-only acceptance and empty/rectangle rejection. These are pure projections conditional on externally qualified native modal/row state, NOT native executable/UI acceptance and NOT assertions that original GUI was run.
+
+```bash
+objdump -s -j .rdata --start-address=0x7be530 --stop-address=0x7be548 footballmanager.exe
+objdump -s -j .rdata --start-address=0x7bff14 --stop-address=0x7bff2c footballmanager.exe
+objdump -D -Mintel --start-address=0x653510 --stop-address=0x65356b footballmanager.exe
+objdump -D -Mintel --start-address=0x5d4800 --stop-address=0x5d485e footballmanager.exe
+```
+
+**Outstanding:** actual live TeamSelect->PSupportStart registration and authentic staff/user/CRT records, source-original text glyph placement/row composition, hit semantics for Apply/Cancel, complete close/result state, and interactive Windows11 output. No exact-head test run/PR/CI for this branch yet; keep Gate13–17 OPEN.
