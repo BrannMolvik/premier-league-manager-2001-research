@@ -1373,7 +1373,7 @@ SOURCE_FASTVIEW_X133_UI_MODAL_RESULT_SENTINEL = 0xFFFF
 
 @dataclass(frozen=True)
 class SourceFastViewNativeDropdownModalResult:
-    selected_index_word: int
+    selected_index_dword: int
     invalid_selection_status_byte: int
     writes_selected_index: bool
 
