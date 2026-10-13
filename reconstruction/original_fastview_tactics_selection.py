@@ -29,10 +29,11 @@ class SourceFastViewTacticsSelectionError(ValueError):
 
 
 
-# These five 11-ID native event families are distinct from low IDs 4..58.
+# These six 11-ID native event families are distinct from low IDs 4..58.
 # They are selected in 0x52E975..0x52EC9D after the low-ID switch. Source
 # effects are nontrivial and must NOT be simulated by the event classifier.
 SOURCE_PLAYER_CONTROL_EVENT_FAMILIES = (
+    (0x23D65A, "source_guarded_side_action"),
     (0x247276, "source_side_action_flag1"),
     (0x246E8E, "source_side_action_flag0"),
     (0x2466BE, "player_row_step_decrease"),
