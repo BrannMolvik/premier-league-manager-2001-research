@@ -39,3 +39,13 @@ objdump -D -Mintel --start-address=0x5fffb0 --stop-address=0x600010 footballmana
 objdump -s --start-address=0x8397bc --stop-address=0x839830 footballmanager.exe
 objdump -D -Mintel --start-address=0x472680 --stop-address=0x47276d footballmanager.exe
 ```
+
+## Recovery582 resource-provider follow-up: no inferred `button` alias
+
+Additional targeted authenticated source byte checks:
+
+- Private extracted `FM2001/Resource.res` was separately materialized, **2,114,750 bytes**, SHA-256 `7abd0213aacede533af438296ecc67271ada8c16b69f2aacd96df9b8d050bb38`. A case-insensitive raw-byte scan showed **zero readable occurrences** of `boost_type_11`, `button_type_11`, or `.444`. This is only a negative **plaintext-string** check, not proof a compressed/hash-indexed resource pack lacks the image.
+- Original EXE separately contains the distinct literal `fm2001_art\generic\GenericButtonsAndBars\button_type_11.444` at VA **0x835B28**, loaded at `0x5F4814`, while the native Inbox filter radio `0x941430` loader uses its **different** `boost_type_11.444` literal at VA **0x8397BC** in `0x5FFF64`. The two paths and loader objects are not automatically aliases. The original EXE also contains `boost_type_11_anim.444` at VA `0x8397F8` loaded by `0x5FFFF4`. The extracted `button_type_11_anim.444` is NOT named in the original EXE's plain filename literals.
+- Original image loader `0x64D750 -> 0x64D870` stores the exact filename, later `0x64D930` builds a resource lookup through `0x657820`; deeper provider semantics and possible mapped aliases remain **UNQUALIFIED**. Do not assert the alternate source will be loaded by the genuine original. No bytes from the original EXE/resource pack have been put in Git.
+
+**NEXT:** static trace `0x657820` actual filename/file/resource resolver and inspect exact native list constructor/callback owner +0x38 for filter rows; if the boost asset remains absent or provider can't be bounded without running original, record only the art/UI criterion as a deferred blocker and work on another already-evidenced playable Gate13 surface. Do not accidentally repair the original game's files by substituting the `button_type_11` atlas absent source evidence.
