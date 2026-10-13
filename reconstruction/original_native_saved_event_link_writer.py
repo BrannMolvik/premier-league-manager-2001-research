@@ -102,3 +102,57 @@ def source_original_saved_event_link_index_5107f0(
     return OriginalSavedEventBaseLinkReceipt(
         vt,method,unpack_from("<I",source,0x10)[0],saved_index,linked,
         linked and saved_index==SOURCE_ORIGINAL_EVENT_NULL_LINK_SENTINEL)
+
+
+
+SOURCE_ORIGINAL_MATCH_BASIC_WRITE_V20_VA = 0x510850
+SOURCE_ORIGINAL_MATCH_EXTENDED_WRITE_V20_VA = 0x5108B0
+
+
+@dataclass(frozen=True)
+class OriginalSavedLeagueMatchFieldsReceipt:
+    """Source original save v+0x20 fields after 0x5107F0 link reference."""
+    original_source_native_match_vtable: int
+    original_source_native_save_v20_va: int
+    original_saved_flags_dword_44: int
+    original_saved_halfword_3c: int
+    original_saved_halfword_3e: int
+    original_saved_halfword_40: int
+    original_saved_dword_48: int
+    original_saved_extended_bytes_58_to_5b: bytes | None
+
+
+def source_original_saved_leaguematch_fields_510850_5108b0(
+    *, original_native_source_match_record: bytes,
+) -> OriginalSavedLeagueMatchFieldsReceipt:
+    """Read native original fields written by 0x510850/0x5108B0.
+
+    These native source functions first write 0x5107F0 base fields;
+    0x510850 then writes original +0x44 DWORD, +0x3C/+0x3E/+0x40
+    WORDs and +0x48 DWORD. 0x5108B0 adds +0x58..+0x5B bytes.
+    The source record is required; missing native saved flags MUST
+    NOT be inferred from reconstructed schedule node kinds.
+    """
+    r=original_native_source_match_record
+    if type(r) is not bytes or len(r)<4:
+        raise OriginalSavedEventLinkSourceError("original native match record required")
+    vt=unpack_from("<I",r,0)[0]
+    v20=SOURCE_ORIGINAL_EVENT_WRITE_V20_BY_VTABLE.get(vt)
+    if v20 not in (
+        SOURCE_ORIGINAL_MATCH_BASIC_WRITE_V20_VA,
+        SOURCE_ORIGINAL_MATCH_EXTENDED_WRITE_V20_VA,
+    ):
+        raise OriginalSavedEventLinkSourceError(
+            "original source class has no authenticated match-field writer")
+    extended=v20==SOURCE_ORIGINAL_MATCH_EXTENDED_WRITE_V20_VA
+    if len(r)<(0x5C if extended else 0x4C):
+        raise OriginalSavedEventLinkSourceError(
+            "original native match source missing full required saved-field bytes")
+    return OriginalSavedLeagueMatchFieldsReceipt(
+        vt,v20,unpack_from("<I",r,0x44)[0],
+        unpack_from("<H",r,0x3C)[0],
+        unpack_from("<H",r,0x3E)[0],
+        unpack_from("<H",r,0x40)[0],
+        unpack_from("<I",r,0x48)[0],
+        r[0x58:0x5C] if extended else None,
+    )
