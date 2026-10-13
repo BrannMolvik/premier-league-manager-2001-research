@@ -1010,3 +1010,94 @@ def source_fastview_one_prior_replacement_followup_value_only(
             ),
         ),
     )
+
+
+def source_fastview_two_distinct_prior_replacements_followup_value_only(
+    original_side: OriginalFastViewTacticsSelectionDraft,
+    *, native_child_status_byte: int,
+    original_two_replacement_records: tuple[
+        SourceFastViewNativeReplacementRecord,
+        SourceFastViewNativeReplacementRecord,
+    ],
+    native_current_mapped_from_index: int,
+    native_selected_to_index: int,
+    original_club_guard_flags: tuple[int, ...],
+) -> SourceFastViewOneReplacementFollowupValue:
+    """Source-bounded TWO prior replacements, distinct original targets.
+
+    Source 0x633020 calls 0x6331A0 precisely once per original native
+    replacement-class node. 0x6348E0 initializes visitor DWORD+4 from
+    the outer loop index. 0x634B00 forwards/skips previous replacement
+    nodes while decrementing that index, then processes the current
+    node; its replay status8/status9 is local to THAT visitor pass.
+    Earlier matched chains still contribute to the outer OR of AL.
+    This narrow projection admits two prior replacement records ONLY,
+    with distinct previous targets so no unverified repeated alias
+    chain on the same requested source can occur.
+
+    Each pass preserves native old-node relative order; a matching
+    record is replaced in-place in that source order, updates the
+    original side via 0x634C1D and yields AL1 for that pass; no match
+    preserves that original record and yields AL0. When neither
+    pass chains, 0x52EC23 applies fresh 0x6C2770 then the caller
+    appends one 0x6335D0 record. This helper models only original
+    values under caller-qualified native event/list state; it never
+    simulates Win32 controls, commits match state or invents a PResult.
+    """
+    if not source_fastview_guarded_status_allows_followup(native_child_status_byte):
+        raise SourceFastViewTacticsSelectionError("native +0x40 child status blocks original edit")
+    if (type(original_two_replacement_records) is not tuple or
+            len(original_two_replacement_records) != 2 or
+            any(type(x) is not SourceFastViewNativeReplacementRecord
+                for x in original_two_replacement_records)):
+        raise SourceFastViewTacticsSelectionError("exact two original replacement-only nodes required")
+    first, second = original_two_replacement_records
+    if first.native_to_index == second.native_to_index:
+        raise SourceFastViewTacticsSelectionError(
+            "duplicate prior replacement targets require separate native chain alias proof"
+        )
+    if type(original_side) is not OriginalFastViewTacticsSelectionDraft:
+        raise SourceFastViewTacticsSelectionError("original side draft required")
+    if type(native_current_mapped_from_index) is not int or not (
+        0 <= native_current_mapped_from_index <= 0xFFFFFFFF
+    ) or type(native_selected_to_index) is not int or not (
+        0 <= native_selected_to_index <= 0xFFFFFFFF
+    ):
+        raise SourceFastViewTacticsSelectionError("original native source and target DWORDs required")
+    if type(original_club_guard_flags) is not tuple or any(
+        type(f) is not int or not 0 <= f <= 255 for f in original_club_guard_flags
+    ):
+        raise SourceFastViewTacticsSelectionError("native club BYTE guards required")
+
+    updated_side = original_side
+    records = []
+    any_matched = False
+    for prior in (first, second):
+        if prior.native_to_index == native_current_mapped_from_index:
+            updated_side = source_fastview_634b00_matched_chain_payload_value_only(
+                updated_side,
+                requested_from_index=native_current_mapped_from_index,
+                requested_to_index=native_selected_to_index,
+                original_club_guard_flags=original_club_guard_flags,
+            )
+            records.append(SourceFastViewNativeReplacementRecord(
+                prior.native_from_index, native_selected_to_index
+            ))
+            any_matched = True
+        else:
+            records.append(prior)
+    if any_matched:
+        return SourceFastViewOneReplacementFollowupValue(
+            1, False, updated_side, tuple(records)
+        )
+    fresh = source_fastview_6c2770_side_payload_value_only(
+        updated_side, source_from_player_index=native_current_mapped_from_index,
+        source_to_player_index=native_selected_to_index,
+        source_club_guard_flags=original_club_guard_flags,
+    )
+    records.append(SourceFastViewNativeReplacementRecord(
+        native_current_mapped_from_index, native_selected_to_index
+    ))
+    return SourceFastViewOneReplacementFollowupValue(
+        0, True, fresh, tuple(records)
+    )
