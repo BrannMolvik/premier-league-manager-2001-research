@@ -17,6 +17,7 @@ class OriginalNativeStartupScheduleProducerTests(unittest.TestCase):
     def test_exact_original_producer_constructor_and_loaded_class_families(self):
         expected={
             "fixed_league_match":(0x6173D0,0x617490,0x5104F0,1,0x7C4C24),
+            "league_match":(0x616FC0,0x617047,0x5104F0,1,0x7C4C24),
             "cup_match":(0x4F64D0,0x4F66C9,0x510520,2,0x7C9D9C),
             "first_leg_match":(0x4F6820,0x4F6A02,0x510640,4,0x7C9EF8),
             "second_leg_match":(0x4F6820,0x4F6A64,0x510680,5,0x7C9F70),
@@ -52,6 +53,7 @@ class OriginalNativeStartupScheduleProducerTests(unittest.TestCase):
     def test_procedural_pair_generation_not_assumed_to_be_native_constructor(self):
         cases=[
             ("league_match",0x6170F0,None),
+            ("league_match",0x616FC0,None),
             ("league_match",0x6173D0,0x617490),
             ("fixed_league_match",0x6170F0,0x617490),
             ("fixed_league_match",0x6173D0,None),
@@ -79,6 +81,7 @@ class OriginalNativeStartupScheduleProducerTests(unittest.TestCase):
         pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         source_sites={
             0x617490:"e8 5b 90 ef ff",
+            0x617047:"e8 a4 94 ef ff",
             0x4F66C9:"e8 52 9e 01 00",
             0x4F6A02:"e8 39 9c 01 00",
             0x4F6A64:"e8 17 9c 01 00",

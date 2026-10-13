@@ -15,6 +15,9 @@ from competition_startup import (
     CupPairingDescriptor,
     MaterializedCupRound,
 )
+from original_native_procedural_event_emitter import (
+    source_original_procedural_event_emitter_616fc0,
+)
 from procedural_league import (
     ProceduralLeagueMatchEmission,
     materialize_scot_premier_split_match_emissions,
@@ -254,10 +257,23 @@ class CompetitionScheduleTests(unittest.TestCase):
         )[0]
 
         self.assertEqual(node.node_kind, "league_match")
-        # 0x6170F0 generates pairings; its native constructor instantiation
-        # is not automatically qualified from a symbolic Python emission.
-        self.assertIsNone(node.original_native_constructor_evidence)
+        # Native 0x617310 dispatches League v+0x3C to 0x616FC0,
+        # which emits 0x5104F0 and calls 0x4F3B50->0x615950.
+        # This is constructor CLASS only, not a real native event ID.
+        self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_va,0x5104F0)
+        self.assertEqual(node.original_native_constructor_evidence.original_native_serialized_type_code,1)
+        self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_callsite_va,0x617047)
+        self.assertFalse(node.original_native_constructor_evidence.is_live_original_event)
         self.assertEqual(node.schedule_index, 4)
+        source_emitter=source_original_procedural_event_emitter_616fc0(
+            original_team_count_plus_3c=4,
+            original_cycle_index=emission.cycle_index,
+            original_pair_round_index=emission.round_index,
+            original_scottish_override_active=False)
+        self.assertEqual(source_emitter.original_date_array_index,node.schedule_index)
+        self.assertEqual(source_emitter.original_native_constructor_class,
+                         node.original_native_constructor_evidence)
+        self.assertTrue(source_emitter.source_match_constructor_called)
         self.assertEqual((node.scheduled_week, node.scheduled_weekday), (14, 6))
         self.assertEqual(node.participant_0_ref.direct_club_id, 30)
         self.assertEqual(node.participant_1_ref.direct_club_id, 40)
