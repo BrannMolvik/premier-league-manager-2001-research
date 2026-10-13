@@ -339,5 +339,47 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_nested_tactics_classes_are_gated_by_actual_registered_human_club(self):
+        """PE RTTI and original membership lookup, not presumed generic FastView."""
+        import struct
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for vtable, expected in (
+            (0x7CACFC, b".?AVFastViewTactics@@"),
+            (0x7CB214, b".?AVFastViewCPUTactics@@"),
+        ):
+            with self.subTest(vtable=hex(vtable)):
+                col, = struct.unpack("<I", pe.read(vtable - 4, 4))
+                type_descriptor, = struct.unpack("<I", pe.read(col + 12, 4))
+                self.assertEqual(pe.read(type_descriptor + 8, len(expected)), expected)
+        guards = (
+            (0x4037B1, "b9 10 4c 87 00"),       # global user owner
+            (0x4037B6, "e8 25 02 01 00"),      # source linked-user check
+            (0x403853, "e8 58 ff ff ff"),       # selected club registration precondition
+            (0x403858, "3c 01"),                # guard exactly true
+            (0x40385C, "8b 46 04"),            # club ID
+            (0x40385F, "b9 10 4c 87 00"),
+            (0x403865, "e8 d6 02 01 00"),      # registered user lookup
+            (0x40386C, "33 c0"),               # no human -> null
+            (0x4139E0, "8b 44 24 04"),
+            (0x4139E8, "e8 03 00 00 00"),
+            (0x4139F0, "8b 81 cc 09 00 00"),  # user list head
+            (0x413A12, "32 c0"),               # no managed club
+            (0x413A17, "b0 01"),               # managed club found
+            (0x413B40, "8b 81 cc 09 00 00"),
+            (0x413B5C, "39 4a 04"),            # club ID match
+            (0x413B68, "33 c0"),               # unmatched -> null
+            (0x413B6D, "8b 00"),               # return linked user
+            (0x52D3C3, "89 86 90 00 00 00"),  # nested selected side
+        )
+        for address, code in guards:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
