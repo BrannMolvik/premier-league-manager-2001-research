@@ -505,5 +505,45 @@ class OriginalSupportStartInputTests(unittest.TestCase):
                     OriginalSupportStartRowBitState(bad, (0, 0, 0, 0, 0))
 
 
+
+    def test_source_modal_row_mouse_down_parent_callback_acceptance(self):
+        from original_supportstart_input import (
+            original_supportstart_source_window_click_accepts_row as accepts,
+        )
+        # The authentic modal owner callback vft+0x0C is a constant-1
+        # handler (0x42DE00), and native group IDs 8..14 are nonzero.
+        # Source viewport 800x600 puts row 0 at (431,281,326,37).
+        args = dict(row_index=0, viewport_size=(800,600))
+        self.assertTrue(accepts(
+            source_screen_point=(431,281),
+            native_row_control_dword=0x183, **args))
+        self.assertTrue(accepts(
+            source_screen_point=(756,317),
+            native_row_control_dword=0x183, **args))
+        for outside in ((430,281), (757,281), (431,280), (431,318)):
+            with self.subTest(outside=outside):
+                self.assertFalse(accepts(
+                    source_screen_point=outside,
+                    native_row_control_dword=0x183, **args))
+        for rejected_dword in (0x181, 0x182, 0x193, 0x180, 0x8001):
+            with self.subTest(rejected_dword=rejected_dword):
+                self.assertFalse(accepts(
+                    source_screen_point=(500,300),
+                    native_row_control_dword=rejected_dword, **args))
+        # Seventh row is a distinct source identity; same callback
+        # contract, but empty source state cannot be accepted.
+        self.assertTrue(accepts(
+            row_index=6, source_screen_point=(431,521),
+            viewport_size=(800,600), native_row_control_dword=0x183))
+        self.assertFalse(accepts(
+            row_index=6, source_screen_point=(431,521),
+            viewport_size=(800,600), native_row_control_dword=0x181))
+        with self.assertRaises(ValueError):
+            accepts(row_index=7, source_screen_point=(500,300),
+                    viewport_size=(800,600), native_row_control_dword=0x183)
+        with self.assertRaises(ValueError):
+            accepts(row_index=0, source_screen_point=(False,281),
+                    viewport_size=(800,600), native_row_control_dword=0x183)
+
 if __name__ == "__main__":
     unittest.main()
