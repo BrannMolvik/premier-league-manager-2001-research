@@ -225,5 +225,97 @@ class SourceFastViewOriginal24SlotsAndResetTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
+
+class SourceFastViewOriginalCompleteSetupValueStageTests(unittest.TestCase):
+    def test_source_533270_full_two_club_tactical_statistics_and_24_slots(self):
+        from original_fastview_native_postloop_source import source_fastview_original_complete_value_stage_533270
+        from test_original_fastview_native_full_side_setup import original_source_test_inputs
+        base=original_source_test_inputs()
+        match=bytearray(base["original_match_object"])
+        match.extend(b"\0"*(0x1145-len(match)))
+        pack_into("<I",match,0xFF8,18)
+        for addr,values in ((0x1058,(3,5)),(0x10B8,(7,9)),(0x1118,(100,300))):
+            pack_into("<II",match,addr,*values)
+        for i in range(24):
+            match[0x112D+i]=i+5
+        pack_into("<I",match,0xB68,0xABCD1234)
+        args=dict(original_live_match_object=bytes(match),
+                  original_side0=base["source_side0"],
+                  original_side1=base["source_side1"],
+                  original_human_registry_club_ids_in_link_order=(44,),
+                  original_country_name_indexes_germany_france_england=(7,11,15),
+                  original_three_global_buffers_before=(b"\xDD"*16,b"\xEE"*16,b"\xFF"*16),
+                  original_uninitialized_stack_values_when_mode_four=None,
+                  original_global_slots_a257b8_before=b"\x55"*96,
+                  original_grid_a14828_before=b"\x99"*108,
+                  original_877534_pointer_is_nonzero=False)
+        stage=source_fastview_original_complete_value_stage_533270(**args)
+        first=stage.two_sided_roster_and_tactics
+        self.assertEqual(len(first.original_full_side_global_memory),3112)
+        self.assertEqual(tuple(unpack_from("<I",first.original_full_side_global_memory,i)[0]
+                               for i in (0xFC,1556+0xFC)),(12,11))
+        self.assertEqual(stage.native_three_statistics_globals.native_three_dword_parameters,(4,8,200))
+        self.assertEqual(stage.native_three_statistics_globals.source_631270_iteration_count,2)
+        self.assertEqual(stage.native_three_statistics_globals.original_globals_a25930_bytes[8:],b"\xFF"*8)
+        slots=stage.native_match_slots_and_reset
+        self.assertEqual(tuple(unpack_from("<24I",slots.original_24_dword_global_a257b8)),tuple(range(5,29)))
+        self.assertEqual(slots.original_877534_null_mode_to_a2578c,1)
+        self.assertEqual(slots.original_match_b68_dword_to_a25874,0xABCD1234)
+        self.assertEqual(slots.source_grid_a14828_108_after_reset,bytes(108))
+        self.assertEqual(args["original_grid_a14828_before"],b"\x99"*108)
+
+    def test_source_unknown_postloop_is_rejected_without_publishing_sides(self):
+        from original_fastview_native_postloop_source import source_fastview_original_complete_value_stage_533270
+        from test_original_fastview_native_full_side_setup import original_source_test_inputs
+        base=original_source_test_inputs()
+        match=bytearray(base["original_match_object"])
+        match.extend(b"\0"*(0x1145-len(match)))
+        pack_into("<I",match,0xFF8,18)
+        args=dict(original_live_match_object=bytes(match),
+                  original_side0=base["source_side0"],
+                  original_side1=base["source_side1"],
+                  original_human_registry_club_ids_in_link_order=(44,),
+                  original_country_name_indexes_germany_france_england=(7,11,15),
+                  original_three_global_buffers_before=(bytes(16),)*3,
+                  original_uninitialized_stack_values_when_mode_four=None,
+                  original_global_slots_a257b8_before=bytes(96),
+                  original_grid_a14828_before=bytes(108),
+                  original_877534_pointer_is_nonzero=True)
+        expected=source_fastview_original_complete_value_stage_533270(**args)
+        for change in (
+            {"original_live_match_object":bytes(match[:0x1120])},
+            {"original_side0":None},
+            {"original_grid_a14828_before":bytes(107)},
+            {"original_877534_pointer_is_nonzero":None},
+            {"original_country_name_indexes_germany_france_england":(7,True,15)},
+        ):
+            with self.subTest(change=repr(change)[:90]),self.assertRaises(
+                (SourceFastViewOriginalPostLoopError,ValueError)):
+                source_fastview_original_complete_value_stage_533270(**(args|change))
+        self.assertEqual(source_fastview_original_complete_value_stage_533270(**args),expected)
+
+    def test_source_mode_four_retains_unknown_original_stack_not_guess_zero(self):
+        from original_fastview_native_postloop_source import source_fastview_original_complete_value_stage_533270
+        from test_original_fastview_native_full_side_setup import original_source_test_inputs
+        base=original_source_test_inputs()
+        match=bytearray(base["original_match_object"])
+        match.extend(b"\0"*(0x1145-len(match)))
+        pack_into("<I",match,0xFF8,19)
+        args=dict(original_live_match_object=bytes(match),
+                  original_side0=base["source_side0"],original_side1=base["source_side1"],
+                  original_human_registry_club_ids_in_link_order=(44,),
+                  original_country_name_indexes_germany_france_england=(7,11,15),
+                  original_three_global_buffers_before=(b"\x44"*16,)*3,
+                  original_uninitialized_stack_values_when_mode_four=(81,83,89),
+                  original_global_slots_a257b8_before=bytes(96),
+                  original_grid_a14828_before=bytes(108),
+                  original_877534_pointer_is_nonzero=True)
+        got=source_fastview_original_complete_value_stage_533270(**args)
+        self.assertFalse(got.native_three_statistics_globals.native_631290_wrote_outputs)
+        self.assertEqual(got.native_three_statistics_globals.native_three_dword_parameters,(81,83,89))
+        self.assertEqual(got.native_match_slots_and_reset.original_877534_null_mode_to_a2578c,0)
+        with self.assertRaises(SourceFastViewOriginalPostLoopError):
+            source_fastview_original_complete_value_stage_533270(**(args|{"original_uninitialized_stack_values_when_mode_four":None}))
+
 if __name__=="__main__":
     unittest.main()
