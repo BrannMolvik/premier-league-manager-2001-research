@@ -43,6 +43,8 @@ on:
       - "reconstruction/test_original_schedule_event_native_constructor.py"
       - "reconstruction/original_leaguematch_native_process_owners.py"
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
+      - "reconstruction/original_native_serialized_event_loader.py"
+      - "reconstruction/test_original_native_serialized_event_loader.py"
       - "reconstruction/original_fastview_native_event_human_owners.py"
       - "reconstruction/test_original_fastview_native_event_human_owners.py"
       - "reconstruction/original_fastview_native_event_selection.py"
@@ -308,6 +310,7 @@ jobs:
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
+            test_original_native_serialized_event_loader \
             test_original_fastview_native_event_human_owners \
             test_original_fastview_native_event_selection \
             test_original_fastview_tactics_control_layout \
