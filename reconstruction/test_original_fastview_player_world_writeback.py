@@ -394,7 +394,8 @@ class OriginalFastViewStarterExternalSourceCountTests(unittest.TestCase):
             original_417340_result_byte=0,
             original_signed_club_index_word=0,
             native_selected_owner_count_dword=0xFFFFFFFF)
-        self.assertEqual(selected.native_count_after,0xFFFFFFFE)
+        # Original 0x41EE30 TEST/JLE uses SIGNED DWORD positivity: 0xFFFFFFFF=-1.
+        self.assertEqual(selected.native_count_after,0xFFFFFFFF)
 
     def test_unverified_registry_result_and_original_flags_rejected(self):
         good=dict(native_flag14_after_direct=0x1000,
