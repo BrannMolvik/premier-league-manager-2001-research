@@ -121,3 +121,68 @@ def source_fastview_original_event_name_less_51f3c0(
     a=a[:a.index(b"\x00")]
     b=b[:b.index(b"\x00")]
     return a<b
+
+
+NATIVE_FASTVIEW_EVENT_FILTER_AND_SORT_VA = 0x51FA70
+NATIVE_FASTVIEW_EVENT_OBJECT_LIST_START = 0xA4
+NATIVE_FASTVIEW_EVENT_OBJECT_LIST_SORTED_INDEX = 0x2A4
+NATIVE_FASTVIEW_EVENT_MAX_SOURCE_SAFE_CANDIDATES = (
+    (NATIVE_FASTVIEW_EVENT_OBJECT_LIST_SORTED_INDEX
+     - NATIVE_FASTVIEW_EVENT_OBJECT_LIST_START)//4
+)
+
+
+@dataclass(frozen=True)
+class OriginalFastViewNativeEventPointerSortReceipt:
+    original_sorted_source_event_pointers: tuple[int, ...]
+    original_selected_event_sorted_ordinal: int
+
+
+def source_fastview_original_unique_named_event_sort_51fa70(
+    *, original_selected_event_pointer: int,
+    original_51fa70_filtered_candidate_pointers_and_indirect_names:
+        tuple[tuple[int, bytes], ...],
+) -> OriginalFastViewNativeEventPointerSortReceipt:
+    """Only source 0x51FA70's 0x526DF0 comparator/sorted-index stage.
+
+    Caller MUST already resolve complete candidate membership using the
+    original linked event graph and filters in 0x51FA70. Its very first
+    candidate is original selected event, not a new generic fixture.
+    Original 0x526DF0 sorts pointers with comparator 0x51F3C0, which
+    compares the indirect original C-name strings bytewise. A portable
+    sorted order is unambiguous only for DISTINCT source byte names;
+    tied names fail closed until native tie behavior is reproduced.
+    0x51FA70 records selected pointer's new index at owner+0x2A4.
+    """
+    if (type(original_selected_event_pointer) is not int or
+            not 0 < original_selected_event_pointer <= 0xFFFFFFFF):
+        raise OriginalFastViewEventCollectionSourceError(
+            "native selected event pointer required")
+    candidates=original_51fa70_filtered_candidate_pointers_and_indirect_names
+    if (type(candidates) is not tuple or
+            not 1 <= len(candidates) <= NATIVE_FASTVIEW_EVENT_MAX_SOURCE_SAFE_CANDIDATES):
+        raise OriginalFastViewEventCollectionSourceError(
+            "qualified complete original 1..128 filtered event candidate tuple required")
+    pointers=set()
+    names=set()
+    for item in candidates:
+        if type(item) is not tuple or len(item)!=2:
+            raise OriginalFastViewEventCollectionSourceError("original event pointer and C-name pair required")
+        pointer,name=item
+        if (type(pointer) is not int or not 0 < pointer <= 0xFFFFFFFF or
+            type(name) is not bytes or b"\0" not in name):
+            raise OriginalFastViewEventCollectionSourceError(
+                "authentic nonnull event pointer and source resolved original name required")
+        c_name=name[:name.index(b"\0")]
+        if pointer in pointers or c_name in names:
+            raise OriginalFastViewEventCollectionSourceError(
+                "duplicate pointer or ambiguous same-name native event tie requires source runtime")
+        pointers.add(pointer)
+        names.add(c_name)
+    if original_selected_event_pointer not in pointers or candidates[0][0]!=original_selected_event_pointer:
+        raise OriginalFastViewEventCollectionSourceError(
+            "original 0x51FA70 must seed selected event as first source candidate")
+    ordered=sorted(candidates,key=lambda pair:pair[1][:pair[1].index(b"\0")])
+    sorted_ptrs=tuple(event_pointer for event_pointer,_ in ordered)
+    return OriginalFastViewNativeEventPointerSortReceipt(
+        sorted_ptrs,sorted_ptrs.index(original_selected_event_pointer))
