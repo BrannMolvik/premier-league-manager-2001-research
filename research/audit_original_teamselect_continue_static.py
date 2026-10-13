@@ -1530,11 +1530,11 @@ def main(path: str) -> None:
     print("PASS all 4 direct CRT srand callers and save/restore/worldgen inputs")
     print("WARNING ordinary new-game route reachability of reseed paths unknown")
 
-    # Recovery579 distinct GUI management/event window vft+10
+    # Recovery580 correction: PScouting2K scouting window vft+10
     # dispatch event ID31 -> 0x4AE970 -> 0x4AEA48 XOR reseed;
     # conditional null manager-record+0x14 -> 0x4AEAE0/0x4AED01
-    # second XOR reseed. No proof normal first TeamSelect click hits31.
-    source_original_manager_event31_579 = (
+    # second XOR reseed. RTTI rules out calling this a TeamSelect owner.
+    source_original_scouting_event31_580 = (
         ("47bb30","mov    DWORD PTR [esi],0x7c2e6c"),
         ("4adb85","mov    eax,DWORD PTR [eax+0x20]"),
         ("4adb88","dec    eax"),
@@ -1552,14 +1552,27 @@ def main(path: str) -> None:
         ("4aed06","cmp    esi,0x1"),
         ("4aed10","call   0x64d540"),
     )
-    for a,expected in source_original_manager_event31_579:
+    for a,expected in source_original_scouting_event31_580:
         if expected not in instruction(a):
-            raise AssertionError(("Original manager event31 dispatch moved",a))
+            raise AssertionError(("Original PScouting2K event31 dispatch moved",a))
     if struct.unpack_from("<I",binary,0x7c2e6c+0x10-0x400000)[0] != 0x4adb50:
-        raise AssertionError("Original manager event-window vft+0x10 moved")
+        raise AssertionError("Original scouting event-window vft+0x10 moved")
     if struct.unpack_from("<I",binary,0x4ae168+30*4-0x400000)[0] != 0x4ae0fb:
         raise AssertionError("Original 31st event jump table changed")
-    print("PASS event31 management GUI -> source XOR re-seed branch")
+    # Original RTTI CompleteObjectLocator is stored directly BEFORE the vft.
+    # The previous "manager GUI" label was wrong: 0x7C2E6C is PScouting2K.
+    scouting_col = struct.unpack_from("<I", binary, 0x7c2e6c - 0x400000 - 4)[0]
+    scouting_td = struct.unpack_from("<I", binary, scouting_col - 0x400000 + 12)[0]
+    scouting_name_start = scouting_td - 0x400000 + 8
+    scouting_rtti = binary[scouting_name_start:binary.index(b"\\x00", scouting_name_start)]
+    if scouting_rtti != b".?AVPScouting2K@@":
+        raise AssertionError(("Scouting owner RTTI mismatch", scouting_rtti))
+    if direct_calls("4ae970") != ("4ae0fd",):
+        raise AssertionError("Scouting event31 native parent owner changed")
+    if direct_calls("4af7f0") != ("4aea48", "4aed01"):
+        raise AssertionError("Original scouting XOR reseed callers changed")
+    print("PASS PScouting2K RTTI -> event31 -> one/two XOR CRT reseeds")
+    print("WARNING NOT a verified original first TeamSelect manager creation path")
 
     actual_allocators = [
         match.group(1) for match in re.finditer(
