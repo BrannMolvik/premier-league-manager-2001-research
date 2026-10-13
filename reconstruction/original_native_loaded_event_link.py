@@ -40,7 +40,7 @@ class OriginalLoadedEventBaseLinkReceipt:
     source_event_vtable_va: int
     source_virtual24_load_va: int
     source_event_id_dword_0c: int
-    source_event_registry_collection_va: int
+    source_event_registry_collection_va: int | None
     source_saved_link_registry_index: int
     source_resolved_link_pointer_dword_08: int
     source_after_base_load_event_record: bytes
@@ -78,16 +78,17 @@ def source_original_loaded_event_base_link_510900(
         raise OriginalLoadedEventLinkSourceError(
             "authentic saved original base-event DWORD fields required")
     ident=unpack_from("<I",r,0x0C)[0]
-    selected=(SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA if ident & 1
-              else SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA)
     index=original_saved_link_registry_index
     entries=original_source_selected_registry_pointer_entries
     if index==SOURCE_ORIGINAL_EVENT_NULL_LINK_SENTINEL:
         if entries is not None:
             raise OriginalLoadedEventLinkSourceError(
                 "source null sentinel bypasses selected registry dereference")
+        selected=None
         pointer=0
     else:
+        selected=(SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA if ident & 1
+                  else SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA)
         if (type(entries) is not tuple or not 0<=index<len(entries) or
             any(type(value) is not int or not 0<=value<=0xFFFFFFFF for value in entries)):
             raise OriginalLoadedEventLinkSourceError(
