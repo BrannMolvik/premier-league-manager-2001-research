@@ -320,3 +320,37 @@ def source_original_presults_country_event_510c90(
         original_club_record=original_event_second_club_record,
         original_533830_country_indexes_germany_france_england=(
             original_533830_country_indexes_germany_france_england))
+
+
+def source_original_presults_immutable_tick_receipts_4a71f0(
+    *, source_6168c0_event_receipt: OriginalPResultsDatedEventReceipt,
+    original_before_processed_64: int,
+    original_live_denominator_68: int,
+):
+    """Bridge genuine source callback intents to existing GUI progress DTOs.
+
+    Original 0x4A71F0 increments owner+0x64 once AFTER each genuine
+    0x6168C0 event vtable+0x10 callback and repaints via 0x4A7190.
+    The caller MUST supply actual 0x4A7210/0x4A84EA-derived current
+    denominator separately; unlike generic match results, a source
+    callback receipt does not imply that denominator is the count of
+    match events, or that it is immutable across future dates.
+    Returns one immutable OriginalResultsProgress per actual callback,
+    with no queue/UI publication or wall-clock timer effects.
+    """
+    from human_gameplay import OriginalResultsProgress
+    if (type(source_6168c0_event_receipt) is not OriginalPResultsDatedEventReceipt
+        or type(original_before_processed_64) is not int
+        or type(original_live_denominator_68) is not int
+        or not 0<=original_before_processed_64<=SOURCE_PRESULTS_NATIVE_SIGNED_MAX
+        or not 0<=original_live_denominator_68<=SOURCE_PRESULTS_NATIVE_SIGNED_MAX
+        or original_before_processed_64+
+            source_6168c0_event_receipt.source_progress_tick_count
+            >SOURCE_PRESULTS_NATIVE_SIGNED_MAX):
+        raise OriginalPResultsEventSourceError(
+            "authentic source event pass receipt and nonoverflown PResults counters required")
+    return tuple(
+        OriginalResultsProgress(original_before_processed_64+ordinal,
+                                original_live_denominator_68)
+        for ordinal,_ in enumerate(
+            source_6168c0_event_receipt.original_progress_callbacks,1))
