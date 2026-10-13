@@ -60,6 +60,8 @@ from original_fastview_tactics_selection import (
     SourceFastViewX133NativeOption,
     source_fastview_x133_original_option_slots_from_candidates,
     source_fastview_x133_original_selected_player_from_ordinal,
+    source_fastview_x133_zero_prior_selected_edit_value_only,
+    SourceFastViewX133ZeroPriorSelectedEditValue,
 )
 
 
@@ -1728,6 +1730,84 @@ class OriginalFastViewX133PopupListOrdinalSourceTests(unittest.TestCase):
             with self.subTest(va=hex(va)):
                 expected=bytes.fromhex(hx)
                 self.assertEqual(pe.read(va,len(expected)),expected)
+
+
+
+class SourceFastViewX133FirstSelectedEditValueJourneyTests(unittest.TestCase):
+    """Complete original row->option->player->byte transition, NOT Win32 GUI."""
+
+    @staticmethod
+    def fixture():
+        mapped=(3,0,1,2,4,5,6,7,8,9,10,15,12,13,14,11,16,17)
+        data=bytearray(280)
+        struct.pack_into("<I",data,0x14,18)
+        data[0xF0:0xF2]=bytes((18,4))
+        data[0xF2:0x104]=bytes(range(18))
+        struct.pack_into("<I",data,0x18+4*3,0x12345678)
+        struct.pack_into("<I",data,0x60+4*3,0xAABBCCDD)
+        side=OriginalFastViewTacticsSelectionDraft(bytes(data))
+        route=source_fastview_x133_native_input_route_52d0d0(
+            native_child_flags=2,native_registered_event_id=0x8877AE,
+            original_parent_first_callback_return=1,
+            inner_original_base_dispatch_result=1,
+            inner_original_native_selection_index=1,
+            original_child_second_callback_argument_nonzero=True)
+        kw=dict(
+            original_side=side,source_x133_input_route=route,
+            native_source_player_mapping=mapped,native_original_club_roster_count=18,
+            native_enabled_by_player_index=(1,)*18,
+            native_club_guard_by_player_index=(0,)*18,
+            native_current_row_bypass_byte=0)
+        return kw
+
+    def test_original_option_ordinal_one_maps_to_player12_not_roster12_or_visible_row(self):
+        params=self.fixture()
+        result=source_fastview_x133_zero_prior_selected_edit_value_only(**params)
+        self.assertEqual(result.source_visible_row,0)
+        self.assertEqual(result.source_option_ordinal,1)
+        self.assertEqual(result.source_current_player_index,3)
+        self.assertEqual(result.source_replacement_player_index,12)
+        self.assertEqual(result.original_new_staged_record,
+                         SourceFastViewNativeReplacementRecord(3,12))
+        self.assertEqual(result.original_side_after.original_side_bytes[0xF2+3],12)
+        self.assertEqual(result.original_side_after.original_side_bytes[0xF2+12],3)
+        self.assertEqual(result.original_side_after.original_side_bytes[0xF0],17)
+        self.assertEqual(struct.unpack_from("<I",result.original_side_after.original_side_bytes,0x18+4*12)[0],
+                         0x12345678)
+        self.assertEqual(struct.unpack_from("<I",result.original_side_after.original_side_bytes,0x60+4*12)[0],
+                         0xAABBCCDD)
+        self.assertEqual(params["original_side"],self.fixture()["original_side"])
+
+    def test_missing_callback_stale_row_or_invalid_choice_cannot_apply(self):
+        params=self.fixture()
+        mutations=(
+            {"source_x133_input_route":source_fastview_x133_native_input_route_52d0d0(
+                native_child_flags=2,native_registered_event_id=0x8877AE,
+                original_parent_first_callback_return=0,
+                inner_original_base_dispatch_result=None,
+                inner_original_native_selection_index=None,
+                original_child_second_callback_argument_nonzero=True)},
+            {"source_x133_input_route":source_fastview_x133_native_input_route_52d0d0(
+                native_child_flags=2,native_registered_event_id=0x8877AE,
+                original_parent_first_callback_return=1,
+                inner_original_base_dispatch_result=1,
+                inner_original_native_selection_index=0xFFFF,
+                original_child_second_callback_argument_nonzero=True)},
+            {"source_x133_input_route":source_fastview_x133_native_input_route_52d0d0(
+                native_child_flags=2,native_registered_event_id=0x8877AE,
+                original_parent_first_callback_return=1,
+                inner_original_base_dispatch_result=1,
+                inner_original_native_selection_index=99,
+                original_child_second_callback_argument_nonzero=True)},
+            {"native_original_club_roster_count":10},
+            {"native_current_row_bypass_byte":True},
+            {"native_source_player_mapping":[3,0,1]},
+            {"native_club_guard_by_player_index":(0,)*3},
+        )
+        for change in mutations:
+            with self.subTest(change=repr(change)[:150]),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_x133_zero_prior_selected_edit_value_only(**(params | change))
 
 if __name__ == "__main__":
     unittest.main()
