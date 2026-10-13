@@ -18,6 +18,9 @@ from original_fastview_tactics_selection import (
     source_fastview_popup_native_option_rows_6510f0,
     source_fastview_original_popup_option_activation_653a10,
     SourceFastViewOriginalPopupOptionActivation,
+    SourceFastViewPopupOriginalRowHitRectangle,
+    source_fastview_popup_first_native_row_hit_6516f0,
+    source_fastview_original_popup_rich_row_child_pointer_gate,
     OriginalFastViewTacticsSelectionDraft,
     SOURCE_SELECTOR_RULES,
     SOURCE_SIDE_BUFFER_SIZE,
@@ -2081,6 +2084,215 @@ class OriginalFastViewNativePopupOptionSelectedIndexSourceTests(unittest.TestCas
             with self.subTest(address=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
                                  bytes.fromhex(hx))
+
+
+
+class OriginalFastViewPopupFirstPointerHitSourceTests(unittest.TestCase):
+    """Native list vft+0x6C chooses FIRST row whose RECT contains pointer."""
+
+    def test_original_half_open_rectangle_edges_and_first_match(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        rects=(R(10,20,150,35),R(10,35,150,50),R(10,20,150,35))
+        for x,y,expected in ((10,20,0),(149,34,0),(10,35,1),(149,49,1),
+                             (150,20,None),(9,20,None),(10,19,None),
+                             (100,50,None),(10,34,0)):
+            with self.subTest(point=(x,y)):
+                self.assertEqual(source_fastview_popup_first_native_row_hit_6516f0(
+                    pointer_x=x,pointer_y=y,ordered_native_row_rects=rects),expected)
+
+    def test_overlapping_original_rects_prefer_first_and_empty_list_no_hit(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        self.assertEqual(source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=6,pointer_y=7,
+            ordered_native_row_rects=(R(0,0,100,100),R(0,0,100,100))),0)
+        self.assertIsNone(source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=1,pointer_y=1,ordered_native_row_rects=()))
+
+    def test_unverified_pointer_input_or_native_rect_type_rejected(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        good=dict(pointer_x=10,pointer_y=20,
+                  ordered_native_row_rects=(R(10,20,150,35),))
+        for changes in ({"pointer_x":True},{"pointer_y":"20"},
+                        {"pointer_x":0x80000000},
+                        {"ordered_native_row_rects":[R(0,0,10,10)]},
+                        {"ordered_native_row_rects":(None,)},
+                        {"ordered_native_row_rects":(R(True,0,10,10),)},
+                        {"ordered_native_row_rects":(R(0,0,0x80000000,10),)}):
+            with self.subTest(changes=changes),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_popup_first_native_row_hit_6516f0(**(good | changes))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Owner authorized original EXE missing")
+    def test_original_first_hit_vft_and_native_rect_opcodes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        self.assertEqual(struct.unpack("<I",pe.read(0x7BFD5C+0x6C,4))[0],0x6516F0)
+        for va,hx in (
+            (0x6516F0,"53 55 56 57"),
+            (0x6516F4,"8b 7c 24 14"),
+            (0x6516F8,"6a 00"),
+            (0x6516FD,"e8 9e e0 ff ff"),
+            (0x651702,"8b 56 30"),
+            (0x65170B,"8b 76 2c"),
+            (0x65170E,"8b 1f"),
+            (0x651710,"8b 6f 04"),
+            (0x651713,"8d 46 0c"),
+            (0x651716,"3b 58 fc"),
+            (0x65171B,"3b 58 04"),
+            (0x651720,"3b 28"),
+            (0x651724,"3b 68 08"),
+            (0x651729,"41"),
+            (0x65172A,"83 c0 30"),
+            (0x65173E,"8b 14 30"),
+            (0x65174A,"ff 52 6c"),
+            (0x651754,"5f 5e 5d 33 c0"),
+        ):
+            with self.subTest(source=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewNativeRichRowNestedPointerCallbackTests(unittest.TestCase):
+    """Physical rich-row nested child gate is NOT just the 15px popup pitch."""
+
+    def test_registered_source_second_nested_child_accepts_relative_pointer(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        values=dict(rich_item_origin_x=100,rich_item_origin_y=300,
+                    active_child_rectangle=R(5,1,130,14),
+                    native_child_flags=0x183,native_child_registered_event=1)
+        self.assertTrue(source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=105,pointer_y=301,**values))
+        self.assertTrue(source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=229,pointer_y=313,**values))
+        for px,py in ((104,301),(105,300),(230,301),(105,314)):
+            with self.subTest(point=(px,py)):
+                self.assertFalse(source_fastview_original_popup_rich_row_child_pointer_gate(
+                    pointer_x=px,pointer_y=py,**values))
+
+    def test_click_only_emitted_from_enabled_registered_child_no_false_positive(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        args=dict(pointer_x=110,pointer_y=307,
+                  rich_item_origin_x=100,rich_item_origin_y=300,
+                  active_child_rectangle=R(0,0,120,14),
+                  native_child_flags=0x183,native_child_registered_event=1)
+        for delta in ({"native_child_flags":0x181},
+                      {"native_child_flags":0x193},
+                      {"native_child_flags":0x182},
+                      {"native_child_registered_event":0}):
+            with self.subTest(delta=delta):
+                self.assertFalse(source_fastview_original_popup_rich_row_child_pointer_gate(
+                    **(args|delta)))
+        self.assertTrue(source_fastview_original_popup_rich_row_child_pointer_gate(**args))
+
+    def test_native_invalid_coords_flags_and_child_rect_cannot_authorize_callback(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        args=dict(pointer_x=1,pointer_y=2,
+                  rich_item_origin_x=0,rich_item_origin_y=0,
+                  active_child_rectangle=R(0,0,10,10),
+                  native_child_flags=0x183,native_child_registered_event=1)
+        for changed in ({"pointer_x":True},{"rich_item_origin_x":-0x80000001},
+                        {"pointer_y":"2"},{"native_child_flags":-1},
+                        {"native_child_flags":True},{"native_child_registered_event":False},
+                        {"active_child_rectangle":R(0,True,10,10)},
+                        {"active_child_rectangle":None}):
+            with self.subTest(changed=changed),self.assertRaises(
+                SourceFastViewTacticsSelectionError):
+                source_fastview_original_popup_rich_row_child_pointer_gate(**(args|changed))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner original executable not mounted")
+    def test_original_registered_nesting_and_win32_pointer_route_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for vtable,offset,target in (
+            (0x7BE340,0x6C,0x64F7A0),
+            (0x7C0334,0x0C,0x42DE00),
+            (0x7C0334,0x10,0x653A10),
+            (0x7D8118,0x6C,0x650F00)
+        ):
+            with self.subTest(vtable=hex(vtable),offset=hex(offset)):
+                self.assertEqual(struct.unpack("<I",pe.read(vtable+offset,4))[0],target)
+        for va,hx in (
+            (0x4491C5,"c7 46 38 02 00 00 00"),
+            (0x4491CC,"c7 46 3c 01 00 00 00"),
+            (0x4492A5,"8b 4e 20"),
+            (0x4492A8,"89 39"),
+            (0x4492AC,"56"),
+            (0x4492AD,"6a 01"),
+            (0x4492B1,"ff 52 08"),
+            (0x64F3C0,"8b 44 24 04"),
+            (0x64F3C8,"89 41 20"),
+            (0x64F3CB,"89 51 24"),
+            (0x64F30B,"c7 40 18 83 01 00 00"),
+            (0x653480,"83 ec 08"),
+            (0x6534A2,"2b d7"),
+            (0x6534C7,"f6 41 18 01"),
+            (0x6534CD,"3b 51 08"),
+            (0x6534D2,"3b 51 10"),
+            (0x6534D7,"3b 41 0c"),
+            (0x6534DC,"3b 41 14"),
+            (0x6534E7,"6a 01"),
+            (0x6534EA,"ff 52 6c"),
+            (0x64F7A5,"8b 46 18"),
+            (0x64F7AF,"0f 84 9f 00 00 00"),
+            (0x64F7BA,"0f 85 94 00 00 00"),
+            (0x64F811,"85 ed"),
+            (0x64F81C,"ff 50 10"),
+            (0x42DE00,"b8 01 00 00 00"),
+            (0x42DE05,"c2 08 00"),
+        ):
+            with self.subTest(source=hex(va)):
+                self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),
+                                 bytes.fromhex(hx))
+
+
+
+class OriginalFastViewCompleteConditionalRowSelectionChainTests(unittest.TestCase):
+    """Only source-qualified staged inputs; no invented Win32 click simulation."""
+
+    def test_first_native_hit_then_registered_rich_child_posts_real_word_index(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        # Rectangular coordinates are supplied as original live control
+        # data, not derived from content height or screen position.
+        rows=(R(25,70,169,85),R(25,85,169,100),R(25,100,169,115))
+        pointer=(30,93)
+        selected=source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=pointer[0],pointer_y=pointer[1],
+            ordered_native_row_rects=rows)
+        self.assertEqual(selected,1)
+        # Following original 0x650F00->0x650C30->0x653480, this
+        # value-only model qualifies the single enabled rich child.
+        qualifies=source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=pointer[0],pointer_y=pointer[1],
+            rich_item_origin_x=25,rich_item_origin_y=85,
+            active_child_rectangle=R(0,0,144,15),
+            native_child_flags=0x183,native_child_registered_event=1)
+        self.assertTrue(qualifies)
+        posted=source_fastview_original_popup_option_activation_653a10(
+            original_option_ordinal=selected,original_list_index_base=0,
+            original_option_count=len(rows),native_callback_argument=1)
+        self.assertEqual(posted.posted_wm_user,
+                         SourceFastViewPopupPostedMessage(0x400,1,0))
+        selected_result=source_fastview_native_dropdown_posted_wm_user_result(
+            native_message=posted.posted_wm_user.win32_message,
+            native_wparam=posted.posted_wm_user.native_wparam_word)
+        self.assertEqual(selected_result,
+                         SourceFastViewNativeDropdownModalResult(1,0,True))
+
+    def test_a_matching_outer_row_with_no_registered_inner_event_is_not_click(self):
+        R=SourceFastViewPopupOriginalRowHitRectangle
+        self.assertEqual(source_fastview_popup_first_native_row_hit_6516f0(
+            pointer_x=10,pointer_y=10,ordered_native_row_rects=(R(0,0,30,30),)),0)
+        self.assertFalse(source_fastview_original_popup_rich_row_child_pointer_gate(
+            pointer_x=10,pointer_y=10,
+            rich_item_origin_x=0,rich_item_origin_y=0,
+            active_child_rectangle=R(0,0,30,30),
+            native_child_flags=0x183,native_child_registered_event=0))
+        self.assertIsNone(source_fastview_original_popup_option_activation_653a10(
+            original_option_ordinal=0,original_list_index_base=0,
+            original_option_count=1,native_callback_argument=0).posted_wm_user)
 
 if __name__ == "__main__":
     unittest.main()
