@@ -28,6 +28,41 @@ class SourceFastViewTacticsSelectionError(ValueError):
     """A required native selector/event contract is not source verified."""
 
 
+
+# These five 11-ID native event families are distinct from low IDs 4..58.
+# They are selected in 0x52E975..0x52EC9D after the low-ID switch. Source
+# effects are nontrivial and must NOT be simulated by the event classifier.
+SOURCE_PLAYER_CONTROL_EVENT_FAMILIES = (
+    (0x247276, "source_side_action_flag1"),
+    (0x246E8E, "source_side_action_flag0"),
+    (0x2466BE, "player_row_step_decrease"),
+    (0x246AA6, "player_row_step_increase"),
+    (0x8877AE, "source_guarded_player_apply"),
+)
+SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT = 11
+
+
+@dataclass(frozen=True)
+class OriginalFastViewPlayerControlEvent:
+    family: str
+    player_row_index: int
+    native_event_id: int
+
+
+def source_classify_fastview_player_control_event(event_id: int) -> OriginalFastViewPlayerControlEvent:
+    """Read-only source decoder of five original eleven-row event families.
+
+    Never performs original 0x6C2170, 0x633020, 0x6C2770, linked-list changes,
+    preview, or persistent player/match edits. Those remain source dependencies.
+    """
+    if type(event_id) is not int:
+        raise SourceFastViewTacticsSelectionError("source event ID must be an integer")
+    for start, family in SOURCE_PLAYER_CONTROL_EVENT_FAMILIES:
+        if start <= event_id < start + SOURCE_PLAYER_CONTROL_EVENT_ROW_COUNT:
+            return OriginalFastViewPlayerControlEvent(family, event_id - start, event_id)
+    raise SourceFastViewTacticsSelectionError("not an original human FastView player-row event")
+
+
 @dataclass(frozen=True)
 class OriginalFastViewTacticsSelectionDraft:
     """Copy of native 280-byte side buffer, never the live world-state owner."""
