@@ -206,6 +206,7 @@ def build_management_panel_snapshot(
     league_tables_selection: OriginalLeagueTablesSelectionContext | None = None,
     eamail_scroll_offset: int = 0,
     eamail_sort_index: int | None = None,
+    eamail_filter_index: int = 0,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -237,7 +238,8 @@ def build_management_panel_snapshot(
         rows = build_selected_user_original_eam_source_rows(
             bridge,
             original_source_root=bundled_source_root(),
-            filter_index=0, sort_index=eamail_sort_index, scroll_offset=eamail_scroll_offset,
+            filter_index=eamail_filter_index, sort_index=eamail_sort_index,
+            scroll_offset=eamail_scroll_offset,
         )
         return OriginalManagementPanelSnapshot(
             club=club,
@@ -393,6 +395,7 @@ class OriginalManagementPresenter:
     league_tables_selection: OriginalLeagueTablesSelectionContext | None = None
     eamail_scroll_offset: int = 0
     eamail_sort_index: int | None = None
+    eamail_filter_index: int = 0
 
     def __post_init__(self):
         # Recreated UI after source save/load still runs its real constructor;
@@ -419,6 +422,7 @@ class OriginalManagementPresenter:
             league_tables_selection=self.league_tables_selection,
             eamail_scroll_offset=self.eamail_scroll_offset,
             eamail_sort_index=self.eamail_sort_index,
+            eamail_filter_index=self.eamail_filter_index,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -438,6 +442,7 @@ class OriginalManagementPresenter:
         self.league_tables_selection = None
         self.eamail_scroll_offset = 0
         self.eamail_sort_index = None
+        self.eamail_filter_index = 0
         return snapshot
 
     def source_accepted_eamail_scroll(self, control_id: int) -> OriginalManagementPanelSnapshot:
@@ -453,6 +458,7 @@ class OriginalManagementPresenter:
             self.session, self.selected_child_id, bridge_factory=self.bridge_factory,
             expanded_root_id=self.expanded_root_id, eamail_scroll_offset=offset,
             eamail_sort_index=self.eamail_sort_index,
+            eamail_filter_index=self.eamail_filter_index,
         )
         self.eamail_scroll_offset = offset
         return snapshot
@@ -465,9 +471,49 @@ class OriginalManagementPresenter:
             self.session, self.selected_child_id, bridge_factory=self.bridge_factory,
             expanded_root_id=self.expanded_root_id,
             eamail_scroll_offset=self.eamail_scroll_offset, eamail_sort_index=4,
+            eamail_filter_index=self.eamail_filter_index,
         )
         self.eamail_sort_index = 4
         return snapshot
+
+    def source_accepted_eamail_filter_event(self, native_control_event_id: int):
+        """Source-confirmed 0x4721C0 IDs2..11 -> native filter+sort rebuild.
+
+        The caller must independently establish native PEA control-event
+        delivery; the coordinate candidate (22,30+30*i,183,28) alone
+        is NOT permission to call this. Native 0x5D49F0 radio-group
+        selection is exclusive, and 0x4722C3 clears the old preview
+        selection before 0x472680/0x472880. Until original scroll
+        positioning after category changes is fully source-proven,
+        this source boundary rejects a nonzero retained scroll offset
+        rather than inventing a reset/viewport choice. The ordinary
+        host must also clear its selected mail pointer when wiring an
+        actual source-accepted input.
+        """
+        from original_eamail_filter_controls import (
+            project_original_eamail_delivered_filter_event,
+        )
+        if self.selected_child_id != ORIGINAL_EAMAIL_MENU_CHILD_ID:
+            raise OriginalManagementPresentationError(
+                "Original Inbox must own native filter events"
+            )
+        if self.eamail_scroll_offset != 0:
+            raise OriginalManagementPresentationError(
+                "Native filter scroll repositioning is not source-qualified"
+            )
+        projected = project_original_eamail_delivered_filter_event(
+            native_control_event_id=native_control_event_id,
+            previously_selected_filter_index=self.eamail_filter_index,
+            source_filter_event_delivered=True,
+        )
+        snapshot = build_management_panel_snapshot(
+            self.session, self.selected_child_id, bridge_factory=self.bridge_factory,
+            expanded_root_id=self.expanded_root_id,
+            eamail_scroll_offset=0, eamail_sort_index=self.eamail_sort_index,
+            eamail_filter_index=projected.selected_filter_index,
+        )
+        self.eamail_filter_index = projected.selected_filter_index
+        return snapshot, projected
 
     def source_accepted_pbg_direct_inbox_action(self) -> OriginalManagementPanelSnapshot | None:
         """PBg header child ID1 -> 0x4326D6 -> 0x482BF0(0x65).
@@ -494,6 +540,7 @@ class OriginalManagementPresenter:
         self.league_tables_selection = None
         self.eamail_scroll_offset = 0
         self.eamail_sort_index = None
+        self.eamail_filter_index = 0
         return snapshot
 
     def source_accepted_pmenu_action(
