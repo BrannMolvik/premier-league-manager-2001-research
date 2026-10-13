@@ -171,15 +171,46 @@ def source_original_presults_native_current_date_two_pass_6168c0(
 
 
 @dataclass(frozen=True)
+class OriginalPResultsNativePreCountNode:
+    """Pre-count virtual+0x0C short-circuits later node+8/payload reads."""
+    original_event_pointer: int
+    source_virtual_0c_nonzero: bool
+    reached_event8: int | None = None
+    reached_payload44: int | None = None
+
+    def __post_init__(self):
+        if (type(self.original_event_pointer) is not int or
+            not 0<self.original_event_pointer<=0xFFFFFFFF or
+            type(self.source_virtual_0c_nonzero) is not bool):
+            raise OriginalPResultsEventSourceError("precount source event pointer and virtual result required")
+        if not self.source_virtual_0c_nonzero:
+            if self.reached_event8 is not None or self.reached_payload44 is not None:
+                raise OriginalPResultsEventSourceError(
+                    "native virtual+0x0C zero bypasses original event+8 and payload getters")
+            return
+        if (type(self.reached_event8) is not int or
+            not 0<=self.reached_event8<=0xFFFFFFFF):
+            raise OriginalPResultsEventSourceError("original reached event+8 DWORD required")
+        if self.reached_event8:
+            if self.reached_payload44 is not None:
+                raise OriginalPResultsEventSourceError(
+                    "native nonzero event+8 bypasses original payload+0x44 getter")
+            return
+        if (type(self.reached_payload44) is not int or
+            not 0<=self.reached_payload44<=0xFFFFFFFF):
+            raise OriginalPResultsEventSourceError("original reached payload+0x44 DWORD required")
+
+
+@dataclass(frozen=True)
 class OriginalPResultsNativeDateBucket:
     original_date_index: int
-    original_linked_nodes: tuple[OriginalPResultsNativeQueuedEvent, ...]
+    original_linked_nodes: tuple[OriginalPResultsNativePreCountNode, ...]
 
     def __post_init__(self):
         if (type(self.original_date_index) is not int or
             not 0<=self.original_date_index<=SOURCE_PRESULTS_NATIVE_SIGNED_MAX or
             type(self.original_linked_nodes) is not tuple or
-            any(type(e) is not OriginalPResultsNativeQueuedEvent
+            any(type(e) is not OriginalPResultsNativePreCountNode
                 for e in self.original_linked_nodes)):
             raise OriginalPResultsEventSourceError(
                 "original date and authentic linked native event nodes required")
@@ -221,8 +252,8 @@ def source_original_presults_precount_4a7210(
             raise OriginalPResultsEventSourceError(
                 "native dated 0x947AD8 original sequential buckets required")
         for e in bucket.original_linked_nodes:
-            if (e.source_virtual_0c_nonzero and e.before_event8==0 and
-                not e.before_payload44 & SOURCE_PRESULTS_FILTER_BIT):
+            if (e.source_virtual_0c_nonzero and e.reached_event8==0 and
+                not e.reached_payload44 & SOURCE_PRESULTS_FILTER_BIT):
                 total+=1
                 if total>SOURCE_PRESULTS_NATIVE_SIGNED_MAX:
                     raise OriginalPResultsEventSourceError(
