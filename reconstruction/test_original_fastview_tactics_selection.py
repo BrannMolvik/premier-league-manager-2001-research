@@ -25,7 +25,7 @@ from original_fastview_tactics_selection import (
     SOURCE_HUMAN_TACTICS_CALLBACK_SECOND,
     SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE,
     SOURCE_NATIVE_STATUS_BYTE_GETTER,
-))
+)
 
 
 def source_draft(values=(1, 0, 0, 0)):
