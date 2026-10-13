@@ -23,3 +23,12 @@ Reproduce authorized read-only source:
     objdump -D -Mintel --start-address=0x6528d0 --stop-address=0x652940 footballmanager.exe
     objdump -D -Mintel --start-address=0x6042b0 --stop-address=0x604350 footballmanager.exe
     sha256sum Fonts/Zurich_BdXCn_BT_18pixel.fnt
+
+## Original 0x651BA0 native text bounding (additional exact source evidence)
+
+Original `0x6528D0` delegates to `0x651E30`, which calls `0x651BA0`. Native `0x651BA0` first requires a nonnull font pointer; when present, it reads **native font object +0x14 and +0x18**, pushes those two font geometry values alongside source caller x/y into `0x64F380`, and assigns the font pointer to **text control +0x2C**. If the font pointer is null, the two dimensions are zero. It does **not** use the source filter group 183×28 rectangle directly as text clipping. This is a concrete source counterexample: do NOT derive a filter label's complete glyph clipping rectangle from the 183×28 parent group bounds. The original text control at +0x48 has its own resource-derived geometry; downstream text drawing still must be audited.
+
+Source 0x651C40 also selects colors from control state and object at +0x30, but the full original 0x2001 flags, alpha/color packing and clipped glyph drawing for this final text owner are not yet verified. Source font hash/origin identity proven, no GUI glyph acceptance.
+
+    objdump -D -Mintel --start-address=0x651ba0 --stop-address=0x651be0 footballmanager.exe
+    objdump -D -Mintel --start-address=0x651c40 --stop-address=0x651d20 footballmanager.exe
