@@ -198,3 +198,23 @@ New first-hand original PE source trace and counterexample review tightened the 
 All **28 selected new native-machine-code sites** were independently checked via PE virtual address against the owner-authenticated original, with one mispointed read address corrected from `0x532E87` to verified `0x532E85` in the feature-branch regression before acceptance. Relevant methods are added to the opt-in original source test on the same unmerged branch; no original executable was launched or played. The previous human/CPU, four selector labels, 280-byte per-side accepted path and outer match callback work remain relevant, but **these mutation semantics are a required integration dependency**.
 
 **Next source task:** inspect genuine `0x6C2830` preview recomputation, the `0x632B70` source list element types/0x981C78 registry model, and actual source `0x52EF00` linked event/control producer. Determine how to stage source-equivalent state to support in-match human and CPU tactics without invented placeholder effects, especially across multiple original human users, repeated NEXT/match results and save/load. When a complete source-recoverable unit is found, integrate with local tests and review without lowering native Windows 11 GUI acceptance.
+
+
+## Recovery587 private original FastViewTactics art and source preview ordering
+
+The authenticated private extracted original FM2001 source Drive tree at `FM2001/FM2001_Art/FastView/` was inspected directly, without extracting the huge disc image. Six **actual native files** were independently byte-fetched, privately hashed and examined. Neither actual files nor image contents were committed to the public repository:
+
+| Original native basename | Google Drive original file ID | Raw bytes | SHA-256 |
+| --- | --- | ---: | --- |
+| `tactics_arrow_left.444` | `13v8WdFahaTwZ1hSuHewKjFegoenGmHjZ` | 1,552 | `a770e85f2dc82927ae7141a6c6286b0044fae2e354c74df8ceee54437552383c` |
+| `tactics_arrow_left_2.444` | `1v9LJkUj40YLeBmyhttHAdY49x-UlFjgn` | 1,628 | `070ce08a38739a8ab32e275e9ea4220214799a5ec207cd098a825c899f2755e6` |
+| `tactics_arrow_right.444` | `14e5Sxz2ZILydbE817T_9YT3M3VNtanKU` | 1,592 | `2778776df231ca6e6b380c47aaecfaee47fe09fcfc4aeeb9b80663f9f4effea7` |
+| `tactics_arrow_right_2.444` | `1kxRZWwuPZvLyPvlM9OcKZpFrjJkSccid` | 1,664 | `4b6e807b9c9d06928fe46228d2348b95c67ff46a69e86be70302fe82e2cbfc6e` |
+| `tactics_popup_1.444` | `1SgoYnkfkhfnG8yO-uKGtwOoQ7LtvBcZl` | 184,624 | `4b9f43545d5ef890baed7fcce1938a399abb3162602f97dd0ef180ece63e406a` |
+| `tactics_popup_2.444` | `1qH7qqSIrrjQ9xOT8yqdehx_YnJLSJ2vC` | 180,392 | `adc091388c6776dd3f7cfe9eff7f8b6604eeef98ee0b180f54f1ce22c80c0115` |
+
+Native EA444 header begins 2-byte little-endian width / 2-byte height: both original popup images report **760×400**, while all four native arrow images report **11×48**. Original executable string literals reference these exact paths, plus `FM2001_Art/FastView/Tactics_Injured.444`, `Tactics_SentOff.444`, `Tactics_Booked.444` (some source paths use `reused_Art/`). The use of specific popup variant for human vs CPU, sprite frame count, actual draw positions, clip/target rectangles and input hit zones still require **the relevant native resource owner** and original UI source trace; image header dimensions alone cannot establish the rendered screen or substitute a game GUI. Retain private/source access; do not assume files can be freely committed or render without asset-policy/provenance approval.
+
+Original source preview method `0x6C2830`, called from original live human editor preview routine `0x52EF00`, is also **source verified**: for each source slot index **0..10** it tests original team/player-role matching via `0x6C1E50`, then, if allowed, writes a new monotonically assigned index to `source_payload+0x60+4*selected`; loops over original category indices **1..19** (`cmp index,0x14`). This is a rank/order recomputation for exactly 11 selected entries, not merely visible form text. The exact sporting names/constraints for categories `0x6C1E50` are still unresolved; do not invent them. Independently 8/8 original byte assertions passed and are now preserved as opt-in source tests.
+
+**Next actionable source/implementation dependency:** recover original native resource owners and exact rectangles/hit-testing for popup/arrow assets; trace 0x532E40/0x532EB0 player state effects, 0x632B70 accepted-list registry updates, 0x6C1E50 role matching and 0x52F0F0/1A0/1F0/240 text controls. Once supported, wire a source-correct live FastViewTactics input and restore under original match R1, including CPU panel and PResults. Gate13–17 remain OPEN, no original process or Win11 GUI run, no PR/CI for partial research branch.
