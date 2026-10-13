@@ -9,6 +9,9 @@ from original_fastview_tactics_control_layout import (
     NATIVE_AUXILIARY_PLAYER_ROW_FAMILIES,
     NATIVE_AUXILIARY_EVENT_FIELD_OFFSET,
     NATIVE_FIRST_AUXILIARY_ROW_SIZE,
+    NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET,
+    NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE,
+    NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA,
     NATIVE_SECOND_AUXILIARY_DIMENSIONS_OWNER_VA,
     NATIVE_SECOND_AUXILIARY_DIMENSIONS_OFFSETS,
     NATIVE_SECOND_AUXILIARY_RECT_WRAPPER,
@@ -438,6 +441,42 @@ class NativeFastViewSourceSizedAuxiliaryRectangleTests(unittest.TestCase):
             with self.subTest(dimensions=repr(invalid)), self.assertRaises(ValueError):
                 dynamic.native_source_rect_from_original_dimensions(
                     original_resource_dimensions=invalid)
+
+    def test_each_first_auxiliary_row_uses_real_screen_text_pointer(self):
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_FIRST_OFFSET, 0x374)
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_SOURCE_TEXT_BUFFER_STRIDE, 0x20)
+        self.assertEqual(NATIVE_FIRST_AUXILIARY_TEXT_RESOURCE_OWNER_VA, 0x87BEA0)
+        controls = original_fastview_auxiliary_player_row_controls()
+        for row in range(11):
+            first, second = controls[2*row:2*row+2]
+            with self.subTest(row=row):
+                self.assertEqual(first.native_original_text_buffer_offset,
+                                 0x374+0x20*row)
+                self.assertEqual(first.native_original_text_resource_owner_va,
+                                 0x87BEA0)
+                self.assertIsNone(second.native_original_text_buffer_offset)
+                self.assertIsNone(second.native_original_text_resource_owner_va)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Authenticated original executable is not mounted")
+    def test_original_all_eleven_text_pointer_source_sites(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        first_call_sites = (
+            0x527FBE, 0x5283AC, 0x5287BA, 0x528BE3, 0x52900C,
+            0x52943B, 0x529879, 0x529CC3, 0x52A116, 0x52A56C,
+            0x52A9C2,
+        )
+        for row, va in enumerate(first_call_sites):
+            with self.subTest(row=row):
+                self.assertEqual(
+                    pe.read(va-0x1B, 6),
+                    b"\\x8d\\x86" + pack("<I", 0x374 + 0x20*row)
+                )
+                self.assertEqual(
+                    pe.read(va-18, 5),
+                    b"\\x68" + pack("<I", 0x87BEA0)
+                )
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                          "Authenticated original executable is not mounted")
