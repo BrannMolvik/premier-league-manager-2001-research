@@ -394,3 +394,63 @@ def source_fastview_6c2770_side_payload_value_only(
         (1 if source_club_guard_flags[source_to_player_index] != 0 else 0)
     ) & 0xFF
     return OriginalFastViewTacticsSelectionDraft(bytes(data))
+
+
+# Native 0x651AC0 is itself a wrapper over base 0x64F7A0.
+# The original child selection result is NOT a source mouse click.
+SOURCE_FASTVIEW_AUX_CHILD_INPUT_VA = 0x651AC0
+SOURCE_FASTVIEW_AUX_CHILD_SELECTION_SENTINEL = 0xFFFF
+SOURCE_FASTVIEW_AUX_CHILD_LIST_RESULT_OFFSET = 0x3C
+SOURCE_FASTVIEW_AUX_CHILD_STATUS_OFFSET = 0x40
+SOURCE_FASTVIEW_AUX_CHILD_OWN_EVENT_OFFSET = 0x20
+SOURCE_FASTVIEW_AUX_CHILD_PARENT_OFFSET = 0x24
+SOURCE_FASTVIEW_AUX_CHILD_SELECTED_RENDER_OWNER_OFFSET = 0x34
+SOURCE_FASTVIEW_AUX_CHILD_ROW_ITEM_ARRAY_OFFSET = 0x38
+SOURCE_FASTVIEW_AUX_CHILD_PARENT_CALLBACK_VSLOT = 0x10
+
+
+@dataclass(frozen=True)
+class SourceFastViewAuxChildInputOutcome:
+    """Only the reached 0x651AC0 fields; no GUI event inferred."""
+    source_handled: bool
+    source_status_byte: int | None
+    source_saved_selected_index: int | None
+    native_parent_second_callback_reached: bool
+
+
+def source_fastview_aux_child_input_outcome_651ac0(
+    *, base_dispatch_result: int,
+    native_selection_index: int | None,
+    child_has_registered_event: bool,
+    child_input_callback_argument_nonzero: bool,
+) -> SourceFastViewAuxChildInputOutcome:
+    """Conservatively project the native child post-base control-flow.
+
+    0x651ACB runs base 0x64F7A0; when it returns zero, native 0x651AD2
+    returns without evaluating or updating selection/status. Otherwise
+    the child obtains vft+0x98 -> +0x9C and collection vft+0x20
+    selection index. 0xFFFF writes status1, other values write status0
+    and child+0x3C=index. 0x651B3F..0x651B55 *regardless of sentinel*
+    invokes parent+0x10 iff child+0x20 !=0 and callback argument !=0.
+    It does not necessarily prove a complete original mouse click or
+    the subsequent mutation, even if status0 and callback reached.
+    """
+    if type(base_dispatch_result) is not int or not 0 <= base_dispatch_result <= 0xFFFFFFFF:
+        raise SourceFastViewTacticsSelectionError("native base DWORD return required")
+    if type(child_has_registered_event) is not bool or type(child_input_callback_argument_nonzero) is not bool:
+        raise SourceFastViewTacticsSelectionError("original registered event and argument presence required")
+    if base_dispatch_result == 0:
+        if native_selection_index is not None:
+            raise SourceFastViewTacticsSelectionError("base denied input; selection result unavailable")
+        return SourceFastViewAuxChildInputOutcome(False, None, None, False)
+    if type(native_selection_index) is not int or not 0 <= native_selection_index <= 0xFFFF:
+        raise SourceFastViewTacticsSelectionError("native list selection WORD required")
+    missing = native_selection_index == SOURCE_FASTVIEW_AUX_CHILD_SELECTION_SENTINEL
+    return SourceFastViewAuxChildInputOutcome(
+        source_handled=not missing,
+        source_status_byte=1 if missing else 0,
+        source_saved_selected_index=None if missing else native_selection_index,
+        native_parent_second_callback_reached=(
+            child_has_registered_event and child_input_callback_argument_nonzero
+        ),
+    )
