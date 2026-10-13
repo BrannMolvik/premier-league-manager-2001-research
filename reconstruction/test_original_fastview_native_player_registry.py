@@ -179,7 +179,7 @@ class OriginalPlayerRegistrySourceIdentityTests(unittest.TestCase):
             0x533c38:"8b 0d 44 56 87 00",
             0x533c46:"ff 12",
             0x533c48:"8b 88 48 02 00 00",
-            0x533d00:"8b 0d 44 56 87 00",
+            0x533cfe:"8b 0d 44 56 87 00",
             0x533d12:"ff 12",
             0x533d34:"8b b0 48 02 00 00",
             0x7bda78:"90 6f 41 00",
