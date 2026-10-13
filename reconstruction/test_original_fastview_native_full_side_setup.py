@@ -90,7 +90,6 @@ class OriginalNativeTwoSidedFirstLoopTests(unittest.TestCase):
         self.assertEqual(right[0x40:0x40+12],b"Secondary 1\0")
         self.assertEqual(tuple(unpack_from("<3I",left,0x80)),(44,1,0x1234))
         self.assertEqual(tuple(unpack_from("<3I",right,0x80)),(55,0,0x1235))
-        self.assertEqual(tuple(unpack_from("<3I",left,0x8C)),(2,0xB6B6B6B6,0)) if False else None
         self.assertEqual(tuple(unpack_from("<I",left,offset)[0] for offset in (0x8C,0xA4,0xBC)),(2,1,2))
         self.assertEqual(tuple(unpack_from("<2I",left,0x90)),(0,1))
         self.assertEqual(unpack_from("<I",right,0x8C)[0],0)
