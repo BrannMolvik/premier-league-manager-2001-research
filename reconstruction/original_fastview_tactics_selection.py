@@ -65,6 +65,20 @@ SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_ACCEPTED_RETURN = 1
 SOURCE_NATIVE_STATUS_BYTE_GETTER = 0x651AB0
 SOURCE_NATIVE_STATUS_BYTE_OFFSET = 0x40
 
+# Source 0x52EBB8..0x52EC23 uses the current visible row's source
+# mapping, STATUS byte at +0x40, and linked-list registry guard
+# 0x633020. Only when both returned bytes are ZERO does the actual
+# native 0x6C2770 operation run. This is a necessary-only predicate;
+# 0x633020 traverses, evaluates and mutates temporary linked lists,
+# so its output CANNOT be inferred merely from visible row or count.
+SOURCE_FIFTH_ROW_VALIDATOR_CALL = 0x633020
+SOURCE_FIFTH_ROW_NATIVE_MUTATION = 0x6C2770
+SOURCE_FIFTH_ROW_GUARD_LIST_OFFSET = 0x48A4
+SOURCE_FIFTH_ROW_POST_VALIDATOR_JNE = 0x52EC17
+SOURCE_FIFTH_ROW_NATIVE_MUTATION_CALL = 0x52EC23
+SOURCE_FIFTH_ROW_COUNT_GETTER = 0x633240
+
+
 
 def source_fastview_native_base_dispatch_flags_allow_processing(flags: int) -> bool:
     """Source preconditions in 0x64F7A0, *not* a complete mouse hit-test.
@@ -94,6 +108,29 @@ def source_fastview_first_callback_8877ae_row(event_id: int) -> int | None:
     ):
         return event_id - SOURCE_HUMAN_TACTICS_FIRST_CALLBACK_EVENT_BASE
     return None
+
+
+def source_fastview_fifth_family_action_followup_gates(
+    native_status_byte: int, native_validator_result: int
+) -> bool:
+    """Return *necessary gates only*, never emulate native player mutation.
+
+    FastViewTactics 0x52EBE3 skips the mutation if child+0x40 is
+    nonzero; 0x52EC17 independently skips if 0x633020 returns nonzero.
+    Source 0x633020 returns zero for count0, so empty queued lists
+    must not be invented as an unconditional rejection. Its full
+    nonempty traversal and source side effects remain opaque here.
+    A true result does NOT perform 0x6C2770, enqueue 0x6335D0,
+    guarantee valid live player/club state, or authorize a port click.
+    """
+    status_clear = source_fastview_guarded_status_allows_followup(
+        native_status_byte
+    )
+    if type(native_validator_result) is not int or not (0 <= native_validator_result <= 255):
+        raise SourceFastViewTacticsSelectionError(
+            "unsigned byte returned by original native validator required"
+        )
+    return status_clear and native_validator_result == 0
 
 
 def source_fastview_guarded_status_allows_followup(native_status_byte: int) -> bool:
