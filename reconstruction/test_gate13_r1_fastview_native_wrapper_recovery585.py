@@ -296,5 +296,48 @@ class OriginalR1FastViewNativeWrapperRecovery585Tests(unittest.TestCase):
                 self.assertEqual(pe.read(address, len(want)), want)
 
 
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable not mounted")
+    def test_mode2_70_dword_side_buffers_confirm_and_live_prepare(self):
+        """Separate 280-byte per-side state from the 80-byte player snapshot."""
+        from gate13_button_source_trace import OriginalPE32
+        pe = OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites = (
+            (0x52D3C3, "89 86 90 00 00 00"),      # screen receives selected side
+            (0x533203, "e8 e8 ea 18 00"),        # reset two side flags
+            (0x6C1C26, "8b 04 8d f0 45 a1 00"), # side flag selector
+            (0x6C1C3E, "b9 46 00 00 00"),       # 70 DWORD alternate read
+            (0x6C1C46, "8d 34 c5 f8 45 a1 00"),# +side*280 alternate buffer
+            (0x6C1C4D, "f3 a5"),                 # alternate copy
+            (0x6C1C5B, "8d 34 cd 98 48 a1 00"),# +side*280 default buffer
+            (0x6C1C62, "b9 46 00 00 00"),
+            (0x6C1C67, "f3 a5"),                 # default copy
+            (0x6C1C81, "b9 46 00 00 00"),      # 70 DWORD alternate write
+            (0x6C1C8B, "8d 3c c5 f8 45 a1 00"),
+            (0x6C1C92, "f3 a5"),
+            (0x6C1C95, "c7 04 95 f0 45 a1 00 01 00 00 00"), # flag 1
+            (0x6C1CC1, "b9 46 00 00 00"),      # 70 DWORD commit from screen
+            (0x6C1CCB, "8d 3c c5 98 48 a1 00"),
+            (0x6C1CD2, "f3 a5"),
+            (0x6C1CD5, "c7 04 95 f0 45 a1 00 00 00 00 00"), # flag 0
+            (0x6C1CF2, "a3 f0 45 a1 00"),      # mode2 first side reset
+            (0x6C1CF7, "a3 f4 45 a1 00"),      # mode2 second side reset
+            (0x6C1D15, "b9 85 01 00 00"),      # 389 DWORD side producer
+            (0x6C1D1A, "8d 3c 95 d0 4a a1 00"),
+            (0x6C1D21, "f3 a5"),
+            (0x6C1D5B, "b9 46 00 00 00"),      # producer-to-default 70 DWORDs
+            (0x6C1D64, "8d 1c c5 98 48 a1 00"),
+            (0x6C1D6F, "f3 a5"),
+            (0x52E911, "e8 9a 33 19 00"),     # conditional native commit
+            (0x52E919, "66 33 d2"),           # native result from BOOL
+            (0x52E921, "e8 ca 50 12 00"),
+        )
+        for address, code in sites:
+            with self.subTest(address=hex(address)):
+                want = bytes.fromhex(code)
+                self.assertEqual(pe.read(address, len(want)), want)
+
+
 if __name__ == "__main__":
     unittest.main()
