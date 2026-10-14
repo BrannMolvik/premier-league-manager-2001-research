@@ -37,6 +37,12 @@ on:
       - "reconstruction/test_original_native_615c50_linked_chain.py"
       - "reconstruction/original_native_615d10_linked_slot_walk.py"
       - "reconstruction/test_original_native_615d10_linked_slot_walk.py"
+      - "reconstruction/original_native_v3c_world_flag_clear.py"
+      - "reconstruction/test_original_native_v3c_world_flag_clear.py"
+      - "reconstruction/original_native_5cfa20_due_event_transfer.py"
+      - "reconstruction/test_original_native_5cfa20_due_event_transfer.py"
+      - "reconstruction/original_native_413020_type12_human_route.py"
+      - "reconstruction/test_original_native_413020_type12_human_route.py"
       - "reconstruction/original_native_514520_slot_activation.py"
       - "reconstruction/test_original_native_514520_slot_activation.py"
       - "reconstruction/original_native_510ba0_insertion_entry.py"
@@ -370,6 +376,9 @@ jobs:
             test_original_native_615c50_reached_candidate \
             test_original_native_615c50_linked_chain \
             test_original_native_615d10_linked_slot_walk \
+            test_original_native_v3c_world_flag_clear \
+            test_original_native_5cfa20_due_event_transfer \
+            test_original_native_413020_type12_human_route \
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
             test_original_native_615890_slot_window \
