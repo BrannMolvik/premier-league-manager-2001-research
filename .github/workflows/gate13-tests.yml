@@ -25,6 +25,8 @@ on:
       - "reconstruction/test_original_native_v38_score_stage.py"
       - "reconstruction/original_native_v38_bit2_reached_tail.py"
       - "reconstruction/test_original_native_v38_bit2_reached_tail.py"
+      - "reconstruction/original_native_v38_thread_rng.py"
+      - "reconstruction/test_original_native_v38_thread_rng.py"
       - "reconstruction/human_gameplay.py"
       - "reconstruction/test_original_primary_match_mode_transaction.py"
       - "reconstruction/original_fastview_tactics_selection.py"
@@ -342,6 +344,7 @@ jobs:
             test_original_native_v38_linked_event_source \
             test_original_native_v38_score_stage \
             test_original_native_v38_bit2_reached_tail \
+            test_original_native_v38_thread_rng \
             test_original_primary_match_mode_transaction \
             test_original_fastview_tactics_selection \
             test_original_fastview_two_sided_live_writeback \
