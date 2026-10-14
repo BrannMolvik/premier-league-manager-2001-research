@@ -29,6 +29,10 @@ from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiv
 from game_state import GameCalendar, GameState
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from original_eamail_pending import OriginalPendingTransferEAMQueue
+from original_native_player_discipline_state import (
+    snapshot_original_native_discipline,
+    restore_original_native_discipline,
+)
 from original_human_user_name import OriginalHumanUserName
 from gate17_country_allocation_scope import (
     PlayableCountryAllocationPlan,
@@ -1547,6 +1551,11 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         # Pending MPM events remain serialized in their separate arrays.
         "original_delivered_mailboxes": state.original_delivered_mailboxes.snapshot(),
         "original_pending_transfer_eam": state.original_pending_transfer_eam.snapshot(),
+        # Sparse source-owned original discipline, never the positional generic
+        # player record. Absence in old snapshots means no qualified native state.
+        "original_native_player_discipline": snapshot_original_native_discipline(
+            state.native_player_discipline
+        ),
         "user_youth": _snapshot_youth_state(state.user_youth),
         "user_sacking_reason": (
             None
@@ -1761,6 +1770,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         ),
         original_pending_transfer_eam=OriginalPendingTransferEAMQueue.restore(
             snapshot.get("original_pending_transfer_eam")
+        ),
+        native_player_discipline=restore_original_native_discipline(
+            snapshot.get("original_native_player_discipline"), set(players)
         ),
         user_youth=_restore_youth_state(snapshot.get("user_youth")),
         user_sacking_reason=(
