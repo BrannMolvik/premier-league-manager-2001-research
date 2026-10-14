@@ -3578,11 +3578,8 @@ class GameState:
         result = live.record_result(token, int(home_goals), int(away_goals))
         live.publish_exact_ranking(
             self.cup_results,
-            lambda club_id: (
-                None
-                if int(club_id) not in self.clubs
-                or not hasattr(self.clubs[int(club_id)], "short_name")
-                else str(self.clubs[int(club_id)].short_name).encode("cp1252")
+            lambda club_id: _original_pl_short_name_bytes(
+                self.clubs, int(club_id)
             ),
         )
         self.refresh_procedural_league_group_position_rankings(
