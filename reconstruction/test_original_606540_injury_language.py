@@ -208,6 +208,18 @@ class SourceQualified606540NoticeTitlesTests(TestCase):
                 slot = 0x87AC28 - ordinal * 4
                 self.assertIn(pack("<I", slot),
                               source[function - 0x400000:function - 0x400000 + 128])
+        from original_eamail_language import ORIGINAL_606540_BODY_ROUTES
+        for constructor, (vtable, callback, ordinal, ids) in ORIGINAL_606540_BODY_ROUTES.items():
+            with self.subTest(body_constructor=hex(constructor)):
+                self.assertEqual(
+                    unpack_from("<I", source, vtable - 0x400000 + 0x1C)[0], callback
+                )
+                for variant, string_id in enumerate(ids):
+                    index = ordinal + variant
+                    self.assertEqual(self.original.index.string_ids[index], string_id)
+                    slot = 0x87AC28 - index * 4
+                    self.assertIn(pack("<I", slot),
+                                  source[callback - 0x400000:callback - 0x400000 + 0x250])
 
 
 if __name__ == "__main__":
