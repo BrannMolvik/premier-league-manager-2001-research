@@ -154,6 +154,38 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
         self.assertEqual(tuple(item.serial for item in done.user_notices),(1,2))
         self.assertEqual(Original606540PortableWorld.restore(done.snapshot()),done)
 
+    def test_due_7d7760_player_expiry_never_silently_dropped_from_same_day(self):
+        r=source(family=0,manager_key=777)
+        state=queued(Original606540PortableWorld(),r)
+        world=scan(r)
+        first=world.ordered_source_nodes[0]
+        link=bytearray(first.wrapper_before)
+        pack_into("<I",link,4,0x61000)
+        player_expiry=bytearray(20)
+        pack_into("<I",player_expiry,0,0x7D7760)
+        pack_into("<I",player_expiry,4,0)
+        pack_into("<I",player_expiry,8,1)
+        pack_into("<I",player_expiry,12,0xB0000)
+        second=Original613EE0LinkedEvent(
+            0x61000,pack("<III",0x90000,0,0x60000),
+            0x90000,bytes(player_expiry),
+        )
+        header=bytearray(world.global_947aa8_header_before)
+        pack_into("<I",header,8,0x61000)
+        mixed=replace(
+            world,
+            global_947aa8_header_before=bytes(header),
+            ordered_source_nodes=(replace(first,wrapper_before=bytes(link)),second),
+        )
+        with self.assertRaisesRegex(Original606540PortableWorldError,"7D7760"):
+            state.apply_original_due_batch(
+                reached_global_scan=mixed,
+                original_due_notices=((1,r),),
+                registered_manager_keys=(777,),
+            )
+        self.assertEqual(state.pending[0].serial,1)
+        self.assertEqual(state.user_notices,())
+
     def test_future_date_is_never_consumed_and_wrong_owner_rolls_back(self):
         r=source(family=0,manager_key=777)
         state=queued(Original606540PortableWorld(),r)
