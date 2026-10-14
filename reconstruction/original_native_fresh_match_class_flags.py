@@ -177,7 +177,9 @@ def source_original_fresh_match_event_serial_510380(
     flags=source.initial_original_flags44
     kind=source.source_native_virtual28_kind
     if (type(flags) is not int or flags & ~SOURCE_ORIGINAL_CUP_FLAG_BITS or
-        (kind in SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS and flags != 0)):
+        (kind in SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS and flags != 0) or
+        (kind==3 and flags&0x06!=0x06) or
+        (kind==5 and not flags&0x04)):
         raise OriginalFreshMatchFlagsSourceError(
             "original constructor flags are inconsistent with reached source class")
     expected_collection=(
