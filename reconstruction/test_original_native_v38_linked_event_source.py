@@ -7,6 +7,7 @@ import unittest
 from original_native_v38_linked_event_source import (
     NativeV38LinkedEventSourceError,
     source_native_513570_nonzero_event_entry,
+    source_original_v38_event_kind_predicates,
 )
 
 
@@ -53,6 +54,31 @@ class NativeV38LinkedEntryTests(unittest.TestCase):
                     original_context=context(a, b))
                 self.assertEqual(x.first_dispatch, expected)
                 self.assertTrue(x.needs_original_event_callback_resolution)
+
+
+    def test_exact_original_event_predicates_are_separate(self):
+        cases = (
+            (8, 0, (True, False, False, False)),
+            (7, 0, (False, True, False, False)),
+            (9, 0, (False, False, True, False)),
+            (0, 0, (False, False, False, True)),
+            (4, 3, (False, False, False, True)),
+            (4, 2, (False, False, False, False)),
+            (5, 0, (False, False, False, False)),
+            (0xFFFFFFFF, 0, (False, False, False, False)),
+        )
+        for kind, owner, expected in cases:
+            with self.subTest(kind=kind, owner=owner):
+                raw = bytearray(0x2C)
+                pack_into("<I", raw, 0x28, kind)
+                pack_into("<I", raw, 0x24, owner)
+                self.assertEqual(
+                    source_original_v38_event_kind_predicates(
+                        original_event_record=bytes(raw)), expected)
+        for bad in (None, bytearray(0x2C), bytes(0x2B)):
+            with self.assertRaises(NativeV38LinkedEventSourceError):
+                source_original_v38_event_kind_predicates(
+                    original_event_record=bad)
 
     def test_only_original_full_context_bytes_accepted(self):
         for bad in (None, bytearray(0xD14), b"", bytes(0xD13)):
