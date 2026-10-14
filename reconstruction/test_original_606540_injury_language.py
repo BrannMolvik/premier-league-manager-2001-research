@@ -80,6 +80,84 @@ class SourceQualified606540NoticeTitlesTests(TestCase):
             "Ankle injury",
         )
 
+    def test_all_forty_five_native_body_variant_slots(self):
+        """Three source language-pointer branches exist in each +0x1C callback."""
+        from hashlib import sha256
+        from original_eamail_language import (
+            ORIGINAL_606540_BODY_ROUTES, ORIGINAL_606540_BODY_STRING_SHA256,
+        )
+        self.assertEqual(set(ORIGINAL_606540_TITLE_ROUTES),
+                         set(ORIGINAL_606540_BODY_ROUTES))
+        self.assertEqual(len(ORIGINAL_606540_BODY_ROUTES), 15)
+        seen = set()
+        for constructor, (vtable, callback, first, ids) in ORIGINAL_606540_BODY_ROUTES.items():
+            receipt = _due_receipt(constructor)
+            self.assertEqual(receipt.original_concrete_notice_vtable, vtable)
+            self.assertTrue(0x401000 <= callback < 0x7B86BD)
+            self.assertEqual(len(ids), 3)
+            for variant, string_id in enumerate(ids):
+                with self.subTest(constructor=hex(constructor), variant=variant):
+                    ordinal = first + variant
+                    self.assertEqual(self.original.index.string_ids[ordinal], string_id)
+                    template = self.original.original_606540_notice_body_template(
+                        receipt, native_variant=variant
+                    )
+                    self.assertEqual(template, self.original.strings[string_id])
+                    self.assertEqual(
+                        sha256(template.encode("cp1252")).hexdigest(),
+                        ORIGINAL_606540_BODY_STRING_SHA256[string_id]
+                    )
+                    seen.add((constructor, variant))
+        self.assertEqual(len(seen), 45)
+        sample = _due_receipt(next(iter(ORIGINAL_606540_BODY_ROUTES)))
+        for invalid in (3, -1, True, 0.0, "1", None):
+            with self.subTest(invalid=invalid):
+                with self.assertRaisesRegex(OriginalEAMailLanguageError, "variant"):
+                    self.original.original_606540_notice_body_template(
+                        sample, native_variant=invalid
+                    )
+
+    def test_body_variants_with_distinct_original_message_bytes(self):
+        for constructor in (0x58BEA0, 0x5A04E0):
+            with self.subTest(constructor=hex(constructor)):
+                receipt = _due_receipt(constructor)
+                variant0 = self.original.original_606540_notice_body_template(
+                    receipt, native_variant=0)
+                variant1 = self.original.original_606540_notice_body_template(
+                    receipt, native_variant=1)
+                variant2 = self.original.original_606540_notice_body_template(
+                    receipt, native_variant=2)
+                self.assertNotEqual(variant0, variant1)
+                self.assertEqual(variant1, variant2)
+
+    def test_body_forged_resource_and_cross_constructor_fail_closed(self):
+        from original_eamail_language import ORIGINAL_606540_BODY_ROUTES
+        constructor = 0x58BEA0
+        base = _due_receipt(constructor)
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "receipt"):
+            self.original.original_606540_notice_body_template(None, native_variant=0)
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "constructor"):
+            self.original.original_606540_notice_body_template(
+                replace(base, original_constructor=0x600000), native_variant=0)
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "selector"):
+            self.original.original_606540_notice_body_template(
+                replace(base, original_concrete_notice_vtable=0x7D1CE0), native_variant=0)
+        ordinal = ORIGINAL_606540_BODY_ROUTES[constructor][2]
+        altered_idx = list(self.original.index.string_ids)
+        altered_idx[ordinal] = 942
+        changed_index = replace(self.original, index=replace(
+            self.original.index, string_ids=tuple(altered_idx)))
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "selector"):
+            changed_index.original_606540_notice_body_template(
+                base, native_variant=0)
+        altered = list(self.original.strings.strings)
+        altered[1169] = "Forged original injury body"
+        changed_strings = replace(self.original, strings=replace(
+            self.original.strings, strings=tuple(altered)))
+        with self.assertRaisesRegex(OriginalEAMailLanguageError, "text changed"):
+            changed_strings.original_606540_notice_body_template(
+                base, native_variant=0)
+
     def test_wrong_source_owner_vtable_or_tag_fails_closed(self):
         base = _due_receipt(next(iter(ORIGINAL_606540_TITLE_ROUTES)))
         with self.assertRaisesRegex(OriginalEAMailLanguageError, "receipt"):
