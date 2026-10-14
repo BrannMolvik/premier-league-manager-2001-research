@@ -282,6 +282,10 @@ class OriginalNativeSideRefComparisonTests(unittest.TestCase):
         from gate13_button_source_trace import OriginalPE32
         original=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
+            0x510440:"89 76 24",
+            0x510446:"c7 46 14 50 4d 7c 00",
+            0x5104AB:"89 76 38",
+            0x5104B1:"c7 46 28 50 4d 7c 00",
             0x510323:"8b 46 04",
             0x51032A:"e8 71 25 fe ff",
             0x510333:"8b 46 10",
