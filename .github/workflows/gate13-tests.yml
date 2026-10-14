@@ -96,6 +96,7 @@ on:
       - "reconstruction/original_native_7d7760_due_cleanup.py"
       - "reconstruction/test_original_native_7d7760_due_cleanup.py"
       - "reconstruction/original_native_7d7760_human_return.py"
+      - "reconstruction/original_native_7d7760_return_language.py"
       - "reconstruction/test_original_native_7d7760_human_return.py"
       - "reconstruction/original_native_613ee0_pending_list.py"
       - "reconstruction/test_original_native_613ee0_pending_list.py"
