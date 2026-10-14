@@ -178,7 +178,7 @@ class LiveProceduralLeagueState:
                 # not arbitrary Python strings, club IDs or missing names.
                 return None
             # Native 0x4F46CF..0x4F46F3 stops at the first NUL byte.
-            named_rows.append((row, name_key.split(b"\\x00", 1)[0]))
+            named_rows.append((row, name_key.split(b"\x00", 1)[0]))
 
         complete_keys = tuple(
             numeric_key(row) + (source_name,)
