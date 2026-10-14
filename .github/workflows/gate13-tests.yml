@@ -21,6 +21,8 @@ on:
       - "reconstruction/test_original_native_match_v3c_entry.py"
       - "reconstruction/original_native_v38_linked_event_source.py"
       - "reconstruction/test_original_native_v38_linked_event_source.py"
+      - "reconstruction/original_native_v38_score_stage.py"
+      - "reconstruction/test_original_native_v38_score_stage.py"
       - "reconstruction/human_gameplay.py"
       - "reconstruction/test_original_primary_match_mode_transaction.py"
       - "reconstruction/original_fastview_tactics_selection.py"
@@ -336,6 +338,7 @@ jobs:
             test_original_native_match_result_latch \
             test_original_native_match_v3c_entry \
             test_original_native_v38_linked_event_source \
+            test_original_native_v38_score_stage \
             test_original_primary_match_mode_transaction \
             test_original_fastview_tactics_selection \
             test_original_fastview_two_sided_live_writeback \
