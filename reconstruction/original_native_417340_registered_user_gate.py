@@ -133,7 +133,9 @@ def source_original_417340_registered_user_from_reached(
             cur=0
             break
         cur=unpack_from("<I",node,4)[0]
-    if cur or len(visited)!=len(original_reached_manager_links):
+    if len(visited)!=len(original_reached_manager_links):
+        raise Original417340SourceError("extra original manager link after first source match")
+    if cur:
         raise Original417340SourceError("original manager scan stopped at nonterminal/unreached link")
     return Original417340RegisteredUserReceipt(
         original_native_player_at_call=p,
