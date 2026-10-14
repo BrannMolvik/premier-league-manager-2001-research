@@ -54,8 +54,9 @@ This is *not* original game execution or a verified live dispatch.
 
 `0x513238` tests original object+44 bit0x20 **before** the
 `0x51325D` global `0x877530` read. If bit0x20 is set, the
-original jumps directly to `0x513294`; it never reads the current
-mode, never calls `5DA2F0`, and never opens 3D or FastView.
+original jumps directly to `0x513294`; it does not execute the
+**outer** `0x51325D` mode read, does not call `5DA2F0`, and does not
+open 3D or FastView. Earlier v+34 may already have cached the mode.
 Even if that bit is clear, `0x513257` rereads object+44 bit0x10;
 if **clear**, this route also skips that OUTER `0x51325D` read and presentation
 but does call `5DA2F0`. The *distinct* earlier `0x5130C2`
@@ -65,7 +66,7 @@ calls `512D80`, and reaches the post callbacks.
 The initial source-only helper prematurely required a valid mode even
 on these two branches, which risked fabricating an original `0x877530`
 lookup or attributing Quick mode3 to a path that never queried it.
-Corrected source contract: `mode=None` when `0x51325D` was not
+Corrected source contract: `mode=None` when the outer `0x51325D` was not
 reached, fail closed if a caller supplies a guessed/unobserved mode,
 and require a valid original mode **only when both flag gates permit
 the actual native global read**. A typed guarded route now combines
