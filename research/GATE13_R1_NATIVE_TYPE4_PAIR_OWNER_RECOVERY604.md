@@ -10,13 +10,19 @@ On native SideRef+0x08 owner, `0x4F2A7B` invokes original **0x4FAEA0** and **doe
 
 When gate AL=1, `0x4F2A88..0x4F2AA4` splits SideRef WORD+0x0E into the actual original 0x4FAF70 call arguments: **flag0=selector&1**, **flag1=(selector>>1)&1**, **index=selector>>2**. Original `0x4FAF70` reads owner **+0x74 array if flag0=1**, otherwise **+0x7C**, obtains the pair at `index*8`, returns its **first** member pointer if flag1=1, otherwise its **second** member pointer. The returned object is an input SideRef; it is **NOT** yet the final resolved club pointer. Original type4 then constructs/modifies a temporary standalone SideRef with vtable 0x7C4D60, invokes its virtual+0 and writes the final return to embedded SideRef+4 at `0x4F2B2A`. Its real nested getter, mutating owner and registration effects are not yet reconstructed.
 
-Independent private PE check: **19/19** direct control-flow opcode signatures in the source-guard test match native file exactly (0x4F2A78/7B/80/88/91/96/98/9B/A4 and 0x4FAF70/74/78/84/8E/92/94/97/9B/9D), without launching the original. Not all material input owners are proven by this bounded result.
+Independent private PE check: **19/19** selector direct control-flow opcode signatures in the source-guard test match native file exactly (0x4F2A78/7B/80/88/91/96/98/9B/A4 and 0x4FAF70/74/78/84/8E/92/94/97/9B/9D), without launching the original. Not all material input owners are proven by this bounded result.
+
+## Additional exact original 0x4FAEA0 entry gate and source lifecycle
+
+Native `0x4FAEA6..0x4FAEBB` loads **signed League+0x3C team count**, divides it by 2 rounding toward zero, computes `half*(half-1)`, and compares it **signed against raw League+0x68 DWORD**. Source enters the arrays-ready/initialization path if **threshold >= raw+0x68**; it returns **AL=0 immediately** if threshold is less than the raw counter. For canonical 12-team Scotland the numerical threshold is `6*5=30`. Crucially the semantic meaning of +0x68 is not yet established: do not call it "matches completed" or "remaining fixtures" without tracing its writer. Original only reads +0x78 **after** passing this gate. A nonzero +0x78 skips initialization and returns AL1. A zero +0x78 after passing the gate calls the original two-side sort/array population, including `0x4F40B0` ranking and `0x617500` twice; source leaves its real world mutation unresolved. The new bounded `source_original_type4_owner_read_only_gate_4faea0` therefore returns AL0/AL1 only for **unmutated reached** branches; otherwise returns explicit initializer-required status, not a fabricated array or success.
+
+**33/33** original source direct opcode signatures have been inspected on the private PE (19 selector + 14 new readiness/initialization callsites), with a private-only opt-in regression. Hosted Gate13 CI and branch Python tests remain unverified; this WIP is not an integrated native lifecycle.
 
 ## Staged independent code and tests, not integrated
 
 On branch `worker/gate13-r1-native-type4-pair-owner-604`:
 
-- `reconstruction/original_native_type4_pair_selector.py` only selects the exact *post-gate original SideRef pointer* for supplied owner arrays; requires authenticated Type4 embedded vtable, zero cache, nonzero owner and actual 0x4FAEA0 AL; declines invalid/missing/out-of-bounds native array data.
+- `reconstruction/original_native_type4_pair_selector.py` additionally source-qualifies the read-only 0x4FAEA0 readiness gate, and only selects the exact *post-gate original SideRef pointer* for supplied owner arrays; requires authenticated Type4 embedded vtable, zero cache, nonzero owner and actual 0x4FAEA0 AL; declines invalid/missing/out-of-bounds native array data.
 - `reconstruction/test_original_native_type4_pair_selector.py` checks four flag combinations, index/high selector bits, failed gate without touching arrays, missing owners/typed pointers/caches and the opt-in private native opcode signatures.
 - Gate13 workflow registers the new test; **no hosted exact-head CI and no code review for this WIP branch yet**. The independent opcode test was evaluated locally only, not the branch's full Python tests. Do not assert it passes until tested.
 
