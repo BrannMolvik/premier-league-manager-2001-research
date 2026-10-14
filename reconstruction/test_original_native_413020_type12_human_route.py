@@ -62,7 +62,7 @@ class OriginalType12HumanOwnerTests(unittest.TestCase):
         m2=manager(0x1100,0x2100,0x3100,77,0x5100)
         r=route((m1,m2))
         self.assertEqual(r.original_visited_manager_nodes,(0x1000,0x1100))
-        self.assertEqual(r.original_type12_association_identifier,77)
+        self.assertEqual(r.original_type12_recipient_manager_key,77)
         self.assertEqual(r.original_selected_user_pointer,0x2100)
         self.assertEqual(r.original_selected_user_event_queue_pointer,0x5100)
         self.assertEqual(r.source_queue_wrapper_size,12)
