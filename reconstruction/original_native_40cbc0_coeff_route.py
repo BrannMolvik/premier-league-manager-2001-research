@@ -94,5 +94,5 @@ def source_original_40cbc0_4056d0_club_query_word(
     if unpack_from("<I",club,0x14)[0]!=original_route.original_club_14_raw_dword:
         raise Original40CBC0SourceError("source first-side club+14 dispatch changed before 4056D0")
     raw=unpack_from("<I",club,0x10)[0]
-    temporary=(raw&0xffff).to_bytes(2,"little")+b"\\x00\\x00"
+    temporary=(raw&0xffff).to_bytes(2,"little")+bytes(2)
     return SourceOriginal40CBC0QueryWordReceipt(p,raw,temporary)
