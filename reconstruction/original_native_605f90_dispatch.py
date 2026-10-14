@@ -254,6 +254,10 @@ def source_original_606540_pre_human_from_reached(
             prev.live_game_state_updated):
         raise Original605F90SourceError("original 605F90 must choose 606540 first")
     subtype=prev.original_subtype
+    if (type(subtype) is not int or subtype not in (0,1,2) or
+        prev.original_handler_choice.original_subtype!=subtype or
+        prev.original_descriptor_at_subhandler_entry[4]!=subtype):
+        raise Original605F90SourceError("native 606540 subtype/descriptor choice mismatch")
     bound=75 if subtype==2 else 100
     r=reached.original_first_rng_result
     if type(r) is not int or not 0<=r<bound:
