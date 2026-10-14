@@ -34,10 +34,34 @@ Build on `research/GATE13_R1_INJURY_LIVE_BRIDGE_AUDIT_RECOVERY639.md` and merged
 
 The original STR 1153 title is `Ankle injury to {PLAYERNAME:1}`. The exact original STR 1158 is `Ankle injury`. **These are localized source templates, not yet fully interpolated/visible row text.** The returned native tagged player name is not a trivial Python string replacement: original token processing, required owner identity, and user-screen readiness remain separately unqualified.
 
+## Additional original +0x1C body source receipt
+
+An independent private read verified **all fifteen** original notice vtable DWORDs at `+0x1C`, all three native argument 0/1/2 branches, original callback language-pointer locations, and all 45 IDX→STR identities. The full body-template strings are not copied here; original CP1252 text digests are pinned in `ORIGINAL_606540_BODY_STRING_SHA256`.
+
+| Constructor | Native +0x1C callback | First IDX ordinal | STR IDs for native args (0,1,2) |
+| --- | --- | ---: | --- |
+| `58AA70` | `58AB80` | 1804 | (1154,1154,1154) |
+| `58AD80` | `58AE90` | 1809 | (1156,1156,1156) |
+| `58B090` | `58B160` | 1814 | (1159,1159,1159) |
+| `58B360` | `58B470` | 1819 | (1161,1161,1161) |
+| `58B670` | `58B780` | 1824 | (1163,1163,1163) |
+| `58B980` | `58BA50` | 1829 | (1165,1165,1165) |
+| `58BB90` | `58BCA0` | 1834 | (1167,1167,1167) |
+| `58BEA0` | `58BFB0` | 1839 | (1169,1170,1170) |
+| `58C1B0` | `58C280` | 1844 | (1172,1172,1172) |
+| `59F8E0` | `59F9F0` | 2384 | (1432,1432,1432) |
+| `59FBF0` | `59FCC0` | 2389 | (1433,1433,1433) |
+| `59FEC0` | `59FFD0` | 2394 | (1434,1434,1434) |
+| `5A01D0` | `5A02E0` | 2399 | (1161,1161,1161) |
+| `5A04E0` | `5A05F0` | 2404 | (1435,1436,1436) |
+| `5A07F0` | `5A08C0` | 2409 | (1437,1437,1437) |
+
+The bounded method `VerifiedOriginalEAMailLanguage.original_606540_notice_body_template(due_receipt, native_variant=...)` returns an original **unformatted template** only on a source-qualified typed constructor receipt and explicit native 0/1/2 argument. It validates vtable, callback range, IDX, STR, original SHA of text and CP1252. It cannot choose which variant the actual UI uses, supply the player/user interpolation, or deliver/read/render mail. The new `reconstruction/test_original_606540_injury_language.py` exercises all variants and forged inputs. Independent private PE callback validation succeeded locally; it is optional in CI because the original EXE must never ship in Git.
+
 ## Negative evidence / what is NOT done
 
-- Original title source proves class-specific `+0x18` text **only**, not `+0x1C` body content or its 0/1/2 alternatives, original formatting, notice read flags, or icon.
-- Static exploration shows fifteen distinct `+0x1C` callbacks and several different STR messages. Do **not** reuse transfer mail content or a generic injury body; independently qualify native status/type/variant branch before binding a body.
+- Native `+0x18` title text is source-verified. A second private source pass also verified all 45 `+0x1C` body variant IDX slots; it does NOT prove which variant the running Inbox requests, native token interpolation, read flags or icon.
+- Original body `+0x1C` explicitly accepts native argument 0/1/2. Constructor `58BEA0` selects STR IDs (1169,1170,1170) and `5A04E0` selects (1435,1436,1436), proving that choosing variant zero by default is unsafe. Do not invent the UI caller's actual argument or use a generic injury message.
 - Original 606540 constructor and 7BD564 global pending wrapper, 5CFA20 due call, 413020 first matching user routing and 5CF990 retained per-user list remain **source-projected**; *no observed original native heap operations, entire queue execution, live portable world event or registered user receipt*. Existing `GameState.original_pending_transfer_eam` and `original_delivered_mailboxes` only cover transfer events. This title mapping cannot authorize insertion into them or a rendered human Inbox.
 - Modern persistent injury `RuntimePlayer` state/date in `match_injury_persistence.py` is **not the original native +24C descriptor**, 9847FC unsigned raw calendar or the original 7D7760 cleanup. Keep native 32-bit signed date/owner independent from modern `datetime.date`.
 - Original all-mode NEXT→PPreMatch→PResults→management return and Gates 13–17 physical Windows 11 game acceptance are still **OPEN**.
@@ -47,4 +71,4 @@ The original STR 1153 title is `Ankle injury to {PLAYERNAME:1}`. The exact origi
 Feature branch adds `ORIGINAL_606540_TITLE_ROUTES` and strict, read-only
 `VerifiedOriginalEAMailLanguage.original_606540_notice_subject_template(due_receipt)`, requiring a typed original source receipt with exact constructor, vtable, tag, IDX identity and original STR text. New counterexample tests reject mismatched/forged owner selectors and modified source bytes; private PE check uses optional `FM2001_ORIGINAL_EXECUTABLE`, not CI-bundled copyrighted files.
 
-**Next executable task:** source-verify each `vtable+0x1C` class-specific body choice with actual input dispatch and original STR IDX; then bridge complete 41A5B0→605F90→606540→60AA20 source producer to atomic persistent player/global pending/registered-user event GameState, with first-matching-user/required due recheck, native signed-date semantics, safe Save→Load, multi-event/rollback tests and actual original-player Inbox renderer. No PR/CI for this subpart alone per `WORKER_MILESTONE_BATCHING_POLICY.md`: accumulate a coherent source-backed integration before exact-head review.
+**Next executable task:** trace the original actual +0x1C caller and native player/user token interpolation, then bridge complete 41A5B0→605F90→606540→60AA20 source producer to atomic persistent player/global pending/registered-user event GameState, with first-matching-user/required due recheck, native signed-date semantics, safe Save→Load, multi-event/rollback tests and actual original-player Inbox renderer. No PR/CI for this subpart alone per `WORKER_MILESTONE_BATCHING_POLICY.md`: accumulate a coherent source-backed integration before exact-head review.
