@@ -161,6 +161,49 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                 5,original_flags_at_513238=0,
                 original_flags_at_513257_if_reached=0x10)
 
+    def test_original_router_v34_zero_skips_mode_preprocessing(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_router_guard,
+        )
+        stopped=source_original_match_router_guard(
+            original_5130c2_v34_al_nonzero=False,
+            original_516080_al_nonzero_if_reached=None,
+        )
+        self.assertFalse(stopped.reaches_mode_handoff_at_513238)
+        self.assertTrue(stopped.early_native_512d80_called)
+        self.assertTrue(stopped.reaches_post_callbacks_at_513294)
+        self.assertFalse(stopped.original_callbacks_executed)
+        self.assertFalse(stopped.live_game_state_committed)
+
+    def test_original_router_516080_choice_preserves_mode_phase_but_not_early_call(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_router_guard,
+        )
+        for second in (False, True):
+            with self.subTest(second=second):
+                arrived=source_original_match_router_guard(
+                    original_5130c2_v34_al_nonzero=True,
+                    original_516080_al_nonzero_if_reached=second,
+                )
+                self.assertTrue(arrived.reaches_mode_handoff_at_513238)
+                self.assertEqual(arrived.early_native_512d80_called,second)
+                self.assertTrue(arrived.reaches_post_callbacks_at_513294)
+                self.assertFalse(arrived.original_callbacks_executed)
+
+    def test_original_router_guard_requires_reached_callback_results(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_router_guard,
+        )
+        for first,second in ((None,None),(0,None),(1,False),
+                             (False,False),(False,True),
+                             (True,None),(True,0),(True,1)):
+            with self.subTest(first=first,second=second):
+                with self.assertRaises(ValueError):
+                    source_original_match_router_guard(
+                        original_5130c2_v34_al_nonzero=first,
+                        original_516080_al_nonzero_if_reached=second,
+                    )
+
     def test_optional_original_exe_match_phase_opcode_signatures(self):
         import os
         from pathlib import Path
@@ -181,6 +224,15 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
             0x5132a9:"ff 52 3c",0x5331fd:"56",
             0x5331fe:"e8 6d 00 00 00",
             0x53322b:"c7 84 24 28 05 00 00 00 00 00 00",
+            # Native entry guard: vtable+34 AL branch and conditional
+            # 516080 short-circuit may jump straight to 513294.
+            0x5130c2:"ff 50 34",0x5130c5:"84 c0",
+            0x5130c7:"75 12",0x5130ce:"e8 ad fc ff ff",
+            0x5130d6:"e9 b9 01 00 00",0x5130db:"55",
+            0x5130dc:"e8 9f 2f 00 00",0x5130e1:"84 c0",
+            0x5130e3:"74 0f",0x5130ea:"e8 91 fc ff ff",
+            0x5130ef:"e9 41 01 00 00",0x5130f4:"8b 46 44",
+            0x5130f7:"a8 10",0x5130f9:"0f 84 2c 01 00 00",
             0x533236:"e8 15 f4 ff ff",0x53323c:"e8 5f 0a 00 00",
             # The owner captured by 5DA2F0 from the edi vft+0 getter
             # is distinct from the 513010 outer processing object.
