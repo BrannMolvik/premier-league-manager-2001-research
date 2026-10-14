@@ -143,7 +143,7 @@ class Original4197C0SafeRowTests(unittest.TestCase):
              "non-UEFA"),
             (replace(reached(),original_5112e0_v30_eax=None),"5112E0"),
             (replace(reached(),original_5112e0_v30_eax=0x101),"already masked"),
-            (replace(reached(),original_match_record=b""),"match+4C"),
+            (replace(reached(),original_match_record=b""),r"match\+4C"),
             (replace(reached(),original_competition_owner_pointer=0x9999),
              "pointer mismatch"),
             (replace(reached(),original_player_after_competition_callbacks=player(card=1)),
