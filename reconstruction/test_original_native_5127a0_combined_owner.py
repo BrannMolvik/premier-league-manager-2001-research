@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from dataclasses import replace
 from struct import pack_into
+from pathlib import Path
+import hashlib
+import os
 import unittest
 
 from original_native_5127a0_order_guard import (
@@ -187,6 +190,35 @@ class Original5127A0CombinedOwnerTests(unittest.TestCase):
         more=first[1]+(Original5127A0ReachedPlayer(0x9999,native_player(999)),)
         with self.assertRaisesRegex(Original5127A0IdentityError,"coverage"):
             qualified((first[0],more),second)
+
+
+    def test_optional_exact_private_original_roster_and_row_opcodes(self):
+        file=os.getenv("FM2001_ORIGINAL_EXE")
+        if not file:
+            self.skipTest("original executable stays private outside Git")
+        exe=Path(file).read_bytes()
+        self.assertEqual(hashlib.sha256(exe).hexdigest(),
+            "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3")
+        source={
+            0x5127af:"8b 44 24 30 85 db 75 04",
+            0x5127c6:"8b 4c 24 30 8b c1 8b 11 89 54 24 24",
+            0x51280e:"8d 88 fc 05 00 00 8b 80 54 0b 00 00",
+            0x512841:"8b 85 94 02 00 00 33 f6 85 c0 74 30",
+            0x512853:"8b 0d 44 56 87 00 33 c0 66",
+            0x51285b:"66 8b 03 8b 11 50 ff 12 57",
+            0x5128b2:"57 52 50 51 8b cb e8 03 6f f0 ff",
+            0x5128c1:"84 c0 74 08 57 8b cb e8 e3 7c f0 ff",
+            0x5128cd:"8b 54 24 18 8b 44 24 20 83 c2 04 83 c6 4c",
+            0x5128ea:"8b 85 94 02 00 00 33 f6 85 c0 74 34",
+            0x5128fc:"8b 0d 44 56 87 00 33 c0 66 8b 03 8b 11 50 ff 12",
+            0x512910:"51 8b c8 e8 68 6d f0 ff",
+            0x512924:"75 d6 8b 5c 24 14 43 83 fb 02",
+        }
+        for va,expected in source.items():
+            with self.subTest(va=hex(va)):
+                raw=bytes.fromhex(expected)
+                self.assertEqual(exe[va-0x400000:va-0x400000+len(raw)],raw)
+
 
 
 if __name__=="__main__":
