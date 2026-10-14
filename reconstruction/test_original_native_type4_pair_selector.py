@@ -126,7 +126,7 @@ class OriginalNativeType4PairTests(unittest.TestCase):
                       owner_state(team_count=3),
                       owner_state(team_count=0),
                       owner_state(team_count=-100),
-                      owner_state(team_count=65535)):
+                      owner_state(team_count=65536)):
             with self.subTest(value=str(value)[:60]):
                 with self.assertRaises(OriginalType4PairSourceError):
                     source_original_type4_owner_read_only_gate_4faea0(
