@@ -13,6 +13,8 @@ on:
       - "reconstruction/test_front_end_settings.py"
       - "reconstruction/match_detail_mode.py"
       - "reconstruction/test_match_detail_mode.py"
+      - "reconstruction/gate14_match_detail_route_source.py"
+      - "reconstruction/test_gate14_match_detail_route_source.py"
       - "reconstruction/original_native_match_detail_gate.py"
       - "reconstruction/test_original_native_match_detail_gate.py"
       - "reconstruction/original_native_match_result_latch.py"
@@ -431,6 +433,7 @@ jobs:
             test_front_end_session \
             test_front_end_settings \
             test_match_detail_mode \
+            test_gate14_match_detail_route_source \
             test_original_native_match_detail_gate \
             test_original_native_match_result_latch \
             test_original_native_match_v3c_entry \
