@@ -74,6 +74,8 @@ class Original606540PortableWorld:
     user_notices: tuple[Original606540PortableUserNotice, ...] = ()
 
     def __post_init__(self):
+        if type(self.pending) is not tuple or type(self.user_notices) is not tuple:
+            raise Original606540PortableWorldError("Immutable original event lists required")
         if type(self.next_serial) is not int or self.next_serial < 1:
             raise Original606540PortableWorldError("Invalid original event serial cursor")
         used = set()
@@ -89,13 +91,26 @@ class Original606540PortableWorld:
                  else item.original_record_day_raw, "source event date")
             if (type(item.original_player_id) is not int or item.original_player_id < 0
                     or type(item.original_constructor) is not int
+                    or type(item.original_type) is not int
                     or item.original_type not in (2, 30, 31)):
                 raise Original606540PortableWorldError("Invalid player/constructor/type")
+            from original_native_606540_human_mail_route import _CONSTRUCTORS
+            from original_native_606540_human_notice import _NATIVE_CONSTRUCTOR_ROUTES
+            expected = _CONSTRUCTORS.get(item.original_constructor)
+            valid_family = next((
+                family for family, cases in _NATIVE_CONSTRUCTOR_ROUTES.items()
+                if any(choice is not None and choice[0] == item.original_constructor
+                       for group in cases for choice in group)
+            ), None)
+            if (expected is None or item.original_class_vtable != expected[0]
+                    or valid_family is None
+                    or item.original_type != (31, 30, 2)[valid_family]):
+                raise Original606540PortableWorldError("Source notice class/vtable/family mismatch")
             if type(item) is Original606540PortablePending:
                 _u32(item.original_creation_manager_key, "source owner")
             else:
                 _u32(item.recipient_manager_key, "source recipient")
-                if item.visible_inbox_accepted:
+                if type(item.visible_inbox_accepted) is not bool or item.visible_inbox_accepted:
                     raise Original606540PortableWorldError(
                         "No original native GUI acceptance receipt exists")
         if tuple(e.serial for e in self.pending) != tuple(
