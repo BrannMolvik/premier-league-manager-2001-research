@@ -234,6 +234,47 @@ def source_original_match_mode_handoff_phase(
     )
 
 
+@dataclass(frozen=True)
+class SourceOriginalMatchRouterGuard:
+    """Only original 5130C2 / 5130DC entry guards, not match execution."""
+
+    original_v34_result_nonzero: bool
+    original_516080_result_nonzero_if_reached: bool | None
+    early_native_512d80_called: bool
+    reaches_mode_handoff_at_513238: bool
+    reaches_post_callbacks_at_513294: bool = True
+    original_callbacks_executed: bool = False
+    live_game_state_committed: bool = False
+
+
+def source_original_match_router_guard(
+    *, original_5130c2_v34_al_nonzero: bool,
+    original_516080_al_nonzero_if_reached: bool | None,
+) -> SourceOriginalMatchRouterGuard:
+    """Source 5130C2..5130F4, after the native+34 callback has been reached.
+
+    If vtable+34 returns AL=0, 5130CE calls 512D80 and 5130D6
+    jumps straight to 513294; 513238 and presentation are skipped.
+    If AL!=0, 516080 is called: nonzero calls 512D80 and jumps
+    513235->513238; zero reaches the later mode-setup branch from
+    5130F4, ultimately 513238 after its nested native callbacks.
+    In EVERY case the 513294 post virtual+38/+3C callbacks remain.
+    Earlier gate/context/side effects and whether either native
+    callback ACTUALLY executed are intentionally not inferred.
+    """
+    first = original_5130c2_v34_al_nonzero
+    second = original_516080_al_nonzero_if_reached
+    if type(first) is not bool:
+        raise ValueError("actual reached 5130C2 vtable+34 AL zero/nonzero result required")
+    if not first:
+        if second is not None:
+            raise ValueError("516080 not reached after vtable+34 AL zero")
+        return SourceOriginalMatchRouterGuard(False, None, True, False)
+    if type(second) is not bool:
+        raise ValueError("actual reached 516080 AL zero/nonzero result required")
+    return SourceOriginalMatchRouterGuard(True, second, bool(second), True)
+
+
 def match_detail_route_source_contract() -> dict:
     return {
         "selector_commit_va": PREMATCH_SELECTOR_COMMIT_VA,
