@@ -59,7 +59,7 @@ def source_original_5127a0_player_pointer_identity(
     if type(original_reached_players) is not tuple:
         raise Original5127A0IdentityError("actual source player pointer records tuple required")
     ids=side.source_roster_ids
-    if type(ids) is not tuple or not ids or len(ids)>40:
+    if type(ids) is not tuple or len(ids)>40:
         raise Original5127A0IdentityError("actual native side roster IDs required")
     if len(original_reached_players)!=len(ids):
         raise Original5127A0IdentityError("source roster pointer coverage missing/extra")
