@@ -141,6 +141,51 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
                 OriginalLeagueMatchProcessOwnerError):
                 source_original_wrapped_prepare_511120_post_base(**(good|changes))
 
+    def test_original_510d60_two_event_counters_all_six_literal_kinds(self):
+        from original_leaguematch_native_process_owners import (
+            source_original_510d60_two_event_counter_writes,
+        )
+        # Native six vtable+28 methods are literal return functions:
+        # these expected native results are from the original PE.
+        kinds={
+            0x7C4C24:1,0x7C9D9C:2,0x7C9E14:6,
+            0x7C9E80:3,0x7C9EF8:4,0x7C9F70:5,
+        }
+        for vt,kind in kinds.items():
+            for flags in (0,1,2,3,4,5,6,7,0xFFFFFFFF):
+                with self.subTest(vtable=hex(vt),flags=flags):
+                    source=bytearray(native_match(vt))
+                    pack_into("<I",source,0x44,flags)
+                    result=source_original_510d60_two_event_counter_writes(
+                        original_match_record=bytes(source))
+                    d0c=0 if kind==2 and flags & 4==0 else ((flags>>1)&1)
+                    d10=1 if kind==3 and flags & 4==0 else ((flags>>2)&1)
+                    self.assertEqual(result.source_context_stores,
+                                     ((0xD0C,d0c),(0xD10,d10)))
+                    self.assertEqual(result.original_virtual28_literal_kind,kind)
+                    self.assertFalse(result.original_base_510d60_executed)
+                    self.assertFalse(result.live_game_state_updated)
+
+    def test_original_510d60_counters_reject_diagnostic_kind_and_unreached_flags(self):
+        from original_leaguematch_native_process_owners import (
+            source_original_510d60_two_event_counter_writes,
+        )
+        bad=(native_match(0x7C4CE4),
+             native_match(0x7C4C24)[:0x47],
+             native_match(0x7C4C24)[:0x40],
+             native_match(0x7C4C24)[:-1],
+             native_match(0x7C4C24).replace(pack("<I",0x7C4C24),pack("<I",0xDEADBEEF),1))
+        for record in bad:
+            with self.subTest(length=len(record),head=record[:4]):
+                if len(record)<0x48 or record[:4] in (
+                    pack("<I",0x7C4CE4),pack("<I",0xDEADBEEF)):
+                    with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
+                        source_original_510d60_two_event_counter_writes(
+                            original_match_record=record)
+        with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
+            source_original_510d60_two_event_counter_writes(
+                original_match_record=bytearray(native_match(0x7C4C24)))
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "private original executable not mounted in hosted CI")
     def test_all_native_virtual_slots_and_wrapper_opcodes_match_original(self):
@@ -171,6 +216,24 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
             0x510D60:"51",0x510D73:"e8 d8 17 12 00",
             0x510D95:"8b 0d 30 75 87 00",
             0x510D9B:"89 8e 3c 0d 00 00",
+            # Original 510D60 virtual+28 constants and counter writes.
+            0x651E20:"b8 01 00 00 00 c3",
+            0x6CE1E0:"b8 02 00 00 00 c3",
+            0x650250:"b8 06 00 00 00 c3",
+            0x6CE1F0:"b8 03 00 00 00 c3",
+            0x6CECB0:"b8 04 00 00 00 c3",
+            0x650010:"b8 05 00 00 00 c3",
+            0x668766:"6a 19",0x668768:"e8 62 24 00 00",
+            0x510DBF:"ff 52 28",0x510DC2:"83 f8 02",
+            0x510DC7:"f6 45 44 04",
+            0x510DCF:"89 be 0c 0d 00 00",
+            0x510DD7:"8b 45 44",0x510DDA:"d1 e8",
+            0x510DDC:"83 e0 01",0x510DE1:"89 86 0c 0d 00 00",
+            0x510DEC:"ff 52 28",0x510DEF:"83 f8 03",
+            0x510DF4:"f6 45 44 04",
+            0x510DFA:"c7 86 10 0d 00 00 01 00 00 00",
+            0x510E06:"8b 45 44",0x510E09:"c1 e8 02",
+            0x510E0C:"83 e0 01",0x510E0F:"89 86 10 0d 00 00",
         }
         for addr,hx in sites.items():
             with self.subTest(addr=hex(addr)):
