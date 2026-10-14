@@ -95,6 +95,7 @@ class DynamicPrimaryReplayOrderTests(unittest.TestCase):
             replace(root,wrapper_link_state="unknown"),
             replace(root,payload_filter_bits=None),
             replace(root,node_kind="unverified_original_class"),
+            replace(root,node_kind="unverified_original_class",payload_filter_bits=0x40),
         ):
             with self.subTest(item=item):
                 shadow=PrimaryScheduleShadowState(days={requested:(item,)})
