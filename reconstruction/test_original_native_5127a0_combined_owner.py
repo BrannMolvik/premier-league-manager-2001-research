@@ -158,29 +158,35 @@ class Original5127A0CombinedOwnerTests(unittest.TestCase):
             qualified(a,(source_second,both_pointer))
 
     def test_duplicated_starting_player_pointer_and_wrong_team_owner_failclosed(self):
-        a,b=side(0,row_count=2)
-        one=replace(a.source_rows[1],source_player_pointer=a.source_rows[0].source_player_pointer)
-        rows=(a.source_rows[0],one)
-        source=replace(a,source_rows=rows,
+        first=side(0,row_count=2)
+        second=side(1)
+        src=first[0]
+        one=replace(src.source_rows[1],
+                    source_player_pointer=src.source_rows[0].source_player_pointer)
+        rows=(src.source_rows[0],one)
+        source=replace(src,source_rows=rows,
             source_steps=tuple(
                 replace(s,original_player_id=one.source_player_pointer,original_row=one)
                 if s.phase=="row" and s.original_row_index==1 else s
-                for s in a.source_steps))
+                for s in src.source_steps))
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"appears twice"):
-            qualified((source,a[1]),b)
+            qualified((source,first[1]),second)
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"distinct"):
-            qualified(a,b,owner(0x1000,0x1000,source_sides=(a[0],b[0])))
+            qualified(first,second,owner(0x1000,0x1000,
+                                           source_sides=(first[0],second[0])))
         # The supplied source owner is canonical even if side rows are forged
         # to maintain internally consistent callback arguments.
-        canonical_owner=owner(source_sides=(a[0],b[0]))
-        fake=replace(a[0].source_rows[0],source_4197c0_arg1=99)
-        forged_side=replace(a[0],source_rows=(fake,),source_steps=tuple(
-            replace(step,original_row=fake) if step.phase=="row" else step
-            for step in a[0].source_steps))
+        canonical_owner=owner(source_sides=(first[0],second[0]))
+        fake=replace(src.source_rows[0],source_4197c0_arg1=99)
+        forged_side=replace(src,source_rows=(fake,src.source_rows[1]),
+            source_steps=tuple(
+                replace(step,original_row=fake)
+                if step.phase=="row" and step.original_row_index==0 else step
+                for step in src.source_steps))
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"owner row bytes"):
-            qualified((forged_side,a[1]),b,canonical_owner)
+            qualified((forged_side,first[1]),second,canonical_owner)
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"record"):
-            qualified(a,b,b"")
+            qualified(first,second,b"")
 
     def test_reject_extra_or_missing_reached_player_after_original_roster(self):
         first=side(0)
