@@ -16,6 +16,7 @@ from original_schedule_event_native_constructor import (
 from original_native_fresh_match_class_flags import (
     OriginalFreshMatchFlagsSourceError,
     source_original_fresh_match_event_serial_510380,
+    source_original_fresh_cup_flags_from_round_source_4f5420,
     SOURCE_ORIGINAL_KNOWN_FRESH_LEAGUE_MATCH_KINDS,
     SOURCE_ORIGINAL_ZERO_FLAGS_NATIVE_KINDS,
     SOURCE_ORIGINAL_INHERITS_CUP_FLAGS_NATIVE_KINDS,
@@ -112,6 +113,34 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
                 OriginalFreshMatchFlagsSourceError):
                 original_fresh(vt,args)
 
+    def test_exact_original_round_source_fields_to_cup_constructor_flags(self):
+        for word,aux,dec in product((0,1,2,3),(0,1,2),(0,1,2)):
+            with self.subTest(word=word,aux=aux,dec=dec):
+                got=source_original_fresh_cup_flags_from_round_source_4f5420(
+                    original_round_dbr_word24=word,
+                    original_round_dbr_byte26=aux,
+                    original_round_dbr_byte27=dec)
+                low_a=(word|aux)&1
+                self.assertEqual(got.initial_original_flags44,
+                                 (low_a<<1)|((dec&1)<<2)|((aux&1)<<3))
+                self.assertEqual(got.source_native_date_collection_pointer,
+                                 0x947AF0 if not dec&1 else 0x947AD8)
+        # DBR nonzero even bits do NOT imply original bit0, unlike bool coercion.
+        item=source_original_fresh_cup_flags_from_round_source_4f5420(
+            original_round_dbr_word24=2,
+            original_round_dbr_byte26=0,
+            original_round_dbr_byte27=0)
+        self.assertEqual(item.initial_original_flags44,0)
+        for fields in ((-1,0,0),(65536,0,0),(0,-1,0),(0,256,0),
+                       (0,0,-1),(0,0,256),(True,0,0),(0,0,True),
+                       (0,None,0),(0,0,1.0)):
+            with self.subTest(fields=fields),self.assertRaises(
+                OriginalFreshMatchFlagsSourceError):
+                source_original_fresh_cup_flags_from_round_source_4f5420(
+                    original_round_dbr_word24=fields[0],
+                    original_round_dbr_byte26=fields[1],
+                    original_round_dbr_byte27=fields[2])
+
     def test_original_fresh_collection_selected_serial_even_odd_and_increment(self):
         for vt,args in (
             (0x7C4C24,None),
@@ -193,6 +222,18 @@ class OriginalNativeFreshMatchFlagsTests(unittest.TestCase):
         from gate13_button_source_trace import OriginalPE32
         pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
+            0x4F544E:"66 0f b6 47 26",
+            0x4F5453:"66 8b 4f 24",
+            0x4F5457:"66 0b c8",
+            0x4F545A:"66 89 4e 30",
+            0x4F545E:"66 0f b6 57 27",
+            0x4F5463:"66 89 56 32",
+            0x4F5467:"66 0f b6 47 26",
+            0x4F546C:"66 89 46 34",
+            0x4F669B:"66 8b 4d 34",
+            0x4F66A7:"66 8b 4d 32",
+            0x4F66AE:"66 8b 4d 30",
+            0x4F66C9:"e8 52 9e 01 00",
             0x5104CF:"89 46 44",
             0x51061D:"6a 01",
             0x51061F:"6a 01",
