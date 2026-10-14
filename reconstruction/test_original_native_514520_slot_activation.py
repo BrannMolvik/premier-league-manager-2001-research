@@ -15,6 +15,7 @@ from original_native_615c50_reached_candidate import (
 from original_native_514520_slot_activation import (
     OriginalNative514520SourceError,
     source_original_514520_reached_slot_activation,
+    source_original_514520_side_v0_owner_for_reached_event,
 )
 
 
@@ -172,6 +173,40 @@ class Native514520ActivationTests(unittest.TestCase):
                     source_original_514520_reached_slot_activation(
                         **(base|variant))
 
+    def test_original_embedded_and_standalone_side_vtables_are_distinct(self):
+        for vtable,expected_target in ((0x7C4D50,0x510320),
+                                       (0x7C4D60,0x4F28A0)):
+            for offset in (0x14,0x28):
+                with self.subTest(vtable=hex(vtable),offset=hex(offset)):
+                    raw=bytearray(event())
+                    pack_into("<I",raw,offset,vtable)
+                    receipt=source_original_514520_side_v0_owner_for_reached_event(
+                        original_reached_event_record=bytes(raw),
+                        original_side_offset=offset)
+                    self.assertEqual(receipt.original_source_vtable_va,vtable)
+                    self.assertEqual(receipt.original_source_virtual0_va,
+                                     expected_target)
+                    self.assertFalse(receipt.source_world_mutation_proven)
+
+    def test_unrecognized_source_side_v0_and_forged_event_fail_closed(self):
+        for offset,record in (
+            (0x14,event(first=0)),
+            (0x28,event(second=0)),
+            (0x14,event(first=0x12345678)),
+            (0x28,event(second=0x12345678)),
+            (0x14,bytes(0x17)),
+            (0x28,bytes(0x2B)),
+            (0x14,bytearray(event())),
+            (None,event()),
+            (True,event()),
+            (0x0C,event()),
+        ):
+            with self.subTest(offset=offset,record_type=type(record)):
+                with self.assertRaises(OriginalNative514520SourceError):
+                    source_original_514520_side_v0_owner_for_reached_event(
+                        original_reached_event_record=record,
+                        original_side_offset=offset)
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                          "owner-private original executable not mounted")
     def test_exact_original_514520_pe_entry_side_dispatch_and_return(self):
@@ -188,6 +223,8 @@ class Native514520ActivationTests(unittest.TestCase):
             (0x514552,"8b 47 08 85 c0"),
             (0x514559,"8b 46 28 8d 4e 28 ff 10"),
             (0x514561,"5f 5e c3"),
+            (0x7C4D50,"20 03 51 00"),
+            (0x7C4D60,"a0 28 4f 00"),
         )
         for addr,h in checks:
             with self.subTest(addr=hex(addr)):
