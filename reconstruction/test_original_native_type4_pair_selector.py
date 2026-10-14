@@ -10,6 +10,7 @@ from original_native_type4_pair_selector import (
     OriginalType4PairSourceError,
     source_original_type4_pair_selection_4f2a78_4faf70,
     source_original_type4_owner_read_only_gate_4faea0,
+    source_original_type4_classify_reached_pairs_before_617500_4faea0,
 )
 
 
@@ -25,11 +26,13 @@ def embedded_type4(*, selector=0, cache=0, owner=0xBEEF0000,
 
 
 
-def owner_state(*, team_count=12, raw68=31, raw78=0):
+def owner_state(*, team_count=12, raw68=31, raw78=0, raw70=0, source6c=0):
     r=bytearray(0x84)
     pack_into("<i",r,0x3C,team_count)
     pack_into("<i",r,0x68,raw68)
     pack_into("<i",r,0x78,raw78)
+    pack_into("<i",r,0x70,raw70)
+    pack_into("<I",r,0x6C,source6c)
     return bytes(r)
 
 
@@ -132,12 +135,66 @@ class OriginalNativeType4PairTests(unittest.TestCase):
                     source_original_type4_owner_read_only_gate_4faea0(
                         original_native_league_owner_record_before_gate=value)
 
+    def test_4faea0_rank_classification_stages_both_original_pair_arrays(self):
+        # Native original +6C order and exact reached rank EAX per pointer.
+        pairs=((0x1000,0x1001),(0x2000,0x2001),
+               (0x3000,0x3001),(0x4000,0x4001))
+        ranks=((0,5),(6,11),(5,6),(1,1))
+        got=source_original_type4_classify_reached_pairs_before_617500_4faea0(
+            original_native_league_owner_record_before_gate=owner_state(
+                raw68=30,raw78=0,raw70=4,source6c=0xABCD),
+            original_source_6c_pairs_before_gate=pairs,
+            original_reached_4f40b0_rank_pair_eax_in_iteration_order=ranks)
+        self.assertEqual(got.source_original_top_pairs_74_before_617500,
+                         (pairs[0],pairs[3]))
+        self.assertEqual(got.source_original_bottom_pairs_7c_before_617500,
+                         (pairs[1],))
+        self.assertEqual(got.source_original_cross_half_pair_count,1)
+        self.assertTrue(got.source_original_617500_sort_and_side_effects_unresolved)
+
+    def test_4faea0_pre_sort_replay_rejects_mismatched_or_guessed_native_owner_inputs(self):
+        pair=((0x1000,0x2000),)
+        valid=dict(
+            original_native_league_owner_record_before_gate=owner_state(
+                raw68=30,raw78=0,raw70=1,source6c=0xAAAA),
+            original_source_6c_pairs_before_gate=pair,
+            original_reached_4f40b0_rank_pair_eax_in_iteration_order=((1,2),),
+        )
+        for mutation in (
+            dict(original_native_league_owner_record_before_gate=owner_state(
+                raw68=31,raw78=0,raw70=1,source6c=0xAAAA)),
+            dict(original_native_league_owner_record_before_gate=owner_state(
+                raw68=30,raw78=1,raw70=1,source6c=0xAAAA)),
+            dict(original_native_league_owner_record_before_gate=owner_state(
+                raw68=30,raw78=0,raw70=1,source6c=0)),
+            dict(original_native_league_owner_record_before_gate=owner_state(
+                raw68=30,raw78=0,raw70=2,source6c=0xAAAA)),
+            dict(original_reached_4f40b0_rank_pair_eax_in_iteration_order=()),
+            dict(original_reached_4f40b0_rank_pair_eax_in_iteration_order=((1,True),)),
+            dict(original_source_6c_pairs_before_gate=((0,0x2000),)),
+            dict(original_source_6c_pairs_before_gate=[(0x1000,0x2000)]),
+        ):
+            with self.subTest(change=repr(mutation)[:110]):
+                with self.assertRaises(OriginalType4PairSourceError):
+                    source_original_type4_classify_reached_pairs_before_617500_4faea0(
+                        **(valid|mutation))
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "original private executable deliberately not distributed in hosted CI")
     def test_original_private_x86_control_flow_matches_bounded_selector(self):
         from gate13_button_source_trace import OriginalPE32
         pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
+            0x4FAEDB:"8b 56 6c",
+            0x4FAEE0:"8b 3c da",
+            0x4FAEE8:"e8 c3 91 ff ff",
+            0x4FAEF6:"0f 9d 44 24 17",
+            0x4FAEFB:"e8 b0 91 ff ff",
+            0x4FAF0A:"0f 9d c0",
+            0x4FAF15:"8b 46 78",
+            0x4FAF1B:"89 3c c1",
+            0x4FAF2F:"8b 96 80 00 00 00",
+            0x4FAF38:"89 3c d0",
             0x4FAEA6:"8b 46 3c",
             0x4FAEAA:"2b c2",
             0x4FAEAC:"d1 f8",
