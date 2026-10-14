@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery636 main 59f6d0f89371e816ccfe6df9daf7c7a4dab7ad69, Gate13 OPEN. Active PR #744 source native 5DC510/5DC650 dual FIFO branch worker/gate13-r1-5dc510-context-event-636 head 5443aef4dbf6986bf0e28dbf8c246f89be902023. First exact Gate13 CI 38651390847 FAILED only a test import mismatch (import inputs versus committed fixture function fixture); fixed exact PR head commit 5443aef4dbf6986bf0e28dbf8c246f89be902023; NEW CI must pass before merge. Asset prior run38651391017 PASS, no unsafe acceptance claim. 5DC510 calls 5DC650 first, may return AL0, then unconditional own record append; joined owner/tail receipts and original 5DC650 dual branch source. Private SHA833bf95e original EXE only statically disassembled. Next verify new focused CI and asset, review/merge if green, then source-stage original 5DB6FA processing-context D84=EBX+ECX, D8C=EBX, D90=ECX, D94/D98 source x87 repeated identical dividend (1.0 for positive), D9C 5DBDE0 min(4,((D94+D98)>>1)+2), 0/NaN unknown failclosed. Local experimental tests 4/4 at /mnt/data/fm2001_recovery636/reconstruction/original_native_5db6fa_context_tail.py and test_*.py, NOT GitHub staged yet. Then source true 5DA2F0 owner+670 event FPU callbacks, match calculation + v38/v3c, modes0–3 PResults management return. High-risk PR739 open unmerged; Windows11 GUI/Gates13–17 OPEN.",
-  "last_known_main_head": "59f6d0f89371e816ccfe6df9daf7c7a4dab7ad69",
+  "active_task": "Recovery636 main 46e9781c15514b9f47819a8b7ae8941f4f9f1724 includes reviewed/verified merged PR744 source-only original 5DC510+5DC650 optional and main native 0x20 record/0x0c FIFO two-event chain; exact PR head5443aef4dbf6986bf0e28dbf8c246f89be902023 Gate13 CI38651623309 SUCCESS 1935 tests/161 skips, asset38651623294 SUCCESS, initial failed CI38651390847 import typo corrected before merge. Original SHA833bf95e private executable statically disassembled only. Entire Gate13 OPEN, Gates14–17 OPEN, no original native execution/GUI. Active next work source joined 5DA2F0 processing context D84/D8C/D90/D94/D98/D9C at 5DB6FA–5DB7C3, two nonzero native components original FILD/FLD/FDIVRP ratio=1, 5DBDE0 clamp min4; zero/NaN fail-closed; local candidate code/test at /mnt/data/fm2001_recovery636/reconstruction/original_native_5db6fa_context_tail.py, 4/4 local incl 21 private PE instruction signatures. Need stage source backed on fresh main, join with already merged first-side world then next actual native callback/owner events and user-visible NEXT→PPreMatch modes0–3→v38/v3c→PResults→management return. High risk PR739 head25abe32b8773c7cccf9b7fe42b0bb458e40af102 still open unmerged pending independent GameState/schema48 review. All original leagues 1–6 humans and physical Win11 release audits pending.",
+  "last_known_main_head": "46e9781c15514b9f47819a8b7ae8941f4f9f1724",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -32,10 +32,10 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 636,
   "last_recovery_reason": "stale-repository-activity 17 min; recovery636 2026-10-15 KST",
-  "note": "CI failure correctly detected before merge; preserving source trace and exact next step; no original runtime or GameState match claim.",
+  "note": "Recovered source milestones #743/#744 merged with exact CI, but no live original game or Win11 GUI acceptance, never call completed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "59f6d0f89371e816ccfe6df9daf7c7a4dab7ad69"
+  "last_known_main_commit": "46e9781c15514b9f47819a8b7ae8941f4f9f1724"
 }
