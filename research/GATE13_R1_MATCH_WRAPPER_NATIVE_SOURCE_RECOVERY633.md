@@ -18,6 +18,38 @@ Within the reached callback completion path, `5DB7F8` stores object DWORD `+0x14
 
 Ten additional original executable opcode signatures for this returned-object ownership and its state writes passed **10/10** independently using the private canonical PE. No original process, native world update, Save/Load or GUI execution is claimed.
 
+## Newly source-verified early vtable+34 routing: do not enter a mode prematurely
+
+The original match processor can bypass **both** the pre-wrapper
+`0x5DA2F0` calculation and the user-visible Match Detail mode
+before it even reaches `0x513238`. The original instruction
+`5130C2: call [LeagueMatch vtable+0x34]` branches on `AL`:
+if **zero**, it invokes `0x512D80` at `0x5130CE`, then jumps
+`0x5130D6→0x513294` to run the *post* virtual+0x38/+0x3C callbacks,
+without entering the source handoff or any presentation choice.
+If **nonzero**, `0x516080` is called. Its **nonzero** result calls
+`0x512D80` at `0x5130EA`, then jumps to `0x513235→0x513238`.
+Its zero result proceeds to `0x5130F4` through subsequent conditional
+preparation, the later virtual+0x28 and side probes, eventually reaching
+`0x513238` if native intervening calls return.
+
+Consequently, a `SourceMatchModeHandoffPhase` is only valid where the
+outer route **actually reached** `0x513238`; it cannot be inferred
+from a pending match or even a selected mode. The new
+`source_original_match_router_guard` separately requires true
+original AL zero/nonzero results at their reached sites and explicitly
+distinguishes early `512D80`, handoff reachability, and the common
+post-callback stage; it does not invent the results of either call.
+The unqualified original vtable+0x34 or `516080` callback cannot be
+replaced with a modern boolean computed from prototype state.
+
+New 14 exact opcode signatures from `0x5130C2` to `0x5130F9`
+were independently checked **14/14** against the private
+SHA-verified original executable. The combined phase,
+owner-state and entry-guard set now covers **44/44** separately
+checked original signature sites in a bounded static inspection.
+This is *not* original game execution or a verified live dispatch.
+
 ## Reuse existing post-presentation world adapters, do not rebuild them
 
 Current `main` already contains `reconstruction/original_native_match_result_latch.py`
