@@ -113,7 +113,7 @@ class Original417340RegisteredUserTests(unittest.TestCase):
             project((),source=b"")
         with self.assertRaisesRegex(Original417340SourceError,"source bytes"):
             project((),club_record=b"")
-        with self.assertRaisesRegex(Original417340SourceError,"source bytes"):
+        with self.assertRaisesRegex(Original417340SourceError,"owner bytes"):
             project((),world_record=b"")
         m=manager()
         with self.assertRaisesRegex(Original417340SourceError,"user pointer identity"):
