@@ -114,7 +114,7 @@ class OriginalType12HumanOwnerTests(unittest.TestCase):
         m=manager(0x1000,0x2000,0x3000,77,0x5000)
         bad=Original413020ReachedManager(0x1000,m.original_manager_link_record,
                                          0x9999,m.original_user_record,
-                                         0x3000,m.original_team_context_record)
+                                         0x3000,m.original_user_context_record)
         with self.assertRaisesRegex(Original413020ManagerRouteError,"identity mismatch"):
             route((bad,))
 

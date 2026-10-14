@@ -79,7 +79,7 @@ class Original419490CountdownTests(unittest.TestCase):
         self.assertIsNone(project(uefa=1,v18=1,category=1,club=0).original_event_class_if_allocation_succeeds)
 
     def test_initial_4f8e40_early_exit_preserves_all_player_flags_and_countdowns(self):
-        r=project(fa=1,uefa=2,first=1,second=0x3333,prior=1,flags=0x22)
+        r=project(fa=1,uefa=2,first=1,second=0x3333,prior=1,v18=None,flags=0x22)
         self.assertEqual(unpack_from("<I",r.original_source_native_player_after,0x14)[0],0x22)
         self.assertEqual(r.original_fa_counter_after,1)
         self.assertEqual(r.original_uefa_counter_after,2)
