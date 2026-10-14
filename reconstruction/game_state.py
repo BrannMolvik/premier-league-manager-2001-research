@@ -81,6 +81,18 @@ from original_native_41a250_uefa_producer import (
     Original41A250Reached,
     source_original_41a250_uefa_incident_from_reached,
 )
+from original_native_4085d0_world_branch import (
+    Original4085D0ReachedWorld,
+    source_original_4085d0_qualified_mutating_leaf,
+)
+from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
+from original_native_41edf0_registered_quota import (
+    Original41EDF0Reached,source_original_41edf0_registered_quota_from_reached,
+)
+from original_native_status_world_state import (
+    OriginalNativeStatusWorldState,source_native_registered_key,
+    source_native_player_status_world_from_reached,
+)
 from original_human_user_name import OriginalHumanUserName, original_fresh_human_name
 from match_preparation import (
     PreparedAiMatchSelection,
@@ -323,6 +335,12 @@ class GameState:
     # counters are NOT equivalent; absent entries mean unverified, not zero.
     native_player_discipline: dict[int, OriginalNativePlayerDiscipline] = field(
         default_factory=dict
+    )
+    # Sparse ORIGINAL player+14/+174/+152/+153 and category-object+3/+4,
+    # plus original registered DBRClub+1A8 quota, independent of RuntimePlayer
+    # generic match status. Only qualified native-reached source bytes seed it.
+    native_status_world: OriginalNativeStatusWorldState = field(
+        default_factory=OriginalNativeStatusWorldState
     )
     # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
     # independent of club_roster_order until 0x61E3D0 promotion.
@@ -937,6 +955,105 @@ class GameState:
         )
         self.native_player_discipline[mapped_runtime_player_index] = next_record
         return next_record
+
+    def retain_verified_native_status_world(
+        self, *, original_player_record: bytes,
+        original_role_object_pointer: int, original_role_object_record: bytes,
+        mapped_runtime_player_index: int,
+    ):
+        """Initialize one source-owned status/role record from reached bytes."""
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players):
+            raise ValueError("qualified existing original player index required")
+        record = source_native_player_status_world_from_reached(
+            original_player_record=original_player_record,
+            original_source_role_object_pointer=original_role_object_pointer,
+            original_source_role_object_record=original_role_object_record,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        old=self.native_status_world.players.get(mapped_runtime_player_index)
+        if old is not None and old!=record:
+            raise ValueError("original status world already initialized differently")
+        self.native_status_world.players[mapped_runtime_player_index]=record
+        return record
+
+    def retain_verified_native_registered_club_quota(
+        self, reached: Original41EDF0Reached,
+    ) -> tuple[int,int]:
+        """Seed a real source club quota, not a modern runtime club default."""
+        from struct import unpack_from
+        if (not isinstance(reached,Original41EDF0Reached)
+                or type(reached.original_player_at_call) is not bytes
+                or len(reached.original_player_at_call)<6
+                or unpack_from("<H",reached.original_player_at_call,4)[0] not in self.players):
+            raise ValueError("reached existing original player/registered club required")
+        source=source_original_41edf0_registered_quota_from_reached(reached)
+        if (source.original_source_registered_club_index_signed is None
+                or source.original_registered_club_counter_before is None):
+            raise ValueError("original bit12-unset path did not read a club quota")
+        key=source_native_registered_key(source.original_source_registered_club_index_signed)
+        before=source.original_registered_club_counter_before
+        if key in self.native_status_world.registered_club_quotas:
+            if self.native_status_world.registered_club_quotas[key]!=before:
+                raise ValueError("registered native club quota already differs from source")
+        self.native_status_world.registered_club_quotas[key]=before
+        return key,before
+
+    def apply_verified_native_4085d0_world(
+        self, *, original_reached: Original4085D0ReachedWorld,
+        original_registered_417340: Original417340RegisteredUserReceipt,
+        mapped_runtime_player_index: int,
+        original_41edf0_reached: Original41EDF0Reached | None = None,
+    ):
+        """Atomically update ONLY the source-owner shadow for proven 4085D0.
+
+        This does not simulate normal NEXT, apply generic player flags or
+        create original Inbox mail. A live source owner must already have
+        been seeded from independently reached player/role and club bytes.
+        """
+        from struct import unpack_from
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players):
+            raise ValueError("qualified existing original player index required")
+        before=source_native_player_status_world_from_reached(
+            original_player_record=original_reached.original_player_at_entry,
+            original_source_role_object_pointer=original_reached.original_4ea3c0_source_object_pointer,
+            original_source_role_object_record=original_reached.original_4ea3c0_source_object,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        if self.native_status_world.players.get(mapped_runtime_player_index)!=before:
+            raise ValueError("original world source entry is absent or stale")
+        old_key=None
+        old_quota=None
+        if original_41edf0_reached is not None:
+            old_receipt=source_original_41edf0_registered_quota_from_reached(
+                original_41edf0_reached)
+            if old_receipt.original_source_registered_club_index_signed is not None:
+                old_key=source_native_registered_key(
+                    old_receipt.original_source_registered_club_index_signed)
+                old_quota=old_receipt.original_registered_club_counter_before
+                if self.native_status_world.registered_club_quotas.get(old_key)!=old_quota:
+                    raise ValueError("registered native club quota is absent or stale")
+        projected=source_original_4085d0_qualified_mutating_leaf(
+            original_reached,original_registered_417340,original_41edf0_reached)
+        after=source_native_player_status_world_from_reached(
+            original_player_record=projected.original_player_at_exit,
+            original_source_role_object_pointer=original_reached.original_4ea3c0_source_object_pointer,
+            original_source_role_object_record=projected.original_category_object_after_4ea350,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        new_players=dict(self.native_status_world.players)
+        new_quotas=dict(self.native_status_world.registered_club_quotas)
+        new_players[mapped_runtime_player_index]=after
+        if projected.original_registered_club_after_41edf0 is not None:
+            if old_key is None or old_quota is None:
+                raise ValueError("source registered club new quota lacks original owner")
+            new_quotas[old_key]=unpack_from(
+                "<i",projected.original_registered_club_after_41edf0,0x1a8)[0]
+        candidate=OriginalNativeStatusWorldState(new_players,new_quotas)
+        candidate.validate()
+        self.native_status_world=candidate
+        return projected
 
     def process_original_eam_due_events(self, on_date: date) -> tuple[str, ...]:
         """Source 0x613EE0 MPMEAMail subtype on NEXT/PResults (flag=1).
