@@ -11,6 +11,9 @@ from original_native_side_ref_comparison import (
     source_original_reached_side_ref_compare_4f2830,
     source_original_leaguematch_virtual04_510a40_from_reached_comparisons,
     source_original_leaguematch_virtual00_510a80_from_reached_v4,
+    source_original_sidereference_virtual0_dispatch_4f28a0,
+    SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_SUBTYPE_BRANCHES,
+    SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_JUMPTABLE_VA,
 )
 from original_leaguematch_native_process_owners import SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS
 
@@ -165,12 +168,54 @@ class OriginalNativeSideRefComparisonTests(unittest.TestCase):
                 source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
                     **(original|change))
 
+
+    def test_original_sidereference_cached_result_bypasses_type_callbacks(self):
+        for kind in (0,1,2,3,4,5,0xFFFF):
+            with self.subTest(kind=kind):
+                r=source_original_sidereference_virtual0_dispatch_4f28a0(
+                    original_native_side_record_before_getter=native_side(
+                        cache=0xCAFEBABE,type_code=kind,owner=0xDEADBEEF))
+                self.assertEqual(r.source_return_without_mutating_getter,0xCAFEBABE)
+                self.assertIsNone(r.source_dispatch_branch_va)
+                self.assertFalse(r.source_unresolved_callback_required)
+
+    def test_original_sidereference_zero_cache_4_way_type_handler_or_zero_return(self):
+        expected={1:0x4F28E0,2:0x4F290B,3:0x4F2992,4:0x4F2A78}
+        self.assertEqual(SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_SUBTYPE_BRANCHES,expected)
+        for kind in (0,1,2,3,4,5,0xFFFF):
+            with self.subTest(kind=kind):
+                r=source_original_sidereference_virtual0_dispatch_4f28a0(
+                    original_native_side_record_before_getter=native_side(
+                        cache=0,owner=0x11220000,type_code=kind,selector=3))
+                self.assertEqual(r.source_dispatch_branch_va,expected.get(kind))
+                self.assertEqual(r.source_unresolved_callback_required,kind in expected)
+                self.assertEqual(r.source_return_without_mutating_getter,
+                                 None if kind in expected else 0)
+
+    def test_original_sidereference_getter_disallows_incomplete_or_mutable_native_input(self):
+        for bad in (None,bytes(15),bytearray(16),"native",{"type":1}):
+            with self.subTest(bad=str(bad)[:80]),self.assertRaises(
+                OriginalNativeSideRefCompareSourceError):
+                source_original_sidereference_virtual0_dispatch_4f28a0(
+                    original_native_side_record_before_getter=bad)
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "owner original private PE not accessible in hosted CI")
     def test_original_private_pe_4f2830_callback_branches_and_native_vtables(self):
         from gate13_button_source_trace import OriginalPE32
         original=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
+            0x4F28BE:"8b 46 04",
+            0x4F28C3:"0f 85 64 02 00 00",
+            0x4F28CB:"66 8b 46 0c",
+            0x4F28D0:"83 f8 03",
+            0x4F28D9:"ff 24 85 44 2b 4f 00",
+            0x4F28E5:"ff 50 44",
+            0x4F290E:"e8 ad 74 00 00",
+            0x4F299B:"e8 20 74 00 00",
+            0x4F2A7B:"e8 20 84 00 00",
+            0x4F2B2A:"89 46 04",
+            0x4F2B2D:"8b 46 04",
             0x4F2836:"ff 10",
             0x4F2842:"ff 12",
             0x4F2844:"8b 56 04",
@@ -191,6 +236,9 @@ class OriginalNativeSideRefComparisonTests(unittest.TestCase):
             with self.subTest(va=hex(address)):
                 self.assertEqual(original.read(address,len(bytes.fromhex(opcode))),
                                  bytes.fromhex(opcode))
+        self.assertEqual(SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_JUMPTABLE_VA,0x4F2B44)
+        for subtype,va in SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_SUBTYPE_BRANCHES.items():
+            self.assertEqual(original.read(SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_JUMPTABLE_VA+4*(subtype-1),4),pack("<I",va))
         for vtable in SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS:
             self.assertEqual(original.read(vtable,4),pack("<I",0x510A80))
             self.assertEqual(original.read(vtable+4,4),pack("<I",0x510A40))
