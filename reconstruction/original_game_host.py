@@ -1389,7 +1389,8 @@ class OriginalGameTkHost:
             self.last_status = (
                 f"Original Quick Match completed {outcome.match_entry!r}"
                 + ("" if score is None else f" score {tuple(score)!r}")
-                + "; PResults returned to management"
+                + "; reconstructed management view resumed; "
+                "original PResults event execution and native return unverified"
             )
             return
         self.prematch_surface = auxiliary
