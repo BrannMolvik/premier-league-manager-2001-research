@@ -58,7 +58,7 @@ class Original7D7760DueCleanupTests(unittest.TestCase):
         self.assertEqual(unpack_from("<I",b,0x14)[0],unpack_from("<I",a,0x14)[0]&~1)
         self.assertEqual(b[:0x14],a[:0x14])
         self.assertEqual(b[0x18:0x24c],a[0x18:0x24c])
-        self.assertFalse(out.original_original_event_queue_mutated)
+        self.assertFalse(out.original_event_queue_mutated)
         self.assertFalse(out.original_native_event_handler_executed)
         self.assertFalse(out.original_player_heap_freed)
         self.assertFalse(out.original_notice_delivered)
