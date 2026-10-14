@@ -86,7 +86,6 @@ on:
       - "reconstruction/test_original_native_606540_human_notice.py"
       - "reconstruction/original_native_606540_human_mail_route.py"
       - "reconstruction/test_original_native_606540_human_mail_route.py"
-      - "reconstruction/test_original_606540_injury_language.py"
       - "reconstruction/original_native_606540_user_retention.py"
       - "reconstruction/test_original_native_606540_user_retention.py"
       - "reconstruction/original_native_613ee0_human_due.py"
@@ -96,12 +95,16 @@ on:
       - "reconstruction/original_native_418ad0_cleanup.py"
       - "reconstruction/original_native_7d7760_due_cleanup.py"
       - "reconstruction/test_original_native_7d7760_due_cleanup.py"
-      - "reconstruction/original_native_613ee0_pending_list.py"
-      - "reconstruction/test_original_native_613ee0_pending_list.py"
+      - "reconstruction/test_original_606540_injury_language.py"
       - "reconstruction/original_native_613ee0_multi_chain.py"
       - "reconstruction/test_original_native_613ee0_multi_chain.py"
       - "reconstruction/original_606540_portable_notice_world.py"
       - "reconstruction/test_original_606540_portable_notice_world.py"
+      - "reconstruction/original_native_7d7760_human_return.py"
+      - "reconstruction/original_native_7d7760_return_language.py"
+      - "reconstruction/test_original_native_7d7760_human_return.py"
+      - "reconstruction/original_native_613ee0_pending_list.py"
+      - "reconstruction/test_original_native_613ee0_pending_list.py"
       - "reconstruction/original_native_614080_deferred_drain.py"
       - "reconstruction/test_original_native_614080_deferred_drain.py"
       - "reconstruction/original_native_405080_available_roster.py"
@@ -470,14 +473,15 @@ jobs:
             test_original_native_60aa20_consistency \
             test_original_native_606540_human_notice \
             test_original_native_606540_human_mail_route \
-            test_original_606540_injury_language \
             test_original_native_606540_user_retention \
             test_original_native_613ee0_human_due \
             test_original_native_605f90_posthandler \
             test_original_native_7d7760_due_cleanup \
-            test_original_native_613ee0_pending_list \
+            test_original_606540_injury_language \
             test_original_native_613ee0_multi_chain \
             test_original_606540_portable_notice_world \
+            test_original_native_7d7760_human_return \
+            test_original_native_613ee0_pending_list \
             test_original_native_614080_deferred_drain \
             test_original_native_405080_available_roster \
             test_original_native_5127a0_extra_event_owners \
