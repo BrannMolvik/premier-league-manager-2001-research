@@ -165,6 +165,75 @@ def source_match_detail_dispatch(
     )
 
 
+
+# Original 513238..5132AC is a separate conditional match processing phase.
+# Do not mistake the 5DA2F0 pre-wrapper call for the complete calculator:
+# its original effects, mode-specific modal, and post callbacks are separate.
+MATCH_SOURCE_PHASE_ENTRY_VA = 0x513238
+MATCH_PRE_PRESENTATION_NATIVE_CALL_VA = 0x5DA2F0
+MATCH_POST_PRESENTATION_VIRTUAL_OFFSETS = (0x38, 0x3C)
+MATCH_SOURCE_SKIP_PRE_FLAG = 0x20
+MATCH_SOURCE_PRESENTATION_FLAG = 0x10
+
+
+@dataclass(frozen=True)
+class SourceMatchModeHandoffPhase:
+    """Read-only branch plan after REACHING native 0x513238.
+
+    The source reads object+44 twice: once BEFORE 5DA2F0 and once AFTER.
+    Those snapshots must not be treated as identical without evidence.
+    No native routine is invoked and no modern match state is committed.
+    """
+    mode: MatchDetailMode
+    before_callback_flags_esi44: int
+    after_callback_flags_esi44_if_reached: int | None
+    pre_presentation_native_call_va: int | None
+    selected_presentation_wrapper_va: int | None
+    selected_wrapper_variant: int | None
+    native_post_virtual_offsets: tuple[int, int] = MATCH_POST_PRESENTATION_VIRTUAL_OFFSETS
+    native_callbacks_executed: bool = False
+    live_match_state_committed: bool = False
+
+
+def source_original_match_mode_handoff_phase(
+    mode: int | MatchDetailMode,
+    *,
+    original_flags_at_513238: int,
+    original_flags_at_513257_if_reached: int | None,
+) -> SourceMatchModeHandoffPhase:
+    """Exact guarded 513238→5DA2F0→513257→mode wrapper→vft+38/+3C.
+
+    This is NOT the earlier 5130xx entry/virtual+28 gate. A reached
+    0x513238 context is a precondition, not established by these inputs.
+    If flags bit 0x20 is set at 513238, source jumps directly to 513294
+    without visiting 5DA2F0 OR 513257. Otherwise 5DA2F0 is called,
+    and a separately reached later flags BYTE+44 bit0x10 decides whether
+    0/1/2 modal dispatch occurs (mode 3 has no presentation wrapper).
+    Both post virtual offsets run at 513294/5132A0 after that choice.
+    """
+    selected = coerce_match_detail_mode(mode)
+    flags = original_flags_at_513238
+    if type(flags) is not int or not 0 <= flags <= 0xFFFFFFFF:
+        raise ValueError("exact original DWORD esi+44 at 513238 required")
+    reached_pre = not bool(flags & MATCH_SOURCE_SKIP_PRE_FLAG)
+    second = original_flags_at_513257_if_reached
+    if not reached_pre:
+        if second is not None:
+            raise ValueError("native 513257 flag read skipped after early 513294 branch")
+        return SourceMatchModeHandoffPhase(
+            selected, flags, None, None, None, None
+        )
+    if type(second) is not int or not 0 <= second <= 0xFFFFFFFF:
+        raise ValueError("separately reached original DWORD esi+44 after 5DA2F0 required")
+    dispatch = source_match_detail_dispatch(selected)
+    wrapper = dispatch.presentation_wrapper_va if second & MATCH_SOURCE_PRESENTATION_FLAG else None
+    variant = dispatch.wrapper_variant if wrapper is not None else None
+    return SourceMatchModeHandoffPhase(
+        selected, flags, second, MATCH_PRE_PRESENTATION_NATIVE_CALL_VA,
+        wrapper, variant,
+    )
+
+
 def match_detail_route_source_contract() -> dict:
     return {
         "selector_commit_va": PREMATCH_SELECTOR_COMMIT_VA,
