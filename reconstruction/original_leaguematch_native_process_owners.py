@@ -194,26 +194,33 @@ SOURCE_LEAGUEMATCH_LITERAL_V28_KINDS = {
 
 @dataclass(frozen=True)
 class SourceOriginal510D60CounterWrites:
-    """Only reached native 510DC2..510E15 match-context counters."""
+    """Only reached 510DC2..510E64 native-context literal writes."""
 
     original_match_vtable: int
     original_virtual28_literal_kind: int
     original_flags44: int
     original_context_d0c: int
     original_context_d10: int
+    original_context_d14: int
+    original_context_d18: int
     original_base_510d60_executed: bool = False
     live_game_state_updated: bool = False
 
     @property
     def source_context_stores(self) -> tuple[tuple[int, int], ...]:
         return ((0xD0C, self.original_context_d0c),
-                (0xD10, self.original_context_d10))
+                (0xD10, self.original_context_d10),
+                (0xD14, self.original_context_d14),
+                (0xD18, self.original_context_d18),
+                (0xD24, 0xFFFFFFFF),
+                (0xD28, 0xFFFFFFFF),
+                (0xD2C, 0xFFFFFFFF))
 
 
 def source_original_510d60_two_event_counter_writes(
     *, original_match_record: bytes,
 ) -> SourceOriginal510D60CounterWrites:
-    """Read-only native 510D60 v34 two counter writes, not a match.
+    """Read-only native 510D60 v34 literal context writes, not a match.
 
     The original twice calls vtable+0x28 at 510DBF/510DEC. Six
     source-authenticated v28 functions are constant returns, therefore
@@ -234,6 +241,11 @@ def source_original_510d60_two_event_counter_writes(
     flags = unpack_from("<I", original_match_record, 0x44)[0]
     first = 0 if kind == 2 and not flags & 0x04 else (flags >> 1) & 1
     second = 1 if kind == 3 and not flags & 0x04 else (flags >> 2) & 1
+    # 510E1A third v+28 call sets context+D14 iff kind==5;
+    # 510E2B sets context+D18 from match+44 bit3. Original
+    # 510E55..510E64 sets three DWORD sentinels, later wrapped
+    # class 511120 may overwrite some after base 510D60 returns.
     return SourceOriginal510D60CounterWrites(
-        owner.source_vtable_va, kind, flags, first, second
+        owner.source_vtable_va, kind, flags, first, second,
+        int(kind == 5), (flags >> 3) & 1,
     )
