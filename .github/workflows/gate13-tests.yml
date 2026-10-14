@@ -154,6 +154,14 @@ on:
       - "reconstruction/test_original_schedule_event_native_constructor.py"
       - "reconstruction/original_leaguematch_native_process_owners.py"
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
+      - "reconstruction/original_native_5db389_component_inputs.py"
+      - "reconstruction/test_original_native_5db389_component_inputs.py"
+      - "reconstruction/original_native_5db6fa_context_tail.py"
+      - "reconstruction/test_original_native_5db6fa_context_tail.py"
+      - "reconstruction/original_match_context_to_side_world.py"
+      - "reconstruction/test_original_match_context_to_side_world.py"
+      - "reconstruction/original_match_calculation_reached_chain.py"
+      - "reconstruction/test_original_match_calculation_reached_chain.py"
       - "reconstruction/original_native_5dc510_event_tail.py"
       - "reconstruction/test_original_native_5dc510_event_tail.py"
       - "reconstruction/original_native_5dc650_event_tail.py"
@@ -514,6 +522,10 @@ jobs:
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
+            test_original_native_5db389_component_inputs \
+            test_original_native_5db6fa_context_tail \
+            test_original_match_context_to_side_world \
+            test_original_match_calculation_reached_chain \
             test_original_native_5dc510_event_tail \
             test_original_native_5dc650_event_tail \
             test_original_native_5dc510_two_append \
