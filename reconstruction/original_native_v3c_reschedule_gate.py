@@ -17,6 +17,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from struct import unpack_from
 
+from original_schedule_event_native_constructor import (
+    SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA,
+    SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA,
+)
+
 from original_leaguematch_native_process_owners import (
     OriginalLeagueMatchProcessOwnerError,
     source_original_leaguematch_process_owners_for_native_record,
@@ -32,8 +37,6 @@ SOURCE_FOLLOWING_V3C_CALLBACK_VAS = (0x512710, 0x512230)
 SOURCE_MATCH_BIT0_STARTED = 1
 SOURCE_MATCH_BIT5_SKIP_RESCHEDULE = 0x20
 SOURCE_MATCH_COMPETITION_OWNER_PTR_OFFSET = 0x4C
-SOURCE_PRIMARY_EVENT_REGISTRY_VA = 0x947AF0
-SOURCE_SECONDARY_EVENT_REGISTRY_VA = 0x947AD8
 SOURCE_GLOBAL_DATE_INDEX_VA = 0x9847FC
 
 
@@ -175,8 +178,8 @@ def source_original_5127a0_first_calendar_request(
         raise OriginalV3CRescheduleGateError(
             "actual original global date-index DWORD required")
     match_type_bit0 = unpack_from("<I", record, 0x0C)[0] & 1
-    registry = (SOURCE_PRIMARY_EVENT_REGISTRY_VA if match_type_bit0
-                else SOURCE_SECONDARY_EVENT_REGISTRY_VA)
+    registry = (SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA if match_type_bit0
+                else SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA)
     return OriginalV3CFirstCalendarLookupReceipt(
         original_source_vtable_va=original_gate.original_source_vtable_va,
         original_date_global_index=date,
