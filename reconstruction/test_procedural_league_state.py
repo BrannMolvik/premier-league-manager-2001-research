@@ -184,16 +184,33 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         self.assertNotIn((14,0),state.cup_results.group_position_rankings)
 
     def test_game_state_ordinary_procedural_result_keeps_bad_source_shortname_pending(self):
+        # Equal source numeric keys force the original comparator to
+        # consult the native club short names. Non-CP1252 input cannot
+        # be used to invent a deterministic rank after score recording.
+        node0=league_node(0,10,20,competition_id=14,context=0)
+        node1=league_node(1,30,40,competition_id=14,context=0)
+        state=GameState(calendar=GameCalendar(date(2000,7,1)),players={})
+        state.clubs={10:SimpleNamespace(short_name="🙂"),
+                     20:SimpleNamespace(short_name="Beta"),
+                     30:SimpleNamespace(short_name="Alpha"),
+                     40:SimpleNamespace(short_name="Gamma")}
+        state.install_primary_schedule_shadow(((node0,),(node1,)),season_year=2000)
+        state.refresh_european_procedural_leagues()
+        state.record_procedural_league_result(node0.node_token,1,0)
+        result=state.record_procedural_league_result(node1.node_token,1,0)
+        self.assertEqual((result.home_goals,result.away_goals),(1,0))
+        self.assertNotIn((14,0),state.cup_results.competition_rankings)
+        self.assertEqual(len(state.procedural_leagues[(14,0)].results),2)
+
+    def test_game_state_numeric_unique_ranking_does_not_require_unreached_name_comparator(self):
         node=league_node(0,10,20,competition_id=14,context=0)
         state=GameState(calendar=GameCalendar(date(2000,7,1)),players={})
         state.clubs={10:SimpleNamespace(short_name="🙂"),
                      20:SimpleNamespace(short_name="Beta")}
         state.install_primary_schedule_shadow(((node,),),season_year=2000)
         state.refresh_european_procedural_leagues()
-        result=state.record_procedural_league_result(node.node_token,1,0)
-        self.assertEqual((result.home_goals,result.away_goals),(1,0))
-        self.assertNotIn((14,0),state.cup_results.competition_rankings)
-        self.assertEqual(len(state.procedural_leagues[(14,0)].results),1)
+        state.record_procedural_league_result(node.node_token,1,0)
+        self.assertEqual(state.cup_results.competition_rankings[(14,0)],(10,20))
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                          "Original private executable is not available in hosted CI")
