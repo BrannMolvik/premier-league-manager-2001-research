@@ -81,6 +81,7 @@ on:
       - "reconstruction/test_original_native_60aa20_pending_source.py"
       - "reconstruction/original_native_60aa20_pending_event.py"
       - "reconstruction/test_original_native_60aa20_pending_event.py"
+      - "reconstruction/test_original_native_60aa20_consistency.py"
       - "reconstruction/original_native_405080_available_roster.py"
       - "reconstruction/test_original_native_405080_available_roster.py"
       - "reconstruction/original_native_5127a0_extra_event_owners.py"
@@ -444,6 +445,7 @@ jobs:
             test_original_native_605f90_dispatch \
             test_original_native_60aa20_pending_source \
             test_original_native_60aa20_pending_event \
+            test_original_native_60aa20_consistency \
             test_original_native_405080_available_roster \
             test_original_native_5127a0_extra_event_owners \
             test_original_native_514520_slot_activation \
