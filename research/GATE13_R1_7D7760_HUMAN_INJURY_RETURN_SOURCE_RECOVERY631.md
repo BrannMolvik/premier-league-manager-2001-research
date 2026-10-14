@@ -18,22 +18,22 @@ This return notice class is **not the injury-onset 606540 class** and is **not a
 
 ## Original constructor/status × title/body source mapping
 
-Rows are in original branch families: original `4D1190` non-null (type31), original `4D1110` non-null (type30), both null (type2). The original second 5CE660 descriptor pushes literal 31, 30 or 2 respectively. Status3 original constructor branches may specialize vtables after construction. All table values here were directly read from the original PE and language table, not inferred from modern reconstruction.
+Rows are in original branch families: original `4D1190` non-null (type31), original `4D1110` non-null (type30), both null (type2). The original second 5CE660 descriptor pushes literal 31, 30 or 2 respectively. Status3 branches explicitly OVERWRITE the constructors' initial vtables after native construction: family31 `5D7D51` writes `7CB37C`, family30 `5D7F04` writes `7CB424`, and family2 `5D8082` writes `7CB2D4`. These final vtables retain the shown +18/+1C callbacks but **must not** be mistaken for the temporary constructor initial vtables `7CB3D0`, `7CB478`, `7CB328`. Family30 status3 calls actual constructor `59EFA0`, NOT `59EF90` (an adjacent 4-byte-return stub). All table values here were directly read from the original PE and language table, not inferred from modern reconstruction.
 
 | Family | Status | Original constructor | Concrete vtable | +18 title callback | +1C body callback | Title IDX | Body IDs at +1C arg 0/1/2 |
 | --- | ---: | --- | --- | --- | --- | ---: | --- |
 | 31 | 0 | 59D6B0 | 7D3F8C | 59D740 | 59D7C0 | 2328 | 1411,1411,1411 |
 | 31 | 1 | 59DFF0 | 7D4088 | 59E080 | 59E100 | 2343 | 1417,1417,1417 |
 | 31 | 2 | 59E970 | 7D4184 | 59EA00 | 59EA80 | 2358 | 1423,1423,1423 |
-| 31 | 3 | 59F2B0 | 7CB3D0 | 59F340 | 59F3C0 | 2373 | 1429,1429,1429 |
+| 31 | 3 | 59F2B0 | 7CB37C | 59F340 | 59F3C0 | 2373 | 1429,1429,1429 |
 | 30 | 0 | 59D3A0 | 7D3F38 | 59D430 | 59D4B0 | 2323 | 1408,1409,1409 |
 | 30 | 1 | 59DCE0 | 7D4034 | 59DD70 | 59DDF0 | 2338 | 1415,1415,1415 |
 | 30 | 2 | 59E660 | 7D4130 | 59E6F0 | 59E770 | 2353 | 1421,1421,1421 |
-| 30 | 3 | 59EF90 | 7CB478 | 59F030 | 59F0B0 | 2368 | 1427,1427,1427 |
+| 30 | 3 | 59EFA0 | 7CB424 | 59F030 | 59F0B0 | 2368 | 1427,1427,1427 |
 | 2 | 0 | 59D9C0 | 7D3FE0 | 59DA60 | 59DAE0 | 2333 | 1413,1413,1413 |
 | 2 | 1 | 59E340 | 7D40DC | 59E3E0 | 59E460 | 2348 | 1419,1419,1419 |
 | 2 | 2 | 59EC80 | 7D41D8 | 59ED20 | 59EDA0 | 2363 | 1425,1425,1425 |
-| 2 | 3 | 59F5C0 | 7CB328 | 59F660 | 59F6E0 | 2378 | 1431,1431,1431 |
+| 2 | 3 | 59F5C0 | 7CB2D4 | 59F660 | 59F6E0 | 2378 | 1431,1431,1431 |
 
 All 12 original body functions statically contain explicit addresses of the three selected EnglishEAM.idx slots immediately following the title ordinal, each descending 4 bytes from native slot base 87AC28. Original title source verified all 12 map to IDX 1407; first body variant STR IDs listed above. This does **not** prove original GUI argument beyond the separately audited original first-click +1C(arg0) user route, native token substitution, actual use/read status or human Inbox rendering.
 
