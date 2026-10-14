@@ -11,10 +11,11 @@ successful allocation/free, Inbox delivery, world save or played match.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from struct import unpack_from,pack_into
+from struct import unpack_from
 
 from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
 from original_native_60aa20_pending_event import Original60AA20NonhumanReceipt
+from original_native_418ad0_cleanup import source_original_418ad0_cleanup
 
 
 class Original7D7760DueSourceError(ValueError):
@@ -131,10 +132,9 @@ def source_original_7d7760_due_nonhuman_cleanup(
             type(proof.original_417340_return_al) is not int or proof.original_417340_return_al!=0 or
             proof.native_callback_executed or proof.live_game_state_updated):
         raise Original7D7760DueSourceError("5D7BAA native no-manager owner predicate AL0 required")
-    ptr=unpack_from("<I",player,0x24c)[0]
-    after=bytearray(player)
-    pack_into("<I",after,0x24c,0)
-    pack_into("<I",after,0x14,unpack_from("<I",player,0x14)[0]&~1)
+    cleanup=source_original_418ad0_cleanup(player_id=pid,player_before=player)
     return Original7D7760DueCleanupReceipt(
-        pid,due,target,0x5d7b40,True,ptr,ptr!=0,bytes(after),
+        pid,due,target,0x5d7b40,True,cleanup.original_descriptor_pointer_before,
+        cleanup.original_native_requests_686fe3_free_if_nonzero,
+        cleanup.original_player_after_source,
     )
