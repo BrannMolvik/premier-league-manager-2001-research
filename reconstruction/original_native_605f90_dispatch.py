@@ -194,3 +194,119 @@ def source_original_605f90_predispatch_from_reached(
     return Original605F90PreDispatchReceipt(
         wanted,subtype,address,bytes(next_bytes),dispatch,got[0],got[1],
     )
+
+
+
+@dataclass(frozen=True)
+class Original606540Reached:
+    """Reached 606540 common subtype handler from a qualified 605F90 plan."""
+    original_predispatch: Original605F90PreDispatchReceipt
+    original_first_rng_result: int
+    original_822320_first_threshold: int
+    original_822324_second_threshold: int | None = None
+    original_822328_third_threshold: int | None = None
+    original_second_rng4_result: int | None = None
+    original_82232c_short_base: int | None = None
+    original_822330_medium_base: int | None = None
+    original_822334_long_base: int | None = None
+
+
+@dataclass(frozen=True)
+class Original606540PreHumanReceipt:
+    original_player_id: int
+    original_subtype: int
+    original_source_descriptor_before_417340: bytes
+    original_first_rng_bound: int
+    original_first_rng_result: int
+    original_second_rng4_reached: bool
+    original_schedule_base_from_mutable_source: int
+    original_schedule_delta_from_rng: int
+    original_handler_417340_callback_outstanding: bool = True
+    original_60aa20_descriptor_schedule_callback_outstanding: bool = True
+    original_event_pending_or_delivered: bool = False
+    live_game_state_updated: bool = False
+
+
+def _signed32(value: int | None, name: str) -> int:
+    if type(value) is not int or not -0x80000000<=value<=0x7fffffff:
+        raise Original605F90SourceError(f"actual original {name} signed32 required")
+    return value
+
+
+def source_original_606540_pre_human_from_reached(
+    reached: Original606540Reached,
+) -> Original606540PreHumanReceipt:
+    """Source 606540..60661D until native owner 417340 (unexecuted).
+
+    Original subtype2 first draws 64D540(75); subtype0/1 draw
+    64D540(100). Native 822320 early branch sets descriptor+5 to 0
+    with static/source duration global+82232C. Other branches need
+    optional 64D540(4) with +3 or +11, descriptor+5=1/2/3.
+    The function THEN conditionally allocates native manager notifications
+    and calls 60AA20. This is only a bounded pre-human source projection.
+    """
+    if not isinstance(reached,Original606540Reached):
+        raise Original605F90SourceError("qualified original 606540 reached source required")
+    prev=reached.original_predispatch
+    if (not isinstance(prev,Original605F90PreDispatchReceipt) or
+            prev.original_handler_choice.original_selected_handler_address!=0x606540 or
+            prev.original_native_handler_executed or
+            prev.live_game_state_updated):
+        raise Original605F90SourceError("original 605F90 must choose 606540 first")
+    subtype=prev.original_subtype
+    bound=75 if subtype==2 else 100
+    r=reached.original_first_rng_result
+    if type(r) is not int or not 0<=r<bound:
+        raise Original605F90SourceError("reached 606540 first RNG(75/100) result required")
+    t0=_signed32(reached.original_822320_first_threshold,"822320 first threshold")
+    desc=bytearray(prev.original_descriptor_at_subhandler_entry)
+    if type(desc) is not bytearray or len(desc)!=12:
+        raise Original605F90SourceError("native 606540 actual descriptor required")
+    if r<t0:
+        if any(v is not None for v in (
+            reached.original_822324_second_threshold,
+            reached.original_822328_third_threshold,
+            reached.original_second_rng4_result,
+            reached.original_822330_medium_base,
+            reached.original_822334_long_base)):
+            raise Original605F90SourceError("606540 early branch skips second thresholds and RNG")
+        base=_signed32(reached.original_82232c_short_base,"82232C short base")
+        desc[5]=0
+        delta=1
+        second=False
+    else:
+        if reached.original_82232c_short_base is not None:
+            raise Original605F90SourceError("606540 nonshort branch skips 82232C base")
+        t1=_signed32(reached.original_822324_second_threshold,"822324 second threshold")
+        final_long=r>=t1 and subtype!=2
+        if final_long:
+            t2=_signed32(reached.original_822328_third_threshold,"822328 third threshold")
+            if r<t2:
+                desc[5]=2
+            else:
+                desc[5]=3
+            base=_signed32(reached.original_822334_long_base,"822334 long base")
+            if reached.original_822330_medium_base is not None:
+                raise Original605F90SourceError("606540 long path skips medium base")
+            offset=11
+        else:
+            if reached.original_822328_third_threshold is not None or reached.original_822334_long_base is not None:
+                raise Original605F90SourceError("606540 medium path skips third threshold/long base")
+            desc[5]=1
+            base=_signed32(reached.original_822330_medium_base,"822330 medium base")
+            offset=3
+        subdraw=reached.original_second_rng4_result
+        if type(subdraw) is not int or not 0<=subdraw<4:
+            raise Original605F90SourceError("native second 606540 RNG(4) result required")
+        delta=subdraw+offset
+        second=True
+    return Original606540PreHumanReceipt(
+        original_player_id=prev.original_player_id,
+        original_subtype=subtype,
+        original_source_descriptor_before_417340=bytes(desc),
+        original_first_rng_bound=bound,
+        original_first_rng_result=r,
+        original_second_rng4_reached=second,
+        original_schedule_base_from_mutable_source=base,
+        original_schedule_delta_from_rng=delta,
+    )
