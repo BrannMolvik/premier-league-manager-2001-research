@@ -63,6 +63,8 @@ class Original606540HumanNoticeReached:
     original_4d1190_lookup_nonnull: bool
     # Native 4D1110 is reached ONLY when 4D1190 returns NULL.
     original_4d1110_lookup_nonnull_if_reached: bool | None = None
+    # Independently reached at 606C98, not assumed equal to 60AA20 date.
+    original_raw_calendar_date_at_606c98: int = -1
 
 
 @dataclass(frozen=True)
@@ -76,6 +78,8 @@ class Original606540HumanNoticeSourcePlan:
     original_selected_constructor_address: int
     original_constructor_object_size: int
     original_native_human_user_pointer: int
+    original_notice_wrapper_date_raw_u32: int
+    original_notice_flags_or_mask: int = 6
     original_notice_envelope_vtable: int = 0x7BD564
     original_notice_envelope_size: int = 12
     original_pending_queue_address: int = 0x947AA8
@@ -151,6 +155,9 @@ def source_original_606540_human_notice_plan(
         if type(second) is not bool:
             raise Original606540HumanNoticeSourceError("4D1110 outcome required after NULL 4D1190")
         family=1 if second else 2
+    raw_day=reached.original_raw_calendar_date_at_606c98
+    if type(raw_day) is not int or not 0<=raw_day<=0xffffffff:
+        raise Original606540HumanNoticeSourceError("separately reached raw 606C98 date DWORD required")
     choice=_NATIVE_CONSTRUCTOR_ROUTES[family][min(status,2)][int(subtype==2)]
     if choice is None:
         raise Original606540HumanNoticeSourceError(
@@ -160,5 +167,5 @@ def source_original_606540_human_notice_plan(
         (0x606CE4,0x606CF4,0x606D04)[family],
         _NATIVE_STATUS_SWITCH_TARGETS[family][status],
         choice[0],choice[1],
-        owner.original_matching_user_pointer,
+        owner.original_matching_user_pointer,raw_day,
     )
