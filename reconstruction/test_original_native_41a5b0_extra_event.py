@@ -57,6 +57,7 @@ def staged(*,registered=True,status=0,source_77=60,count=None,
     will_allocate=(registered or count>=source_float) and not (p[0x14]&1)
     return Original41A5B0Reached(
         original_player_after_row_at_call=p,
+        original_native_row_player_pointer=0x4000,
         original_registered_417340_owner_proof=proof,
         original_405080_current_club_pointer=(
             None if registered else proof.original_source_club_pointer),
