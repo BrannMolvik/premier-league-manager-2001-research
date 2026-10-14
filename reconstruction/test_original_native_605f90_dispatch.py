@@ -177,7 +177,12 @@ class Original605F90DispatchTests(unittest.TestCase):
         choice=source_original_605f90_select_handler(
             original_subtype=2,original_reached_rng100_result=0,
             original_reached_thresholds=thresholds(2))
-        p=replace(p,original_handler_choice=choice)
+        # Synthetic subtype2 descriptor for a READ-ONLY selector test.
+        # The positive 41A5B0 caller independently supports only 0/1;
+        # a real 41A670 subtype2 source caller must be proven separately.
+        d=bytearray(p.original_descriptor_at_subhandler_entry);d[4]=2
+        p=replace(p,original_handler_choice=choice,
+                  original_descriptor_at_subhandler_entry=bytes(d))
         out=source_original_606540_pre_human_from_reached(
             Original606540Reached(
                 p,70,50,original_822324_second_threshold=80,
@@ -185,6 +190,14 @@ class Original605F90DispatchTests(unittest.TestCase):
         self.assertEqual(out.original_first_rng_bound,75)
         self.assertEqual(out.original_source_descriptor_before_417340[5],1)
         self.assertEqual(out.original_schedule_delta_from_rng,6)
+
+    def test_forged_handler_subtype_without_matching_descriptor_fails(self):
+        p=predispatched(subtype=1)
+        with self.assertRaisesRegex(Original605F90SourceError,"subtype/descriptor"):
+            source_original_606540_pre_human_from_reached(
+                Original606540Reached(
+                    replace(p,original_subtype=2),0,50,
+                    original_82232c_short_base=10))
 
     def test_606540_medium_and_long_draws_require_exact_native_branches(self):
         p=predispatched(subtype=1,draw=0)
