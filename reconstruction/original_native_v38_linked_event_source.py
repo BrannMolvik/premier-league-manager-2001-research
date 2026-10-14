@@ -55,3 +55,23 @@ def source_native_513570_nonzero_event_entry(
         branch = "no_head_secondary_gate"
     return NativeV38LinkedEventEntry(
         primary, secondary, pointer, branch, True)
+
+
+def source_original_v38_event_kind_predicates(
+    *, original_event_record: bytes,
+) -> tuple[bool, bool, bool, bool]:
+    """Native 0x6326B0/0x632680/0x6326E0/0x632940 exact event fields.
+
+    The first three compare signed-independent event DWORD+28 with 8,7,9.
+    0x632940 invokes 0x6328F0 (signed 0..4 +28) and 0x632910
+    (+24 equals 0 or 3); both must pass. These four functions are pure
+    predicates in verified static disassembly, not world-mutating callbacks.
+    Native list ownership and when score writes are committed are separate.
+    """
+    if type(original_event_record) is not bytes or len(original_event_record) < 0x2C:
+        raise NativeV38LinkedEventSourceError(
+            "actual original event bytes through +28 are required")
+    kind = unpack_from("<I", original_event_record, 0x28)[0]
+    owner = unpack_from("<I", original_event_record, 0x24)[0]
+    return (kind == 8, kind == 7, kind == 9,
+            kind <= 4 and owner in (0, 3))
