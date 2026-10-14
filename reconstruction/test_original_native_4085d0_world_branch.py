@@ -171,6 +171,39 @@ class Original4085D0BranchTests(unittest.TestCase):
         false_proof=owner_proof(w,registered=4)
         with self.assertRaisesRegex(Original4085D0SourceError,"41EDF0"):
             source_original_4085d0_qualified_mutating_leaf(w,false_proof)
+        from original_native_41edf0_registered_quota import Original41EDF0Reached
+        # Native 41EDF0 gets called even when bit12 is unset: then it
+        # returns before reading registered club globals and no quota moves.
+        no_quota=source_original_4085d0_qualified_mutating_leaf(
+            w,false_proof,Original41EDF0Reached(
+                original_player_at_call=false_proof.original_native_player_at_call))
+        self.assertTrue(no_quota.original_41edf0_quota_callback_projected)
+        self.assertIsNone(no_quota.original_registered_club_after_41edf0)
+        self.assertEqual(unpack_from("<I",no_quota.original_player_at_exit,0x14)[0],0x10)
+        # Registered owner is +72 (club 3), while current team +10 is 2.
+        quota_player=bytearray(entry)
+        pack_into("<I",quota_player,0x14,0x1020)
+        pack_into("<h",quota_player,0x72,3)
+        wquota=replace(w,original_player_at_entry=bytes(quota_player))
+        proof=owner_proof(wquota,registered=4)
+        club=bytearray(0x1ac)
+        pack_into("<i",club,0x1a8,3)
+        qualified=Original41EDF0Reached(
+            original_player_at_call=proof.original_native_player_at_call,
+            original_874b90_club_array_base=0x50000,
+            original_874b94_default_club_pointer=0x60000,
+            original_registered_club_pointer=0x50000+680*3,
+            original_registered_club_record=bytes(club))
+        combo=source_original_4085d0_qualified_mutating_leaf(wquota,proof,qualified)
+        self.assertEqual(unpack_from("<I",combo.original_player_at_exit,0x14)[0],0x10)
+        self.assertEqual(unpack_from("<i",combo.original_registered_club_after_41edf0,0x1a8)[0],2)
+        self.assertTrue(combo.original_41edf0_quota_callback_projected)
+        self.assertFalse(combo.live_game_state_updated)
+        with self.assertRaisesRegex(Original4085D0SourceError,"41EDF0 source"):
+            source_original_4085d0_qualified_mutating_leaf(
+                wquota,proof,replace(qualified,original_player_at_call=wquota.original_player_at_entry))
+        with self.assertRaisesRegex(Original4085D0SourceError,"skipped"):
+            source_original_4085d0_qualified_mutating_leaf(w,owner_proof(w),qualified)
         exempt=bytearray(entry);pack_into("<I",exempt,0x14,0x2020)
         we=replace(w,original_player_at_entry=bytes(exempt))
         ok=source_original_4085d0_qualified_mutating_leaf(
