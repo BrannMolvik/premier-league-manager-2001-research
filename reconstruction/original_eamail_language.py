@@ -87,10 +87,73 @@ def native_transfer_reason_from_crt_draw(rand15: int) -> int:
     return max(1, (rand15 * 7) // 32767)
 
 
+# SOURCE-ONLY ORIGINAL 0x606540 injury notice +0x18 title callbacks.
+# Verified against the exact private PE SHA833bf95e and EnglishEAM STR/IDX
+# SHA98387ef6/bd0e2b80. Key is constructor entry; values are
+# (concrete vtable, native virtual+0x0C tag, virtual+0x18 function,
+#  EnglishEAM loader ordinal, original STR ID).
+# This is not a native constructor execution, 413020 delivery, or GUI row.
+ORIGINAL_606540_TITLE_ROUTES = {
+    0x58AA70: (0x7D1CE0, 243, 0x58AB00, 1803, 1153),
+    0x58AD80: (0x7D1D34, 244, 0x58AE10, 1808, 1153),
+    0x58B090: (0x7D1D88, 245, 0x58B130, 1813, 1158),
+    0x58B360: (0x7D1DDC, 246, 0x58B3F0, 1818, 1153),
+    0x58B670: (0x7D1E30, 247, 0x58B700, 1823, 1153),
+    0x58B980: (0x7D1E84, 248, 0x58BA20, 1828, 1158),
+    0x58BB90: (0x7D1ED8, 249, 0x58BC20, 1833, 1153),
+    0x58BEA0: (0x7D1F2C, 250, 0x58BF30, 1838, 1153),
+    0x58C1B0: (0x7D1F80, 251, 0x58C250, 1843, 1158),
+    0x59F8E0: (0x7D422C, 359, 0x59F970, 2383, 1153),
+    0x59FBF0: (0x7D4280, 360, 0x59FC90, 2388, 1158),
+    0x59FEC0: (0x7D42D4, 361, 0x59FF50, 2393, 1153),
+    0x5A01D0: (0x7D4328, 362, 0x5A0260, 2398, 1153),
+    0x5A04E0: (0x7D437C, 363, 0x5A0570, 2403, 1153),
+    0x5A07F0: (0x7D43D0, 364, 0x5A0890, 2408, 1158),
+}
+ORIGINAL_606540_TITLE_SOURCE_TEXTS = {
+    1153: "Ankle injury to {PLAYERNAME:1}",
+    1158: "Ankle injury",
+}
+
+
 @dataclass(frozen=True)
 class VerifiedOriginalEAMailLanguage:
     strings: EAStringTable
     index: EAStringIndex
+
+    def original_606540_notice_subject_template(self, due_receipt) -> str:
+        """Read only source-proven +0x18 localized title for a 606540 notice.
+
+        Requires a typed original 606540 constructor -> 7BD564 -> 413020
+        *source projection* receipt. The resulting original title may still
+        contain native PLAYERNAME interpolation. This method neither formats
+        that token nor produces a delivered or visible user Inbox item.
+        """
+        from original_native_606540_human_mail_route import (
+            Original606540HumanDueReceipt,
+        )
+        if type(due_receipt) is not Original606540HumanDueReceipt:
+            raise OriginalEAMailLanguageError(
+                "Original 606540 source-qualified due receipt required"
+            )
+        entry = ORIGINAL_606540_TITLE_ROUTES.get(due_receipt.original_constructor)
+        if entry is None:
+            raise OriginalEAMailLanguageError(
+                "Unqualified original 606540 notice constructor"
+            )
+        vtable, tag, title_function, ordinal, string_id = entry
+        if (due_receipt.original_concrete_notice_vtable != vtable
+                or due_receipt.original_native_virtual0c_tag != tag
+                or not 0 <= ordinal < len(self.index.string_ids)
+                or self.index.string_ids[ordinal] != string_id
+                or self.strings[string_id]
+                != ORIGINAL_606540_TITLE_SOURCE_TEXTS[string_id]
+                or not 0x401000 <= title_function < 0x7B86BD
+                or (0x87AC28 - (4 * ordinal)) < 0x877F38):
+            raise OriginalEAMailLanguageError(
+                "Original 606540 vtable/language selector or resource mismatch"
+            )
+        return self.index.resolve(self.strings, ordinal)
 
     def source_selected_template(
         self, index_entry: int, *, original_selector_proven: bool
