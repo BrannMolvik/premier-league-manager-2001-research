@@ -137,7 +137,7 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
         self.assertEqual(tuple(x.serial for x in state.pending),(1,2))
         combined=scan(a,b)
         before=deepcopy(state.snapshot())
-        with self.assertRaisesRegex(Original606540PortableWorldError,"all due"):
+        with self.assertRaisesRegex(Original606540PortableWorldError,"All due"):
             state.apply_original_due_batch(
                 reached_global_scan=combined,
                 original_due_notices=((1,a),),
