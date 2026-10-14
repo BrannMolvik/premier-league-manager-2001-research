@@ -140,6 +140,13 @@ class OriginalMatchFirstSideHumanOwnerSourceTests(TestCase):
             0x413a06:"39 4a 04",0x413b4e:"81 e1 ff ff 00 00",
             0x413b5c:"39 4a 04",0x413b6d:"8b 00",
             0x5db7d0:"84 c0",0x5db7f8:"89 9e 48 01 00 00",
+            0x5da5f0:"8b 03",0x5da5f4:"ff 50 18",
+            0x5da5f7:"85 c0",0x5da5f9:"0f 84 47 01 00 00",
+            0x5da705:"c6 44 24 0f 01",0x5da74d:"ff 52 28",
+            0x5da750:"83 f8 06",0x5da757:"e8 74 15 00 00",
+            0x5da76b:"e8 f0 12 00 00",0x5db7d2:"0f 85 1a 02 00 00",
+            0x5dbc1b:"8b 86 94 02 00 00",0x5dbc25:"81 c6 44 02 00 00",
+            0x5dbcf8:"8d b0 44 02 00 00",0x5dba6f:"8b 70 4c",
         }
         for va,hexdump in sig.items():
             with self.subTest(va=hex(va)):
