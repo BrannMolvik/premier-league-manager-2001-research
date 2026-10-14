@@ -21,6 +21,9 @@ class Original419680SourceError(ValueError):
 class Original419680Reached:
     original_player_at_entry: bytes
     original_calendar_lookup_pointer: int
+    # Separate native player image AFTER the original ESI virtual+18
+    # competition getter(s), never inferred from the entry copy.
+    original_player_after_virtuals: bytes | None = None
     original_competition_v18_eax: int | None = None
     original_second_competition_34: int | None = None
     original_510a20_reached_date_raw: int | None = None
@@ -79,10 +82,17 @@ def source_original_419680_availability_from_reached(
     calls_user=False
     bit1=False
     if ptr==0:
+        if reached.original_player_after_virtuals is not None:
+            raise Original419680SourceError(
+                "NULL original lookup skips virtual player snapshot")
         if any(v is not None for v in extras):
             raise Original419680SourceError("NULL original calendar pointer skips all virtual/date/user callbacks")
         bit1=p[0x13b]>0
     else:
+        post=reached.original_player_after_virtuals
+        if type(post) is not bytes or post!=p:
+            raise Original419680SourceError(
+                "independently reached post-virtual player must match original entry")
         v18=_u32(extras[0],"first competition virtual+18 result")
         if v18:
             cat=_u32(extras[1],"second competition owner+34")

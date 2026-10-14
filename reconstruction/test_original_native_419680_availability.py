@@ -65,9 +65,11 @@ def manager_proof(p, *,matching=True):
 
 
 def reached(*,p=None,lookup=0,v18=None,cat=None,date_raw=None,user=None):
+    actual=player() if p is None else p
     return Original419680Reached(
-        original_player_at_entry=player() if p is None else p,
+        original_player_at_entry=actual,
         original_calendar_lookup_pointer=lookup,
+        original_player_after_virtuals=(None if lookup==0 else actual),
         original_competition_v18_eax=v18,
         original_second_competition_34=cat,
         original_510a20_reached_date_raw=date_raw,
@@ -110,6 +112,9 @@ class Original419680AvailabilityTests(unittest.TestCase):
         with self.assertRaisesRegex(Original419680SourceError,"NULL original calendar"):
             source_original_419680_availability_from_reached(
                 reached(p=p,date_raw=10))
+        with self.assertRaisesRegex(Original419680SourceError,"skips virtual"):
+            source_original_419680_availability_from_reached(
+                replace(reached(p=p),original_player_after_virtuals=p))
 
     def test_nonnull_uefa_status_selection_returns_without_fa_even_when_due(self):
         p=player(fa=4,uefa=0,flags=0x20,raw_date=0)
@@ -156,6 +161,10 @@ class Original419680AvailabilityTests(unittest.TestCase):
     def test_wrong_source_callback_order_and_unverified_owner_fails_closed(self):
         p=player()
         bad=[
+            (replace(reached(p=p,lookup=0x8000),original_player_after_virtuals=None),
+             "post-virtual"),
+            (replace(reached(p=p,lookup=0x8000,v18=0),
+                     original_player_after_virtuals=player(fa=0)),"post-virtual"),
             (reached(p=p,lookup=0x8000),"virtual"),
             (reached(p=p,lookup=0x8000,v18=0,cat=1),"skips second"),
             (reached(p=p,lookup=0x8000,v18=1),"second competition"),
