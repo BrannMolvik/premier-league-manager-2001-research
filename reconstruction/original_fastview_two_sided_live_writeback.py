@@ -56,7 +56,7 @@ def source_fastview_original_pre_modal_two_flag_reset_6c1cf0(
         raise OriginalFastViewTwoSideWritebackError(
             "actual original two adjacent pre-modal global DWORDs required"
         )
-    return b"\\x00" * 8
+    return bytes(8)
 
 
 @dataclass(frozen=True)
