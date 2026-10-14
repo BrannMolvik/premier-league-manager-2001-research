@@ -10,6 +10,8 @@ from original_native_dated_event_neighbor_conflict import (
     source_original_neighbor_match_conflict_615890,
 )
 from original_leaguematch_native_process_owners import SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS
+from competition_schedule import direct_club_ref, schedule_nodes_conflict
+from types import SimpleNamespace
 
 
 def match(vt=0x7C4C24,*,next_pointer=0,event8=0,flags44=0):
@@ -137,6 +139,29 @@ class NativeDateNeighborSourceTests(unittest.TestCase):
             with self.subTest(change=str(change)[:100]),self.assertRaises(
                 OriginalNativeNeighborConflictSourceError):
                 probe(**change)
+
+    def test_existing_symbolic_fixture_collision_cannot_substitute_native_filtered_event(self):
+        # Concrete fidelity-audit counterexample, NOT normal runtime parity:
+        # Python's symbolic refs collide even when original v0 is NEVER
+        # reached because source event+8 is nonzero or match+44 has bit6.
+        old=SimpleNamespace(participant_0_ref=direct_club_ref(42),
+                            participant_1_ref=direct_club_ref(99))
+        new=SimpleNamespace(participant_0_ref=direct_club_ref(42),
+                            participant_1_ref=direct_club_ref(100))
+        self.assertTrue(schedule_nodes_conflict(old,new))
+        got=probe(original_source_date_bucket_head_pointers=(0x10100,),
+                  original_source_candidate_bucket_index=0,
+                  original_source_match_records_by_pointer={
+                      0x10100:match(event8=0xABCD,flags44=0)},
+                  original_reached_virtual0_conflict_eax_by_event_pointer={})
+        self.assertFalse(got.original_source_found_first_conflict)
+        self.assertEqual(got.original_source_called_virtual0_event_pointers,())
+        got=probe(original_source_date_bucket_head_pointers=(0x10100,),
+                  original_source_candidate_bucket_index=0,
+                  original_source_match_records_by_pointer={
+                      0x10100:match(flags44=0x40)},
+                  original_reached_virtual0_conflict_eax_by_event_pointer={})
+        self.assertFalse(got.original_source_found_first_conflict)
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "owner private original binary unavailable in hosted CI")
