@@ -64,6 +64,7 @@ def notice(*,first=True,second=None,status=0,subtype=1):
         original_registered_417340_owner_proof=manager_proof(raw,registered=True),
         original_4d1190_lookup_nonnull=first,
         original_4d1110_lookup_nonnull_if_reached=second,
+        original_raw_calendar_date_at_606c98=0xfffffffe,
     )
 
 
@@ -92,6 +93,8 @@ class Original606540HumanNoticeSourceTests(unittest.TestCase):
                     self.assertEqual(out.original_notice_envelope_vtable,0x7bd564)
                     self.assertEqual(out.original_following_player_event_handler,0x60aa20)
                     self.assertEqual(out.original_descriptor_status,status)
+                    self.assertEqual(out.original_notice_wrapper_date_raw_u32,0xfffffffe)
+                    self.assertEqual(out.original_notice_flags_or_mask,6)
                     self.assertFalse(out.original_native_constructor_executed)
                     self.assertFalse(out.original_notice_object_allocated)
                     self.assertFalse(out.original_947aa8_pending_queue_changed)
@@ -121,6 +124,8 @@ class Original606540HumanNoticeSourceTests(unittest.TestCase):
         for changed in (
             replace(q,original_4d1110_lookup_nonnull_if_reached=True),
             replace(q,original_4d1190_lookup_nonnull=1),
+            replace(q,original_raw_calendar_date_at_606c98=-1),
+            replace(q,original_raw_calendar_date_at_606c98=0x100000000),
             replace(q,original_registered_417340_owner_proof=replace(
                 q.original_registered_417340_owner_proof,original_417340_return_al=0)),
             replace(q,original_registered_417340_owner_proof=replace(
