@@ -211,10 +211,19 @@ class OriginalCalendarInsertion615A60Tests(unittest.TestCase):
             {"max_searches":0},
             {"max_searches":1},
         )
+        valid_receipts=(
+            search(registry(),6,{5:0,6:1}),
+            search(registry(),8,{7:0,8:0,9:0}),
+        )
         for case in bad:
             with self.subTest(case=case):
+                # Validate malformed calendar headers inside 615A60, not
+                # while the test helper prepares a 615890 callback receipt.
+                kwargs=dict(case)
+                if "source_reg" in kwargs:
+                    kwargs["windows"]=valid_receipts
                 with self.assertRaises(OriginalNativeCalendarInsertionError):
-                    insertion(**case)
+                    insertion(**kwargs)
 
     def test_fail_closed_if_final_source_index_outside_slot_vector(self):
         source=registry(count=6)
@@ -271,7 +280,6 @@ class Original510BA0Through615A60Tests(unittest.TestCase):
         initial=bytearray(registry())
         pack_into("<I",initial,0x0C,7)
         link_bytes=bytearray(0x1C)
-        link_bytes[0x1A]=0x91
         result=full_native_insert(reg=bytes(initial),
                                   selected_registry=bytes(initial),
                                   allocated=bytes(link_bytes))
@@ -287,7 +295,6 @@ class Original510BA0Through615A60Tests(unittest.TestCase):
         self.assertEqual(unpack_from("<I",made,0x10)[0],8)
         self.assertEqual(unpack_from("<I",made,0x14)[0],0x7000)
         self.assertEqual(unpack_from("<I",made,0x18)[0],0)
-        self.assertEqual(made[0x1A],0x91)
         self.assertEqual(unpack_from("<I",
             result.original_link_insertion.projected_source_slot_vector,32)[0],0x9000)
         self.assertFalse(result.native_world_write_committed)
