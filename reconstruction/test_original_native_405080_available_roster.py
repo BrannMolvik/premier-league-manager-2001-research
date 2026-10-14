@@ -98,7 +98,8 @@ class Original405080AvailableRosterTests(unittest.TestCase):
         bad_status=source(statuses=((123,1),))
         with self.assertRaisesRegex(Original41A5B0SourceError,"flags differ"):
             source_original_41a5b0_optional_extra_from_reached(replace(
-                reached,original_405080_source_proof=bad_status))
+                reached,original_405080_eligible_count=None,
+                original_405080_source_proof=bad_status))
 
     def test_invalid_reached_native_405080_pool_record_fails_closed(self):
         ids=(123,)
