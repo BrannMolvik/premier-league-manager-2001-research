@@ -3,7 +3,7 @@ from struct import pack_into,unpack_from
 from unittest import TestCase,main
 from original_match_context_to_side_world import source_original_5db6fa_context_then_first_side
 from test_original_match_first_side_human_owner import source_fixture
-from test_original_match_first_side_world_write import fixture
+from test_original_match_first_side_world_write import native_bytes as fixture
 from original_native_5db6fa_context_tail import OriginalContextTailSourceError
 
 def joined(skip=False,keys=(777,)):
