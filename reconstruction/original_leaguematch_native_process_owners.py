@@ -181,3 +181,59 @@ def source_original_match_owned_event_collection_4f3b50(
         original_reached_virtual28_kind=original_reached_virtual28_kind)
     return source_original_event_collection_selector_4f3b50(
         original_owner_virtual30_result_eax=al)
+
+
+# Six original LeagueMatch virtual+0x28 functions return literal MOV EAX,N; RET.
+# Original 0x668766 instead calls the diagnostic 0x66ABCF with 0x19.
+# Its returned match kind is NOT established, so fail closed on that owner.
+SOURCE_LEAGUEMATCH_LITERAL_V28_KINDS = {
+    0x651E20: 1, 0x6CE1E0: 2, 0x650250: 6,
+    0x6CE1F0: 3, 0x6CECB0: 4, 0x650010: 5,
+}
+
+
+@dataclass(frozen=True)
+class SourceOriginal510D60CounterWrites:
+    """Only reached native 510DC2..510E15 match-context counters."""
+
+    original_match_vtable: int
+    original_virtual28_literal_kind: int
+    original_flags44: int
+    original_context_d0c: int
+    original_context_d10: int
+    original_base_510d60_executed: bool = False
+    live_game_state_updated: bool = False
+
+    @property
+    def source_context_stores(self) -> tuple[tuple[int, int], ...]:
+        return ((0xD0C, self.original_context_d0c),
+                (0xD10, self.original_context_d10))
+
+
+def source_original_510d60_two_event_counter_writes(
+    *, original_match_record: bytes,
+) -> SourceOriginal510D60CounterWrites:
+    """Read-only native 510D60 v34 two counter writes, not a match.
+
+    The original twice calls vtable+0x28 at 510DBF/510DEC. Six
+    source-authenticated v28 functions are constant returns, therefore
+    both original kind results are identical and known for these six.
+    Class 7C4CE4's v28=668766 diagnostic is deliberately unresolved.
+    This routine does not run original other context writes, RNG,
+    callback return AL, GUI or GameState persistence.
+    """
+    owner = source_original_leaguematch_process_owners_for_native_record(
+        original_match_record=original_match_record)
+    if type(original_match_record) is not bytes or len(original_match_record) < 0x48:
+        raise OriginalLeagueMatchProcessOwnerError(
+            "reached original match record +44 flags through+47 required")
+    kind = SOURCE_LEAGUEMATCH_LITERAL_V28_KINDS.get(owner.virtual28_kind_va)
+    if kind is None:
+        raise OriginalLeagueMatchProcessOwnerError(
+            "original v28 kind is non-literal diagnostic; source result unresolved")
+    flags = unpack_from("<I", original_match_record, 0x44)[0]
+    first = 0 if kind == 2 and not flags & 0x04 else (flags >> 1) & 1
+    second = 1 if kind == 3 and not flags & 0x04 else (flags >> 2) & 1
+    return SourceOriginal510D60CounterWrites(
+        owner.source_vtable_va, kind, flags, first, second
+    )
