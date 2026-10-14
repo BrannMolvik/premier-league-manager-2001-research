@@ -184,7 +184,7 @@ class SourceMatchModeHandoffPhase:
     Those snapshots must not be treated as identical without evidence.
     No native routine is invoked and no modern match state is committed.
     """
-    mode: MatchDetailMode
+    mode: MatchDetailMode | None
     before_callback_flags_esi44: int
     after_callback_flags_esi44_if_reached: int | None
     pre_presentation_native_call_va: int | None
@@ -196,43 +196,43 @@ class SourceMatchModeHandoffPhase:
 
 
 def source_original_match_mode_handoff_phase(
-    mode: int | MatchDetailMode,
+    mode: int | MatchDetailMode | None,
     *,
     original_flags_at_513238: int,
     original_flags_at_513257_if_reached: int | None,
 ) -> SourceMatchModeHandoffPhase:
-    """Exact guarded 513238→5DA2F0→513257→mode wrapper→vft+38/+3C.
+    """Strict native 513238->5DA2F0->513257->mode->v38/v3c receipt.
 
-    This is NOT the earlier 5130xx entry/virtual+28 gate. A reached
-    0x513238 context is a precondition, not established by these inputs.
-    If flags bit 0x20 is set at 513238, source jumps directly to 513294
-    without visiting 5DA2F0 OR 513257. Otherwise 5DA2F0 is called,
-    and a separately reached later flags BYTE+44 bit0x10 decides whether
-    0/1/2 modal dispatch occurs (mode 3 has no presentation wrapper).
-    Both post virtual offsets run at 513294/5132A0 after that choice.
+    Original 877530 mode is read ONLY at 51325D, after both bit tests.
+    A bypassed mode must therefore be passed as None, not guessed from
+    earlier settings or supplied via a synthetic user selection.
+    Original callbacks, modal and game state are never executed.
     """
-    selected = coerce_match_detail_mode(mode)
     flags = original_flags_at_513238
     if type(flags) is not int or not 0 <= flags <= 0xFFFFFFFF:
         raise ValueError("exact original DWORD esi+44 at 513238 required")
-    reached_pre = not bool(flags & MATCH_SOURCE_SKIP_PRE_FLAG)
     second = original_flags_at_513257_if_reached
-    if not reached_pre:
-        if second is not None:
-            raise ValueError("native 513257 flag read skipped after early 513294 branch")
-        return SourceMatchModeHandoffPhase(
-            selected, flags, None, None, None, None
-        )
+    if flags & MATCH_SOURCE_SKIP_PRE_FLAG:
+        if second is not None or mode is not None:
+            raise ValueError("native 513257 and mode not reached after 513238 skip")
+        return SourceMatchModeHandoffPhase(None, flags, None, None, None, None)
     if type(second) is not int or not 0 <= second <= 0xFFFFFFFF:
         raise ValueError("separately reached original DWORD esi+44 after 5DA2F0 required")
+    if not (second & MATCH_SOURCE_PRESENTATION_FLAG):
+        if mode is not None:
+            raise ValueError("original mode at 51325D not reached after 513257 skip")
+        return SourceMatchModeHandoffPhase(
+            None, flags, second, MATCH_PRE_PRESENTATION_NATIVE_CALL_VA,
+            None, None,
+        )
+    if mode is None:
+        raise ValueError("original 877530 mode required at reached 51325D")
+    selected = coerce_match_detail_mode(mode)
     dispatch = source_match_detail_dispatch(selected)
-    wrapper = dispatch.presentation_wrapper_va if second & MATCH_SOURCE_PRESENTATION_FLAG else None
-    variant = dispatch.wrapper_variant if wrapper is not None else None
     return SourceMatchModeHandoffPhase(
         selected, flags, second, MATCH_PRE_PRESENTATION_NATIVE_CALL_VA,
-        wrapper, variant,
+        dispatch.presentation_wrapper_va, dispatch.wrapper_variant,
     )
-
 
 @dataclass(frozen=True)
 class SourceOriginalMatchRouterGuard:
@@ -309,8 +309,6 @@ def source_original_guarded_match_route(
                 or original_flags_at_513257_if_reached is not None):
             raise ValueError("original 513238 mode/flags not reached after early v34 bypass")
         return SourceOriginalGuardedMatchRoute(guard, None)
-    if original_mode_if_513238_reached is None:
-        raise ValueError("source native mode required at reached 513238")
     mode_phase = source_original_match_mode_handoff_phase(
         original_mode_if_513238_reached,
         original_flags_at_513238=original_flags_at_513238_if_reached,
