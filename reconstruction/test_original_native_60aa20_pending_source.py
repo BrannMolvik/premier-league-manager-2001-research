@@ -58,6 +58,8 @@ class Original60AA20ProjectionTests(unittest.TestCase):
                 self.assertEqual(x.original_pending_identity.original_date_raw_u32,
                                  (0x7fffffff + 7*delta)&0xffffffff)
                 self.assertEqual(x.original_player_after_source[0x23:], reached(status,delta,base=10,source77=10,day=0x7fffffff).player_before[0x23:0x77]+bytes([1])+reached(status,delta,base=10,source77=10,day=0x7fffffff).player_before[0x78:])
+        x = source_original_60aa20_project(reached(0, 1, base=4, source77=5, day=0xfffffffe))
+        self.assertEqual(x.original_pending_identity.original_date_raw_u32,5)
         x = source_original_60aa20_project(reached(0, 1, base=-2, source77=5))
         self.assertEqual(x.original_player_after_source[0x77], 7)  # signed compare, subtract low byte
 
@@ -89,7 +91,7 @@ class Original60AA20ProjectionTests(unittest.TestCase):
             replace(good,native_v40_threshold=2),
             replace(good,duration_delta_arg=3),
             replace(good,player77_decrement_base_arg=0x80000000),
-            replace(good,current_date_9847fc=0x80000000),
+            replace(good,current_date_9847fc=0x100000000),
             replace(good,descriptor_before=good.descriptor_before[:-1]),
         ]
         for x in edits:
