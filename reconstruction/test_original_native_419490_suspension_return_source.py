@@ -112,6 +112,39 @@ class Original419490CountdownTests(unittest.TestCase):
         with self.assertRaisesRegex(Original419490SourceError,"date"):
             project(date=-1)
 
+    def test_private_canonical_pe_16_native_opcodes_if_available(self):
+        import hashlib
+        import os
+        from pathlib import Path
+        p=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not p:
+            self.skipTest("original source private, no original binary in GitHub")
+        binary=Path(p).read_bytes()
+        self.assertEqual(hashlib.sha256(binary).hexdigest(),
+            "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3")
+        source={
+          0x4194da:"8b 56 14 83 e2 fd 89 56 14",
+          0x419517:"8a 86 3e 01 00 00",
+          0x419525:"fe c8 88 86 3e 01 00 00",
+          0x41959d:"8a 86 3b 01 00 00",
+          0x4195ab:"8b 8e 60 01 00 00 8b 15 fc 47 98 00",
+          0x4195bf:"fe c8 88 86 3b 01 00 00",
+          0x419591:"e8 5a be 16 00",
+          0x419627:"e8 d4 b9 16 00",
+          0x419654:"c7 00 64 d5 7b 00",
+          0x419663:"b9 a8 7a 94 00",
+          0x41795b:"88 9e 3b 01 00 00",
+          0x41796d:"88 9e 3e 01 00 00",
+          0x41a27e:"c6 85 3e 01 00 00 01",
+          0x4198b8:"a1 fc 47 98 00 83 c0 07",
+          0x4198c0:"89 86 60 01 00 00",
+          0x4198c6:"6a 03 e8 73 3c 23 00",
+        }
+        for va,hexdump in source.items():
+            with self.subTest(original_va=hex(va)):
+                expected=bytes.fromhex(hexdump)
+                self.assertEqual(binary[va-0x400000:va-0x400000+len(expected)], expected)
+
     def test_native_player_and_competition_owner_required(self):
         with self.assertRaisesRegex(Original419490SourceError,"DBRPlayer"):
             source_original_419490_suspension_return_from_reached(
