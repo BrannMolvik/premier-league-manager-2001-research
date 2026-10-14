@@ -1,3 +1,8 @@
+### 15 October 2026 KST - Recovery634 due original 7D7760 player-event cleanup source
+
+- Merged exact-head reviewed PR733 at main `224b9df9ece0e1ce9c8fae7afca14c4c562b42f7` with Gate13 1,837 tests/150 skipped and asset policy success, original 605F90 posthandler 417380 **USER-owned** record+24 correction preserved.
+- Independently rehashed private original PE SHA833bf95e and verified vtable 7D7760+10=5D7B40. Original 613EE0 calls native vtable+10 when signed event+4 due <= signed reached target, 5D7B40 per-player nonhuman manager AL0 flows to 5D80E2→418AD0. That leaf calls no-op 667E20 and 686FE3 deallocator if pointer nonnull, then always clears player+24C and original status+14 bit0. Source-only projection/tests staged on worker/gate13-r1-418ad0-descriptor-cleanup-634 with 18 private native PE signatures and identity/date mismatch counterexamples. No actual native process, queue delivery, live saved GameState, GUI or Gate13–17 closure claimed.
+
 ### 15 October 2026 KST - Recovery633 source-correct 605F90 posthandler USER record ownership
 
 - Merged reviewed PR732 at main `38e045f76db2a4255ae9c08fc479089a0fd6d12d` after Gate13 `38589393310` 1,831 tests/149 skips and asset policy `38589393606` succeeded.
