@@ -114,9 +114,11 @@ def source_original_7d7760_human_return_from_reached(
     if type(e) is not bytes or len(e) != 20:
         raise Original7D7760ReturnSourceError("Exact original 20-byte event required")
     vtable,due,count,idptr = unpack_from("<IIII",e)
+    # Native 60AB98 only writes BYTE+0x10; trailing +0x11..+0x13
+    # are uninitialized allocator bytes and MUST NOT be assumed zero.
     status=e[0x10]
     if (vtable != 0x7D7760 or count != 1 or idptr == 0
-            or status not in range(4) or e[0x11:] != b"\x00\x00\x00"):
+            or status not in range(4)):
         raise Original7D7760ReturnSourceError("Original 7D7760 owner/count/status unqualified")
     if type(payload) is not bytes or len(payload) != 4:
         raise Original7D7760ReturnSourceError("Actual original allocated player ID DWORD required")
