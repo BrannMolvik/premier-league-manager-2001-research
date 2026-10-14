@@ -34,7 +34,7 @@ def original_reached(*, status=0, player_id=123, human=1,
     club=bytearray(0x44)
     pack_into("<I",club,0x40,777)
     return Original7D7760HumanReturnReached(
-        bytes(event),pack("<I",player_id),bytes(player),
+        bytes(event),0x60000,pack("<I",player_id),bytes(player),
         day,day,human,
         first if human else None,
         second if human and first is False else None,
@@ -127,6 +127,7 @@ class Original7D7760HumanRecoverySourceTests(TestCase):
             replace(good,original_4d1110_lookup_nonnull_if_reached=True),
             replace(good,original_417270_source_club_record_if_reached=None),
             replace(good,original_player_id_payload_bytes=pack("<I",124)),
+            replace(good,original_player_id_payload_pointer=0x60004),
             replace(good,original_player_before_due=good.original_player_before_due[:-1]),
             replace(good,original_native_event_bytes=good.original_native_event_bytes[:-1]),
             replace(good,original_native_scanner_target_date_raw=-1),
