@@ -14,6 +14,7 @@ from original_native_v3c_reschedule_gate import (
 from original_native_v3c_calendar_second_pass import (
     source_original_5127a0_second_calendar_request,
     source_original_615d10_calendar_date_window,
+    source_original_615d10_reached_request_date_window,
 )
 
 
@@ -152,6 +153,35 @@ class NativeV3CSecondCalendarTests(unittest.TestCase):
                 self.assertFalse(q.source_would_enter_615c50_search)
                 self.assertIsNone(q.first_candidate_slot_pointer)
                 self.assertFalse(q.native_search_result_proven)
+
+    def test_integrated_reached_first_and_second_requests_use_distinct_dates(self):
+        gate,first,native=staged(bit=1,date=100)
+        second=source_original_5127a0_second_calendar_request(
+            original_gate=gate,
+            original_first_calendar_lookup=first,
+            original_match_record_at_second_pass=native,
+            original_processing_owner_at_second_pass=processing(),
+            original_reached_second_pass=True,
+            original_reached_global_date_index_9847fc=200)
+        original_registry=native_calendar(count=500,base=100)
+        first_window=source_original_615d10_reached_request_date_window(
+            original_native_lookup_request=first,
+            original_registry_record_at_lookup=original_registry)
+        second_window=source_original_615d10_reached_request_date_window(
+            original_native_lookup_request=second,
+            original_registry_record_at_lookup=original_registry)
+        self.assertEqual(first_window.original_calendar_registry_va,0x947AF0)
+        self.assertEqual(second_window.original_calendar_registry_va,0x947AF0)
+        self.assertEqual(first_window.first_candidate_slot_pointer,0x31000004)
+        self.assertEqual(second_window.first_candidate_slot_pointer,0x31000194)
+        self.assertFalse(first_window.native_search_result_proven)
+        self.assertFalse(second_window.native_search_result_proven)
+
+    def test_reached_request_wrapper_rejects_fictional_input(self):
+        with self.assertRaises(OriginalV3CRescheduleGateError):
+            source_original_615d10_reached_request_date_window(
+                original_native_lookup_request=object(),
+                original_registry_record_at_lookup=native_calendar())
 
     def test_original_negative_index_is_not_silently_normalized(self):
         q=source_original_615d10_calendar_date_window(
