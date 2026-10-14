@@ -294,7 +294,10 @@ def source_original_510ba0_through_615a60_staged_transaction(
     )
     _ptr(original_outer_node_pointer, "original outer node owner")
     _ptr(original_allocator_result_link_pointer, "reached source allocation pointer")
-    _ptr(original_510ba0_caller_argument, "source 510BA0 caller argument")
+    if type(original_510ba0_caller_argument) is not int or not (
+            0 <= original_510ba0_caller_argument <= 0xFFFFFFFF):
+        raise OriginalNativeCalendarInsertionError(
+            "actual original 510BA0 caller argument DWORD required")
     if original_outer_node_pointer == original_allocator_result_link_pointer:
         raise OriginalNativeCalendarInsertionError(
             "allocator link must not reuse the outer source node pointer")
