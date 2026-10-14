@@ -12,6 +12,7 @@ from math import isfinite
 from struct import unpack_from
 
 from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
+from original_native_405080_available_roster import Original405080AvailabilityReceipt
 
 
 class Original41A5B0SourceError(ValueError):
@@ -28,6 +29,7 @@ class Original41A5B0Reached:
     original_405080_current_club_pointer: int | None = None
     original_405080_eligible_count: int | None = None
     original_822228_reached_threshold_float: float | None = None
+    original_405080_source_proof: Original405080AvailabilityReceipt | None = None
     # Only if allocation branch reached, original reads GLOBAL threshold.
     original_global_821814_player77_threshold: int | None = None
 
@@ -86,7 +88,8 @@ def source_original_41a5b0_optional_extra_from_reached(
     if registered:
         if (reached.original_405080_current_club_pointer is not None
             or reached.original_405080_eligible_count is not None
-            or reached.original_822228_reached_threshold_float is not None):
+            or reached.original_822228_reached_threshold_float is not None
+            or reached.original_405080_source_proof is not None):
             raise Original41A5B0SourceError(
                 "original registered-human path skips 417270/405080 count")
         can_continue=True
@@ -95,6 +98,22 @@ def source_original_41a5b0_optional_extra_from_reached(
         source_ptr=reached.original_405080_current_club_pointer
         count=reached.original_405080_eligible_count
         float_threshold=reached.original_822228_reached_threshold_float
+        count_proof=reached.original_405080_source_proof
+        if count_proof is not None:
+            if (not isinstance(count_proof, Original405080AvailabilityReceipt)
+                or count_proof.original_native_callback_executed
+                or count_proof.live_game_state_updated
+                or count_proof.original_team_pointer!=proof.original_source_club_pointer):
+                raise Original41A5B0SourceError("forged 405080 source count/team owner proof")
+            if count is not None and count!=count_proof.original_405080_eligible_count:
+                raise Original41A5B0SourceError("405080 reached count disagrees with native source")
+            count=count_proof.original_405080_eligible_count
+            current_pid=unpack_from("<H",p,4)[0]
+            if current_pid in count_proof.original_roster_ids:
+                flags_by_id=dict(count_proof.original_player_status_14_by_id)
+                if flags_by_id.get(current_pid)!=unpack_from("<I",p,0x14)[0]:
+                    raise Original41A5B0SourceError(
+                        "post-row player+14 flags differ from reached 405080 source pool")
         if (type(source_ptr) is not int
             or source_ptr!=proof.original_source_club_pointer
             or type(count) is not int or not 0<=count<=40
