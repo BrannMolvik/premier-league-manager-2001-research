@@ -173,15 +173,12 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
         bad=(native_match(0x7C4CE4),
              native_match(0x7C4C24)[:0x47],
              native_match(0x7C4C24)[:0x40],
-             native_match(0x7C4C24)[:-1],
              native_match(0x7C4C24).replace(pack("<I",0x7C4C24),pack("<I",0xDEADBEEF),1))
         for record in bad:
             with self.subTest(length=len(record),head=record[:4]):
-                if len(record)<0x48 or record[:4] in (
-                    pack("<I",0x7C4CE4),pack("<I",0xDEADBEEF)):
-                    with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
-                        source_original_510d60_two_event_counter_writes(
-                            original_match_record=record)
+                with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
+                    source_original_510d60_two_event_counter_writes(
+                        original_match_record=record)
         with self.assertRaises(OriginalLeagueMatchProcessOwnerError):
             source_original_510d60_two_event_counter_writes(
                 original_match_record=bytearray(native_match(0x7C4C24)))
