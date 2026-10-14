@@ -326,3 +326,59 @@ def source_fastview_native_raw_tactical_280_from_packed_533b70(
         pack_into("<I", scratch, SOURCE_FASTVIEW_TACTICAL_THIRD_DWORDS_OFFSET + i*4,
                   original_packed_side[SOURCE_FASTVIEW_TACTICAL_PACKED_THIRD_BYTE_OFFSET + i])
     return bytes(scratch)
+
+
+@dataclass(frozen=True)
+class SourceFastViewPostModalPreview:
+    """Source ordered-after-Win32 immutable intent, never live world commit."""
+
+    postmodal_side_blocks: SourceFastViewTwoSideBlockState
+    native_player_write_intents: tuple[object, ...]
+    original_modal_exit_wparam: int
+    original_native_cleanup_required: bool = True
+
+
+def source_fastview_post_modal_intents_after_native_view_5331c0(
+    *,
+    original_native_modal_return,
+    live_side_records: SourceFastViewTwoSideBlockState,
+    original_side_globals_after_modal: bytes,
+    original_player_low5_globals_after_modal: bytes,
+    original_player_low4_globals_after_modal: bytes,
+    original_native_player_counts: tuple[int, int],
+) -> SourceFastViewPostModalPreview:
+    """Stage 0x533CA0 read-only ONLY after actual 0x532650 Win32 return.
+
+    Original mode2 calls 0x533CA0 even on WM_USER event 0 (ESC).
+    The native exit wParam is not a "cancel match" flag here: at 0x533236
+    the return is followed unconditionally by 0x533CA0 and 0x51F6D0.
+    The source stages below project copied side DWORDs and player setter
+    INTENTS from real after-modal globals. They do NOT execute original
+    0x4182F0/0x4182C0 callbacks, 0x51F6D0 destruction or the outer
+    0x51329D/0x5132A9 processing callbacks; no live GameState commit.
+    """
+    from original_fastview_native_win32_modal_source import (
+        OriginalFastViewNativeViewReturn,
+    )
+    from original_fastview_player_world_writeback import (
+        source_fastview_native_postmodal_player_write_intents_533ca0,
+    )
+    if type(original_native_modal_return) is not OriginalFastViewNativeViewReturn:
+        raise OriginalFastViewTwoSideWritebackError(
+            "source qualified returned native 0x532650 modal required"
+        )
+    copied_sides = source_fastview_post_modal_two_side_block_values_533ca0(
+        live_side_records=live_side_records,
+        original_global_side_memory_after_modal=original_side_globals_after_modal,
+    )
+    player_intents = source_fastview_native_postmodal_player_write_intents_533ca0(
+        live_sides_after_modal=copied_sides,
+        native_player_counts=original_native_player_counts,
+        global_player_low5_dwords=original_player_low5_globals_after_modal,
+        global_player_low4_dwords=original_player_low4_globals_after_modal,
+    )
+    return SourceFastViewPostModalPreview(
+        postmodal_side_blocks=copied_sides,
+        native_player_write_intents=player_intents,
+        original_modal_exit_wparam=original_native_modal_return.native_exit_wparam,
+    )
