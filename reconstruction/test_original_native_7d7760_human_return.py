@@ -147,6 +147,68 @@ class Original7D7760HumanRecoverySourceTests(TestCase):
             source_original_7d7760_human_return_from_reached(
                 replace(good,original_native_event_bytes=bytes(event)))
 
+    def test_all_36_original_return_body_variants_from_source_bytes(self):
+        from original_native_7d7760_return_language import (
+            source_original_7d7760_recovery_templates,
+        )
+        lang=load_verified_original_eamail_language(
+            Path(__file__).resolve().parent.parent / "original_assets" / "source")
+        cases=0
+        for family,(first,second) in {
+            31:(True,None),30:(False,True),2:(False,False),
+        }.items():
+            for status in range(4):
+                receipt=source_original_7d7760_human_return_from_reached(
+                    original_reached(status=status,first=first,second=second))
+                for variant in range(3):
+                    with self.subTest(family=family,status=status,variant=variant):
+                        output=source_original_7d7760_recovery_templates(
+                            receipt,lang,native_body_variant=variant)
+                        self.assertEqual(output.original_title_template,
+                                         "{PLAYERNAME:1} recovery")
+                        self.assertEqual(output.original_body_template,
+                                         lang.strings[
+                                            ORIGINAL_RECOVERY_NOTICE_ROUTES[family][status][5][variant]
+                                         ])
+                        self.assertFalse(output.original_rendered_or_delivered)
+                        cases+=1
+        self.assertEqual(cases,36)
+
+    def test_forged_original_return_body_and_selector_fail_closed(self):
+        from original_native_7d7760_return_language import (
+            OriginalRecoveryNoticeLanguageError,
+            source_original_7d7760_recovery_templates,
+        )
+        lang=load_verified_original_eamail_language(
+            Path(__file__).resolve().parent.parent / "original_assets" / "source")
+        receipt=source_original_7d7760_human_return_from_reached(original_reached())
+        for invalid in (None,1.0,True,-1,3,"0"):
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(OriginalRecoveryNoticeLanguageError):
+                    source_original_7d7760_recovery_templates(
+                        receipt,lang,native_body_variant=invalid)
+        for forged in (
+            replace(receipt,original_final_notice_vtable_if_human=0x7D7760),
+            replace(receipt,original_selected_constructor_if_human=0x59EFA0),
+            replace(receipt,original_947aa8_human_event_insert_executed=True),
+        ):
+            with self.assertRaises(OriginalRecoveryNoticeLanguageError):
+                source_original_7d7760_recovery_templates(
+                    forged,lang,native_body_variant=0)
+        from dataclasses import replace as replaced
+        index=list(lang.index.string_ids)
+        index[2329]=942
+        bad=replaced(lang,index=replaced(lang.index,string_ids=tuple(index)))
+        with self.assertRaises(OriginalRecoveryNoticeLanguageError):
+            source_original_7d7760_recovery_templates(
+                receipt,bad,native_body_variant=0)
+        strings=list(lang.strings.strings)
+        strings[1411]="Changed message"
+        bad=replaced(lang,strings=replaced(lang.strings,strings=tuple(strings)))
+        with self.assertRaises(OriginalRecoveryNoticeLanguageError):
+            source_original_7d7760_recovery_templates(
+                receipt,bad,native_body_variant=0)
+
     def test_optional_exact_original_pe_constructor_vtables_and_titles(self):
         import os
         from hashlib import sha256
