@@ -111,13 +111,13 @@ class Original4085D0BranchTests(unittest.TestCase):
         from original_native_417340_registered_user_gate import (
             Original417340ReachedUser,source_original_417340_registered_user_from_reached,
         )
-        def owner_proof(reached_world,registered=77):
+        def owner_proof(reached_world,registered=2):
             at_call=bytearray(reached_world.original_player_at_entry)
             old=unpack_from("<I",at_call,0x14)[0]
             pack_into("<I",at_call,0x14,(old|0x10)&0xffffffdf)
             old_reserve=unpack_from("<I",at_call,0x174)[0]
             pack_into("<I",at_call,0x174,old_reserve&0xfffffffd)
-            club=bytearray(8);pack_into("<I",club,4,77)
+            club=bytearray(8);pack_into("<I",club,4,2)
             global_world=bytearray(0x9d0);pack_into("<I",global_world,0x9cc,0x1000)
             node=bytearray(8);pack_into("<I",node,0,0x2000)
             user=bytearray(0x5b8);pack_into("<I",user,0x5b4,0x3000)
