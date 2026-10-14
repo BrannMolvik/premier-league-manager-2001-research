@@ -95,6 +95,7 @@ class Original606540HumanNoticeSourceTests(unittest.TestCase):
                     self.assertEqual(out.original_descriptor_status,status)
                     self.assertEqual(out.original_notice_wrapper_date_raw_u32,0xfffffffe)
                     self.assertEqual(out.original_notice_flags_or_mask,6)
+                    self.assertEqual(out.original_enqueue_call_sites,(0x606cb8,0x60abdd))
                     self.assertFalse(out.original_native_constructor_executed)
                     self.assertFalse(out.original_notice_object_allocated)
                     self.assertFalse(out.original_947aa8_pending_queue_changed)
@@ -118,6 +119,11 @@ class Original606540HumanNoticeSourceTests(unittest.TestCase):
                                              "without a qualified notice constructor"):
                     source_original_606540_human_notice_plan(notice(
                         first=first,second=second,status=status,subtype=2))
+
+    def test_subtype_zero_reached_source_handler_and_human_constructor(self):
+        plan=source_original_606540_human_notice_plan(notice(subtype=0,status=1))
+        self.assertEqual((plan.original_descriptor_subtype,plan.original_descriptor_status),(0,1))
+        self.assertEqual(plan.original_selected_constructor_address,0x58b670)
 
     def test_manager_and_secondary_lookup_paths_fail_closed(self):
         q=notice(first=True)
