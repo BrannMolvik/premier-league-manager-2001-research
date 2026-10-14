@@ -105,6 +105,8 @@ class Original613EE0SingleNodeReached:
     original_target_date_raw_dword: int
     original_remove_after_callback_flag: int
     original_due_nonhuman_player_callback_if_reached: Original7D7760DueNonhumanReached | None
+    # Real 613EE0 callback can reenter 614080 and set queue+0x10=1.
+    original_post_callback_deferred_614080_flag: int | None = None
 
 
 @dataclass(frozen=True)
@@ -136,7 +138,7 @@ def source_original_613ee0_single_due_from_reached(
     All five known actual 613EE0 callers pass flag=1 and current 9847FC
     DWORD, but this projection requires original caller flag explicitly.
     On due, 613EE0 invokes vtable+0x10 BEFORE optional unlink. Full
-    original 5CF990 per-user delivery after loop is unresolved.
+    original 5CF990 per-user retention after the optional 614080 drain is separate.
     """
     if not isinstance(reached,Original613EE0SingleNodeReached):
         raise Original613EE0SourceError("single native 613EE0 reached node record required")
