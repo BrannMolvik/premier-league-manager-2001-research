@@ -78,3 +78,56 @@ def source_original_v3c_entry_bit0_write_511370(
         native_common_511370_called=True,
         match_record_after_first_bit0_store=bytes(updated),
     )
+
+
+@dataclass(frozen=True)
+class SourceOriginalV38ToV3CZeroEventPrefix:
+    """Completed SOURCE v38 subset plus first v3c write; v3c remains pending."""
+
+    native_v38_score_latch: object
+    native_v3c_first_flag: SourceOriginalV3CEntryFlagWrite
+
+
+def source_original_v38_then_v3c_zero_event_prefix(
+    *,
+    original_native_match_record_before_v38: bytes,
+    original_processing_context_after_match: bytes,
+) -> SourceOriginalV38ToV3CZeroEventPrefix:
+    """Bridge two original callback *prefixes* only where v38 is qualified.
+
+    Direct 0x5112A0 v38 has no extra method. Wrapped 0x5136C0 calls
+    0x513570 after copying scores. Its 0x513577/0x513583 gate returns
+    with NO record writes when BOTH DWORD context+0xD0C and +0xD10
+    are zero. Only that native zero-event path permits bridge without
+    calling 0x513570's other scorer/event mutations. For any nonzero
+    context event, fail closed: source 0x513570 traverses linked event
+    records, changes scores/flags and may consume original RNG.
+    This function leaves the common 0x511370 v3c body unexecuted.
+    """
+    from original_native_match_result_latch import (
+        source_original_native_match_v38_two_score_words_5112a0,
+    )
+    record=original_native_match_record_before_v38
+    context=original_processing_context_after_match
+    latch=source_original_native_match_v38_two_score_words_5112a0(
+        original_native_match_record_before_v38=record,
+        original_processing_context_after_match=context,
+    )
+    if latch.original_wrapped_513570_required:
+        if type(context) is not bytes or len(context)<0xD14:
+            raise OriginalLeagueMatchProcessOwnerError(
+                "actual original wrapped-v38 event counters +0xD0C and +0xD10 required"
+            )
+        count_0=unpack_from("<I",context,0xD0C)[0]
+        count_1=unpack_from("<I",context,0xD10)[0]
+        if count_0 or count_1:
+            raise OriginalLeagueMatchProcessOwnerError(
+                "original wrapped v38 has nonzero 513570 event counters; "
+                "cannot skip source mutable world callbacks"
+            )
+    entry=source_original_v3c_entry_bit0_write_511370(
+        original_native_match_record_at_v3c_entry=(
+            latch.updated_match_record_after_two_word_stores
+        )
+    )
+    return SourceOriginalV38ToV3CZeroEventPrefix(latch,entry)
