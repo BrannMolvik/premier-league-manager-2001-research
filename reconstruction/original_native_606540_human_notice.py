@@ -84,6 +84,8 @@ class Original606540HumanNoticeSourcePlan:
     original_notice_envelope_size: int = 12
     original_pending_queue_address: int = 0x947AA8
     original_following_player_event_handler: int = 0x60AA20
+    # Native conditional sequence: notice wrapper first, dated player item second.
+    original_enqueue_call_sites: tuple[int, int] = (0x606CB8,0x60ABDD)
     original_native_constructor_executed: bool = False
     original_notice_object_allocated: bool = False
     original_notice_envelope_allocated: bool = False
