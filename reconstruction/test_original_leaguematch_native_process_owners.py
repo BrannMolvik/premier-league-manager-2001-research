@@ -161,7 +161,12 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
                     d0c=0 if kind==2 and flags & 4==0 else ((flags>>1)&1)
                     d10=1 if kind==3 and flags & 4==0 else ((flags>>2)&1)
                     self.assertEqual(result.source_context_stores,
-                                     ((0xD0C,d0c),(0xD10,d10)))
+                                     ((0xD0C,d0c),(0xD10,d10),
+                                      (0xD14,int(kind==5)),
+                                      (0xD18,(flags>>3)&1),
+                                      (0xD24,0xFFFFFFFF),
+                                      (0xD28,0xFFFFFFFF),
+                                      (0xD2C,0xFFFFFFFF)))
                     self.assertEqual(result.original_virtual28_literal_kind,kind)
                     self.assertFalse(result.original_base_510d60_executed)
                     self.assertFalse(result.live_game_state_updated)
@@ -231,6 +236,13 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
             0x510DFA:"c7 86 10 0d 00 00 01 00 00 00",
             0x510E06:"8b 45 44",0x510E09:"c1 e8 02",
             0x510E0C:"83 e0 01",0x510E0F:"89 86 10 0d 00 00",
+            0x510E1A:"ff 52 28",0x510E1F:"83 f8 05",
+            0x510E22:"0f 94 c1",0x510E25:"89 8e 14 0d 00 00",
+            0x510E2B:"8b 55 44",0x510E2E:"c1 ea 03",
+            0x510E31:"83 e2 01",0x510E34:"89 96 18 0d 00 00",
+            0x510E55:"83 c8 ff",0x510E58:"89 86 24 0d 00 00",
+            0x510E5E:"89 86 28 0d 00 00",
+            0x510E64:"89 86 2c 0d 00 00",
         }
         for addr,hx in sites.items():
             with self.subTest(addr=hex(addr)):
