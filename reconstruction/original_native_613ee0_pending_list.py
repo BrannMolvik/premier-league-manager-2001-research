@@ -111,7 +111,7 @@ class Original613EE0SingleNodeReached:
 class Original613EE0SingleNodeReceipt:
     original_signed_due: bool
     original_due_virtual_dispatch_source_reached: bool
-    original_source_header_after: bytes
+    original_source_header_after_scan_before_delivery: bytes
     original_source_wrapper_retained: bytes | None
     original_7d7760_player_cleanup_source_receipt: Original7D7760DueCleanupReceipt | None
     original_event_virtual_zero_destructor_if_removed: bool
@@ -158,12 +158,17 @@ def source_original_613ee0_single_due_from_reached(
     if type(flag) is not int or flag not in (0,1):
         raise Original613EE0SourceError("reached original remove callback flag 0 or 1 required")
     is_due=_s32(due)<=_s32(target)
+    # 613EE0 always resets header+0xC active flag and +0x10 pending cursor
+    # at loop exit before unrelated 5CF990 per-user delivery starts.
+    after_scan=bytearray(hdr)
+    pack_into("<I",after_scan,0xc,0)
+    pack_into("<I",after_scan,0x10,0)
     callback=reached.original_due_nonhuman_player_callback_if_reached
     if not is_due:
         if callback is not None:
             raise Original613EE0SourceError("future original event skips due virtual callback")
         return Original613EE0SingleNodeReceipt(
-            False,False,hdr,node,None,False,False)
+            False,False,bytes(after_scan),node,None,False,False)
     if not isinstance(callback,Original7D7760DueNonhumanReached):
         raise Original613EE0SourceError("due original event demands qualified native 7D7760 callback")
     if (callback.original_native_event_object_pointer!=event or
@@ -176,8 +181,8 @@ def source_original_613ee0_single_due_from_reached(
     if flag==0:
         # Original virtual handler still runs, but 4EA190 is not reached.
         return Original613EE0SingleNodeReceipt(
-            True,True,hdr,node,projected,False,False)
-    out=bytearray(hdr)
+            True,True,bytes(after_scan),node,projected,False,False)
+    out=after_scan
     pack_into("<I",out,4,0)
     pack_into("<I",out,8,0)
     # Original 4EA190 optionally invokes the event virtual destructor
