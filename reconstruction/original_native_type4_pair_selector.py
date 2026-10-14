@@ -34,6 +34,61 @@ class OriginalType4PairSelectionReceipt:
     source_original_selected_sidereference_pointer: int | None
 
 
+@dataclass(frozen=True)
+class OriginalType4OwnerGateReceipt:
+    source_half_team_count_trunc_toward_zero: int
+    source_gate_threshold_half_times_half_minus_one: int
+    source_owner_raw_68: int
+    source_owner_raw_78: int
+    source_4faea0_al_if_no_mutating_callback: int | None
+    source_requires_mutating_split_array_initialization: bool
+
+
+def source_original_type4_owner_read_only_gate_4faea0(
+    *, original_native_league_owner_record_before_gate: bytes,
+) -> OriginalType4OwnerGateReceipt:
+    """Source original 0x4FAEA0 entry and conditional initialization gate.
+
+    The original obtains signed owner+0x3C team count, divides by two
+    rounded toward zero, then checks signed (half-1)*half >= owner+0x68.
+    The owner+0x68 field is intentionally *not* named completed games,
+    remaining fixtures or a ranking: only the reached comparison is proven.
+
+    If the condition is false, original returns AL0 without accessing
+    owner+0x78/array bytes. If true and owner+0x78 is already nonzero,
+    source returns AL1 without mutating initializer calls. Otherwise it
+    walks owner+0x6C/+0x70, calls 0x4F40B0, populates +0x74/+0x7C,
+    and invokes original 0x617500 twice. That branch remains UNRESOLVED;
+    no AL1 is emitted by this helper without executing its state effects.
+    """
+    r=original_native_league_owner_record_before_gate
+    if type(r) is not bytes or len(r)<0x84:
+        raise OriginalType4PairSourceError(
+            "actual original League owner record through +0x80 required")
+    teams=unpack_from("<i",r,0x3C)[0]
+    raw68=unpack_from("<i",r,0x68)[0]
+    raw78=unpack_from("<i",r,0x78)[0]
+    # The actual shipped Scottish split uses a positive, bounded team count.
+    # Native signed multiply overflow and nonsensical owner states need a
+    # separate source contract, not Python unbounded-integer approximations.
+    if teams<4 or teams>65535:
+        raise OriginalType4PairSourceError(
+            "source native signed team count outside qualified positive owner range")
+    half=teams//2
+    threshold=half*(half-1)
+    if threshold>0x7FFFFFFF:
+        raise OriginalType4PairSourceError(
+            "original signed gate arithmetic overflows qualified source domain")
+    if threshold<raw68:
+        return OriginalType4OwnerGateReceipt(
+            half,threshold,raw68,raw78,0,False)
+    if raw78!=0:
+        return OriginalType4OwnerGateReceipt(
+            half,threshold,raw68,raw78,1,False)
+    return OriginalType4OwnerGateReceipt(
+        half,threshold,raw68,raw78,None,True)
+
+
 def source_original_type4_pair_selection_4f2a78_4faf70(
     *,
     original_embedded_side_ref_before_getter: bytes,
