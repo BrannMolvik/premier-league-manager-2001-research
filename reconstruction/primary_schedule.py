@@ -103,7 +103,15 @@ def _first_schedule_node_conflict_near(
     center_index: int,
     candidate: StartupScheduleNode,
 ) -> int | None:
-    """Reproduce 0x615890 for startup schedule nodes."""
+    """Symbolic approximation of native 0x615890 for startup match nodes.
+
+    Source 0x615790 first checks actual event+0x08, then virtual+0x18
+    payload flags DWORD+0x44 bit6, then calls actual native virtual+0
+    conflict comparison. The current symbolic club reference shortcut
+    does NOT prove source-equivalent native collision behavior. Do not
+    use this as live original date placement or Win11 acceptance evidence.
+    See original_native_dated_event_neighbor_conflict.py.
+    """
 
     center = int(center_index)
     bucket_count = len(buckets)
@@ -124,12 +132,13 @@ def choose_primary_schedule_bucket(
     nominal_index: int,
     candidate: StartupScheduleNode,
 ) -> int:
-    """Reproduce 0x615950's outward conflict-search placement.
+    """Symbolic projection of the source 0x615950 outward date search.
 
-    The initial probe covers nominal-1, nominal, nominal+1. After a conflict,
-    the search expands in two-bucket jumps. The side closer to the original
-    nominal target is tested first; exact-distance ties choose the later side,
-    matching the branch at 0x6159D1.
+    The neighboring bucket order is recovered, but native collision results
+    also require dynamic event+0x08, payload flag6 and virtual+0. The
+    clean-room club-reference test does not substitute for those native
+    predicates. This bounded projection remains for existing schedule
+    views, NOT a full original runtime parity or match acceptance proof.
     """
 
     nominal = int(nominal_index)
@@ -191,13 +200,13 @@ def place_primary_schedule_nodes(
     season_year: int = 2000,
     bucket_count: int = PRIMARY_SCHEDULE_BUCKET_COUNT,
 ) -> PrimarySchedulePlacement:
-    """Place startup nodes through exact primary 0x615950 semantics.
+    """Place startup nodes by the bounded original 0x615950 search shape.
 
-    Nodes must be supplied in original construction/insertion order. Each
-    accepted node is head-inserted into its chosen bucket, so the returned
-    bucket tuples are already in the linked-list order seen by 0x615AE0.
-    season_year is required for the executable's Gregorian 25-December skip;
-    its default preserves the shipped 2000/01 startup path.
+    Nodes use original construction/insertion order and native-style
+    head insertion; however, the clean-room symbolic conflict predicate
+    has not established genuine original +8/+0x44/virtual+0 state.
+    This cannot certify complete original calendar simulation, PResults
+    or original Windows11 GUI acceptance. The default season is 2000/01.
     """
 
     bucket_count = int(bucket_count)
