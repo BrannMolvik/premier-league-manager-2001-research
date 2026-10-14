@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from struct import pack_into
+from pathlib import Path
+import os
 import unittest
 
 from original_native_v3c_calendar_second_pass import (
@@ -171,6 +173,26 @@ class OriginalNative615D10WalkTests(unittest.TestCase):
             scan((step(head=0x1000,eax=0x2000),),max_slots=True)
         with self.assertRaises(Original615D10SlotWalkError):
             scan((step(head=0x1000,eax=0x2000),),max_slots=0x1000001)
+
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-private original executable not mounted")
+    def test_exact_original_pe_615d10_reloads_registry_and_returns_first_hit(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        checks=(
+            (0x615D10,"53 55 56 8b 74 24 14"),
+            (0x615D1A,"8b 4f 08 8b 47 04 2b f1 3b f0 7d 26"),
+            (0x615D2E,"8b 07 6a 00 6a 00 53 6a 00 55"),
+            (0x615D38,"8d 0c b0 e8 10 ff ff ff"),
+            (0x615D40,"85 c0 75 0a"),
+            (0x615D44,"8b 47 04 46 3b f0 7c e2"),
+            (0x615D4C,"33 c0"),
+        )
+        for addr,h in checks:
+            with self.subTest(va=hex(addr)):
+                raw=bytes.fromhex(h)
+                self.assertEqual(pe.read(addr,len(raw)),raw)
 
     def test_pointer_arithmetic_fails_closed_before_wrap(self):
         with self.assertRaisesRegex(Original615D10SlotWalkError,"overflow"):
