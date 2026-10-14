@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "project": "FM2001 Windows 11 modernization/port",
-  "updated": "2026-10-10",
+  "updated": "2026-10-15",
   "gate13_local_recovery_handoff": "research/GATE13_LOCAL_PLAYTEST_HANDOFF_2026-10-09.md",
   "gate13_recovery_latest_priority": "Usage-reserve checkpoint: Daniel prioritizes missing Inbox and broken MENU. Menu repair b36276e4 retains Return/Continue/live row animation. Seven canonical human-key cases now qualify fresh Southport recipient0, not imported195/club349. Retain source key and transfer-request active-club context at production/save-load;245 focused tests and withdrawn Windows/Tk1x/1.5x passed. Next actual ordered MPMEAMail delivery/user6B4 and complete payload inputs, then direct ID1/PMenu65/PEAMail render/input; pending queues are not Inbox. Gate13 OPEN; no new playable/visible/full-suite claim, main merge, agent-runtime or later-gate work.",
   "gate13_inbox_ownership_recovery": "research/GATE13_INBOX_OWNERSHIP_2026-10-10.md",
@@ -41,7 +41,7 @@
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "On codex/gate13-windows-playability-recovery, finish exact August23 Cup9/League27 native Side conflict/postponement/linked payload ownership, then ordinary PBg ID3, pre-match/results/return using existing engine. Preserve staged publication, canonical Southport first calculation/save/fresh reload and reconciled audit-only main41d5946d. Then formations/real Inbox/essential navigation. No main merge, agent-runtime or unrelated later-gate work. Gate13 OPEN; normal original-look gameplay acceptance remains required.",
+  "active_task": "Recovery633 Gate13. Main 3f81161eb5fd34f98b94c52d3e2b49e3357b616a merges bounded source-only PR740 (Gate13 1883/157, asset green). High-risk PR739 onset portable GameState/schema48 Save/Load head b9c5d43754f069311bb97a93109d5026954f5bb9 Gate13 1894/158, full4416/162 and asset green but independent review still absent; reconcile with new main before any merge. Next original live injury producer + 7D7760 recovery + registered-user Inbox/SaveLoad, all-mode NEXT/PPreMatch/PResults/return, all original leagues/multihuman and physical Win11 Gates13–17 acceptance.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3374,5 +3374,14 @@
   "gate13_post482_source_36px_font_windows_package_identity_verified": true,
   "gate13_post482_source_36px_font_windows_package_ci_run_id": 37701923950,
   "gate13_post482_startup_transport_receipt_internal_validation_verified": true,
-  "gate13_post482_startup_transport_probe_ci_run_id": 37704161255
+  "gate13_post482_startup_transport_probe_ci_run_id": 37704161255,
+  "recovery633_main_head": "3f81161eb5fd34f98b94c52d3e2b49e3357b616a",
+  "recovery633_verified_source_pr": 740,
+  "recovery633_source_head": "b42192dc0ee38c116cd6fba7fe5b942458114302",
+  "recovery633_gate13_run": 38631780264,
+  "recovery633_gate13_test_count": 1883,
+  "recovery633_gate13_skips": 157,
+  "recovery633_asset_policy_run": 38631780268,
+  "recovery633_source_only_no_runtime_acceptance": true,
+  "recovery633_high_risk_pr739_pending_independent_review": true
 }
