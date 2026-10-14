@@ -111,6 +111,18 @@ def source_original_41a490_accumulator_at_callback_boundary(
     raw=original_player_at_41a490
     if type(raw) is not bytes or len(raw)<0x145:
         raise OriginalRowIncidentSourceError("actual player bytes through +144 at 41A490 required")
+    for name, value in (
+        ("row arg1", row.source_4197c0_arg1),
+        ("row arg2", row.source_4197c0_arg2),
+    ):
+        if type(value) is not int or not 0 <= value <= 255:
+            raise OriginalRowIncidentSourceError(
+                f"actual original unsigned {name} byte required")
+    if (type(row.source_player_pointer) is not int or
+            not 0 < row.source_player_pointer <= 0xffffffff or
+            row.source_4197c0_arg3 != row.source_opponent_team_pointer):
+        raise OriginalRowIncidentSourceError(
+            "reached original row player/opponent pointer identity required")
     old=raw[0x144]
     increment=min(2, row.source_4197c0_arg1+2*row.source_4197c0_arg2)
     new=(old+increment)&0xff
