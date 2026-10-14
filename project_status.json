@@ -41,7 +41,7 @@
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery634 main b8357b9724f4bfcc845113bddb5056de7e619cf8 merged verified source-only PR741/742 with exact Gate13 focused, full PR741 and assets; Gate13 remains open. PR739 high-risk portable onset/queue/save head 420d03cdfc2f75c4a515c7263397b870e6d9328e: due-user FIFO serial order bug fixed/test staged, new exact-head CI pending, independent supervisor review missing; reconcile main before merge. Next original normal all-mode NEXT→PPreMatch→PResults→return live world, original injury onset/expiry actual per-user Inbox/SaveLoad, all original leagues/multi-humans and physical Win11 Gates13-17 release audit.",
+  "active_task": "Recovery636 main ce340f15ee0a0ad933724db191b44a24207d38bc includes source-verified PR743 first-side owner→conditional 5DB7D0 native stat tail, exact Gate13 38649800887 success (1926 tests/160 skips) and asset38649800865 success. Source-only, NOT live GameState or original process/GUI. Next prove native 5DA2F0 context+D84/D8C/D90 and 5DA538/5DBA60/5DBCD0 owners, join 513010 all four PPreMatch modes/v38/v3c and PResults/management. PR739 high-risk injury SaveLoad CI green but independent review pending/unmerged. Gates13–17 remain open, Windows11 GUI unverified.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3390,5 +3390,9 @@
   "recovery634_gate13_run741": 38638848429,
   "recovery634_gate13_run742": 38640628709,
   "recovery634_pr739_high_risk_review_pending": true,
-  "recovery634_original_gui_accepted": false
+  "recovery634_original_gui_accepted": false,
+  "gate13_latest_verified_source_pr": 743,
+  "gate13_latest_verified_source_head": "b954d87fa58748b2793e84f629d3982dd191c4e3",
+  "gate13_latest_verified_source_gate13_run": 38649800887,
+  "gate13_latest_verified_source_asset_run": 38649800865
 }
