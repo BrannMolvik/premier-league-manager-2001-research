@@ -70,6 +70,42 @@ class OriginalNative615D10WalkTests(unittest.TestCase):
                          (0x2004,0x3008))
         self.assertEqual(r.original_returned_native_node_pointer,0xC000)
 
+
+    def test_actual_v3c_to_5127a0_to_615d10_first_lookup_source_route(self):
+        from original_native_v3c_reschedule_gate import (
+            source_original_v3c_511429_reschedule_gate,
+            source_original_5127a0_first_calendar_request,
+        )
+        from original_native_v3c_calendar_second_pass import (
+            source_original_615d10_reached_request_date_window,
+        )
+        match=bytearray(0x50)
+        pack_into("<I",match,0,0x7C9D9C)
+        pack_into("<I",match,0x44,1)
+        pack_into("<I",match,0x4C,0xA000)
+        gated=source_original_v3c_511429_reschedule_gate(
+            original_native_match_at_gate=bytes(match),
+            original_first_5112e0_virtual30_eax=0,
+            original_second_5112e0_virtual30_eax=0)
+        processing_owner=bytearray(4)
+        pack_into("<I",processing_owner,0,0xB000)
+        first=source_original_5127a0_first_calendar_request(
+            original_gate=gated,
+            original_processing_owner_at_reschedule=bytes(processing_owner),
+            original_reached_global_date_index_9847fc=101)
+        w=source_original_615d10_reached_request_date_window(
+            original_native_lookup_request=first,
+            original_registry_record_at_lookup=reg(base=0x2000,count=10,datebase=100))
+        result=scan((
+            step(before=reg(base=0x2000,count=10,datebase=100),
+                 head=0xD000,eax=0xE000),
+        ),win=w)
+        self.assertEqual(first.native_calendar_registry_va,0x947AD8)
+        self.assertEqual(first.first_requested_date_index,102)
+        self.assertEqual(result.original_reached_slot_indices,(2,))
+        self.assertEqual(result.original_returned_native_node_pointer,0xE000)
+        self.assertFalse(result.native_match_world_updated)
+
     def test_original_skips_615c50_when_calendar_date_out_of_window(self):
         r=scan((),win=window(day=200))
         self.assertEqual(r.original_reached_slot_indices,())
