@@ -11,7 +11,7 @@ NOT the final resolved club pointer or original 0x510320 registration effects.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from struct import unpack_from
+from struct import pack_into, unpack_from
 
 SOURCE_ORIGINAL_TYPE4_GETTER_BRANCH = 0x4F2A78
 SOURCE_ORIGINAL_TYPE4_PREPARE = 0x4FAEA0
@@ -161,6 +161,54 @@ def source_original_type4_classify_reached_pairs_before_617500_4faea0(
             cross+=1
     return OriginalType4PreSortPairsReceipt(
         threshold,n,tuple(top),tuple(bottom),cross,True)
+
+
+
+@dataclass(frozen=True)
+class OriginalType4TemporaryStandaloneSideReceipt:
+    original_source_type_word: int
+    original_source_selector_word: int
+    original_source_cached_club_pointer: int
+    original_source_owner_pointer: int
+    source_constructed_temporary_standalone_record: bytes
+    source_nested_virtual0_result_unresolved: bool
+
+
+def source_original_type4_temporary_standalone_4f2aa9_4f2b24(
+    *, original_selected_sidereference_record: bytes,
+) -> OriginalType4TemporaryStandaloneSideReceipt:
+    """Exact source temporary SideRef layout BEFORE virtual+0 resolution.
+
+    Original 0x4F2AA9..0x4F2B1B reads selected SideRef +0x04,+0x08,
+    +0x0C,+0x0E and writes those same fields into a local 16-byte
+    temporary standalone SideRef at [ESP+0x20]. Its bitwise selector
+    corrections all cancel for this reached straight-line path, so
+    selector+0x0E is unchanged. It installs vtable 0x7C4D60 then at
+    0x4F2B24 invokes its native virtual+0 (0x4F28A0) and at
+    0x4F2B2A writes the returned EAX to the outer embedded cache+4.
+
+    This helper NEVER executes that nested getter or registers a club.
+    Even when the selected SideRef has a cached native pointer, the
+    enclosing 0x510320 callback may subsequently modify actual world
+    and registration state. Return only the native temporary bytes
+    and an explicit unresolved nested effect, never a club identity.
+    """
+    r=original_selected_sidereference_record
+    if type(r) is not bytes or len(r)<0x10:
+        raise OriginalType4PairSourceError(
+            "source-selected native SideRef bytes through +0x0E required")
+    cache=unpack_from("<I",r,4)[0]
+    owner=unpack_from("<I",r,8)[0]
+    kind=unpack_from("<H",r,0x0C)[0]
+    selector=unpack_from("<H",r,0x0E)[0]
+    temporary=bytearray(0x10)
+    pack_into("<I",temporary,0,0x7C4D60)
+    pack_into("<I",temporary,4,cache)
+    pack_into("<I",temporary,8,owner)
+    pack_into("<H",temporary,0x0C,kind)
+    pack_into("<H",temporary,0x0E,selector)
+    return OriginalType4TemporaryStandaloneSideReceipt(
+        kind,selector,cache,owner,bytes(temporary),True)
 
 
 def source_original_type4_pair_selection_4f2a78_4faf70(
