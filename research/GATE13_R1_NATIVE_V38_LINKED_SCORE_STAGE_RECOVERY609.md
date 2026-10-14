@@ -1,6 +1,6 @@
 # Recovery609: original LeagueMatch 0x513570 linked score stage
 
-Date: 14 October 2026 KST. Base main `5d8bdd6c30cd8b96f73e6679b89692949dbea292` includes green asset/527? Gate13 source PR704. Canonical original `footballmanager.exe` length 4,714,541B, SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, inspected **only via static disassembly**; no binary committed or executed.
+Date: 14 October 2026 KST. Base main `5d8bdd6c30cd8b96f73e6679b89692949dbea292` includes independently reviewed, exact-head green Gate13 and asset-policy source PR704. Canonical original `footballmanager.exe` length 4,714,541B, SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, inspected **only via static disassembly**; no binary committed or executed.
 
 ## Reached original caller and exact scoring scope
 
