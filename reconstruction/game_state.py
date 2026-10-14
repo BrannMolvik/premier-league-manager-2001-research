@@ -3487,10 +3487,12 @@ class GameState:
             )
 
         def club_name_key(club_id: int) -> bytes | None:
-            club = self.clubs.get(int(club_id))
-            if club is None or not hasattr(club, "short_name"):
+            raw = _original_pl_short_name_bytes(self.clubs, int(club_id))
+            if raw is None:
                 return None
-            return str(getattr(club, "short_name")).encode("cp1252")
+            # Original native League comparator 0x4F45E0 uses a NUL-
+            # terminated CP1252 short name, not arbitrary Unicode text.
+            return raw.split(b"\x00", 1)[0]
 
         def sort_exact(rows):
             rows = tuple(rows)
@@ -3500,9 +3502,17 @@ class GameState:
             named = []
             for row in rows:
                 name_key = club_name_key(int(row.club_id))
-                if name_key is None:
+                if type(name_key) is not bytes:
                     return None
                 named.append((row, name_key))
+            # Native comparator 0x4F45E0 returns zero for a full source
+            # numeric + C-string tie. The physical qsort insertion
+            # order is not proven from a Python club iteration order.
+            full_keys = tuple(
+                numeric_key(row) + (name,) for row, name in named
+            )
+            if len(full_keys) != len(set(full_keys)):
+                return None
             return tuple(
                 row
                 for row, _name_key in sorted(
