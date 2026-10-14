@@ -32,7 +32,7 @@ class Original413020ReachedManager:
 @dataclass(frozen=True)
 class Original413020ManagerRouteReceipt:
     original_event_object_pointer: int
-    original_original_type12_team_identity: int
+    original_type12_team_identity: int
     original_visited_manager_nodes: tuple[int, ...]
     original_selected_user_pointer: int | None
     original_selected_user_event_queue_pointer: int | None
