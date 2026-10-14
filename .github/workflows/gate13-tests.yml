@@ -97,6 +97,11 @@ on:
       - "reconstruction/original_native_418ad0_cleanup.py"
       - "reconstruction/original_native_7d7760_due_cleanup.py"
       - "reconstruction/test_original_native_7d7760_due_cleanup.py"
+      - "reconstruction/test_original_606540_injury_language.py"
+      - "reconstruction/original_native_613ee0_multi_chain.py"
+      - "reconstruction/test_original_native_613ee0_multi_chain.py"
+      - "reconstruction/original_606540_portable_notice_world.py"
+      - "reconstruction/test_original_606540_portable_notice_world.py"
       - "reconstruction/original_native_7d7760_human_return.py"
       - "reconstruction/original_native_7d7760_return_language.py"
       - "reconstruction/test_original_native_7d7760_human_return.py"
@@ -475,6 +480,9 @@ jobs:
             test_original_native_613ee0_human_due \
             test_original_native_605f90_posthandler \
             test_original_native_7d7760_due_cleanup \
+            test_original_606540_injury_language \
+            test_original_native_613ee0_multi_chain \
+            test_original_606540_portable_notice_world \
             test_original_native_7d7760_human_return \
             test_original_native_613ee0_pending_list \
             test_original_native_614080_deferred_drain \

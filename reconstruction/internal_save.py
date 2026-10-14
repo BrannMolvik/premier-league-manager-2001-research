@@ -29,6 +29,7 @@ from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiv
 from game_state import GameCalendar, GameState
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from original_eamail_pending import OriginalPendingTransferEAMQueue
+from original_606540_portable_notice_world import Original606540PortableWorld
 from original_native_player_discipline_state import (
     snapshot_original_native_discipline,
     restore_original_native_discipline,
@@ -1552,6 +1553,9 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         # Pending MPM events remain serialized in their separate arrays.
         "original_delivered_mailboxes": state.original_delivered_mailboxes.snapshot(),
         "original_pending_transfer_eam": state.original_pending_transfer_eam.snapshot(),
+        # Serialized source-only original 606540 injury notice owner. Does not
+        # convert native 32-bit dates into Python date or save PE pointers.
+        "original_injury_notice_world": state.original_injury_notice_world.snapshot(),
         # Sparse source-owned original discipline, never the positional generic
         # player record. Absence in old snapshots means no qualified native state.
         "original_native_player_discipline": snapshot_original_native_discipline(
@@ -1774,6 +1778,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         ),
         original_pending_transfer_eam=OriginalPendingTransferEAMQueue.restore(
             snapshot.get("original_pending_transfer_eam")
+        ),
+        original_injury_notice_world=Original606540PortableWorld.restore(
+            snapshot.get("original_injury_notice_world")
         ),
         native_player_discipline=restore_original_native_discipline(
             snapshot.get("original_native_player_discipline"), set(players)
