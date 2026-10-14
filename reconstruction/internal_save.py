@@ -33,6 +33,7 @@ from original_native_player_discipline_state import (
     snapshot_original_native_discipline,
     restore_original_native_discipline,
 )
+from original_native_status_world_state import OriginalNativeStatusWorldState
 from original_human_user_name import OriginalHumanUserName
 from gate17_country_allocation_scope import (
     PlayableCountryAllocationPlan,
@@ -1556,6 +1557,9 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "original_native_player_discipline": snapshot_original_native_discipline(
             state.native_player_discipline
         ),
+        # Only source-verified player+14/174/152/153, role object +3/+4
+        # and registered DBRClub+1A8 counters, never synthetic raw pointers.
+        "original_native_status_world": state.native_status_world.snapshot(),
         "user_youth": _snapshot_youth_state(state.user_youth),
         "user_sacking_reason": (
             None
@@ -1773,6 +1777,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         ),
         native_player_discipline=restore_original_native_discipline(
             snapshot.get("original_native_player_discipline"), set(players)
+        ),
+        native_status_world=OriginalNativeStatusWorldState.restore(
+            snapshot.get("original_native_status_world"),set(players)
         ),
         user_youth=_restore_youth_state(snapshot.get("user_youth")),
         user_sacking_reason=(
