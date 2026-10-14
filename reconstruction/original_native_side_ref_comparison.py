@@ -229,3 +229,35 @@ def source_original_sidereference_virtual0_dispatch_4f28a0(
             SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA,kind,0,None,0,False)
     return OriginalNativeSideGetterDispatchReceipt(
         SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA,kind,0,branch,None,True)
+
+
+def source_original_no_mutating_sidereference_pair_compare_4f2830(
+    *,
+    original_left_side_record: bytes,
+    original_right_side_record: bytes,
+) -> OriginalNativeSideRefCompareReceipt:
+    """Source-exact comparison for v0 paths with no subtype callback reached.
+
+    After original 0x5103D0 copies the two input SideRef cached pointers
+    into match+0x14/+0x28, original 0x4F28A0 virtual+0 immediately
+    returns any nonzero cached +0x04 pointer. When +0x04=0, subtype
+    0 or unsupported 5..FFFF also returns zero without mutation.
+    Source subtype1..4 with cache=0 REQUIRES original mutation/callback
+    and cannot be inferred from a symbolic ClubRef: fail closed.
+
+    Only when NEITHER SideRef needs a mutating original getter does
+    this join the actual native returns with source 0x4F2830. It
+    never maps modern club IDs onto hypothetical original pointers.
+    """
+    left=source_original_sidereference_virtual0_dispatch_4f28a0(
+        original_native_side_record_before_getter=original_left_side_record)
+    right=source_original_sidereference_virtual0_dispatch_4f28a0(
+        original_native_side_record_before_getter=original_right_side_record)
+    if left.source_unresolved_callback_required or right.source_unresolved_callback_required:
+        raise OriginalNativeSideRefCompareSourceError(
+            "native SideRef type1..4 mutating getter source execution required")
+    return source_original_reached_side_ref_compare_4f2830(
+        original_left_side_after_reached_getter=original_left_side_record,
+        original_right_side_after_reached_getter=original_right_side_record,
+        original_reached_left_virtual0_eax=left.source_return_without_mutating_getter,
+        original_reached_right_virtual0_eax=right.source_return_without_mutating_getter)
