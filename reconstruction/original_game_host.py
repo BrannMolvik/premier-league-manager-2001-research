@@ -1404,8 +1404,20 @@ class OriginalGameTkHost:
                 self.error_reporter(self.last_status)
                 return
             if not needs_modal:
-                self._begin_original_human_match(
-                    self.presenter.session.match_detail_mode)
+                # Original settings may already select FastView/3D without
+                # reopening PPreMatch. Those native modes are not available
+                # yet. Do not let a rejected source route escape the Tk poll
+                # callback after NEXT has safely reached a pending fixture.
+                try:
+                    self._begin_original_human_match(
+                        self.presenter.session.match_detail_mode)
+                except OriginalGameHostError as exc:
+                    self.last_status = (
+                        f"{type(exc).__name__}: {exc}; "
+                        "pending original match preserved"
+                    )
+                    self.error_reporter(self.last_status)
+                    self.redraw()
                 return
             self.redraw()
             self.last_status = (
