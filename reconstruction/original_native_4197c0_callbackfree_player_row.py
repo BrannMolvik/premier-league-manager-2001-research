@@ -147,7 +147,12 @@ def source_original_4197c0_callbackfree_player_row(
     else:
         if reached.third_reached_uefa_owner_context_14 is not None:
             raise Original4197C0SafeRowError("non-UEFA branch cannot fetch third +14")
-        v30=_u32(reached.original_5112e0_v30_eax,"5112E0 owner virtual+30")&0xff
+        v30=_u32(reached.original_5112e0_v30_eax,"5112E0 returned masked AL")
+        # Original 5112E0 itself ANDs EAX with 0xFF before returning.
+        # Thus a reached return outside BYTE range is forged/incorrect.
+        if v30>255:
+            raise Original4197C0SafeRowError(
+                "original 5112E0 already masked to 8-bit return")
         accumulator=bool(v30)
         if accumulator:
             acc=source_original_41a490_accumulator_at_callback_boundary(

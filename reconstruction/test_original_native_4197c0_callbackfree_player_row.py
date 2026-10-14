@@ -74,7 +74,7 @@ def state_for_source(p):
 
 class Original4197C0SafeRowTests(unittest.TestCase):
     def test_non_uefa_v30_positive_one_card_and_one_accumulator(self):
-        source=reached(a=1,v30=0x101,src=player(fa_marker=8))
+        source=reached(a=1,v30=1,src=player(fa_marker=8))
         result=source_original_4197c0_callbackfree_player_row(source)
         after=result.original_player_after
         self.assertEqual((after[0x139],after[0x13a],after[0x13c],after[0x144]),
@@ -142,6 +142,7 @@ class Original4197C0SafeRowTests(unittest.TestCase):
             (replace(reached(),third_reached_uefa_owner_context_14=0x9000),
              "non-UEFA"),
             (replace(reached(),original_5112e0_v30_eax=None),"5112E0"),
+            (replace(reached(),original_5112e0_v30_eax=0x101),"already masked"),
             (replace(reached(),original_match_record=b""),"match+4C"),
             (replace(reached(),original_competition_owner_pointer=0x9999),
              "pointer mismatch"),
