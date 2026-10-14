@@ -248,3 +248,127 @@ def source_original_615a60_atomic_link_projection(
         projected_source_slot_vector=bytes(staged_slots),
         projected_inserted_node_record=bytes(staged_link),
     )
+
+
+@dataclass(frozen=True)
+class Original510BA0Through615A60StagedTransaction:
+    """Source 510380 constructor and 615A60 slot inserts: no live writes."""
+    original_outer_node_after_native_link_store: bytes
+    original_source_registry_after_counter_increment: bytes
+    original_link_insertion: OriginalNativeCalendarInsertionReceipt
+    original_allocator_effects_proven: bool = False
+    native_world_write_committed: bool = False
+
+
+def source_original_510ba0_through_615a60_staged_transaction(
+    *,
+    original_source_calendar_va: int,
+    original_source_calendar_record_before_ctor: bytes,
+    original_selected_calendar_va: int,
+    original_selected_calendar_record_before_ctor: bytes,
+    original_source_slot_vector: bytes,
+    original_global_day_9847fc: int,
+    original_outer_node_pointer: int,
+    original_outer_node_after_entry_virtual18: bytes,
+    original_entry_virtual18_event_pointer: int,
+    original_entry_event_after_virtual18: bytes,
+    original_allocator_result_link_pointer: int,
+    original_allocator_result_link_bytes: bytes,
+    original_510ba0_caller_argument: int,
+    original_reached_link_virtual18_event_pointer: int,
+    original_event_after_link_virtual18: bytes,
+    original_reached_615890_windows: Sequence[Original615890ReachedWindow],
+    max_searches: int = 4096,
+) -> Original510BA0Through615A60StagedTransaction:
+    """Stage exact native 0x510BA0 eligible path including 0x510380 ctor.
+
+    Source 0x510380's indexed sequence comes from original calendar+0x0C,
+    and increments that registry's DWORD counter before 0x615A60. This
+    includes the *structural* native writes only, requires the two actual
+    reached (possibly mutating) virtual18 event results, and does not model
+    allocator, world / source getter side effects or commit to GameState.
+    """
+    from original_native_510ba0_insertion_entry import (
+        source_original_510ba0_calendar_node_insertion_entry,
+        Original510BA0EntryError,
+    )
+    _ptr(original_outer_node_pointer, "original outer node owner")
+    _ptr(original_allocator_result_link_pointer, "reached source allocation pointer")
+    _ptr(original_510ba0_caller_argument, "source 510BA0 caller argument")
+    if original_outer_node_pointer == original_allocator_result_link_pointer:
+        raise OriginalNativeCalendarInsertionError(
+            "allocator link must not reuse the outer source node pointer")
+    outer = original_outer_node_after_entry_virtual18
+    if type(outer) is not bytes or len(outer) < 0x14:
+        raise OriginalNativeCalendarInsertionError(
+            "original outer node after entry v18 through +10 required")
+    if type(original_allocator_result_link_bytes) is not bytes or (
+            len(original_allocator_result_link_bytes) != 0x1C):
+        raise OriginalNativeCalendarInsertionError(
+            "actual source allocator returned 0x1C-byte link record required")
+    if original_source_calendar_va not in (
+            NATIVE_PRIMARY_CALENDAR_VA, NATIVE_SECONDARY_CALENDAR_VA):
+        raise OriginalNativeCalendarInsertionError(
+            "original 510300 calendar must be native primary/secondary")
+    if bool(outer[0x0C] & 1) != bool(
+            original_source_calendar_va == NATIVE_SECONDARY_CALENDAR_VA):
+        raise OriginalNativeCalendarInsertionError(
+            "original outer node+0xC calendar selector disagrees with 510300")
+    if unpack_from("<I",outer,0x08)[0]:
+        raise OriginalNativeCalendarInsertionError(
+            "510BA0 already-linked original outer node skips native insertion")
+    try:
+        entry = source_original_510ba0_calendar_node_insertion_entry(
+            original_node_record=outer,
+            original_reached_virtual18_event_pointer=original_entry_virtual18_event_pointer,
+            original_event_record_after_virtual18=original_entry_event_after_virtual18)
+    except Original510BA0EntryError as exc:
+        raise OriginalNativeCalendarInsertionError(str(exc)) from exc
+    if entry.original_branch != "allocate_and_insert_unverified":
+        raise OriginalNativeCalendarInsertionError(
+            "510BA0 event bit6 skips constructor and 615A60 insertion")
+    base, count, day_offset = _registry(
+        original_source_calendar_record_before_ctor, "source calendar before ctor")
+    if original_source_calendar_va == original_selected_calendar_va and (
+            original_source_calendar_record_before_ctor !=
+            original_selected_calendar_record_before_ctor):
+        raise OriginalNativeCalendarInsertionError(
+            "same registry VA cannot have two distinct native before-constructor snapshots")
+    gen = unpack_from("<I", original_source_calendar_record_before_ctor, 0x0C)[0]
+    staged_registry = bytearray(original_source_calendar_record_before_ctor)
+    pack_into("<I", staged_registry, 0x0C, (gen+1)&0xFFFFFFFF)
+    staged_link = bytearray(original_allocator_result_link_bytes)
+    pack_into("<I", staged_link, 0, NATIVE_ALLOCATED_LINK_NODE_VTABLE_VA)
+    pack_into("<I", staged_link, 8, 0)
+    pack_into("<I", staged_link, 0x0C, ((gen << 1)&0xFFFFFFFF) |
+              int(original_source_calendar_va == NATIVE_SECONDARY_CALENDAR_VA))
+    pack_into("<I", staged_link, 0x10, 0xFFFFFFFF)
+    pack_into("<I", staged_link, 0x14, original_outer_node_pointer)
+    pack_into("<I", staged_link, 0x18, original_510ba0_caller_argument)
+    staged_outer = bytearray(outer)
+    pack_into("<I",staged_outer,0x08,original_allocator_result_link_pointer)
+    selected_before = original_selected_calendar_record_before_ctor
+    selected_after = (bytes(staged_registry)
+                      if original_source_calendar_va == original_selected_calendar_va
+                      else selected_before)
+    insertion = source_original_615a60_atomic_link_projection(
+        original_source_calendar_va=original_source_calendar_va,
+        original_source_calendar_record=bytes(staged_registry),
+        original_selected_calendar_va=original_selected_calendar_va,
+        original_selected_calendar_record=selected_after,
+        original_source_slot_vector=original_source_slot_vector,
+        original_global_day_9847fc=original_global_day_9847fc,
+        original_outer_node_pointer=original_outer_node_pointer,
+        original_outer_node_after_510ba0=bytes(staged_outer),
+        original_inserted_link_pointer=original_allocator_result_link_pointer,
+        original_inserted_link_after_510380=bytes(staged_link),
+        original_reached_virtual18_event_pointer=original_reached_link_virtual18_event_pointer,
+        original_event_record_after_virtual18=original_event_after_link_virtual18,
+        original_reached_615890_windows=original_reached_615890_windows,
+        max_searches=max_searches,
+    )
+    return Original510BA0Through615A60StagedTransaction(
+        original_outer_node_after_native_link_store=bytes(staged_outer),
+        original_source_registry_after_counter_increment=bytes(staged_registry),
+        original_link_insertion=insertion,
+    )
