@@ -13,6 +13,7 @@ from original_native_type4_pair_selector import (
     source_original_type4_pair_selection_4f2a78_4faf70,
     source_original_type4_owner_read_only_gate_4faea0,
     source_original_type4_classify_reached_pairs_before_617500_4faea0,
+    source_original_type4_temporary_standalone_4f2aa9_4f2b24,
 )
 
 
@@ -208,6 +209,27 @@ class OriginalNativeType4PairTests(unittest.TestCase):
                     source_original_type4_classify_reached_pairs_before_617500_4faea0(
                         **(valid|mutation))
 
+    def test_scottish_type4_selected_source_side_is_cloned_as_original_standalone(self):
+        for cache,owner,kind,selector in (
+            (0,0x10101010,4,0x00FF),
+            (0x30303030,0x50505050,0,0xFFFF),
+            (0,0,0,0),
+        ):
+            side=embedded_type4(selector=selector,cache=cache,owner=owner,
+                                type_word=kind)
+            with self.subTest(cache=cache,kind=kind,selector=selector):
+                got=source_original_type4_temporary_standalone_4f2aa9_4f2b24(
+                    original_selected_sidereference_record=side)
+                source=got.source_constructed_temporary_standalone_record
+                self.assertEqual(source[:4],pack("<I",0x7C4D60))
+                self.assertEqual(source[4:0x10],side[4:0x10])
+                self.assertEqual(got.original_source_selector_word,selector)
+                self.assertTrue(got.source_nested_virtual0_result_unresolved)
+        for bad in (b"",None,bytearray(0x10),bytes(15)):
+            with self.assertRaises(OriginalType4PairSourceError):
+                source_original_type4_temporary_standalone_4f2aa9_4f2b24(
+                    original_selected_sidereference_record=bad)
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "original private executable deliberately not distributed in hosted CI")
     def test_original_private_x86_control_flow_matches_bounded_selector(self):
@@ -238,6 +260,17 @@ class OriginalNativeType4PairTests(unittest.TestCase):
             0x4FAF5A:"e8 a1 c5 11 00",
             0x4FAF5F:"6a 00",
             0x4FAF63:"e8 98 c5 11 00",
+            0x4F2AA9:"8b 48 04",
+            0x4F2AB0:"8b 50 08",
+            0x4F2ACC:"66 8b 50 0c",
+            0x4F2AD5:"66 8b 48 0e",
+            0x4F2B02:"66 8b 40 0e",
+            0x4F2B0E:"c7 44 24 20 60 4d 7c 00",
+            0x4F2B19:"33 c8",
+            0x4F2B1B:"66 89 4c 24 2e",
+            0x4F2B20:"8d 4c 24 20",
+            0x4F2B24:"ff 15 60 4d 7c 00",
+            0x4F2B2A:"89 46 04",
             0x4F2A78:"8b 4e 08",
             0x4F2A7B:"e8 20 84 00 00",
             0x4F2A80:"84 c0",
