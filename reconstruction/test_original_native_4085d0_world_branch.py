@@ -116,7 +116,14 @@ class Original4085D0BranchTests(unittest.TestCase):
             old=unpack_from("<I",at_call,0x14)[0]
             pack_into("<I",at_call,0x14,(old|0x10)&0xffffffdf)
             old_reserve=unpack_from("<I",at_call,0x174)[0]
-            pack_into("<I",at_call,0x174,old_reserve&0xfffffffd)
+            if old_reserve&1:
+                from original_native_418220_role_swap import source_original_418220_role_swap_from_reached
+                swapped=source_original_418220_role_swap_from_reached(
+                    original_player_at_418220=bytes(at_call),
+                    original_source_role_object_pointer=unpack_from("<I",at_call,0x248)[0],
+                    original_source_role_object_at_418220=reached_world.original_4ea3c0_source_object)
+                at_call=bytearray(swapped.original_player_after_418220)
+            pack_into("<I",at_call,0x174,old_reserve&0xfffffffc)
             club=bytearray(8);pack_into("<I",club,4,2)
             global_world=bytearray(0x9d0);pack_into("<I",global_world,0x9cc,0x1000)
             node=bytearray(8);pack_into("<I",node,0,0x2000)
@@ -153,9 +160,14 @@ class Original4085D0BranchTests(unittest.TestCase):
             source_original_4085d0_qualified_mutating_leaf(
                 replace(w,original_406be0_eax=2),proof)
         swap=bytearray(entry);pack_into("<I",swap,0x174,3)
+        swap[0x152]=0x16; swap[0x153]=0x05
         ws=replace(w,original_player_at_entry=bytes(swap))
-        with self.assertRaisesRegex(Original4085D0SourceError,"role-swap"):
-            source_original_4085d0_qualified_mutating_leaf(ws,owner_proof(ws))
+        swapped=source_original_4085d0_qualified_mutating_leaf(ws,owner_proof(ws))
+        self.assertTrue(swapped.original_native_418220_role_swap_projected)
+        self.assertFalse(swapped.original_native_4182f0_role_swap_executed)
+        self.assertEqual(unpack_from("<I",swapped.original_player_at_exit,0x174)[0],0)
+        self.assertEqual(swapped.original_player_at_exit[0x152:0x154],bytes((0x13,0x07)))
+        self.assertEqual(swapped.original_category_object_after_4ea350[3:5],bytes((0x16,0xa1)))
         false_proof=owner_proof(w,registered=4)
         with self.assertRaisesRegex(Original4085D0SourceError,"41EDF0"):
             source_original_4085d0_qualified_mutating_leaf(w,false_proof)
