@@ -18,6 +18,14 @@ Native `0x4FAEA6..0x4FAEBB` loads **signed League+0x3C team count**, divides it 
 
 **33/33** original source direct opcode signatures have been inspected on the private PE (19 selector + 14 new readiness/initialization callsites), with a private-only opt-in regression. Hosted Gate13 CI and branch Python tests remain unverified; this WIP is not an integrated native lifecycle.
 
+## Original ranking-side partition and Scottish schedule selector correlation
+
+Original `0x4F40B0`, reached from `0x4FAEE8/0x4FAEFB` once **per original +0x6C pair side**, calls `0x4F4940` to refresh owner ranking, searches ordered owner+0x34 pointer vector (count at +0x38), and returns the signed index, or **-1** on no match. Therefore the rank callback itself is stateful and real raw pointer-to-side mapping is not yet known. In `0x4FAEF2..0x4FAF46`, **both rank indices < half** append the original SideRef pair to +0x74 (first half); **both >= half** append to +0x7C (second half); cross-half pair is skipped, retaining original source pair order. This classification happens only on 0x4FAEA0's initializing branch and **before** two 0x617500 calls; do not equate pre-sort arrays to final resolved match schedules.
+
+The new strict `source_original_type4_classify_reached_pairs_before_617500_4faea0` receives independently reached source 0x4F40B0 results *for every original input pair* and returns the two **pre-sort** original pointer arrays, count and cross-half omissions. It refuses absent source arrays/owner counters/mismatched callbacks, never calls the unknown ranking or 0x617500 mutators, and never supplies native club IDs. The test covers top/bottom/crossing matches and rejects unqualified owners, and cross-checks actual current `materialize_scot_premier_split_match_emissions(12,38)` **30 scheduled Scottish split match selectors** against the *native selector bit routing* for synthetic source pair arrays. The latter is a bounded implementation-internal consistency test, NOT an original-live ranking/gameplay equivalence result.
+
+Independent direct private PE inspection checked all **43/43** source opcode signatures so far (19 selector + 14 readiness + 10 ranking-classification), alongside the existing private SHA-256 receipt. These opcode checks are separate from running the branch test suite: **no hosted CI/PR, Windows GUI or original execution yet**.
+
 ## Staged independent code and tests, not integrated
 
 On branch `worker/gate13-r1-native-type4-pair-owner-604`:
