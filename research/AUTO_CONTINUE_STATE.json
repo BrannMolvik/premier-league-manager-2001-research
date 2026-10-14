@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery634: main c1abec8a71cba7f8b1653935d3e48f34a474f109 includes reviewed/merged source-only PR741 at c1abec8a (exact-head Gate13 38638848429 1900 tests/158 skips, full 38638848433 4416/162, asset38638848427 PASS). Gate13 still OPEN. Active PR742 ddde1af1c12ea712ec2fa122260bbcf71490152b source-only original 510D60 v34 7 deterministic sparse native context stores D0C/D10/D14/D18/D24/D28/D2C from six independently proven literal original v28 classes; seventh original v28=668766 diagnostic failclosed; 36/36 static canonical PE opcode sites verified; per-source tests and fidelity ledger; branch worker/gate13-r1-510d60-source-counter-fidelity-634 reconciled atop current main; new exact-head Gate13 run38640628709 in_progress, asset38640628726 success, full reconstruction not triggered by current PR as no high-risk live changes. NEXT verify focused/asset final, review source diff, merge only if safe; update canonical CURRENT_STATE/PROGRESS/project_status/ledger at integration; continue next high-impact source verified normal NEXT→PPreMatch 0-3 mode presentation→PResults→management with 5DA2F0 side-state owner and v38/v3c, plus original player injury onset/expiry Inbox, all original countries and 2-6 humans. Separate high-risk PR739 58c9c9a remains unmerged pending independent supervisor GameState/schema48 review; no native Win11 GUI audit; Gate14-17 OPEN.",
-  "last_known_main_head": "c1abec8a71cba7f8b1653935d3e48f34a474f109",
+  "active_task": "Recovery635: verified main 6612a26705f8418ccfa6fce09289a21504961268 (Recovery634 docs after PR741/742 merges). Active next: independently review high-risk PR739 worker/gate13-r1-injury-runtime-bridge-audit-639 at head 420d03cdfc2f75c4a515c7263397b870e6d9328e (confirm latest), source human +6B4 notice due FIFO and constructor order, schema48/GameState Save/Load and exact-head CI, reconcile to main; do not merge until supervisor review and high-risk verification. Then original source-first full R1 normal NEXT->PPreMatch modes0-3->PResults->management, injury visible Inbox, countries/multihuman and Gate13-17 Windows11 audits. Native GUI and original execution UNVERIFIED.",
+  "last_known_main_head": "6612a26705f8418ccfa6fce09289a21504961268",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -30,12 +30,12 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 634,
-  "last_recovery_reason": "stale-repository-activity 15 min; recovery634 2026-10-15 KST",
-  "note": "Post PR741 merge main corrected. PR742 review/testing underway, original binary privately SHA verified, no original native execution, no physical GUI. User wants entire through Gate17, not a source checkpoint; keep continuous.",
+  "recovery_generation": 635,
+  "last_recovery_reason": "same-chat-recovery-no-progress; new chat fallback, 2026-10-15 KST",
+  "note": "New chat recovery after inactive same-chat recovery. Keep milestone batching; runtime heartbeat only every ~10min, no premature PR/CI or Gate completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "c1abec8a71cba7f8b1653935d3e48f34a474f109"
+  "last_known_main_commit": "6612a26705f8418ccfa6fce09289a21504961268"
 }
