@@ -73,6 +73,7 @@ from match_injury_persistence import clear_expired_persistent_injury
 from match_schedule import MsvcCrtRng
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from original_eamail_pending import OriginalPendingTransferEAMQueue
+from original_606540_portable_notice_world import Original606540PortableWorld
 from original_native_player_discipline_state import (
     OriginalNativePlayerDiscipline,
     source_original_native_discipline_from_reached_player,
@@ -337,6 +338,13 @@ class GameState:
     # from both the active transfer-action request queue and delivered DBRUser mail.
     original_pending_transfer_eam: OriginalPendingTransferEAMQueue = field(
         default_factory=OriginalPendingTransferEAMQueue
+    )
+    # Source-qualified original 606540 injury pending/user-owned notices.
+    # Distinct 7BD564 global pending, per-user +6B4 projection, and 7D7760
+    # player recovery are NEVER aliased to a transfer message or UI row.
+    # Empty until an actual source-validated producer/due caller commits it.
+    original_injury_notice_world: Original606540PortableWorld = field(
+        default_factory=Original606540PortableWorld
     )
     # Sparse original DBRPlayer +139/+13A/+13B/+13C/+13D/+13E/+144/+160
     # snapshots from verified source only. Generic RuntimePlayer suspension
