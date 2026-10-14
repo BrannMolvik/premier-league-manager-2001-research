@@ -12,6 +12,10 @@ from struct import pack_into, unpack_from
 
 from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
 from original_native_418220_role_swap import source_original_418220_role_swap_from_reached
+from original_native_41edf0_registered_quota import (
+    Original41EDF0Reached,
+    source_original_41edf0_registered_quota_from_reached,
+)
 
 
 class Original4085D0SourceError(ValueError):
@@ -129,6 +133,8 @@ class Original4085D0PlayerCategoryWriteProjection:
     original_player_at_exit: bytes
     original_category_object_after_4ea350: bytes
     original_406be0_written_category_count: int
+    original_registered_club_after_41edf0: bytes | None = None
+    original_41edf0_quota_callback_projected: bool = False
     original_native_418220_role_swap_projected: bool = False
     original_native_4182f0_role_swap_executed: bool = False
     original_native_41edf0_club_balance_executed: bool = False
@@ -139,6 +145,7 @@ class Original4085D0PlayerCategoryWriteProjection:
 def source_original_4085d0_qualified_mutating_leaf(
     reached: Original4085D0ReachedWorld,
     original_registered_417340: Original417340RegisteredUserReceipt,
+    original_41edf0_reached: Original41EDF0Reached | None = None,
 ) -> Original4085D0PlayerCategoryWriteProjection:
     """Reconstruct a truly bounded native 4085D0 successful writing route.
 
@@ -192,8 +199,19 @@ def source_original_4085d0_qualified_mutating_leaf(
             "original 4197C0 current-team and 417340 registered owner mismatch")
     if original_registered_417340.original_417340_return_al not in (0,1):
         raise Original4085D0SourceError("qualified native 417340 low AL 0/1 required")
+    quota_projected=False
+    quota_after=None
     if original_registered_417340.original_417340_return_al==0 and not(flags&(1<<13)):
-        raise Original4085D0SourceError("unqualified original 41EDF0 club-counter mutation reached")
+        if (not isinstance(original_41edf0_reached,Original41EDF0Reached)
+                or original_41edf0_reached.original_player_at_call != bytes(staged)):
+            raise Original4085D0SourceError(
+                "reached original 41EDF0 source player/counter context required")
+        qualified=source_original_41edf0_registered_quota_from_reached(original_41edf0_reached)
+        staged=bytearray(qualified.original_player_after_41edf0)
+        quota_after=qualified.original_registered_club_after_41edf0
+        quota_projected=True
+    elif original_41edf0_reached is not None:
+        raise Original4085D0SourceError("original 41EDF0 callback was skipped")
     if r.original_406be0_teammate_count is None:
         raise Original4085D0SourceError("original 406BE0 count not reached")
     after_category[4]=((after_category[4]&0xf0)
@@ -203,5 +221,7 @@ def source_original_4085d0_qualified_mutating_leaf(
         original_player_at_exit=bytes(staged),
         original_category_object_after_4ea350=bytes(after_category),
         original_406be0_written_category_count=r.original_406be0_teammate_count,
+        original_registered_club_after_41edf0=quota_after,
+        original_41edf0_quota_callback_projected=quota_projected,
         original_native_418220_role_swap_projected=role_swap_projected,
     )
