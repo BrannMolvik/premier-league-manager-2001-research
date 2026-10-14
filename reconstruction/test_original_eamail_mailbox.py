@@ -39,6 +39,7 @@ from original_eamail_mailbox import (
 )
 from test_human_gameplay import Database, coefficient_matrix
 from match_schedule import MsvcCrtRng
+from original_eamail_language import native_transfer_reason_from_crt_draw
 
 
 DAY = date(2000, 7, 2)
@@ -195,6 +196,75 @@ class DeliveredEAMailOwnerTests(unittest.TestCase):
             altered["mailboxes"][0]["records"][0]["original_preview_reason_native_i32"] = bad
             with self.assertRaisesRegex(OriginalEAMailOwnerError, "signed DWORD"):
                 OriginalDeliveredEAMailboxes.restore(altered)
+
+    def test_qualified_first_preview_consumes_shared_crt_once_per_record(self):
+        box = OriginalDeliveredEAMailboxes()
+        box.register_source_user(0)
+        box.register_source_user(1)
+        first = box.deliver_source_ready_transfer_request(
+            event(1000, 0), pending_identity="one", at_date=DAY,
+            original_record_ready=True,
+        )
+        second = box.deliver_source_ready_transfer_request(
+            event(1001, 0), pending_identity="two", at_date=DAY,
+            original_record_ready=True,
+        )
+        other = box.deliver_source_ready_transfer_request(
+            event(1002, 1), pending_identity="foreign", at_date=DAY,
+            original_record_ready=True,
+        )
+        rng = MsvcCrtRng(1)
+        exact = MsvcCrtRng(1)
+        expected_first = native_transfer_reason_from_crt_draw(exact.rand15())
+        snapshot = box.snapshot()
+        for bad in (False, None, "true"):
+            with self.assertRaisesRegex(OriginalEAMailOwnerError, "selection"):
+                box.source_first_transfer_preview_reason(
+                    0, first.node_serial, qualified_first_row_select=bad,
+                    shared_crt_rng=rng,
+                )
+        for bad_key, bad_serial in ((2, first.node_serial), (0, other.node_serial), (0, 9999)):
+            with self.assertRaises(OriginalEAMailOwnerError):
+                box.source_first_transfer_preview_reason(
+                    bad_key, bad_serial, qualified_first_row_select=True,
+                    shared_crt_rng=rng,
+                )
+        self.assertEqual(rng.state, 1)
+        self.assertEqual(box.snapshot(), snapshot)
+        picked = box.source_first_transfer_preview_reason(
+            0, first.node_serial, qualified_first_row_select=True,
+            shared_crt_rng=rng,
+        )
+        self.assertEqual(picked.original_preview_reason_native_i32, expected_first)
+        self.assertEqual(rng.state, exact.state)
+        self.assertEqual(box.delivered_for_manager(1), (other,))
+        once_state = rng.state
+        self.assertEqual(
+            box.source_first_transfer_preview_reason(
+                0, first.node_serial, qualified_first_row_select=True,
+                shared_crt_rng=rng,
+            ), picked,
+        )
+        self.assertEqual(rng.state, once_state)
+        expected_second = native_transfer_reason_from_crt_draw(exact.rand15())
+        picked2 = box.source_first_transfer_preview_reason(
+            0, second.node_serial, qualified_first_row_select=True,
+            shared_crt_rng=rng,
+        )
+        self.assertEqual(picked2.original_preview_reason_native_i32, expected_second)
+        self.assertEqual(rng.state, exact.state)
+        saved = box.snapshot()
+        restored = OriginalDeliveredEAMailboxes.restore(saved)
+        self.assertEqual(restored.snapshot(), saved)
+        self.assertEqual(
+            restored.source_first_transfer_preview_reason(
+                0, first.node_serial, qualified_first_row_select=True,
+                shared_crt_rng=rng,
+            ), picked,
+        )
+        self.assertEqual(rng.state, exact.state)
+        # The other human owns a different record; do not show or alter it.
+        self.assertEqual(restored.delivered_for_manager(1), (other,))
 
     def test_multiuser_registration_and_node_identity_corruption_refused(self):
         inbox = OriginalDeliveredEAMailboxes()
