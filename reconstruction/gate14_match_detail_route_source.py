@@ -288,7 +288,7 @@ class SourceOriginalGuardedMatchRoute:
 def source_original_guarded_match_route(
     *, original_5130c2_v34_al_nonzero: bool,
     original_516080_al_nonzero_if_reached: bool | None,
-    original_mode_if_513238_reached: int | MatchDetailMode | None,
+    original_mode_if_51325d_reached: int | MatchDetailMode | None,
     original_flags_at_513238_if_reached: int | None,
     original_flags_at_513257_if_reached: int | None,
 ) -> SourceOriginalGuardedMatchRoute:
@@ -304,13 +304,13 @@ def source_original_guarded_match_route(
         original_516080_al_nonzero_if_reached=original_516080_al_nonzero_if_reached,
     )
     if not guard.reaches_mode_handoff_at_513238:
-        if (original_mode_if_513238_reached is not None
+        if (original_mode_if_51325d_reached is not None
                 or original_flags_at_513238_if_reached is not None
                 or original_flags_at_513257_if_reached is not None):
             raise ValueError("original 513238 mode/flags not reached after early v34 bypass")
         return SourceOriginalGuardedMatchRoute(guard, None)
     mode_phase = source_original_match_mode_handoff_phase(
-        original_mode_if_513238_reached,
+        original_mode_if_51325d_reached,
         original_flags_at_513238=original_flags_at_513238_if_reached,
         original_flags_at_513257_if_reached=original_flags_at_513257_if_reached,
     )
