@@ -13,6 +13,7 @@ from original_fastview_two_sided_live_writeback import (
     SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MAX,
     source_fastview_native_tactical_280_init_6c1d30,
     source_fastview_native_two_side_setup_533270,
+    source_fastview_original_pre_modal_two_flag_reset_6c1cf0,
     source_fastview_native_raw_tactical_280_from_packed_533b70,
 )
 
@@ -284,6 +285,39 @@ class OriginalFastViewPackedMatchSide533B70Tests(unittest.TestCase):
         for va,hx in samples.items():
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class OriginalFastViewIntermediateGlobalResetSourceTests(unittest.TestCase):
+    def test_both_global_dwords_zero_before_premodal_record_copier(self):
+        for before in (bytes(8),bytes(range(8)),bytes([255])*8):
+            with self.subTest(before=before):
+                result=source_fastview_original_pre_modal_two_flag_reset_6c1cf0(
+                    original_a145f0_a145f4_eight_bytes_before=before)
+                self.assertEqual(result, bytes(8))
+                self.assertEqual(len(result),8)
+                self.assertEqual(len(before),8)
+
+    def test_reset_requires_exact_original_two_global_dwords(self):
+        for malformed in (None,bytearray(8),"abc",bytes(7),bytes(9),True):
+            with self.subTest(malformed=malformed):
+                with self.assertRaises(OriginalFastViewTwoSideWritebackError):
+                    source_fastview_original_pre_modal_two_flag_reset_6c1cf0(
+                        original_a145f0_a145f4_eight_bytes_before=malformed)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private executable not mounted")
+    def test_original_native_fastview_reset_call_and_two_exact_dword_stores(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        samples=(
+            (0x533203,"e8 e8 ea 18 00"),
+            (0x6C1CF0,"33 c0 a3 f0 45 a1 00 a3 f4 45 a1 00 c3"),
+        )
+        for addr,hx in samples:
+            with self.subTest(addr=hex(addr)):
+                expected=bytes.fromhex(hx)
+                self.assertEqual(pe.read(addr,len(expected)),expected)
+
 
 if __name__ == "__main__":
     unittest.main()
