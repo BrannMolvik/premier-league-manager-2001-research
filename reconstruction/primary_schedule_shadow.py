@@ -498,8 +498,19 @@ class PrimaryScheduleShadowState:
         node,
         center_date: date,
     ) -> date | None:
-        """Reproduce the 0x615890 three-day probe for a runtime-created match."""
+        """Bounded original 0x615890 adjacent bucket filter before comparison.
 
+        Shipped 0x615790 first skips events with native event+8 != 0, then
+        skips event virtual+18 payload match+0x44 flag6. Only afterward
+        does it call original virtual+0 on the existing event. The shadow
+        stores qualified wrapper links and only the subset of native
+        +0x44 filter bits; where those are unknown, do not manufacture a
+        conflicting or nonconflicting result.
+
+        The final symbolic Side comparison is a transitional projection:
+        it is NOT evidence that the source v+0=0x510A80 callback actually
+        returned nonzero. See source original_native_dated_event_neighbor_conflict.
+        """
         center_date = date.fromisoformat(center_date.isoformat())
         for on_date in (
             center_date - timedelta(days=1),
@@ -507,6 +518,21 @@ class PrimaryScheduleShadowState:
             center_date + timedelta(days=1),
         ):
             for entry in self.days.get(on_date, ()):
+                if entry.wrapper_link_state == WRAPPER_LINK_LINKED:
+                    # Original 0x61579c..0x6157a1 checks event+8 FIRST.
+                    continue
+                if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
+                    raise RuntimeError(
+                        'Original dynamic date conflict event+8 lifecycle is unresolved')
+                if entry.payload_filter_bits is None:
+                    raise RuntimeError(
+                        'Original dynamic date conflict payload+0x44 is unresolved')
+                if entry.payload_filter_bits & 0x40:
+                    # Native 0x6157aa..0x6157b3 skips virtual+0 when bit6 set.
+                    continue
+                if entry.node_kind not in NATIVE_MATCH_KINDS:
+                    raise RuntimeError(
+                        'Original dynamic date conflict event virtual+0 owner is unresolved')
                 if self._dynamic_node_conflicts_entry(node, entry):
                     return on_date
         return None
