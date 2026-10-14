@@ -126,6 +126,8 @@ def source_original_606540_human_notice_due_to_user(
     club=reached.original_417270_constructor_club_record
     if type(club) is not bytes or len(club)<0x44:
         raise Original606540HumanMailRouteError("reached native club +40 manager key required")
+    if unpack_from("<I",club,4)[0]!=owner.original_source_club_owner_key:
+        raise Original606540HumanMailRouteError("reached native club+4 owner no longer matches registered user")
     club_key=unpack_from("<I",club,0x40)[0]
     noticeptr=_ptr(reached.original_constructed_notice_pointer,"notice object")
     wrap_ptr=_ptr(reached.original_7bd564_wrapper_pointer,"wrapper")
@@ -140,6 +142,7 @@ def source_original_606540_human_notice_due_to_user(
             unpack_from("<I",raw,0xc)[0]!=5 or
             unpack_from("<I",raw,0x10)[0]!=1 or
             unpack_from("<I",raw,0x14)[0]!=club_key or
+            unpack_from("<I",raw,0x18)[0]!=0xffffffff or
             unpack_from("<I",raw,0x1c)[0]!=kind or
             unpack_from("<I",raw,0x3c)[0]!=pid):
         raise Original606540HumanMailRouteError("native constructor vtable/category/type/player/manager identity mismatch")
