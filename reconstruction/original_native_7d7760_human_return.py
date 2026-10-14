@@ -98,79 +98,151 @@ class Original7D7760HumanReturnSourceReceipt:
     live_game_state_updated: bool = False
 
 
+@dataclass(frozen=True)
+class Original7D7760ReturnMemberReached:
+    """One separately reached player in the native event+0x0C ID array.
+
+    Club/user lookups are per player, not shared across a multi-player event.
+    """
+    original_player_before_due: bytes
+    original_4139e0_human_club_lookup_al: int
+    original_4d1190_lookup_nonnull_if_reached: bool | None = None
+    original_4d1110_lookup_nonnull_if_reached: bool | None = None
+    original_417270_source_club_record_if_reached: bytes | None = None
+
+
+@dataclass(frozen=True)
+class Original7D7760ReturnMultiReached:
+    original_native_event_bytes: bytes
+    original_player_id_payload_pointer: int
+    original_player_id_payload_bytes: bytes
+    original_native_scanner_target_date_raw: int
+    original_native_9847fc_current_day_at_creation: int
+    ordered_reached_players: tuple[Original7D7760ReturnMemberReached, ...]
+
+
+@dataclass(frozen=True)
+class Original7D7760ReturnMultiSourceReceipt:
+    original_event_count: int
+    original_ordered_player_receipts: tuple[Original7D7760HumanReturnSourceReceipt, ...]
+    original_native_callback_executed: bool = False
+    live_game_state_updated: bool = False
+
+
+def source_original_7d7760_multi_return_from_reached(
+    reached: Original7D7760ReturnMultiReached,
+) -> Original7D7760ReturnMultiSourceReceipt:
+    """Read-only source projection of ALL original 5D7B40 event+8 players.
+
+    Unlike the common 60AA20 count1 constructor, original 5D7B40 loops
+    native event+8 and reads DWORD player IDs from event+0x0C[i].
+    Every player/owner must be independently reached. The complete ordered
+    batch fails closed if even one identity or native branch is unknown.
+    No native queue mutation, allocation, cleanup execution or user Inbox.
+    """
+    if type(reached) is not Original7D7760ReturnMultiReached:
+        raise Original7D7760ReturnSourceError("Original typed multi-player event required")
+    event = reached.original_native_event_bytes
+    if type(event) is not bytes or len(event) != 20:
+        raise Original7D7760ReturnSourceError("Exact original 20-byte event required")
+    vtable, due, count, ptr = unpack_from("<IIII", event)
+    # Only BYTE+0x10 is initialized by the known 60AA20 constructor.
+    # The three trailing allocation bytes are deliberately unconstrained.
+    status = event[0x10]
+    if vtable != 0x7D7760 or count == 0 or count > 65536 or status not in range(4):
+        raise Original7D7760ReturnSourceError("Original 7D7760 owner/count/status unqualified")
+    if (_u32(reached.original_player_id_payload_pointer, "allocated player-ID pointer")
+            != ptr or ptr == 0):
+        raise Original7D7760ReturnSourceError("Original event+0C player-ID pointer ownership mismatch")
+    payload = reached.original_player_id_payload_bytes
+    if type(payload) is not bytes or len(payload) != 4 * count:
+        raise Original7D7760ReturnSourceError("Exact allocated event+0C player ID array count required")
+    members = reached.ordered_reached_players
+    if type(members) is not tuple or len(members) != count:
+        raise Original7D7760ReturnSourceError("Complete original player count and order required")
+    target = _u32(reached.original_native_scanner_target_date_raw, "613EE0 target day")
+    creation = _u32(reached.original_native_9847fc_current_day_at_creation, "9847FC callback day")
+    if _signed(due) > _signed(target):
+        raise Original7D7760ReturnSourceError("Native signed future event cannot return player")
+    result = []
+    seen_ids = set()
+    for i, member in enumerate(members):
+        if type(member) is not Original7D7760ReturnMemberReached:
+            raise Original7D7760ReturnSourceError("Separately reached original player required")
+        player_id = unpack_from("<I", payload, 4*i)[0]
+        if player_id > 0xFFFF or player_id in seen_ids:
+            raise Original7D7760ReturnSourceError("Native player ID out of range or duplicate")
+        seen_ids.add(player_id)
+        player = member.original_player_before_due
+        if (type(player) is not bytes or len(player) < 0x250
+                or unpack_from("<H", player, 4)[0] != player_id
+                or unpack_from("<I", player, 0x24c)[0] == 0
+                or unpack_from("<I", player, 0x14)[0] & 1 == 0):
+            raise Original7D7760ReturnSourceError("Reached injured player/descriptor identity required")
+        owner = member.original_4139e0_human_club_lookup_al
+        if type(owner) is not int or owner not in (0,1):
+            raise Original7D7760ReturnSourceError("Reached original 4139E0 AL 0 or 1 required")
+        first = member.original_4d1190_lookup_nonnull_if_reached
+        second = member.original_4d1110_lookup_nonnull_if_reached
+        club = member.original_417270_source_club_record_if_reached
+        family = None
+        manager_key = None
+        choice = None
+        if owner:
+            if type(first) is not bool:
+                raise Original7D7760ReturnSourceError("Human original 4D1190 result required")
+            if first:
+                if second is not None:
+                    raise Original7D7760ReturnSourceError("4D1110 skipped on 4D1190 success")
+                family = 31
+            else:
+                if type(second) is not bool:
+                    raise Original7D7760ReturnSourceError("Human original later 4D1110 result required")
+                family = 30 if second else 2
+            if type(club) is not bytes or len(club) < 0x44:
+                raise Original7D7760ReturnSourceError("Human original 417270 club+40 required")
+            manager_key = unpack_from("<I", club, 0x40)[0]
+            choice = ORIGINAL_RECOVERY_NOTICE_ROUTES[family][status]
+        elif first is not None or second is not None or club is not None:
+            raise Original7D7760ReturnSourceError("AI skips human recovery lookup/club constructor")
+        cleanup = source_original_418ad0_cleanup(player_id=player_id, player_before=player)
+        result.append(Original7D7760HumanReturnSourceReceipt(
+            player_id, _signed(due), _signed(creation), bool(owner), family, status,
+            None if choice is None else choice[0],
+            None if choice is None else choice[1],
+            None if choice is None else choice[2],
+            None if choice is None else choice[3],
+            None if choice is None else choice[4],
+            None if choice is None else choice[5],
+            manager_key, creation if owner else None, cleanup,
+        ))
+    return Original7D7760ReturnMultiSourceReceipt(count, tuple(result))
+
+
 def source_original_7d7760_human_return_from_reached(
     reached: Original7D7760HumanReturnReached,
 ) -> Original7D7760HumanReturnSourceReceipt:
-    """One original 60AA20-produced count1 7D7760 due player event.
+    """The common original 60AA20 count1 source event, without native execution.
 
-    Source valid for count1 only. Native 5D7B40 can loop multiple IDs, so
-    larger original events require a separate complete ordered-owner proof.
-    The original notification, if constructed, is posted to global 947AA8
-    BEFORE the original 418AD0 descriptor/bit cleanup, not delivered now.
+    Delegate to the same complete-batch validator without manufacturing a
+    singleton original event or weakening original event+0C ownership.
     """
     if type(reached) is not Original7D7760HumanReturnReached:
         raise Original7D7760ReturnSourceError("Reached original typed 7D7760 source required")
-    e = reached.original_native_event_bytes
-    payload = reached.original_player_id_payload_bytes
-    if type(e) is not bytes or len(e) != 20:
-        raise Original7D7760ReturnSourceError("Exact original 20-byte event required")
-    vtable,due,count,idptr = unpack_from("<IIII",e)
-    if (_u32(reached.original_player_id_payload_pointer, "allocated player-ID pointer")
-            != idptr or idptr == 0):
-        raise Original7D7760ReturnSourceError("Original event+0C player-ID pointer ownership mismatch")
-    # Native 60AB98 only writes BYTE+0x10; trailing +0x11..+0x13
-    # are uninitialized allocator bytes and MUST NOT be assumed zero.
-    status=e[0x10]
-    if (vtable != 0x7D7760 or count != 1 or idptr == 0
-            or status not in range(4)):
-        raise Original7D7760ReturnSourceError("Original 7D7760 owner/count/status unqualified")
-    if type(payload) is not bytes or len(payload) != 4:
-        raise Original7D7760ReturnSourceError("Actual original allocated player ID DWORD required")
-    player_id = unpack_from("<I",payload)[0]
-    if not 0 <= player_id <= 0xFFFF:
-        raise Original7D7760ReturnSourceError("Source player ID must fit original unsigned short")
-    target=_u32(reached.original_native_scanner_target_date_raw,"613EE0 target day")
-    creation=_u32(reached.original_native_9847fc_current_day_at_creation,"9847FC creation day")
-    if _signed(due)>_signed(target):
-        raise Original7D7760ReturnSourceError("Native signed future event cannot return player")
-    player=reached.original_player_before_due
-    if (type(player) is not bytes or len(player)<0x250
-            or unpack_from("<H",player,4)[0]!=player_id
-            or unpack_from("<I",player,0x24c)[0]==0
-            or unpack_from("<I",player,0x14)[0]&1==0):
-        raise Original7D7760ReturnSourceError("Reached injured player/descriptor identity required")
-    owner=reached.original_4139e0_human_club_lookup_al
-    if type(owner) is not int or owner not in (0,1):
-        raise Original7D7760ReturnSourceError("Reached original 4139E0 AL 0 or 1 required")
-    first=reached.original_4d1190_lookup_nonnull_if_reached
-    second=reached.original_4d1110_lookup_nonnull_if_reached
-    club=reached.original_417270_source_club_record_if_reached
-    family=None; manager_key=None; choice=None
-    if owner:
-        if type(first) is not bool:
-            raise Original7D7760ReturnSourceError("Human original 4D1190 result required")
-        if first:
-            if second is not None:
-                raise Original7D7760ReturnSourceError("4D1110 skipped on 4D1190 success")
-            family=31
-        else:
-            if type(second) is not bool:
-                raise Original7D7760ReturnSourceError("Human original later 4D1110 result required")
-            family=30 if second else 2
-        if type(club) is not bytes or len(club)<0x44:
-            raise Original7D7760ReturnSourceError("Human original 417270 club+40 required")
-        manager_key=unpack_from("<I",club,0x40)[0]
-        choice=ORIGINAL_RECOVERY_NOTICE_ROUTES[family][status]
-    elif first is not None or second is not None or club is not None:
-        raise Original7D7760ReturnSourceError("AI skips human recovery lookup/club constructor")
-    cleanup=source_original_418ad0_cleanup(player_id=player_id,player_before=player)
-    return Original7D7760HumanReturnSourceReceipt(
-        player_id,_signed(due),_signed(creation),bool(owner),family,status,
-        None if choice is None else choice[0],
-        None if choice is None else choice[1],
-        None if choice is None else choice[2],
-        None if choice is None else choice[3],
-        None if choice is None else choice[4],
-        None if choice is None else choice[5],
-        manager_key,creation if owner else None,cleanup,
+    result = source_original_7d7760_multi_return_from_reached(
+        Original7D7760ReturnMultiReached(
+            reached.original_native_event_bytes,
+            reached.original_player_id_payload_pointer,
+            reached.original_player_id_payload_bytes,
+            reached.original_native_scanner_target_date_raw,
+            reached.original_native_9847fc_current_day_at_creation,
+            (Original7D7760ReturnMemberReached(
+                reached.original_player_before_due,
+                reached.original_4139e0_human_club_lookup_al,
+                reached.original_4d1190_lookup_nonnull_if_reached,
+                reached.original_4d1110_lookup_nonnull_if_reached,
+                reached.original_417270_source_club_record_if_reached,
+            ),),
+        )
     )
+    return result.original_ordered_player_receipts[0]
