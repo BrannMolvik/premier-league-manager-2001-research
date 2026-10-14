@@ -174,5 +174,5 @@ def source_original_513570_pre_rng_score_stage(
         visited_event_pointers=tuple(visited),
         final_cursor_pointer=cursor,
         projected_match_record=bytes(projected),
-        requires_513659_bit2_resolution=bool(projected[0x44] & 4),
+        requires_513659_bit2_resolution=bool((primary or secondary) and projected[0x44] & 4),
     )
