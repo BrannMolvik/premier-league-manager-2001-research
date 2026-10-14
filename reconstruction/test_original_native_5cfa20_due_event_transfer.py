@@ -107,6 +107,14 @@ class OriginalPendingEventTransferTests(unittest.TestCase):
         self.assertEqual(dword(0x7BD564+0x10), 0x5CFA20)
         self.assertEqual(dword(0x7D1514+0x3C), 0x4093E0)
         self.assertEqual(dword(0x7D1568+0x3C), 0x4093E0)
+        # Real MSVC RTTI class owner, not inferred from message text.
+        self.assertEqual(dword(0x7D1514-4),0x7F21C0)
+        self.assertEqual(dword(0x7D1568-4),0x7F2210)
+        self.assertEqual(dword(0x7F21C0+0x0C),0x82DBF0)
+        self.assertEqual(dword(0x7F2210+0x0C),0x82DC30)
+        self.assertIn(b"EAMReturnFromFASuspension",binary[0x82DBF0-0x400000:0x82DBF0-0x400000+96])
+        self.assertIn(b"EAMReturnFromUEFASuspension",binary[0x82DC30-0x400000:0x82DC30-0x400000+96])
+
         self.assertEqual(binary[0x4093E0-0x400000:0x4093E6-0x400000],
                          bytes.fromhex("B8 01 00 00 00 C3"))
 
