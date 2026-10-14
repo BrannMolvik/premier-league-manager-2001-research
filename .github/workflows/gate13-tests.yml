@@ -86,6 +86,9 @@ on:
       - "reconstruction/test_original_native_606540_human_notice.py"
       - "reconstruction/original_native_605f90_posthandler.py"
       - "reconstruction/test_original_native_605f90_posthandler.py"
+      - "reconstruction/original_native_418ad0_cleanup.py"
+      - "reconstruction/original_native_7d7760_due_cleanup.py"
+      - "reconstruction/test_original_native_7d7760_due_cleanup.py"
       - "reconstruction/original_native_405080_available_roster.py"
       - "reconstruction/test_original_native_405080_available_roster.py"
       - "reconstruction/original_native_5127a0_extra_event_owners.py"
@@ -452,6 +455,7 @@ jobs:
             test_original_native_60aa20_consistency \
             test_original_native_606540_human_notice \
             test_original_native_605f90_posthandler \
+            test_original_native_7d7760_due_cleanup \
             test_original_native_405080_available_roster \
             test_original_native_5127a0_extra_event_owners \
             test_original_native_514520_slot_activation \
