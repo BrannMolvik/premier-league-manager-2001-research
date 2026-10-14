@@ -13,6 +13,8 @@ on:
       - "reconstruction/test_front_end_settings.py"
       - "reconstruction/match_detail_mode.py"
       - "reconstruction/test_match_detail_mode.py"
+      - "reconstruction/human_gameplay.py"
+      - "reconstruction/test_original_primary_match_mode_transaction.py"
       - "reconstruction/original_fastview_tactics_selection.py"
       - "reconstruction/original_fastview_two_sided_live_writeback.py"
       - "reconstruction/original_fastview_player_world_writeback.py"
@@ -322,6 +324,7 @@ jobs:
             test_front_end_session \
             test_front_end_settings \
             test_match_detail_mode \
+            test_original_primary_match_mode_transaction \
             test_original_fastview_tactics_selection \
             test_original_fastview_two_sided_live_writeback \
             test_original_fastview_player_world_writeback \
