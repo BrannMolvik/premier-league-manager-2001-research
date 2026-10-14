@@ -25,10 +25,21 @@ def native_player(pid):
     return bytes(raw)
 
 
-def owner(first=0x1000, second=0x2000):
-    raw=bytearray(0x5b4)
+def owner(first=0x1000, second=0x2000, source_sides=None):
+    raw=bytearray(0xb58)
     pack_into("<I",raw,0,first)
     pack_into("<I",raw,0x5b0,second)
+    if source_sides is not None:
+        for index,source in enumerate(source_sides):
+            count_off=0x5a4 if index==0 else 0xb54
+            ptr_off=0x4 if index==0 else 0x5b4
+            row_off=0x4c if index==0 else 0x5fc
+            pack_into("<i",raw,count_off,len(source.source_rows))
+            for i,row in enumerate(source.source_rows):
+                pack_into("<I",raw,ptr_off+4*i,row.source_player_pointer)
+                raw[row_off+0x48+0x4c*i]=row.source_4197c0_arg1
+                raw[row_off+0x49+0x4c*i]=row.source_4197c0_arg2
+                raw[row_off+0x4a+0x4c*i]=int(row.source_41a5b0_called_after_row)
     return bytes(raw)
 
 
@@ -69,7 +80,7 @@ def qualified(first=None, second=None, source_owner=None):
     one,r1=side(0) if first is None else first
     two,r2=side(1) if second is None else second
     return source_original_5127a0_qualified_two_owner_identity(
-        original_processing_owner_record=owner() if source_owner is None else source_owner,
+        original_processing_owner_record=owner(source_sides=(one,two)) if source_owner is None else source_owner,
         original_sides=(one,two),
         original_reached_roster_players=(r1,r2),
     )
@@ -155,7 +166,16 @@ class Original5127A0CombinedOwnerTests(unittest.TestCase):
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"appears twice"):
             qualified((source,a[1]),b)
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"distinct"):
-            qualified(a,b,owner(0x1000,0x1000))
+            qualified(a,b,owner(0x1000,0x1000,source_sides=(a[0],b[0])))
+        # The supplied source owner is canonical even if side rows are forged
+        # to maintain internally consistent callback arguments.
+        canonical_owner=owner(source_sides=(a[0],b[0]))
+        fake=replace(a[0].source_rows[0],source_4197c0_arg1=99)
+        forged_side=replace(a[0],source_rows=(fake,),source_steps=tuple(
+            replace(step,original_row=fake) if step.phase=="row" else step
+            for step in a[0].source_steps))
+        with self.assertRaisesRegex(Original5127A0CombinedSourceError,"owner row bytes"):
+            qualified((forged_side,a[1]),b,canonical_owner)
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"record"):
             qualified(a,b,b"")
 
