@@ -114,11 +114,19 @@ class Original606540HumanNoticeSourceTests(unittest.TestCase):
                 plan=source_original_606540_human_notice_plan(notice(
                     first=first,second=second,status=status,subtype=2))
                 self.assertEqual(plan.original_selected_constructor_address,constructors[status])
+            # Native 606540 subtype2 draws RNG(75) and can only
+            # produce status0/1. Deliberately forge a post-stage
+            # status2/3 record to assert no invented notice constructor.
             for status in (2,3):
+                forged=notice(first=first,second=second,status=1,subtype=2)
+                d=bytearray(forged.original_prehuman.original_source_descriptor_before_417340)
+                d[5]=status
+                forged=replace(forged,original_prehuman=replace(
+                    forged.original_prehuman,
+                    original_source_descriptor_before_417340=bytes(d)))
                 with self.assertRaisesRegex(Original606540HumanNoticeSourceError,
                                              "without a qualified notice constructor"):
-                    source_original_606540_human_notice_plan(notice(
-                        first=first,second=second,status=status,subtype=2))
+                    source_original_606540_human_notice_plan(forged)
 
     def test_subtype_zero_reached_source_handler_and_human_constructor(self):
         plan=source_original_606540_human_notice_plan(notice(subtype=0,status=1))
