@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from struct import unpack_from
 
+from original_native_5127a0_row_incident_source import source_original_5127a0_row_from_reached
 from original_native_5127a0_order_guard import (
     Original5127A0OrderedSide, Original5127A0OrderReceipt,
     source_original_5127a0_two_owner_order_from_reached,
@@ -59,9 +60,9 @@ def source_original_5127a0_qualified_two_owner_identity(
     still unqualified; this is not a commit authorization for live NEXT.
     """
     owner=original_processing_owner_record
-    if type(owner) is not bytes or len(owner)<0x5b4:
+    if type(owner) is not bytes or len(owner)<0xb58:
         raise Original5127A0CombinedSourceError(
-            "original processing owner record through +5B0 required")
+            "original processing owner record through +B54 and both rows required")
     first=unpack_from("<I",owner,0)[0]
     second=unpack_from("<I",owner,0x5b0)[0]
     if not first or not second or first==second:
@@ -84,12 +85,22 @@ def source_original_5127a0_qualified_two_owner_identity(
         mapped=source_original_5127a0_player_pointer_identity(
             source_side=side,original_reached_players=roster)
         current,opponent=(first,second) if index==0 else (second,first)
-        for row in side.source_rows:
+        original_count=unpack_from("<i",owner,0x5a4 if index==0 else 0xb54)[0]
+        if original_count!=len(side.source_rows):
+            raise Original5127A0CombinedSourceError(
+                "original processing owner active row count differs from reached side")
+        for row_index,row in enumerate(side.source_rows):
             if (row.source_current_team_pointer!=current or
                 row.source_opponent_team_pointer!=opponent or
                 row.source_4197c0_arg3!=opponent):
                 raise Original5127A0CombinedSourceError(
                     "original active row team / opposing team pointer mismatch")
+            source_row=source_original_5127a0_row_from_reached(
+                original_processing_owner_record=owner,
+                original_pass_index=index,original_row_index=row_index)
+            if source_row!=row:
+                raise Original5127A0CombinedSourceError(
+                    "actual original processing owner row bytes / player pointer mismatch")
         for p,pid in zip(mapped.native_roster_pointers,mapped.native_roster_ids):
             if p in seen_pointers or pid in seen_ids:
                 raise Original5127A0CombinedSourceError(
