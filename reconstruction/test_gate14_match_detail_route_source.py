@@ -182,6 +182,20 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
             0x5331fe:"e8 6d 00 00 00",
             0x53322b:"c7 84 24 28 05 00 00 00 00 00 00",
             0x533236:"e8 15 f4 ff ff",0x53323c:"e8 5f 0a 00 00",
+            # The owner captured by 5DA2F0 from the edi vft+0 getter
+            # is distinct from the 513010 outer processing object.
+            # These are actual original owner-mutable stores, not a
+            # complete safe surrogate for their statistical effects.
+            0x5da301:"8b f1",
+            0x5db7f8:"89 9e 48 01 00 00",
+            0x5db7fe:"89 86 60 01 00 00",
+            0x5db80e:"c7 86 44 01 00 00 01 00 00 00",
+            0x5db8e4:"89 86 44 01 00 00",
+            0x5db92b:"89 86 24 01 00 00",
+            0x5db95d:"89 86 28 01 00 00",
+            0x5db97f:"c6 86 30 01 00 00 01",
+            0x5db9dd:"89 86 2c 01 00 00",
+            0x5db9ec:"89 86 e8 00 00 00",
         }
         for va,hex_bytes in signatures.items():
             with self.subTest(va=hex(va)):
