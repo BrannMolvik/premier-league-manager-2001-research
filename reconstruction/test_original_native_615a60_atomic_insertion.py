@@ -13,6 +13,7 @@ from original_native_615a60_atomic_insertion import (
     NATIVE_SECONDARY_CALENDAR_VA,
     OriginalNativeCalendarInsertionError,
     source_original_615a60_atomic_link_projection,
+    source_original_510ba0_through_615a60_staged_transaction,
 )
 
 
@@ -224,6 +225,105 @@ class OriginalCalendarInsertion615A60Tests(unittest.TestCase):
         with self.assertRaisesRegex(OriginalNativeCalendarInsertionError,"outside"):
             insertion(source_reg=source,windows=(window,),
                       source_slots=vector(count=6,old_index=None))
+
+
+def native_entry_event(flags=0):
+    raw=bytearray(0x48)
+    pack_into("<I",raw,0x44,flags)
+    return bytes(raw)
+
+
+def full_native_insert(*, reg=None, entry=None, source=None, allocated=None,
+                       arg=0, selected_va=NATIVE_PRIMARY_CALENDAR_VA,
+                       selected_registry=None, **overrides):
+    base=registry() if reg is None else reg
+    args=dict(
+        original_source_calendar_va=NATIVE_PRIMARY_CALENDAR_VA,
+        original_source_calendar_record_before_ctor=base,
+        original_selected_calendar_va=selected_va,
+        original_selected_calendar_record_before_ctor=(
+            base if selected_registry is None else selected_registry),
+        original_source_slot_vector=vector(),
+        original_global_day_9847fc=0,
+        original_outer_node_pointer=0x7000,
+        original_outer_node_after_entry_virtual18=(
+            outer(link=0) if source is None else source),
+        original_entry_virtual18_event_pointer=0xA100,
+        original_entry_event_after_virtual18=(
+            native_entry_event() if entry is None else entry),
+        original_allocator_result_link_pointer=0x9000,
+        original_allocator_result_link_bytes=(
+            bytes(0x1C) if allocated is None else allocated),
+        original_510ba0_caller_argument=arg,
+        original_reached_link_virtual18_event_pointer=0xA000,
+        original_event_after_link_virtual18=ev(
+            selector=int(selected_va==NATIVE_SECONDARY_CALENDAR_VA)),
+        original_reached_615890_windows=(
+            search(base,6,{5:0,6:1}),
+            search(base,8,{7:0,8:0,9:0})),
+    )
+    args.update(overrides)
+    return source_original_510ba0_through_615a60_staged_transaction(**args)
+
+
+class Original510BA0Through615A60Tests(unittest.TestCase):
+    def test_full_native_constructor_counter_and_calendar_link(self):
+        initial=bytearray(registry())
+        pack_into("<I",initial,0x0C,7)
+        link_bytes=bytearray(0x1C)
+        link_bytes[5]=0x91
+        result=full_native_insert(reg=bytes(initial),
+                                  selected_registry=bytes(initial),
+                                  allocated=bytes(link_bytes))
+        self.assertEqual(
+            unpack_from("<I",result.original_outer_node_after_native_link_store,8)[0],
+            0x9000)
+        self.assertEqual(
+            unpack_from("<I",result.original_source_registry_after_counter_increment,0xC)[0],
+            8)
+        made=result.original_link_insertion.projected_inserted_node_record
+        self.assertEqual(unpack_from("<I",made,0)[0],0x7C9FE8)
+        self.assertEqual(unpack_from("<I",made,0x0C)[0],14)
+        self.assertEqual(unpack_from("<I",made,0x10)[0],8)
+        self.assertEqual(unpack_from("<I",made,0x14)[0],0x7000)
+        self.assertEqual(unpack_from("<I",made,0x18)[0],0)
+        self.assertEqual(made[5],0x91)
+        self.assertEqual(unpack_from("<I",
+            result.original_link_insertion.projected_source_slot_vector,32)[0],0x9000)
+        self.assertFalse(result.native_world_write_committed)
+        self.assertFalse(result.original_allocator_effects_proven)
+
+    def test_full_native_cross_calendar_preserves_source_owner(self):
+        result=full_native_insert(
+            selected_va=NATIVE_SECONDARY_CALENDAR_VA,
+            selected_registry=registry(base=0x3000))
+        self.assertEqual(
+            result.original_link_insertion.original_inserted_node_native_signed_index,
+            -1016)
+        self.assertEqual(unpack_from("<I",
+            result.original_source_registry_after_counter_increment,0xC)[0],1)
+
+    def test_full_native_source_gate_and_allocator_fail_closed(self):
+        wrong=bytearray(outer(link=0))
+        pack_into("<I",wrong,0xC,1)
+        cases=(
+            {"entry":native_entry_event(0x40)},
+            {"source":outer(link=0x9000)},
+            {"source":bytes(wrong)},
+            {"allocated":bytes(0x1B)},
+            {"arg":-1},
+            {"arg":0x100000000},
+            {"arg":True},
+            {"original_allocator_result_link_pointer":0},
+            {"original_entry_virtual18_event_pointer":None},
+            {"original_entry_event_after_virtual18":bytes(0x47)},
+            {"original_outer_node_pointer":0},
+            {"selected_registry":registry(base=0x3000)},
+        )
+        for kw in cases:
+            with self.subTest(kwargs=kw):
+                with self.assertRaises(OriginalNativeCalendarInsertionError):
+                    full_native_insert(**kw)
 
 
 if __name__=="__main__":
