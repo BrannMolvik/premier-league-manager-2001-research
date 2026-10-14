@@ -44,7 +44,7 @@ class OriginalNative615C50Candidate:
     source_candidate_decision: str
     original_returned_slot_node_pointer: int | None
     original_node_link_traversal_outstanding: bool
-    native_callback_results_required: bool
+    source_virtual_side_effects_proven: bool
     source_mutable_virtuals_may_have_executed: bool
     native_615d10_complete: bool = False
     native_event_world_complete: bool = False
