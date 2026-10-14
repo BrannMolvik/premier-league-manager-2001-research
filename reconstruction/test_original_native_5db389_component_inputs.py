@@ -46,4 +46,31 @@ class SourceOriginalComponentInputTests(TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalNativeComponentInputError):
                     source_original_5db389_four_float_components(**(base|bad))
+    def test_private_original_668350_and_four_callsite_opcodes_if_available(self):
+        from os import environ
+        from hashlib import sha256
+        from pathlib import Path
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('original PE deliberately private outside public CI')
+        exe=Path(p).read_bytes()
+        self.assertEqual(sha256(exe).hexdigest(),
+            '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3')
+        source={
+            0x5db37c:'dd 44 24 68',0x5db380:'e8 cb cf 08 00',
+            0x5db385:'dd 44 24 60',0x5db389:'8b d8',
+            0x5db38b:'e8 c0 cf 08 00',0x5db390:'dd 44 24 50',
+            0x5db394:'03 d8',0x5db396:'89 5c 24 10',
+            0x5db39a:'e8 b1 cf 08 00',0x5db39f:'dd 44 24 58',
+            0x5db3a3:'8b f8',0x5db3a5:'e8 a6 cf 08 00',
+            0x5db3aa:'03 f8',0x5db3ae:'89 7c 24 18',
+            0x5db4c4:'03 19',0x5db4c6:'89 5c 24 10',
+            0x668356:'9b d9 7d fe',0x66835f:'80 cc 0c',
+            0x668366:'d9 6d fc',0x668369:'df 7d f4',
+            0x66836c:'d9 6d fe',0x66836f:'8b 45 f4',
+        }
+        for va,hexcode in source.items():
+            with self.subTest(va=hex(va)):
+                want=bytes.fromhex(hexcode)
+                self.assertEqual(exe[va-0x400000:va-0x400000+len(want)],want)
+
 if __name__=='__main__':main()
