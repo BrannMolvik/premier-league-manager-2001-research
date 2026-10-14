@@ -18,6 +18,30 @@ Within the reached callback completion path, `5DB7F8` stores object DWORD `+0x14
 
 Ten additional original executable opcode signatures for this returned-object ownership and its state writes passed **10/10** independently using the private canonical PE. No original process, native world update, Save/Load or GUI execution is claimed.
 
+## Reuse existing post-presentation world adapters, do not rebuild them
+
+Current `main` already contains `reconstruction/original_native_match_result_latch.py`
+for native `0x51329D` virtual+0x38: original `0x5112A0`
+copies score WORDs from match-processing context `+0xD4C/+0xD50`
+to the match record `+0x3C/+0x3E`, while some source classes
+route via `0x5136C0` and require additional mutable `0x513570`
+processing. Likewise
+`reconstruction/original_native_match_v3c_entry.py` already
+models the strictly bounded original `0x5132A9` virtual+0x3C
+prefix, `0x511370` match+0x44 bit0 write, and a combined
+**zero-event-only** v38→v3c prefix requiring native
+context counters `+0xD0C/+0xD10` zero on wrapped owners.
+Neither helper executes native callbacks, dynamic scorer events
+nor a normal modern career match.
+
+The next useful source-backed vertical integration should qualify the
+actual *same* match/first-side native owner through `513010`,
+`5DA2F0`, mode wrapper, reached context state and vtable-backed
+post callbacks, then use these **existing** source modules instead
+of creating competing source adapters or announcing a result merely
+because the wrapper returned. Any nonzero event counter requires full
+native `513570` and later v3c world semantics before publish.
+
 ## Evidence, artifact and integration boundary
 
 Twenty private canonical PE opcode signatures (exact addresses `513238,51323C,51323F,513242,51324E,51324F,513252,513257,51325B,51325D,51326A,513272,51328C,51329D,5132A9,5331FD,5331FE,53322B,533236,53323C`) were checked by a bounded private local Python byte comparator, **20/20 passed**, no executable invocation. New `SourceMatchModeHandoffPhase` in `reconstruction/gate14_match_detail_route_source.py` records two separately reached source flags, the optional pre-wrapper call, conditional original presentation wrapper, and afterward the two virtual callbacks. It is immutable source-only, **not a match transaction, not a real GameState mutation, not native window/input and not original-game observation**.
