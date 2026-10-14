@@ -135,8 +135,9 @@ def source_original_606540_human_notice_plan(
             type(owner.original_matching_user_pointer) is not int or not 0<owner.original_matching_user_pointer<=0xffffffff or
             owner.native_callback_executed or owner.live_game_state_updated or
             type(owner.original_native_player_at_call) is not bytes or
-            len(owner.original_native_player_at_call)<6 or
-            unpack_from("<H",owner.original_native_player_at_call,4)[0]!=p.original_player_id):
+            len(owner.original_native_player_at_call)<0x250 or
+            unpack_from("<H",owner.original_native_player_at_call,4)[0]!=p.original_player_id or
+            unpack_from("<I",owner.original_native_player_at_call,0x24c)[0]!=p.original_descriptor_pointer):
         raise Original606540HumanNoticeSourceError("reached original 417340 registered-user AL=1 proof required")
     first=reached.original_4d1190_lookup_nonnull
     second=reached.original_4d1110_lookup_nonnull_if_reached
