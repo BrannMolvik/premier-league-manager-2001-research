@@ -203,7 +203,7 @@ def source_original_match_mode_handoff_phase(
 ) -> SourceMatchModeHandoffPhase:
     """Strict native 513238->5DA2F0->513257->mode->v38/v3c receipt.
 
-    Original 877530 mode is read ONLY at 51325D, after both bit tests.
+    The OUTER router reads global 877530 at 51325D after both bit tests.\n    Earlier 510D60 virtual+34 may ALREADY copy global 877530 into context+D3C.
     A bypassed mode must therefore be passed as None, not guessed from
     earlier settings or supplied via a synthetic user selection.
     Original callbacks, modal and game state are never executed.
@@ -315,6 +315,56 @@ def source_original_guarded_match_route(
         original_flags_at_513257_if_reached=original_flags_at_513257_if_reached,
     )
     return SourceOriginalGuardedMatchRoute(guard, mode_phase)
+
+
+@dataclass(frozen=True)
+class SourceOriginalV34ModeContextStore:
+    """Only 510D95/510D9B source store, never full v34 execution."""
+
+    original_match_vtable: int
+    original_virtual34_owner_va: int
+    original_877530_raw_mode_value: int
+    original_context_after_single_mode_store: bytes
+    original_full_native_v34_executed: bool = False
+    live_game_state_updated: bool = False
+
+
+def source_original_v34_mode_context_store_from_reached(
+    *, original_native_match_record: bytes,
+    original_processing_context_at_510d95: bytes,
+    original_global_877530_raw_value: int,
+) -> SourceOriginalV34ModeContextStore:
+    """Source v34 510D60 copies global 877530 to context+D3C.
+
+    All seven authenticated original match classes use 510D60 directly
+    or through 511120, which calls 510D60 FIRST. This reached-source
+    projection requires the actual context AT 510D95, after earlier
+    getter/632550 calls, not a synthetic fresh/initialized context.
+    It permits original unresolved sentinel 5 and all DWORD values:
+    the native COPY performs no mode selection or numeric validation.
+    Other 510D60 context stores, native AL outcome and live world
+    mutations remain wholly unexecuted.
+    """
+    from struct import pack_into
+    from original_leaguematch_native_process_owners import (
+        source_original_leaguematch_process_owners_for_native_record,
+    )
+    owner = source_original_leaguematch_process_owners_for_native_record(
+        original_match_record=original_native_match_record)
+    if owner.virtual34_prepare_va not in (0x510D60, 0x511120):
+        raise ValueError("original v34 wrapper/base mode cache not qualified")
+    context = original_processing_context_at_510d95
+    if type(context) is not bytes or len(context) < 0xD40:
+        raise ValueError("actual original processing context at 510D95 through D3F required")
+    raw_mode = original_global_877530_raw_value
+    if type(raw_mode) is not int or not 0 <= raw_mode <= 0xFFFFFFFF:
+        raise ValueError("original global 877530 raw DWORD required")
+    after = bytearray(context)
+    pack_into("<I", after, 0xD3C, raw_mode)
+    return SourceOriginalV34ModeContextStore(
+        owner.source_vtable_va, owner.virtual34_prepare_va, raw_mode,
+        bytes(after),
+    )
 
 
 def match_detail_route_source_contract() -> dict:

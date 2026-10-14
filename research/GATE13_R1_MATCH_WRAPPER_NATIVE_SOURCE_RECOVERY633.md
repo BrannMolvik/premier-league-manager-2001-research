@@ -57,7 +57,7 @@ This is *not* original game execution or a verified live dispatch.
 original jumps directly to `0x513294`; it never reads the current
 mode, never calls `5DA2F0`, and never opens 3D or FastView.
 Even if that bit is clear, `0x513257` rereads object+44 bit0x10;
-if **clear**, this route also skips the global mode read and presentation
+if **clear**, this route also skips that OUTER `0x51325D` read and presentation
 but does call `5DA2F0`. The *distinct* earlier `0x5130C2`
 vtable+34 AL zero path also bypasses `0x513238` completely,
 calls `512D80`, and reaches the post callbacks.
@@ -72,6 +72,33 @@ the actual native global read**. A typed guarded route now combines
 the two entry callback results and the two independent +44 flag
 snapshots and always marks +38/+3C as **outstanding**. It does not
 run the original calculator or complete a real match.
+
+## Earlier virtual+34 caches the mode even on an outer dispatch bypass
+
+**Source correction to the narrower read-site finding above:** native
+`0x510D60`, the common original virtual+0x34 prepare handler,
+**unconditionally reads global `0x877530` at `0x510D95` and stores it
+as context DWORD `+0xD3C` at `0x510D9B`** on its reached path,
+BEFORE the outer `0x5130C2` receives the callback result. All seven
+source-authenticated LeagueMatch virtual+0x34 slots are either
+`0x510D60` itself or wrapper `0x511120` that first calls it.
+Consequently, an absent `0x51325D` **outer mode dispatch read**
+does **not** mean the original mode was globally unobserved or the
+context lacked a cached mode. The optional mode field in the new
+source dispatch receipt means **only that the OUTER mode read did not
+happen**; it never claims `0x510D60` had not already cached it.
+
+`source_original_v34_mode_context_store_from_reached` models exactly
+this ONE original source store for an authenticated v+34 match owner and
+a separately reached processing-context byte array at `0x510D95`.
+It accepts all uint32 values, including native unresolved sentinel
+`5`, without pretending `5` is a user-selectable presentation mode.
+The other native `510D60` mutations of side IDs, event counters
+`+D0C/+D10`, clearing arrays and return AL remain separate and
+**unexecuted**. Six additional private canonical PE instruction
+signatures were checked **6/6**, bringing this combined bounded
+source audit to **50/50** opcode signature comparisons. This corrects
+the original summary's otherwise overbroad "not read" interpretation.
 
 ## Reuse existing post-presentation world adapters, do not rebuild them
 

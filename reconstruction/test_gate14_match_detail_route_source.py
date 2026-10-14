@@ -282,6 +282,54 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                 original_flags_at_513257_if_reached=0x10,
             )
 
+    def test_original_v34_mode_context_store_keeps_sentinel_and_wrapped_owners(self):
+        from struct import pack, unpack_from
+        from gate14_match_detail_route_source import (
+            source_original_v34_mode_context_store_from_reached,
+        )
+        # Native 510D60 reads/copies global mode before router 51325D,
+        # regardless of a later display wrapper being skipped.
+        for vtable in (0x7C4C24, 0x7C9D9C):
+            for raw_mode in (0,1,2,3,5,0xFFFFFFFF):
+                with self.subTest(vtable=hex(vtable),raw_mode=raw_mode):
+                    before=b"Q"*0xD40
+                    got=source_original_v34_mode_context_store_from_reached(
+                        original_native_match_record=pack("<I",vtable),
+                        original_processing_context_at_510d95=before,
+                        original_global_877530_raw_value=raw_mode,
+                    )
+                    self.assertEqual(
+                        unpack_from("<I",got.original_context_after_single_mode_store,0xD3C)[0],
+                        raw_mode)
+                    self.assertEqual(got.original_context_after_single_mode_store[:0xD3C],
+                                     before[:0xD3C])
+                    self.assertEqual(len(got.original_context_after_single_mode_store),
+                                     len(before))
+                    self.assertFalse(got.original_full_native_v34_executed)
+                    self.assertFalse(got.live_game_state_updated)
+
+    def test_original_v34_source_store_rejects_unreached_or_forged_inputs(self):
+        from struct import pack
+        from gate14_match_detail_route_source import (
+            source_original_v34_mode_context_store_from_reached,
+        )
+        cases=(
+            (pack("<I",0xDEADBEEF),b"A"*0xD40,5),
+            (pack("<I",0x7C4C24),b"A"*0xD3F,5),
+            (pack("<I",0x7C4C24),bytearray(b"A"*0xD40),5),
+            (pack("<I",0x7C4C24),b"A"*0xD40,True),
+            (pack("<I",0x7C4C24),b"A"*0xD40,-1),
+            (pack("<I",0x7C4C24),b"A"*0xD40,0x100000000),
+        )
+        for match,context,mode in cases:
+            with self.subTest(vtable=match,context_len=len(context),mode=mode):
+                with self.assertRaises(ValueError):
+                    source_original_v34_mode_context_store_from_reached(
+                        original_native_match_record=match,
+                        original_processing_context_at_510d95=context,
+                        original_global_877530_raw_value=mode,
+                    )
+
     def test_optional_original_exe_match_phase_opcode_signatures(self):
         import os
         from pathlib import Path
@@ -316,6 +364,14 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
             # is distinct from the 513010 outer processing object.
             # These are actual original owner-mutable stores, not a
             # complete safe surrogate for their statistical effects.
+            # 510D60 first caches the native global mode into context+D3C,
+            # even when 51325D outer mode dispatch is bypassed.
+            0x510d95:"8b 0d 30 75 87 00",
+            0x510d9b:"89 8e 3c 0d 00 00",
+            0x511129:"57",
+            0x51112a:"e8 31 fc ff ff",
+            0x511167:"8a c3",
+            0x51116b:"c2 04 00",
             0x5da301:"8b f1",
             0x5db7f8:"89 9e 48 01 00 00",
             0x5db7fe:"89 86 60 01 00 00",
