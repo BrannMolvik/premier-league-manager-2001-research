@@ -23,11 +23,13 @@ def match(*, scores=(3, 4), prior=(0, 0, 0, 0), flags=0,
     return bytes(result)
 
 
-def context(*, primary=0, secondary=0, head=0):
-    raw = bytearray(0xD14)
+def context(*, primary=0, secondary=0, head=0, scores=(3,4)):
+    raw = bytearray(0xD52)
     pack_into("<I", raw, 0xD0C, primary)
     pack_into("<I", raw, 0xD10, secondary)
     pack_into("<I", raw, 0xB60, head)
+    pack_into("<H", raw, 0xD4C, scores[0])
+    pack_into("<H", raw, 0xD50, scores[1])
     return bytes(raw)
 
 
@@ -55,8 +57,21 @@ class OriginalV38LinkedScoreStageTests(unittest.TestCase):
         self.assertEqual(result.projected_match_record, original)
         self.assertFalse(result.requires_513659_bit2_resolution)
         self.assertEqual(result.visited_event_pointers, ())
-        self.assertFalse(result.prior_wrapper_5112a0_effects_proven)
+        self.assertTrue(result.prior_wrapper_5112a0_effects_proven)
         self.assertFalse(result.native_match_completion_proven)
+
+    def test_native_5112a0_wrapper_overwrites_both_old_score_words(self):
+        # 0x5136C0 calls 0x5112A0 first, even when 0x513570 then
+        # immediately takes its zero-count fast return.
+        raw = match(scores=(33, 44))
+        receipt = scorestage(
+            native_match=raw, ctx=context(scores=(5, 6)))
+        self.assertEqual(
+            (unpack_from("<H", receipt.projected_match_record, 0x3C)[0],
+             unpack_from("<H", receipt.projected_match_record, 0x3E)[0]),
+            (5, 6))
+        self.assertTrue(receipt.prior_wrapper_5112a0_effects_proven)
+        self.assertFalse(receipt.native_match_completion_proven)
 
     def test_primary_kind8_to_two_scoring_events_and_kind7_stop(self):
         chain = {
@@ -119,7 +134,7 @@ class OriginalV38LinkedScoreStageTests(unittest.TestCase):
     def test_signed_byte_primary_subtraction_and_uint16_wrap(self):
         raw = match(scores=(0,0), prior=(0xFF,1,0,0))
         result = scorestage(native_match=raw,
-                            ctx=context(primary=1, head=0),events={})
+                            ctx=context(primary=1, head=0, scores=(0,0)),events={})
         self.assertEqual((unpack_from("<H", result.projected_match_record,0x3C)[0],
                           unpack_from("<H", result.projected_match_record,0x3E)[0]),
                          (1, 65535))
@@ -139,8 +154,8 @@ class OriginalV38LinkedScoreStageTests(unittest.TestCase):
         invalid = (
             {"native_match":match(vtable=0x7C4C24)},
             {"native_match":bytes(0x5B)},
-            {"ctx":bytes(0xD13)},
-            {"ctx":bytearray(0xD14)},
+            {"ctx":bytes(0xD51)},
+            {"ctx":bytearray(0xD52)},
             {"events":[]},
             {"max_linked_nodes":True},
             {"ctx":context(primary=1,head=0x1000)},
