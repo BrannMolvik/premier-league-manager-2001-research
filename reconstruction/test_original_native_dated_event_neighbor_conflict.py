@@ -92,7 +92,7 @@ class NativeDateNeighborSourceTests(unittest.TestCase):
     def test_native_event8_and_full_flags_dynamic_predicates_are_not_guessed(self):
         got=probe(original_source_date_bucket_head_pointers=(0x10100,),
                   original_source_candidate_bucket_index=0,
-                  original_reached_virtual0_conflict_eax_by_event_pointer={})
+                  original_reached_virtual0_conflict_eax_by_event_pointer={0x10300:0})
         self.assertFalse(got.original_source_found_first_conflict)
         self.assertEqual(got.original_source_visited_event_pointers,(0x10100,0x10200,0x10300))
         # Missing actual v0 result for reached 0x10300 must fail; this
