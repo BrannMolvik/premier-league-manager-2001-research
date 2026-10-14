@@ -6,6 +6,7 @@ from struct import pack_into,unpack_from
 from unittest import TestCase
 from original_native_40cbc0_coeff_route import (
     Original40CBC0SourceError,source_original_5da967_40cbc0_club_coefficient_route,
+    source_original_40cbc0_4056d0_club_query_word,
 )
 
 SOURCE_EXCEPTIONS={24:0x40ce83,26:0x40cbf2,31:0x40ceda,
@@ -52,6 +53,38 @@ class SourceOriginal40CBC0DispatchTests(TestCase):
                 with self.assertRaises(Original40CBC0SourceError):
                     source_original_5da967_40cbc0_club_coefficient_route(**(data|bad))
 
+    def test_reached_native_4056d0_club10_low_word_query_and_identity(self):
+        for kind in (23,24,26,31,33,40,66,73,74):
+            with self.subTest(club14=kind):
+                state=reached(kind)
+                club=bytearray(state['original_40cbc0_club_record'])
+                pack_into('<I',club,0x10,0xFEEDBEEF)
+                state['original_40cbc0_club_record']=bytes(club)
+                receipt=source_original_5da967_40cbc0_club_coefficient_route(**state)
+                staged=source_original_40cbc0_4056d0_club_query_word(
+                    original_route=receipt,
+                    original_40cbc0_club_record_at_query=bytes(club),
+                    original_4056d0_ecx_club_pointer_at_call=0x70000)
+                self.assertEqual(staged.original_club_10_raw_dword,0xFEEDBEEF)
+                self.assertEqual(staged.original_4056d0_query_four_bytes,bytes.fromhex('ef be 00 00'))
+                self.assertFalse(staged.original_4056f0_executed)
+
+    def test_4056d0_rejects_wrong_club_or_modified_dispatch(self):
+        state=reached(24)
+        route=source_original_5da967_40cbc0_club_coefficient_route(**state)
+        for bad in (
+            {'original_4056d0_ecx_club_pointer_at_call':0x71000},
+            {'original_4056d0_ecx_club_pointer_at_call':True},
+            {'original_40cbc0_club_record_at_query':b''},
+            {'original_40cbc0_club_record_at_query':reached(26)['original_40cbc0_club_record']},
+        ):
+            with self.subTest(bad=bad):
+                data=dict(original_route=route,
+                          original_40cbc0_club_record_at_query=state['original_40cbc0_club_record'],
+                          original_4056d0_ecx_club_pointer_at_call=0x70000)
+                with self.assertRaises(Original40CBC0SourceError):
+                    source_original_40cbc0_4056d0_club_query_word(**(data|bad))
+
     def test_optional_original_pe_dispatch_tables_and_opcode_sites(self):
         file=environ.get('FM2001_ORIGINAL_EXE')
         if not file:
@@ -70,7 +103,10 @@ class SourceOriginal40CBC0DispatchTests(TestCase):
         self.assertEqual(native,ORIGINAL_JUMPS)
         for va,opcode in ((0x40cbd4,'8b 47 14'),(0x40cbda,'83 f8 31'),
                           (0x40cbe3,'33 c9'),(0x40cbe5,'8a 88 c0 cf 40 00'),
-                          (0x40cbeb,'ff 24 8d a0 cf 40 00')):
+                          (0x40cbeb,'ff 24 8d a0 cf 40 00'),
+                          (0x4056d0,'8b c1'),(0x4056d2,'66 8b 4c 24 04'),
+                          (0x4056d7,'66 89 08'),(0x4056da,'66 c7 40 02 00 00'),
+                          (0x4056e0,'c2 04 00')):
             with self.subTest(source_va=hex(va)):
                 raw=bytes.fromhex(opcode)
                 self.assertEqual(executable[va-image_base:va-image_base+len(raw)],raw)
