@@ -105,6 +105,8 @@ class Original613EE0SingleNodeReached:
     original_target_date_raw_dword: int
     original_remove_after_callback_flag: int
     original_due_nonhuman_player_callback_if_reached: Original7D7760DueNonhumanReached | None
+    # Real 613EE0 callback can reenter 614080 and set queue+0x10=1.
+    original_post_callback_deferred_614080_flag: int | None = None
 
 
 @dataclass(frozen=True)
@@ -117,6 +119,7 @@ class Original613EE0SingleNodeReceipt:
     original_event_virtual_zero_destructor_if_removed: bool
     original_wrapper_heap_free_if_removed: bool
     original_postloop_registered_user_5cf990_unresolved: bool = True
+    original_deferred_614080_drain_verified_absent: bool = True
     original_native_queue_callback_executed: bool = False
     original_native_queue_mutated: bool = False
     original_mail_delivered: bool = False
@@ -135,7 +138,7 @@ def source_original_613ee0_single_due_from_reached(
     All five known actual 613EE0 callers pass flag=1 and current 9847FC
     DWORD, but this projection requires original caller flag explicitly.
     On due, 613EE0 invokes vtable+0x10 BEFORE optional unlink. Full
-    original 5CF990 per-user delivery after loop is unresolved.
+    original 5CF990 per-user retention after the optional 614080 drain is separate.
     """
     if not isinstance(reached,Original613EE0SingleNodeReached):
         raise Original613EE0SourceError("single native 613EE0 reached node record required")
@@ -158,17 +161,31 @@ def source_original_613ee0_single_due_from_reached(
     if type(flag) is not int or flag not in (0,1):
         raise Original613EE0SourceError("reached original remove callback flag 0 or 1 required")
     is_due=_s32(due)<=_s32(target)
-    # 613EE0 always resets header+0xC active flag and +0x10 pending cursor
-    # at loop exit before unrelated 5CF990 per-user delivery starts.
+    # The native function sets active=1/deferred=0 at entry; after scan it
+    # sets active=0, conditionally calls 614080 when deferred !=0, then
+    # clears deferred. Here the separately reached flag is exactly zero.
+    # 5CF990 is a per-user *retention/expiration* sweep, not delivery.
     after_scan=bytearray(hdr)
     pack_into("<I",after_scan,0xc,0)
     pack_into("<I",after_scan,0x10,0)
     callback=reached.original_due_nonhuman_player_callback_if_reached
+    deferred=reached.original_post_callback_deferred_614080_flag
     if not is_due:
+        if deferred not in (None, 0) or type(deferred) is bool:
+            raise Original613EE0SourceError("future source event cannot claim deferred 614080 from skipped callback")
         if callback is not None:
             raise Original613EE0SourceError("future original event skips due virtual callback")
         return Original613EE0SingleNodeReceipt(
             False,False,bytes(after_scan),node,None,False,False)
+    if type(deferred) is not int or deferred not in (0,1):
+        raise Original613EE0SourceError("original due callback's queue+10 deferred 614080 flag required")
+    if deferred:
+        # 613F3E-613F40 must call 614080 *before* setting +10=0.
+        # 614080 itself calls virtual+4 and +18 and may unlink records.
+        # This branch is NOT a no-op or just clearing a cursor.
+        raise Original613EE0SourceError(
+            "reentrant original 614080 pending-list drain is unresolved; reject partial header projection"
+        )
     if not isinstance(callback,Original7D7760DueNonhumanReached):
         raise Original613EE0SourceError("due original event demands qualified native 7D7760 callback")
     if (callback.original_native_event_object_pointer!=event or
