@@ -51,8 +51,11 @@ def source_original_type4_owner_read_only_gate_4faea0(
 
     The original obtains signed owner+0x3C team count, divides by two
     rounded toward zero, then checks signed (half-1)*half >= owner+0x68.
-    The owner+0x68 field is intentionally *not* named completed games,
-    remaining fixtures or a ranking: only the reached comparison is proven.
+    On the reached Scottish split emitter 0x4FADE6/0x4FAE5C,
+    League+0x68 increments after each native event insertion. Native
+    0x4F4160 match-result accounting decrements the same owner+0x68 at
+    0x4F4230. This qualifies it as an outstanding native match counter
+    on that producer/result path, NOT full all-country lifecycle proof.
 
     If the condition is false, original returns AL0 without accessing
     owner+0x78/array bytes. If true and owner+0x78 is already nonzero,
