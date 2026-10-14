@@ -8,6 +8,7 @@ native player+24C, invoke 605F90/417380, mutate GameState or send mail.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from struct import unpack_from
 
 from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
@@ -25,6 +26,7 @@ class Original41A5B0Reached:
     # Only if 417340 AL is zero, 417270 -> 405080 is reached.
     original_405080_current_club_pointer: int | None = None
     original_405080_eligible_count: int | None = None
+    original_822228_reached_threshold_float: float | None = None
     # Only if allocation branch reached, original reads GLOBAL threshold.
     original_global_821814_player77_threshold: int | None = None
 
@@ -35,6 +37,7 @@ class Original41A5B0ExtraEventReceipt:
     original_player_after_row_at_call: bytes
     original_registered_human_al: int
     original_405080_eligible_count_reached: int | None
+    original_822228_source_threshold_reached: float | None
     original_417ff0_low_status_bit_checked: bool
     original_417ff0_return_al: int | None
     original_would_allocate_605f70_and_store_player24c: bool
@@ -76,7 +79,8 @@ def source_original_41a5b0_optional_extra_from_reached(
     registered=proof.original_417340_return_al
     if registered:
         if (reached.original_405080_current_club_pointer is not None
-            or reached.original_405080_eligible_count is not None):
+            or reached.original_405080_eligible_count is not None
+            or reached.original_822228_reached_threshold_float is not None):
             raise Original41A5B0SourceError(
                 "original registered-human path skips 417270/405080 count")
         can_continue=True
@@ -84,14 +88,18 @@ def source_original_41a5b0_optional_extra_from_reached(
     else:
         source_ptr=reached.original_405080_current_club_pointer
         count=reached.original_405080_eligible_count
+        float_threshold=reached.original_822228_reached_threshold_float
         if (type(source_ptr) is not int
             or source_ptr!=proof.original_source_club_pointer
-            or type(count) is not int or not 0<=count<=40):
+            or type(count) is not int or not 0<=count<=40
+            or type(float_threshold) is not float
+            or not isfinite(float_threshold)):
             raise Original41A5B0SourceError(
                 "actual original 417270 club pointer and 405080 count required")
-        # fild(count) fcomp(float source global 822228 = 14.0),
-        # fnstsw C0 triggers source exit when count strictly below 14.
-        can_continue=count>=14
+        # Native image initially stores 14.0 at 822228; this is a
+        # mutable .data global. Require the ACTUAL reached float and
+        # test the source FPU C0 less-than branch against that value.
+        can_continue=count>=float_threshold
     bit0=None
     block=False
     if can_continue:
@@ -113,6 +121,8 @@ def source_original_41a5b0_optional_extra_from_reached(
         original_player_after_row_at_call=p,
         original_registered_human_al=registered,
         original_405080_eligible_count_reached=count,
+        original_822228_source_threshold_reached=(
+            None if registered else float_threshold),
         original_417ff0_low_status_bit_checked=can_continue,
         original_417ff0_return_al=bit0,
         original_would_allocate_605f70_and_store_player24c=allocate,
