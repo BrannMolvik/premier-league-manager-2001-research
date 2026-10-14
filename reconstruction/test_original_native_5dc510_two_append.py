@@ -5,7 +5,7 @@ from original_native_5dc510_two_append import (
     Original5DC510TwoAppendError,source_original_5dc510_optional_then_main_append,
 )
 from original_native_5dc650_event_tail import source_original_5dc650_reached_record_and_fifo
-from test_original_native_5dc650_event_tail import inputs
+from test_original_native_5dc650_event_tail import fixture as inputs
 from test_original_native_5dc510_event_tail import source
 
 def joined():
