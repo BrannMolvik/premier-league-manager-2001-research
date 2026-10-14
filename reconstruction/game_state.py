@@ -85,6 +85,10 @@ from original_native_4197c0_callbackfree_player_row import (
     Original4197C0SafeRowReached,
     source_original_4197c0_callbackfree_player_row,
 )
+from original_native_419680_availability import (
+    Original419680Reached,
+    source_original_419680_availability_from_reached,
+)
 from original_native_4085d0_world_branch import (
     Original4085D0ReachedWorld,
     source_original_4085d0_qualified_mutating_leaf,
@@ -990,6 +994,53 @@ class GameState:
         records[mapped_runtime_player_index]=after
         self.native_player_discipline=records
         return after
+
+    def apply_verified_native_419680_availability(
+        self, *, original_reached: Original419680Reached,
+        mapped_runtime_player_index: int,
+    ):
+        """Project one source-owned post-row +14 availability bit atomically.
+
+        Native 5128EA calls 419680 after 4197C0 over the original roster,
+        using the original potentially NULL 615D10 calendar lookup pointer.
+        This requires BOTH independent native discipline and status-world
+        source shadows and never updates modern suspended/Inbox/fixtures.
+        Original competition vtables and date getter are not executed.
+        """
+        from struct import unpack_from
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players
+                or not isinstance(original_reached,Original419680Reached)):
+            raise ValueError("actually reached original 419680 player mapping required")
+        p=original_reached.original_player_at_entry
+        if type(p) is not bytes or len(p)<0x178:
+            raise ValueError("original 419680 live world needs player through +174")
+        before_discipline=source_original_native_discipline_from_reached_player(
+            original_native_player_record=p,
+            original_mapped_runtime_player_index=mapped_runtime_player_index,
+        )
+        if self.native_player_discipline.get(mapped_runtime_player_index)!=before_discipline:
+            raise ValueError("419680 original native discipline entry absent or stale")
+        previous=self.native_status_world.players.get(mapped_runtime_player_index)
+        if previous is None or (
+            previous.original_status_14!=unpack_from("<I",p,0x14)[0]
+            or previous.original_current_club_index_10!=unpack_from("<h",p,0x10)[0]
+            or previous.original_registered_club_index_72!=unpack_from("<h",p,0x72)[0]
+            or previous.original_reserve_selection_174!=unpack_from("<I",p,0x174)[0]
+            or previous.original_reserve_role_152!=p[0x152]
+            or previous.original_reserve_aux_153!=p[0x153]
+        ):
+            raise ValueError("419680 original status/role owner entry absent or stale")
+        projection=source_original_419680_availability_from_reached(original_reached)
+        new_flags=unpack_from("<I",projection.original_player_after,0x14)[0]
+        candidate_players=dict(self.native_status_world.players)
+        candidate_players[mapped_runtime_player_index]=replace(
+            previous,original_status_14=new_flags)
+        candidate=OriginalNativeStatusWorldState(
+            candidate_players,dict(self.native_status_world.registered_club_quotas))
+        candidate.validate()
+        self.native_status_world=candidate
+        return projection
 
     def retain_verified_native_status_world(
         self, *, original_player_record: bytes,
