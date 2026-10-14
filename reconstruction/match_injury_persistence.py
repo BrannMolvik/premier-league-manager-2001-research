@@ -280,7 +280,13 @@ def clear_expired_persistent_injury(
     player: MutablePersistentInjuryPlayer,
     on_date: date,
 ) -> bool:
-    """Mirror the scheduled return handler's 0x418AD0 state clear."""
+    """Clear the modern persistent injury fields at the scheduled date.
+
+    This is NOT native 0x418AD0 execution. Original 0x418AD0 also releases
+    player+0x24C and clears DWORD+0x14 bit0. Its source 0x7D7760 pending
+    event/registered-user mailbox lifecycle needs independent owner proof.
+    Do not treat this modern helper as an original Inbox delivery receipt.
+    """
     return_date = player.injury_return_date
     if return_date is None or on_date < return_date:
         return False
