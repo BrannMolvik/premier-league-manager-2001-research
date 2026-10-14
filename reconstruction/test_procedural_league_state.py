@@ -1,4 +1,7 @@
+import os
 import unittest
+from pathlib import Path
+from struct import pack
 from datetime import date
 from types import SimpleNamespace
 
@@ -117,6 +120,126 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
             state.publish_exact_ranking(registry, names.__getitem__),
             (30, 10, 20, 40),
         )
+
+    def test_identical_original_full_source_key_rejects_native_qsort_tie(self):
+        registry=CupResultRegistry()
+        nodes=(league_node(0,10,20),league_node(1,30,40))
+        state=LiveProceduralLeagueState.from_schedule_nodes(
+            nodes,registry.resolve_club_ref)
+        state.record_result(nodes[0].node_token,1,0)
+        state.record_result(nodes[1].node_token,1,0)
+        registry.record_competition_ranking(
+            14,(10,20,30,40),competition_context=3)
+
+        # Both leaders have equal original numeric keys. Identical
+        # CP1252 names make original 0x4F45E0 return zero: the physical
+        # original qsort order is not the clean-room club-ID fallback.
+        equal={10:b"Same",30:b"Same",20:b"Beta",40:b"Gamma"}
+        self.assertIsNone(state.exact_ranking(equal.get))
+        self.assertIsNone(state.publish_exact_ranking(registry,equal.get))
+        self.assertNotIn((14,3),registry.competition_rankings)
+
+        # Original comparator stops at NUL, not at Python bytes length.
+        nul_names={10:b"Same\x00first",30:b"Same\x00second",
+                   20:b"Beta",40:b"Gamma"}
+        self.assertIsNone(state.exact_ranking(nul_names.get))
+
+        distinct={10:b"Zulu",30:b"Alpha",20:b"Beta",40:b"Gamma"}
+        self.assertEqual(state.exact_ranking(distinct.get),
+                         (30,10,20,40))
+        invalid=dict(distinct)
+        invalid[10]="Zulu"  # Unicode is NOT a native CP1252 byte record
+        self.assertIsNone(state.exact_ranking(invalid.get))
+
+    def test_live_type3_equal_original_names_withdraws_fabricated_cross_group_order(self):
+        group0=(league_node(0,10,20,competition_id=14,context=0),)
+        group1=(league_node(0,30,40,competition_id=14,context=1),)
+        ref=CupClubRefDescriptor(
+            type_code=3,selector=0,competition_id=14,competition_context=0)
+        consumer=league_node(0,ref,50,competition_id=10,context=0)
+        state=GameState(calendar=GameCalendar(date(2000,7,1)),players={})
+        state.competitions[14]=SimpleNamespace(runtime_instance_count=2)
+        state.clubs={10:SimpleNamespace(short_name="Same"),
+                     30:SimpleNamespace(short_name="Same"),
+                     20:SimpleNamespace(short_name="Beta"),
+                     40:SimpleNamespace(short_name="Gamma")}
+        state.install_primary_schedule_shadow(
+            tuple((n,) for n in group0+group1+(consumer,)),season_year=2000)
+        state.refresh_european_procedural_leagues()
+        state.record_procedural_league_result(group0[0].node_token,1,0)
+        state.record_procedural_league_result(group1[0].node_token,1,0)
+        self.assertNotIn((14,0),state.cup_results.group_position_rankings)
+        self.assertIsNone(state.cup_results.resolve_club_ref(ref))
+
+        # The actual C-string source key qualifies a deterministic
+        # result once it separates the two equal-numeric winners.
+        state.clubs[30].short_name="Alpha"
+        state.refresh_procedural_league_group_position_rankings(14)
+        self.assertEqual(
+            state.cup_results.group_position_rankings[(14,0)],(30,10))
+
+        # Bad source text must retract an already published ranking.
+        state.clubs[30].short_name="🙂"
+        state.refresh_procedural_league_group_position_rankings(14)
+        self.assertNotIn((14,0),state.cup_results.group_position_rankings)
+
+    def test_game_state_ordinary_procedural_result_keeps_bad_source_shortname_pending(self):
+        # Equal source numeric keys force the original comparator to
+        # consult the native club short names. Non-CP1252 input cannot
+        # be used to invent a deterministic rank after score recording.
+        node0=league_node(0,10,20,competition_id=14,context=0)
+        node1=league_node(1,30,40,competition_id=14,context=0)
+        state=GameState(calendar=GameCalendar(date(2000,7,1)),players={})
+        state.clubs={10:SimpleNamespace(short_name="🙂"),
+                     20:SimpleNamespace(short_name="Beta"),
+                     30:SimpleNamespace(short_name="Alpha"),
+                     40:SimpleNamespace(short_name="Gamma")}
+        state.install_primary_schedule_shadow(((node0,),(node1,)),season_year=2000)
+        state.refresh_european_procedural_leagues()
+        state.record_procedural_league_result(node0.node_token,1,0)
+        result=state.record_procedural_league_result(node1.node_token,1,0)
+        self.assertEqual((result.home_goals,result.away_goals),(1,0))
+        self.assertNotIn((14,0),state.cup_results.competition_rankings)
+        self.assertEqual(len(state.procedural_leagues[(14,0)].results),2)
+
+    def test_game_state_numeric_unique_ranking_does_not_require_unreached_name_comparator(self):
+        node=league_node(0,10,20,competition_id=14,context=0)
+        state=GameState(calendar=GameCalendar(date(2000,7,1)),players={})
+        state.clubs={10:SimpleNamespace(short_name="🙂"),
+                     20:SimpleNamespace(short_name="Beta")}
+        state.install_primary_schedule_shadow(((node,),),season_year=2000)
+        state.refresh_european_procedural_leagues()
+        state.record_procedural_league_result(node.node_token,1,0)
+        self.assertEqual(state.cup_results.competition_rankings[(14,0)],(10,20))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "Original private executable is not available in hosted CI")
+    def test_original_league_vtable_sorter_and_strcmp_terminal_are_private_source(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        for vtable in (0x7C9C94,0x7C9AC0):
+            self.assertEqual(pe.read(vtable+0x38,4),pack("<I",0x4F4720))
+        sites={
+            0x4F4723:"68 e0 45 4f 00",
+            0x4F472A:"8b 46 38",
+            0x4F4732:"e8 6d 46 17 00",
+            0x4F4943:"f6 46 40 01",
+            0x4F494B:"ff 50 38",
+            0x4F4960:"89 48 28",
+            0x4F45F0:"8b 79 18",
+            0x4F4606:"3b c2",
+            0x4F4624:"3b c2",
+            0x4F4650:"3b c2",
+            0x4F469B:"8b 11",
+            0x4F46CF:"8a 10",
+            0x4F46D9:"84 c9",
+            0x4F46F3:"33 c0",
+        }
+        for addr,hex_code in sites.items():
+            with self.subTest(va=hex(addr)):
+                self.assertEqual(
+                    pe.read(addr,len(bytes.fromhex(hex_code))),
+                    bytes.fromhex(hex_code))
 
     def test_unique_ranking_publishes_to_type2_registry(self):
         registry = CupResultRegistry()

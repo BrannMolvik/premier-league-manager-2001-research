@@ -173,9 +173,22 @@ class LiveProceduralLeagueState:
         named_rows = []
         for row in rows:
             name_key = club_name_key(int(row.club_id))
-            if name_key is None:
+            if type(name_key) is not bytes:
+                # Original 0x4F45E0 compares actual short-name char bytes,
+                # not arbitrary Python strings, club IDs or missing names.
                 return None
-            named_rows.append((row, bytes(name_key)))
+            # Native 0x4F46CF..0x4F46F3 stops at the first NUL byte.
+            named_rows.append((row, name_key.split(b"\x00", 1)[0]))
+
+        complete_keys = tuple(
+            numeric_key(row) + (source_name,)
+            for row, source_name in named_rows
+        )
+        if len(complete_keys) != len(set(complete_keys)):
+            # Native 0x4F45E0 returns 0 on a full-key tie. Its qsort
+            # ordering is then implementation/initial-layout dependent,
+            # not the stable order of this clean-room tuple/list.
+            return None
         return tuple(
             int(row.club_id)
             for row, _name_key in sorted(

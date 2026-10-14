@@ -374,12 +374,17 @@ class PremierLeagueState:
         result = []
         for row in rows:
             raw = club_name_key(int(row.club_id))
-            if not isinstance(raw, bytes):
+            if type(raw) is not bytes:
                 raise ValueError(
                     "Exact original League table requires CP1252 short-name bytes "
                     "for every club"
                 )
-            result.append(cls._original_numeric_table_key(row) + (raw,))
+            # Native 0x4F45E0 short-name strcmp ends at the first NUL.
+            # Bytes after it cannot break a source-equal qsort tie.
+            result.append(
+                cls._original_numeric_table_key(row)
+                + (raw.split(b"\x00", 1)[0],)
+            )
         return tuple(result)
 
     def table(
