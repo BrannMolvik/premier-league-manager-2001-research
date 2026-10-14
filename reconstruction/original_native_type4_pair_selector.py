@@ -39,7 +39,7 @@ class OriginalType4OwnerGateReceipt:
     source_half_team_count_trunc_toward_zero: int
     source_gate_threshold_half_times_half_minus_one: int
     source_owner_raw_68: int
-    source_owner_raw_78: int
+    source_owner_raw_78: int | None
     source_4faea0_al_if_no_mutating_callback: int | None
     source_requires_mutating_split_array_initialization: bool
 
@@ -67,7 +67,6 @@ def source_original_type4_owner_read_only_gate_4faea0(
             "actual original League owner record through +0x80 required")
     teams=unpack_from("<i",r,0x3C)[0]
     raw68=unpack_from("<i",r,0x68)[0]
-    raw78=unpack_from("<i",r,0x78)[0]
     # The actual shipped Scottish split uses a positive, bounded team count.
     # Native signed multiply overflow and nonsensical owner states need a
     # separate source contract, not Python unbounded-integer approximations.
@@ -81,7 +80,8 @@ def source_original_type4_owner_read_only_gate_4faea0(
             "original signed gate arithmetic overflows qualified source domain")
     if threshold<raw68:
         return OriginalType4OwnerGateReceipt(
-            half,threshold,raw68,raw78,0,False)
+            half,threshold,raw68,None,0,False)
+    raw78=unpack_from("<i",r,0x78)[0]
     if raw78!=0:
         return OriginalType4OwnerGateReceipt(
             half,threshold,raw68,raw78,1,False)
