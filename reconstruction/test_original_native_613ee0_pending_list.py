@@ -35,6 +35,7 @@ def queued(*,day=110,source_day=100,flag=1,header_enabled=1):
         c.original_source_producer.original_pending_event_candidate.original_due_day_raw,
         day,flag,
         c if (c.original_source_producer.original_pending_event_candidate.original_due_day_raw<=day) else None,
+        0 if (c.original_source_producer.original_pending_event_candidate.original_due_day_raw<=day) else None,
     )
     return reach
 
@@ -100,6 +101,18 @@ class Original613EE0PendingSourceTests(unittest.TestCase):
         self.assertEqual(unpack_from('<III',x.original_last_wrapper_after_source),(0x30000,0x25000,0))
         self.assertFalse(x.original_native_queue_insert_executed)
 
+    def test_reentrant_native_deferred_drain_requires_separate_614080_source_receipt(self):
+        q=queued()
+        for flag in (None, 1, True, -1, 2):
+            with self.subTest(deferred=flag):
+                with self.assertRaisesRegex(Original613EE0SourceError, "deferred|614080"):
+                    source_original_613ee0_single_due_from_reached(
+                        replace(q,original_post_callback_deferred_614080_flag=flag))
+        q=queued(day=106)
+        with self.assertRaisesRegex(Original613EE0SourceError,"future"):
+            source_original_613ee0_single_due_from_reached(
+                replace(q,original_post_callback_deferred_614080_flag=1))
+
     def test_wrong_node_owner_link_and_flag_fail_closed(self):
         q=queued()
         broken=bytearray(q.original_queue_wrapper_before)
@@ -139,6 +152,14 @@ class Original613EE0PendingSourceTests(unittest.TestCase):
             0x42cc08:"89 51 04",0x42cc1e:"89 51 08",
             0x41a35c:"6a 01",0x41a46d:"6a 01",
             0x432164:"6a 01",0x4a807c:"6a 01",0x5e332d:"6a 01",
+            0x613ee5:"c7 43 0c 01 00 00 00",
+            0x613eec:"c7 43 10 00 00 00 00",
+            0x613f37:"8b 43 10",
+            0x613f40:"e8 3b 01 00 00",
+            0x614085:"8b 47 0c",
+            0x61408c:"c7 47 10 01 00 00 00",
+            0x6140a5:"ff 50 04",
+            0x6140b0:"ff 52 18",
         }
         for va,signature in signatures.items():
             with self.subTest(original_va=hex(va)):
