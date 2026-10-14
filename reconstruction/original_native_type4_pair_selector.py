@@ -264,3 +264,75 @@ def source_original_type4_pair_selection_4f2a78_4faf70(
             "original post-gate pair index unavailable; cannot infer native out-of-bounds data")
     return OriginalType4PairSelectionReceipt(
         1, family, index, member, rows[index][member])
+
+
+@dataclass(frozen=True)
+class OriginalType4ReorderedPairSourceReceipt:
+    source_original_input_count: int
+    source_original_generated_pair_count: int
+    source_original_retained_pairs_in_generated_order: tuple[tuple[int, int], ...]
+    source_original_consumed_initial_indices: tuple[int, ...]
+    source_original_initial_pairs_after_zeroing_first_pointers: tuple[tuple[int, int], ...]
+    source_original_skipped_null_or_nonmatching_generated_pairs: int
+
+
+def source_original_type4_replay_617500_reorder_from_reached_native_pairs(
+    *,
+    original_source_pre_sort_pairs: tuple[tuple[int, int], ...],
+    original_reached_generated_pairs_in_native_loop_order: tuple[tuple[int, int], ...],
+) -> OriginalType4ReorderedPairSourceReceipt:
+    """Original 0x61770B..0x6177A0 pair matching, not RNG or full sorter.
+
+    Original 0x617500 separately constructs round-robin pairings from
+    ranked teams through 0x616BF0/0x616C10/0x616F20. For each REACHED
+    generated pair, 0x617714/729 dereferences first DWORD of both native
+    source team objects and skips if either is null. 0x617744 scans the
+    original +0x74/+0x7C pair-array head through its known count. Each
+    entry is a two-DWORD identity: exact order OR swapped identity.
+    The first match is copied into a replacement array at 0x617782..795;
+    0x6177A0 then zeros its original pair's first pointer (so it
+    cannot be selected again). Null or unmatched generated pairs
+    are not appended. 0x61783E..880 replaces the owner pair array
+    with a new allocation containing precisely those retained pairs.
+
+    Input generated pairs MUST be original reached/dereferenced native
+    pair DWORDs in 0x6176F4 iteration order. This function DOES NOT
+    produce that stream, perform original RNG, mutate owner memory, or
+    assert that a reconstructed fixture generator matches original.
+    Strictly refuses invented zero native original pair identities,
+    type coercion, unsafe pointer values or incompatible duplicates.
+    """
+    before=original_source_pre_sort_pairs
+    generated=original_reached_generated_pairs_in_native_loop_order
+    def validated_pairs(value: object, *, allow_zero: bool) -> bool:
+        return (type(value) is tuple and len(value)<=0x10000 and
+                all(type(pair) is tuple and len(pair)==2 and
+                    all(type(pointer) is int and 0<=pointer<=0xFFFFFFFF and
+                        (allow_zero or pointer!=0) for pointer in pair)
+                    for pair in value))
+    if not validated_pairs(before,allow_zero=False) or not validated_pairs(generated,allow_zero=True):
+        raise OriginalType4PairSourceError(
+            "source original native pair records and reached 617500 generated order required")
+    remaining=list(before)
+    kept=[]
+    consumed=[]
+    skipped=0
+    for left,right in generated:
+        if left==0 or right==0:
+            skipped+=1
+            continue
+        found=None
+        for ix,(a,b) in enumerate(remaining):
+            if (a,b)==(left,right) or (a,b)==(right,left):
+                found=ix
+                break
+        if found is None:
+            skipped+=1
+            continue
+        pair=remaining[found]
+        kept.append(pair)
+        consumed.append(found)
+        remaining[found]=(0,pair[1])
+    return OriginalType4ReorderedPairSourceReceipt(
+        len(before),len(generated),tuple(kept),tuple(consumed),
+        tuple(remaining),skipped)
