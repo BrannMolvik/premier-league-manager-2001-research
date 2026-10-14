@@ -37,6 +37,7 @@ class Original5127A0CombinedOwnerReceipt:
     original_first_team_pointer: int
     original_second_team_pointer: int
     original_row_native_ids: tuple[tuple[int, ...], tuple[int, ...]]
+    original_row_extra_required: tuple[tuple[bool, ...], tuple[bool, ...]]
     source_native_callbacks_executed: bool = False
     live_game_state_updated: bool = False
     finished_match_journey: bool = False
@@ -116,4 +117,8 @@ def source_original_5127a0_qualified_two_owner_identity(
         original_first_team_pointer=first,
         original_second_team_pointer=second,
         original_row_native_ids=(maps[0].native_row_ids,maps[1].native_row_ids),
+        original_row_extra_required=tuple(
+            tuple(row.source_41a5b0_called_after_row for row in side.source_rows)
+            for side in original_sides
+        ),
     )
