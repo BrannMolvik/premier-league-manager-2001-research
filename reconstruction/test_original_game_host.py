@@ -1529,6 +1529,10 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(gameplay.matches, 1)
         self.assertIsNone(gameplay.pending_primary_entry)
         self.assertIsNone(host._management_turn_thread)
+        self.assertIn("original PResults event execution", host.last_status)
+        self.assertIn("native return unverified", host.last_status)
+        self.assertNotIn("PResults returned to management", host.last_status)
+        self.assertIn("reconstructed management view resumed", host.last_status)
 
     def test_escape_exits_active_source_pmatchinfo_modal_before_fullscreen(self):
         # Original 0x488C60: Escape 0x1B posts PMatchInfo exit event 7.
