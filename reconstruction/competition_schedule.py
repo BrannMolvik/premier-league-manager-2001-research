@@ -23,6 +23,12 @@ from original_native_schedule_producer_source import (
     OriginalNativeScheduleConstructorEvidence,
     source_original_schedule_constructor_for_verified_producer,
 )
+from fm2001_data import RoundDefinition
+from original_native_fresh_match_class_flags import (
+    OriginalFreshMatchFlagsSourceReceipt,
+    source_original_fresh_match_flags44_and_collection,
+    source_original_fresh_cup_flags_from_round_source_4f5420,
+)
 
 
 @dataclass(frozen=True)
@@ -46,6 +52,8 @@ class StartupScheduleNode:
     auxiliary_flag: bool | None = None
     # Static original constructor *class* proof, NEVER an event ID or live flags.
     original_native_constructor_evidence: OriginalNativeScheduleConstructorEvidence | None = None
+    # Only immediate native new-match flags; never imply future loaded/live state.
+    original_native_initial_flags_evidence: OriginalFreshMatchFlagsSourceReceipt | None = None
 
 
 def direct_club_ref(club_id: int) -> CupClubRefDescriptor:
@@ -170,6 +178,19 @@ def materialize_cup_round_schedule_nodes(
         else None
     )
 
+    # Source original 0x4F5420 DBRRound native flags and original
+    # 0x4F66C9→0x510520 constructor are qualified ONLY when parsed
+    # first-party original RoundDefinition raw WORD/BYTE fields exist.
+    cup_fresh_source = (
+        source_original_fresh_cup_flags_from_round_source_4f5420(
+            original_round_dbr_word24=round_definition.cup_extra_time_flag,
+            original_round_dbr_byte26=round_definition.cup_auxiliary_flag,
+            original_round_dbr_byte27=round_definition.cup_decisive_flag,
+        ) if type(round_definition) is RoundDefinition else None
+    )
+    first_leg_fresh_source = source_original_fresh_match_flags44_and_collection(
+        original_native_class_vtable=0x7C9EF8)
+
     nodes: list[StartupScheduleNode] = []
     for pairing in runtime_round.pairings:
         pair_index = int(pairing.pair_index)
@@ -180,6 +201,7 @@ def materialize_cup_round_schedule_nodes(
             nodes.append(
                 StartupScheduleNode(
                     node_kind="cup_match",
+                    original_native_initial_flags_evidence=cup_fresh_source,
                     original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                         source_emission_kind="cup_match",
                         original_source_producer_va=0x4F64D0,
@@ -215,6 +237,7 @@ def materialize_cup_round_schedule_nodes(
         nodes.append(
             StartupScheduleNode(
                 node_kind="first_leg_match",
+                original_native_initial_flags_evidence=first_leg_fresh_source,
                 original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                     source_emission_kind="first_leg_match",
                     original_source_producer_va=0x4F6820,
@@ -323,6 +346,7 @@ def materialize_procedural_league_schedule_nodes(
         nodes.append(
             StartupScheduleNode(
                 node_kind="league_match",
+                original_native_initial_flags_evidence=source_original_fresh_match_flags44_and_collection(original_native_class_vtable=0x7C4C24),
                 original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                     source_emission_kind="league_match",
                     original_source_producer_va=0x616FC0,
@@ -392,6 +416,7 @@ def materialize_scot_premier_split_schedule_nodes(
         nodes.append(
             StartupScheduleNode(
                 node_kind="scot_split_league_match",
+                original_native_initial_flags_evidence=source_original_fresh_match_flags44_and_collection(original_native_class_vtable=0x7C4C24),
                 original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                     source_emission_kind="scot_split_league_match",
                     original_source_producer_va=0x4FAC60),
@@ -453,6 +478,7 @@ def materialize_fixed_league_schedule_nodes(
             nodes.append(
                 StartupScheduleNode(
                     node_kind="fixed_league_match",
+                    original_native_initial_flags_evidence=source_original_fresh_match_flags44_and_collection(original_native_class_vtable=0x7C4C24),
                     original_native_constructor_evidence=source_original_schedule_constructor_for_verified_producer(
                         source_emission_kind="fixed_league_match",
                         original_source_producer_va=0x6173D0,
