@@ -275,6 +275,50 @@ def source_original_match_router_guard(
     return SourceOriginalMatchRouterGuard(True, second, bool(second), True)
 
 
+@dataclass(frozen=True)
+class SourceOriginalGuardedMatchRoute:
+    """A guarded source order, not an executed/committed native match."""
+
+    original_entry_guard: SourceOriginalMatchRouterGuard
+    original_mode_phase_if_reached: SourceMatchModeHandoffPhase | None
+    original_post_v38_and_v3c_still_required: bool = True
+    original_game_result_published: bool = False
+
+
+def source_original_guarded_match_route(
+    *, original_5130c2_v34_al_nonzero: bool,
+    original_516080_al_nonzero_if_reached: bool | None,
+    original_mode_if_513238_reached: int | MatchDetailMode | None,
+    original_flags_at_513238_if_reached: int | None,
+    original_flags_at_513257_if_reached: int | None,
+) -> SourceOriginalGuardedMatchRoute:
+    """Compose original entry guard with handoff ONLY on reached 513238.
+
+    A v34 AL=0 follows 512D80 directly to 513294 without reading native
+    mode, pre-calling 5DA2F0 or reading either phase flag. Caller must
+    not inject an unobserved mode or a stale processor+44 snapshot.
+    Post v38/v3c remain source-required for BOTH entry paths, not run.
+    """
+    guard = source_original_match_router_guard(
+        original_5130c2_v34_al_nonzero=original_5130c2_v34_al_nonzero,
+        original_516080_al_nonzero_if_reached=original_516080_al_nonzero_if_reached,
+    )
+    if not guard.reaches_mode_handoff_at_513238:
+        if (original_mode_if_513238_reached is not None
+                or original_flags_at_513238_if_reached is not None
+                or original_flags_at_513257_if_reached is not None):
+            raise ValueError("original 513238 mode/flags not reached after early v34 bypass")
+        return SourceOriginalGuardedMatchRoute(guard, None)
+    if original_mode_if_513238_reached is None:
+        raise ValueError("source native mode required at reached 513238")
+    mode_phase = source_original_match_mode_handoff_phase(
+        original_mode_if_513238_reached,
+        original_flags_at_513238=original_flags_at_513238_if_reached,
+        original_flags_at_513257_if_reached=original_flags_at_513257_if_reached,
+    )
+    return SourceOriginalGuardedMatchRoute(guard, mode_phase)
+
+
 def match_detail_route_source_contract() -> dict:
     return {
         "selector_commit_va": PREMATCH_SELECTOR_COMMIT_VA,
