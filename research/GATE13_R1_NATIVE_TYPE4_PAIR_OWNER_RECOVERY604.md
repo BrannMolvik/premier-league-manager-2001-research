@@ -26,6 +26,12 @@ The new strict `source_original_type4_classify_reached_pairs_before_617500_4faea
 
 Independent direct private PE inspection checked all **43/43** selector/readiness/ranking-classification source opcode signatures (19 + 14 + 10), plus separately confirmed 0x4FADE6/0x4FAE5C post-insert increments and 0x4F422A result-path decrement, alongside the existing private SHA-256 receipt. These opcode checks are separate from running the branch test suite: **no hosted CI/PR, Windows GUI or original execution yet**.
 
+## Original Type4 selected SideRef temporary construction
+
+Original `0x4F2AA9..0x4F2B24` reads the just-selected underlying original SideRef **cache +0x04, owner +0x08, type WORD +0x0C, selector WORD +0x0E**, copies those into its stack temporary, installs standalone vtable **0x7C4D60**, and calls temporary virtual0 = **0x4F28A0**. The intervening XOR/mask operations at `0x4F2ADE..0x4F2B1B` cancel in this straight-line reached path, preserving the original selector. At `0x4F2B2A` original stores nested getter return EAX into the *outer embedded SideRef+0x04 cache*. This is a side-effecting nested call and eventually reaches original `0x510320` registration effects, so **creating the temporary is not equivalent to resolving a real team**.
+
+The branch adds `source_original_type4_temporary_standalone_4f2aa9_4f2b24` for the exact 16-byte **pre-getter** source-derived temporary, with tests for verbatim cache/owner/type/selector preservation and invalid source buffers. The function never calls the unresolved virtual getter or claims a final club identity. **11/11 additional original temporary-copy/callsite opcodes** matched the private executable directly. Together with prior 43 selector/gate/ranking signatures, **54/54** distinct guarded original source opcode assertions matched; source events +0x68 increments/decrement additionally independently observed. Python test module and hosted CI remain **UNVERIFIED** on this unpublished branch. No game-visible Scottish split acceptance yet.
+
 ## Staged independent code and tests, not integrated
 
 On branch `worker/gate13-r1-native-type4-pair-owner-604`:
