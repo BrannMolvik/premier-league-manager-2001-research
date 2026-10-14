@@ -199,3 +199,43 @@ def source_original_fresh_match_event_serial_510380(
         (((counter<<1)&0xFFFFFFFF)|int(secondary)),
         (counter+1)&0xFFFFFFFF,
     )
+
+
+
+SOURCE_ORIGINAL_ROUND_NATIVE_BUILD_VA = 0x4F5420
+SOURCE_ORIGINAL_ROUND_CUP_CONSTRUCTOR_CALLSITE_VA = 0x4F66C9
+
+
+def source_original_fresh_cup_flags_from_round_source_4f5420(
+    *,
+    original_round_dbr_word24: int,
+    original_round_dbr_byte26: int,
+    original_round_dbr_byte27: int,
+) -> OriginalFreshMatchFlagsSourceReceipt:
+    """Actual original DBRRound -> CupRound -> CupMatch source field chain.
+
+    Native 0x4F5420 constructs CupRound:
+       WORD Round+0x30 = DBRRound WORD+0x24 | DBRRound BYTE+0x26
+       WORD Round+0x32 = DBRRound BYTE+0x27
+       WORD Round+0x34 = DBRRound BYTE+0x26
+    Native 0x4F66C9 calls CupMatch 0x510520 with these 3
+    ZERO-EXTENDED WORD values at original ESP+0x18/1C/20 respectively.
+    The constructor uses only low BIT0 from each value, not Python
+    bool(nonzero): DBR source with bit1 alone does NOT set a native flag.
+    This determines the freshly instantiated type2 event's actual
+    native 0x947AD8/0x947AF0 source collection family, but NOT event
+    serial/registry, later flags or source side objects.
+    """
+    raw=(original_round_dbr_word24,original_round_dbr_byte26,
+         original_round_dbr_byte27)
+    if (type(raw[0]) is not int or not 0<=raw[0]<=0xFFFF
+            or any(type(x) is not int or not 0<=x<=0xFF for x in raw[1:])):
+        raise OriginalFreshMatchFlagsSourceError(
+            "actual original Round DBR WORD+0x24 and BYTE+0x26/+0x27 required")
+    word24,byte26,byte27=raw
+    return source_original_fresh_match_flags44_and_collection(
+        original_native_class_vtable=0x7C9D9C,
+        original_source_510520_argument_dword_esp18=word24|byte26,
+        original_source_510520_argument_dword_esp1c=byte27,
+        original_source_510520_argument_dword_esp20=byte26,
+    )
