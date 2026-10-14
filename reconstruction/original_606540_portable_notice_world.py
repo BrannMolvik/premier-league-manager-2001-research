@@ -199,9 +199,14 @@ class Original606540PortableWorld:
                     != next(n.event_before for n in reached_global_scan.ordered_source_nodes
                             if n.wrapper_pointer == decision.wrapper_pointer)):
                 raise Original606540PortableWorldError("Original pending event node identity drift")
-            source = source_original_606540_human_notice_due_to_user(original)
-            plan = source_original_606540_human_notice_plan(
-                original.original_construction_source)
+            try:
+                source = source_original_606540_human_notice_due_to_user(original)
+                plan = source_original_606540_human_notice_plan(
+                    original.original_construction_source)
+            except ValueError as exc:
+                raise Original606540PortableWorldError(
+                    "Original pending-to-user due source owner mismatch"
+                ) from exc
             raw = source.original_source_notice_after_5cfa20
             key = unpack_from("<I", raw, 0x14)[0]
             raw_date = unpack_from("<I", raw, 4)[0]
