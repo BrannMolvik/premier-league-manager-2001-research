@@ -77,7 +77,7 @@ def source_original_605f90_select_handler(
         raise Original605F90SourceError("native 605F90 subtype 0,1,2 required")
     if (type(original_reached_rng100_result) is not int or
             not 0<=original_reached_rng100_result<100):
-        raise Original605F90SourceError("actual reached 64D540(100) result 0..99 required")
+        raise Original605F90SourceError("actual reached RNG 64D540(100) result 0..99 required")
     thresholds=original_reached_thresholds
     if not isinstance(thresholds,Original605F90Thresholds):
         raise Original605F90SourceError("source reached threshold record required")
