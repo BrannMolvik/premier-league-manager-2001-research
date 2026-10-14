@@ -154,6 +154,12 @@ on:
       - "reconstruction/test_original_schedule_event_native_constructor.py"
       - "reconstruction/original_leaguematch_native_process_owners.py"
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
+      - "reconstruction/original_native_5dc510_event_tail.py"
+      - "reconstruction/test_original_native_5dc510_event_tail.py"
+      - "reconstruction/original_native_5dc650_event_tail.py"
+      - "reconstruction/test_original_native_5dc650_event_tail.py"
+      - "reconstruction/original_native_5dc510_two_append.py"
+      - "reconstruction/test_original_native_5dc510_two_append.py"
       - "reconstruction/original_match_first_side_human_owner.py"
       - "reconstruction/test_original_match_first_side_human_owner.py"
       - "reconstruction/original_match_first_side_world_write.py"
@@ -508,6 +514,9 @@ jobs:
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
+            test_original_native_5dc510_event_tail \
+            test_original_native_5dc650_event_tail \
+            test_original_native_5dc510_two_append \
             test_original_match_first_side_human_owner \
             test_original_match_first_side_world_write \
             test_original_match_first_side_joined_world \
