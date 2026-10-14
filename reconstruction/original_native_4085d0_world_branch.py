@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from struct import pack_into, unpack_from
 
 from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
+from original_native_418220_role_swap import source_original_418220_role_swap_from_reached
 
 
 class Original4085D0SourceError(ValueError):
@@ -128,6 +129,7 @@ class Original4085D0PlayerCategoryWriteProjection:
     original_player_at_exit: bytes
     original_category_object_after_4ea350: bytes
     original_406be0_written_category_count: int
+    original_native_418220_role_swap_projected: bool = False
     original_native_4182f0_role_swap_executed: bool = False
     original_native_41edf0_club_balance_executed: bool = False
     native_4085d0_executed: bool = False
@@ -156,12 +158,27 @@ def source_original_4085d0_qualified_mutating_leaf(
     if type(src) is not bytes or len(src)<0x178:
         raise Original4085D0SourceError("original player bytes through+174 for 4182F0 required")
     original_reserve=unpack_from("<I",src,0x174)[0]
-    if original_reserve&1:
-        raise Original4085D0SourceError("original 418180 reaches unqualified 418220 role-swap callback")
     staged=bytearray(src)
     flags=(unpack_from("<I",staged,0x14)[0]|0x10)&0xffffffdf
     pack_into("<I",staged,0x14,flags)
-    pack_into("<I",staged,0x174,original_reserve&0xfffffffd)
+    category=reached.original_4ea3c0_source_object
+    if type(category) is not bytes or len(category)<5:
+        raise Original4085D0SourceError("actual source category bytes through +4 required")
+    after_category=bytearray(category)
+    role_swap_projected=bool(original_reserve&1)
+    if role_swap_projected:
+        # Original 418180 calls 418220 BEFORE clearing +174 bit0.
+        # The role/aux data in the source object and player are exchanged,
+        # not discarded. The following 4EA350 overwrites only low nibble +4.
+        swap=source_original_418220_role_swap_from_reached(
+            original_player_at_418220=bytes(staged),
+            original_source_role_object_pointer=unpack_from("<I",staged,0x248)[0],
+            original_source_role_object_at_418220=bytes(after_category),
+        )
+        staged=bytearray(swap.original_player_after_418220)
+        after_category=bytearray(swap.original_source_role_object_after_418220)
+    # 418180 clears bit0 (after optional swap); 418170 clears bit1.
+    pack_into("<I",staged,0x174,original_reserve&0xfffffffc)
     if (not isinstance(original_registered_417340,Original417340RegisteredUserReceipt)
             or original_registered_417340.native_callback_executed
             or original_registered_417340.live_game_state_updated
@@ -177,15 +194,14 @@ def source_original_4085d0_qualified_mutating_leaf(
         raise Original4085D0SourceError("qualified native 417340 low AL 0/1 required")
     if original_registered_417340.original_417340_return_al==0 and not(flags&(1<<13)):
         raise Original4085D0SourceError("unqualified original 41EDF0 club-counter mutation reached")
-    target=reached.original_4ea3c0_source_object
-    if type(target) is not bytes or len(target)<5:
-        raise Original4085D0SourceError("actual source category bytes through +4 required")
-    after=bytearray(target)
-    assert r.original_406be0_teammate_count is not None
-    after[4]=(after[4]&0xf0)|(r.original_406be0_teammate_count&0x0f)
+    if r.original_406be0_teammate_count is None:
+        raise Original4085D0SourceError("original 406BE0 count not reached")
+    after_category[4]=((after_category[4]&0xf0)
+                       |(r.original_406be0_teammate_count&0x0f))
     return Original4085D0PlayerCategoryWriteProjection(
         original_player_id=unpack_from("<H",staged,4)[0],
         original_player_at_exit=bytes(staged),
-        original_category_object_after_4ea350=bytes(after),
+        original_category_object_after_4ea350=bytes(after_category),
         original_406be0_written_category_count=r.original_406be0_teammate_count,
+        original_native_418220_role_swap_projected=role_swap_projected,
     )
