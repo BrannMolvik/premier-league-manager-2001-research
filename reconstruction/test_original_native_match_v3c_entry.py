@@ -11,6 +11,7 @@ from original_leaguematch_native_process_owners import (
 )
 from original_native_match_v3c_entry import (
     source_original_v3c_entry_bit0_write_511370,
+    source_original_v38_then_v3c_zero_event_prefix,
 )
 
 
@@ -69,6 +70,69 @@ class SourceV3CInitialEventBitTests(unittest.TestCase):
             with self.subTest(va=hex(addr)):
                 expected=bytes.fromhex(hx)
                 self.assertEqual(pe.read(addr,len(expected)),expected)
+
+
+class SourceNativePostcallbacksZeroEventCompositionTests(unittest.TestCase):
+    def context(self, first_event=0, second_event=0):
+        buf=bytearray(0xD60)
+        pack_into("<II",buf,0xD0C,first_event,second_event)
+        pack_into("<HH",buf,0xD4C,2,3)
+        return bytes(buf)
+
+    def test_all_seven_original_v38_classes_reach_exact_score_then_v3c_bit0_when_zero_event(self):
+        for vt in SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS:
+            with self.subTest(vtable=hex(vt)):
+                match=bytearray(0x60)
+                pack_into("<I",match,0,vt)
+                pack_into("<HH",match,0x3C,99,99)
+                pack_into("<I",match,0x44,0x20)
+                result=source_original_v38_then_v3c_zero_event_prefix(
+                    original_native_match_record_before_v38=bytes(match),
+                    original_processing_context_after_match=self.context())
+                after=result.native_v3c_first_flag.match_record_after_first_bit0_store
+                self.assertEqual(unpack_from("<HH",after,0x3C),(2,3))
+                self.assertEqual(unpack_from("<I",after,0x44)[0],0x21)
+                self.assertTrue(result.native_v3c_first_flag.original_events_and_world_callbacks_outstanding)
+                self.assertEqual(bytes(match)[0x48:],after[0x48:])
+
+    def test_wrapped_v38_refuses_any_original_513570_nonzero_event_count(self):
+        match=bytearray(0x60)
+        pack_into("<I",match,0,0x7C9D9C)
+        for first,second in ((1,0),(0,1),(1,1),(0xFFFFFFFF,0)):
+            with self.subTest(first=first,second=second):
+                with self.assertRaisesRegex(
+                    OriginalLeagueMatchProcessOwnerError,"nonzero 513570"):
+                    source_original_v38_then_v3c_zero_event_prefix(
+                        original_native_match_record_before_v38=bytes(match),
+                        original_processing_context_after_match=self.context(first,second))
+
+    def test_direct_v38_has_no_513570_dependency_on_event_counters(self):
+        match=bytearray(0x60)
+        pack_into("<I",match,0,0x7C4C24)
+        result=source_original_v38_then_v3c_zero_event_prefix(
+            original_native_match_record_before_v38=bytes(match),
+            original_processing_context_after_match=self.context(1,2))
+        self.assertFalse(result.native_v38_score_latch.original_wrapped_513570_required)
+        self.assertTrue(result.native_v3c_first_flag.original_events_and_world_callbacks_outstanding)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "owner-private original executable not mounted")
+    def test_original_zero_event_513570_fast_exit_opcodes(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        signatures=(
+            (0x513577,"8b 85 0c 0d 00 00"),
+            (0x51357f,"85 c0"),
+            (0x513583,"8b 8d 10 0d 00 00"),
+            (0x513589,"85 c9"),
+            (0x51358b,"0f 84 25 01 00 00"),
+            (0x5136b6,"5f 5e 5d c2 04 00"),
+        )
+        for address,hx in signatures:
+            with self.subTest(va=hex(address)):
+                v=bytes.fromhex(hx)
+                self.assertEqual(pe.read(address,len(v)),v)
+
 
 if __name__=="__main__":
     unittest.main()
