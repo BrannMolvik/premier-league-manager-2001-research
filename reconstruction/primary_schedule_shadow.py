@@ -524,15 +524,17 @@ class PrimaryScheduleShadowState:
                 if entry.wrapper_link_state != WRAPPER_LINK_CLEAR:
                     raise RuntimeError(
                         'Original dynamic date conflict event+8 lifecycle is unresolved')
+                if entry.node_kind not in NATIVE_MATCH_KINDS:
+                    # Unknown +0x18 payload owner cannot justify reading
+                    # match+0x44 (even when a cached bit6 appears set).
+                    raise RuntimeError(
+                        'Original dynamic date conflict event virtual+0/+18 owner is unresolved')
                 if entry.payload_filter_bits is None:
                     raise RuntimeError(
                         'Original dynamic date conflict payload+0x44 is unresolved')
                 if entry.payload_filter_bits & 0x40:
                     # Native 0x6157aa..0x6157b3 skips virtual+0 when bit6 set.
                     continue
-                if entry.node_kind not in NATIVE_MATCH_KINDS:
-                    raise RuntimeError(
-                        'Original dynamic date conflict event virtual+0 owner is unresolved')
                 if self._dynamic_node_conflicts_entry(node, entry):
                     return on_date
         return None
