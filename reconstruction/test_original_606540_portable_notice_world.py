@@ -70,7 +70,7 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
         with_pending=queued(initial,reached)
         self.assertEqual(len(with_pending.pending),1)
         self.assertEqual(len(initial.pending),0)
-        self.assertEqual(with_pending.pending[0].original_due_day_raw,0)
+        self.assertEqual(with_pending.pending[0].original_due_day_raw,0xFFFFFFFE)
         self.assertEqual(with_pending.pending[0].original_type,31)
         finished=with_pending.apply_original_due_batch(
             reached_global_scan=scan(reached),
@@ -82,7 +82,7 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
         item=finished.user_notices[0]
         self.assertEqual((item.serial,item.original_player_id,item.original_type,
                           item.recipient_manager_key,item.original_record_day_raw),
-                         (1,with_pending.pending[0].original_player_id,31,777,0))
+                         (1,with_pending.pending[0].original_player_id,31,777,0xFFFFFFFE))
         self.assertFalse(item.visible_inbox_accepted)
         self.assertEqual(Original606540PortableWorld.restore(finished.snapshot()),finished)
 
@@ -189,13 +189,13 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
     def test_future_date_is_never_consumed_and_wrong_owner_rolls_back(self):
         r=source(family=0,manager_key=777)
         state=queued(Original606540PortableWorld(),r)
-        future_scan=scan(r,today=0xFFFFFFFF)
+        future_scan=scan(r,today=0xFFFFFFFD)
         unchanged=state.apply_original_due_batch(
             reached_global_scan=future_scan,
             original_due_notices=(),
             registered_manager_keys=(777,),
         )
-        # signed current=-1 precedes original due=0
+        # signed current=-3 precedes original source due=-2
         self.assertEqual(unchanged,state)
         with self.assertRaises(Original606540PortableWorldError):
             state.apply_original_due_batch(
