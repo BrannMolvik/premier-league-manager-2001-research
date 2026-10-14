@@ -173,3 +173,59 @@ def source_original_leaguematch_virtual00_510a80_from_reached_v4(
         raise OriginalNativeSideRefCompareSourceError(
             "original source v+0 second reached comparison v+4 EAX required")
     return int(bool(b))
+
+
+SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA=0x4F28A0
+SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_JUMPTABLE_VA=0x4F2B44
+SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_SUBTYPE_BRANCHES={
+    1:0x4F28E0,
+    2:0x4F290B,
+    3:0x4F2992,
+    4:0x4F2A78,
+}
+
+
+@dataclass(frozen=True)
+class OriginalNativeSideGetterDispatchReceipt:
+    source_owner_va: int
+    source_type_word_0c: int
+    source_cached_pointer_before: int
+    source_dispatch_branch_va: int | None
+    source_return_without_mutating_getter: int | None
+    source_unresolved_callback_required: bool
+
+
+def source_original_sidereference_virtual0_dispatch_4f28a0(
+    *, original_native_side_record_before_getter: bytes,
+) -> OriginalNativeSideGetterDispatchReceipt:
+    """Exact original virtual+0 cached branch / four-way type dispatcher.
+
+    Source 0x4F28BE first reads native SideRef+0x04 cached DWORD; if
+    nonzero, 0x4F28C3 immediately skips ALL subtype handlers and
+    returns cached DWORD. Otherwise 0x4F28CB reads WORD+0x0C,
+    subtracts one, tests unsigned index <=3 and uses the source
+    4 DWORD jump-table targets at 0x4F2B44 for types1..4.
+    Type0 and all types outside 1..4 return zero without subtype
+    dispatch. Type1 calls owner v+0x44 and perhaps 0x513FB0;
+    type2 original owner list/0x4F4940/0x405610;
+    type3 original owner graph+0x10 and 0x668DA4;
+    type4 original 0x4FAEA0/0x4FAF70/SideRef transfer.
+    Those callbacks can MUTATE +0x04 and must be executed/staged
+    separately with real original source data; this source function
+    NEVER claims their actual returned pointer or identity.
+    """
+    r=original_native_side_record_before_getter
+    if type(r) is not bytes or len(r)<0x10:
+        raise OriginalNativeSideRefCompareSourceError(
+            "actual original SideRef record through +0x0E required")
+    cache=unpack_from("<I",r,SOURCE_ORIGINAL_SIDE_CACHE_PTR_OFFSET)[0]
+    kind=unpack_from("<H",r,SOURCE_ORIGINAL_SIDE_TYPE_WORD_OFFSET)[0]
+    if cache:
+        return OriginalNativeSideGetterDispatchReceipt(
+            SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA,kind,cache,None,cache,False)
+    branch=SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_SUBTYPE_BRANCHES.get(kind)
+    if branch is None:
+        return OriginalNativeSideGetterDispatchReceipt(
+            SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA,kind,0,None,0,False)
+    return OriginalNativeSideGetterDispatchReceipt(
+        SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA,kind,0,branch,None,True)
