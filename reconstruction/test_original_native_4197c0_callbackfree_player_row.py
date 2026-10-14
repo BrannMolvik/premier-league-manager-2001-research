@@ -176,16 +176,13 @@ class Original4197C0SafeRowTests(unittest.TestCase):
         self.assertEqual(state.native_player_discipline,current)
 
     def test_live_callback_unsafe_parent_does_not_partially_update(self):
-        p=player()
+        p=player(accumulator=1)
         state=state_for_source(p)
         before=state.native_player_discipline.copy()
         with self.assertRaisesRegex(Original4197C0SafeRowError,"417340"):
             state.apply_verified_native_4197c0_callbackfree_player_row(
-                original_reached=reached(a=1,src=player(accumulator=0),
-                                         v30=1,post=player(accumulator=0)),
+                original_reached=reached(a=1,src=p,v30=1),
                 mapped_runtime_player_index=123)
-        # Above source actually reaches only +144 1; force real unsafe case
-        # with exact pre-seeded state and check no mutation:
         self.assertEqual(state.native_player_discipline,before)
 
     def test_internal_save_roundtrip_and_old_source_records_remain_optional(self):
