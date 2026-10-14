@@ -129,6 +129,15 @@ class InternalSaveTests(unittest.TestCase):
             Database(), coefficient_matrix(), coefficient_matrix(), historical)
         self.assertEqual(old.state.original_injury_notice_world,
                          Original606540PortableWorld())
+        # The native 606540 producer addresses original UINT16 player IDs.
+        # A hostile schema48 JSON field outside that range must not be
+        # accepted as a portable original event during restore.
+        forged_player = deepcopy(before)
+        forged_player["game_state"]["original_injury_notice_world"]["pending"][0][
+            "original_player_id"] = 0x10000
+        with self.assertRaisesRegex(ValueError, "player/constructor/type"):
+            restore_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), forged_player)
         # Bad owner/class metadata is rejected before changing live controller.
         forged = deepcopy(before)
         forged["game_state"]["original_injury_notice_world"]["pending"][0][

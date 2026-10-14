@@ -212,6 +212,8 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
         state=queued(Original606540PortableWorld(),r)
         valid=state.snapshot()
         for key,value in (
+            ("original_player_id",0x10000),
+            ("original_player_id",True),
             ("original_type",2),
             ("original_class_vtable",0x7D1CE0),
             ("original_creation_manager_key",-1),

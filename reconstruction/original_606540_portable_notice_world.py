@@ -89,7 +89,7 @@ class Original606540PortableWorld:
             used.add(item.serial)
             _u32(item.original_due_day_raw if type(item) is Original606540PortablePending
                  else item.original_record_day_raw, "source event date")
-            if (type(item.original_player_id) is not int or item.original_player_id < 0
+            if (type(item.original_player_id) is not int or not 0 <= item.original_player_id <= 0xFFFF
                     or type(item.original_constructor) is not int
                     or type(item.original_type) is not int
                     or item.original_type not in (2, 30, 31)):
