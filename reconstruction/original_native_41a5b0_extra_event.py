@@ -22,6 +22,7 @@ class Original41A5B0SourceError(ValueError):
 class Original41A5B0Reached:
     """Original player snapshot MUST be after 4197C0's mutable callbacks."""
     original_player_after_row_at_call: bytes
+    original_native_row_player_pointer: int
     original_registered_417340_owner_proof: Original417340RegisteredUserReceipt
     # Only if 417340 AL is zero, 417270 -> 405080 is reached.
     original_405080_current_club_pointer: int | None = None
@@ -34,6 +35,7 @@ class Original41A5B0Reached:
 @dataclass(frozen=True)
 class Original41A5B0ExtraEventReceipt:
     original_player_id: int
+    original_native_row_player_pointer: int
     original_player_after_row_at_call: bytes
     original_registered_human_al: int
     original_405080_eligible_count_reached: int | None
@@ -65,6 +67,10 @@ def source_original_41a5b0_optional_extra_from_reached(
     """
     if not isinstance(reached,Original41A5B0Reached):
         raise Original41A5B0SourceError("typed actual original 41A5B0 call required")
+    pointer=reached.original_native_row_player_pointer
+    if type(pointer) is not int or not 0<pointer<=0xffffffff:
+        raise Original41A5B0SourceError(
+            "actual original 4197C0 row player pointer required")
     p=reached.original_player_after_row_at_call
     if type(p) is not bytes or len(p)<0x78:
         raise Original41A5B0SourceError(
@@ -118,6 +124,7 @@ def source_original_41a5b0_optional_extra_from_reached(
             "source original allocation/global 821814 threshold skipped")
     return Original41A5B0ExtraEventReceipt(
         original_player_id=unpack_from("<H",p,4)[0],
+        original_native_row_player_pointer=pointer,
         original_player_after_row_at_call=p,
         original_registered_human_al=registered,
         original_405080_eligible_count_reached=count,
