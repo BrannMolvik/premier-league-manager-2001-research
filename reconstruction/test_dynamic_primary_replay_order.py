@@ -1,4 +1,6 @@
 import unittest
+import os
+from pathlib import Path
 from datetime import date, timedelta
 from dataclasses import replace
 from types import SimpleNamespace
@@ -115,6 +117,32 @@ class DynamicPrimaryReplayOrderTests(unittest.TestCase):
         self.assertEqual(
             shadow.first_dynamic_conflict_near(replay_node(requested),requested),
             requested)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                          "owner private original executable not available in hosted CI")
+    def test_original_615a60_forward_insert_native_site_evidence(self):
+        from gate13_button_source_trace import OriginalPE32
+        original=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        sites={
+            0x615A60:"a1 fc 47 98 00",
+            0x615A6E:"2b 43 08",
+            0x615A71:"40",
+            0x615A72:"3b f8",
+            0x615A85:"e8 06 fe ff ff",
+            0x615A97:"8d 79 02",
+            0x615A9E:"e8 ed fd ff ff",
+            0x615AAD:"8d 3c b8",
+            0x615AB0:"ff 52 18",
+            0x615AB5:"e8 46 a8 ef ff",
+            0x615AC0:"c1 f9 02",
+            0x615AC3:"89 4e 10",
+            0x615AC6:"8b 17",
+            0x615AC8:"89 56 04",
+            0x615ACB:"89 37",
+        }
+        for va,hx in sites.items():
+            with self.subTest(va=hex(va)):
+                self.assertEqual(original.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
     def test_615a60_clamps_candidate_to_current_day_plus_one(self):
         current = date(2000, 12, 10)
