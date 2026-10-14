@@ -98,5 +98,298 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                 )
 
 
+    def test_original_pre_wrapper_and_post_callbacks_keep_both_native_flag_reads(self):
+        from gate14_match_detail_route_source import (
+            MATCH_PRE_PRESENTATION_NATIVE_CALL_VA,
+            MATCH_POST_PRESENTATION_VIRTUAL_OFFSETS,
+            source_original_match_mode_handoff_phase,
+        )
+        for mode in MatchDetailMode:
+            with self.subTest(mode=mode):
+                route=source_match_detail_dispatch(mode)
+                step=source_original_match_mode_handoff_phase(
+                    mode,original_flags_at_513238=0,
+                    original_flags_at_513257_if_reached=0x10)
+                self.assertEqual(step.pre_presentation_native_call_va,
+                                 MATCH_PRE_PRESENTATION_NATIVE_CALL_VA)
+                self.assertEqual(step.native_post_virtual_offsets,
+                                 MATCH_POST_PRESENTATION_VIRTUAL_OFFSETS)
+                self.assertEqual(step.selected_presentation_wrapper_va,
+                                 route.presentation_wrapper_va)
+                self.assertEqual(step.selected_wrapper_variant,
+                                 route.wrapper_variant)
+                self.assertFalse(step.native_callbacks_executed)
+                self.assertFalse(step.live_match_state_committed)
+
+    def test_original_pre_callback_can_change_presentation_enablement(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_mode_handoff_phase,
+        )
+        # Original esi+44 is fetched again at 513257 AFTER 5DA2F0.
+        enabled=source_original_match_mode_handoff_phase(
+            2,original_flags_at_513238=0,
+            original_flags_at_513257_if_reached=0x10)
+        disabled=source_original_match_mode_handoff_phase(
+            None,original_flags_at_513238=0x10,
+            original_flags_at_513257_if_reached=0)
+        self.assertEqual(enabled.selected_presentation_wrapper_va,
+                         FASTVIEW_PRESENTATION_WRAPPER_VA)
+        self.assertIsNone(disabled.selected_presentation_wrapper_va)
+        self.assertEqual(disabled.pre_presentation_native_call_va,0x5DA2F0)
+        for flags in (0x20,0x30):
+            skipped=source_original_match_mode_handoff_phase(
+                None,original_flags_at_513238=flags,
+                original_flags_at_513257_if_reached=None)
+            self.assertIsNone(skipped.pre_presentation_native_call_va)
+            self.assertIsNone(skipped.selected_presentation_wrapper_va)
+            self.assertEqual(skipped.native_post_virtual_offsets,(0x38,0x3C))
+
+    def test_original_handoff_rejects_guessed_or_unreached_flag_reads(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_mode_handoff_phase,
+        )
+        for before,after in ((True,0x10),(-1,0x10),(0x100000000,0x10),
+                             (0,None),(0,False),(0,-1),(0,0x100000000),
+                             (0x20,0),(0x20,0x10)):
+            with self.subTest(before=before,after=after):
+                with self.assertRaises(ValueError):
+                    source_original_match_mode_handoff_phase(
+                        2,original_flags_at_513238=before,
+                        original_flags_at_513257_if_reached=after)
+        with self.assertRaises(ValueError):
+            source_original_match_mode_handoff_phase(
+                5,original_flags_at_513238=0,
+                original_flags_at_513257_if_reached=0x10)
+
+    def test_native_mode_global_is_not_read_after_513257_skip(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_mode_handoff_phase,
+            source_original_guarded_match_route,
+        )
+        later=source_original_match_mode_handoff_phase(
+            None,original_flags_at_513238=0,
+            original_flags_at_513257_if_reached=0)
+        self.assertIsNone(later.mode)
+        self.assertIsNone(later.selected_presentation_wrapper_va)
+        self.assertEqual(later.pre_presentation_native_call_va,0x5DA2F0)
+        for first,second in ((0x20,None),(0,0)):
+            with self.subTest(flags1=first,flags2=second):
+                with self.assertRaisesRegex(ValueError, "mode not reached|mode at 51325D not reached"):
+                    source_original_match_mode_handoff_phase(
+                        3,original_flags_at_513238=first,
+                        original_flags_at_513257_if_reached=second)
+        guarded=source_original_guarded_match_route(
+            original_5130c2_v34_al_nonzero=True,
+            original_516080_al_nonzero_if_reached=False,
+            original_mode_if_51325d_reached=None,
+            original_flags_at_513238_if_reached=0,
+            original_flags_at_513257_if_reached=0)
+        self.assertIsNone(guarded.original_mode_phase_if_reached.mode)
+        self.assertTrue(guarded.original_post_v38_and_v3c_still_required)
+        self.assertFalse(guarded.original_game_result_published)
+
+    def test_original_router_v34_zero_skips_mode_preprocessing(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_router_guard,
+        )
+        stopped=source_original_match_router_guard(
+            original_5130c2_v34_al_nonzero=False,
+            original_516080_al_nonzero_if_reached=None,
+        )
+        self.assertFalse(stopped.reaches_mode_handoff_at_513238)
+        self.assertTrue(stopped.early_native_512d80_called)
+        self.assertTrue(stopped.reaches_post_callbacks_at_513294)
+        self.assertFalse(stopped.original_callbacks_executed)
+        self.assertFalse(stopped.live_game_state_committed)
+
+    def test_original_router_516080_choice_preserves_mode_phase_but_not_early_call(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_router_guard,
+        )
+        for second in (False, True):
+            with self.subTest(second=second):
+                arrived=source_original_match_router_guard(
+                    original_5130c2_v34_al_nonzero=True,
+                    original_516080_al_nonzero_if_reached=second,
+                )
+                self.assertTrue(arrived.reaches_mode_handoff_at_513238)
+                self.assertEqual(arrived.early_native_512d80_called,second)
+                self.assertTrue(arrived.reaches_post_callbacks_at_513294)
+                self.assertFalse(arrived.original_callbacks_executed)
+
+    def test_original_router_guard_requires_reached_callback_results(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_router_guard,
+        )
+        for first,second in ((None,None),(0,None),(1,False),
+                             (False,False),(False,True),
+                             (True,None),(True,0),(True,1)):
+            with self.subTest(first=first,second=second):
+                with self.assertRaises(ValueError):
+                    source_original_match_router_guard(
+                        original_5130c2_v34_al_nonzero=first,
+                        original_516080_al_nonzero_if_reached=second,
+                    )
+
+    def test_guarded_route_does_not_publish_bypassed_mode(self):
+        from gate14_match_detail_route_source import (
+            source_original_guarded_match_route,
+        )
+        bypass=source_original_guarded_match_route(
+            original_5130c2_v34_al_nonzero=False,
+            original_516080_al_nonzero_if_reached=None,
+            original_mode_if_51325d_reached=None,
+            original_flags_at_513238_if_reached=None,
+            original_flags_at_513257_if_reached=None,
+        )
+        self.assertIsNone(bypass.original_mode_phase_if_reached)
+        self.assertTrue(bypass.original_post_v38_and_v3c_still_required)
+        self.assertFalse(bypass.original_game_result_published)
+        for mode,flags1,flags2 in ((2,None,None),(None,0,None),
+                                   (None,None,0x10)):
+            with self.subTest(mode=mode,flags1=flags1,flags2=flags2):
+                with self.assertRaisesRegex(ValueError,"not reached"):
+                    source_original_guarded_match_route(
+                        original_5130c2_v34_al_nonzero=False,
+                        original_516080_al_nonzero_if_reached=None,
+                        original_mode_if_51325d_reached=mode,
+                        original_flags_at_513238_if_reached=flags1,
+                        original_flags_at_513257_if_reached=flags2,
+                    )
+
+    def test_guarded_source_routes_four_modes_but_never_commits(self):
+        from gate14_match_detail_route_source import (
+            source_original_guarded_match_route,
+        )
+        for mode in MatchDetailMode:
+            with self.subTest(mode=mode):
+                route=source_original_guarded_match_route(
+                    original_5130c2_v34_al_nonzero=True,
+                    original_516080_al_nonzero_if_reached=False,
+                    original_mode_if_51325d_reached=mode,
+                    original_flags_at_513238_if_reached=0,
+                    original_flags_at_513257_if_reached=0x10,
+                )
+                self.assertEqual(route.original_mode_phase_if_reached.mode,mode)
+                self.assertTrue(route.original_post_v38_and_v3c_still_required)
+                self.assertFalse(route.original_game_result_published)
+        with self.assertRaisesRegex(ValueError,"mode required"):
+            source_original_guarded_match_route(
+                original_5130c2_v34_al_nonzero=True,
+                original_516080_al_nonzero_if_reached=True,
+                original_mode_if_51325d_reached=None,
+                original_flags_at_513238_if_reached=0,
+                original_flags_at_513257_if_reached=0x10,
+            )
+
+    def test_original_v34_mode_context_store_keeps_sentinel_and_wrapped_owners(self):
+        from struct import pack, unpack_from
+        from gate14_match_detail_route_source import (
+            source_original_v34_mode_context_store_from_reached,
+        )
+        # Native 510D60 reads/copies global mode before router 51325D,
+        # regardless of a later display wrapper being skipped.
+        for vtable in (0x7C4C24, 0x7C9D9C):
+            for raw_mode in (0,1,2,3,5,0xFFFFFFFF):
+                with self.subTest(vtable=hex(vtable),raw_mode=raw_mode):
+                    before=b"Q"*0xD40
+                    got=source_original_v34_mode_context_store_from_reached(
+                        original_native_match_record=pack("<I",vtable),
+                        original_processing_context_at_510d95=before,
+                        original_global_877530_raw_value=raw_mode,
+                    )
+                    self.assertEqual(
+                        unpack_from("<I",got.original_context_after_single_mode_store,0xD3C)[0],
+                        raw_mode)
+                    self.assertEqual(got.original_context_after_single_mode_store[:0xD3C],
+                                     before[:0xD3C])
+                    self.assertEqual(len(got.original_context_after_single_mode_store),
+                                     len(before))
+                    self.assertFalse(got.original_full_native_v34_executed)
+                    self.assertFalse(got.live_game_state_updated)
+
+    def test_original_v34_source_store_rejects_unreached_or_forged_inputs(self):
+        from struct import pack
+        from gate14_match_detail_route_source import (
+            source_original_v34_mode_context_store_from_reached,
+        )
+        cases=(
+            (pack("<I",0xDEADBEEF),b"A"*0xD40,5),
+            (pack("<I",0x7C4C24),b"A"*0xD3F,5),
+            (pack("<I",0x7C4C24),bytearray(b"A"*0xD40),5),
+            (pack("<I",0x7C4C24),b"A"*0xD40,True),
+            (pack("<I",0x7C4C24),b"A"*0xD40,-1),
+            (pack("<I",0x7C4C24),b"A"*0xD40,0x100000000),
+        )
+        for match,context,mode in cases:
+            with self.subTest(vtable=match,context_len=len(context),mode=mode):
+                with self.assertRaises(ValueError):
+                    source_original_v34_mode_context_store_from_reached(
+                        original_native_match_record=match,
+                        original_processing_context_at_510d95=context,
+                        original_global_877530_raw_value=mode,
+                    )
+
+    def test_optional_original_exe_match_phase_opcode_signatures(self):
+        import os
+        from pathlib import Path
+        from hashlib import sha256
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:
+            self.skipTest("Original executable is private and absent from CI")
+        data=Path(original).read_bytes()
+        self.assertEqual(sha256(data).hexdigest(),
+                         "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3")
+        signatures={
+            0x513238:"8b 4e 44",0x51323c:"c1 e9 05",0x51323f:"f6 c1 01",
+            0x513242:"75 50",0x51324e:"51",0x51324f:"56",
+            0x513252:"e8 99 70 0c 00",0x513257:"f6 46 44 10",
+            0x51325b:"74 37",0x51325d:"a1 30 75 87 00",
+            0x51326a:"48",0x513272:"e8 49 ff 01 00",
+            0x51328c:"e8 ef 0a 02 00",0x51329d:"ff 52 38",
+            0x5132a9:"ff 52 3c",0x5331fd:"56",
+            0x5331fe:"e8 6d 00 00 00",
+            0x53322b:"c7 84 24 28 05 00 00 00 00 00 00",
+            # Native entry guard: vtable+34 AL branch and conditional
+            # 516080 short-circuit may jump straight to 513294.
+            0x5130c2:"ff 50 34",0x5130c5:"84 c0",
+            0x5130c7:"75 12",0x5130ce:"e8 ad fc ff ff",
+            0x5130d6:"e9 b9 01 00 00",0x5130db:"55",
+            0x5130dc:"e8 9f 2f 00 00",0x5130e1:"84 c0",
+            0x5130e3:"74 0f",0x5130ea:"e8 91 fc ff ff",
+            0x5130ef:"e9 41 01 00 00",0x5130f4:"8b 46 44",
+            0x5130f7:"a8 10",0x5130f9:"0f 84 2c 01 00 00",
+            0x533236:"e8 15 f4 ff ff",0x53323c:"e8 5f 0a 00 00",
+            # The owner captured by 5DA2F0 from the edi vft+0 getter
+            # is distinct from the 513010 outer processing object.
+            # These are actual original owner-mutable stores, not a
+            # complete safe surrogate for their statistical effects.
+            # 510D60 first caches the native global mode into context+D3C,
+            # even when 51325D outer mode dispatch is bypassed.
+            0x510d95:"8b 0d 30 75 87 00",
+            0x510d9b:"89 8e 3c 0d 00 00",
+            0x511129:"57",
+            0x51112a:"e8 31 fc ff ff",
+            0x511167:"8a c3",
+            0x51116b:"c2 04 00",
+            0x5da301:"8b f1",
+            0x5db7f8:"89 9e 48 01 00 00",
+            0x5db7fe:"89 86 60 01 00 00",
+            0x5db80e:"c7 86 44 01 00 00 01 00 00 00",
+            0x5db8e4:"89 86 44 01 00 00",
+            0x5db92b:"89 86 24 01 00 00",
+            0x5db95d:"89 86 28 01 00 00",
+            0x5db97f:"c6 86 30 01 00 00 01",
+            0x5db9dd:"89 86 2c 01 00 00",
+            0x5db9ec:"89 86 e8 00 00 00",
+        }
+        for va,hex_bytes in signatures.items():
+            with self.subTest(va=hex(va)):
+                expected=bytes.fromhex(hex_bytes)
+                self.assertEqual(data[va-0x400000:va-0x400000+len(expected)],
+                                 expected)
+
+
+
 if __name__ == "__main__":
     unittest.main()
