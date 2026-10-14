@@ -6,6 +6,12 @@ from pathlib import Path
 from struct import pack_into
 import unittest
 
+from original_native_v3c_calendar_second_pass import (
+    source_original_615d10_calendar_date_window,
+)
+from original_native_615c50_reached_candidate import (
+    source_original_615c50_reached_node_candidate,
+)
 from original_native_514520_slot_activation import (
     OriginalNative514520SourceError,
     source_original_514520_reached_slot_activation,
@@ -103,6 +109,40 @@ class Native514520ActivationTests(unittest.TestCase):
                 original_reached_virtual18_event_pointer=0x2000,
                 original_event_record_after_virtual18=event(second=0),
                 original_reached_node_state_after_first_embedded_side_v0=0)
+
+    def test_514520_embedded_side_order_binds_outer_615c50_post_state(self):
+        calendar=bytearray(12)
+        pack_into("<III",calendar,0,0x30000000,30,100)
+        window=source_original_615d10_calendar_date_window(
+            original_calendar_registry_va=0x947AD8,
+            original_registry_record=bytes(calendar),
+            original_requested_date_index=101)
+        for first_side_state,outer_reached_state,should_return in (
+            (0,0,True),
+            (0,1,False),
+            (123,123,False),
+        ):
+            with self.subTest(first=first_side_state,post=outer_reached_state):
+                nested=source_original_514520_reached_slot_activation(
+                    original_node_record_at_entry=node(),
+                    original_reached_virtual18_event_pointer=0x2000,
+                    original_event_record_after_virtual18=event(),
+                    original_reached_node_state_after_first_embedded_side_v0=first_side_state)
+                self.assertEqual(nested.original_second_embedded_side_v0_called,
+                                 first_side_state==0)
+                parent=source_original_615c50_reached_node_candidate(
+                    original_reached_date_window=window,
+                    original_slot_head_node_pointer=0x1111,
+                    original_node_record_at_virtual18=node(),
+                    original_reached_virtual18_event_pointer=0x2000,
+                    original_event_record_after_virtual18=event(),
+                    original_reached_virtual4_comparison_eax=1,
+                    original_node_record_after_virtual4=node(),
+                    original_reached_node_state_after_514520=outer_reached_state)
+                self.assertEqual(parent.original_returned_slot_node_pointer==0x1111,
+                                 should_return)
+                self.assertFalse(parent.native_event_world_complete)
+                self.assertFalse(nested.native_original_world_effects_reconstructed)
 
     def test_invalid_reached_native_owners_and_results_rejected(self):
         base=dict(original_node_record_at_entry=node(),
