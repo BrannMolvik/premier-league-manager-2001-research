@@ -39,6 +39,8 @@ on:
       - "reconstruction/test_original_native_510ba0_insertion_entry.py"
       - "reconstruction/original_native_615890_slot_window.py"
       - "reconstruction/test_original_native_615890_slot_window.py"
+      - "reconstruction/original_native_615790_slot_chain.py"
+      - "reconstruction/test_original_native_615790_slot_chain.py"
       - "reconstruction/human_gameplay.py"
       - "reconstruction/test_original_primary_match_mode_transaction.py"
       - "reconstruction/original_fastview_tactics_selection.py"
@@ -363,6 +365,7 @@ jobs:
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
             test_original_native_615890_slot_window \
+            test_original_native_615790_slot_chain \
             test_original_primary_match_mode_transaction \
             test_original_fastview_tactics_selection \
             test_original_fastview_two_sided_live_writeback \
