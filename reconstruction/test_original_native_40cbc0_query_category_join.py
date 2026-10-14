@@ -45,7 +45,7 @@ class SourceOriginal40CBC0JoinedTests(TestCase):
         cat=base["original_4fa520_category_input"]
         for altered in (
             {"original_4fa520_ecx_object_pointer":0x30000},
-            {"original_4fa520_object_record":bytes(0x24)},
+            {"original_4fa520_object_record":bytes([0xcc])+bytes(0x23)},
         ):
             with self.subTest(altered=altered):
                 with self.assertRaisesRegex(Original40CBC0JoinedSourceError,"native 4FA520 source object differs"):
