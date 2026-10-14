@@ -20,7 +20,7 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery630 active branch worker/gate13-r1-injury-runtime-bridge-audit-639 based on main 5c98135a10c8e5628fb0ab230d62bfa36c2d6922. Original private executable 4714541-byte SHA833bf95e and raw EnglishEAM.str/idx exact SHA98387ef6/bd0e2b80 recovered, not executed. NEW static x86 source proof: all 15 actual 606540 notice vtables 7D1CE0..7D43D0 use distinct virtual+0x18 caption routines 58AB00..5A0890, exact original EAM idx slots 1803..1843/2383..2408 map only string IDs 1153 and 1158. +0x1C body selectors differ, unresolved substitution; never call unrendered message delivered. Next stage verified template selector/negative source tests on same feature branch, inspect 15 body routes, integrate source-backed receipt→registered-user GameState event queue/SaveLoad and full NEXT all modes. Gate13-17 and Win11 release OPEN. No CI/PR until cohesive batch.",
+  "active_task": "Recovery630 working on existing branch worker/gate13-r1-injury-runtime-bridge-audit-639 (source title/body and test head 2d1da54d586c8ba816f631cbde13ca5edd93da2b; verified 12 ahead, 0 behind main). Original private exe SHA833bf95e & EnglishEAM.str/idx SHA98387ef6/bd0e2b80 byte authenticated; static vtable+18 and +1C callers: 15 exact notice titles and all 45 native arg0/1/2 injury body STR selectors. Source mapping in reconstruction/original_eamail_language.py; tests test_original_606540_injury_language.py registered in Gate13 workflow; research/GATE13_R1_606540_NOTICE_TITLES_RECOVERY630.md. Real PMessageRow first click requests +1C argument0 but existing row projector is transfer-only. NEXT: source-back 606540 event native 7BD564 pending→613EE0→5CFA20→413020 user+6B4 route into atomic per-user GameState injury mail owner, preserve 7D7760 player expiry separate, result date/order/owner, save/load/multi-event rollback; then source-backed Inbox injuries and all-mode full R1. Do NOT claim rendered/Win11 tested. Keep batched feature branch, no PR or CI before reviewable integration. Gate13→17 and Windows 11 still OPEN.",
   "last_known_main_head": "5c98135a10c8e5628fb0ab230d62bfa36c2d6922",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -32,9 +32,10 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 630,
   "last_recovery_reason": "same-chat-recovery-no-progress; stale 37 minutes; fallback after 20 minutes; new chat 2026-10-15 KST",
-  "note": "New source-verified original localization mapping recovered from private original PE+EnglishEAM files; preserving independent pending/delivered/GUI acceptance boundaries.",
+  "note": "Original resource PE disassembly locally independently checked 15 +0x18 title callbacks and 45 +0x1C variant slots. New source selector+tests+documentation persisted on same feature branch, no compiled test or CI run; local original exe read only, not executed. Source event and player-visible delivery still blocker. Actual main SHA independently checked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
-  "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md"
+  "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
+  "last_known_main_commit": "5c98135a10c8e5628fb0ab230d62bfa36c2d6922"
 }
