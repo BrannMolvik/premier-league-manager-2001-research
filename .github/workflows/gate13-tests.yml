@@ -69,6 +69,8 @@ on:
       - "reconstruction/test_original_native_419680_availability.py"
       - "reconstruction/original_native_5127a0_order_guard.py"
       - "reconstruction/test_original_native_5127a0_order_guard.py"
+      - "reconstruction/original_native_5127a0_player_identity.py"
+      - "reconstruction/test_original_native_5127a0_player_identity.py"
       - "reconstruction/game_state.py"
       - "reconstruction/internal_save.py"
       - "reconstruction/game_state.py"
@@ -422,6 +424,7 @@ jobs:
             test_original_native_4197c0_callbackfree_player_row \
             test_original_native_419680_availability \
             test_original_native_5127a0_order_guard \
+            test_original_native_5127a0_player_identity \
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
             test_original_native_615890_slot_window \
