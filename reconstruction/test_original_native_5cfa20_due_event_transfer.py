@@ -24,6 +24,8 @@ def event(*, date=900, owner=0x3000, vtable=0x7BD564):
 def referenced(vtable=0x7D1514, date=25):
     b = bytearray(0x48)
     pack_into("<II", b, 0, vtable, date & 0xffffffff)
+    pack_into("<I", b, 0x10, 1)
+    pack_into("<I", b, 0x1C, 12)
     return bytes(b)
 
 
