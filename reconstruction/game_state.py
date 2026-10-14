@@ -81,6 +81,10 @@ from original_native_41a250_uefa_producer import (
     Original41A250Reached,
     source_original_41a250_uefa_incident_from_reached,
 )
+from original_native_4197c0_callbackfree_player_row import (
+    Original4197C0SafeRowReached,
+    source_original_4197c0_callbackfree_player_row,
+)
 from original_native_4085d0_world_branch import (
     Original4085D0ReachedWorld,
     source_original_4085d0_qualified_mutating_leaf,
@@ -955,6 +959,37 @@ class GameState:
         )
         self.native_player_discipline[mapped_runtime_player_index] = next_record
         return next_record
+
+    def apply_verified_native_4197c0_callbackfree_player_row(
+        self, *, original_reached: Original4197C0SafeRowReached,
+        mapped_runtime_player_index: int,
+    ) -> OriginalNativePlayerDiscipline:
+        """Commit one source-qualified *player byte* row, not whole NEXT.
+
+        Only arg2=0 and original 41A5B0 flag=0, with verified source
+        competition callbacks and no reached native mutation subhandlers.
+        No source virtual is executed or assumed side-effect-free outside
+        this player record; match/fixture/Inbox remain unchanged.
+        """
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players
+                or not isinstance(original_reached,Original4197C0SafeRowReached)):
+            raise ValueError("actually reached original row and player mapping required")
+        original_before=source_original_native_discipline_from_reached_player(
+            original_native_player_record=original_reached.original_player_at_entry,
+            original_mapped_runtime_player_index=mapped_runtime_player_index,
+        )
+        if self.native_player_discipline.get(mapped_runtime_player_index)!=original_before:
+            raise ValueError("original 4197C0 player discipline entry absent or stale")
+        projected=source_original_4197c0_callbackfree_player_row(original_reached)
+        after=source_original_native_discipline_from_reached_player(
+            original_native_player_record=projected.original_player_after,
+            original_mapped_runtime_player_index=mapped_runtime_player_index,
+        )
+        records=dict(self.native_player_discipline)
+        records[mapped_runtime_player_index]=after
+        self.native_player_discipline=records
+        return after
 
     def retain_verified_native_status_world(
         self, *, original_player_record: bytes,
