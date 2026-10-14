@@ -33,6 +33,10 @@ on:
       - "reconstruction/test_original_native_v3c_calendar_second_pass.py"
       - "reconstruction/original_native_615c50_reached_candidate.py"
       - "reconstruction/test_original_native_615c50_reached_candidate.py"
+      - "reconstruction/original_native_615c50_linked_chain.py"
+      - "reconstruction/test_original_native_615c50_linked_chain.py"
+      - "reconstruction/original_native_615d10_linked_slot_walk.py"
+      - "reconstruction/test_original_native_615d10_linked_slot_walk.py"
       - "reconstruction/original_native_514520_slot_activation.py"
       - "reconstruction/test_original_native_514520_slot_activation.py"
       - "reconstruction/original_native_510ba0_insertion_entry.py"
@@ -364,6 +368,8 @@ jobs:
             test_original_native_v3c_reschedule_gate \
             test_original_native_v3c_calendar_second_pass \
             test_original_native_615c50_reached_candidate \
+            test_original_native_615c50_linked_chain \
+            test_original_native_615d10_linked_slot_walk \
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
             test_original_native_615890_slot_window \
