@@ -83,5 +83,49 @@ class OriginalNativeDisciplinePreservationTests(unittest.TestCase):
             snapshot_original_native_discipline({44:a})
 
 
+    def test_live_game_state_source_snapshot_roundtrip_and_generic_state_separation(self):
+        from internal_save import snapshot_human_gameplay, restore_human_gameplay
+        from test_internal_save import InternalSaveTests
+        from test_human_gameplay import Database, coefficient_matrix
+        controller=InternalSaveTests().build_controller()
+        runtime=controller.squad()[0]
+        generic_before=(
+            runtime.suspension_matches_remaining,
+            runtime.suspension_effective_date,
+            runtime.discipline_yellow_total,
+        )
+        source=player(pid=runtime.index,fa=9,uefa=4,due=0xfffffffd)
+        retained=controller.state.retain_verified_native_player_discipline(
+            original_player_record=source,
+            mapped_runtime_player_index=runtime.index,
+        )
+        self.assertEqual(retained.native_fa_counter_13b,9)
+        snapshot=snapshot_human_gameplay(controller)
+        self.assertEqual(
+            snapshot["game_state"]["original_native_player_discipline"][0],
+            retained.array(),
+        )
+        restored=restore_human_gameplay(
+            Database(),coefficient_matrix(),coefficient_matrix(),snapshot)
+        self.assertEqual(restored.state.native_player_discipline[runtime.index],retained)
+        self.assertEqual(
+            (restored.state.players[runtime.index].suspension_matches_remaining,
+             restored.state.players[runtime.index].suspension_effective_date,
+             restored.state.players[runtime.index].discipline_yellow_total),
+            generic_before,
+        )
+        legacy=snapshot_human_gameplay(controller)
+        del legacy["game_state"]["original_native_player_discipline"]
+        older=restore_human_gameplay(
+            Database(),coefficient_matrix(),coefficient_matrix(),legacy)
+        self.assertEqual(older.state.native_player_discipline,{})
+        corrupted=snapshot_human_gameplay(controller)
+        corrupted["game_state"]["original_native_player_discipline"][0][3]=256
+        with self.assertRaises(OriginalNativeDisciplineError):
+            restore_human_gameplay(
+                Database(),coefficient_matrix(),coefficient_matrix(),corrupted)
+
+
+
 if __name__=="__main__":
     unittest.main()
