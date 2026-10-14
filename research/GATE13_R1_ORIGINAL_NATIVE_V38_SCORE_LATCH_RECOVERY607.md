@@ -1,0 +1,15 @@
+# Recovery607 — original R1 LeagueMatch virtual+0x38 native two-score latch
+
+**Date:** 14 October 2026 KST. Baseline latest reviewed main after PR701: `f6df9b7e1fba110caa73099d3c54330013c1e06e`. Exact canonical private source `footballmanager.exe`, 4,714,541 bytes, SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Reopened for independent STATIC original PE disassembly, original NOT executed. 11/11 source byte signatures verified against original `.text` at exact VAs before patch proposal.
+
+## Actual original score latch
+
+Original `0x513010` processing common tail invokes LeagueMatch vtable+0x38 at `0x51329D`, then vtable+0x3C at `0x5132A9`. These are real processing effects, **not generic cleanup-only no-ops**.
+
+Shipped original ordinary virtual+0x38 `0x5112A0` reads **unsigned WORD** `context+0xD4C` and writes match+0x3C; reads WORD `context+0xD50` and writes match+0x3E. There is no clamping or invented team-score mapping. This source obtains actual *two raw result words*, not any score from modern Quick simulation. The four specialized original LeagueMatch vtables with +0x38 pointing `0x5136C0` call common `0x5112A0` first and then **`0x513570`** (further real callback effects still unresolved). The three other shipped vtables call `0x5112A0` directly. All seven are already vetted in `reconstruction/original_leaguematch_native_process_owners.py`. After either v38 path, vtable+0x3C remains a mandatory original operation. The generic `0x511370` v3C sets match+0x44 bit0, may call original `0x5127A0` scheduling and `0x512710` processing based on native conditions. Specialized v3C dispatch is even more complex. Neither is implemented here.
+
+The new `original_native_match_result_latch.py` independently validates original LeagueMatch vtable, match raw record through +0x3F and actually reached context bytes through +0xD51, returns a **copy** with only the two WORD stores and unexecuted original v38/v3C flags. It does **not** write GameState, recompute a score, call original methods, mutate event registries or claim a completed mode. Tests cover every authenticated original v38 method owner, original score values 0 and 65535 with exact word copy, byte noninterference, malformed or unknown source owners, and independent opt-in original PE checks. Registered in Gate13 focused workflow.
+
+**Next source-backed implementation:** reconstruct the original v38 wrapped `0x513570` world effects and both real v3C pipelines (`0x511370` and `0x5136E0`); qualify original virtual+0x34, shared `0x5DA2F0` world, and match score context for ALL original match modes, then integrate actual event callbacks and only after complete verified path advance pending human fixture into PResults/management. Current synthetic Quick result cannot be claimed identical to native result, nor can a successful original source value-only test count as native GUI acceptance.
+
+**Status at authoring:** feature branch `worker/gate13-r1-native-v38-result-record-607` waiting exact-head PR/CI/review. Gates13–17 OPEN, Windows11 original GUI unverified.
