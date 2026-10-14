@@ -61,6 +61,8 @@ on:
       - "reconstruction/test_original_native_dated_event_neighbor_conflict.py"
       - "reconstruction/original_native_side_ref_comparison.py"
       - "reconstruction/test_original_native_side_ref_comparison.py"
+      - "reconstruction/original_native_type4_pair_selector.py"
+      - "reconstruction/test_original_native_type4_pair_selector.py"
       - "reconstruction/primary_schedule_shadow.py"
       - "reconstruction/test_dynamic_primary_replay_order.py"
       - "reconstruction/primary_schedule.py"
@@ -340,6 +342,7 @@ jobs:
             test_original_native_dated_event_insert_source \
             test_original_native_dated_event_neighbor_conflict \
             test_original_native_side_ref_comparison \
+            test_original_native_type4_pair_selector \
             test_dynamic_primary_replay_order \
             test_original_fastview_native_event_human_owners \
             test_original_fastview_native_event_selection \
