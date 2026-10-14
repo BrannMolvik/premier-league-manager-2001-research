@@ -13,6 +13,9 @@ from original_fastview_two_sided_live_writeback import (
     SOURCE_FASTVIEW_SAFE_NATIVE_PLAYER_MAX,
     source_fastview_native_tactical_280_init_6c1d30,
     source_fastview_native_two_side_setup_533270,
+    source_fastview_original_pre_modal_two_flag_reset_6c1cf0,
+    SourceFastViewTwoSideBlockState,
+    source_fastview_post_modal_intents_after_native_view_5331c0,
     source_fastview_native_raw_tactical_280_from_packed_533b70,
 )
 
@@ -284,6 +287,93 @@ class OriginalFastViewPackedMatchSide533B70Tests(unittest.TestCase):
         for va,hx in samples.items():
             with self.subTest(va=hex(va)):
                 self.assertEqual(pe.read(va,len(bytes.fromhex(hx))),bytes.fromhex(hx))
+
+
+class OriginalFastViewIntermediateGlobalResetSourceTests(unittest.TestCase):
+    def test_both_global_dwords_zero_before_premodal_record_copier(self):
+        for before in (bytes(8),bytes(range(8)),bytes([255])*8):
+            with self.subTest(before=before):
+                result=source_fastview_original_pre_modal_two_flag_reset_6c1cf0(
+                    original_a145f0_a145f4_eight_bytes_before=before)
+                self.assertEqual(result, bytes(8))
+                self.assertEqual(len(result),8)
+                self.assertEqual(len(before),8)
+
+    def test_reset_requires_exact_original_two_global_dwords(self):
+        for malformed in (None,bytearray(8),"abc",bytes(7),bytes(9),True):
+            with self.subTest(malformed=malformed):
+                with self.assertRaises(OriginalFastViewTwoSideWritebackError):
+                    source_fastview_original_pre_modal_two_flag_reset_6c1cf0(
+                        original_a145f0_a145f4_eight_bytes_before=malformed)
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private executable not mounted")
+    def test_original_native_fastview_reset_call_and_two_exact_dword_stores(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        samples=(
+            (0x533203,"e8 e8 ea 18 00"),
+            (0x6C1CF0,"33 c0 a3 f0 45 a1 00 a3 f4 45 a1 00 c3"),
+        )
+        for addr,hx in samples:
+            with self.subTest(addr=hex(addr)):
+                expected=bytes.fromhex(hx)
+                self.assertEqual(pe.read(addr,len(expected)),expected)
+
+
+
+class OriginalFastViewPostModalSourceOrderTests(unittest.TestCase):
+    def test_native_wm_user_zero_does_not_cancel_required_533ca0_writeback(self):
+        from original_fastview_native_win32_modal_source import (
+            OriginalFastViewWin32MessageObservation,
+            source_fastview_original_nested_modal_trace_532b80,
+        )
+        returned=source_fastview_original_nested_modal_trace_532b80(
+            native_source_messages=(
+                OriginalFastViewWin32MessageObservation(
+                    peek_had_message=True, active_nested_view_count=1,
+                    get_message_result=1, native_msg_type=0x400,
+                    native_msg_wparam=0),
+            )
+        )
+        sides=SourceFastViewTwoSideBlockState(bytes(0x300),bytes(0x300))
+        globals_after=bytes(range(256))+bytes(range(64))
+        kw=dict(original_native_modal_return=returned,
+                live_side_records=sides,
+                original_side_globals_after_modal=globals_after,
+                original_player_low5_globals_after_modal=bytes(0x140),
+                original_player_low4_globals_after_modal=bytes(0x140),
+                original_native_player_counts=(11,11))
+        view=source_fastview_post_modal_intents_after_native_view_5331c0(**kw)
+        self.assertEqual(view.original_modal_exit_wparam,0)
+        self.assertTrue(view.original_native_cleanup_required)
+        self.assertEqual(len(view.native_player_write_intents),22)
+        self.assertEqual(view.postmodal_side_blocks.first_side_bytes[0x244:0x294],
+                         globals_after[:80])
+        self.assertEqual(view.postmodal_side_blocks.second_side_bytes[0x244:0x294],
+                         globals_after[0xA0:0xA0+80])
+        self.assertEqual(sides.first_side_bytes,bytes(0x300))
+        for bogus in (None,0,True,object()):
+            with self.subTest(bogus=bogus):
+                with self.assertRaises(OriginalFastViewTwoSideWritebackError):
+                    source_fastview_post_modal_intents_after_native_view_5331c0(
+                        **(kw|dict(original_native_modal_return=bogus)))
+
+    @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
+                         "original private executable not mounted")
+    def test_mode2_modal_return_writes_back_and_destroys_on_every_exit(self):
+        from gate13_button_source_trace import OriginalPE32
+        pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
+        guards=(
+            (0x533236,"e8 15 f4 ff ff"),
+            (0x53323C,"e8 5f 0a 00 00"),
+            (0x533253,"e8 78 c4 fe ff"),
+        )
+        for addr,hx in guards:
+            with self.subTest(addr=hex(addr)):
+                data=bytes.fromhex(hx)
+                self.assertEqual(pe.read(addr,len(data)),data)
+
 
 if __name__ == "__main__":
     unittest.main()
