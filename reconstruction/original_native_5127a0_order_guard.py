@@ -98,8 +98,8 @@ def source_original_5127a0_two_owner_order_from_reached(
         if not isinstance(side,Original5127A0OrderedSide) or type(side.pass_index) is not int or side.pass_index!=pass_index:
             raise Original5127A0OrderError("original side owner order must be EBX 0 then 1")
         _uint(side.original_615d10_lookup_pointer,32,"615D10 lookup pointer including NULL")
-        if type(side.source_roster_ids) is not tuple or not 0<len(side.source_roster_ids)<=100:
-            raise Original5127A0OrderError("actual original nonempty side roster IDs required")
+        if type(side.source_roster_ids) is not tuple or not 0<=len(side.source_roster_ids)<=40:
+            raise Original5127A0OrderError("actual original side roster IDs 0..40 required")
         for pid in side.source_roster_ids:
             _uint(pid,16,"roster player ID")
         if len(set(side.source_roster_ids))!=len(side.source_roster_ids):
