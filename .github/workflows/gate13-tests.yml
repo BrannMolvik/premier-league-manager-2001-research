@@ -63,6 +63,8 @@ on:
       - "reconstruction/test_original_native_41edf0_registered_quota.py"
       - "reconstruction/original_native_status_world_state.py"
       - "reconstruction/test_original_native_status_world_state.py"
+      - "reconstruction/original_native_4197c0_callbackfree_player_row.py"
+      - "reconstruction/test_original_native_4197c0_callbackfree_player_row.py"
       - "reconstruction/game_state.py"
       - "reconstruction/internal_save.py"
       - "reconstruction/game_state.py"
@@ -413,6 +415,7 @@ jobs:
             test_original_native_418220_role_swap \
             test_original_native_41edf0_registered_quota \
             test_original_native_status_world_state \
+            test_original_native_4197c0_callbackfree_player_row \
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
             test_original_native_615890_slot_window \
