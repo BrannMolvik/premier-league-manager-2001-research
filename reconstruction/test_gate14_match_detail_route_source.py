@@ -130,7 +130,7 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
             2,original_flags_at_513238=0,
             original_flags_at_513257_if_reached=0x10)
         disabled=source_original_match_mode_handoff_phase(
-            2,original_flags_at_513238=0x10,
+            None,original_flags_at_513238=0x10,
             original_flags_at_513257_if_reached=0)
         self.assertEqual(enabled.selected_presentation_wrapper_va,
                          FASTVIEW_PRESENTATION_WRAPPER_VA)
@@ -138,7 +138,7 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
         self.assertEqual(disabled.pre_presentation_native_call_va,0x5DA2F0)
         for flags in (0x20,0x30):
             skipped=source_original_match_mode_handoff_phase(
-                2,original_flags_at_513238=flags,
+                None,original_flags_at_513238=flags,
                 original_flags_at_513257_if_reached=None)
             self.assertIsNone(skipped.pre_presentation_native_call_va)
             self.assertIsNone(skipped.selected_presentation_wrapper_va)
@@ -160,6 +160,33 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
             source_original_match_mode_handoff_phase(
                 5,original_flags_at_513238=0,
                 original_flags_at_513257_if_reached=0x10)
+
+    def test_native_mode_global_is_not_read_after_513257_skip(self):
+        from gate14_match_detail_route_source import (
+            source_original_match_mode_handoff_phase,
+            source_original_guarded_match_route,
+        )
+        later=source_original_match_mode_handoff_phase(
+            None,original_flags_at_513238=0,
+            original_flags_at_513257_if_reached=0)
+        self.assertIsNone(later.mode)
+        self.assertIsNone(later.selected_presentation_wrapper_va)
+        self.assertEqual(later.pre_presentation_native_call_va,0x5DA2F0)
+        for first,second in ((0x20,None),(0,0)):
+            with self.subTest(flags1=first,flags2=second):
+                with self.assertRaisesRegex(ValueError, "mode not reached|mode at 51325D not reached"):
+                    source_original_match_mode_handoff_phase(
+                        3,original_flags_at_513238=first,
+                        original_flags_at_513257_if_reached=second)
+        guarded=source_original_guarded_match_route(
+            original_5130c2_v34_al_nonzero=True,
+            original_516080_al_nonzero_if_reached=False,
+            original_mode_if_51325d_reached=None,
+            original_flags_at_513238_if_reached=0,
+            original_flags_at_513257_if_reached=0)
+        self.assertIsNone(guarded.original_mode_phase_if_reached.mode)
+        self.assertTrue(guarded.original_post_v38_and_v3c_still_required)
+        self.assertFalse(guarded.original_game_result_published)
 
     def test_original_router_v34_zero_skips_mode_preprocessing(self):
         from gate14_match_detail_route_source import (
@@ -211,7 +238,7 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
         bypass=source_original_guarded_match_route(
             original_5130c2_v34_al_nonzero=False,
             original_516080_al_nonzero_if_reached=None,
-            original_mode_if_513238_reached=None,
+            original_mode_if_51325d_reached=None,
             original_flags_at_513238_if_reached=None,
             original_flags_at_513257_if_reached=None,
         )
@@ -225,7 +252,7 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                     source_original_guarded_match_route(
                         original_5130c2_v34_al_nonzero=False,
                         original_516080_al_nonzero_if_reached=None,
-                        original_mode_if_513238_reached=mode,
+                        original_mode_if_51325d_reached=mode,
                         original_flags_at_513238_if_reached=flags1,
                         original_flags_at_513257_if_reached=flags2,
                     )
@@ -239,7 +266,7 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                 route=source_original_guarded_match_route(
                     original_5130c2_v34_al_nonzero=True,
                     original_516080_al_nonzero_if_reached=False,
-                    original_mode_if_513238_reached=mode,
+                    original_mode_if_51325d_reached=mode,
                     original_flags_at_513238_if_reached=0,
                     original_flags_at_513257_if_reached=0x10,
                 )
@@ -250,7 +277,7 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
             source_original_guarded_match_route(
                 original_5130c2_v34_al_nonzero=True,
                 original_516080_al_nonzero_if_reached=True,
-                original_mode_if_513238_reached=None,
+                original_mode_if_51325d_reached=None,
                 original_flags_at_513238_if_reached=0,
                 original_flags_at_513257_if_reached=0x10,
             )
