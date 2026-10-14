@@ -1,3 +1,8 @@
+### 14 October 2026 KST - Recovery627 PR731 integrated; Recovery632 human notification dispatch source underway
+
+- Existing worker's original 606540 nonhuman→60AA20 prequeue owner proof and independently source-modeled player+14/+22/+77, descriptor date and pending 7D7760 event are merged via **PR731**, commit `b3415f5c31f305616bc62dbaf50f4837336bb1ba`. Exact-head Gate13 `38587159670` successful, 1,826 tests/148 expected skips; asset-policy `38587159568` successful. Original private 4,714,541-byte executable SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` independently verified and statically disassembled, never run/committed.
+- Current branch `worker/gate13-r1-606540-human-notice-632` traces 606540 positive human predicate into 4D1190, conditional 4D1110 and three native status/subtype factory tables; exact 3×4 pointer table and 12 opcode signatures confirmed privately. Qualified source selection and counterexample tests staged; separate 7BD564 notice wrapper queued before 60AA20/7D7760 player event source order. Only source plan, not original allocations, Inbox delivery, GameState or Windows GUI. Private native constructor contents, queue delivery/recipient, descriptor lifetime, complete both-owner match and Gates13–17 stay open.
+
 ### 13 October 2026 KST - Recovery583 original EAMail ten source filter event projector PR662 integrated
 
 - Authenticated original EXE sha833bf95e...b7cc3 static only; ten PEAMail source group IDs2..11, +0x38 group pointer, native radio 0x5D49F0, native event 0x4722C3 → selected-user filter/preview clear/sort. Physical Win32 delivery remains unverified.
