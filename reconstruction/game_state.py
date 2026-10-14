@@ -73,6 +73,10 @@ from match_injury_persistence import clear_expired_persistent_injury
 from match_schedule import MsvcCrtRng
 from original_eamail_mailbox import OriginalDeliveredEAMailboxes
 from original_eamail_pending import OriginalPendingTransferEAMQueue
+from original_native_player_discipline_state import (
+    OriginalNativePlayerDiscipline,
+    source_original_native_discipline_from_reached_player,
+)
 from original_human_user_name import OriginalHumanUserName, original_fresh_human_name
 from match_preparation import (
     PreparedAiMatchSelection,
@@ -309,6 +313,12 @@ class GameState:
     # from both the active transfer-action request queue and delivered DBRUser mail.
     original_pending_transfer_eam: OriginalPendingTransferEAMQueue = field(
         default_factory=OriginalPendingTransferEAMQueue
+    )
+    # Sparse original DBRPlayer +139/+13A/+13B/+13C/+13D/+13E/+144/+160
+    # snapshots from verified source only. Generic RuntimePlayer suspension
+    # counters are NOT equivalent; absent entries mean unverified, not zero.
+    native_player_discipline: dict[int, OriginalNativePlayerDiscipline] = field(
+        default_factory=dict
     )
     # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
     # independent of club_roster_order until 0x61E3D0 promotion.
@@ -872,6 +882,24 @@ class GameState:
                 and request.sender_club_id is not None
                 and request.due_on == request.queued_on + timedelta(days=1)):
             self.original_pending_transfer_eam.append_original_transfer(request)
+
+    def retain_verified_native_player_discipline(
+        self, *, original_player_record: bytes, mapped_runtime_player_index: int
+    ) -> OriginalNativePlayerDiscipline:
+        """Retain source-reached discipline bytes, never infer from generic state.
+
+        Caller separately proves the native +4 ID -> this RuntimePlayer key.
+        A match here verifies identity consistency, not original callbacks.
+        """
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players):
+            raise ValueError("verified live RuntimePlayer identity required")
+        record = source_original_native_discipline_from_reached_player(
+            original_native_player_record=original_player_record,
+            original_mapped_runtime_player_index=mapped_runtime_player_index,
+        )
+        self.native_player_discipline[mapped_runtime_player_index] = record
+        return record
 
     def process_original_eam_due_events(self, on_date: date) -> tuple[str, ...]:
         """Source 0x613EE0 MPMEAMail subtype on NEXT/PResults (flag=1).
