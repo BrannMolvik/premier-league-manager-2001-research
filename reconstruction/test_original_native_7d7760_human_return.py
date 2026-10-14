@@ -245,5 +245,91 @@ class Original7D7760HumanRecoverySourceTests(TestCase):
                              bytes.fromhex("c7 03")+pack("<I",vtable))
 
 
+
+class Original7D7760MultiEventTests(TestCase):
+    """Original 5D7B40 loops event+8 IDs; one unknown member blocks a batch."""
+
+    def build_event(self, *, duplicate=False, malformed_second=False):
+        from original_native_7d7760_human_return import (
+            Original7D7760ReturnMemberReached,
+            Original7D7760ReturnMultiReached,
+        )
+        a=original_reached(player_id=123,first=True,status=2,day=23,due=22)
+        b=original_reached(player_id=124,human=0,status=2,day=23,due=22)
+        native=bytearray(a.original_native_event_bytes)
+        pack_into("<I",native,8,2)
+        # Original native bytes +0x11..0x13 remain uninitialized, not zero.
+        native[0x11:0x14]=bytes((0xFA,0xEF,0xB3))
+        ids=pack("<II",123,123 if duplicate else 124)
+        member_a=Original7D7760ReturnMemberReached(
+            a.original_player_before_due,a.original_4139e0_human_club_lookup_al,
+            a.original_4d1190_lookup_nonnull_if_reached,
+            a.original_4d1110_lookup_nonnull_if_reached,
+            a.original_417270_source_club_record_if_reached)
+        member_b=Original7D7760ReturnMemberReached(
+            b.original_player_before_due,b.original_4139e0_human_club_lookup_al,
+            b.original_4d1190_lookup_nonnull_if_reached,
+            b.original_4d1110_lookup_nonnull_if_reached,
+            b.original_417270_source_club_record_if_reached)
+        if malformed_second:
+            member_b=replace(member_b,original_player_before_due=b"")
+        return Original7D7760ReturnMultiReached(
+            bytes(native),a.original_player_id_payload_pointer,ids,23,23,
+            (member_a,member_b))
+
+    def test_original_two_member_fifo_human_notice_then_ai_cleanup_source(self):
+        from original_native_7d7760_human_return import (
+            source_original_7d7760_multi_return_from_reached,
+        )
+        source=self.build_event()
+        original_event=source.original_native_event_bytes
+        batch=source_original_7d7760_multi_return_from_reached(source)
+        self.assertEqual(batch.original_event_count,2)
+        self.assertEqual(
+            tuple(x.original_player_id for x in batch.original_ordered_player_receipts),
+            (123,124))
+        human,ai=batch.original_ordered_player_receipts
+        self.assertEqual((human.original_event_status,human.original_selected_family),
+                         (2,31))
+        self.assertEqual(human.original_recipient_manager_key_if_human,777)
+        self.assertEqual(human.original_7bd564_notice_wrapper_date_if_human,23)
+        self.assertIsNone(ai.original_selected_constructor_if_human)
+        self.assertIsNone(ai.original_7bd564_notice_wrapper_date_if_human)
+        self.assertEqual(unpack_from("<I",
+            ai.original_player_source_cleanup.original_player_after_source,0x24c)[0],0)
+        self.assertFalse(batch.original_native_callback_executed)
+        self.assertFalse(batch.live_game_state_updated)
+        self.assertEqual(source.original_native_event_bytes,original_event)
+
+    def test_multi_event_requires_exact_array_complete_identities_and_due(self):
+        from original_native_7d7760_human_return import (
+            Original7D7760ReturnSourceError,
+            source_original_7d7760_multi_return_from_reached,
+        )
+        normal=self.build_event()
+        errors=[
+            (self.build_event(duplicate=True),"duplicate"),
+            (self.build_event(malformed_second=True),"identity"),
+            (replace(normal,ordered_reached_players=normal.ordered_reached_players[:1]),
+             "count"),
+            (replace(normal,original_player_id_payload_bytes=pack("<I",123)),
+             "count"),
+            (replace(normal,original_native_scanner_target_date_raw=21),
+             "future"),
+        ]
+        for bad,fragment in errors:
+            with self.subTest(fragment=fragment):
+                with self.assertRaisesRegex(Original7D7760ReturnSourceError,fragment):
+                    source_original_7d7760_multi_return_from_reached(bad)
+        # The existing original constructor creates count1. A count2 event
+        # must never pass through the single-reached receipt interface.
+        single=original_reached()
+        e=bytearray(single.original_native_event_bytes)
+        pack_into("<I",e,8,2)
+        with self.assertRaisesRegex(Original7D7760ReturnSourceError,"count"):
+            source_original_7d7760_human_return_from_reached(
+                replace(single,original_native_event_bytes=bytes(e)))
+
+
 if __name__ == "__main__":
     main()
