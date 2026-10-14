@@ -58,6 +58,10 @@ An independent private read verified **all fifteen** original notice vtable DWOR
 
 The bounded method `VerifiedOriginalEAMailLanguage.original_606540_notice_body_template(due_receipt, native_variant=...)` returns an original **unformatted template** only on a source-qualified typed constructor receipt and explicit native 0/1/2 argument. It validates vtable, callback range, IDX, STR, original SHA of text and CP1252. It cannot choose which variant the actual UI uses, supply the player/user interpolation, or deliver/read/render mail. The new `reconstruction/test_original_606540_injury_language.py` exercises all variants and forged inputs. Independent private PE callback validation succeeded locally; it is optional in CI because the original EXE must never ship in Git.
 
+## Cross-check against the existing PMessageRow first-click caller
+
+`reconstruction/original_eamail_native_row_fields.py` already records that original PMessageRow's first click invokes the record's virtual `+0x1C` with **argument zero**, then dynamically formats the body. This narrows the original initial-preview variant to native selector 0 **when the record has actually reached the source-qualified displayed user list and real first-click route**; it does not make every pending 7BD564 envelope a displayed row. Existing `project_original_native_eam_row_fields` rejects every record outside the already completed `EAMPlayerAskTransferListsub` transfer title/class, so attempting to hand the projected injury templates to that existing player-visible projector currently fails closed. A verified notice-identity and user+6B4→visible EAMail record bridge is the missing next player-visible seam. Do not bypass its native row-class or receipt gate to display a synthetic injury row.
+
 ## Negative evidence / what is NOT done
 
 - Native `+0x18` title text is source-verified. A second private source pass also verified all 45 `+0x1C` body variant IDX slots; it does NOT prove which variant the running Inbox requests, native token interpolation, read flags or icon.
