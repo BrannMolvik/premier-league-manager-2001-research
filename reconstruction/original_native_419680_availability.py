@@ -35,9 +35,10 @@ class Original419680AvailabilityReceipt:
     original_league_uefa_source_owner_34_one: bool | None
     original_fa_due_date_checked: bool
     original_417340_eligibility_callback_reached: bool
-    original_status_bit1_added: bool
+    original_status_bit1_source_or_branch: bool
     original_419680_native_callback_executed: bool = False
-    original_510a20_world_effects_unverified: bool = True
+    original_510a20_world_effects_unverified: bool = False
+    original_competition_virtual_world_effects_unverified: bool = False
     live_game_state_updated: bool = False
 
 
@@ -125,5 +126,7 @@ def source_original_419680_availability_from_reached(
         original_league_uefa_source_owner_34_one=uefa,
         original_fa_due_date_checked=due,
         original_417340_eligibility_callback_reached=calls_user,
-        original_status_bit1_added=bit1,
+        original_status_bit1_source_or_branch=bit1,
+        original_510a20_world_effects_unverified=due,
+        original_competition_virtual_world_effects_unverified=bool(ptr),
     )
