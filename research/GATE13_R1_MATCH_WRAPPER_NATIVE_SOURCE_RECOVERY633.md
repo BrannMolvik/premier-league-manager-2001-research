@@ -50,6 +50,29 @@ owner-state and entry-guard set now covers **44/44** separately
 checked original signature sites in a bounded static inspection.
 This is *not* original game execution or a verified live dispatch.
 
+## Counterexample: selecting a mode is not a native mode read
+
+`0x513238` tests original object+44 bit0x20 **before** the
+`0x51325D` global `0x877530` read. If bit0x20 is set, the
+original jumps directly to `0x513294`; it never reads the current
+mode, never calls `5DA2F0`, and never opens 3D or FastView.
+Even if that bit is clear, `0x513257` rereads object+44 bit0x10;
+if **clear**, this route also skips the global mode read and presentation
+but does call `5DA2F0`. The *distinct* earlier `0x5130C2`
+vtable+34 AL zero path also bypasses `0x513238` completely,
+calls `512D80`, and reaches the post callbacks.
+
+The initial source-only helper prematurely required a valid mode even
+on these two branches, which risked fabricating an original `0x877530`
+lookup or attributing Quick mode3 to a path that never queried it.
+Corrected source contract: `mode=None` when `0x51325D` was not
+reached, fail closed if a caller supplies a guessed/unobserved mode,
+and require a valid original mode **only when both flag gates permit
+the actual native global read**. A typed guarded route now combines
+the two entry callback results and the two independent +44 flag
+snapshots and always marks +38/+3C as **outstanding**. It does not
+run the original calculator or complete a real match.
+
 ## Reuse existing post-presentation world adapters, do not rebuild them
 
 Current `main` already contains `reconstruction/original_native_match_result_latch.py`
