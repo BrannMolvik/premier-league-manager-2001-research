@@ -1718,6 +1718,22 @@ class HumanGameplayController:
         if self.pending_primary_entry is None:
             raise RuntimeError('advance to a user primary match first')
         preparation = source_match_mode_preparation(mode)
+        # Shipped 0x51325D..0x513294 routes 0/1 through the 3D wrapper,
+        # 2 through FastView, and only 3 through the no-wrapper Quick route.
+        # Reusing play_user_primary_match() for 0/1/2 silently publishes a
+        # Quick result and advances the original event as though the distinct
+        # native presentation callbacks had executed. Leave the entire
+        # controller state, pending match, and RNG untouched instead.
+        from gate14_match_detail_route_source import (
+            MatchPresentationRoute, source_match_detail_dispatch,
+        )
+        dispatch = source_match_detail_dispatch(preparation.mode)
+        if dispatch.route is not MatchPresentationRoute.QUICK_MATCH:
+            raise RuntimeError(
+                "Original match presentation and mode-specific match lifecycle "
+                f"not yet implemented for {dispatch.route.value}; "
+                "pending match remains unchanged"
+            )
         staged = deepcopy(self, {id(self.attack_matrix): self.attack_matrix,
                                  id(self.defence_matrix): self.defence_matrix})
         owner = staged._original_primary_entry_owner(staged.pending_primary_entry)
