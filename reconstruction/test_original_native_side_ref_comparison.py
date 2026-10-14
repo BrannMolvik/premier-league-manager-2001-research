@@ -9,6 +9,8 @@ import unittest
 from original_native_side_ref_comparison import (
     OriginalNativeSideRefCompareSourceError,
     source_original_reached_side_ref_compare_4f2830,
+    source_original_leaguematch_virtual04_510a40_from_reached_comparisons,
+    source_original_leaguematch_virtual00_510a80_from_reached_v4,
 )
 from original_leaguematch_native_process_owners import SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS
 
@@ -99,6 +101,69 @@ class OriginalNativeSideRefComparisonTests(unittest.TestCase):
             with self.subTest(change=str(change)[:90]),self.assertRaises(
                 OriginalNativeSideRefCompareSourceError):
                 compared(**change)
+
+    def test_native_leaguematch_v4_short_circuits_side_1_after_side_0_match(self):
+        import struct
+        for vtable in SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS:
+            native=struct.pack("<I",vtable)
+            yes=compared()
+            no=compared(original_reached_left_virtual0_eax=0)
+            with self.subTest(vtable=hex(vtable)):
+                r=source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
+                    original_native_match_record=native,
+                    original_first_reached_4f2830_receipt=yes,
+                    original_second_reached_4f2830_receipt=None)
+                self.assertEqual(r.source_original_method_eax,1)
+                self.assertFalse(r.source_second_side_comparison_was_reached)
+                with self.assertRaises(OriginalNativeSideRefCompareSourceError):
+                    source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
+                        original_native_match_record=native,
+                        original_first_reached_4f2830_receipt=yes,
+                        original_second_reached_4f2830_receipt=no)
+                second=source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
+                    original_native_match_record=native,
+                    original_first_reached_4f2830_receipt=no,
+                    original_second_reached_4f2830_receipt=yes)
+                self.assertEqual(second.source_original_method_eax,1)
+                self.assertTrue(second.source_second_side_comparison_was_reached)
+                none=source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
+                    original_native_match_record=native,
+                    original_first_reached_4f2830_receipt=no,
+                    original_second_reached_4f2830_receipt=no)
+                self.assertEqual(none.source_original_method_eax,0)
+
+    def test_native_v0_two_comparison_v4_calls_respect_actual_return_order(self):
+        for vtable in SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS:
+            native=pack("<I",vtable)
+            for first,second,wanted in ((1,None,1),(0,1,1),(0,0,0),
+                                        (0,0xFFFFFFFF,1),(123,None,1)):
+                with self.subTest(vtable=hex(vtable),first=first,second=second):
+                    self.assertEqual(source_original_leaguematch_virtual00_510a80_from_reached_v4(
+                        original_native_match_record=native,
+                        original_first_reached_comparison_v4_eax=first,
+                        original_second_reached_comparison_v4_eax=second),wanted)
+            for first,second in ((1,1),(0,None),(True,0),(-1,0),(0,True)):
+                with self.subTest(vtable=hex(vtable),first=first,second=second):
+                    with self.assertRaises(OriginalNativeSideRefCompareSourceError):
+                        source_original_leaguematch_virtual00_510a80_from_reached_v4(
+                            original_native_match_record=native,
+                            original_first_reached_comparison_v4_eax=first,
+                            original_second_reached_comparison_v4_eax=second)
+        yes=compared()
+        no=compared(original_reached_left_virtual0_eax=0)
+        for change in (
+            {"original_native_match_record":pack("<I",0xDEADBEEF)},
+            {"original_native_match_record":bytearray(pack("<I",0x7C4C24))},
+            {"original_first_reached_4f2830_receipt":None},
+            {"original_second_reached_4f2830_receipt":None},
+        ):
+            original=dict(original_native_match_record=pack("<I",0x7C4C24),
+                          original_first_reached_4f2830_receipt=no,
+                          original_second_reached_4f2830_receipt=yes)
+            with self.subTest(change=str(change)),self.assertRaises(
+                OriginalNativeSideRefCompareSourceError):
+                source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
+                    **(original|change))
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "owner original private PE not accessible in hosted CI")
