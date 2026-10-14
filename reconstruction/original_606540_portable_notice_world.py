@@ -113,12 +113,13 @@ class Original606540PortableWorld:
                 if type(item.visible_inbox_accepted) is not bool or item.visible_inbox_accepted:
                     raise Original606540PortableWorldError(
                         "No original native GUI acceptance receipt exists")
+        # The global producer's pending array is monotone by construction
+        # serial.  User+6B4 is a SEPARATE native FIFO appended when DUE:
+        # serial2 may reach it before earlier-constructed serial1.
         if tuple(e.serial for e in self.pending) != tuple(
             sorted(e.serial for e in self.pending)
-        ) or tuple(e.serial for e in self.user_notices) != tuple(
-            sorted(e.serial for e in self.user_notices)
         ):
-            raise Original606540PortableWorldError("Source append order was lost")
+            raise Original606540PortableWorldError("Global source append order was lost")
 
     def append_source_constructor(
         self, original_reached: Original606540HumanNoticeReached,
@@ -242,7 +243,9 @@ class Original606540PortableWorld:
         return Original606540PortableWorld(
             self.next_serial,
             tuple(p for p in self.pending if p.serial not in removed),
-            tuple(sorted(new_user, key=lambda p: p.serial)),
+            # Preserve native 617D70 user+6B4 DUE insertion FIFO,
+            # not 606540 constructor serial order.
+            tuple(new_user),
         )
 
     def snapshot(self) -> dict:

@@ -15,6 +15,7 @@ from original_native_613ee0_multi_chain import (
 )
 from original_606540_portable_notice_world import (
     Original606540PortableWorld, Original606540PortableWorldError,
+    Original606540PortableUserNotice,
 )
 from test_original_native_606540_human_mail_route import source
 
@@ -153,6 +154,32 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
                          (777,999))
         self.assertEqual(tuple(item.serial for item in done.user_notices),(1,2))
         self.assertEqual(Original606540PortableWorld.restore(done.snapshot()),done)
+
+    def test_prior_delivered_user_serial_must_precede_later_due_older_constructor(self):
+        # Serial means constructor order, NOT native user+6B4 append order.
+        # If pending serial1 is future while already-delivered serial2 is
+        # present, later due serial1 must APPEND after serial2, never sort.
+        reached=source(family=0,recipient=True,lookup=True)
+        created=queued(Original606540PortableWorld(),reached)
+        pending=created.pending[0]
+        already_delivered=Original606540PortableUserNotice(
+            2,pending.original_player_id,pending.original_constructor,
+            pending.original_class_vtable,pending.original_type,777,
+            0xFFFFFFFD,
+        )
+        before=Original606540PortableWorld(
+            next_serial=3,pending=(pending,),
+            user_notices=(already_delivered,),
+        )
+        after=before.apply_original_due_batch(
+            reached_global_scan=scan(reached),
+            original_due_notices=((1,reached),),
+            registered_manager_keys=(777,),
+        )
+        self.assertEqual(tuple(x.serial for x in after.user_notices),(2,1))
+        self.assertEqual(after.pending,())
+        self.assertEqual(Original606540PortableWorld.restore(after.snapshot()),after)
+        self.assertEqual(before.user_notices,(already_delivered,))
 
     def test_due_7d7760_player_expiry_never_silently_dropped_from_same_day(self):
         r=source(family=0,manager_key=777)
