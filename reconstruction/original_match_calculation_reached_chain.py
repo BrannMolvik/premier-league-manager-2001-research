@@ -45,4 +45,25 @@ def source_original_5db389_through_5db6fa_joined_source(
         raise OriginalNativeReachedCalculationError(
             'native 668350 source and actual final 5DB6FA processing operands disagree')
     world=source_original_5db6fa_context_then_first_side(**original_context_side_stage_input)
+    # Source CFG 5DB3B2 (4037B0 full-key human) and 5DB3C5
+    # (original local +0F conditional skip) are the ONLY predecessors
+    # of 5DB4BE -> 5DB4C4. A human +694 addend cannot be inferred
+    # from a score, league participant, generic manager or other path.
+    first_side=world.source_first_side.source_human_selector
+    skipped=world.source_first_side.original_5da5f4_final_virtual18_nonzero
+    source_reaches_addend=first_side.original_4037b0_full_key_human and not skipped
+    staged_addend=floats.original_human_694_addend_at_5db4c4 is not None
+    if staged_addend != source_reaches_addend:
+        raise OriginalNativeReachedCalculationError(
+            'original 5DB4C4 human +694 addend branch contradicts first-side and skip flags')
+    if source_reaches_addend:
+        # At 5DB4BE the original re-reads the SAME masked-first human
+        # selected by 403850. The reached +694 owner must match source
+        # registry identity, not a different user's mutable stat record.
+        observed_pointer=original_four_float_source_input.get(
+            'original_user_694_owner_pointer_if_reached')
+        if (type(observed_pointer) is not int or
+            observed_pointer != first_side.original_selected_user_694_pointer):
+            raise OriginalNativeReachedCalculationError(
+                'original 5DB4BE selected human +694 owner pointer mismatch')
     return SourceOriginalNativeReachedCalculationReceipt(floats,world)
