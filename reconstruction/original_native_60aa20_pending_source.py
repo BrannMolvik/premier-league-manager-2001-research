@@ -36,7 +36,7 @@ class Original60AA20Reached:
     resolver_player_ids: tuple[int, ...]
     duration_delta_arg: int
     player77_decrement_base_arg: int
-    current_date_9847fc: int
+    current_date_9847fc: int  # raw uint32 mutable original calendar DWORD
     registered_417340_al: int
     native_4d1190_result_nonnull: bool | None = None
     native_v40_threshold: int | None = None
@@ -132,7 +132,7 @@ def source_original_60aa20_project(reached: Original60AA20Reached) -> Original60
             (d[5] in (2, 3) and not 11 <= delta <= 14)):
         raise Original60AA20SourceError("original 606540 status/duration branch mismatch")
     base = _int(reached.player77_decrement_base_arg, "signed base", -0x80000000, 0x7fffffff)
-    today = _int(reached.current_date_9847fc, "mutable day", -0x80000000, 0x7fffffff)
+    today = _int(reached.current_date_9847fc, "raw mutable calendar DWORD", 0, 0xffffffff)
     if type(reached.rng5_results) is not tuple:
         raise Original60AA20SourceError("original reached RNG(5) tuple required")
     if flag:
