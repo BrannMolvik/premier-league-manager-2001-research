@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from struct import unpack_from
 
 from original_native_5127a0_row_incident_source import Original5127A0RowCall
+from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
 
 
 class Original41A250SourceError(ValueError):
@@ -24,6 +25,8 @@ class Original41A250Reached:
     original_first_reached_417340_eax: int | None = None
     original_player_after_first_branch: bytes | None = None
     original_second_reached_417340_eax: int | None = None
+    original_first_417340_registered_owner_proof: Original417340RegisteredUserReceipt | None = None
+    original_second_417340_registered_owner_proof: Original417340RegisteredUserReceipt | None = None
 
 
 @dataclass(frozen=True)
@@ -44,6 +47,28 @@ def _uint32(value: int | None, name: str) -> int:
     if type(value) is not int or not 0 <= value <= 0xffffffff:
         raise Original41A250SourceError(f"actual reached {name} DWORD required")
     return value
+
+
+def _qualified_417340_al(
+    raw_eax: int | None,
+    source_proof: Original417340RegisteredUserReceipt | None,
+    original_player_at_callback: bytes,
+    name: str,
+) -> int:
+    """Native 417340 returns only AL; optional registered-owner proof can qualify it."""
+    if source_proof is None:
+        return _uint32(raw_eax, name) & 0xff
+    if (not isinstance(source_proof, Original417340RegisteredUserReceipt)
+            or source_proof.native_callback_executed
+            or source_proof.live_game_state_updated
+            or source_proof.original_native_player_at_call != original_player_at_callback):
+        raise Original41A250SourceError(f"{name} original player/owner predicate proof mismatch")
+    qualified=source_proof.original_417340_return_al
+    if type(qualified) is not int or qualified not in (0,1):
+        raise Original41A250SourceError(f"{name} original owner predicate AL not qualified")
+    if raw_eax is not None and (_uint32(raw_eax,name)&0xff)!=qualified:
+        raise Original41A250SourceError(f"{name} raw AL disagrees with registered user source")
+    return qualified
 
 
 def source_original_41a250_uefa_incident_from_reached(
@@ -77,16 +102,22 @@ def source_original_41a250_uefa_incident_from_reached(
     first=None
     first_ctor=None
     if arg2>0:
-        first_gate=_uint32(original.original_first_reached_417340_eax,"first 417340 EAX")
         first=bytearray(src)
         first[0x13e]=1
-        first_ctor=0x585750 if (first_gate&0xff)==1 else None
+        first_gate=_qualified_417340_al(
+            original.original_first_reached_417340_eax,
+            original.original_first_417340_registered_owner_proof,
+            bytes(first),
+            "first 417340 EAX",
+        )
+        first_ctor=0x585750 if first_gate==1 else None
         post=original.original_player_after_first_branch
         if type(post) is not bytes or len(post)<0x164 or unpack_from("<H",post,4)[0]!=pid:
             raise Original41A250SourceError("actual player snapshot AFTER first source callback/event due required")
         p=bytearray(post)
     else:
         if (original.original_first_reached_417340_eax is not None or
+                original.original_first_417340_registered_owner_proof is not None or
                 original.original_player_after_first_branch is not None):
             raise Original41A250SourceError("native initial branch skipped but extra callbacks supplied")
         p=bytearray(src)
@@ -96,9 +127,15 @@ def source_original_41a250_uefa_incident_from_reached(
     if total>2:
         p[0x13d]=(total-3)&0xff
         p[0x13e]=1
-        second_gate=_uint32(original.original_second_reached_417340_eax,"second 417340 EAX")
-        second_ctor=0x585ad0 if (second_gate&0xff)==1 else None
-    elif original.original_second_reached_417340_eax is not None:
+        second_gate=_qualified_417340_al(
+            original.original_second_reached_417340_eax,
+            original.original_second_417340_registered_owner_proof,
+            bytes(p),
+            "second 417340 EAX",
+        )
+        second_ctor=0x585ad0 if second_gate==1 else None
+    elif (original.original_second_reached_417340_eax is not None or
+            original.original_second_417340_registered_owner_proof is not None):
         raise Original41A250SourceError("native second callback skipped but result supplied")
     return Original41A250Receipt(
         original_player_id=pid,

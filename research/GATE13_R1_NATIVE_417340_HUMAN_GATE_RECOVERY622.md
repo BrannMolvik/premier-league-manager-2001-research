@@ -1,0 +1,25 @@
+# Gate13 Recovery622: original 417340 registered-user predicate, exact 41A250 event qualification
+
+**14 October 2026 KST.** The canonical private original `footballmanager.exe` is 4,714,541 bytes, SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, independently rechecked in the sandbox. GNU objdump static-only; original EXE neither executed nor committed. Baseline main `b053384d83cdfb800900a897bcaedb67993a7240` after merged PR719 (Gate13 1,714/136 skips, full 4,235/140 skips, asset green), Gates13–17 OPEN.
+
+## Actual read-only native call chain and semantics
+
+At native 0x41A250 the two original suspension incident event constructor branches are conditioned on 0x417340 low AL=1. This is NOT a generic controlled-player, trained-registered-club, or always-true predicate. Direct source chain:
+
+- `0x417340`: calls `0x417270` on the current native player, then tail-jumps to `0x4037B0`. The latter calls singleton `0x874C10` routine `0x4139E0` with the selected team pointer. There are **no writes** in this bounded call chain or native RNG draws.
+- `0x417270`: sign-extends **signed short player+0x10**. If negative, reads standalone source fallback pointer global `0x874B94`. Otherwise calculates indexed team pointer at global `0x874B90 + signed index × 680`. This is NOT the player+0x72 registered parent. Signed-negative and indexed branch global accesses differ; do not invent both.
+- `0x4139E0`: passes native **team DWORD+0x04** as the comparison key into `0x4139F0`. This owner key is distinct from the native player ID and from the source manager-user object pointer.
+- `0x4139F0`: reads global `0x874C10` +0x9CC *first manager link pointer*. Traverses node+0 user pointer, node+4 next; user+0x5B4 context pointer; compares context+0x04 DWORD to the reached team+4 DWORD. On the **first match** returns AL=1 without reading further links; when the chain ends returns AL=0. Read-only in these bounded instructions; complete EAM event delivery still requires `0x5CFA20` due, `0x413020` subtype and queue ownership.
+- The original native source signatures at `0x417270, 0x417278, 0x41727E, 0x417285, 0x41728E, 0x417340, 0x4037B0, 0x4139E0, 0x4139F0, 0x4139FA, 0x413A00, 0x413A0B, 0x413A12` were independently compared against the SHA-qualified canonical PE. No guessed offsets or existing reconstructed fixtures are used as original evidence.
+
+## Bounded implementation and counterexamples
+
+`reconstruction/original_native_417340_registered_user_gate.py` projects the original read-only chain from explicit reached original player/team/world/manager link records. It requires the calculated signed owner pointer to match an **independently reached** team pointer and requires every visited manager node, user pointer and user+5B4 context pointer identity to align. Zero head/empty list, no matching manager, first/second match and negative club index are represented; extra reads after first match, pointer mismatches, cycles, truncated owner, invalid signed branch and unbounded traversals fail closed. It carries the **actual at-call player bytes** in its receipt for downstream callback-order qualification and sets `native_callback_executed=false` and `live_game_state_updated=false`.
+
+`reconstruction/original_native_41a250_uefa_producer.py` optionally accepts the source-qualified predicate receipt at each reached UEFA event gate. It verifies **the full at-call native player bytes**, not just ID (first +13E=1 after native write, second +13D modified and +13E=1) against the independently projected predicate input. If a raw reached EAX is also supplied its low AL must agree; if no raw EAX exists an exact, qualified linked-manager predicate may determine the source AL. Both possible distinct event classes (0x585750 and 0x585AD0) remain separate. This source projection never invokes the original native dispatcher/allocator or marks Inbox delivered. The only committed GameState leaf from PR719 remains callback-free; this new query **does not extend that leaf** to risky event branches.
+
+Source tests cover first match, later match, missing owner, negative fallback, wrong team pointer, forged user/context identity, cyclic and missing manager list, extra callback result, PE signatures and ordered dual UEFA event gating. Focused Gate13 workflow and exact-head full reconstruction/asset checks required before merge.
+
+## Next canonical original-game integration
+
+Source-close parent `0x4085D0` world branch: it can call `0x417EE0`, `0x407060`, `0x406BE0`, `0x4182F0`, `0x4EA350` and return 0/1 after mutable world operations. The previous generic projection of `0x4197C0` cannot silently omit those writes. Then reconstruct original `0x41A250` event heap and `0x613EC0/0x613EE0` queue routing with source-qualified registered-user events, persist it in live GameState, and integrate native both-team world progression through original NEXT/PPreMatch modes 0/1/2/3/PResults and management return. All shipped country/multihuman careers and the actual Windows11 GUI release acceptance remain separate open criteria; no Gate13 closure from this read-only link proof.

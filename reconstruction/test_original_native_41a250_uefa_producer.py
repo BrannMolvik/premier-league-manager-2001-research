@@ -168,6 +168,82 @@ class Original41A250UEFATests(unittest.TestCase):
             state.retain_verified_uefa_incident_callback_free_leaf(
                 original_reached=task,mapped_runtime_player_index=123)
 
+
+    def test_source_417340_owner_proof_qualifies_both_distinct_uefa_event_types(self):
+        from original_native_417340_registered_user_gate import (
+            Original417340ReachedUser,
+            source_original_417340_registered_user_from_reached,
+        )
+        def prove(at_call, *, registered_club=77):
+            club=bytearray(8)
+            pack_into("<I",club,4,77)
+            world=bytearray(0x9d0)
+            pack_into("<I",world,0x9cc,0x1000)
+            node=bytearray(8)
+            pack_into("<I",node,0,0x2000)
+            user=bytearray(0x5b8)
+            pack_into("<I",user,0x5b4,0x3000)
+            context=bytearray(8)
+            pack_into("<I",context,4,registered_club)
+            link=Original417340ReachedUser(
+                0x1000,bytes(node),0x2000,bytes(user),0x3000,bytes(context))
+            return source_original_417340_registered_user_from_reached(
+                original_player_at_call=at_call,
+                original_874b90_club_array_base=0x50000,
+                original_874b94_default_club_pointer=None,
+                original_reached_club_pointer=0x50000,
+                original_reached_club_record=bytes(club),
+                original_global_874c10_record=bytes(world),
+                original_reached_manager_links=(link,),
+            )
+        entry=player(incident=2,uefa=0)
+        at_first=bytearray(entry)
+        at_first[0x13e]=1
+        after_first=bytes(at_first)
+        at_second=bytearray(after_first)
+        at_second[0x13d]=1
+        positive_first=prove(bytes(at_first))
+        positive_second=prove(bytes(at_second))
+        r=source_original_41a250_uefa_incident_from_reached(
+            replace(
+                reached(arg1=2,arg2=1,entry=entry,after=after_first),
+                original_first_417340_registered_owner_proof=positive_first,
+                original_second_417340_registered_owner_proof=positive_second,
+            )
+        )
+        self.assertEqual(
+            (r.first_original_event_constructor_if_allocated,
+             r.second_original_event_constructor_if_allocated),
+            (0x585750,0x585ad0),
+        )
+        self.assertFalse(r.native_pending_queue_mutated)
+        negative_second=prove(bytes(at_second),registered_club=4)
+        r2=source_original_41a250_uefa_incident_from_reached(
+            replace(
+                reached(arg1=2,arg2=1,entry=entry,after=after_first),
+                original_first_417340_registered_owner_proof=positive_first,
+                original_second_417340_registered_owner_proof=negative_second,
+            )
+        )
+        self.assertEqual(r2.first_original_event_constructor_if_allocated,0x585750)
+        self.assertIsNone(r2.second_original_event_constructor_if_allocated)
+        with self.assertRaisesRegex(Original41A250SourceError,"disagrees"):
+            source_original_41a250_uefa_incident_from_reached(
+                replace(
+                    reached(arg1=2,arg2=1,first=0,entry=entry,after=after_first),
+                    original_first_417340_registered_owner_proof=positive_first,
+                    original_second_417340_registered_owner_proof=positive_second,
+                )
+            )
+        with self.assertRaisesRegex(Original41A250SourceError,"proof mismatch"):
+            source_original_41a250_uefa_incident_from_reached(
+                replace(
+                    reached(arg1=2,arg2=1,entry=entry,after=after_first),
+                    original_first_417340_registered_owner_proof=positive_second,
+                    original_second_417340_registered_owner_proof=positive_second,
+                )
+            )
+
     def test_optional_private_original_opcode_proof(self):
         source=os.getenv("FM2001_ORIGINAL_EXE")
         if not source:
