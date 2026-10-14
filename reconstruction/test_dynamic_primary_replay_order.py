@@ -1,5 +1,6 @@
 import unittest
 from datetime import date, timedelta
+from dataclasses import replace
 from types import SimpleNamespace
 
 from competition_schedule import direct_club_ref
@@ -21,6 +22,9 @@ def shadow_entry(token, left, right):
         participant_1_ref=direct_club_ref(right),
         participant_0_candidates=frozenset((int(left),)),
         participant_1_candidates=frozenset((int(right),)),
+        # Original freshly constructed 0x5103D0 match +0x44 is zero.
+        # Explicitly qualified only for these normal fixed-League fixtures.
+        payload_filter_bits=0,
     )
 
 
@@ -60,6 +64,57 @@ class DynamicPrimaryReplayOrderTests(unittest.TestCase):
         )
 
         self.assertEqual(chosen, requested + timedelta(days=5))
+
+    def test_original_dynamic_event8_linked_skip_precedes_flag_and_club_comparison(self):
+        requested=date(2000,12,2)
+        root=shadow_entry(("league",1),20,30)
+        linked=replace(root,wrapper_link_state="linked",payload_filter_bits=None)
+        shadow=PrimaryScheduleShadowState(days={requested:(linked,)})
+        chosen=shadow.choose_dynamic_insertion_date(
+            replay_node(requested),requested_date=requested,
+            current_date=date(2000,11,18))
+        self.assertEqual(chosen,requested)
+        self.assertEqual(shadow.days[requested],(linked,))
+
+    def test_original_dynamic_payload_bit6_skip_precedes_symbolic_club_comparison(self):
+        requested=date(2000,12,2)
+        root=shadow_entry(("league",1),20,30)
+        skipped=replace(root,wrapper_link_state="clear",payload_filter_bits=0x40)
+        shadow=PrimaryScheduleShadowState(days={requested:(skipped,)})
+        self.assertEqual(shadow.first_dynamic_conflict_near(replay_node(requested),requested),None)
+        self.assertEqual(shadow.choose_dynamic_insertion_date(
+            replay_node(requested),requested_date=requested,
+            current_date=date(2000,11,18)),requested)
+
+    def test_unknown_original_dynamic_event_filters_fail_closed(self):
+        requested=date(2000,12,2)
+        root=shadow_entry(("league",1),20,30)
+        for item in (
+            replace(root,wrapper_link_state="unknown"),
+            replace(root,payload_filter_bits=None),
+            replace(root,node_kind="unverified_original_class"),
+        ):
+            with self.subTest(item=item):
+                shadow=PrimaryScheduleShadowState(days={requested:(item,)})
+                before=shadow.snapshot()
+                with self.assertRaises(RuntimeError):
+                    shadow.first_dynamic_conflict_near(replay_node(requested),requested)
+                self.assertEqual(shadow.snapshot(),before)
+
+    def test_true_original_adjacent_filter_order_preserves_earliest_eligible_bucket(self):
+        requested=date(2000,12,2)
+        linked=replace(shadow_entry(("linked",1),20,30),
+                       wrapper_link_state="linked",payload_filter_bits=None)
+        bit6=replace(shadow_entry(("flagged",1),20,30),payload_filter_bits=0x40)
+        eligible=shadow_entry(("eligible",1),20,30)
+        shadow=PrimaryScheduleShadowState(days={
+            requested-timedelta(days=1):(linked,),
+            requested:(bit6,eligible),
+            requested+timedelta(days=1):(shadow_entry(("later",1),20,40),),
+        })
+        self.assertEqual(
+            shadow.first_dynamic_conflict_near(replay_node(requested),requested),
+            requested)
 
     def test_615a60_clamps_candidate_to_current_day_plus_one(self):
         current = date(2000, 12, 10)
