@@ -231,6 +231,63 @@ def source_original_sidereference_virtual0_dispatch_4f28a0(
         SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_OWNER_VA,kind,0,branch,None,True)
 
 
+
+SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_VTABLE_VA=0x7C4D50
+SOURCE_ORIGINAL_DIRECT_SIDEREF_VTABLE_VA=0x7C4D60
+SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_V0_VA=0x510320
+SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_DELEGATE_VA=0x4F28A0
+SOURCE_ORIGINAL_EMBEDDED_SIDEREF_MATCH_OWNER_OFFSET=0x10
+
+
+@dataclass(frozen=True)
+class OriginalMatchEmbeddedSideGetterReceipt:
+    source_original_virtual0_method_va: int
+    original_source_cached_before: int
+    source_delegated_to_4f28a0: bool
+    source_original_subtype_callback_owner: int | None
+    source_original_registration_path_unresolved: bool
+    source_return_without_mutating_getter: int | None
+
+
+def source_original_match_embedded_sidereference_virtual0_510320(
+    *, original_match_embedded_sidereference_record: bytes,
+) -> OriginalMatchEmbeddedSideGetterReceipt:
+    """Original LeagueMatch SideRef vtable+0=0x510320, NOT 0x4F28A0.
+
+    Original 0x5103D0 installs vtable 0x7C4D50 at match+0x14/0x28.
+    Its native slot0 0x510320 first reads actual cached DWORD+0x04.
+    When nonzero, immediately returns it WITHOUT 0x4F28A0. When
+    zero, calls original 0x4F28A0. If that result remains zero,
+    returns zero. On nonzero, native 0x510333..0x510373 also invokes
+    0x513FE0, conditional 0x510300 -> 0x615F40, 0x511350,
+    and can WRITE native club+0x1B0 from the parent match+0x4C
+    source owner. Missing subtype getter result/world data cannot
+    be treated as pure pointer equality or no side effects.
+
+    This function only returns source EAX if no mutating original
+    callback is reached. Source 0x4F28A0 subtype1..4 requires
+    independent real pointer/owner/cache/result state, not a
+    guessed modern club ID. It never executes original code.
+    """
+    r=original_match_embedded_sidereference_record
+    if (type(r) is not bytes or len(r)<0x14 or
+        unpack_from("<I",r,0)[0]!=SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_VTABLE_VA):
+        raise OriginalNativeSideRefCompareSourceError(
+            "original LeagueMatch embedded SideRef vtable 0x7C4D50 and record+0x10 required")
+    cache=unpack_from("<I",r,SOURCE_ORIGINAL_SIDE_CACHE_PTR_OFFSET)[0]
+    if cache:
+        return OriginalMatchEmbeddedSideGetterReceipt(
+            SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_V0_VA,cache,False,None,False,cache)
+    delegated=source_original_sidereference_virtual0_dispatch_4f28a0(
+        original_native_side_record_before_getter=r)
+    if delegated.source_unresolved_callback_required:
+        return OriginalMatchEmbeddedSideGetterReceipt(
+            SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_V0_VA,0,True,
+            delegated.source_dispatch_branch_va,True,None)
+    return OriginalMatchEmbeddedSideGetterReceipt(
+        SOURCE_ORIGINAL_MATCH_EMBEDDED_SIDEREF_V0_VA,0,True,None,False,0)
+
+
 def source_original_no_mutating_sidereference_pair_compare_4f2830(
     *,
     original_left_side_record: bytes,
@@ -238,22 +295,26 @@ def source_original_no_mutating_sidereference_pair_compare_4f2830(
 ) -> OriginalNativeSideRefCompareReceipt:
     """Source-exact comparison for v0 paths with no subtype callback reached.
 
-    After original 0x5103D0 copies the two input SideRef cached pointers
-    into match+0x14/+0x28, original 0x4F28A0 virtual+0 immediately
-    returns any nonzero cached +0x04 pointer. When +0x04=0, subtype
-    0 or unsupported 5..FFFF also returns zero without mutation.
-    Source subtype1..4 with cache=0 REQUIRES original mutation/callback
-    and cannot be inferred from a symbolic ClubRef: fail closed.
+    Original match+0x14/+0x28 use native vtable 0x7C4D50
+    whose virtual+0 is **0x510320**. It returns a nonzero
+    +0x04 cache directly; otherwise delegates to 0x4F28A0 and
+    can invoke additional registration/world side effects.
+    For zero cache subtype0 or outside1..4 it returns zero
+    without those side effects. Subtypes1..4 with zero cache
+    REQUIRES actual source getter/registration execution and
+    cannot be inferred from a symbolic ClubRef: fail closed.
 
     Only when NEITHER SideRef needs a mutating original getter does
     this join the actual native returns with source 0x4F2830. It
     never maps modern club IDs onto hypothetical original pointers.
     """
-    left=source_original_sidereference_virtual0_dispatch_4f28a0(
-        original_native_side_record_before_getter=original_left_side_record)
-    right=source_original_sidereference_virtual0_dispatch_4f28a0(
-        original_native_side_record_before_getter=original_right_side_record)
-    if left.source_unresolved_callback_required or right.source_unresolved_callback_required:
+    # 0x4F2830 invokes each actual SideRef *vtable+0*, which for
+    # normal original LeagueMatch embedded sides is 0x510320.
+    left=source_original_match_embedded_sidereference_virtual0_510320(
+        original_match_embedded_sidereference_record=original_left_side_record)
+    right=source_original_match_embedded_sidereference_virtual0_510320(
+        original_match_embedded_sidereference_record=original_right_side_record)
+    if left.source_original_registration_path_unresolved or right.source_original_registration_path_unresolved:
         raise OriginalNativeSideRefCompareSourceError(
             "native SideRef type1..4 mutating getter source execution required")
     return source_original_reached_side_ref_compare_4f2830(
