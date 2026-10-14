@@ -1,7 +1,7 @@
 """Original 4085D0 read-only exits and mutating-world gate source tests."""
 from __future__ import annotations
 from dataclasses import replace
-from struct import pack_into
+from struct import pack_into, unpack_from
 from pathlib import Path
 import hashlib
 import os
@@ -11,6 +11,7 @@ from original_native_4085d0_world_branch import (
     Original4085D0ReachedWorld,
     Original4085D0SourceError,
     source_original_4085d0_world_branch_from_reached,
+    source_original_4085d0_qualified_mutating_leaf,
 )
 
 
@@ -104,6 +105,65 @@ class Original4085D0BranchTests(unittest.TestCase):
             project(reached(n=-1))
         with self.assertRaisesRegex(Original4085D0SourceError,"source count"):
             project(reached(capacity=0))
+
+
+    def test_source_complete_mutating_leaf_writes_original_player_and_category_only(self):
+        from original_native_417340_registered_user_gate import (
+            Original417340ReachedUser,source_original_417340_registered_user_from_reached,
+        )
+        def owner_proof(reached_world,registered=77):
+            at_call=bytearray(reached_world.original_player_at_entry)
+            old=unpack_from("<I",at_call,0x14)[0]
+            pack_into("<I",at_call,0x14,(old|0x10)&0xffffffdf)
+            old_reserve=unpack_from("<I",at_call,0x174)[0]
+            pack_into("<I",at_call,0x174,old_reserve&0xfffffffd)
+            club=bytearray(8);pack_into("<I",club,4,77)
+            global_world=bytearray(0x9d0);pack_into("<I",global_world,0x9cc,0x1000)
+            node=bytearray(8);pack_into("<I",node,0,0x2000)
+            user=bytearray(0x5b8);pack_into("<I",user,0x5b4,0x3000)
+            context=bytearray(8);pack_into("<I",context,4,registered)
+            m=Original417340ReachedUser(0x1000,bytes(node),0x2000,bytes(user),
+                                         0x3000,bytes(context))
+            team=unpack_from("<h",at_call,0x10)[0]
+            return source_original_417340_registered_user_from_reached(
+                original_player_at_call=bytes(at_call),
+                original_874b90_club_array_base=0x50000,
+                original_874b94_default_club_pointer=None,
+                original_reached_club_pointer=0x50000+680*team,
+                original_reached_club_record=bytes(club),
+                original_global_874c10_record=bytes(global_world),
+                original_reached_manager_links=(m,),
+            )
+        entry=bytearray(native_player(flags=0x20))
+        pack_into("<I",entry,0x174,2)
+        w=reached(peer=1,capacity=2,obj=b"\x00\x00\x00\x13\xa7",
+                  player=bytes(entry))
+        proof=owner_proof(w)
+        self.assertEqual(proof.original_417340_return_al,1)
+        result=source_original_4085d0_qualified_mutating_leaf(w,proof)
+        self.assertEqual(unpack_from("<I",result.original_player_at_exit,0x14)[0],0x10)
+        self.assertEqual(unpack_from("<I",result.original_player_at_exit,0x174)[0],0)
+        self.assertEqual(result.original_category_object_after_4ea350[4],0xa1)
+        self.assertFalse(result.live_game_state_updated)
+        self.assertFalse(result.native_4085d0_executed)
+        with self.assertRaisesRegex(Original4085D0SourceError,"predicate mismatch"):
+            source_original_4085d0_qualified_mutating_leaf(
+                w,replace(proof,original_native_player_at_call=w.original_player_at_entry))
+        with self.assertRaisesRegex(Original4085D0SourceError,"did not reach"):
+            source_original_4085d0_qualified_mutating_leaf(
+                replace(w,original_406be0_eax=2),proof)
+        swap=bytearray(entry);pack_into("<I",swap,0x174,3)
+        ws=replace(w,original_player_at_entry=bytes(swap))
+        with self.assertRaisesRegex(Original4085D0SourceError,"role-swap"):
+            source_original_4085d0_qualified_mutating_leaf(ws,owner_proof(ws))
+        false_proof=owner_proof(w,registered=4)
+        with self.assertRaisesRegex(Original4085D0SourceError,"41EDF0"):
+            source_original_4085d0_qualified_mutating_leaf(w,false_proof)
+        exempt=bytearray(entry);pack_into("<I",exempt,0x14,0x2020)
+        we=replace(w,original_player_at_entry=bytes(exempt))
+        ok=source_original_4085d0_qualified_mutating_leaf(
+            we,owner_proof(we,registered=4))
+        self.assertEqual(unpack_from("<I",ok.original_player_at_exit,0x14)[0],0x2010)
 
     def test_private_original_opcode_signatures_if_original_supplied(self):
         src=os.getenv("FM2001_ORIGINAL_EXE")
