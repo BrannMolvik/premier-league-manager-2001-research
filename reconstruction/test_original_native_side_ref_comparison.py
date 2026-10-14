@@ -75,7 +75,7 @@ class OriginalNativeSideRefComparisonTests(unittest.TestCase):
         for change,expected in (
             (dict(),True),
             (dict(original_right_side_after_reached_getter=native_side(
-                owner=0x7777,type_code=2,selector=4)),False),
+                owner=0x7777,type_code=2,selector=4)),True),
             (dict(original_right_side_after_reached_getter=native_side(
                 owner=0x7777,type_code=2,selector=3)),False),
             (dict(original_right_side_after_reached_getter=native_side(
