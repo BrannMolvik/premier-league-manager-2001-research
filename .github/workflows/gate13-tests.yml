@@ -35,6 +35,8 @@ on:
       - "reconstruction/test_original_native_615c50_reached_candidate.py"
       - "reconstruction/original_native_514520_slot_activation.py"
       - "reconstruction/test_original_native_514520_slot_activation.py"
+      - "reconstruction/original_native_510ba0_insertion_entry.py"
+      - "reconstruction/test_original_native_510ba0_insertion_entry.py"
       - "reconstruction/human_gameplay.py"
       - "reconstruction/test_original_primary_match_mode_transaction.py"
       - "reconstruction/original_fastview_tactics_selection.py"
@@ -357,6 +359,7 @@ jobs:
             test_original_native_v3c_calendar_second_pass \
             test_original_native_615c50_reached_candidate \
             test_original_native_514520_slot_activation \
+            test_original_native_510ba0_insertion_entry \
             test_original_primary_match_mode_transaction \
             test_original_fastview_tactics_selection \
             test_original_fastview_two_sided_live_writeback \
