@@ -204,6 +204,57 @@ class MatchDetailRouteSourceTests(unittest.TestCase):
                         original_516080_al_nonzero_if_reached=second,
                     )
 
+    def test_guarded_route_does_not_publish_bypassed_mode(self):
+        from gate14_match_detail_route_source import (
+            source_original_guarded_match_route,
+        )
+        bypass=source_original_guarded_match_route(
+            original_5130c2_v34_al_nonzero=False,
+            original_516080_al_nonzero_if_reached=None,
+            original_mode_if_513238_reached=None,
+            original_flags_at_513238_if_reached=None,
+            original_flags_at_513257_if_reached=None,
+        )
+        self.assertIsNone(bypass.original_mode_phase_if_reached)
+        self.assertTrue(bypass.original_post_v38_and_v3c_still_required)
+        self.assertFalse(bypass.original_game_result_published)
+        for mode,flags1,flags2 in ((2,None,None),(None,0,None),
+                                   (None,None,0x10)):
+            with self.subTest(mode=mode,flags1=flags1,flags2=flags2):
+                with self.assertRaisesRegex(ValueError,"not reached"):
+                    source_original_guarded_match_route(
+                        original_5130c2_v34_al_nonzero=False,
+                        original_516080_al_nonzero_if_reached=None,
+                        original_mode_if_513238_reached=mode,
+                        original_flags_at_513238_if_reached=flags1,
+                        original_flags_at_513257_if_reached=flags2,
+                    )
+
+    def test_guarded_source_routes_four_modes_but_never_commits(self):
+        from gate14_match_detail_route_source import (
+            source_original_guarded_match_route,
+        )
+        for mode in MatchDetailMode:
+            with self.subTest(mode=mode):
+                route=source_original_guarded_match_route(
+                    original_5130c2_v34_al_nonzero=True,
+                    original_516080_al_nonzero_if_reached=False,
+                    original_mode_if_513238_reached=mode,
+                    original_flags_at_513238_if_reached=0,
+                    original_flags_at_513257_if_reached=0x10,
+                )
+                self.assertEqual(route.original_mode_phase_if_reached.mode,mode)
+                self.assertTrue(route.original_post_v38_and_v3c_still_required)
+                self.assertFalse(route.original_game_result_published)
+        with self.assertRaisesRegex(ValueError,"mode required"):
+            source_original_guarded_match_route(
+                original_5130c2_v34_al_nonzero=True,
+                original_516080_al_nonzero_if_reached=True,
+                original_mode_if_513238_reached=None,
+                original_flags_at_513238_if_reached=0,
+                original_flags_at_513257_if_reached=0x10,
+            )
+
     def test_optional_original_exe_match_phase_opcode_signatures(self):
         import os
         from pathlib import Path
