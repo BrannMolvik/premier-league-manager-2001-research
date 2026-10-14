@@ -31,9 +31,31 @@ From `510DEF..510E15`, second context DWORD `+D10`:
 - If second native kind is **3** AND match DWORD `+44` bit `0x04` is **clear**: store `1`.
 - Otherwise: store `(match+44 >> 2) & 1`.
 
-These two writes are **not** the whole original `510D60` transaction: it also resolves native side data, initializes arrays, writes `+D14/+D18/+D1C/+D20/+D24/+D28/+D2C/+D3C`, later performs other operations, and returns a native AL outcome. No implication that this source prefix completed a real match is allowed. The existing `original_native_match_v3c_entry.py` zero-event v38→v3c receipt can use actual reached `+D0C/+D10` **only after** qualifying the entire original context and callback path, never from these projected values alone.
+## Additional deterministic source writes at the same v34 stage
 
-`reconstruction/original_leaguematch_native_process_owners.py` adds a strict immutable `source_original_510d60_two_event_counter_writes` receipt for just these two proven writes, validates an actual native vtable and reached match+44 flag bytes, and rejects unqualified 668766 and forged/short records. Tests cover all six classes over flag patterns, exceptional/non-native owners, strict types and 24 additional optional original PE opcode/constant signatures. The private original 24 sites matched independently, but the Python branch tests must still be executed and reviewed before PR/merge.
+At `510E1A`, the native routine invokes v+0x28 a **third time**.
+For the same six original literal classes, it stores DWORD
+`context+D14 = int(kind==5)` at `510E25`. At `510E2B`
+it stores DWORD `context+D18 = (match+44 >> 3)&1` at `510E34`.
+After context+D1C and +D20 are set from a **separate side pointer**
+not proven by this receipt, native `510E55..510E64` stores the
+literal `0xFFFFFFFF` to `context+D24`, `+D28` and `+D2C`.
+Wrapped virtual+34 `511120` may subsequently overwrite some of
+these three values. These are sparse source **store intentions**
+in original instruction order, not proof that the whole processor
+ran or that an imported port world must commit them.
+
+The immutable projector now returns seven deterministic sparse
+source stores: D0C, D10, D14, D18, D24, D28, D2C. Its source input
+is original native match vtable and +44 flags only, not the source
+context owner nor the unproved side pointer. New optional native
+opcode regressions cover 12 additional original instruction sites,
+verified 12/12 privately. In all, **36/36** local original code
+sites for this bounded counter/flag/default prefix matched.
+
+These two writes are **not** the whole original `510D60` transaction: it also resolves native side data, initializes arrays, writes `+D1C/+D20/+D3C` and other state beyond the seven projected deterministic sparse stores, later performs other operations, and returns a native AL outcome. No implication that this source prefix completed a real match is allowed. The existing `original_native_match_v3c_entry.py` zero-event v38→v3c receipt can use actual reached `+D0C/+D10` **only after** qualifying the entire original context and callback path, never from these projected values alone.
+
+`reconstruction/original_leaguematch_native_process_owners.py` adds a strict immutable `source_original_510d60_two_event_counter_writes` receipt for just these two proven writes, validates an actual native vtable and reached match+44 flag bytes, and rejects unqualified 668766 and forged/short records. Tests cover all six classes over flag patterns, exceptional/non-native owners, strict types and 36 additional optional original PE opcode/constant signatures. The private original 24 sites matched independently, but the Python branch tests must still be executed and reviewed before PR/merge.
 
 ## Functional boundary and next source-backed player journey
 
