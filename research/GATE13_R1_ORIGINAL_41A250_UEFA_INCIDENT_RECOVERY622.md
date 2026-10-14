@@ -1,0 +1,23 @@
+# Recovery622: original 0x41A250 UEFA two-event incident and safe source-world leaf
+
+**14 October 2026 KST.** Baseline main ff02880975ec89f1b7d1614aa6bae1183fe8b9d6 after reviewed PR718: exact-head Gate13 1,704 tests/135 expected skips, full reconstruction 4,225 tests/139 expected skips, asset policy all SUCCESS. SHA-256-verified original private disc footballmanager.exe 4,714,541 bytes 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3 inspected STATIC only by GNU objdump. Original was not launched or committed.
+
+## Source owner, concrete reachable branch, and effects
+
+Original 0x5127A0 processes both teams' row records (original per-row argument +0x48 unsigned arg1, +0x49 unsigned arg2, +0x4A conditional separate callback). At original 0x4197C0 competition-owner v+0x18 (reached second invocation) and competition+0x34==1 the UEFA branch calls 0x41A250 and returns without running the FA incident path. Important: prior 0x4085D0/virtual/club callbacks can mutate the player and world; the source projection requires actual byte state on arrival at 0x41A250 and does not pretend complete 0x4197C0.
+
+Independently inspected exact 19 native opcode signatures around original 0x41A250–0x41A47A:
+
+1. 0x41A26C tests 32-bit arg2; source 0x5127A0 supplies zero-extended byte, so zero skips first UEFA action. If >0, original 0x41A27E writes 1 to native player BYTE+0x13E, calls original 0x417340 (0x41A285). Only returned low byte==1 begins optional native allocation/event constructor **0x585750** and pending 0x613EC0/0x613EE0. Source virtuals/allocator/date queue may mutate other fields; the **actual reached player after the entire first branch** is required before subsequent calculation.
+2. At 0x41A369–0x41A37D add unsigned arg1 to player BYTE+0x13D modulo 256. If the resulting unsigned byte is <=2, source exits by 0x41A47A. If >2, original 0x41A385 subtracts **3 only once**, stores it, sets player BYTE+0x13E=1 at 0x41A38F, calls original 0x417340 at 0x41A396; low byte==1 can construct **different original pending event class 0x585AD0**. The two event families can both be reached in one per-row call and must not be collapsed into one generic 'UEFA suspension' message.
+3. A strict **callback-free bounded leaf** exists iff arg2=0 AND the (wrapped) new +0x13D byte <=2. This leaf performs exactly one +0x13D byte mutation and nothing in either original pending-event family. The complete *original 0x4197C0 parent* may still have prior or later world effects and must not be described as complete.
+
+## Integration and proof boundaries
+
+New reconstruction/original_native_41a250_uefa_producer.py consumes source-typed actual reached row + original player snapshots and reached conditional original 0x417340 results to project source bytes and *possible* constructor targets. For first branch, it requires distinct actual post-callback player record, rejects missing/extra callbacks and mismatched player identities. It NEVER runs native 0x417340, heap allocator 0x668140, event queue 0x613EC0, manager delivery or PResults; source receipt explicitly states no pending queue/live GameState mutation.
+
+GameState.retain_verified_uefa_incident_callback_free_leaf only commits the byte+0x13D state in the retained **sparse original-native disciplinary sidecar**, with precondition that all reached original source-native entry disciplinary fields exactly equal the previously recorded live sidecar. It refuses both callback-carrying branches, mismatched source player, and stale source snapshots. Generic RuntimePlayer suspension counters and original mailbox remain unchanged. This is not enabled automatically in the ordinary NEXT path; no original runtime callbacks are simulated.
+
+New positive/negative regression tests cover zero/positive arg2, signed/byte-wrap and subtract-once behavior, dual distinct original event constructors, stage order and post-first-callback snapshot, skipped callback extra results, stale GameState entry, fail-closed callback-bearing live writes, and optionally compare exact 19 source PE instruction signatures if a private original binary is supplied. Focused Gate13 workflow registered. Tests and full reconstruction acceptance require exact-head CI before merge.
+
+**NEXT:** close original 0x4085D0 world + 0x417340 callback semantics, original 0x4197C0 parent match/team context and full side/row transaction with original RNG. Bridge pending original dual event types through source-qualified queue/eligible registered manager and save; PPreMatch 0/1/2/3, PResults and management return. Gates 13–17 and physical Windows11 GUI acceptance still OPEN. This source-bounded leaf is not a finished original player-visible workflow.

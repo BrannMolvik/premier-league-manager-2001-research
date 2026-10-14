@@ -77,6 +77,10 @@ from original_native_player_discipline_state import (
     OriginalNativePlayerDiscipline,
     source_original_native_discipline_from_reached_player,
 )
+from original_native_41a250_uefa_producer import (
+    Original41A250Reached,
+    source_original_41a250_uefa_incident_from_reached,
+)
 from original_human_user_name import OriginalHumanUserName, original_fresh_human_name
 from match_preparation import (
     PreparedAiMatchSelection,
@@ -900,6 +904,39 @@ class GameState:
         )
         self.native_player_discipline[mapped_runtime_player_index] = record
         return record
+
+    def retain_verified_uefa_incident_callback_free_leaf(
+        self, *, original_reached: Original41A250Reached,
+        mapped_runtime_player_index: int,
+    ) -> OriginalNativePlayerDiscipline:
+        """Commit ONLY 41A250's no-callback original +13D byte write.
+
+        Requires original entry player state to equal independently retained
+        source-native byte carrier. This does not invoke the parent 4197C0
+        world effects, original event dispatch, or any match transition.
+        """
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players):
+            raise ValueError("verified live source player mapping required")
+        previous = self.native_player_discipline.get(mapped_runtime_player_index)
+        if previous is None or not isinstance(original_reached, Original41A250Reached):
+            raise ValueError("original entry and retained source discipline record required")
+        at_entry = source_original_native_discipline_from_reached_player(
+            original_native_player_record=original_reached.original_native_player_at_entry,
+            original_mapped_runtime_player_index=mapped_runtime_player_index,
+        )
+        if at_entry != previous:
+            raise ValueError("original 41A250 entry differs from retained live native source")
+        stage = source_original_41a250_uefa_incident_from_reached(original_reached)
+        if not stage.source_callback_free_leaf_complete:
+            raise ValueError(
+                "original 417340/event callbacks outstanding; cannot commit partial native world")
+        next_record = source_original_native_discipline_from_reached_player(
+            original_native_player_record=stage.original_source_player_at_second_gate_or_return,
+            original_mapped_runtime_player_index=mapped_runtime_player_index,
+        )
+        self.native_player_discipline[mapped_runtime_player_index] = next_record
+        return next_record
 
     def process_original_eam_due_events(self, on_date: date) -> tuple[str, ...]:
         """Source 0x613EE0 MPMEAMail subtype on NEXT/PResults (flag=1).
