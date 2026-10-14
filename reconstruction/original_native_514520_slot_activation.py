@@ -103,3 +103,50 @@ def source_original_514520_reached_slot_activation(
             "actual original embedded second SideRef vtable pointer required")
     return OriginalNative514520ActivationReceipt(
         "first_side_zero_invoke_second_side_v0",True,True,True,0)
+
+
+SOURCE_REACHED_EMBEDDED_SIDEREF_VTABLE_VA = 0x7C4D50
+SOURCE_REACHED_TEMP_STANDALONE_SIDEREF_VTABLE_VA = 0x7C4D60
+SOURCE_REACHED_EMBEDDED_SIDEREF_V0_VA = 0x510320
+SOURCE_REACHED_STANDALONE_SIDEREF_V0_VA = 0x4F28A0
+
+
+@dataclass(frozen=True)
+class OriginalNativeEmbeddedSideV0Owner:
+    original_source_side_offset: int
+    original_source_vtable_va: int
+    original_source_virtual0_va: int
+    source_world_mutation_proven: bool = False
+
+
+def source_original_514520_side_v0_owner_for_reached_event(
+    *, original_reached_event_record: bytes,
+    original_side_offset: int,
+) -> OriginalNativeEmbeddedSideV0Owner:
+    """Identify known original source v+0 owner without executing it.
+
+    From canonical .rdata vtables 0x7C4D50 -> 0x510320, and
+    0x7C4D60 -> 0x4F28A0. This does not claim a standalone SideRef
+    would normally be embedded at +14/+28, nor return its club pointer.
+    An unrecognized vtable has no source-qualified virtual dispatch.
+    """
+    if type(original_side_offset) is not int or original_side_offset not in (
+            SOURCE_NATIVE_FIRST_SIDE_REF_OFFSET,
+            SOURCE_NATIVE_SECOND_SIDE_REF_OFFSET):
+        raise OriginalNative514520SourceError(
+            "reached native source SideRef must be event+14 or event+28")
+    rec=original_reached_event_record
+    if type(rec) is not bytes or len(rec)<original_side_offset+4:
+        raise OriginalNative514520SourceError(
+            "actual reached source event SideRef vtable DWORD required")
+    vtable=unpack_from("<I",rec,original_side_offset)[0]
+    native={
+        SOURCE_REACHED_EMBEDDED_SIDEREF_VTABLE_VA:
+            SOURCE_REACHED_EMBEDDED_SIDEREF_V0_VA,
+        SOURCE_REACHED_TEMP_STANDALONE_SIDEREF_VTABLE_VA:
+            SOURCE_REACHED_STANDALONE_SIDEREF_V0_VA,
+    }.get(vtable)
+    if native is None:
+        raise OriginalNative514520SourceError(
+            "original embedded/standalone SideRef vtable has no verified v0 owner")
+    return OriginalNativeEmbeddedSideV0Owner(original_side_offset,vtable,native)
