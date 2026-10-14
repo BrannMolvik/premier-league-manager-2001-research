@@ -84,3 +84,92 @@ def source_original_reached_side_ref_compare_4f2830(
         "<H",right,SOURCE_ORIGINAL_SIDE_SELECTOR_WORD_OFFSET)[0]
     return OriginalNativeSideRefCompareReceipt(
         a,b,False,True,False,same_type and same_owner and same_selector)
+
+
+
+@dataclass(frozen=True)
+class OriginalNativeLeagueMatchSideConflictReceipt:
+    source_original_method_va: int
+    original_source_match_vtable_va: int
+    source_first_side_comparison_returned_nonzero: bool
+    source_second_side_comparison_was_reached: bool
+    source_original_method_eax: int
+
+
+def source_original_leaguematch_virtual04_510a40_from_reached_comparisons(
+    *,
+    original_native_match_record: bytes,
+    original_first_reached_4f2830_receipt: OriginalNativeSideRefCompareReceipt,
+    original_second_reached_4f2830_receipt: OriginalNativeSideRefCompareReceipt | None,
+) -> OriginalNativeLeagueMatchSideConflictReceipt:
+    """Source original v+4 0x510A40, two SideRef checks in exact order.
+
+    Calls original 0x4F2830 on match Side0 (+0x14). If nonzero,
+    v+4 returns one and SKIPS Side1 (+0x28). Otherwise invokes
+    original 0x4F2830 on Side1 and returns its nonzero status
+    normalized to one. This only combines real reached comparison
+    receipts from *this* owner; it does not invoke SideRef getters.
+    Original match v+0 0x510A80 dispatches this +0x04 method on
+    the comparison owner for its two own SideRefs. No original
+    vtable dispatch or match simulation occurs here.
+    """
+    from original_leaguematch_native_process_owners import (
+        SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS,
+    )
+    rec=original_native_match_record
+    first=original_first_reached_4f2830_receipt
+    second=original_second_reached_4f2830_receipt
+    if (type(rec) is not bytes or len(rec)<4 or
+        unpack_from("<I",rec,0)[0] not in SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS or
+        type(first) is not OriginalNativeSideRefCompareReceipt):
+        raise OriginalNativeSideRefCompareSourceError(
+            "original native LeagueMatch v+4 owner and first reached Side comparison required")
+    if first.source_original_v4_or_v0_comparison_result:
+        if second is not None:
+            raise OriginalNativeSideRefCompareSourceError(
+                "original v+4 first-side true skips Side1 virtual comparison")
+        return OriginalNativeLeagueMatchSideConflictReceipt(
+            SOURCE_ORIGINAL_LEAGUEMATCH_V4_VA,unpack_from("<I",rec,0)[0],
+            True,False,1)
+    if type(second) is not OriginalNativeSideRefCompareReceipt:
+        raise OriginalNativeSideRefCompareSourceError(
+            "original v+4 first-side false must reach Side1 0x4F2830")
+    return OriginalNativeLeagueMatchSideConflictReceipt(
+        SOURCE_ORIGINAL_LEAGUEMATCH_V4_VA,unpack_from("<I",rec,0)[0],
+        False,True,int(second.source_original_v4_or_v0_comparison_result))
+
+
+def source_original_leaguematch_virtual00_510a80_from_reached_v4(
+    *,
+    original_native_match_record: bytes,
+    original_first_reached_comparison_v4_eax: int,
+    original_second_reached_comparison_v4_eax: int | None,
+) -> int:
+    """Original v+0 0x510A80 calls comparison-owner v+4 for Side0 then Side1.
+
+    The source 0x510A90 tests the reached first returned DWORD; if
+    nonzero, skips 0x510A9F entirely and returns one. Otherwise
+    calls reached v+4 for the second SideRef, returns EAX=1 iff
+    that second result was nonzero. Existing match pointers/Side
+    getter effects must come from actual original source elsewhere.
+    """
+    from original_leaguematch_native_process_owners import (
+        SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS,
+    )
+    r=original_native_match_record
+    a=original_first_reached_comparison_v4_eax
+    b=original_second_reached_comparison_v4_eax
+    if (type(r) is not bytes or len(r)<4 or
+        unpack_from("<I",r,0)[0] not in SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS or
+        type(a) is not int or not 0<=a<=0xFFFFFFFF):
+        raise OriginalNativeSideRefCompareSourceError(
+            "original source match v+0 and reached first v+4 EAX required")
+    if a:
+        if b is not None:
+            raise OriginalNativeSideRefCompareSourceError(
+                "source native v+0 first v+4 nonzero skips second v+4")
+        return 1
+    if type(b) is not int or not 0<=b<=0xFFFFFFFF:
+        raise OriginalNativeSideRefCompareSourceError(
+            "original source v+0 second reached comparison v+4 EAX required")
+    return int(bool(b))
