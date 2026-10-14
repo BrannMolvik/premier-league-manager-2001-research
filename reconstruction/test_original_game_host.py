@@ -745,6 +745,11 @@ class OriginalGameHostTests(unittest.TestCase):
             host._poll_original_management_turn()
             self.assertEqual(gameplay.matches, 1)
             self.assertIsNone(gameplay.pending_primary_entry)
+            # Even a typed PResults progress *receipt* cannot establish
+            # that the original two-pass event callbacks and modal return
+            # actually ran in the live host.
+            self.assertIn("native return unverified", host.last_status)
+            self.assertNotIn("PResults returned to management", host.last_status)
             host._begin_original_management_turn()
             self.assertIsNotNone(host._management_turn_thread)
             host._management_turn_thread.run()
@@ -898,6 +903,52 @@ class OriginalGameHostTests(unittest.TestCase):
             begin.assert_called_once_with(MatchDetailMode.QUICK_MATCH)
         self.assertEqual(live.session.match_detail_mode, MatchDetailMode.QUICK_MATCH)
         self.assertEqual(live.session.gameplay.pending_primary_entry, pending)
+
+    def test_persisted_nonquick_mode_next_reports_blocked_not_unhandled_tk_error(self):
+        # A saved Match Detail setting bypasses the PPreMatch modal in
+        # original 0x513010. If its renderer is unfinished, the host cannot
+        # invent Quick, crash its poll, or erase the pending fixture.
+        for mode in (MatchDetailMode.THREE_D_MATCH,
+                     MatchDetailMode.THREE_D_HIGHLIGHTS,
+                     MatchDetailMode.FASTVIEW):
+            with self.subTest(mode=mode):
+                live = presenter()
+                errors = []
+                host = OriginalGameTkHost(
+                    live, FakeRoot(), FakeTk,
+                    management_thread_factory=DeferredThread,
+                    error_reporter=errors.append,
+                )
+                gameplay = StubBackend()
+                live.session.gameplay = gameplay
+                live.session.started = True
+                live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+                live.session.match_detail_settings_owner_present = True
+                live.session.match_detail_mode = mode
+                gameplay.pending_primary_entry = None
+                entry = ("premier_league", 7)
+
+                def advance(staged):
+                    staged.pending_primary_entry = entry
+                    return SimpleNamespace(
+                        pending_primary_entry=entry, results_progress=None
+                    )
+
+                with (patch.object(StubBackend, "advance_original_management",
+                                   advance, create=True),
+                      patch.object(host, "redraw"),
+                      patch.object(host, "_begin_original_human_match",
+                                   wraps=host._begin_original_human_match) as begin):
+                    host._begin_original_management_turn()
+                    host._management_turn_thread.run()
+                    host._poll_original_management_turn()
+                    begin.assert_called_once_with(mode)
+                self.assertEqual(gameplay.pending_primary_entry, entry)
+                self.assertEqual(host._original_match_input_owner(), "prematch")
+                self.assertIsNone(host._management_turn_thread)
+                self.assertEqual(len(errors), 1)
+                self.assertIn("unfinished source renderer", errors[0])
+                self.assertIn("pending original match preserved", host.last_status)
 
     def test_next_thread_start_failure_releases_busy_state(self):
         live = presenter()
@@ -1529,6 +1580,10 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(gameplay.matches, 1)
         self.assertIsNone(gameplay.pending_primary_entry)
         self.assertIsNone(host._management_turn_thread)
+        self.assertIn("original PResults event execution", host.last_status)
+        self.assertIn("native return unverified", host.last_status)
+        self.assertNotIn("PResults returned to management", host.last_status)
+        self.assertIn("reconstructed management view resumed", host.last_status)
 
     def test_escape_exits_active_source_pmatchinfo_modal_before_fullscreen(self):
         # Original 0x488C60: Escape 0x1B posts PMatchInfo exit event 7.
