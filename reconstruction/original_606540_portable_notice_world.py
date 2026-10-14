@@ -248,7 +248,8 @@ class Original606540PortableWorld:
             result = []
             for row in records:
                 if type(row) is not dict or set(row) != names or any(
-                    type(x) is not int for x in row.values()
+                    type(item) is not (bool if key == "visible_inbox_accepted" else int)
+                    for key, item in row.items()
                 ):
                     raise Original606540PortableWorldError(
                         "Invalid source event field or saved pointer"
