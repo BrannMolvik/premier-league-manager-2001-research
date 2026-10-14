@@ -213,6 +213,29 @@ class PortableSourceInjuryNoticeWorldTests(TestCase):
         self.assertEqual(state.pending[0].serial,1)
         self.assertEqual(state.user_notices,())
 
+    def test_partial_native_source_chain_cannot_commit_one_due_sibling(self):
+        # A self-consistent one-node native chain is not proof that the live
+        # portable world, which owns TWO notices, was fully scanned.
+        a=source(family=0,manager_key=777)
+        b=independent_wrapper(source(family=2,manager_key=999),0x1000)
+        state=queued(queued(Original606540PortableWorld(),a),b)
+        before=state.snapshot()
+        with self.assertRaisesRegex(Original606540PortableWorldError,
+                                    "Complete native pending human"):
+            state.apply_original_due_batch(
+                reached_global_scan=scan(a),
+                original_due_notices=((1,a),),
+                registered_manager_keys=(777,999),
+            )
+        self.assertEqual(state.snapshot(),before)
+        # The full verified native chain remains a valid atomic batch.
+        done=state.apply_original_due_batch(
+            reached_global_scan=scan(a,b),
+            original_due_notices=((1,a),(2,b)),
+            registered_manager_keys=(777,999),
+        )
+        self.assertEqual(tuple(x.serial for x in done.user_notices),(1,2))
+
     def test_future_date_is_never_consumed_and_wrong_owner_rolls_back(self):
         r=source(family=0,manager_key=777)
         state=queued(Original606540PortableWorld(),r)

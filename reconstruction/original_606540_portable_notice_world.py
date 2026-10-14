@@ -175,6 +175,19 @@ class Original606540PortableWorld:
             raise Original606540PortableWorldError("Ordered source owners required")
         for key in registered_manager_keys:
             _u32(key, "registered user key")
+        # The pre-callback native scan must account for *every* portable
+        # global 7BD564 pending notice, including notices not yet due.
+        # Otherwise a partial, internally well-formed native chain could
+        # silently commit delivery of one item while omitting a live sibling.
+        # A 7BD564 event not owned by this subset remains fail-closed.
+        source_human_nodes = tuple(
+            d for d in scan.source_decisions_in_native_order
+            if d.event_vtable == 0x7BD564
+        )
+        if len(source_human_nodes) != len(self.pending):
+            raise Original606540PortableWorldError(
+                "Complete native pending human source chain required"
+            )
         due_decisions = tuple(d for d in scan.source_decisions_in_native_order
                               if d.source_virtual10_would_be_called)
         if any(d.event_vtable != 0x7BD564 for d in due_decisions):
