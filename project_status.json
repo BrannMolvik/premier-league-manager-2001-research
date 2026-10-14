@@ -41,7 +41,7 @@
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery633 Gate13. Main 3f81161eb5fd34f98b94c52d3e2b49e3357b616a merges bounded source-only PR740 (Gate13 1883/157, asset green). High-risk PR739 onset portable GameState/schema48 Save/Load head b9c5d43754f069311bb97a93109d5026954f5bb9 Gate13 1894/158, full4416/162 and asset green but independent review still absent; reconcile with new main before any merge. Next original live injury producer + 7D7760 recovery + registered-user Inbox/SaveLoad, all-mode NEXT/PPreMatch/PResults/return, all original leagues/multihuman and physical Win11 Gates13–17 acceptance.",
+  "active_task": "Recovery634 main b8357b9724f4bfcc845113bddb5056de7e619cf8 merged verified source-only PR741/742 with exact Gate13 focused, full PR741 and assets; Gate13 remains open. PR739 high-risk portable onset/queue/save head 420d03cdfc2f75c4a515c7263397b870e6d9328e: due-user FIFO serial order bug fixed/test staged, new exact-head CI pending, independent supervisor review missing; reconcile main before merge. Next original normal all-mode NEXT→PPreMatch→PResults→return live world, original injury onset/expiry actual per-user Inbox/SaveLoad, all original leagues/multi-humans and physical Win11 Gates13-17 release audit.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3383,5 +3383,12 @@
   "recovery633_gate13_skips": 157,
   "recovery633_asset_policy_run": 38631780268,
   "recovery633_source_only_no_runtime_acceptance": true,
-  "recovery633_high_risk_pr739_pending_independent_review": true
+  "recovery633_high_risk_pr739_pending_independent_review": true,
+  "recovery634_main_head": "b8357b9724f4bfcc845113bddb5056de7e619cf8",
+  "recovery634_pr741": 741,
+  "recovery634_pr742": 742,
+  "recovery634_gate13_run741": 38638848429,
+  "recovery634_gate13_run742": 38640628709,
+  "recovery634_pr739_high_risk_review_pending": true,
+  "recovery634_original_gui_accepted": false
 }
