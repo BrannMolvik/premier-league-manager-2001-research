@@ -78,6 +78,7 @@ def source_original_615a60_atomic_link_projection(
     *,
     original_source_calendar_va: int,
     original_source_calendar_record: bytes,
+    original_selected_calendar_va: int,
     original_selected_calendar_record: bytes,
     original_source_slot_vector: bytes,
     original_global_day_9847fc: int,
@@ -153,6 +154,9 @@ def source_original_615a60_atomic_link_projection(
             "actual reached virtual+18 event selector DWORD+0x0C required")
     selected_va = (NATIVE_SECONDARY_CALENDAR_VA
                    if event[0x0C] & 1 else NATIVE_PRIMARY_CALENDAR_VA)
+    if type(original_selected_calendar_va) is not int or original_selected_calendar_va != selected_va:
+        raise OriginalNativeCalendarInsertionError(
+            "0x510300 reached selected original registry VA disagrees with event+0x0C")
     if selected_va == original_source_calendar_va:
         if selected_base != base:
             raise OriginalNativeCalendarInsertionError(
@@ -181,6 +185,7 @@ def source_original_615a60_atomic_link_projection(
     cursor = start
     queries = []
     for i, receipt in enumerate(original_reached_615890_windows):
+        queries.append(cursor)
         if not isinstance(receipt, Original615890ReachedWindow):
             raise OriginalNativeCalendarInsertionError(
                 "source native 0x615890 receipt class required")
@@ -192,19 +197,22 @@ def source_original_615a60_atomic_link_projection(
             raise OriginalNativeCalendarInsertionError(
                 "original reached 615890 receipt disagrees with actual input window")
         if receipt.first_matched_index is not None:
-            if (receipt.first_matched_index not in receipt.called_615790_indices or
-                    not expected_begin <= receipt.first_matched_index < expected_end or
+            expected_called = tuple(range(expected_begin, receipt.first_matched_index+1))
+            if (not expected_begin <= receipt.first_matched_index < expected_end or
+                    receipt.called_615790_indices != expected_called or
                     i == len(original_reached_615890_windows)-1):
                 raise OriginalNativeCalendarInsertionError(
                     "native successful window requires source first match and a next search")
             cursor = receipt.first_matched_index + 2
             if cursor > 0x7FFFFFFD:
                 raise OriginalNativeCalendarInsertionError("source +2 cursor signed overflow")
-        elif i != len(original_reached_615890_windows)-1:
-            raise OriginalNativeCalendarInsertionError(
-                "source 615A60 stops at first false window; extra source calls invalid")
-        queries.append(cursor if receipt.first_matched_index is None
-                       else cursor - 2)
+        else:
+            if receipt.called_615790_indices != tuple(range(expected_begin, expected_end)):
+                raise OriginalNativeCalendarInsertionError(
+                    "failed original 615890 search must have traversed every reached source slot")
+            if i != len(original_reached_615890_windows)-1:
+                raise OriginalNativeCalendarInsertionError(
+                    "source 615A60 stops at first false window; extra source calls invalid")
     if not 0 <= cursor < count:
         raise OriginalNativeCalendarInsertionError(
             "native source 615A60 final slot outside valid supplied source vector")
