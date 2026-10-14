@@ -73,7 +73,7 @@ class Original405080AvailableRosterTests(unittest.TestCase):
 
     def test_405080_proof_qualifies_actual_original_41a5b0_threshold(self):
         p=player(pid=123,status=0)
-        reached=staged(registered=False,source=p,count=None)
+        reached=staged(registered=False,source=p,count=14)
         self.assertEqual(reached.original_405080_eligible_count,14)
         qualified=replace(reached,
             original_405080_eligible_count=None,
