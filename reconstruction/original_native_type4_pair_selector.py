@@ -89,6 +89,77 @@ def source_original_type4_owner_read_only_gate_4faea0(
         half,threshold,raw68,raw78,None,True)
 
 
+
+@dataclass(frozen=True)
+class OriginalType4PreSortPairsReceipt:
+    source_original_half_team_count: int
+    source_original_base_pair_count: int
+    source_original_top_pairs_74_before_617500: tuple[tuple[int, int], ...]
+    source_original_bottom_pairs_7c_before_617500: tuple[tuple[int, int], ...]
+    source_original_cross_half_pair_count: int
+    source_original_617500_sort_and_side_effects_unresolved: bool
+
+
+def source_original_type4_classify_reached_pairs_before_617500_4faea0(
+    *,
+    original_native_league_owner_record_before_gate: bytes,
+    original_source_6c_pairs_before_gate: tuple[tuple[int, int], ...],
+    original_reached_4f40b0_rank_pair_eax_in_iteration_order: tuple[tuple[int, int], ...],
+) -> OriginalType4PreSortPairsReceipt:
+    """Read-only classification into the source +0x74 and +0x7C buckets.
+
+    Original 0x4FAEDB..0x4FAF4C calls 0x4F40B0 TWICE per original
+    owner+0x6C pair; it records +0x74 when *both* returned signed ranks
+    are less than floor(team_count/2), +0x7C when both are >= it,
+    and appends neither when the pair crosses halves. Input ranks
+    MUST be the actual reached original 0x4F40B0 results. That getter
+    itself invokes 0x4F4940 and searches a mutable ranked owner array.
+
+    The classification below is before the two original 0x617500 calls
+    that can re-order/change these arrays. This function returns only
+    the source PRE-SORT pointer sequence, NOT an authenticated final
+    current team matchup or live native SideRef. It may not execute
+    0x4FAEA0 or replace original registration/world mutations.
+    """
+    owner=original_native_league_owner_record_before_gate
+    pairs=original_source_6c_pairs_before_gate
+    ranks=original_reached_4f40b0_rank_pair_eax_in_iteration_order
+    readiness=source_original_type4_owner_read_only_gate_4faea0(
+        original_native_league_owner_record_before_gate=owner)
+    if not readiness.source_requires_mutating_split_array_initialization:
+        raise OriginalType4PairSourceError(
+            "source 4FAEA0 cannot enter pair classification at this owner stage")
+    n=unpack_from("<i",owner,0x70)[0]
+    owner_source_pair_ptr=unpack_from("<I",owner,0x6C)[0]
+    if (n<0 or n>0x10000 or type(pairs) is not tuple or type(ranks) is not tuple or
+        len(pairs)!=n or len(ranks)!=n or (n>0 and owner_source_pair_ptr==0)):
+        raise OriginalType4PairSourceError(
+            "actual original owner+6C/+70 pairs and reached 4F40B0 rank calls required")
+    for pair,rank_pair in zip(pairs,ranks):
+        if (type(pair) is not tuple or len(pair)!=2 or
+            any(type(p) is not int or not 0<p<=0xFFFFFFFF for p in pair) or
+            type(rank_pair) is not tuple or len(rank_pair)!=2 or
+            any(type(index) is not int or not -0x80000000<=index<=0x7FFFFFFF
+                for index in rank_pair)):
+            raise OriginalType4PairSourceError(
+                "actual native pair SideRef pointers and reached signed ranking outputs required")
+    threshold=readiness.source_half_team_count_trunc_toward_zero
+    top=[]
+    bottom=[]
+    cross=0
+    for pair,(first_rank,second_rank) in zip(pairs,ranks):
+        first_bottom=first_rank>=threshold
+        second_bottom=second_rank>=threshold
+        if first_bottom and second_bottom:
+            bottom.append(pair)
+        elif not first_bottom and not second_bottom:
+            top.append(pair)
+        else:
+            cross+=1
+    return OriginalType4PreSortPairsReceipt(
+        threshold,n,tuple(top),tuple(bottom),cross,True)
+
+
 def source_original_type4_pair_selection_4f2a78_4faf70(
     *,
     original_embedded_side_ref_before_getter: bytes,
