@@ -75,6 +75,8 @@ on:
       - "reconstruction/test_original_native_5127a0_combined_owner.py"
       - "reconstruction/original_native_41a5b0_extra_event.py"
       - "reconstruction/test_original_native_41a5b0_extra_event.py"
+      - "reconstruction/original_native_405080_available_roster.py"
+      - "reconstruction/test_original_native_405080_available_roster.py"
       - "reconstruction/original_native_5127a0_extra_event_owners.py"
       - "reconstruction/test_original_native_5127a0_extra_event_owners.py"
       - "reconstruction/game_state.py"
@@ -433,6 +435,7 @@ jobs:
             test_original_native_5127a0_player_identity \
             test_original_native_5127a0_combined_owner \
             test_original_native_41a5b0_extra_event \
+            test_original_native_405080_available_roster \
             test_original_native_5127a0_extra_event_owners \
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
