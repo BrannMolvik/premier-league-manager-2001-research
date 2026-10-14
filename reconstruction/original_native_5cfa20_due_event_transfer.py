@@ -93,6 +93,9 @@ def source_original_5cfa20_reached_due_transfer(
     if unpack_from("<I", ref)[0] not in SOURCE_REFERENCED_EVENT_VTABLES:
         raise OriginalQueuedEventTransferError(
             "referenced virtual+3C constant one only proven for two native classes")
+    if unpack_from("<I", ref, 0x10)[0] != 1 or unpack_from("<I", ref, 0x1C)[0] != 12:
+        raise OriginalQueuedEventTransferError(
+            "concrete 419490 original event must have category 1 and subtype 12")
     event_date = unpack_from("<i", raw, 4)[0]
     if event_date > original_613ee0_processing_date:
         raise OriginalQueuedEventTransferError(
