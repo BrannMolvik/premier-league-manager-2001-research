@@ -25,14 +25,14 @@ class Original413020ReachedManager:
     original_manager_link_record: bytes
     original_user_pointer: int
     original_user_record: bytes
-    original_team_context_pointer: int
-    original_team_context_record: bytes
+    original_user_context_pointer: int
+    original_user_context_record: bytes
 
 
 @dataclass(frozen=True)
 class Original413020ManagerRouteReceipt:
     original_event_object_pointer: int
-    original_type12_team_identity: int
+    original_type12_association_identifier: int
     original_visited_manager_nodes: tuple[int, ...]
     original_selected_user_pointer: int | None
     original_selected_user_event_queue_pointer: int | None
@@ -59,7 +59,7 @@ def source_original_413020_first_human_owner_for_type12(
     """Source first manager-owned queue for two original 0x419490 event types.
 
     413020 global+9CC manager list; manager node+0 user and node+4 next.
-    User+5B4 team context, team+40 original club identity. First matching
+    User+5B4 context, context+40 source association identifier. First matching
     user is selected for original +6B4 owner after event type12 jump table:
     (12-8) -> 413554[4]=16 -> 413510[16]=41325A; category+10=1;
     concrete vtable+0C returns DC/DD, both reach 4134ED->617D70.
@@ -78,7 +78,7 @@ def source_original_413020_first_human_owner_for_type12(
             or unpack_from("<I", ref, 0x10)[0] != 1
             or unpack_from("<I", ref, 0x1c)[0] != 12):
         raise Original413020ManagerRouteError("only concrete category1/type12 event source routing proven")
-    team_id = unpack_from("<I", ref, 0x14)[0]
+    association_id = unpack_from("<I", ref, 0x14)[0]
     original = original_global_world_874c10_record
     if type(original) is not bytes or len(original) < 0x9d0:
         raise Original413020ManagerRouteError("actual global owner bytes through +9CC required")
@@ -108,15 +108,15 @@ def source_original_413020_first_human_owner_for_type12(
         user=step.original_user_record
         if type(user) is not bytes or len(user) < 0x6b8:
             raise Original413020ManagerRouteError("original user source bytes through +6B4 required")
-        context_ptr=_nonnull(step.original_team_context_pointer,"team context")
+        context_ptr=_nonnull(step.original_user_context_pointer,"user context")
         if unpack_from("<I",user,0x5b4)[0]!=context_ptr:
-            raise Original413020ManagerRouteError("original user+5B4 source team owner mismatch")
-        context=step.original_team_context_record
+            raise Original413020ManagerRouteError("original user+5B4 source context owner mismatch")
+        context=step.original_user_context_record
         if type(context) is not bytes or len(context) < 0x44:
-            raise Original413020ManagerRouteError("original team owner bytes through +40 required")
+            raise Original413020ManagerRouteError("original associated user-context bytes through +40 required")
         visited.append(ptr)
         seen.add(ptr)
-        if unpack_from("<I",context,0x40)[0]==team_id:
+        if unpack_from("<I",context,0x40)[0]==association_id:
             chosen_user=user_ptr
             chosen_queue=unpack_from("<I",user,0x6b4)[0]
             _nonnull(chosen_queue,"per-user +6B4 event queue")
@@ -129,6 +129,6 @@ def source_original_413020_first_human_owner_for_type12(
     if len(visited)!=len(original_reached_manager_nodes):
         raise Original413020ManagerRouteError("extra native manager reads after first source match")
     return Original413020ManagerRouteReceipt(
-        transfer.original_referenced_pointer,team_id,tuple(visited),
+        transfer.original_referenced_pointer,association_id,tuple(visited),
         chosen_user,chosen_queue,
     )
