@@ -3,7 +3,8 @@
 Private original footballmanager.exe SHA256:
 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3.
 The only source-qualified caller here is the wrapped LeagueMatch v+0x38
-0x5136C0, which first invokes 0x5112A0. Its exact two WORD score\nloads from context+D4C/+D50 are included before 0x513570.
+0x5136C0, which first invokes 0x5112A0. Its exact two WORD score
+loads from context+D4C/+D50 are included before 0x513570.
 
 This function NEVER publishes effects to a live GameState, claims 0x513570
 fully returned, proves an actual reachable original event world, or invokes
@@ -82,7 +83,11 @@ def source_original_513570_pre_rng_score_stage(
     head = unpack_from("<I", original_context, 0xB60)[0] if primary or secondary else 0
     cursor = head
     projected = bytearray(original_match_record)
-    # v38 0x5136C0 calls 0x5112A0 BEFORE 0x513570: unconditional\n    # overwrite of the two stored score WORDs from original context.\n    pack_into("<H", projected, 0x3C, unpack_from("<H", original_context, 0xD4C)[0])\n    pack_into("<H", projected, 0x3E, unpack_from("<H", original_context, 0xD50)[0])\n    visited: list[int] = []
+    # v38 0x5136C0 calls 0x5112A0 BEFORE 0x513570: unconditional
+    # overwrite of the two stored score WORDs from original context.
+    pack_into("<H", projected, 0x3C, unpack_from("<H", original_context, 0xD4C)[0])
+    pack_into("<H", projected, 0x3E, unpack_from("<H", original_context, 0xD50)[0])
+    visited: list[int] = []
     traversed: set[int] = set()
 
     def event(pointer: int) -> bytes:
