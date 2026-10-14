@@ -15,6 +15,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 SOURCE_FASTVIEW_OUTER_MODAL_VA = 0x5331C0
+SOURCE_FASTVIEW_INTERMEDIATE_RESET_CALLSITE_VA = 0x533203
+SOURCE_FASTVIEW_INTERMEDIATE_RESET_VA = 0x6C1CF0
+SOURCE_FASTVIEW_INTERMEDIATE_RESET_GLOBAL_VAS = (0xA145F0, 0xA145F4)
 SOURCE_FASTVIEW_PRE_MODAL_COPIER_VA = 0x533BF0
 SOURCE_FASTVIEW_POST_MODAL_COPIER_VA = 0x533CA0
 SOURCE_FASTVIEW_MODAL_RUN_VA = 0x532650
@@ -36,6 +39,24 @@ SOURCE_FASTVIEW_POST_MODAL_PLAYER_BYTE_SETTER_VA = 0x4EA350
 
 class OriginalFastViewTwoSideWritebackError(ValueError):
     pass
+
+
+def source_fastview_original_pre_modal_two_flag_reset_6c1cf0(
+    *, original_a145f0_a145f4_eight_bytes_before: bytes,
+) -> bytes:
+    """Exactly 0x533203 -> 0x6C1CF0, after two-side prep, before 0x533BF0.
+
+    The original XOR EAX,EAX, then performs two DWORD stores, at
+    0xA145F0 and 0xA145F4. No other source global is claimed altered.
+    This immutable projection neither initializes a FastView modal nor
+    simulates any team, player, event, or match-world side effect.
+    """
+    before = original_a145f0_a145f4_eight_bytes_before
+    if type(before) is not bytes or len(before) != 8:
+        raise OriginalFastViewTwoSideWritebackError(
+            "actual original two adjacent pre-modal global DWORDs required"
+        )
+    return b"\\x00" * 8
 
 
 @dataclass(frozen=True)
