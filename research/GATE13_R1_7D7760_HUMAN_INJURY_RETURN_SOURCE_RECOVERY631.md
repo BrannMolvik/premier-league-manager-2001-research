@@ -37,6 +37,30 @@ Rows are in original branch families: original `4D1190` non-null (type31), origi
 
 All 12 original body functions statically contain explicit addresses of the three selected EnglishEAM.idx slots immediately following the title ordinal, each descending 4 bytes from native slot base 87AC28. Original title source verified all 12 map to IDX 1407; first body variant STR IDs listed above. This does **not** prove original GUI argument beyond the separately audited original first-click +1C(arg0) user route, native token substitution, actual use/read status or human Inbox rendering.
 
+## Continued source batch analysis: 5D7B40 event+8 multi-player loop
+
+Recovery632 additionally implements an immutable, **read-only multi-player source
+projection** in the existing source branch. The original 5D7B40 consumer loops
+the DWORD player-ID array at event+0x0C using event+8 count; the common known
+60AA20 producer creates count1. The additional projection accepts a separately
+reached count>1 original 7D7760 event **only when the full original array,
+all ordered native player records and every per-player registered-human/club
+lookup are supplied**. It validates native pointer/array length, 16-bit player
+identities, unique already-reached recipients, status, signed due calendar,
+bit0/+24C descriptor and branch-specific 12-class notice selection per member.
+A missing/forged member rejects the *entire* source receipt; it never partially
+mutates actual original or modern game state.
+
+The common count1 API delegates through exactly that validator using the
+**unchanged actual original event and bytes** (no synthetic singleton native
+event). Source tests add a two-player human+AI alternate path, source ordering,
+uninitialized event padding and mismatched identity/count/future-date negatives.
+No claim is made that the common original producer generates count>1 events,
+that a count>1 original event was observed in a running original, or that
+multi-player expiry, cleanup, new 7BD564 recovery notice, human Inbox,
+Save/Load and any Windows GUI callback actually execute in the port.
+The added tests require first exact-head verification before any milestone PR.
+
 ## Source-constrained adapter and verification
 
 A separate portable **source-only** helper, `reconstruction/original_native_7d7760_human_return.py`, now records all 12 native 5D7B40 human lookup/status routes and the potential new 7BD564 wrapper date, paired with the existing original `418AD0` cleanup projection. It restricts the current path to an actually reached **count1** original 60AA20 event (native 5D7B40 itself can handle count>1). It requires source event+0 vtable, +4 due day, +8 count, +C nonzero original payload pointer, +10 status, independently reached allocated player-ID DWORD and native player+4/+14/+24C. Original source `60ABDA` writes ONLY BYTE+0x10; event padding +0x11..+0x13 is uninitialized and deliberately unconstrained. It requires explicit original human gate 4139E0 and conditional 4D1190/4D1110 inputs. Source notice creation is conditional on native allocations, and neither GameState nor true 613EC0/418AD0/PEAMail mutation is claimed.
