@@ -112,8 +112,8 @@ class Original613EE0HumanDueTests(unittest.TestCase):
             0x613f1c:"e8 6f 62 ed ff",
             0x613f37:"8b 43 10",
             0x613f40:"e8 3b 01 00 00",
-            0x5cfa20:"56 57",
-            0x4134ed:"e8 7e 48 20 00",
+            0x5cfa20:"56 8b f1",
+            0x4134ed:"8b 07 6a 0c",
         }
         for va,s in sig.items():
             with self.subTest(va=hex(va)):
