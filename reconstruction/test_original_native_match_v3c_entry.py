@@ -76,7 +76,9 @@ class SourceNativePostcallbacksZeroEventCompositionTests(unittest.TestCase):
     def context(self, first_event=0, second_event=0):
         buf=bytearray(0xD60)
         pack_into("<II",buf,0xD0C,first_event,second_event)
-        pack_into("<HH",buf,0xD4C,2,3)
+        # Original 0x5112A0 uses +0xD4C and +0xD50, not adjacent WORDs.
+        pack_into("<H",buf,0xD4C,2)
+        pack_into("<H",buf,0xD50,3)
         return bytes(buf)
 
     def test_all_seven_original_v38_classes_reach_exact_score_then_v3c_bit0_when_zero_event(self):
