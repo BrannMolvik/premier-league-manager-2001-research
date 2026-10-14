@@ -745,6 +745,11 @@ class OriginalGameHostTests(unittest.TestCase):
             host._poll_original_management_turn()
             self.assertEqual(gameplay.matches, 1)
             self.assertIsNone(gameplay.pending_primary_entry)
+            # Even a typed PResults progress *receipt* cannot establish
+            # that the original two-pass event callbacks and modal return
+            # actually ran in the live host.
+            self.assertIn("native return unverified", host.last_status)
+            self.assertNotIn("PResults returned to management", host.last_status)
             host._begin_original_management_turn()
             self.assertIsNotNone(host._management_turn_thread)
             host._management_turn_thread.run()
