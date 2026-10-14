@@ -61,6 +61,7 @@ class OriginalNative615D10DateWindow:
     source_would_enter_615c50_search: bool
     first_candidate_slot_pointer: int | None
     negative_source_slot_index_unqualified: bool
+    null_original_slot_vector_unqualified: bool
     native_search_result_proven: bool = False
 
 
@@ -158,7 +159,7 @@ def source_original_615d10_calendar_date_window(
     this records the resulting unqualified before-start candidate without
     dereferencing it or claiming the search was safe/completed.
     """
-    if original_calendar_registry_va not in (
+    if type(original_calendar_registry_va) is not int or original_calendar_registry_va not in (
             SOURCE_ORIGINAL_EVENT_FIRST_COLLECTION_VA,
             SOURCE_ORIGINAL_EVENT_SECOND_COLLECTION_VA):
         raise OriginalV3CRescheduleGateError(
@@ -183,4 +184,5 @@ def source_original_615d10_calendar_date_window(
         source_would_enter_615c50_search=enter,
         first_candidate_slot_pointer=slot,
         negative_source_slot_index_unqualified=bool(enter and delta < 0),
+        null_original_slot_vector_unqualified=bool(enter and base == 0),
     )
