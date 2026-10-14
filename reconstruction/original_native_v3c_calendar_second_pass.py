@@ -186,3 +186,40 @@ def source_original_615d10_calendar_date_window(
         negative_source_slot_index_unqualified=bool(enter and delta < 0),
         null_original_slot_vector_unqualified=bool(enter and base == 0),
     )
+
+
+def source_original_615d10_reached_request_date_window(
+    *,
+    original_native_lookup_request: (
+        OriginalV3CFirstCalendarLookupReceipt |
+        OriginalV3CSecondCalendarLookupReceipt
+    ),
+    original_registry_record_at_lookup: bytes,
+) -> OriginalNative615D10DateWindow:
+    """Bind signed date-window predicate to actual reached source lookup.
+
+    Original 0x5127A0 calls 0x615D10 once in each reached EBX=0/1
+    iteration; use the respective reached +1 date and 0x510300 registry,
+    never synthesize the registry/date from a fixture or current day.
+    """
+    request = original_native_lookup_request
+    if isinstance(request, OriginalV3CFirstCalendarLookupReceipt):
+        if request.native_615d10_reached is not True:
+            raise OriginalV3CRescheduleGateError(
+                "native first-pass 0x615D10 lookup not reached")
+        registry = request.native_calendar_registry_va
+        date = request.first_requested_date_index
+    elif isinstance(request, OriginalV3CSecondCalendarLookupReceipt):
+        if request.original_second_pass_reached is not True:
+            raise OriginalV3CRescheduleGateError(
+                "native second EBX=1 lookup not reached")
+        registry = request.native_calendar_registry_va
+        date = request.second_requested_date_index
+    else:
+        raise OriginalV3CRescheduleGateError(
+            "typed source original first/second lookup request required")
+    return source_original_615d10_calendar_date_window(
+        original_calendar_registry_va=registry,
+        original_registry_record=original_registry_record_at_lookup,
+        original_requested_date_index=date,
+    )
