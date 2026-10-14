@@ -64,6 +64,7 @@ class Original7D7760HumanReturnReached:
     """Actual source inputs, NOT assumed successful original callbacks."""
 
     original_native_event_bytes: bytes
+    original_player_id_payload_pointer: int
     original_player_id_payload_bytes: bytes
     original_player_before_due: bytes
     original_native_scanner_target_date_raw: int
@@ -114,6 +115,9 @@ def source_original_7d7760_human_return_from_reached(
     if type(e) is not bytes or len(e) != 20:
         raise Original7D7760ReturnSourceError("Exact original 20-byte event required")
     vtable,due,count,idptr = unpack_from("<IIII",e)
+    if (_u32(reached.original_player_id_payload_pointer, "allocated player-ID pointer")
+            != idptr or idptr == 0):
+        raise Original7D7760ReturnSourceError("Original event+0C player-ID pointer ownership mismatch")
     # Native 60AB98 only writes BYTE+0x10; trailing +0x11..+0x13
     # are uninitialized allocator bytes and MUST NOT be assumed zero.
     status=e[0x10]
