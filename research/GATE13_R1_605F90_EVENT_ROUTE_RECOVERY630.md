@@ -1,0 +1,15 @@
+# Gate 13 Recovery 630: original 0x605F90 optional-player-event source closure
+
+**14 October 2026 KST.** Canonical main `e1c38ca7dc8c0688c71931b48be44440514aef85` (PR729 already merged and `CURRENT_STATE.md` updated). Exact-head source CI 38573981874 and repository asset policy 38573981955 were successful for PR729. Do not resurrect the older `worker/gate13-r1-5127a0-pointer-id-628` branch: PR728 superseded it on main.
+
+## Specific native callback and ownership problem
+
+Original `0x41A5B0` is an **optional** callback after `0x4197C0` on active-row flag+0x4A; its source-reached `0x417340` registered-human gate and `0x405080` team-roster count influence whether the event-producing path can execute. On the positive branch the original allocates a 12-byte descriptor via `0x605F70`, stores its pointer at DBRPlayer+0x24C, and calls `0x605F90` with subtype 0 or 1 depending on original player+0x77 and source global 0x821814. The existing `original_native_41a5b0_extra_event.py` returns **no mutation receipt** for the positive branch and correctly refuses to represent a native allocation or delivered event. This is the current player-visible fidelity dependency, not an isolated code-cleanup item.
+
+Before implementing live event effects, obtain and hash-validate the **small private original executable** from the verified extracted Drive source (or previously mounted copy), not a ZIP/BIN extraction. Disassemble bounded native `0x605F90` and downstream `0x6060E0`, `0x6061F0`, `0x606290`, `0x605F70` with exact entry/return and original caller arguments. Identify: event descriptor+0/+4/+8 layout; player+0x24C pointer lifecycle, overwrite and cleanup; actual mutable player/club/world fields; per-subtype registration/dequeue; any RNG/calendar/date and active-manager recipient conditions. Distinguish original queue `0x947AA8` from date registries and modern Inbox. Do not treat source result as execution.
+
+## Acceptance for next implementation milestone
+
+A source-shaped *atomic* projector must preserve caller/player object pointer identity, subtype 0/1, all reached intermediate callback results, and original source owner writes or explicitly fail closed. Test both sides, both subtypes, human and non-human conditions, roster threshold boundary, existing player+0x24C descriptor, duplicate allocations, missing/failed allocation, and save/restore. Only when original callbacks and object lifetime are supported connect this to the persistent `GameState` native player/world sidecars and ordinary match progression. Do not create a real event from an imagined recipient or assume that side effects are harmless.
+
+Original normal sequence remains `NEXT → PPreMatch` original modes 0/1/2/3 → `PResults` → management return; all shipped countries, multiple human managers, career persistence, and Gates 13–17 genuine Windows 11 graphical acceptance remain OPEN. This research handoff is not proof of original 605F90 implementation, and no original executable execution or GUI session has been claimed.
