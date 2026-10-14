@@ -57,6 +57,8 @@ on:
       - "reconstruction/test_original_native_417340_registered_user_gate.py"
       - "reconstruction/original_native_4085d0_world_branch.py"
       - "reconstruction/test_original_native_4085d0_world_branch.py"
+      - "reconstruction/original_native_418220_role_swap.py"
+      - "reconstruction/test_original_native_418220_role_swap.py"
       - "reconstruction/game_state.py"
       - "reconstruction/internal_save.py"
       - "reconstruction/original_native_514520_slot_activation.py"
@@ -402,6 +404,7 @@ jobs:
             test_original_native_41a250_uefa_producer \
             test_original_native_417340_registered_user_gate \
             test_original_native_4085d0_world_branch \
+            test_original_native_418220_role_swap \
             test_original_native_514520_slot_activation \
             test_original_native_510ba0_insertion_entry \
             test_original_native_615890_slot_window \
