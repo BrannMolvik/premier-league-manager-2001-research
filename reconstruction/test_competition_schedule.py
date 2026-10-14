@@ -1,6 +1,7 @@
 import unittest
 from types import SimpleNamespace
 
+from fm2001_data import RoundDefinition
 from competition_schedule import (
     club_refs_conflict,
     direct_club_ref,
@@ -118,6 +119,8 @@ class CompetitionScheduleTests(unittest.TestCase):
             ],
         )
         self.assertEqual(nodes[1].node_token, ("cup_result", 5, 77, 0))
+        self.assertEqual(nodes[0].original_native_initial_flags_evidence.initial_original_flags44,0)
+        self.assertIsNone(nodes[1].original_native_initial_flags_evidence)
         self.assertEqual(tuple((node.original_native_constructor_evidence.original_native_serialized_type_code,
                                 node.original_native_constructor_evidence.original_native_vtable_va)
                                for node in nodes),((4,0x7C9EF8),(5,0x7C9F70)))
@@ -137,6 +140,38 @@ class CompetitionScheduleTests(unittest.TestCase):
             ),
             (True, True, True),
         )
+
+    def test_canonical_original_round_bytes_prove_fresh_cup_event_flags_not_stub_flags(self):
+        definition=RoundDefinition(
+            id=77,type_code=1,competition_id=5,round_number=1,name="Cup",
+            scheduled_week=12,scheduled_weekday=6,
+            replay_week=13,replay_weekday=3,team_count=2,new_entrants=0,
+            cup_extra_time_flag=2,cup_auxiliary_flag=0,cup_decisive_flag=0)
+        pairing=self._pairing(1)
+        runtime=MaterializedCupRound(
+            round_id=77,round_type=1,
+            participant_refs=(pairing.left_ref,pairing.right_ref),
+            pairings=(pairing,))
+        node=materialize_cup_round_schedule_nodes(runtime,definition,competition_id=5)[0]
+        self.assertIsNotNone(node.original_native_initial_flags_evidence)
+        self.assertEqual(node.original_native_constructor_evidence.original_native_serialized_type_code,2)
+        self.assertEqual(node.original_native_initial_flags_evidence.initial_original_flags44,0)
+        self.assertEqual(node.original_native_initial_flags_evidence.source_native_date_collection_pointer,0x947AF0)
+        # A nonzero canonical DBRRound even bit is NOT identical to
+        # the source CupMatch argument &1 at 0x510573.
+        self.assertTrue(node.extra_time_capable)
+        # A real original decisive byte with bit0 changes the original
+        # vtable+0x30 event collection despite unchanged Cup class.
+        from dataclasses import replace
+        other=materialize_cup_round_schedule_nodes(
+            runtime,replace(definition,cup_decisive_flag=1),
+            competition_id=5)[0]
+        self.assertEqual(other.original_native_initial_flags_evidence.initial_original_flags44,4)
+        self.assertEqual(other.original_native_initial_flags_evidence.source_native_date_collection_pointer,0x947AD8)
+        # The old synthetic test stub has no original DBRRound fields.
+        self.assertIsNone(materialize_cup_round_schedule_nodes(
+            runtime,self._round_definition(1),competition_id=5
+        )[0].original_native_initial_flags_evidence)
 
     def test_minileague_parent_round_emits_no_match_nodes(self):
         runtime_round = MaterializedCupRound(
@@ -263,6 +298,8 @@ class CompetitionScheduleTests(unittest.TestCase):
         self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_va,0x5104F0)
         self.assertEqual(node.original_native_constructor_evidence.original_native_serialized_type_code,1)
         self.assertEqual(node.original_native_constructor_evidence.original_native_constructor_callsite_va,0x617047)
+        self.assertEqual(node.original_native_initial_flags_evidence.initial_original_flags44,0)
+        self.assertEqual(node.original_native_initial_flags_evidence.source_native_date_collection_pointer,0x947AD8)
         self.assertFalse(node.original_native_constructor_evidence.is_live_original_event)
         self.assertEqual(node.schedule_index, 4)
         source_emitter=source_original_procedural_event_emitter_616fc0(
