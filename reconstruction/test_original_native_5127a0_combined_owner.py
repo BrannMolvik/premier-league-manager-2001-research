@@ -127,10 +127,21 @@ class Original5127A0CombinedOwnerTests(unittest.TestCase):
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"across opposing teams"):
             qualified(a,second)
         # Same original resolved pointer in two independent native owners.
+        second_normal=side(1)
+        source_second=second_normal[0]
+        cross=replace(source_second.source_rows[0],source_player_pointer=0x4000)
+        source_second=replace(
+            source_second,
+            source_rows=(cross,),
+            source_steps=tuple(
+                replace(step,original_player_id=0x4000,original_row=cross)
+                if step.phase=="row" else step
+                for step in source_second.source_steps),
+        )
         both_pointer=(Original5127A0ReachedPlayer(0x4000,native_player(110)),
-                      second[1][1])
+                      second_normal[1][1])
         with self.assertRaisesRegex(Original5127A0CombinedSourceError,"across opposing teams"):
-            qualified(a,(second[0],both_pointer))
+            qualified(a,(source_second,both_pointer))
 
     def test_duplicated_starting_player_pointer_and_wrong_team_owner_failclosed(self):
         a,b=side(0,row_count=2)
