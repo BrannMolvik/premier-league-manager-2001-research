@@ -1,3 +1,8 @@
+### 15 October 2026 KST - Recovery633 source-correct 605F90 posthandler USER record ownership
+
+- Merged reviewed PR732 at main `38e045f76db2a4255ae9c08fc479089a0fd6d12d` after Gate13 `38589393310` 1,831 tests/149 skips and asset policy `38589393606` succeeded.
+- Actual original private SHA-verified x86 `605FEE–60601F` posthandler resolves third player getter into registered-human `417340`; if positive, fourth getter then `417380` through `4172D0→403850→413B40` chooses **registered USER**, reads USER+6B8 table, picks `41E3D0` BYTE player+70 (because argument equals signed player+10), selects 200-byte `(index-1)` record and clears +24. Prior “club+6B8” characterization was incorrect, not used in implementation. Source bounded read-only contract/tests staged on `worker/gate13-r1-605f90-posthandler-633`; 24 original PE signatures privately rechecked, original not executed. No event delivery, descriptor lifetime, GameState mutation or actual NEXT→PPreMatch all original modes→PResults→management return; Gates13–17 open.
+
 ### 14 October 2026 KST - Recovery627 PR731 integrated; Recovery632 human notification dispatch source underway
 
 - Existing worker's original 606540 nonhuman→60AA20 prequeue owner proof and independently source-modeled player+14/+22/+77, descriptor date and pending 7D7760 event are merged via **PR731**, commit `b3415f5c31f305616bc62dbaf50f4837336bb1ba`. Exact-head Gate13 `38587159670` successful, 1,826 tests/148 expected skips; asset-policy `38587159568` successful. Original private 4,714,541-byte executable SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` independently verified and statically disassembled, never run/committed.
