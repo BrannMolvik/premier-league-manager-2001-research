@@ -51,7 +51,7 @@ class Original7D7760DueCleanupReceipt:
     original_player_24c_descriptor_pointer_before: int
     original_418ad0_calls_686fe3_if_nonnull: bool
     original_player_after_source_cleanup: bytes
-    original_original_event_queue_mutated: bool = False
+    original_event_queue_mutated: bool = False
     original_native_event_handler_executed: bool = False
     original_player_heap_freed: bool = False
     original_notice_delivered: bool = False
