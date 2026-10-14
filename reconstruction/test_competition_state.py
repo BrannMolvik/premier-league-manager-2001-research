@@ -113,6 +113,21 @@ class LeagueStateTests(unittest.TestCase):
         self.assertIsNone(league.publish_exact_ranking(registry, tied.get))
         self.assertEqual(registry.competition_rankings, {})
 
+    def test_original_table_full_source_bytes_tie_after_null_terminator(self):
+        league=PremierLeagueState((
+            Fixture(0,0,10,20),Fixture(1,0,30,40)))
+        league.record_result(0,1,0)
+        league.record_result(1,1,0)
+        names={10:b"Same\x00A",30:b"Same\x00Z",
+               20:b"Beta",40:b"Gamma"}
+        with self.assertRaisesRegex(ValueError,"qsort tie order"):
+            league.table(names.get)
+        self.assertIsNone(league.exact_ranking(names.get))
+
+        names[30]=b"Alpha\x00trailing"
+        self.assertEqual(league.exact_ranking(names.get),
+                         (30,10,20,40))
+
     def test_gamestate_table_adapts_canonical_club_short_names_and_fallbacks(self):
         league = PremierLeagueState((
             Fixture(0, 0, 10, 20),
