@@ -183,6 +183,18 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         state.refresh_procedural_league_group_position_rankings(14)
         self.assertNotIn((14,0),state.cup_results.group_position_rankings)
 
+    def test_game_state_ordinary_procedural_result_keeps_bad_source_shortname_pending(self):
+        node=league_node(0,10,20,competition_id=14,context=0)
+        state=GameState(calendar=GameCalendar(date(2000,7,1)),players={})
+        state.clubs={10:SimpleNamespace(short_name="🙂"),
+                     20:SimpleNamespace(short_name="Beta")}
+        state.install_primary_schedule_shadow(((node,),),season_year=2000)
+        state.refresh_european_procedural_leagues()
+        result=state.record_procedural_league_result(node.node_token,1,0)
+        self.assertEqual((result.home_goals,result.away_goals),(1,0))
+        self.assertNotIn((14,0),state.cup_results.competition_rankings)
+        self.assertEqual(len(state.procedural_leagues[(14,0)].results),1)
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                          "Original private executable is not available in hosted CI")
     def test_original_league_vtable_sorter_and_strcmp_terminal_are_private_source(self):
