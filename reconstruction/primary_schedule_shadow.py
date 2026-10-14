@@ -544,12 +544,14 @@ class PrimaryScheduleShadowState:
         requested_date: date,
         current_date: date,
     ) -> date:
-        """Reproduce runtime ScheduleContainer::insert at 0x615A60.
+        """Source-gated projection of original 0x615A60 forward insertion.
 
-        0x615A60 clamps the requested relative day to at least current+1,
-        probes candidate-1/candidate/candidate+1 through 0x615890, and when
-        a conflicting match is found resumes from conflict+2. The accepted
-        node is then head-inserted into that already-shuffled day bucket.
+        Original 0x615A60 clamps requested day to current+1 and repeats
+        0x615890 nearby search at conflict+2. Native neighbor filtering
+        now observes known event+8/flag6 skip predicates first; the final
+        virtual+0 comparison is still a symbolic club-reference projection.
+        A missing native event owner/flag is an unresolved source dependency,
+        not permission to declare a date conflict or safe empty slot.
         """
 
         candidate = max(
