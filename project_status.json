@@ -41,7 +41,7 @@
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery636 main ce340f15ee0a0ad933724db191b44a24207d38bc includes source-verified PR743 first-side owner→conditional 5DB7D0 native stat tail, exact Gate13 38649800887 success (1926 tests/160 skips) and asset38649800865 success. Source-only, NOT live GameState or original process/GUI. Next prove native 5DA2F0 context+D84/D8C/D90 and 5DA538/5DBA60/5DBCD0 owners, join 513010 all four PPreMatch modes/v38/v3c and PResults/management. PR739 high-risk injury SaveLoad CI green but independent review pending/unmerged. Gates13–17 remain open, Windows11 GUI unverified.",
+  "active_task": "Recovery636 main 46e9781c15514b9f47819a8b7ae8941f4f9f1724 includes verified original R1 source PR744 (Gate13 run38651623309 1935 tests/161 skips SUCCESS; asset38651623294 SUCCESS), first-side source PR743. Active WIP worker/gate13-r1-5db6fa-context-world-636, original four 668350 x87 integer sources plus conditional user+694, 5DB6FA D84/D8C/D90/D94/D98/D9C context and first-side tail join, source-only 15 focused local tests. Actual original callback/FPU status, native GameState, modes0–3 NEXT→PPreMatch→PResults→management, all original leagues/humans and genuine Win11 GUI remain unverified, Gates13–17 OPEN. High-risk PR739 unmerged independent review outstanding.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3391,8 +3391,8 @@
   "recovery634_gate13_run742": 38640628709,
   "recovery634_pr739_high_risk_review_pending": true,
   "recovery634_original_gui_accepted": false,
-  "gate13_latest_verified_source_pr": 743,
-  "gate13_latest_verified_source_head": "b954d87fa58748b2793e84f629d3982dd191c4e3",
-  "gate13_latest_verified_source_gate13_run": 38649800887,
-  "gate13_latest_verified_source_asset_run": 38649800865
+  "gate13_latest_verified_source_pr": 744,
+  "gate13_latest_verified_source_head": "5443aef4dbf6986bf0e28dbf8c246f89be902023",
+  "gate13_latest_verified_source_gate13_run": 38651623309,
+  "gate13_latest_verified_source_asset_run": 38651623294
 }
