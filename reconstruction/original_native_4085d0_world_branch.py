@@ -167,6 +167,12 @@ def source_original_4085d0_qualified_mutating_leaf(
             or original_registered_417340.live_game_state_updated
             or original_registered_417340.original_native_player_at_call != bytes(staged)):
         raise Original4085D0SourceError("original post-mutation 417340 player/predicate mismatch")
+    if (original_registered_417340.original_source_club_pointer
+            != reached.original_team_owner_pointer
+            or original_registered_417340.original_source_club_owner_key
+            != unpack_from("<I", reached.original_team_owner_record, 4)[0]):
+        raise Original4085D0SourceError(
+            "original 4197C0 current-team and 417340 registered owner mismatch")
     if original_registered_417340.original_417340_return_al not in (0,1):
         raise Original4085D0SourceError("qualified native 417340 low AL 0/1 required")
     if original_registered_417340.original_417340_return_al==0 and not(flags&(1<<13)):

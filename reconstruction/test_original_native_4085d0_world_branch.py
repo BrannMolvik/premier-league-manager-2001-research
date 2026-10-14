@@ -33,7 +33,7 @@ def native_team(key=2):
 def reached(*,team=2,flags=0,key=2,n=0,peer=0,capacity=2,
             obj=b"\x00\x00\x00\xef\x00",pointer=0x3000,player=None):
     return Original4085D0ReachedWorld(
-        0x1000,native_team(key),0x2000,
+        (0x60000 if team<0 else 0x50000+680*team),native_team(key),0x2000,
         native_player(team=team,flags=flags) if player is None else player,
         n,pointer,obj,peer,capacity,
     )
