@@ -14,6 +14,7 @@ from original_native_side_ref_comparison import (
     source_original_sidereference_virtual0_dispatch_4f28a0,
     SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_SUBTYPE_BRANCHES,
     SOURCE_ORIGINAL_SIDEREF_VIRTUAL0_JUMPTABLE_VA,
+    source_original_no_mutating_sidereference_pair_compare_4f2830,
 )
 from original_leaguematch_native_process_owners import SOURCE_LEAGUEMATCH_NATIVE_METHOD_OWNERS
 
@@ -198,6 +199,40 @@ class OriginalNativeSideRefComparisonTests(unittest.TestCase):
                 OriginalNativeSideRefCompareSourceError):
                 source_original_sidereference_virtual0_dispatch_4f28a0(
                     original_native_side_record_before_getter=bad)
+
+
+    def test_source_exact_cached_side_pair_without_unreached_mutating_getter(self):
+        # These original SideRef records contain real source-typed cached
+        # native pointers, NOT Python club IDs.
+        for left,right,want in (
+            (native_side(cache=0x1111,type_code=0),native_side(cache=0x1111,type_code=0),True),
+            (native_side(cache=0x1111,type_code=1),native_side(cache=0x2222,type_code=4),False),
+            (native_side(cache=0x1111,type_code=1),native_side(cache=0,type_code=0),False),
+            (native_side(cache=0,type_code=0),native_side(cache=0,type_code=0),True),
+            (native_side(cache=0,type_code=5),native_side(cache=0,type_code=5),True),
+            (native_side(cache=0,type_code=5),native_side(cache=0,type_code=0),False),
+            (native_side(cache=0,type_code=0,owner=0x2121,selector=2),
+             native_side(cache=0,type_code=0,owner=0x2121,selector=2),True),
+            (native_side(cache=0,type_code=0,owner=0x2121,selector=2),
+             native_side(cache=0,type_code=0,owner=0x2121,selector=3),False),
+        ):
+            with self.subTest(left=left.hex(),right=right.hex()):
+                r=source_original_no_mutating_sidereference_pair_compare_4f2830(
+                    original_left_side_record=left,original_right_side_record=right)
+                self.assertEqual(r.source_original_v4_or_v0_comparison_result,want)
+
+    def test_original_unresolved_mutating_getter_is_not_fake_direct_cache(self):
+        for subtype in (1,2,3,4):
+            for cache_other in (0,0x1111):
+                with self.subTest(type=subtype,other=cache_other):
+                    with self.assertRaises(OriginalNativeSideRefCompareSourceError):
+                        source_original_no_mutating_sidereference_pair_compare_4f2830(
+                            original_left_side_record=native_side(cache=0,type_code=subtype),
+                            original_right_side_record=native_side(cache=cache_other,type_code=0))
+                    with self.assertRaises(OriginalNativeSideRefCompareSourceError):
+                        source_original_no_mutating_sidereference_pair_compare_4f2830(
+                            original_left_side_record=native_side(cache=cache_other,type_code=0),
+                            original_right_side_record=native_side(cache=0,type_code=subtype))
 
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "owner original private PE not accessible in hosted CI")
