@@ -12,7 +12,7 @@
 ## Actual native first rescheduling-calendar request
 
 - `0x5127A0` begins a **two-iteration** EBX=0,1 team/event ownership loop, not a simple date update. For the first pass EBX=0, `0x5127B7` reads DWORD `[processing owner+0]` into EBP as first native team/event owner pointer.
-- `0x512822` reads a *source global date index* DWORD from `0x9847FC`; `0x512828` forms `date+1` with uint32 wrap. At `0x512830` original `0x510300` dispatches **two separate event registries** using `match+0x0C` bit0: set -> `0x947AF0`, clear -> `0x947AD8`. At `0x512838` the original invokes `0x615D10` on that registry with first owner pointer, date+1 and the literal `1`. It consumes the returned event pointer and performs further mutable native world/fixture/player work. Neither `0x615D10` return value nor resulting insertion is established from only these inputs. The later second EBX=1 pass is still unresolved.
+- `0x512822` reads a *source global date index* DWORD from `0x9847FC`; `0x512828` forms `date+1` with uint32 wrap. At `0x512830` original `0x510300` dispatches **two separate event registries** using `match+0x0C` bit0: set -> source SECOND collection `0x947AF0`, clear -> source FIRST collection `0x947AD8`. At `0x512838` the original invokes `0x615D10` on that registry with first owner pointer, date+1 and the literal `1`. It consumes the returned event pointer and performs further mutable native world/fixture/player work. Neither `0x615D10` return value nor resulting insertion is established from only these inputs. The later second EBX=1 pass is still unresolved.
 
 ## Implementation and qualification
 
