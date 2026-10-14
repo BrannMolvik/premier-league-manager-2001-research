@@ -87,6 +87,56 @@ class CupDatabase(Database):
 
 
 class InternalSaveTests(unittest.TestCase):
+    def test_source_only_original_injury_notice_state_survives_disk_and_strict_restore(self):
+        """Raw native source date, owner, status and queue separation survive."""
+        from copy import deepcopy
+        from original_606540_portable_notice_world import (
+            Original606540PortablePending, Original606540PortableUserNotice,
+            Original606540PortableWorld,
+        )
+        ctrl = self.build_controller()
+        native_player_id = next(iter(ctrl.state.players))
+        # Real original constructor identity, not a fictitious Inbox title.
+        # Independent source-order serials and raw unsigned original dates.
+        ctrl.state.original_injury_notice_world = Original606540PortableWorld(
+            next_serial=3,
+            pending=(Original606540PortablePending(
+                2, native_player_id, 0x58AD80, 0x7D1D34, 31, 777, 0xFFFFFFFF
+            ),),
+            user_notices=(Original606540PortableUserNotice(
+                1, native_player_id, 0x58B090, 0x7D1D88, 2, 777, 0xFFFFFFFE
+            ),),
+        )
+        before = snapshot_human_gameplay(ctrl)
+        encoded = dumps_human_gameplay(ctrl)
+        decoded = loads_human_gameplay(
+            Database(), coefficient_matrix(), coefficient_matrix(), encoded)
+        self.assertEqual(decoded.state.original_injury_notice_world,
+                         ctrl.state.original_injury_notice_world)
+        self.assertEqual(snapshot_human_gameplay(decoded), before)
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "injury_queue.fm2k"
+            save_human_gameplay(ctrl, target)
+            on_disk = load_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), target)
+            self.assertEqual(on_disk.state.original_injury_notice_world,
+                             ctrl.state.original_injury_notice_world)
+        # Historical same-schema internal saves lack this NEW source-only
+        # field and must never acquire synthetic native pending mail.
+        historical = deepcopy(before)
+        del historical["game_state"]["original_injury_notice_world"]
+        old = restore_human_gameplay(
+            Database(), coefficient_matrix(), coefficient_matrix(), historical)
+        self.assertEqual(old.state.original_injury_notice_world,
+                         Original606540PortableWorld())
+        # Bad owner/class metadata is rejected before changing live controller.
+        forged = deepcopy(before)
+        forged["game_state"]["original_injury_notice_world"]["pending"][0][
+            "original_type"] = 2
+        with self.assertRaisesRegex(ValueError, "class/vtable/family"):
+            restore_human_gameplay(
+                Database(), coefficient_matrix(), coefficient_matrix(), forged)
+
     def test_native_user_shape_fresh_binding_and_arbitrary_bytes_survive_disk(self):
         from original_user_shape import NativeUserShapeState
         original = self.build_controller()
