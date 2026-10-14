@@ -14,6 +14,7 @@ from original_native_type4_pair_selector import (
     source_original_type4_owner_read_only_gate_4faea0,
     source_original_type4_classify_reached_pairs_before_617500_4faea0,
     source_original_type4_temporary_standalone_4f2aa9_4f2b24,
+    source_original_type4_replay_617500_reorder_from_reached_native_pairs,
 )
 
 
@@ -230,12 +231,65 @@ class OriginalNativeType4PairTests(unittest.TestCase):
                 source_original_type4_temporary_standalone_4f2aa9_4f2b24(
                     original_selected_sidereference_record=bad)
 
+    def test_617500_matches_both_pair_orders_and_zeroes_consumed_first_pointer(self):
+        source=((0x1111,0x2222),(0x3333,0x4444),(0x5555,0x6666))
+        # The native generator supplies first DWORDs dereferenced from
+        # generated team objects, and may have other unmatchable pairs.
+        got=source_original_type4_replay_617500_reorder_from_reached_native_pairs(
+            original_source_pre_sort_pairs=source,
+            original_reached_generated_pairs_in_native_loop_order=(
+                (0x4444,0x3333),(0,0x2222),(0x1000,0x2000),
+                (0x1111,0x2222),(0x1111,0x2222),(0x6666,0x5555)))
+        self.assertEqual(got.source_original_retained_pairs_in_generated_order,
+                         (source[1],source[0],source[2]))
+        self.assertEqual(got.source_original_consumed_initial_indices,(1,0,2))
+        self.assertEqual(got.source_original_initial_pairs_after_zeroing_first_pointers,
+                         ((0,0x2222),(0,0x4444),(0,0x6666)))
+        self.assertEqual(got.source_original_skipped_null_or_nonmatching_generated_pairs,3)
+
+    def test_617500_empty_and_negative_reached_native_pairs_fail_closed(self):
+        got=source_original_type4_replay_617500_reorder_from_reached_native_pairs(
+            original_source_pre_sort_pairs=(),original_reached_generated_pairs_in_native_loop_order=())
+        self.assertEqual(got.source_original_retained_pairs_in_generated_order,())
+        for change in (
+            dict(original_source_pre_sort_pairs=None),
+            dict(original_source_pre_sort_pairs=[(1,2)]),
+            dict(original_source_pre_sort_pairs=((0,1),)),
+            dict(original_source_pre_sort_pairs=((True,2),)),
+            dict(original_source_pre_sort_pairs=((1,),)),
+            dict(original_source_pre_sort_pairs=((1,0x100000000),)),
+            dict(original_reached_generated_pairs_in_native_loop_order=None),
+            dict(original_reached_generated_pairs_in_native_loop_order=[(1,2)]),
+            dict(original_reached_generated_pairs_in_native_loop_order=((False,2),)),
+            dict(original_reached_generated_pairs_in_native_loop_order=((1,),)),
+        ):
+            with self.subTest(change=repr(change)[:110]):
+                with self.assertRaises(OriginalType4PairSourceError):
+                    source_original_type4_replay_617500_reorder_from_reached_native_pairs(
+                        **(dict(original_source_pre_sort_pairs=((1,2),),
+                                original_reached_generated_pairs_in_native_loop_order=((1,2),))|change))
+
     @unittest.skipUnless(os.environ.get("FM2001_ORIGINAL_EXE"),
                           "original private executable deliberately not distributed in hosted CI")
     def test_original_private_x86_control_flow_matches_bounded_selector(self):
         from gate13_button_source_trace import OriginalPE32
         pe=OriginalPE32.parse(Path(os.environ["FM2001_ORIGINAL_EXE"]).read_bytes())
         sites={
+            0x617729:"8b 01",
+            0x61774C:"8b 11",
+            0x617756:"3b da",
+            0x61775A:"3b 79 04",
+            0x61775F:"3b 59 04",
+            0x617764:"3b fa",
+            0x61777A:"8b 54 24 10",
+            0x61778A:"89 3c ca",
+            0x617791:"89 7c ca 04",
+            0x6177A0:"c7 04 c1 00 00 00 00",
+            0x61783E:"85 c0",
+            0x617840:"89 7b 04",
+            0x617870:"89 3b",
+            0x617875:"f3 a5",
+            0x61787C:"f3 a4",
             0x4FAEDB:"8b 56 6c",
             0x4FAEE0:"8b 3c da",
             0x4FAEE8:"e8 c3 91 ff ff",
