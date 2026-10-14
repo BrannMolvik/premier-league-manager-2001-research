@@ -127,6 +127,9 @@ def source_original_4197c0_callbackfree_player_row(
              "third UEFA competition+14 owner context",allow_zero=False)
         if reached.original_5112e0_v30_eax is not None:
             raise Original4197C0SafeRowError("UEFA branch returns before 5112E0")
+        if ((p[0x13d]+row.source_4197c0_arg1)&0xff)>2:
+            raise Original4197C0SafeRowError(
+                "original 41A250 would reach its 417340/event callback")
         projection=source_original_41a250_uefa_incident_from_reached(
             Original41A250Reached(
                 original_row=row,original_native_player_at_entry=post,
