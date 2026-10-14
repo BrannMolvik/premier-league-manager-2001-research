@@ -6,6 +6,8 @@ from pathlib import Path
 from struct import pack, pack_into
 import unittest
 
+from procedural_league import materialize_scot_premier_split_match_emissions
+
 from original_native_type4_pair_selector import (
     OriginalType4PairSourceError,
     source_original_type4_pair_selection_4f2a78_4faf70,
@@ -65,6 +67,33 @@ class OriginalNativeType4PairTests(unittest.TestCase):
                     self.assertEqual(result.source_original_pair_member_index,member)
                     self.assertEqual(result.source_original_selected_sidereference_pointer,
                                      pairs[index][member])
+
+    def test_real_reconstruction_scot_split_selectors_match_original_native_bit_routing(self):
+        # Current normal Scottish split emission contract, not proof of
+        # original 4FAEA0 postgate ranking/world state or real pointers.
+        emissions=materialize_scot_premier_split_match_emissions(12,38)
+        self.assertEqual(len(emissions),30)
+        top=tuple((0x100000+8*i,0x100004+8*i) for i in range(15))
+        bottom=tuple((0x200000+8*i,0x200004+8*i) for i in range(15))
+        self.assertEqual({e.split_group for e in emissions},{"top","bottom"})
+        for emission in emissions:
+            family=0x74 if emission.split_group=="top" else 0x7C
+            for side,selector in enumerate((
+                emission.participant_0_selector,emission.participant_1_selector)):
+                with self.subTest(group=emission.split_group,slot=emission.pair_index,
+                                  side=side):
+                    got=source_original_type4_pair_selection_4f2a78_4faf70(
+                        original_embedded_side_ref_before_getter=embedded_type4(
+                            selector=selector),
+                        original_reached_4faea0_al=1,
+                        original_owner_pairs_74_after_gate=top,
+                        original_owner_pairs_7c_after_gate=bottom)
+                    source_pair=(top if emission.split_group=="top" else bottom)[
+                        emission.pair_index]
+                    self.assertEqual(got.source_original_pair_family_offset,family)
+                    self.assertEqual(got.source_original_pair_index,emission.pair_index)
+                    self.assertEqual(got.source_original_selected_sidereference_pointer,
+                                     source_pair[0 if side==0 else 1])
 
     def test_source_gate_fails_before_array_read(self):
         result=run(0xFFFF,
