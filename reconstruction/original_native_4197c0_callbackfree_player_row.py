@@ -53,8 +53,8 @@ class Original4197C0SafeRowReceipt:
     original_5112e0_masked_al: int | None
     source_41a490_accumulator_reached: bool
     source_41a250_uefa_reached: bool
-    source_419916_disicipline_continuation_reached: bool
-    source_auxiliary_world_callbacks_skipped: bool
+    source_419916_discipline_continuation_reached: bool
+    external_competition_virtual_world_effects_unverified: bool
     native_4197c0_executed: bool = False
     live_game_state_updated: bool = False
 
@@ -181,6 +181,6 @@ def source_original_4197c0_callbackfree_player_row(
         original_5112e0_masked_al=v30,
         source_41a490_accumulator_reached=accumulator,
         source_41a250_uefa_reached=uefa,
-        source_419916_disicipline_continuation_reached=continuation,
-        source_auxiliary_world_callbacks_skipped=True,
+        source_419916_discipline_continuation_reached=continuation,
+        external_competition_virtual_world_effects_unverified=True,
     )
