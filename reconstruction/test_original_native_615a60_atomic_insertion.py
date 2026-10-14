@@ -271,7 +271,7 @@ class Original510BA0Through615A60Tests(unittest.TestCase):
         initial=bytearray(registry())
         pack_into("<I",initial,0x0C,7)
         link_bytes=bytearray(0x1C)
-        link_bytes[5]=0x91
+        link_bytes[0x1A]=0x91
         result=full_native_insert(reg=bytes(initial),
                                   selected_registry=bytes(initial),
                                   allocated=bytes(link_bytes))
@@ -287,7 +287,7 @@ class Original510BA0Through615A60Tests(unittest.TestCase):
         self.assertEqual(unpack_from("<I",made,0x10)[0],8)
         self.assertEqual(unpack_from("<I",made,0x14)[0],0x7000)
         self.assertEqual(unpack_from("<I",made,0x18)[0],0)
-        self.assertEqual(made[5],0x91)
+        self.assertEqual(made[0x1A],0x91)
         self.assertEqual(unpack_from("<I",
             result.original_link_insertion.projected_source_slot_vector,32)[0],0x9000)
         self.assertFalse(result.native_world_write_committed)
