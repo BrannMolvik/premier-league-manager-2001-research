@@ -88,7 +88,14 @@ def source_original_418050_reached_availability(
              original_global_threshold_8755ec_or_f0_if_reached)
     callbacks=(original_4f8e40_al_if_reached,
                original_dynamic_owner_vtable30_al_if_reached)
+    # Native 41807B visits read-only 41B360 whenever owner!=0, EVEN if
+    # its player+174 bit8 return is zero and all later owner work is skipped.
+    if owner:
+        reached.append(0x41B360)
     if owner==0 or not(flags174&0x100):
+        if later!=p:
+            raise Original418050SourceError(
+                "read-only/no owner callback path cannot modify the player before 41B490")
         if (original_dynamic_owner_record_if_reached is not None or
             any(x is not None for x in numeric+callbacks)):
             raise Original418050SourceError("unreached original dynamic owner callback values supplied")
@@ -97,7 +104,6 @@ def source_original_418050_reached_availability(
         if (type(original_dynamic_owner_record_if_reached) is not bytes or
                 len(original_dynamic_owner_record_if_reached)<0x38):
             raise Original418050SourceError("reached native owner through +34 bytes mandatory")
-        reached.append(0x41B360)
         type34=unpack_from("<I",original_dynamic_owner_record_if_reached,0x34)[0]
         if type34==1:
             if original_dynamic_owner_vtable30_al_if_reached is not None:
