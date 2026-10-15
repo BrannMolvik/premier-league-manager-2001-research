@@ -171,6 +171,8 @@ on:
       - "reconstruction/test_original_match_5da5d9_encounter_tier.py"
       - "reconstruction/original_match_5da785_grid_distance.py"
       - "reconstruction/test_original_match_5da785_grid_distance.py"
+      - "reconstruction/original_match_40cbc0_type1a_pair.py"
+      - "reconstruction/test_original_match_40cbc0_type1a_pair.py"
       - "reconstruction/original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/test_original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/original_presults_native_leaguematch_vtables.py"
@@ -612,6 +614,7 @@ jobs:
             test_original_match_5da2f0_team_inputs \
             test_original_match_5da5d9_encounter_tier \
             test_original_match_5da785_grid_distance \
+            test_original_match_40cbc0_type1a_pair \
             test_original_postresults_4325f7_pmenu_return \
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
