@@ -26,3 +26,47 @@ Direct original `objdump -d -M intel --start-address=0x4a8240 --stop-address=0x4
 The modern `HumanGameplayController` is still one-human, and its `PrimaryScheduleShadowState` reflects only primary match-event semantic nodes without a full original event+8 identity, all virtual+0C qualifiers, original 947AF0 second collection or mutable native event+v10 callbacks. So the code above is a source-backed **bridge**, not permission to emit ordinary NEXT UI tick messages. NEXT→PPreMatch modes0–3→PResults→PBg 432505 native conditional Start/PMenu/multiuser return, native 513252→5DA2F0 score/v38/v3c, SaveLoad, all original leagues and real Win11 GUI remain OPEN. PR739 high-risk separate. Gate13 earliest incomplete, Gates14–17 open.
 
 **NEXT source-proven implementation:** reconstruct both first and second event registries as durable scheduled GameState owners (including non-LeagueMatch entries), original+8/vtable/event+44 and callback ordering/mutating effects, and validated 4A7210 total. Then use the existing ordinary `OriginalGameTkHost` source progress drawing seam with actual ordered dual source ticks; finish guarded 432505 postresults return without inventing modal close/return click. Further independent cloud-safe source work can proceed even if physical Windows11 original gameplay remains externally blocked.
+
+
+## Recovery647 player-display integration, source-gated dual callback receipts
+
+The WIP now continues beyond static callback analysis: original
+`source_original_presults_bottom_surface` and the **ordinary
+`OriginalGameTkHost`** have a strictly typed pathway
+`apply_source_original_presults_two_collection_callbacks`
+for a *caller-supplied authentic dual-registry* 4A8260
+receipt. This source-qualified pathway draws the genuine
+three imported PResults bottom bitmaps and quantized fill
+using both ordered original 6168C0 callback lists and the
+separately supplied first-only 4A7210 denominator.
+Primary 6168C0 returned AL remains independently recorded,
+never synthesized from whether secondary events occurred.
+
+The host refuses a forged or missing second-registry receipt,
+source numerator/denominator overflow, mixed single/dual source
+owners, an inactive results input owner, missing original source
+art or an overfull bitmap. The original second-registry may
+increase event processed+64 above first-only denominator+68;
+in such a case the read-only source model preserves the
+overshoot counter, but the renderer **refuses to clamp or
+invent overdraw pixels**. The actual old 800px game blit
+boundary under overfull counters is not yet source-verified.
+
+Five new renderer/host tests cover authentic source pixels
+in expected source XY, source primary/secondary AL disagreement,
+secondary-only ticks, overfull rollback without a state change,
+inactive match-owner refusal and mixing two incompatible event
+owners. They are registered alongside the existing
+five original 4A8260 dispatcher tests in focused Gate13 CI.
+
+**Crucial fidelity boundary:** The current ordinary Quick3
+worker **does not call this method automatically** because
+the modern `GameState` does not yet produce original-native
+event+8/vtable/v+0C/v+10 receipts for both registries.
+This work makes the existing real Tk component source-ready,
+not a genuine completed original 6168C0 callback stream,
+fully playable NEXT return or release acceptance.
+No native original game process/Windows11 physical comparison
+occurred. Source + unit test quality gates remain necessary
+before a substantive merge; original score/v38/v3c,
+all four match modes, SaveLoad and multi-human are OPEN.
