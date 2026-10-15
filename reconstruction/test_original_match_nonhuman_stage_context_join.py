@@ -129,3 +129,25 @@ class OriginalNonhumanStageContextJoinTests(TestCase):
                 continue
             self.assertEqual(raw[p],0xe8)
             self.assertEqual(site+5+unpack_from('<i',raw,p+1)[0],target)
+
+    def test_original_617d70_preserves_ordered_head_and_tail_links(self):
+        """Original 617D70 is native doubly-linked tail append, not a fake mail row."""
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE unavailable in hosted CI')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(
+            4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        sites={
+            0x617D70:'8b 51 08 8b 44 24 04 85 d2 74 16',
+            0x617D7B:'89 42 04 c7 40 04 00 00 00 00',
+            0x617D85:'8b 51 08 89 50 08 89 41 08 c2 04 00',
+            0x617D91:'89 41 08 89 41 04',
+            0x617D97:'c7 40 04 00 00 00 00',
+            0x617D9E:'c7 40 08 00 00 00 00 c2 04 00',
+        }
+        for va,source in sites.items():
+            with self.subTest(va=hex(va)):
+                b=bytes.fromhex(source)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
+        # Nonempty: old tail+4 gets new node; new node+8 gets old tail;
+        # owner+8 becomes new tail. Empty: owner+4=head,+8=tail.

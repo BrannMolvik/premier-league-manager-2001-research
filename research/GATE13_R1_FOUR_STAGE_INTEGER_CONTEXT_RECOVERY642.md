@@ -71,3 +71,28 @@ constructor values, FPU status/NaN/error cases, alternate recipient and
 queue side effects still require integration evidence. A new optional original
 PE regression checks source direct path, both early exits, mutable
 ESI-owner stores, and queue call. This is static source proof only.
+
+## Original 617D70 queue order and owner linkage
+
+A further original-disassembly verification of the shared `0x617D70`
+called after the 5DC510/5DC650 callbacks establishes an **ordered
+intrusive doubly-linked tail append**, not immediately a rendered Inbox
+notice or finalized match event. Its `ECX` is the original queue-owner
+object; `[ECX+0x8]` is the current tail pointer and `[ECX+0x4]`
+is the head pointer. Argument `[ESP+4]` is the new linked node.
+For nonempty queue, `617D7B` writes **oldtail+4=newnode**,
+`617D7E` clears **newnode+4=0**, `617D88` writes
+**newnode+8=oldtail**, and `617D8B` updates **owner+8=newnode**.
+For empty queue, `617D91/94` sets both **owner+8=owner+4=newnode**
+and `617D97/9E` clears both newnode links. `RET 4` consumes
+the one node argument. Original PE bytes were checked independently
+for both branch families; a read-only optional original-PE regression
+was added.
+
+The two native 5DC510 callback calls are meaningful state mutations
+and append ordered wrapper nodes to a queue *owned by their actual
+selected +0x670 source object*. Do **not** automatically reclassify
+this as the game's per-user +0x6B4 Inbox, or invent an original message
+identity; native payload, queue lifetime, delivery/render and SaveLoad
+still need original source evidence. Existing GameState live behavior
+is not changed by this source trace.
