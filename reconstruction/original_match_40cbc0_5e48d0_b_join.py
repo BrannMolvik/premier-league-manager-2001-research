@@ -29,6 +29,7 @@ class OriginalScoredStageFreshCallbackSource:
     original_factor_after_constructor: bytes
     original_5e48d0_qword: bytes
     direct_native_b_store_site_if_reached: int|None
+    original_human_gate: bool
     original_native_executed: bool=False
     game_state_updated: bool=False
 
@@ -73,4 +74,5 @@ def source_original_40cbc0_callback_to_stage_b(
         original_stage, '40cbc0-ebp8-first' if use_first else '40cbc0-ebpc-second',
         _INPUT_READ_SITES[original_stage-1],_CONSTRUCTOR_SITES[original_stage-1],
         raw,factor,_ONE_QWORD,raw,
-        _DIRECT_B_WRITE_SITES[original_stage-1] if writes_b else None)
+        _DIRECT_B_WRITE_SITES[original_stage-1] if writes_b else None,
+        original_4037b0_human_club)
