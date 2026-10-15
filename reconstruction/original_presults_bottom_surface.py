@@ -120,6 +120,7 @@ def source_original_presults_bottom_surface(
     original_dated_event_receipt=None,
     original_source_event_total: int | None = None,
     original_processed_before_callbacks: int | None = None,
+    original_two_collection_4a8260=None,
 ) -> OriginalPResultsBottomSurface:
     """Build only source sprites; source-qualified dated events may add fill.
 
@@ -133,19 +134,47 @@ def source_original_presults_bottom_surface(
     background = OriginalPResultsRgbaLayer(
         "loading_back", ORIGINAL_LOADING_BACK_RECT, art.original_progress_back.rgba)
     layers = [waiting, background]
-    if original_dated_event_receipt is None:
-        if original_source_event_total is not None or original_processed_before_callbacks is not None:
-            raise OriginalPResultsSourceError("cannot synthesize progress without actual dated callbacks")
-        return OriginalPResultsBottomSurface(tuple(layers))
-    if original_source_event_total is None or original_processed_before_callbacks is None:
-        raise OriginalPResultsSourceError("dated callbacks require authentic 4A7210 counters")
-    steps = source_original_presults_bar_rects_from_dated_callbacks(
-        original_6168c0_receipt=original_dated_event_receipt,
-        original_source_total_4a7210=original_source_event_total,
-        original_processed_before_callbacks=original_processed_before_callbacks,
-    )
-    if steps:
-        x, y, width, height = steps[-1].original_bar_rect_xywh
+    if original_two_collection_4a8260 is not None:
+        # The FIRST source registry is the only 4A7210 denominator owner,
+        # but BOTH ordered 6168C0 callback lists increment PResults+64.
+        # Never fabricate a merged receipt/AL or clamp an oversized bitmap.
+        if original_dated_event_receipt is not None:
+            raise OriginalPResultsSourceError(
+                "PResults cannot mix single-collection and dual-collection event owners")
+        if original_source_event_total is None or original_processed_before_callbacks is None:
+            raise OriginalPResultsSourceError(
+                "dual original registry callbacks require independent source 4A7210 counters")
+        from original_presults_two_collection_dispatch import (
+            source_original_4a8260_native_progress_counter_receipts,
+        )
+        counters=source_original_4a8260_native_progress_counter_receipts(
+            original_two_collection_receipt=original_two_collection_4a8260,
+            original_before_processed_64=original_processed_before_callbacks,
+            original_first_collection_4a7210_total_68=original_source_event_total,
+        )
+        if counters and counters[-1].native_width > art.original_progress_fill.width:
+            raise OriginalPResultsSourceError(
+                "native two-registry event ticks exceed the source 800px fill; "
+                "original clipping/overdraw behavior not verified")
+        steps=()
+        last_width=0 if not counters else counters[-1].native_width
+        has_source_events=bool(counters)
+    else:
+        if original_dated_event_receipt is None:
+            if original_source_event_total is not None or original_processed_before_callbacks is not None:
+                raise OriginalPResultsSourceError("cannot synthesize progress without actual dated callbacks")
+            return OriginalPResultsBottomSurface(tuple(layers))
+        if original_source_event_total is None or original_processed_before_callbacks is None:
+            raise OriginalPResultsSourceError("dated callbacks require authentic 4A7210 counters")
+        steps = source_original_presults_bar_rects_from_dated_callbacks(
+            original_6168c0_receipt=original_dated_event_receipt,
+            original_source_total_4a7210=original_source_event_total,
+            original_processed_before_callbacks=original_processed_before_callbacks,
+        )
+        has_source_events=bool(steps)
+        last_width=0 if not steps else steps[-1].original_bar_rect_xywh[2]
+    if has_source_events:
+        x, y, width, height = (0, 581, last_width, 10)
         if width:
             expected = ORIGINAL_LOADING_FILL_INITIAL_RECT
             if (x, y, height) != (expected[0], expected[1], expected[3]):
@@ -154,4 +183,4 @@ def source_original_presults_bottom_surface(
                 "loading_fill", (x, y, width, height),
                 _clip_left_native(art.original_progress_fill, width),
             ))
-    return OriginalPResultsBottomSurface(tuple(layers), bool(steps))
+    return OriginalPResultsBottomSurface(tuple(layers), has_source_events)
