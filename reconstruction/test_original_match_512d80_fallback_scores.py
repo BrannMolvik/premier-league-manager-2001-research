@@ -40,6 +40,13 @@ def inputs():
                 original_four_special_gates=no_gates())
 
 
+def reached_after_512d80(first=0,second=3,first_events=0,second_events=0):
+    out=bytearray(inputs()['original_context_record_before_512d80'])
+    pack_into('<II',out,0xd0c,first_events,second_events)
+    pack_into('<II',out,0xd4c,first,second)
+    return bytes(out)
+
+
 class Original512D80FallbackTests(TestCase):
     def test_two_immediate_native_crt_rand6_calls_and_full_source_context_scores(self):
         x=project(**inputs())
@@ -125,7 +132,9 @@ class Original512D80FallbackTests(TestCase):
             pack_into('<I',native,0,vtable)
             pack_into('<HH',native,0x3c,99,99)
             pack_into('<I',native,0x44,0x20)
-            p=compose(original_native_match_record_before_v38=bytes(native),**inputs())
+            p=compose(original_native_match_record_before_v38=bytes(native),
+                original_processing_context_actual_after_512d80_callbacks=reached_after_512d80(),
+                **inputs())
             match=p.original_v38_then_v3c_prefix.native_v3c_first_flag.match_record_after_first_bit0_store
             self.assertEqual(unpack_from('<HH',match,0x3c),(0,3))
             self.assertEqual(unpack_from('<I',match,0x44)[0],0x21)
@@ -139,13 +148,21 @@ class Original512D80FallbackTests(TestCase):
             source_original_5130c2_false_through_fallback_v38_v3c_prefix as compose)
         n=bytearray(0x60)
         pack_into('<I',n,0,0x7c9d9c)
-        ctx=bytearray(inputs()['original_context_record_before_512d80'])
-        pack_into('<I',ctx,0xd0c,1)
         with self.assertRaises(Original512D80SourceError):
             compose(original_native_match_record_before_v38=bytes(n),
-                    **(inputs()|{'original_context_record_before_512d80':bytes(ctx)}))
+                    original_processing_context_actual_after_512d80_callbacks=(
+                        reached_after_512d80(first_events=1)),**inputs())
         with self.assertRaises(Original512D80SourceError):
-            compose(original_native_match_record_before_v38=bytes(0x60),**inputs())
+            compose(original_native_match_record_before_v38=bytes(0x60),
+                    original_processing_context_actual_after_512d80_callbacks=reached_after_512d80(),
+                    **inputs())
+        for changed in (bytes(0xd54),reached_after_512d80(first=99),
+                        reached_after_512d80(second=99),b'',None):
+            with self.subTest(changed=changed),self.assertRaises(Original512D80SourceError):
+                compose(original_native_match_record_before_v38=bytes(n),
+                    original_processing_context_actual_after_512d80_callbacks=changed,
+                    **inputs())
+
 
     def test_actual_private_original_pe_proves_random6_source_score_stores_and_overrides(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
