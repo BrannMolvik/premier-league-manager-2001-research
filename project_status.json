@@ -36,12 +36,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "38ff7862ff220bde9ef939bfd916b1b8049db31f",
+  "latest_reverse_engineering_checkpoint": "703c751848d5f67f397e48b71f447541d7ead9c2",
   "last_verified_reconstruction_ci_head": "2a65a872e6cbf5f0dda10e7a176c3f1f05738995",
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery655 main 38ff7862ff220bde9ef939bfd916b1b8049db31f includes reviewed source PR768 status+position original 409C90 partial, exact head Gate13 2279 tests/236 skips run38727904108 SUCCESS asset38727904129 SUCCESS. Source original 4181B0 both reset/418220 status bytes swap, 409C90 class2/3 418130 availability, source-selected 4182F0 registered manager/bit13 restricted assignment now source projected. Native original SHA833bf95e static only no execution. NEXT original 418050 other-team-class dynamic eligibility and full 409C90 eleven-slot player/scores mutable team+34/+1D8, actual GameState SaveLoad followed by 513010→5DA2F0→v38/v3c/PResults both calendars all modes 0–3/manager return. All original countries/leagues, 2–6 humans, real Win11 GUI/release Gate13–17 OPEN. High-risk PR739 unmerged.",
+  "active_task": "Recovery656 canonical main 703c751848d5f67f397e48b71f447541d7ead9c2, PR769 original 418050 source dynamic eligibility and 409C90 initial mask all classes source-only merged. Exact head Gate13 38731266943 SUCCESS 2292 tests 238 skips; asset38731266927 SUCCESS. Original private PE 4,714,541 bytes SHA833bf95e static only, 45 original source opcodes checked, NO native launch/GameState/world writes. NEXT source original 409D79..40A2A4 11-position chooser with 41C7E0/41B970/668350 and 876CB8/407DF0 and team+34/+1D8, then actual persistent source-player original 5111A0/510D60→513010→5DA2F0 v38/v3c/GameState SaveLoad and normal NEXT mode0–3→PResults→management; original dual calendars/all countries/leagues/2–6 managers + Win11 GUI acceptance. Gate13–17 OPEN, high-risk PR739 unmerged. Runtime continuous working.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3416,5 +3416,15 @@
     "skipped": 236,
     "asset_run": 38727904129,
     "outcome": "success"
+  },
+  "gate13_recovery656_418050": "PR769 703c751848d5f67f397e48b71f447541d7ead9c2, exact 418050 all source branches and 409C90 two-class preliminary temporary mask only, no live status/state",
+  "gate13_recovery656_focused_ci": {
+    "head": "1cee80c47d4f99062e1c8c41b753584a5ec658d3",
+    "gate13_run": 38731266943,
+    "tests": 2292,
+    "skipped": 238,
+    "conclusion": "success",
+    "asset_policy_run": 38731266927,
+    "asset_conclusion": "success"
   }
 }
