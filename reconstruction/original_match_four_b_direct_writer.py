@@ -2,7 +2,7 @@
 
 Inputs are independently observed prior stage guards and human-club results.
 None = skipped, False = entered nonhuman, True = entered human.
-Does not prove a live native run, native B bytes, x87, or GameState.
+If all prior native stage B stores were skipped, the original ordinary 5DA2F0\nsetup still zero-initializes B at 5DA92B/+33 (two PUSH-shifted DWORDs).\nDoes not prove a live native run, arbitrary native B bytes, x87, or GameState.
 """
 from dataclasses import dataclass
 
@@ -26,6 +26,8 @@ class OriginalStageBExplicitWriter:
     native_store_sites: tuple[int, ...]
     no_prior_explicit_writer_proven: bool
     native_b_qword_known: bool = False
+    native_b_zero_initializer_sites: tuple[int, int] = (0x5DA92B, 0x5DA933)
+    source_b_qword_if_proven: bytes | None = None
     original_executed: bool = False
     game_state_updated: bool = False
 
@@ -54,4 +56,7 @@ def source_last_explicit_b_writer_before_nonhuman_stage(
     return OriginalStageBExplicitWriter(
         target_stage, last, _B_WRITE_SITES[last - 1] if last else (),
         no_prior_explicit_writer_proven=(last is None),
+        native_b_qword_known=(last is None),
+        native_b_zero_initializer_sites=(0x5DA92B, 0x5DA933),
+        source_b_qword_if_proven=(b'\x00' * 8 if last is None else None),
     )

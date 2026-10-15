@@ -17,7 +17,9 @@ class FourScoringStageBDirectWriterTests(TestCase):
         self.assertIsNone(r.preceding_native_stage)
         self.assertEqual(r.native_store_sites, ())
         self.assertTrue(r.no_prior_explicit_writer_proven)
-        self.assertFalse(r.native_b_qword_known)
+        self.assertTrue(r.native_b_qword_known)
+        self.assertEqual(r.source_b_qword_if_proven, b'\x00' * 8)
+        self.assertEqual(r.native_b_zero_initializer_sites, (0x5DA92B, 0x5DA933))
         self.assertFalse(r.original_executed)
         self.assertFalse(r.game_state_updated)
 
@@ -39,7 +41,8 @@ class FourScoringStageBDirectWriterTests(TestCase):
                 r = source_last_explicit_b_writer_before_nonhuman_stage(
                     target_stage=stage, reached_prior_stage_gates=prior)
                 self.assertEqual(r.preceding_native_stage, last)
-                self.assertFalse(r.native_b_qword_known)
+                self.assertEqual(r.native_b_qword_known, last is None)
+                self.assertEqual(r.source_b_qword_if_proven, b'\x00' * 8 if last is None else None)
 
     def test_no_invented_prior_history_or_human_classification(self):
         for stage, history in (
@@ -66,6 +69,9 @@ class FourScoringStageBDirectWriterTests(TestCase):
                 self.assertEqual(raw[pos:pos+2], b'\x0f\x85')
                 self.assertEqual(src + 6 + unpack_from('<i', raw, pos+2)[0], target)
         for src, code in (
+            (0x5DA8E7, '51 52'),
+            (0x5DA92B, 'c7 44 24 40 00 00 00 00'),
+            (0x5DA933, 'c7 44 24 44 00 00 00 00'),
             (0x5DA9AD, 'dd 5c 24 38'),
             (0x5DAC57, '89 4c 24 3c 8b ce 89 44 24 38'),
             (0x5DAED5, '89 4c 24 38 8b ce 89 54 24 3c'),
