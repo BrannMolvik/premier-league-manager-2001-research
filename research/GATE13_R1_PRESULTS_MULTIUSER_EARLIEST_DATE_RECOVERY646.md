@@ -26,3 +26,39 @@ Re-disassembled original `PResults::0x4A83F0..0x4A8513` (source does **not** def
 4. Physical Windows11 original-vs-port GUI interactions remain required, as do Gate13 and Gates14–17, all shipped leagues/countries, full inbox/Squad/season play. Existing PR739 remains separate high-risk/unmerged.
 
 **This branch does not yet open a PR because source-only earliest-date logic is not a finished normal player vertical slice. Continue feature batching rather than committing/CI after each trace.**
+
+
+## Fresh original 510380/5103D0 LeagueMatch construction and pre-count state
+
+Direct original PE `510380–5103C1` proves initial new native
+LeagueMatch instance has **event+0x08 DWORD=0**
+(`510395 MOV [EAX+8],0`), **date slot +0x10=-1**
+(`51039C MOV [EAX+10],FFFFFFFF`) and event+0x0C
+source collection ID from original passed collection pointer
+(`947AF0` selects low bit1) plus that owner's per-collection
+sequence integer. `5103BA–5103C1` increments source
+collection sequence. Then original `5103D0–5104E6`
+writes **match+0x44 DWORD=0** at 5104CF and sets
+native common LeagueMatch vtable 7C4CE4; original
+`510500–510516` wraps it as another common class
+7C4C24. This is actual constructor source evidence,
+not a new GameState flag invention.
+
+**Critical timing constraint:** new native event+0x08 and flags+0x44
+are demonstrably zero at constructor exit, but subsequent original
+event callbacks, postponement links, reschedules and v+0x38/v+0x3C
+may mutate these fields. Existing `PrimaryScheduleShadowEntry`
+tracks `payload_filter_bits` only in mask 0x61 and
+`side_club_cache` as surrogate. It does not retain independently
+sourced **native event+0x08** or a complete vtable pointer.
+Consequently constructor defaults alone do **not** authorize
+auto-counting all reconstructed future events at
+PResults `4A7210` or artificially adding native 6168C0 ticks.
+
+**Exact next check:** identify all original event+8 writes after
+initial `510395` and relevant original event+44 writes
+in 615A60/511370/510BA0 paths; persist actual equivalent
+per-node event8 and vtable class only where producer and
+mutation semantics are qualified. Then compare count
+against original first- and second-collection non-LeagueMatch
+events, fail closed on unknown candidate types.
