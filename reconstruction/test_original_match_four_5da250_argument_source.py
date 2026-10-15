@@ -71,7 +71,7 @@ class Four5DA250StageArgumentsTests(TestCase):
         data=[]
         for i in range(section_count):
             row=section_base+40*i
-            if raw[row:row+8].rstrip(b'\\x00')==b'.data':
+            if raw[row:row+8].rstrip(bytes([0]))==b'.data':
                 virtual_bytes,rva,raw_bytes,raw_start=unpack_from('<IIII',raw,row+8)
                 data.append((virtual_bytes,rva,raw_bytes,raw_start))
         self.assertEqual(len(data),1)
