@@ -225,3 +225,45 @@ def source_original_4181b0_reset_bit0_clear_branch(
     st[4]=st[4]&0xf0
     return SourceOriginal4181B0ResetNo418220(
         ptr,status_ptr,player,status,bytes(out),bytes(st))
+
+
+@dataclass(frozen=True)
+class SourceOriginal409C90PreSelectionPlayerReset:
+    original_41fa50_source_decision: SourceOriginal41FA50ClubKeyPredicate
+    original_4181b0_reset_if_reached: SourceOriginal4181B0ResetNo418220 | None
+    native_original_409c90_executed: bool = False
+    original_mutable_roster_world_completed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_409c90_reached_41fa50_then_optional_4181b0(
+    *, original_native_player_pointer: int,
+    original_player_record_before_41fa50: bytes,
+    original_global_8755d0_dword: int,
+    original_team_club_key_dword: int,
+    original_reached_status_record_for_4181b0_if_called: bytes | None,
+) -> SourceOriginal409C90PreSelectionPlayerReset:
+    """Original 40A18C 41FA50 then 40A1A8 4181B0 iff EAX==0.
+
+    4181B0 complete literal reset is source-qualified only where original
+    player+174 bit0 is clear (418180 skips mutating 418220).
+    When 41FA50 returns1, NO 4181B0 nor status record read is reached.
+    This is a source-typed plan; original roster status is NOT committed.
+    """
+    result=source_original_41fa50_player_club_link_predicate(
+        original_player_record=original_player_record_before_41fa50,
+        original_global_8755d0_dword=original_global_8755d0_dword,
+        original_reached_club_key_dword=original_team_club_key_dword,
+    )
+    if result.source_original_return_eax:
+        if original_reached_status_record_for_4181b0_if_called is not None:
+            raise Original409C90SourceError(
+                "original 41FA50 true skips 4181B0; unvisited status supplied")
+        return SourceOriginal409C90PreSelectionPlayerReset(result,None)
+    if original_reached_status_record_for_4181b0_if_called is None:
+        raise Original409C90SourceError("original 4181B0 reached status record mandatory")
+    reset=source_original_4181b0_reset_bit0_clear_branch(
+        original_player_native_pointer=original_native_player_pointer,
+        original_player_record_before=original_player_record_before_41fa50,
+        original_status_record_before=original_reached_status_record_for_4181b0_if_called)
+    return SourceOriginal409C90PreSelectionPlayerReset(result,reset)
