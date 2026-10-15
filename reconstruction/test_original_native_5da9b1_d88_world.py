@@ -71,7 +71,6 @@ class SourceOriginal5DA9B1D88Tests(TestCase):
         base=args(human=True)
         for bad in (
             {'original_5da9b3_first_side_club_pointer':0x71000},
-            {'original_5da9b3_4037b0_human_result':True},
             {'original_5da9be_403850_selected_user_pointer_if_human':0x45000},
             {'original_5da9db_selected_user694_pointer_second_if_human':0xAA000},
             {'original_reached_694_first_record_if_human':b''},
@@ -79,10 +78,6 @@ class SourceOriginal5DA9B1D88Tests(TestCase):
             {'original_processing_context_before_d88':bytes(12)},
         ):
             with self.subTest(bad=bad):
-                # Boolean True alone is legitimate; the test checks the
-                # other deliberately incorrect owner and byte cases.
-                if bad=={'original_5da9b3_4037b0_human_result':True}:
-                    continue
                 with self.assertRaises(Original5DA9B1D88SourceError):
                     source_original_5da9b1_match_d88_stage(**(base|bad))
         ai=args()
