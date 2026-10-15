@@ -97,6 +97,7 @@ def source_original_41e1d0_max_status_role_score(
 @dataclass(frozen=True)
 class SourceOriginal409C90PostSelectionContribution:
     original_native_slot_index: int
+    original_native_player_pointer_at_scoring: int
     original_409c90_plus90_mode_dword: int
     original_player_after_source_assignment_at_call: bytes
     original_role_dword_from_876cb8: int
@@ -111,6 +112,7 @@ class SourceOriginal409C90PostSelectionContribution:
 
 def source_original_409c90_selected_slot_score_contribution(
     *, original_slot_index: int,
+    original_native_player_pointer_at_scoring: int,
     original_409c90_plus90_mode_dword: int,
     original_native_player_at_post_assignment_scoring: bytes,
     original_role_dword_from_original_876cb8: int,
@@ -137,6 +139,10 @@ def source_original_409c90_selected_slot_score_contribution(
     previous=original_team_score_accumulator_before
     if type(i) is not int or not 0<=i<11:
         raise Original409C90ScoreSourceError("original selected XI slot 0..10 required")
+    if (type(original_native_player_pointer_at_scoring) is not int or
+            not 0<original_native_player_pointer_at_scoring<=0xffffffff):
+        raise Original409C90ScoreSourceError(
+            "actual native original 875640 indexed player pointer at scoring mandatory")
     if type(mode) is not int or not 0<=mode<=0xffffffff:
         raise Original409C90ScoreSourceError("actual original 409C90 +90 mode DWORD required")
     if type(p) is not bytes or len(p)<0x24c or unpack_from("<I",p,0x248)[0]==0:
@@ -167,7 +173,7 @@ def source_original_409c90_selected_slot_score_contribution(
     u=(previous+value)&0xffffffff
     signed=u if u<0x80000000 else u-0x100000000
     return SourceOriginal409C90PostSelectionContribution(
-        i,mode,p,role,previous,value,signed,scored,factor)
+        i,original_native_player_pointer_at_scoring,mode,p,role,previous,value,signed,scored,factor)
 
 
 @dataclass(frozen=True)
@@ -186,6 +192,7 @@ class SourceOriginal409C90FinalTeamScoreWrite:
 def source_original_409c90_exact_eleven_score_to_team_plus34(
     *, original_complete_source_second_pass: object,
     original_native_team_at_40a2a4: bytes,
+    original_global_875640_player_array_base_at_scoring: int,
     original_40a1f8_mode_dword: int,
     original_eleven_reached_scores: tuple[SourceOriginal409C90PostSelectionContribution,...],
 ) -> SourceOriginal409C90FinalTeamScoreWrite:
@@ -209,6 +216,9 @@ def source_original_409c90_exact_eleven_score_to_team_plus34(
     if (type(mode) is not int or not 0<=mode<=0xffffffff or
             type(results) is not tuple or len(results)!=11):
         raise Original409C90ScoreSourceError("original mode and eleven score receipts required")
+    base=original_global_875640_player_array_base_at_scoring
+    if type(base) is not int or not 0<base<=0xffffffff:
+        raise Original409C90ScoreSourceError("actual original native player-array base mandatory")
     n=unpack_from("<i",team,0x294)[0]
     if n<11 or n>360:
         raise Original409C90ScoreSourceError("actual original reached 40A1D0 roster count >=11 required")
@@ -225,12 +235,17 @@ def source_original_409c90_exact_eleven_score_to_team_plus34(
                 type(contribution) is not SourceOriginal409C90PostSelectionContribution or
                 contribution.original_native_slot_index!=i or
                 contribution.original_409c90_plus90_mode_dword!=mode or
-                contribution.original_previous_team_score_accumulator_signed!=accumulator):
+                contribution.original_previous_team_score_accumulator_signed!=accumulator or
+                contribution.original_role_dword_from_876cb8!=unpack_from(
+                    "<I",c.original_source_first_pass.source_formation_role_entries11[i],0)[0]):
             raise Original409C90ScoreSourceError(
                 "eleven original selected source roster indices/mode or score accumulation drift")
         pid=unpack_from("<H",team,0x244+idx*2)[0]
         p=contribution.original_player_after_source_assignment_at_call
-        if (unpack_from("<H",p,4)[0]!=pid or
+        expected=base+pid*0x250
+        if (expected>0xffffffff or
+            contribution.original_native_player_pointer_at_scoring!=expected or
+            unpack_from("<H",p,4)[0]!=pid or
             contribution.original_team_score_accumulator_after_source_add_signed!=
                 ((accumulator+contribution.original_native_score_subcall_return_signed_eax
                   +0x80000000)&0xffffffff)-0x80000000):
