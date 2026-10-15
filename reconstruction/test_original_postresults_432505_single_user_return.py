@@ -86,3 +86,88 @@ class OriginalPostResultsSingleUserTests(TestCase):
             i=site-0x400000
             self.assertEqual(raw[i],0xe8)
             self.assertEqual(site+5+unpack_from('<i',raw,i+1)[0],target)
+
+
+class Original4290F0PredicateSourceTests(TestCase):
+    def _user_record(self, value):
+        from struct import pack_into
+        b=bytearray(0x10dc)
+        pack_into('<I',b,0x10d8,value)
+        return bytes(b)
+
+    def test_source_5160a0_flag_causes_original_4290f0_early_exit_without_user_read(self):
+        from original_postresults_432505_single_user_return import source_original_4290f0_return_from_reached
+        r=source_original_4290f0_return_from_reached(
+            original_global_87755a_byte_at_5160a0=1,
+            original_current_user_record_at_429126=None,
+            original_current_user_record_at_429424=None)
+        self.assertEqual((r.original_4290f0_eax_result,r.original_4290f0_exit_va),(0,0x429125))
+        self.assertFalse(r.native_intervening_callbacks_executed)
+        with self.assertRaises(OriginalPostResultsReturnSourceError):
+            source_original_4290f0_return_from_reached(
+                original_global_87755a_byte_at_5160a0=1,
+                original_current_user_record_at_429126=self._user_record(1),
+                original_current_user_record_at_429424=None)
+
+    def test_post_callback_native_user_state_controls_full_final_4290f0_eax(self):
+        from original_postresults_432505_single_user_return import source_original_4290f0_return_from_reached
+        for before,after,wanted in ((0,0,0),(0,1,1),(1,0,0),(1,5,1),(6,4,1)):
+            with self.subTest(before=before,after=after):
+                r=source_original_4290f0_return_from_reached(
+                    original_global_87755a_byte_at_5160a0=0,
+                    original_current_user_record_at_429126=self._user_record(before),
+                    original_current_user_record_at_429424=self._user_record(after))
+                self.assertEqual((r.original_4290f0_eax_result,r.original_4290f0_exit_va),
+                                 (wanted,0x429441))
+                self.assertFalse(r.original_gui_side_effects_proven)
+
+    def test_actual_4290f0_join_wont_allow_independent_predicate_override(self):
+        from original_postresults_432505_single_user_return import (
+            source_original_4290f0_return_from_reached,
+            source_original_432505_single_user_startmenu_from_4290f0,
+        )
+        before=self._user_record(1)
+        real=source_original_4290f0_return_from_reached(
+            original_global_87755a_byte_at_5160a0=0,
+            original_current_user_record_at_429126=before,
+            original_current_user_record_at_429424=before)
+        data=inputs()
+        data.pop('original_4290f0_eax_at_43254c')
+        self.assertEqual(source_original_432505_single_user_startmenu_from_4290f0(
+            source_4290f0=real,**data).original_branch_destination,0x4325df)
+        with self.assertRaises(OriginalPostResultsReturnSourceError):
+            source_original_432505_single_user_startmenu_from_4290f0(
+                source_4290f0=real,**inputs())
+        for wrong in (None,True,dict()):
+            with self.assertRaises(OriginalPostResultsReturnSourceError):
+                source_original_432505_single_user_startmenu_from_4290f0(
+                    source_4290f0=wrong,**data)
+        zero=source_original_4290f0_return_from_reached(
+            original_global_87755a_byte_at_5160a0=1,
+            original_current_user_record_at_429126=None,
+            original_current_user_record_at_429424=None)
+        with self.assertRaises(OriginalPostResultsReturnSourceError):
+            source_original_432505_single_user_startmenu_from_4290f0(
+                source_4290f0=zero,**data)
+
+    def test_native_4290f0_function_source_sites(self):
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('canonical original private EXE not available')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(4714541,
+          '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        sites={
+            0x5160a0:'a0 5a 75 87 00 c3',
+            0x42910b:'e8 90 cf 0e 00 84 c0 74 12',
+            0x429114:'33 c0 5e',
+            0x429126:'8b 86 d8 10 00 00 57 85 c0',
+            0x42918d:'8b 86 d8 10 00 00 48 83 f8 04',
+            0x429424:'8b 8e d8 10 00 00 33 c0 85 c9',
+            0x429433:'0f 95 c0',
+        }
+        for va,h in sites.items():
+            with self.subTest(va=hex(va)):
+                b=bytes.fromhex(h)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
+        call=0x42910b
+        self.assertEqual(call+5+unpack_from('<i',raw,call-0x400000+1)[0],0x5160a0)
