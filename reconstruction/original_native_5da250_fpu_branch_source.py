@@ -95,7 +95,20 @@ def source_original_5da250_finite_prethreshold_path(
         return "5da25f-direct-literal-0p1"
     if a_exact > 0:
         return "5da274-ratio"
-    if -b_exact / 2 < a_exact:
+    # FMUL -0.5 can round under x87 24-bit precision, which has not
+    # been sourced for this call. Fail closed where PC24-vs-PC53/64 or
+    # unknown native rounding mode could alter the strict comparison.
+    negative_half_b = -b_exact / 2
+    if negative_half_b:
+        odd_significand = abs(negative_half_b.numerator)
+        while odd_significand % 2 == 0:
+            odd_significand //= 2
+        if (odd_significand.bit_length() > 24 and
+                abs(a_exact - negative_half_b) <= abs(negative_half_b) / (1 << 22)):
+            raise Original5DA250BranchSourceError(
+                "native x87 precision/rounding control unresolved at -B/2 comparison"
+            )
+    if negative_half_b < a_exact:
         return "5da2a3-negative-half-ratio"
     if -b_exact < a_exact:
         return "5da2c2-weighted-negative-ratio"

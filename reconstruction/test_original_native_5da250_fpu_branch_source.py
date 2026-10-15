@@ -72,6 +72,19 @@ class Original5DA250SourceBranchTests(TestCase):
                 self.assertEqual(source_original_5da250_finite_prethreshold_path(
                     original_esp4_qword=pack('<d',a),original_espc_qword=pack('<d',b)), expected)
 
+    def test_x87_precision_24_bit_ambiguous_boundary_fails_closed(self):
+        b = 1.0 + 2.0**-30  # binary64 mantissa uses >24 bits
+        with self.assertRaisesRegex(Original5DA250BranchSourceError,
+                                    'precision/rounding control unresolved'):
+            source_original_5da250_finite_prethreshold_path(
+                original_esp4_qword=pack('<d', -b/2.0),
+                original_espc_qword=pack('<d', b))
+        self.assertEqual(
+            source_original_5da250_finite_prethreshold_path(
+                original_esp4_qword=pack('<d', -1.0),
+                original_espc_qword=pack('<d', b)),
+            '5da2c2-weighted-negative-ratio')
+
     def test_finite_branch_rejects_unproven_nan_infinities_and_missing_bytes(self):
         for a,b in ((float('nan'),1.0),(1.0,float('inf')),(-float('inf'),1.0)):
             with self.subTest(a=a,b=b):
