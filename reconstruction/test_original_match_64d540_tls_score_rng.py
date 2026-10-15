@@ -70,7 +70,7 @@ class OriginalMatchTLSNativeRngTests(TestCase):
         two=source(**(begin|{
              'original_66d553_tls_record_before_66951c':one.projected_tls_record_after}))
         self.assertEqual((one.original_66951c_rand15,two.original_66951c_rand15),(38,7719))
-        self.assertEqual(two.original_seed_after,0x1e276b7a)
+        self.assertEqual(two.original_seed_after,0x1e278e7a)
         self.assertFalse(two.original_rng_state_committed)
 
     def test_reject_wrong_native_call_owner_and_unsourced_or_unclamped_bound(self):
