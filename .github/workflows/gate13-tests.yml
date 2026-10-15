@@ -177,6 +177,10 @@ on:
       - "reconstruction/test_original_match_40cbc0_type42_stages.py"
       - "reconstruction/original_match_5da9ad_first_d88_sink.py"
       - "reconstruction/test_original_match_5da9ad_first_d88_sink.py"
+      - "reconstruction/original_match_5daa47_stage_two_factor.py"
+      - "reconstruction/test_original_match_5daa47_stage_two_factor.py"
+      - "reconstruction/original_match_stage2_5da250_factor_join.py"
+      - "reconstruction/test_original_match_stage2_5da250_factor_join.py"
       - "reconstruction/original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/test_original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/original_presults_native_leaguematch_vtables.py"
@@ -621,6 +625,8 @@ jobs:
             test_original_match_40cbc0_type1a_pair \
             test_original_match_40cbc0_type42_stages \
             test_original_match_5da9ad_first_d88_sink \
+            test_original_match_5daa47_stage_two_factor \
+            test_original_match_stage2_5da250_factor_join \
             test_original_postresults_4325f7_pmenu_return \
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
