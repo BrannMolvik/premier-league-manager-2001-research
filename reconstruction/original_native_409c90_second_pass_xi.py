@@ -89,6 +89,9 @@ def source_original_409c90_second_pass_fill_unmatched_eleven_slots(
         raise Original409C90SecondPassSourceError("original second pass team and player records required")
     n=len(rows)
     if (n>360 or len(t)<0x244+n*2 or
+        t!=first.original_team_record_at_first_pass or
+        tuple(unpack_from("<H",t,0x244+i*2)[0] for i in range(n))!=
+            first.original_native_roster_word_ids_at_first_pass or
         unpack_from("<I",t,4)[0]!=first.original_native_team_key or
         len(first.source_used_mask_after_first_pass)!=n or
         len(first.original_reached_first_mask)!=n):
