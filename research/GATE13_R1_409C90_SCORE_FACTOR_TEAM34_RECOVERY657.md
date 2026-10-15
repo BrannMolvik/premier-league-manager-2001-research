@@ -1,0 +1,35 @@
+# Recovery657 WIP — original 40A158 roster reset/assignment, native 41B970 factor and original 409C90 team+34 score
+
+**15 October 2026 KST; source-only original-game fidelity.** Main `47dcba821aa58d781f5e04c3d94cc834e9cb8676` includes merged PR770 (original two-pass 409C90 XI source and exact first-unfillable-slot 40A105 abort), Gate13 run 38737111372 SUCCESS 2303 tests/240 skipped; asset 38737111288 success. Original private `footballmanager.exe` was independently hashed SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, exactly **4,714,541 bytes**; only local x86 disassembly/byte inspection, no original binary launch, no private executable in Git. Gates13–17 are not closed.
+
+## Source original 40A158→40A2A4 complete score call sites
+
+The original `409C90` **does not finish after it finds eleven roster indices**. At `40A158`, it first loops the ENTIRE native team's team+294 roster of ordered WORD player IDs from team+244, computes `875640 + ID * 0x250`, and calls `41FA50(player, team+4)`. For every reached `41FA50` result EAX0, it calls mutating `4181B0(player)`; for EAX nonzero, it skips that reset. PR768 already source-qualified `41FA50` conditional and `4181B0` literal byte-level changes including `418220` saved player+152/+153 ↔ status low role/position exchange, plus `4EA370`. Those are separate ORIGINAL player/status records and cannot be replaced with current prototype starting XI state. **No original 4181B0 callback was executed** by this source analysis.
+
+After full roster pass, native `40A1BB` enters 11 selected slots. For each actual original roster index it dereferences original source roster ID → 875640+ID*0x250. The original selection-time **DWORD stack+0x90** mode flag is distinct from the **DWORD stack+0x94** first/second chooser retry mode. Do NOT conflate them. At `40A1F8`, if `mode90 == 1`:
+1. It reads original 8-byte formation role entry from `876CB8[(formation*11+slot)*8]`, writes the role low5 into original player's **separate pointer+248** status BYTE+3 via `4EA330`, and position byte+4 low4 via `4EA350`. Those leaves were source verified in PR768.
+2. It calls original `4182F0` on player: sets player+14 bit4, clears bit5, optionally uses 418220 to exchange role/position through player+152/+153 when player+174 bit0, clears relevant +174 bits, checks original **417340** registered manager and may reach **41EDF0** for nonhuman player without +14 bit13. PR768's 4182F0 projector is complete **ONLY** when the 41EDF0 branch is NOT reached; it rejects unresolved 41EDF0.
+3. It calls native **`41E1D0(player)`**; this calls `4EA300(i)` for i=0,1,2 on the post-assignment separate player+248 status, and for every NONZERO role byte calls **`41C7E0(player, role)`**, maintaining signed max positive EAX with initial0. It then calls **`41B970(player)`**, multiplies the integer by returned x87 factor, and calls **`668350`** whose original code explicitly switches FPU control word to integer **truncate toward zero** (OR AH, 0x0C, FISTP QWORD) before returning low32 EAX. The result is added to native local +2C as 32-bit signed/bit-pattern score.
+4. For **mode90 != 1**, original `40A282` simply calls `41C7E0(player, source formation role)` ONCE and adds its EAX directly. No native status writes `4EA330/350` or `4182F0`, no `41E1D0`, `41B970`, `668350` in this branch.
+
+At original `409CA1` the native local +2C score is initialized ZERO before any XI passes and is not reset during the `409CA5` mode94 retry. After processing exactly 11 slots, `40A2A0/40A2A4` writes the signed32 rolling accumulator as original **team DWORD+0x34**. It does NOT write the final match score or the original dated match event there; meaning “team score” is a player/selection fitness aggregate and is not proven equivalent to results/goals.
+
+## Source-closed native 41B970 weight table, no fictional coefficient
+
+`41B970` is a PURE x87 leaf, selecting exact binary64 multiplier using original player BYTE+0x192:
+- kind0: jump `41B984`, FLD original source .data QWORD `822268` = **0.9**;
+- kind1: jump `41B98B`, source QWORD `822270` = **0.95**;
+- kind2: jump `41B9A0`, source QWORD `822278` = **1.0**;
+- kind3: jump `41B992`, source QWORD `822280` = **1.05**;
+- kind4: jump `41B999`, source QWORD `822288` = **1.1**;
+- byte greater than4: branch at `41B97B` jumps DEFAULT `41B9A0` = **1.0**.
+
+Original jump table `41B9A8` exact DWORD entries `41B984,41B98B,41B9A0,41B992,41B999`. All source coefficient doubles and table entries were read directly from the private original PE. This is NOT an estimated modern happiness/morale system; interpreting player+192 as a real-world label needs its own source evidence. New read-only `source_original_41b970_player_morale_factor` maps exact original byte to factor and original source constant address, but no original callback executes.
+
+Native `41E1D0` itself is likewise bounded: only source positive nonzero role bytes produce 41C7E0 calls. New `source_original_41e1d0_max_status_role_score` enforces three independently reached original role-score results, zero-role skip, signed32 max0; no invented player ratings.
+
+`source_original_409c90_selected_slot_score_contribution` requires the SAME original post-4182F0 native player bytes on `41E1D0` and `41B970` original callback receipts, and for original `mode90==1` independently supplied original **668350** signed EAX. We intentionally do NOT substitute Python float multiplication for original extended-precision x87 EAX when integer-boundary decisions matter. Other mode requires ONLY the exact reached 41C7E0 EAX. Its signed32 accumulator is computed as original modulo 2^32. `source_original_409c90_exact_eleven_score_to_team_plus34` joins eleven ordered actual source selection slots to source roster player IDs, checks all eleven original score events and accumulator chain, then projects only the final actual team+34 DWORD literal store to an immutable team snapshot. **No original GameState update, roster mutation, match resolution, or SaveLoad side effects** have been performed.
+
+## Next and fidelity boundaries
+
+The above restores an independently useful **source score/formation snapshot**, not an actual original player-world transaction. To reach a genuine playable original pre-match path, original `40A158` reset must operate on persistent source-equivalent players and separate status owner records, `41EDF0` unknown native path must be recovered (or a verified ordinary bypass), exact `41C7E0` 19-role score formulas and native x87 rounding must be made original equivalent, original `409B50` team+1D8 must be proven and written at the correct native lifecycle, and source 5111A0 must be **executed** against actual GameState and SaveLoad. After that 510D60 v34, 513010→5DA2F0, v38/v3c scores/events, all mode0–3 PPreMatch, PResults/management return, primary+secondary dated calendars, original leagues and 2–6 managers, physical Win11 GUI acceptance and Gate17 release remain unverified. Keep high-risk PR739 injury/schema48 independent. User's modernization freeze prohibits feature/UX changes beyond original Windows11 compatibility.

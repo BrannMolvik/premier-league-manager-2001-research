@@ -210,6 +210,8 @@ on:
       - "reconstruction/test_original_native_409c90_first_pass_xi.py"
       - "reconstruction/original_native_409c90_second_pass_xi.py"
       - "reconstruction/test_original_native_409c90_second_pass_xi.py"
+      - "reconstruction/original_native_409c90_postselection_scoring.py"
+      - "reconstruction/test_original_native_409c90_postselection_scoring.py"
       - "reconstruction/original_native_42b0e0_human_fpu_terms.py"
       - "reconstruction/test_original_native_42b0e0_human_fpu_terms.py"
       - "reconstruction/original_native_5da250_fpu_branch_source.py"
@@ -663,6 +665,7 @@ jobs:
             test_original_native_409c90_initial_availability \
             test_original_native_409c90_first_pass_xi \
             test_original_native_409c90_second_pass_xi \
+            test_original_native_409c90_postselection_scoring \
             test_original_native_42b0e0_human_fpu_terms \
             test_original_native_5da250_fpu_branch_source \
             test_original_match_four_5da250_argument_source \
