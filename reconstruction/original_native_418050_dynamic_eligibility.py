@@ -16,6 +16,8 @@ class Original418050SourceError(ValueError):
 
 @dataclass(frozen=True)
 class SourceOriginal418050Eligibility:
+    original_player_record_at_418050: bytes
+    original_player_record_at_reached_41b490: bytes
     original_player_word_id: int
     original_signed_current_owner_word10: int
     original_source_club_key: int
@@ -175,6 +177,6 @@ def source_original_418050_reached_availability(
         if any(x is not None for x in optional):
             raise Original418050SourceError("unreached 41B4D0/4E9BE0 data supplied")
     return SourceOriginal418050Eligibility(
-        word_id,signed_owner,key,owner,initial,tuple(reached),
+        p,later,word_id,signed_owner,key,owner,initial,tuple(reached),
         bit11,bool(current),
         original_41b4d0_returned_pointer_if_reached if bit11 else None)
