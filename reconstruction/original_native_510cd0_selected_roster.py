@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from struct import unpack_from
 
 from original_native_406be0_roster_count import SourceOriginal406BE0Player
+from original_native_405a20_sort_roster import SourceOriginal405A20NativeRosterSort
 from original_leaguematch_native_process_owners import (
     source_original_leaguematch_process_owners_for_native_record,
 )
@@ -128,17 +129,22 @@ def source_original_5111a0_two_source_selection_arrays(
     *, original_match_record: bytes,
     original_first_407770_zero_gate_nonzero: bool,
     original_second_407770_zero_gate_nonzero: bool,
-    original_first_team_record: bytes,
-    original_second_team_record: bytes,
+    original_first_405a20_source_sort: SourceOriginal405A20NativeRosterSort,
+    original_second_405a20_source_sort: SourceOriginal405A20NativeRosterSort,
     original_global_875640_player_array_address: int,
-    original_first_team_ordered_players: tuple[SourceOriginal406BE0Player,...],
-    original_second_team_ordered_players: tuple[SourceOriginal406BE0Player,...],
 ) -> SourceOriginal5111A0SelectionArrayTail:
     """ONLY final source 5111A0 510CD0 collection writes, no full 5111A0.
 
     Called by 510D60 only when the earlier TWO 407770(0) returned nonzero,
     before the remaining two 407770(1). Requires authentic native match
-    vtable/record, but does not guess original 405A20/409B50 side effects.
+    vtable/record, but does not guess original 409B50 side effects.
+
+    Critical: 5111A0 calls TWO mutating 405A20 sorts before 510CD0.
+    This composes only explicit 405A20 *source-projected* sorted snapshots.
+    Neither the source-projected sort nor 5111A0 callbacks actually ran.
+    A caller MUST source-qualify original team snapshots at the entry to
+    both 405A20 calls, after any 409B50 modifications. A prior unsorted
+    raw roster is NOT an original reached 510CD0 input.
     """
     from original_leaguematch_native_process_owners import (
         OriginalLeagueMatchProcessOwnerError,
@@ -155,14 +161,20 @@ def source_original_5111a0_two_source_selection_arrays(
     except OriginalLeagueMatchProcessOwnerError as exc:
         raise Original510CD0SourceError(
             "source LeagueMatch vtable required before 5111A0") from exc
+    a=original_first_405a20_source_sort
+    b=original_second_405a20_source_sort
+    if (type(a) is not SourceOriginal405A20NativeRosterSort or
+            type(b) is not SourceOriginal405A20NativeRosterSort or
+            a.original_405a20_executed or b.original_405a20_executed):
+        raise Original510CD0SourceError("two native 405A20 source projections, not execution receipts, required")
     first=source_original_510cd0_selected_player_pointers(
-        original_team_record=original_first_team_record,
+        original_team_record=a.source_projected_team_after_405a20,
         original_global_875640_player_array_address=original_global_875640_player_array_address,
-        original_ordered_player_records=original_first_team_ordered_players,
+        original_ordered_player_records=a.original_player_records_sorted_for_510cd0,
         original_target_processing_context_offset=0x4)
     second=source_original_510cd0_selected_player_pointers(
-        original_team_record=original_second_team_record,
+        original_team_record=b.source_projected_team_after_405a20,
         original_global_875640_player_array_address=original_global_875640_player_array_address,
-        original_ordered_player_records=original_second_team_ordered_players,
+        original_ordered_player_records=b.original_player_records_sorted_for_510cd0,
         original_target_processing_context_offset=0x5B4)
     return SourceOriginal5111A0SelectionArrayTail(owners.source_vtable_va,first,second)
