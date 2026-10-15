@@ -267,3 +267,115 @@ def source_original_409c90_reached_41fa50_then_optional_4181b0(
         original_player_record_before=original_player_record_before_41fa50,
         original_status_record_before=original_reached_status_record_for_4181b0_if_called)
     return SourceOriginal409C90PreSelectionPlayerReset(result,reset)
+
+
+@dataclass(frozen=True)
+class SourceOriginal418220Exchange:
+    original_player_native_pointer: int
+    original_source_status_pointer: int
+    source_player_before: bytes
+    source_status_before: bytes
+    original_status_role_low5_before: int
+    original_status_position_low4_before: int
+    original_player_saved_role_byte_before: int
+    original_player_saved_position_byte_before: int
+    source_player_after_418220: bytes
+    source_status_after_418220: bytes
+    native_418220_executed: bool = False
+    original_world_committed: bool = False
+
+
+def source_original_418220_exact_role_position_exchange(
+    *, original_native_player_pointer: int,
+    original_player_record_before_418220: bytes,
+    original_status_record_before_418220: bytes,
+) -> SourceOriginal418220Exchange:
+    """Native 418220 calls 4EA3C0/D0 getters then 4EA330/350 setters.
+
+    It swaps old status[3] low5 and status[4] low4 with existing
+    FULL saved player bytes+152/+153 (not with their masked values),
+    writes new low status bits preserving status upper bits, and writes
+    prior masked status values into the player saved bytes. This is an
+    independent literal source projection; no original pointer is read.
+    """
+    p=original_native_player_pointer
+    player=original_player_record_before_418220
+    status=original_status_record_before_418220
+    if type(p) is not int or not 0<p<=0xffffffff:
+        raise Original409C90SourceError("actual 418220 player native pointer required")
+    if type(player) is not bytes or len(player)<0x24c or type(status) is not bytes or len(status)<5:
+        raise Original409C90SourceError("actual original 418220 player+248 and status+4 bytes required")
+    status_ptr=unpack_from("<I",player,0x248)[0]
+    if status_ptr==0:
+        raise Original409C90SourceError("actual original player+248 status pointer required")
+    old_role=status[3]&0x1f
+    old_position=status[4]&0x0f
+    saved_role=player[0x152]
+    saved_position=player[0x153]
+    out_player=bytearray(player)
+    out_status=bytearray(status)
+    out_status[3]=(status[3]&0xe0)|(saved_role&0x1f)
+    out_status[4]=(status[4]&0xf0)|(saved_position&0x0f)
+    out_player[0x152]=old_role
+    out_player[0x153]=old_position
+    return SourceOriginal418220Exchange(
+        p,status_ptr,player,status,old_role,old_position,
+        saved_role,saved_position,bytes(out_player),bytes(out_status))
+
+
+@dataclass(frozen=True)
+class SourceOriginal4181B0FullReset:
+    original_player_native_pointer: int
+    original_418220_was_reached: bool
+    original_418220_source_exchange_if_reached: SourceOriginal418220Exchange | None
+    original_player_before_reset: bytes
+    original_status_before_reset: bytes
+    source_player_after_reset: bytes
+    source_status_after_reset: bytes
+    native_original_4181b0_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_4181b0_full_player_reset(
+    *, original_native_player_pointer: int,
+    original_player_record_before: bytes,
+    original_status_record_before: bytes,
+) -> SourceOriginal4181B0FullReset:
+    """Source-exact native 4181B0→150→160→180→170→4EA370.
+
+    418180 invokes 418220 only if original player+174 bit0 is set,
+    then clears bit0. 418170 always clears player+174 bit1.
+    This emits exact separately owned player/status source snapshots;
+    original callbacks are NOT executed and live state is NOT mutated.
+    """
+    p=original_player_record_before
+    s=original_status_record_before
+    if type(p) is not bytes or len(p)<0x24c or type(s) is not bytes or len(s)<5:
+        raise Original409C90SourceError("actual original 4181B0 player and status records mandatory")
+    if type(original_native_player_pointer) is not int or not 0<original_native_player_pointer<=0xffffffff:
+        raise Original409C90SourceError("original player native pointer required")
+    if unpack_from("<I",p,0x248)[0]==0:
+        raise Original409C90SourceError("source original player status pointer missing")
+    flags14=unpack_from("<I",p,0x14)[0]
+    bits174=unpack_from("<I",p,0x174)[0]
+    source_player=bytearray(p)
+    pack_into("<I",source_player,0x14,flags14 & ~0x30)
+    exchange=None
+    source_status=s
+    if bits174&1:
+        exchange=source_original_418220_exact_role_position_exchange(
+            original_native_player_pointer=original_native_player_pointer,
+            original_player_record_before_418220=bytes(source_player),
+            original_status_record_before_418220=s)
+        source_player=bytearray(exchange.source_player_after_418220)
+        source_status=exchange.source_status_after_418220
+    # 418180 clears +174 bit0 iff the exchange was reached; 418170
+    # clears bit1 unconditionally, preserving higher bits.
+    pack_into("<I",source_player,0x174,bits174 & ~0x3)
+    # 4EA370 reads the mutated status after 418220 if reached.
+    status=bytearray(source_status)
+    status[3]=(status[3]&0xe0)|(status[0]&0x1f)
+    status[4]=status[4]&0xf0
+    return SourceOriginal4181B0FullReset(
+        original_native_player_pointer,bool(bits174&1),exchange,p,s,
+        bytes(source_player),bytes(status))
