@@ -87,7 +87,14 @@ def source_original_5dab97_fpu_bound_to_66d553_tls_rand(
     trunc_result=(abs(result.numerator)//result.denominator)*(-1 if result<0 else 1)
     near_integer=abs(result-trunc_result)<Fraction(1,10**9) or (
         abs(result-trunc_result-(-1 if result<0 else 1))<Fraction(1,10**9))
-    if not near_integer and trunc_result!=eax:
+    if result==0:
+        if eax!=0:
+            raise OriginalScoringFpuBoundSourceError("exact zero original FPU result must truncate to EAX zero")
+    elif near_integer:
+        raise OriginalScoringFpuBoundSourceError(
+            "original x87 80-bit rounding near integer threshold not proved; "
+            "source calculator path remains fail closed")
+    elif trunc_result!=eax:
         raise OriginalScoringFpuBoundSourceError(
             "observed first original 668350 result contradicts source x87 bound away from integer boundary")
     tls=original_reached_66d553_thread_record
