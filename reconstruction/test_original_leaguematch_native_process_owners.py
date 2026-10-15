@@ -1178,6 +1178,51 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
         with self.assertRaises(Original5111A0ConditionalSourceError):
             self.project(x)
 
+    def test_source_join_5111a0_conditional_two_sorts_and_both_selected_arrays(self):
+        from original_native_5111a0_conditional_prep import (
+            source_original_5111a0_conditional_sorts_and_selected_tail as compose,
+            Original5111A0ConditionalSourceError)
+        cargs=self.kwargs(0x20) # original bit5 skips 409B50 but sorts are mandatory
+        c=self.project(cargs)
+        util=SourceOriginal510CD0SelectionArrayTests
+        first=util.source_sorted_receipt(
+            util.team((51,52),key=7),(util.player(51,0x10),util.player(52,0x20)))
+        second=util.source_sorted_receipt(
+            util.team((61,62),key=8),(
+                util.player(61,0x20,club=8),util.player(62,0x10,club=8)))
+        args=dict(
+            original_conditional_source=c,
+            original_native_match_record_at_entry=cargs["original_match_record_at_5111a0"],
+            original_processing_context_at_entry=cargs["original_processing_context_at_5111a0"],
+            original_first_team_native_pointer_at_405a20=0x10000,
+            original_second_team_native_pointer_at_405a20=0x20000,
+            original_first_405a20_source_sort=first,
+            original_second_405a20_source_sort=second,
+            original_global_875640_player_array_address=0x40000000,
+            original_first_407770_zero_gate_nonzero=True,
+            original_second_407770_zero_gate_nonzero=True,
+        )
+        result=compose(**args)
+        self.assertEqual(result.original_reached_action_sites_in_order,
+                         (0x511235,0x51125E,0x51126C,0x511287))
+        self.assertEqual(result.two_selected_pointer_arrays
+                         .source_first_team_receipt.source_select_bit4_or_bit5_player_ids,(51,52))
+        self.assertEqual(result.two_selected_pointer_arrays
+                         .source_second_team_receipt.source_select_bit4_or_bit5_player_ids,(62,61))
+        self.assertFalse(result.native_world_and_sort_mutated)
+        self.assertFalse(result.original_game_state_modified)
+        for changed in (
+            {"original_first_team_native_pointer_at_405a20":0x20000},
+            {"original_first_407770_zero_gate_nonzero":False},
+            {"original_second_405a20_source_sort":first},
+            {"original_native_match_record_at_entry":self.match(0)},
+            {"original_processing_context_at_entry":self.context(0x99999,0x20000)},
+            {"original_global_875640_player_array_address":0},
+        ):
+            with self.subTest(changed=str(changed)[:95]),self.assertRaises(
+                    Original5111A0ConditionalSourceError):
+                compose(**(args|changed))
+
     def test_original_511170_5111a0_409b50_source_opcode_sites_if_private(self):
         original=os.environ.get("FM2001_ORIGINAL_EXE")
         if not original:self.skipTest("private canonical original PE unavailable in CI")
