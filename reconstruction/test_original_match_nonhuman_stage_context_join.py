@@ -69,3 +69,32 @@ class OriginalNonhumanStageContextJoinTests(TestCase):
             p=va-0x400000
             self.assertEqual(raw[p:p+2],bytes.fromhex('0f 84'))
             self.assertEqual(va+6+unpack_from('<i',raw,p+2)[0],target)
+
+    def test_human_5dc510_callback_has_mutable_state_and_event_queue(self):
+        """Proves rejecting human path prevents omission of reached side effects."""
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE unavailable in hosted CI')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(
+            4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        sites={
+            0x5DB450:'8b 8f 70 06 00 00 e8 b5 10 00 00',
+            0x5DB4B3:'8b 8f 70 06 00 00 e8 52 10 00 00',
+            0x5DB4BE:'8b 8f 94 06 00 00 03 19',
+            0x5DC519:'53 56 8b f1 57',
+            0x5DC586:'dc 46 10',
+            0x5DC599:'dd 5e 10',
+            0x5DC638:'8b ce e8 31 b7 03 00',
+            0x5DC63F:'5f 5e 5b 8b e5 5d c2 24 00',
+        }
+        for va,seq in sites.items():
+            with self.subTest(callback=hex(va)):
+                b=bytes.fromhex(seq)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
+        # Two reached human-first 5DC510 callbacks are not interchangeable
+        # with the subsequently source-proven EBX += user+694 DWORD0.
+        for site,target in ((0x5DB456,0x5DC510),(0x5DB4B9,0x5DC510),
+                            (0x5DC63A,0x617D70)):
+            p=site-0x400000
+            self.assertEqual(raw[p],0xe8)
+            self.assertEqual(site+5+unpack_from('<i',raw,p+1)[0],target)

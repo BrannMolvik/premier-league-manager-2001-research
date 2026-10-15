@@ -19,3 +19,32 @@ Source `5DB3B2 CALL 4037B0` original human predicate false branches `5DB3BD JE 5
 New `original_match_four_stage_integer_totals.py` source reads actual stage QWORDs and independently supplied booleans; new `original_match_nonhuman_stage_context_join.py` joins the two nonzero components to existing original context receipt with actual pointer identity and nohuman/flag0 evidence. Both outputs explicitly `original_native_executed=False` and `live_game_state_updated=False`. Nine locally executed targeted unit tests PASS, including original canonical PE opcode bytes for every initialization, 668350 call, ADD and the two exact nohuman branch displacement targets. Register on focused Gate13 workflow. This is bounded source proof, **not** real GameState, SaveLoad, normal NEXT→PPreMatch all modes→PResults→management, original graphical acceptance or Windows11 release.
 
 NEXT: resolve original human/flag-nonzero branches at 5DB3C3..5DB6F5 (native 5DC510, two manager user+694 fields, first-side score adjustment), then stage QWORD producers and original FPU ratio; integrate actual native scoring callbacks/side/context into live GameState with original ordinary player lifecycle. Continue on same unopened branch until a cohesive feature milestone for PR/CI. PR739 high-risk injury state remains separate/unmerged.
+
+## Further original first-side HUMAN branch source obligation (Recovery642)
+
+The first-side human path must **NOT** be replaced by the direct nonhuman
+context join plus `user+694[0]`. Native `5DB3C3` selects human branch when
+the first-side 4037B0 source gate is true and `[S+0xF]==0` (different
+route if flag nonzero). Reached `5DB450/5DB4B3` reads selected
+`user+0x670` and calls **5DC510 twice**, each taking a distinct native
+constructed argument and source state. Only **after** both does `5DB4BE`
+get `user+694` and `5DB4C4 ADD EBX,[ECX+0]` before jumping to 5DB6FA.
+The native 5DC510 itself has nontrivial effects: original 5DC586
+`FADD QWORD [ESI+0x10]`, 5DC599 `FSTP QWORD [ESI+0x10]`, calls native
+5DC650 at 5DC5D4, and calls **617D70 event/record queue** at 5DC63A.
+It pushes and restores EBX, ESI, EDI and returns `RET 0x24`, consistent
+with EBX preserved across this call, but state/event effects are NOT.
+The separate second-side 5DB5F0/5DB692 reached callback calls are also
+not part of the false-4037B0+flag0 direct branch. PE identity tests
+for original two first-side callsites, EBX bonus, 5DC510 mutable owner
+and 617D70 queue have been added. Until exact native 5DC510 payload,
+recipient and event lifetime are joined to GameState/SaveLoad, source
+projection must fail closed on these human/alternate paths. The nohuman
+route label means `4037B0(ESI)` is false and the native flag is zero;
+do **not** assume it proves every possible other participant is AI.
+
+**Next:** source trace native 5DC510 received argument layouts and
+5DC650→617D70 payload and record ownership, plus all three original
+5DB4D7+ alternate branches; then actual GameState/player-visible
+R1 flow. No native execution, full original career, GUI or Win11
+acceptance claimed.
