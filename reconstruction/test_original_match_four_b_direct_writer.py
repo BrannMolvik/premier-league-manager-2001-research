@@ -80,3 +80,23 @@ class FourScoringStageBDirectWriterTests(TestCase):
                 self.assertEqual(raw[src-0x400000:src-0x400000+len(b)], b)
         self.assertEqual(raw[0x5DA967-0x400000:0x5DA96C-0x400000],
                          bytes.fromhex('e8 54 22 e3 ff'))
+
+    def test_native_668350_temporarily_truncates_and_restores_x87_cw(self):
+        exe = environ.get('FM2001_ORIGINAL_EXE')
+        if not exe:
+            self.skipTest('private original PE absent in CI')
+        raw = Path(exe).read_bytes()
+        self.assertEqual((len(raw), sha256(raw).hexdigest()), (
+            4714541, '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        native = bytes.fromhex(
+            '55 8b ec 83 c4 f4 9b d9 7d fe 9b 66 8b 45 fe 80 cc 0c '
+            '66 89 45 fc d9 6d fc df 7d f4 d9 6d fe 8b 45 f4 8b 55 f8 c9 c3')
+        self.assertEqual(raw[0x668350-0x400000:0x668350-0x400000+len(native)],native)
+        # OR AH,0x0C requests x87 RC=11 (truncate); FISTP QWORD;
+        # FLDCW restores the saved prior control word before returning.
+        for va in (0x5DAA00, 0x5DABCA, 0x5DABDB, 0x5DAE45, 0x5DAE56,
+                   0x5DB0C6, 0x5DB0D7, 0x5DB341, 0x5DB352):
+            with self.subTest(call=hex(va)):
+                off=va-0x400000
+                self.assertEqual(raw[off], 0xE8)
+                self.assertEqual(va+5+unpack_from('<i',raw,off+1)[0],0x668350)
