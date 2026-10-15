@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery642; PR752 revised exact HEAD 509fd4c693477d96ed0514786eee05bd329daf6e (source-only four-stage scorer 40CBC0→5E48D0→human A/B and literal 5DA250). IMPORTANT native source correction: 5DA8E7/E8 PUSHes two coefficient pointers; 5DA92B/5DA933 zero original restored [ESP+38..3F] B; nonhuman stage2-4 B when no previous stage B writer is known +0.0, not unknown. Verified private PE SHA833bf95e original bytes and local 3 corrected B tests; corrected module/test/docs batched one atomic commit. PR752 Gate13 workflow 38674984771 and asset38674984770 queued, first earlier head CI stale. Must inspect exact-head tests/reviews and merge only if green. Next trace four prior score accumulator QWORDs to original 5DB37C 668350 integer truncation → D8C/D90/D84 context; then real 5DA2F0/5DC510/v38/v3c/GameState and normal NEXT→PPreMatch modes0–3→PResults→management. Gates13–17 open; PR739 separate high-risk unmerged; no native run or Win11 acceptance.",
-  "last_known_main_head": "f6b61ee191a67a7fa7e29adfe4d15a1e4b78af3e",
+  "active_task": "Recovery642: exact-head PR752 509fd4c merged as main 318f981666be13dfa14394ff1eaceeab906d57b5; Gate13/Gates14-17 STILL OPEN. PR752 38674984771 Gate13 2044 tests/186 skipped success, asset38674984770 success. Corrected stage B zero initialization source 5DA92B/+33 included. New active unopened feature branch worker/gate13-r1-5db37c-stage-total-world-642 based 318f981666be13dfa14394ff1eaceeab906d57b5. New native source investigation: 5DB37C four FILD QWORD→668350 trunc EAX conversions load stage3 stack+68 and stage1+60 to EBX; stage4+50 and stage2+58 to EDI, then 5DB6FA EBX/ECX components D8C/D90→D84 with branch-dependent human/callback side effects. Verify original no-human/localflag0 direct branch and source-owned actual stage values; implement bounded original stage totals and integration with existing context receipt without inventing human callback or real GameState. PR739 high-risk unmerged. No original Win11 process or GUI, no gate closure.",
+  "last_known_main_head": "318f981666be13dfa14394ff1eaceeab906d57b5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -37,5 +37,5 @@
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "f6b61ee191a67a7fa7e29adfe4d15a1e4b78af3e"
+  "last_known_main_commit": "318f981666be13dfa14394ff1eaceeab906d57b5"
 }
