@@ -468,3 +468,59 @@ incidental 451021 presenter UI variants. Keep
 GameState and SaveLoad blocked until a proven actual
 normal-match owner/call chain exists. No original
 game launch or Windows GUI proof occurred.
+
+
+## Recovery644 continued: original 5E1700 active-user base +670 query owner PROVEN
+
+The previously unresolved **5E17xx ECX producer is now source-resolved**:
+original 5E1700 selects the active registered user via
+`ECX=874C10; CALL 4139D0`, which uses global +9C4
+list ordinal and returns original user pointer to `EBP`
+at 5E170A. Its source `[EBP+0x670]` at **5E1756**
+is cached to native stack T+0x1C at 5E175F.
+At 5E1765, original SUB ESP,0x0C and then
+5E177A PUSH 0x65 lower ESP to T-0x10; consequently
+**5E177E MOV ECX,[ESP+0x2C]** reads exactly the
+saved T+0x1C original user+670 queue pointer.
+**5E178C CALL 5DC890** then dispatches subtype 0x65 on
+that actual original current user's BASE +670 queue.
+
+The **second** query repeats the same owner path:
+5E17D1 `ECX=[EBP+670]`, 5E17D7 stores it to the
+reached stack+0x1C; 5E17E7 SUB ESP,0x0C,
+5E1804 PUSH 0x66, 5E1810 `ECX=[ESP+0x2C]`
+and 5E1814 CALL 5DC890 **on the same native
+base-queue pointer** (subject to intervening native
+mutations). Thus this source path genuinely invokes
+two distinct 0x65/0x66 score-record queries against
+the active registered user's base queue, not a guessed
+or presenter-indexed queue. The original program is
+not run and query return values are not executed.
+
+New source-only
+`original_match_5e1700_base_queue_readers.py` requires
+actual native global root, complete ordinal manager chain,
+selected user and BOTH original reached queue pointer
+receipts; rejects incomplete, changed or null base queue
+identity. `test_original_match_5e1700_base_queue_readers.py`
+has four authored regressions and is registered in
+Gate13 CI. Independent private-original local opcode
+verification passed **15/15 source sites plus three
+call targets**. Newly authored Python regression module
+is still unrun pending local source checkout/meaningful
+reviewed CI. The earlier Recovery644 suggestion to trace
+the 5E17xx stack identity is **now completed** and should
+not be repeated on recovery.
+
+**Outstanding source obligation:** identify actual
+caller of the 5E1700 enclosing routine, its timing and
+whether it is reached from ordinary R1
+`513252→5DA2F0`; verify selected active user is also
+the scored first/second side writer of `5DB450`,
+plus source `5DD650` complement and native
+per-user +670 queue mutations. A base-queue reader
+in a separate original subroutine is not proof that
+the R1 game engine uses it in that match or that
+a player-visible management frame is complete.
+GameState, PPreMatch all modes, PResults, SaveLoad,
+multi-human and true Windows 11 GUI acceptance remain OPEN.
