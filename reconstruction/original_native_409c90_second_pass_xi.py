@@ -108,6 +108,13 @@ def source_original_409c90_second_pass_fill_unmatched_eleven_slots(
     if (len(first.source_original_selection_indices11)!=11 or
         len(first.source_formation_role_entries11)!=11):
         raise Original409C90SecondPassSourceError("first strict pass has incomplete 11 slots")
+    prior=first.source_original_selection_indices11
+    picked=[i for i in prior if i>=0]
+    if (any(type(x) is not int or x < -1 or x>=n for x in prior) or
+        len(picked)!=len(set(picked)) or
+        any(b not in (0,1) for b in first.source_used_mask_after_first_pass) or
+        any(first.source_used_mask_after_first_pass[i]!=int(i in picked) for i in range(n))):
+        raise Original409C90SecondPassSourceError("first original slot indices/used-mask receipt inconsistent")
     used=bytearray(first.source_used_mask_after_first_pass)
     selected=list(first.source_original_selection_indices11)
     changed=[-1]*11
