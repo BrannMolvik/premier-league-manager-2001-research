@@ -31,6 +31,25 @@ ORIGINAL_CRT_RAND15_MASK = 0x7FFF
 ORIGINAL_RANDOM_FACTOR_DOUBLE = 1 / 32768
 ORIGINAL_V38_RANDOM_INTEGER_ARGUMENT = 2
 
+def source_original_crt_rand15_step_from_reached_seed(
+    original_reached_tls_seed_at_offset_14: int,
+) -> tuple[int, int]:
+    """One exact original 66951C per-thread seed and rand15 projection.
+
+    Both original 513697 v38(2) and original match-calculator 5DABED /
+    5DAE68 64D540(bound) call the SAME CRT TLS seed transition. Sharing
+    this code prevents divergent RNG state across source models without
+    assuming those native calls execute consecutively.
+    """
+    seed=original_reached_tls_seed_at_offset_14
+    if type(seed) is not int or not 0<=seed<=0xffffffff:
+        raise OriginalMatchNativeRngError(
+            "actual source CRT TLS+14 DWORD uint32 required")
+    next_seed=(seed*ORIGINAL_CRT_LCG_MULTIPLIER+
+               ORIGINAL_CRT_LCG_INCREMENT)&0xffffffff
+    return next_seed,(next_seed>>16)&ORIGINAL_CRT_RAND15_MASK
+
+
 
 @dataclass(frozen=True)
 class OriginalV38NativeTlsRandomTwoReceipt:
@@ -51,12 +70,7 @@ def source_original_v38_random_two_from_reached_tls_seed(
     0x513659 bit2 and all virtual getter equality gates actually pass.
     """
     seed = original_reached_tls_seed_at_offset_14
-    if type(seed) is not int or not 0 <= seed <= 0xFFFFFFFF:
-        raise OriginalMatchNativeRngError(
-            "actual original thread-local RNG DWORD+0x14 uint32 required")
-    updated = (seed * ORIGINAL_CRT_LCG_MULTIPLIER +
-               ORIGINAL_CRT_LCG_INCREMENT) & 0xFFFFFFFF
-    rand15 = (updated >> 16) & ORIGINAL_CRT_RAND15_MASK
+    updated,rand15=source_original_crt_rand15_step_from_reached_seed(seed)
     # For the exact source arg=2 and double 2**-15, x87 truncation is
     # identical to integer division by 16384; no floating drift.
     eax = rand15 // 16384
