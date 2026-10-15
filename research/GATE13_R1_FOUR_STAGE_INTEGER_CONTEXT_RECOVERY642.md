@@ -160,3 +160,44 @@ integrate actual per-user queue + match component mutation into
 saved GameState and true normal PPreMatch/all modes/PResults/return.
 Keep this same branch, batch reviewed milestone before PR/CI,
 and do not close Gate13 on a source-only component.
+
+
+## Recovery643 continued: original +670 queue read-back for scored records
+
+A bounded static original trace now links the record appended by
+`5DC510 → 617D70` to an original consuming callback **without assuming
+all 617D70 queues are Inbox mail**. Original `5DC890`, a native
+low16 numeric dispatcher, contains actual calls to `5DD1F0`
+(e.g., `5DC910`). At `5DD1FB`, `5DD1F0` starts at the
+same queue-owner **+4 first pointer** that `617D70` appends to. It
+iterates `node+4` next, dereferences **node+0 → payload**, and at
+`5DD21F–227` compares requested WORD `[EBP+8]` against the
+stored **payload+0x10 WORD** from the `5DC510` copy above.
+Only on matching word does it call `5E48D0` with zero scale flag
+for the payload's first QWORD and check the x87 comparison to native
+literal QWORD zero `0x7BD5F8`; negative/NaN-condition paths may
+skip. Subsequent native `64D060` at `5DD278` and `64D020`
+at `5DD2AE` test actual source-owned three-DWORD argument contexts
+against the payload+0x14..0x1C values before `5DD2BB–C4`
+adds the record's first double into a running QWORD total. Original
+returns the floating result via x87 at `5DD2D3`, `RET 0x1C`.
+A private-PE regression now verifies nine native opcode sites and five
+real call targets, including `5DC890 → 5DD1F0`.
+
+This is **actual native same-queue read-back evidence**, strengthening
+the player-scoring dependency: dropping queued payloads or replacing
+them with an inbox flag would change the original score calculation.
+It is still **not a source-verified complete scorer**. The original
+`5E43B0→5E4410` constructor can conditionally transform
+its double input and use original native scaling state
+`0x87AD88`, so we must not simply use a guessed 0.002 product.
+The original filters `64D060/64D020`, producer query arguments
+and x87 control/results need full source proof. No source-safe
+assumption about final GameState score, original native callback
+execution, complete alternate team score or GUI acceptance follows.
+
+**Next:** trace native `5DD1F0` input predicates and callers, then
+bind exactly matched queued record outcomes to source-proven
+5DB37C score calculation, native human +670 state, live GameState and
+SaveLoad. Follow with whole normal NEXT/PPreMatch 0–3/PResults/return,
+multi-human, original leagues and Gate13–17 Windows11 validation.
