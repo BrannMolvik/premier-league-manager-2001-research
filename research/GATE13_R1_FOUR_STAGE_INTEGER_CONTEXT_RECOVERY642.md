@@ -430,3 +430,41 @@ native 5DC510/650 mutable world and x87 result before committing
 a real source-preserving GameState match/SaveLoad. Full NEXT,
 PPreMatch modes0–3, PResults visible callbacks/return, Inbox,
 multi-human/leagues and Win11 player tests remain mandatory.
+
+
+## Recovery644 follow-up: native direct-call inventory and higher-priority +670 candidates
+
+A read-only scan of the unchanged original PE's `E8 rel32`
+direct call sites identified 134 raw sites targeting `5DC890`,
+36 targeting `5DD1F0` (all internal to the 5DC890 dispatch
+region), 22 targeting `5DC510` (including six R1 5DB456/B9,
+5DB58D/F0,5DB692/F5), and only one targeting `5DA2F0`
+at **513252**. This is a **raw call-target candidate inventory**,
+not a source-qualified reachability list: arbitrary E8 byte patterns
+still need instruction/function boundary verification.
+
+Among the `5DC890` candidates, direct original
+`5E178C` receives a statically reached `0x65` selector
+and `5E1814` gets `0x66`; their enclosing native code
+loads `[EBP+0x670]` at `5E1756` and again at
+`5E17D1`, with further uses around `5E18E7`,
+`5E1975`, and `5E1A94`. These are promising
+*base +670 queue* / numeric-scoring source anchors
+closer to the score-world structure than the 451021
+**presenter-indexed** reader. At 5E178C and 5E1814,
+however, actual ECX has passed through temporary
+stack slots: **do not assert ECX equals [EBP+670]
+without exact stack-ownership proof**. The 0x65 route
+also differs from source-direct 0x66, and a paired
+5DD650 call may mutate native score state.
+
+**Priority on resumption:** trace native 5E17xx exact
+call-frame/stack+0x670 queue owner, reached user
+identity and pair of 0x65/0x66 queries and 5DD650;
+trace callers to the 5E17xx function back into real
+R1 513252→5DA2F0 if source-reachable. Prefer
+this genuine scored user-world candidate to more
+incidental 451021 presenter UI variants. Keep
+GameState and SaveLoad blocked until a proven actual
+normal-match owner/call chain exists. No original
+game launch or Windows GUI proof occurred.
