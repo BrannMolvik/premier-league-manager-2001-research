@@ -158,6 +158,8 @@ def source_original_5111a0_conditional_sorts_and_selected_tail(
     original_processing_context_at_entry: bytes,
     original_first_team_native_pointer_at_405a20: int,
     original_second_team_native_pointer_at_405a20: int,
+    original_first_team_record_actual_at_405a20: bytes,
+    original_second_team_record_actual_at_405a20: bytes,
     original_first_405a20_source_sort: object,
     original_second_405a20_source_sort: object,
     original_global_875640_player_array_address: int,
@@ -197,6 +199,17 @@ def source_original_5111a0_conditional_sorts_and_selected_tail(
     if (type(original_first_405a20_source_sort) is not SourceOriginal405A20NativeRosterSort or
         type(original_second_405a20_source_sort) is not SourceOriginal405A20NativeRosterSort):
         raise Original5111A0ConditionalSourceError("two native source sort receipts required")
+    # Two independent actual post-409B50, pre-sort native team snapshots:
+    # do not swap an unrelated team's receipt merely because it has the
+    # same bytes/layout or because a Python sort returns a valid shape.
+    source_teams=(original_first_team_record_actual_at_405a20,
+                  original_second_team_record_actual_at_405a20)
+    sorts=(original_first_405a20_source_sort,original_second_405a20_source_sort)
+    for actual,receipt in zip(source_teams,sorts):
+        if (type(actual) is not bytes or len(actual)<0x298 or
+                actual!=receipt.original_team_roster_before_405a20):
+            raise Original5111A0ConditionalSourceError(
+                "actual independently reached 405A20 native team snapshot must match sort receipt")
     if (type(original_first_407770_zero_gate_nonzero) is not bool or
         type(original_second_407770_zero_gate_nonzero) is not bool or
         not original_first_407770_zero_gate_nonzero or
