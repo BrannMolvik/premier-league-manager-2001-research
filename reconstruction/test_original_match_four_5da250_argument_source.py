@@ -2,7 +2,7 @@
 from hashlib import sha256
 from os import environ
 from pathlib import Path
-from struct import pack, pack_into
+from struct import pack, pack_into, unpack_from
 from unittest import TestCase
 from original_match_four_5da250_argument_source import (
     OriginalFourStage5DA250ArgumentError,
@@ -58,6 +58,35 @@ class Four5DA250StageArgumentsTests(TestCase):
                 with self.assertRaises(OriginalFourStage5DA250ArgumentError):
                     source_original_four_stage_5da250_arguments(**p)
 
+    def test_original_global_scale_bss_zero_fill_and_selector_zero(self):
+        path=environ.get('FM2001_ORIGINAL_EXE')
+        if not path:self.skipTest('private canonical original PE unavailable in CI')
+        raw=Path(path).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        pe=unpack_from('<I',raw,0x3C)[0]
+        section_count=unpack_from('<H',raw,pe+6)[0]
+        optional_bytes=unpack_from('<H',raw,pe+20)[0]
+        section_base=pe+24+optional_bytes
+        data=[]
+        for i in range(section_count):
+            row=section_base+40*i
+            if raw[row:row+8].rstrip(b'\\x00')==b'.data':
+                virtual_bytes,rva,raw_bytes,raw_start=unpack_from('<IIII',raw,row+8)
+                data.append((virtual_bytes,rva,raw_bytes,raw_start))
+        self.assertEqual(len(data),1)
+        virtual_bytes,rva,raw_bytes,raw_start=data[0]
+        factor_rva=0x87AD88-0x400000
+        self.assertGreaterEqual(factor_rva-rva,raw_bytes)
+        self.assertLess(factor_rva-rva,virtual_bytes)
+        self.assertGreater(virtual_bytes,raw_bytes)
+        # PE loader initially zero-fills the unbacked tail of .data.
+        # 5E4300 invokes 6596A0 (XOR EAX,EAX; RET), whose category zero
+        # writes IEEE754 double 1.0 to this exact global on first need.
+        self.assertEqual(raw[0x6596a0-0x400000:0x6596a3-0x400000],bytes.fromhex('33 c0 c3'))
+        self.assertEqual(raw[0x5e4324-0x400000:0x5e432e-0x400000],
+                         bytes.fromhex('c7 05 88 ad 87 00 00 00 00 00'))
+
     def test_private_original_four_stage_push_and_human_b_source_opcodes(self):
         path=environ.get('FM2001_ORIGINAL_EXE')
         if not path:self.skipTest('private original exe absent in CI')
@@ -65,6 +94,9 @@ class Four5DA250StageArgumentsTests(TestCase):
         self.assertEqual((len(raw),sha256(raw).hexdigest()),
             (4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
         sites={
+            0x6596a0:'33 c0 c3',
+            0x5e431d:'ff 24 85 90 43 5e 00',
+            0x5e4324:'c7 05 88 ad 87 00 00 00 00 00 c7 05 8c ad 87 00 00 00 f0 3f c3',
             0x5e4300:'dd 05 88 ad 87 00 dc 1d f8 d5 7b 00 df e0 f6 c4 40 74 79',
             0x5e4313:'e8 88 53 07 00 83 f8 04 77 6f ff 24 85 90 43 5e 00',
             0x5e43b0:'8b 44 24 10 56 8b f1 89 46 08 e8 41 ff ff ff',
