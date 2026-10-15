@@ -25,3 +25,73 @@ Original PBg `432505` continues after scheduled event processing and PResults re
 **Gate13 OPEN, Gates14–17 OPEN.** Old quick result `HumanGameplayController.play_original_user_primary_match(mode3)` can complete reconstructed match and show lower PResults source art but **does not execute actual 4A7210 date-bucket eligible-count**, callback-triggered 6168C0+4A71F0 ticks, 513252→5DA2F0 true original match/v38/v3c score, 0–2 match wrappers or native 432505 guarded return, full 2–6 registered users, all shipped countries/leagues or post-match SaveLoad. Actual Windows 11 host interaction/installation and original gameplay comparison also remain unverified.
 
 **Next source-backed player-visible milestone:** trace source 432505→4325F7 native 4290F0 predicate and `[ESP+12/+13/+14]` local producer over the full `432190` ordinary NEXT caller to bind reaching branch state to portable GameState without invented defaults; qualify full original 4A7210→6168C0/PResults live producer from reconstructed owner events. Only then dispatch existing guarded host StartMenu route or PMenu shell/user rotation from real complete source GameState, preserving old Quick3 until all required evidence is present. Avoid wasting another PR/CI on this incomplete return adapter alone: batch implementation and review into meaningful vertical progress on active branch. Existing high-risk PR739 remains separate and unmerged.
+
+
+## Recovery645 follow-up: original 4290F0 full user predicate and 432333 local-mode source
+
+Fresh static original `objdump` of canonical SHA833bf95e proves:
+
+- Source **4290F0→5160A0** reads original global byte
+  **0x87755A**. If nonzero, original **429114–429125**
+  returns full `EAX=0` without inspecting user+10D8.
+- If source global flag is zero, native **429126**
+  loads selected user DWORD **+0x10D8** and may
+  enter a switch on its value (native handlers for
+  1..5 include allocation, date and per-user+670
+  calculations). At **429424**, the code reads
+  user+10D8 **again, after these callbacks**, does
+  `XOR EAX,EAX; TEST ECX,ECX; SETNE AL` and
+  returns EAX as 0 or 1. Using an earlier cached
+  user field for this final predicate would be
+  incorrect when native callback changes it.
+  This is actual original selected-user state, not
+  a match-score success Boolean or simple settings flag.
+- New `source_original_4290f0_return_from_reached`
+  models only reached original global byte and
+  first/after **separate** native user records.
+  It rejects an unreached source field in the
+  early-exit branch; `source_original_432505_single_user_startmenu_from_4290f0`
+  uses that exact predicate without permitting
+  an independently injected override. No original
+  native callbacks execute, and live user+10D8
+  is still **not** source-owned by GameState.
+- Source `43231A` reads original current manager
+  `8755D4` and count `8755E4`; it increments
+  ordinal and branches **JGE→4324FE** if there is
+  no next registered manager (the 4324FE route
+  actually calls **431F70 PResults** then returns
+  to 432505). Only when `old+1 < count` does
+  `43232E` write native local BYTE `[ESP+12]=1`,
+  `432333` write DWORD `[ESP+14]=2` and
+  `43233B` jump to `432505`.
+  Thus the original default state2 producer
+  does **not** authorize inventing a wrap-around
+  player rotation on the last manager. The
+  later signed IDIV at 43262D *could* yield
+  wrapped remainder only with independently
+  sourced intervening changes or another
+  reached source mode producer. New
+  `source_original_432333_native_rotation_prebranch`
+  strictly projects this guard, rejects last manager
+  and negative/count-zero inputs and marks intervening
+  `413AC0/4290F0` native callback mutation **unknown**.
+- Independent private original PE verification
+  **PASS**: seven original 4290F0/5160A0
+  opcodes plus its direct call target, plus
+  **seven** original 43231A/432333/4324FE
+  sites and prior 22 postreturn opcodes/7 calls.
+  Added regressions are authored but still
+  require exact-head CI.
+
+**Player impact:** ordinary PResults completion
+must **not** infer a single human StartMenu/next
+manager merely from `HumanGameplayController`
+simulation completion or original `PResults`
+artwork. Original `PBg` stage and user+10D8
+callbacks are separate substantial systems.
+Next actual feature step is source-owning the
+reached original user+10D8 producer and eligible
+dated-event queue, then original correct
+synchronous return into PBg. Until this
+exists, source-only return helper must not
+automatically leave current management.
