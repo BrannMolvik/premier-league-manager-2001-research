@@ -1075,7 +1075,7 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
         return bytes(b)
 
     @staticmethod
-    def team(ids=(51,52),key=7):
+    def team(ids=tuple(range(51,62)),key=7):
         return SourceOriginal406BE0RosterCountTests.team(ids,key)
 
     def kwargs(self,flags=0):
@@ -1083,7 +1083,7 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
             original_match_record_at_5111a0=self.match(flags),
             original_processing_context_at_5111a0=self.context(),
             original_first_team_record_at_5111a0=self.team(key=7),
-            original_second_team_record_at_5111a0=self.team((61,62),key=8),
+            original_second_team_record_at_5111a0=self.team(tuple(range(71,82)),key=8),
             original_first_match_4c_pointer_if_nonhuman_reached=None,
             original_second_match_4c_pointer_if_nonhuman_reached=None,
             original_first_match_4c_owner_record_if_nonhuman_reached=None,
@@ -1121,7 +1121,7 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
         self.assertEqual(r.original_side_conditional_receipts[0]
                          .original_409b50_reached_args_if_needed,None)
         self.assertEqual(r.original_side_conditional_receipts[1]
-                         .original_409b50_reached_args_if_needed,(0,2,0xBABE))
+                         .original_409b50_reached_args_if_needed,(0,11,0xBABE))
         self.assertFalse(r.original_side_conditional_receipts[1].native_409b50_executed)
 
     def test_first_nonhuman_can_mutate_second_native_match_owner(self):
@@ -1137,8 +1137,8 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
                  original_second_511170_second_4f3dc0_pointer_if_needed=0xA000)
         r=self.project(x)
         sides=r.original_side_conditional_receipts
-        self.assertEqual(sides[0].original_409b50_reached_args_if_needed,(0,2,111))
-        self.assertEqual(sides[1].original_409b50_reached_args_if_needed,(0xA000,2,222))
+        self.assertEqual(sides[0].original_409b50_reached_args_if_needed,(0,11,111))
+        self.assertEqual(sides[1].original_409b50_reached_args_if_needed,(0xA000,11,222))
         self.assertEqual(tuple(s.original_4037b0_human_al_if_reached for s in sides),
                          (False,False))
 
@@ -1185,11 +1185,16 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
         cargs=self.kwargs(0x20) # original bit5 skips 409B50 but sorts are mandatory
         c=self.project(cargs)
         util=SourceOriginal510CD0SelectionArrayTests
+        first_ids=tuple(range(51,62))
+        second_ids=tuple(range(71,82))
         first=util.source_sorted_receipt(
-            util.team((51,52),key=7),(util.player(51,0x10),util.player(52,0x20)))
+            util.team(first_ids,key=7),
+            tuple(util.player(pid,0x10 if i==0 else 0x20)
+                  for i,pid in enumerate(first_ids)))
         second=util.source_sorted_receipt(
-            util.team((61,62),key=8),(
-                util.player(61,0x20,club=8),util.player(62,0x10,club=8)))
+            util.team(second_ids,key=8),
+            tuple(util.player(pid,0x10 if i==1 else 0x20,club=8)
+                  for i,pid in enumerate(second_ids)))
         args=dict(
             original_conditional_source=c,
             original_native_match_record_at_entry=cargs["original_match_record_at_5111a0"],
@@ -1208,9 +1213,9 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
         self.assertEqual(result.original_reached_action_sites_in_order,
                          (0x511235,0x51125E,0x51126C,0x511287))
         self.assertEqual(result.two_selected_pointer_arrays
-                         .source_first_team_receipt.source_select_bit4_or_bit5_player_ids,(51,52))
+                         .source_first_team_receipt.source_select_bit4_or_bit5_player_ids,first_ids)
         self.assertEqual(result.two_selected_pointer_arrays
-                         .source_second_team_receipt.source_select_bit4_or_bit5_player_ids,(62,61))
+                         .source_second_team_receipt.source_select_bit4_or_bit5_player_ids,(72,71,*range(73,82)))
         self.assertFalse(result.native_world_and_sort_mutated)
         self.assertFalse(result.original_game_state_modified)
         for changed in (

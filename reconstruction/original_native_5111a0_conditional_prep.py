@@ -82,6 +82,12 @@ def source_original_5111a0_conditional_nonhuman_409b50_plan(
     teams=(original_first_team_record_at_5111a0,original_second_team_record_at_5111a0)
     if any(type(t) is not bytes or len(t)<0x298 for t in teams):
         raise Original5111A0ConditionalSourceError("both original team records through signed roster count required")
+    # At native 510F06 this routine is reached ONLY after both original
+    # 407770(0) calls succeeded. That earlier branch rejects roster<11,
+    # and no native roster-mutating call intervenes before 5111A0 entry.
+    if any(unpack_from("<i",team,0x294)[0]<11 for team in teams):
+        raise Original5111A0ConditionalSourceError(
+            "source 5111A0 cannot be reached after 407770(0) with roster under eleven")
     # 409B50 for side0 may mutate match+4C or its object before side1.
     # Read the reached owner and +1C separately at the exact call site;
     # never reuse a pre-callback snapshot as if both sides share it.
