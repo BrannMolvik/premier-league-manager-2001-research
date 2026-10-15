@@ -249,5 +249,124 @@ class LeagueMatchNativeProcessingOwnersTests(unittest.TestCase):
                 self.assertEqual(pe.read(addr,len(bytes.fromhex(hx))),bytes.fromhex(hx))
 
 
+
+class LeagueMatchV34SourceReadinessReturnTests(unittest.TestCase):
+    """Original 510D60 zero/one 407770 gate sequence, not a live match."""
+
+    def project(self, vtable=0x7C4C24, gates=(True,True,True,True),
+                special=(None,None)):
+        from original_leaguematch_native_process_owners import (
+            source_original_510d60_four_readiness_gate_return as project)
+        return project(
+            original_match_record=native_match(vtable),
+            original_first_team_407770_zero_nonzero=gates[0],
+            original_second_team_407770_zero_nonzero_if_reached=gates[1],
+            original_first_team_407770_one_nonzero_if_reached=gates[2],
+            original_second_team_407770_one_nonzero_if_reached=gates[3],
+            original_reached_513e80_result_if_wrapped_kind5=special[0],
+            original_reached_513e70_result_if_wrapped_kind5=special[1])
+
+    def test_four_source_407770_zero_then_one_short_circuit_exit_sites(self):
+        scenarios=[
+            ((False,None,None,None),False,0x511115,1),
+            ((True,False,None,None),False,0x511115,2),
+            ((True,True,False,None),False,0x5110FF,3),
+            ((True,True,True,False),False,0x5110FF,4),
+            ((True,True,True,True),True,0x5110E7,4),
+        ]
+        for gates,al,site,count in scenarios:
+            with self.subTest(gates=gates):
+                r=self.project(gates=gates)
+                self.assertEqual(r.original_base_510d60_al_nonzero,al)
+                self.assertEqual(r.original_base_exit_va,site)
+                self.assertEqual(r.reached_gate_addresses,
+                    (0x510EE5,0x510EF9,0x510FFA,0x51100F)[:count])
+                self.assertEqual(r.reached_gate_nonzero,gates[:count])
+                self.assertEqual(r.source_zeroed_context_dword_offsets,
+                    () if al else (0x5A4,0xB54))
+                self.assertIsNone(r.original_511120_wrapper_post_base)
+                self.assertFalse(r.original_complete_v34_context_mutations_proven)
+                self.assertFalse(r.live_game_state_modified)
+
+    def test_all_six_original_literal_class_kinds_and_wrapped_kind5(self):
+        for vtable in (0x7C4C24,0x7C9D9C,0x7C9E14,0x7C9E80,0x7C9EF8,0x7C9F70):
+            wrapped=vtable in (0x7C9D9C,0x7C9E80,0x7C9EF8,0x7C9F70)
+            special=(0x123,0x456) if vtable==0x7C9F70 else (None,None)
+            for al,gates in ((True,(True,True,True,True)),
+                             (False,(True,True,True,False))):
+                with self.subTest(vtable=hex(vtable),al=al):
+                    result=self.project(vtable,gates,special)
+                    wrap=result.original_511120_wrapper_post_base
+                    self.assertEqual(wrap is not None,wrapped)
+                    if wrap:
+                        self.assertEqual(wrap.returned_al_nonzero,al)
+                        if vtable==0x7C9F70:
+                            self.assertEqual(wrap.original_written_context_dwords,
+                                ((0xD28,0x123),(0xD2C,0x456))+
+                                (((0xD24,0xAABBCCDD),) if al else ()))
+                        else:
+                            self.assertEqual(wrap.original_written_context_dwords,
+                                ((0xD24,0xAABBCCDD),) if al else ())
+
+    def test_reject_unvisited_callbacks_and_unsupported_vtable(self):
+        for gate in (
+            (True,None,None,None),
+            (True,True,None,None),
+            (True,True,True,None),
+            (False,False,None,None),
+            (False,None,None,True),
+            (True,False,False,None),
+            (True,True,False,True),
+            (True,True,True,1),
+            (1,None,None,None),
+        ):
+            with self.subTest(gate=gate),self.assertRaises(
+                    OriginalLeagueMatchProcessOwnerError):
+                self.project(gates=gate)
+        for vt,extra in ((0x7C4CE4,(None,None)),
+                         (0x12345678,(None,None)),
+                         (0x7C4C24,(0,1)),
+                         (0x7C9F70,(None,None)),
+                         (0x7C9D9C,(0,1))):
+            with self.subTest(vt=hex(vt),extra=extra),self.assertRaises(
+                    OriginalLeagueMatchProcessOwnerError):
+                self.project(vt,special=extra)
+
+    def test_private_original_pe_gate_and_epilogue_opcode_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:
+            self.skipTest("Private original executable is optional in CI")
+        from hashlib import sha256
+        pe=Path(original).read_bytes()
+        self.assertEqual((len(pe),sha256(pe).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x510EE5:"e8 86 68 ef ff",
+            0x510EEC:"0f 84 14 02 00 00",
+            0x510EF9:"e8 72 68 ef ff",
+            0x510F00:"0f 84 00 02 00 00",
+            0x510FFA:"e8 71 67 ef ff",
+            0x511001:"0f 84 e7 00 00 00",
+            0x51100F:"e8 5c 67 ef ff",
+            0x511016:"0f 84 d2 00 00 00",
+            0x5110E7:"b0 01",
+            0x5110F1:"89 86 a4 05 00 00",
+            0x5110FD:"5e 5d 32 c0",
+            0x511106:"89 be a4 05 00 00",
+            0x51110C:"89 be 54 0b 00 00",
+            0x511115:"32 c0",
+            0x51112A:"e8 31 fc ff ff",
+            0x511145:"89 87 28 0d 00 00",
+            0x511153:"89 87 2c 0d 00 00",
+            0x511159:"84 db 74 09",
+            0x511166:"5f 8a c3",
+        }
+        for va,sig in sites.items():
+            with self.subTest(va=hex(va)):
+                value=bytes.fromhex(sig)
+                self.assertEqual(pe[va-0x400000:va-0x400000+len(value)],value)
+
+
+
 if __name__=="__main__":
     unittest.main()
