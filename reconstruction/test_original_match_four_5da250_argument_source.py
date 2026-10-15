@@ -65,6 +65,15 @@ class Four5DA250StageArgumentsTests(TestCase):
         self.assertEqual((len(raw),sha256(raw).hexdigest()),
             (4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
         sites={
+            0x5e4300:'dd 05 88 ad 87 00 dc 1d f8 d5 7b 00 df e0 f6 c4 40 74 79',
+            0x5e4313:'e8 88 53 07 00 83 f8 04 77 6f ff 24 85 90 43 5e 00',
+            0x5e43b0:'8b 44 24 10 56 8b f1 89 46 08 e8 41 ff ff ff',
+            0x5e43bf:'8b 4c 24 10 8b 54 24 0c 8b 44 24 08 51 52 50 8b ce e8 3b 00 00 00',
+            0x5e4419:'8b 45 10 56 85 c0 8b f1 c7 44 24 04 00 00 00 00 74 0d',
+            0x5e442b:'dd 05 88 ad 87 00 dc 4d 08 dd 1e eb 0b',
+            0x5e4443:'dd 06 dd 54 24 08 dc 1d f8 d5 7b 00 df e0 f6 c4 41 0f 85 c7 03 00 00',
+            0x5e445a:'8b 46 08 85 c0 0f 84 bc 03 00 00',
+            0x5e4821:'5e 8b e5 5d c2 0c 00',
             0x5da995:'6a 00 6a 00 6a 01 50 51 8d 4c 24 34 e8 0a 9a 00 00 8b c8 e8 23 9f 00 00',
             0x5dac28:'6a 00 6a 00 6a 01 51 52 8d 4c 24 34 e8 77 97 00 00 8b c8 e8 90 9c 00 00',
             0x5daea6:'6a 00 6a 00 6a 01 52 50 8d 4c 24 34 e8 f9 94 00 00 8b c8 e8 12 9a 00 00',
