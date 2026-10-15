@@ -117,6 +117,36 @@ class Original512D80FallbackTests(TestCase):
             with self.subTest(change=change),self.assertRaises(Original512D80SourceError):
                 project(**(x|change))
 
+    def test_v34_false_random6_scores_reach_original_v38_words_then_v3c_bit0(self):
+        from original_match_512d80_fallback_scores import (
+            source_original_5130c2_false_through_fallback_v38_v3c_prefix as compose)
+        for vtable in (0x7c4c24,0x7c9d9c):
+            native=bytearray(0x60)
+            pack_into('<I',native,0,vtable)
+            pack_into('<HH',native,0x3c,99,99)
+            pack_into('<I',native,0x44,0x20)
+            p=compose(original_native_match_record_before_v38=bytes(native),**inputs())
+            match=p.original_v38_then_v3c_prefix.native_v3c_first_flag.match_record_after_first_bit0_store
+            self.assertEqual(unpack_from('<HH',match,0x3c),(0,3))
+            self.assertEqual(unpack_from('<I',match,0x44)[0],0x21)
+            self.assertEqual(unpack_from('<II',p.original_processing_context_after_512d80,0xd4c),(0,3))
+            self.assertFalse(p.original_v3c_world_effects_completed)
+            self.assertFalse(p.live_game_state_modified)
+            self.assertFalse(p.native_original_callbacks_executed)
+
+    def test_source_original_nonzero_v38_event_graph_and_wrong_vtable_fail_before_save(self):
+        from original_match_512d80_fallback_scores import (
+            source_original_5130c2_false_through_fallback_v38_v3c_prefix as compose)
+        n=bytearray(0x60)
+        pack_into('<I',n,0,0x7c9d9c)
+        ctx=bytearray(inputs()['original_context_record_before_512d80'])
+        pack_into('<I',ctx,0xd0c,1)
+        with self.assertRaises(Original512D80SourceError):
+            compose(original_native_match_record_before_v38=bytes(n),
+                    **(inputs()|{'original_context_record_before_512d80':bytes(ctx)}))
+        with self.assertRaises(Original512D80SourceError):
+            compose(original_native_match_record_before_v38=bytes(0x60),**inputs())
+
     def test_actual_private_original_pe_proves_random6_source_score_stores_and_overrides(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
         if not p:self.skipTest('private original canonical PE unavailable')
