@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery658 PR773 head 077e4629fc7438cc06e65ffe6ad245f72b603c62 on worker/gate13-r1-4181b0-reset-game-state-658, main 575c6d7a77acf904e75fe1bd483026ea70aae80d. Implements original 41FA50-false 4181B0(+conditional 418220 and 4EA370) atomic native_status_world GameState shadow with tamper/stale gates and schema48 save/load tests; source audit report. Exact-head focused Gate13 Actions 38743355733 SUCCESS (2315 tests/242 skipped); asset policy 38743355722 SUCCESS. Full reconstruction test workflow 38743355817 RUNNING; do not merge until exact-head full SUCCESS and review, inspect output and source evidence; if red diagnose precise test before repair. Next after safe merge: source-qualified 4182F0 selected-player status/417340 real registration and optional 41EDF0 registered quota, then 409C90 11 roles/5111A0 match. Gates13–17 OPEN. No original native game or physical Win11 GUI executed.",
-  "last_known_main_head": "575c6d7a77acf904e75fe1bd483026ea70aae80d",
+  "active_task": "Recovery658: PR773 source 4181B0/418220 atomic GameState native-status shadow MERGED into main 2aca76d695eadfd3f380e8840987d01c6e9d315b after exact-head Gate13 38743355733 SUCCESS 2315 tests/242 skips, full reconstruction 38743355817 SUCCESS 4830 tests/246 skips and asset 38743355722 SUCCESS. New feature branch worker/gate13-r1-4182f0-registered-quota-world-658 at that main HEAD. ACTIVE NEXT: source-compose original 4182F0 selected-player assignment with exact reached 417340 registered manager predicate, conditionally 41EDF0 bit12/player+72 quota path; atomic native_status_world and quota changes, existing schema48 save/load, full negative/source tests, no generic player or match/calendar effects, then substantive exact-head PR audit. 409C90 11-slot 41C7E0/41B970, 5111A0, all 513010->5DA2F0, PPreMatch modes/PResults, 2–6 humans, all original leagues, real Windows11 Gate13–17 audit OPEN.",
+  "last_known_main_head": "2aca76d695eadfd3f380e8840987d01c6e9d315b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -37,6 +37,6 @@
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "575c6d7a77acf904e75fe1bd483026ea70aae80d",
-  "active_branch": "worker/gate13-r1-4181b0-reset-game-state-658"
+  "last_known_main_commit": "2aca76d695eadfd3f380e8840987d01c6e9d315b",
+  "active_branch": "worker/gate13-r1-4182f0-registered-quota-world-658"
 }
