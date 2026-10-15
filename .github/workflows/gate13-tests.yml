@@ -168,6 +168,10 @@ on:
       - "reconstruction/test_original_native_40cbc0_full_category_join.py"
       - "reconstruction/original_native_40cf31_default_coeff.py"
       - "reconstruction/test_original_native_40cf31_default_coeff.py"
+      - "reconstruction/original_native_40cbc0_all_paths.py"
+      - "reconstruction/test_original_native_40cbc0_all_paths.py"
+      - "reconstruction/original_native_5da967_coeff_guard.py"
+      - "reconstruction/test_original_native_5da967_coeff_guard.py"
       - "reconstruction/original_native_5db389_component_inputs.py"
       - "reconstruction/test_original_native_5db389_component_inputs.py"
       - "reconstruction/original_native_5db6fa_context_tail.py"
@@ -543,6 +547,8 @@ jobs:
             test_original_native_4fa510_group_source \
             test_original_native_40cbc0_full_category_join \
             test_original_native_40cf31_default_coeff \
+            test_original_native_40cbc0_all_paths \
+            test_original_native_5da967_coeff_guard \
             test_original_native_5db389_component_inputs \
             test_original_native_5db6fa_context_tail \
             test_original_match_context_to_side_world \
