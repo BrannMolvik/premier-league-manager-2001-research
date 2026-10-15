@@ -21,7 +21,7 @@ class OriginalPResultsChildrenTests(TestCase):
         self.assertEqual(tuple(x.original_initial_xy for x in r.registered_children),
                          ((0,513),(0,518),(0,556),(0,579),(0,581)))
         self.assertEqual(tuple(x.original_initial_wh for x in r.registered_children),
-                         ((800,87),(800,38),(800,18),None,None))
+                         ((800,87),(800,38),(800,18),None,(0,10)))
         self.assertEqual(tuple(x.original_factory_call for x in r.registered_children),
                          (0x651ba0,0x6503f0,0x6503f0,0x64f380,0x64f380))
         self.assertEqual(r.original_shared_progress_owner_offset,0x250)
@@ -61,9 +61,11 @@ class OriginalPResultsChildrenTests(TestCase):
           0x4a6f08:'6a 12 68 20 03 00 00 68 2c 02 00 00',
           0x4a6f1f:'8d be 20 02 00 00',
           0x4a6f44:'68 43 02 00 00',
+          0x4a6f58:'68 00 01 00 00 55 6a 01 6a 0a 55',
           0x4a6f63:'8d 9e 50 02 00 00',
           0x4a6f69:'55 68 20 03 00 00 68 d0 65 94 00',
           0x4a6f7e:'8d be 70 02 00 00',
+          0x4a6f90:'8b 43 18 8b 4b 14 55 68 10 bf 87 00 50 51',
           0x4a6f9e:'68 45 02 00 00',
           0x4a6fa6:'89 5f 2c',
         }
@@ -71,3 +73,50 @@ class OriginalPResultsChildrenTests(TestCase):
             with self.subTest(va=hex(va)):
                 sig=bytes.fromhex(s)
                 self.assertEqual(raw[va-0x400000:va-0x400000+len(sig)],sig)
+
+
+class OriginalPResultsRealEventProgressTests(TestCase):
+    def test_native_two_pass_callbacks_drive_source_bar_position_and_width(self):
+        from original_presults_child_inventory import source_original_presults_bar_rects_from_dated_callbacks
+        from original_presults_native_event_work import (OriginalPResultsDatedEventReceipt,
+                                                          OriginalPResultsSourceCallback)
+        callbacks=(OriginalPResultsSourceCallback(0x8000,1,0x10,0x4a71f0),
+                   OriginalPResultsSourceCallback(0x8100,2,0x10,0x4a71f0))
+        r=OriginalPResultsDatedEventReceipt(callbacks,True)
+        steps=source_original_presults_bar_rects_from_dated_callbacks(
+            original_6168c0_receipt=r,original_source_total_4a7210=4,
+            original_processed_before_callbacks=1)
+        self.assertEqual(tuple(s.original_bar_rect_xywh for s in steps),
+                         ((0,581,400,10),(0,581,600,10)))
+        self.assertEqual(tuple(s.original_processed_count_after_tick for s in steps),(2,3))
+        self.assertEqual(tuple(s.original_callback_pass for s in steps),(1,2))
+        self.assertTrue(all(not s.actual_original_event_executed and
+                            not s.original_screen_rendered for s in steps))
+
+    def test_progress_requires_original_events_not_synthetic_timers_or_scores(self):
+        from original_presults_child_inventory import source_original_presults_bar_rects_from_dated_callbacks
+        from original_presults_native_event_work import (OriginalPResultsDatedEventReceipt,
+                                                          OriginalPResultsSourceCallback)
+        good=OriginalPResultsDatedEventReceipt((OriginalPResultsSourceCallback(
+            0x8000,2,0x10,0x4a71f0),),True)
+        kwargs=dict(original_6168c0_receipt=good,original_source_total_4a7210=4,
+                    original_processed_before_callbacks=0)
+        bad=[kwargs|{'original_6168c0_receipt':None},
+             kwargs|{'original_6168c0_receipt':(0x8000,)},
+             kwargs|{'original_source_total_4a7210':0},
+             kwargs|{'original_source_total_4a7210':False},
+             kwargs|{'original_processed_before_callbacks':4},
+             kwargs|{'original_processed_before_callbacks':-1},
+             kwargs|{'original_6168c0_receipt':OriginalPResultsDatedEventReceipt((
+                 OriginalPResultsSourceCallback(0x8000,1,0x08,0x4a71f0),),False)},
+             kwargs|{'original_6168c0_receipt':OriginalPResultsDatedEventReceipt((
+                 OriginalPResultsSourceCallback(0x8000,1,0x10,0x4a7190),),False)},
+             kwargs|{'original_6168c0_receipt':OriginalPResultsDatedEventReceipt((
+                 OriginalPResultsSourceCallback(0,1,0x10,0x4a71f0),),False)}]
+        for case in bad:
+            with self.subTest(case=str(case)[:125]), self.assertRaises(OriginalPResultsSourceError):
+                source_original_presults_bar_rects_from_dated_callbacks(**case)
+        empty=OriginalPResultsDatedEventReceipt((),False)
+        self.assertEqual(source_original_presults_bar_rects_from_dated_callbacks(
+            original_6168c0_receipt=empty,original_source_total_4a7210=0,
+            original_processed_before_callbacks=0),())
