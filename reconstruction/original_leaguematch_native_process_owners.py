@@ -125,6 +125,105 @@ def source_original_wrapped_prepare_511120_post_base(
 
 
 
+
+@dataclass(frozen=True)
+class SourceOriginal510D60ReadinessGateReturn:
+    """ONLY original v+34 four reached 407770 gate branches and final AL.
+
+    The game executes many intermediate native callbacks, not reproduced here.
+    Boolean inputs are independently observed original callback outcomes, not
+    a new eligibility algorithm or input from a reconstructed fixture.
+    """
+    original_match_vtable: int
+    reached_gate_addresses: tuple[int, ...]
+    reached_gate_nonzero: tuple[bool, ...]
+    original_base_510d60_al_nonzero: bool
+    original_base_exit_va: int
+    source_zeroed_context_dword_offsets: tuple[int, ...]
+    original_511120_wrapper_post_base: OriginalLeagueMatchWrappedPrepareReceipt | None
+    native_original_407770_callbacks_executed: bool = False
+    original_510d60_all_other_callbacks_executed: bool = False
+    original_complete_v34_context_mutations_proven: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_510d60_four_readiness_gate_return(
+    *, original_match_record: bytes,
+    original_first_team_407770_zero_nonzero: bool,
+    original_second_team_407770_zero_nonzero_if_reached: bool | None,
+    original_first_team_407770_one_nonzero_if_reached: bool | None,
+    original_second_team_407770_one_nonzero_if_reached: bool | None,
+    original_reached_513e80_result_if_wrapped_kind5: int | None = None,
+    original_reached_513e70_result_if_wrapped_kind5: int | None = None,
+) -> SourceOriginal510D60ReadinessGateReturn:
+    """Static original 510EE5 -> 510EF9 -> 510FFA -> 51100F gate order.
+
+    Source 510D60 returns AL=0 on the *first* reached zero EAX (and
+    writes zero to context+5A4/+B54); after four nonzero gates it returns
+    AL=1. First pair uses 407770(0), second pair uses 407770(1).
+    Native callbacks between pairs and their context/world effects remain
+    unresolved and MUST NOT be inferred from this branch projection.
+    Wrapped 511120 independently executes 513E80/513E70 when kind=5
+    irrespective of base AL, then copies match+50 to context+D24 only
+    when base AL=1. Neither source path advances any portable match.
+    """
+    owner = source_original_leaguematch_process_owners_for_native_record(
+        original_match_record=original_match_record)
+    kind = SOURCE_LEAGUEMATCH_LITERAL_V28_KINDS.get(owner.virtual28_kind_va)
+    if kind is None:
+        raise OriginalLeagueMatchProcessOwnerError(
+            "v28 diagnostic 668766 unknown: cannot source-project 511120")
+    flags = (
+        original_first_team_407770_zero_nonzero,
+        original_second_team_407770_zero_nonzero_if_reached,
+        original_first_team_407770_one_nonzero_if_reached,
+        original_second_team_407770_one_nonzero_if_reached,
+    )
+    addresses = (0x510EE5, 0x510EF9, 0x510FFA, 0x51100F)
+    reached = []
+    for index, flag in enumerate(flags):
+        if index > 0 and len(reached) != index:
+            if any(x is not None for x in flags[index:]):
+                raise OriginalLeagueMatchProcessOwnerError(
+                    "original 407770 gate supplied after unreachable early return")
+            break
+        if type(flag) is not bool:
+            raise OriginalLeagueMatchProcessOwnerError(
+                "actual reached original 407770 EAX nonzero boolean required")
+        reached.append(flag)
+        if not flag:
+            if any(x is not None for x in flags[index+1:]):
+                raise OriginalLeagueMatchProcessOwnerError(
+                    "unreached original 407770 outcomes cannot be supplied")
+            break
+    if not reached:
+        raise OriginalLeagueMatchProcessOwnerError("original first gate not reached")
+    success = len(reached) == 4 and all(reached)
+    # The two failure epilogues independently zero the same slots.
+    epilogue = 0x5110E7 if success else (
+        0x511115 if len(reached) <= 2 else 0x5110FF)
+    zeroed = () if success else (0x5A4, 0xB54)
+    wrapper = None
+    special = (original_reached_513e80_result_if_wrapped_kind5,
+               original_reached_513e70_result_if_wrapped_kind5)
+    if owner.source_wrapped_prepare:
+        wrapper = source_original_wrapped_prepare_511120_post_base(
+            original_match_record=original_match_record,
+            original_base_510d60_al_nonzero=success,
+            original_native_kind_from_virtual28=kind,
+            original_reached_513e80_result=special[0],
+            original_reached_513e70_result=special[1],
+        )
+    elif any(x is not None for x in special):
+        raise OriginalLeagueMatchProcessOwnerError(
+            "direct 510D60 has no reached 511120 513E8x calls")
+    return SourceOriginal510D60ReadinessGateReturn(
+        owner.source_vtable_va,
+        addresses[:len(reached)], tuple(reached), success,
+        epilogue, zeroed, wrapper,
+    )
+
+
 SOURCE_LEAGUEMATCH_PRIMARY_EVENT_V30_VA = 0x651980
 SOURCE_LEAGUEMATCH_CONDITIONAL_SECONDARY_V30_VA = 0x5112C0
 SOURCE_LEAGUEMATCH_EVENT_BIT2 = 0x04
