@@ -205,6 +205,8 @@ class Original409C90StrictFirstPassTests(unittest.TestCase):
         self.assertEqual((len(b),sha256(b).hexdigest()),(
             4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
         sites={
+            0x409CA6:"89 74 24 18",
+            0x409CF7:"89 b4 24 94 00 00 00",
             0x409D79:"8b 54 24 38",
             0x409D85:"c7 44 24 34 ff ff ff ff",
             0x409DD5:"8a 0c 02",
