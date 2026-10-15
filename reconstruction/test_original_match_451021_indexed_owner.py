@@ -12,8 +12,8 @@ from original_match_451021_indexed_owner import (
 
 
 def source_case(keys=(42,99), bases=(0x9010,0x9020),
-                extras=(0x9100,0x9200), club_ordinal=0,
-                writer_key=42, slot=0):
+                extras=(0x9100,0x9200), current_manager_index=0,
+                dispatch_word=0x66, writer_key=42, slot=0):
     links=[]
     for i,key in enumerate(keys):
         ptr=0x1000+i*0x30
@@ -29,9 +29,10 @@ def source_case(keys=(42,99), bases=(0x9010,0x9020),
         links.append(Original417340ReachedUser(
             ptr,bytes(raw),userptr,bytes(user),ctxptr,bytes(ctx)))
     root=bytearray(0x9d0)
+    pack_into('<I',root,0x9c4,current_manager_index)
     pack_into('<I',root,0x9cc,0x1000 if keys else 0)
     reader_club=bytearray(8)
-    pack_into('<H',reader_club,4,club_ordinal)
+    pack_into('<H',reader_club,4,dispatch_word)
     writer_club=bytearray(8)
     pack_into('<I',writer_club,4,writer_key)
     presenter=bytearray(0xe4)
@@ -43,15 +44,15 @@ def source_case(keys=(42,99), bases=(0x9010,0x9020),
       original_451005_club_d8_record=bytes(reader_club),
       original_451014_presenter_record=bytes(presenter),
       original_5db3ac_first_side_club_record=bytes(writer_club),
-      original_reader_reached_4139d0_user_pointer=links[club_ordinal].original_user_pointer
-        if club_ordinal<len(links) else 0,
+      original_reader_reached_4139d0_user_pointer=links[current_manager_index].original_user_pointer
+        if current_manager_index<len(links) else 0,
       original_writer_reached_403850_user_pointer=selected)
 
 
 class Original451021IndexedOwnerTests(TestCase):
     def test_zero_index_same_user_base_slot_is_only_snapshot_candidate(self):
         s=source_original_451021_reader_5db450_writer_snapshot(**source_case())
-        self.assertEqual((s.original_reader_manager_ordinal_from_d8_word,
+        self.assertEqual((s.original_reader_manager_ordinal_from_global_9c4,
                           s.original_reader_plus_e0_queue_slot_index),(0,0))
         self.assertEqual((s.original_reader_user_pointer,s.original_writer_user_pointer),
                          (0x2000,0x2000))
@@ -68,20 +69,28 @@ class Original451021IndexedOwnerTests(TestCase):
         self.assertEqual((s.original_reader_queue_pointer,s.original_writer_base_queue_pointer),
                          (0x9100,0x9010))
 
-    def test_ordinal_is_not_writer_club_key_lookup(self):
+    def test_global_manager_index_is_not_writer_club_key_lookup(self):
         s=source_original_451021_reader_5db450_writer_snapshot(**source_case(writer_key=99))
         self.assertEqual((s.original_reader_user_pointer,s.original_writer_user_pointer),
                          (0x2000,0x2900))
         self.assertFalse(s.native_snapshot_user_pointers_equal)
         self.assertFalse(s.native_snapshot_queue_pointers_equal)
         s=source_original_451021_reader_5db450_writer_snapshot(
-            **source_case(writer_key=42,club_ordinal=1))
+            **source_case(writer_key=42,current_manager_index=1))
         self.assertEqual(s.original_reader_user_pointer,0x2900)
         self.assertFalse(s.native_snapshot_user_pointers_equal)
 
+    def test_club_word_is_dispatch_selector_not_manager_index(self):
+        s=source_original_451021_reader_5db450_writer_snapshot(
+            **source_case(dispatch_word=0xf966,current_manager_index=1,writer_key=99))
+        self.assertEqual(s.original_reader_manager_ordinal_from_global_9c4,1)
+        self.assertEqual(s.original_reader_dispatch_selector_word_from_d8,0xf966)
+        self.assertEqual(s.original_reader_user_pointer,0x2900)
+        self.assertTrue(s.native_snapshot_user_pointers_equal)
+
     def test_original_full_key_gate_may_select_earlier_low16_alias(self):
         s=source_original_451021_reader_5db450_writer_snapshot(
-            **source_case(keys=(0x42,0x10042),writer_key=0x10042,club_ordinal=1))
+            **source_case(keys=(0x42,0x10042),writer_key=0x10042,current_manager_index=1))
         self.assertEqual((s.original_writer_full_club_key,s.original_writer_masked_club_key),
                          (0x10042,0x42))
         self.assertEqual((s.original_writer_user_pointer,s.original_reader_user_pointer),
@@ -104,7 +113,7 @@ class Original451021IndexedOwnerTests(TestCase):
            good|{'original_451014_presenter_record':bytes(0xe0)},
            good|{'original_451005_club_d8_record':bytes(6)},
            good|{'original_reader_reached_4139d0_user_pointer':False},
-           source_case(club_ordinal=2),
+           source_case(current_manager_index=2),
            source_case(writer_key=7),
            source_case(slot=4),
            source_case(bases=(0,1)),
