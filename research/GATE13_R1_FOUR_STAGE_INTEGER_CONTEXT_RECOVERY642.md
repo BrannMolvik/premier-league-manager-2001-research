@@ -96,3 +96,67 @@ this as the game's per-user +0x6B4 Inbox, or invent an original message
 identity; native payload, queue lifetime, delivery/render and SaveLoad
 still need original source evidence. Existing GameState live behavior
 is not changed by this source trace.
+
+
+## Recovery643: original human callback dispatch and 5DC510 payload contract
+
+Independent static `objdump -D -b binary -m i386 -M intel` of the **unchanged**
+private original `footballmanager.exe` (4,714,541 bytes,
+SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+resolves native `5DB3BD–5DB6FA` control flow, **without running the game**.
+
+With source flag zero and first `4037B0` true, native invokes **two**
+`5DC510` callbacks (5DB456,5DB4B9), then reads selected native
+`user+694 DWORD0` into EBX at 5DB4C4. Flag zero with no first human
+passes directly to 5DB6FA with **no** callbacks or bonus.
+
+With nonzero flag, both kinds of first initial owner divert to 5DB4D7:
+the first-side predicate is **rechecked** at 5DB4D9; only when false,
+the second is probed at 5DB4E6. If neither is human it skips to 5DB6FA.
+When entered, first is checked again at 5DB4F5 and may invoke calls
+5DB58D,5DB5F0; the second is checked at 5DB5F9 *after the first-side
+callbacks* and may invoke 5DB692,5DB6F5. So zero, two or four callback
+calls are source possible, in that order, and source predicates must
+not be cached across native mutable callbacks. This path does **not**
+execute the 5DB4C4 first-path EBX bonus.
+
+`5DC510` accepts 0x24 bytes of by-value native arguments (`RET 24h`).
+Source 5DC5E7–5DC627 copies the first 16 bytes to newly allocated
+0x20-byte payload offsets +0..+0F, source word at argument +10 to
+payload +10, and three source DWORDs at argument +14,+18,+1C to
+payload +14,+18,+1C. The source does **not** initialize two payload
+bytes +12..+13, which a portable adapter must not fabricate as a proven
+native value. Original 5DC5D9 allocates 0x20 payload **after nested
+5DC650**, and original 5DC62B allocates a separate 0x0C-byte wrapper;
+5DC634 stores payload-or-null at wrapper+0, then native 617D70 appends
+the wrapper to the original selected +670-owner queue. If the payload
+allocation fails, source 5DC629 assigns a null payload but still
+attempts wrapper creation. The exact wrapper allocation-failure
+consequence is **not** safely determined and must not be simulated as
+normal success.
+
+New **source-only**, original-PE-backed portable modules:
+`original_match_human_callback_dispatch.py` for the original reached
+callback site sequence / predicate guards, and
+`original_match_5dc510_event_payload.py` for the field-copied payload
+layout without pretending the unknown padding is initialized. Tests
+`test_original_match_human_callback_dispatch.py`: eight locally
+executed tests **PASS** with `FM2001_ORIGINAL_EXE` set to the actual
+private source; native signatures include all six callback sites,
+branch/control and allocator/wrapper copy bytes. They are registered
+for focused Gate13 CI but no PR or remote CI has been run while this
+feature branch remains unopened.
+
+**Not proven or implemented:** native 5E48D0/5E43B0 exact argument
+values, actual nested 5DC650 effects, allocation and callback
+execution, +670 queue lifecycle/SaveLoad, score mutations in
+GameState, GUI / original NEXT→PPreMatch modes0–3→PResults→return,
+other original leagues, multi-human or Windows 11 acceptance.
+
+**Next executable work:** source-derive both original 5DB3CB and
+5DB4F3 argument constructors via 404410/5E43B0 and identify
+original downstream consumer of these +670 record wrappers. Then
+integrate actual per-user queue + match component mutation into
+saved GameState and true normal PPreMatch/all modes/PResults/return.
+Keep this same branch, batch reviewed milestone before PR/CI,
+and do not close Gate13 on a source-only component.
