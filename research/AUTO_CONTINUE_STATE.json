@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery654: main 6ad944c7d1ee21cf3cb6623623f3b94620cb08ca. Active original-v34 readiness/407770 source PR764 HEAD 92b268bfa61e6b8abfdcd5132872903f2f74cce8, branch worker/gate13-r1-v34-readiness-gates-654. Original private 4714541-byte canonical PE SHA833bf95e statically checked only, never executed. Bounded source code+regressions/documentation for 510D60 four ordered 407770 zero/one checks, early exits and wrapper511120 plus source callee 407770 signed roster count/IDs/date and 403640/407220/406BE0 conditional semantics. NEXT inspect exact-head focused Gate13 and asset policy PR764 CI, repair any actual failures, independently review and only merge when safe/green. THEN source-own actual callbacks 4EA300/403640/407220/406BE0 and intermediate 5111A0/40DA30/6314E0, progress original v38/v3c saved match, 4 modes/dual calendar/2-6 human/all leagues and Windows11 interactive release. Gate13-17 remain OPEN. High-risk PR739 unmerged; no invented live or GUI claims. Avoid redoing PR763 or spending CI on heartbeat.",
-  "last_known_main_head": "6ad944c7d1ee21cf3cb6623623f3b94620cb08ca",
+  "active_task": "Recovery654: PR764 original 510D60 four 407770 eligibility gates, per-arg roster contract, wrapper and tests MERGED source-only to main d83e4f3eac85f3812bb26b31a58c981a68289f15; exact-head Gate13 run38718378170 SUCCESS 2240 tests/226 skipped; asset38718378177 SUCCESS. Immediate NEXT source-qualify native 406BE0(1,0), 407EC0 and 407220(4), player 4EA300 875640 owner and native 5111A0 intermediate, then real original match v38/v3c/GameState/4 modes and Win11. Original private executable SHA833bf95e statically inspected, not launched. Gate13-17 OPEN, high-risk PR739 separate. Work continuously, coherent next branch milestones, no CI heartbeat.",
+  "last_known_main_head": "d83e4f3eac85f3812bb26b31a58c981a68289f15",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -37,5 +37,5 @@
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "6ad944c7d1ee21cf3cb6623623f3b94620cb08ca"
+  "last_known_main_commit": "d83e4f3eac85f3812bb26b31a58c981a68289f15"
 }
