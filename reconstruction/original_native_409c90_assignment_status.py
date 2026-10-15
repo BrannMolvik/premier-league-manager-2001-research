@@ -509,8 +509,12 @@ def source_original_4182f0_assignment_without_reached_41edf0(
         raise Original409C90SourceError(
             "independently source-derived 417340 at exact post-mutation player record required")
     al=receipt.original_417340_return_al
-    if type(al) is not int or al not in (0,1):
-        raise Original409C90SourceError("actual 417340 source AL 0 or 1 required")
+    if (type(al) is not int or al not in (0,1) or
+            al!=int(receipt.original_matching_user_pointer is not None) or
+            receipt.original_native_player_id!=unpack_from("<H",player,0x4)[0] or
+            receipt.original_current_club_index_signed!=unpack_from("<h",player,0x10)[0]):
+        raise Original409C90SourceError(
+            "417340 source identity/current club/manager matching result inconsistent")
     if al==0 and (unpack_from("<I",player,0x14)[0]&0x2000)==0:
         raise Original409C90SourceError(
             "original 418321 calls unresolved native 41EDF0 when no registered user and bit13 clear")
