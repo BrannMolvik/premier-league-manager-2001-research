@@ -99,7 +99,8 @@ class Original409C90StrictFirstPassTests(unittest.TestCase):
                        original_reached_41c7e0_eax_if_scored=4,
                        original_reached_668350_eax_if_scored=-3),
                   Candidate(1),Candidate(2)))
-        c=slot(100,tuple(Candidate(i) for i in range(3)))
+        c=slot(100,(Candidate(0,original_reached_status_bytes_if_4ea300_called=bytes(3)),
+                    Candidate(1),Candidate(2)))
         x=project(**args,original_eleven_role_source_inputs=(a,b)+(c,)*9)
         self.assertEqual(x.source_original_selection_indices11,(1,-1)+(-1,)*9)
         self.assertEqual(x.source_best_scores11,(1,0)+(0,)*9)
