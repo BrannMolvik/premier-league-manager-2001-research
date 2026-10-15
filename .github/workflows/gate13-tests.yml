@@ -187,6 +187,8 @@ on:
       - "reconstruction/test_original_match_5dabca_score_rng_join.py"
       - "reconstruction/original_native_66d553_tls_initial_state.py"
       - "reconstruction/test_original_native_66d553_tls_initial_state.py"
+      - "reconstruction/original_match_5dab97_fpu_tls_join.py"
+      - "reconstruction/test_original_match_5dab97_fpu_tls_join.py"
       - "reconstruction/original_native_v38_thread_rng.py"
       - "reconstruction/original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/test_original_postresults_4325f7_pmenu_return.py"
@@ -637,6 +639,7 @@ jobs:
             test_original_match_64d540_tls_score_rng \
             test_original_match_5dabca_score_rng_join \
             test_original_native_66d553_tls_initial_state \
+            test_original_match_5dab97_fpu_tls_join \
             test_original_native_v38_thread_rng \
             test_original_postresults_4325f7_pmenu_return \
             test_original_presults_native_leaguematch_vtables \
