@@ -54,13 +54,13 @@ def source_original_5da9ad_first_stage_d88(
         raise OriginalFirstStageD88SourceError("original match context through +D88 required")
     stage=original_stage1_5e48d0
     if (type(stage) is not OriginalScoredStageFreshCallbackSource or
-        stage.original_stage!=1 or not stage.original_human_gate==(
+        type(original_4037b0_registered_club) is not OriginalMatch4037B0TeamOwner or
+        stage.original_stage!=1 or stage.original_human_gate!=(
             original_4037b0_registered_club.source_4037b0_return_al!=0)
         or stage.direct_native_b_store_site_if_reached!=0x5da9ad or
         stage.original_5e43b0_construct_site!=0x5da995 or
         type(stage.original_5e48d0_qword) is not bytes or
-        len(stage.original_5e48d0_qword)!=8 or
-        type(original_4037b0_registered_club) is not OriginalMatch4037B0TeamOwner):
+        len(stage.original_5e48d0_qword)!=8):
         raise OriginalFirstStageD88SourceError("source qualified original 5DA9AD first scoring callback required")
     score=unpack_from("<d",stage.original_5e48d0_qword)[0]
     if not isfinite(score) or abs(score)>=2**31:
