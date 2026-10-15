@@ -1,0 +1,138 @@
+"""Original 409C90 selected-player status mutations, SOURCE PREFIX ONLY.
+
+Owner-authorized footballmanager.exe (4,714,541 bytes,
+SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3)
+was statically inspected, never run/committed. Native 409C90 has extensive
+mutable selection/score loops and nested callbacks; these prefix snapshots
+do NOT execute it or certify GameState, SaveLoad or match score.
+"""
+from dataclasses import dataclass
+from struct import pack_into,unpack_from
+
+
+class Original409C90SourceError(ValueError):
+    pass
+
+
+@dataclass(frozen=True)
+class SourceOriginal4EA3StatusWrites:
+    source_status_pointer: int
+    original_status_before: bytes
+    original_reached_4ea330_role_byte: int
+    original_reached_4ea350_position_byte: int
+    source_status_after_two_stores: bytes
+    native_4ea330_executed: bool = False
+    native_4ea350_executed: bool = False
+    original_live_game_state_modified: bool = False
+
+
+def source_original_4ea330_then_4ea350_status_writes(
+    *, original_source_status_pointer: int,
+    original_source_status_record_before: bytes,
+    original_4ea330_reached_role_argument_byte: int,
+    original_4ea350_reached_position_argument_byte: int,
+) -> SourceOriginal4EA3StatusWrites:
+    """Exact original low five bits at status+3 and low four at status+4.
+
+    Source native 4EA330:
+      byte3 := (byte3 & 0xE0) | (argument & 0x1F)
+    Source native 4EA350:
+      byte4 := (byte4 & 0xF0) | (argument & 0x0F)
+    Called in this order for one actually reached 409C90 selected player
+    at 40A21E and 40A234. No callback is run by this projection.
+    """
+    p=original_source_status_pointer
+    b=original_source_status_record_before
+    role=original_4ea330_reached_role_argument_byte
+    pos=original_4ea350_reached_position_argument_byte
+    if type(p) is not int or not 0<p<=0xffffffff:
+        raise Original409C90SourceError("actual source player+248 status pointer required")
+    if type(b) is not bytes or len(b)<5:
+        raise Original409C90SourceError("original status bytes through +4 required")
+    if any(type(x) is not int or not 0<=x<=255 for x in (role,pos)):
+        raise Original409C90SourceError("reached original source BYTE arguments required")
+    out=bytearray(b)
+    out[3]=(b[3]&0xe0)|(role&0x1f)
+    out[4]=(b[4]&0xf0)|(pos&0x0f)
+    return SourceOriginal4EA3StatusWrites(p,b,role,pos,bytes(out))
+
+
+@dataclass(frozen=True)
+class SourceOriginal4182F0FirstFlagWrite:
+    source_native_player_pointer: int
+    source_player_before: bytes
+    source_player_after_first_flag14_bit4_store: bytes
+    original_other_4182f0_callbacks_executed: bool = False
+    native_4182f0_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_4182f0_initial_player_flag14_bit4_store(
+    *, original_native_player_pointer: int,original_native_player_record_before: bytes,
+) -> SourceOriginal4182F0FirstFlagWrite:
+    """Only 4182F3 player+14 |=0x10, not full native 4182F0 transaction.
+
+    Original immediately calls 418160,418180,418170,417340 and may call
+    41EDF0; these side effects remain unresolved and MUST NOT be dropped
+    from real GameState while claiming source-original roster changes.
+    """
+    p=original_native_player_pointer
+    b=original_native_player_record_before
+    if type(p) is not int or not 0<p<=0xffffffff:
+        raise Original409C90SourceError("actual native player pointer required")
+    if type(b) is not bytes or len(b)<0x18:
+        raise Original409C90SourceError("actual original player flags+14 DWORD required")
+    out=bytearray(b)
+    pack_into("<I",out,0x14,unpack_from("<I",b,0x14)[0]|0x10)
+    return SourceOriginal4182F0FirstFlagWrite(p,b,bytes(out))
+
+
+@dataclass(frozen=True)
+class SourceOriginal409C90SelectedPlayerPrefix:
+    original_40a1f8_native_stack_cmp_equal_one: bool
+    original_player_status_pointer: int
+    original_native_player_pointer: int
+    role_and_position_status_source_writes: SourceOriginal4EA3StatusWrites
+    player_flag_bit4_first_source_store: SourceOriginal4182F0FirstFlagWrite
+    native_409c90_executed: bool = False
+    native_4ea330_4ea350_4182f0_executed: bool = False
+    complete_original_mutable_world_qualified: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_409c90_one_selected_player_source_prefix(
+    *,original_40a1f8_reached_stack_eax: int,
+    original_native_player_pointer: int,
+    original_native_player_record_at_40a211: bytes,
+    original_native_player_status_record_at_40a21d: bytes,
+    original_876cb8_reached_role_dword: int,
+    original_876cbc_reached_position_byte: int,
+) -> SourceOriginal409C90SelectedPlayerPrefix:
+    """True native 40A1F8 == 1 branch only, before 4182F0 other callbacks.
+
+    The first status writer gets full DWORD 876CB8 but consumes only
+    the low input BYTE, and subsequent position writer consumes BYTE
+    876CBC. Original player+248 is status owner; do not substitute
+    player base bytes for its separately addressed status record.
+    """
+    if type(original_40a1f8_reached_stack_eax) is not int or original_40a1f8_reached_stack_eax!=1:
+        raise Original409C90SourceError("original reached 40A1F8 EAX==1 required")
+    player=original_native_player_record_at_40a211
+    if type(player) is not bytes or len(player)<0x24c:
+        raise Original409C90SourceError("original player+248 status pointer required")
+    status_pointer=unpack_from("<I",player,0x248)[0]
+    role=original_876cb8_reached_role_dword
+    pos=original_876cbc_reached_position_byte
+    if type(role) is not int or not 0<=role<=0xffffffff:
+        raise Original409C90SourceError("exact source original 876CB8 role DWORD required")
+    out=source_original_4ea330_then_4ea350_status_writes(
+        original_source_status_pointer=status_pointer,
+        original_source_status_record_before=original_native_player_status_record_at_40a21d,
+        original_4ea330_reached_role_argument_byte=role&0xff,
+        original_4ea350_reached_position_argument_byte=pos,
+    )
+    flags=source_original_4182f0_initial_player_flag14_bit4_store(
+        original_native_player_pointer=original_native_player_pointer,
+        original_native_player_record_before=player,
+    )
+    return SourceOriginal409C90SelectedPlayerPrefix(True,status_pointer,original_native_player_pointer,out,flags)
