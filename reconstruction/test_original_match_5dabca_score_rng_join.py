@@ -38,8 +38,8 @@ class OriginalStageBoundedScoreRngTests(TestCase):
                     self.assertFalse(r.saved_match_world_modified)
 
     def test_original_rng_results_are_not_inferred_from_same_seed_on_two_teams(self):
-        a=join(**inputs(1,500,seed=0))
-        b=join(**inputs(2,700,seed=1))
+        a=join(**inputs(1,20000,seed=0))
+        b=join(**inputs(2,30000,seed=1))
         self.assertEqual(a.original_score_rng_source.original_seed_after,0x269ec3)
         self.assertEqual(b.original_score_rng_source.original_seed_after,0x29e2c0)
         self.assertNotEqual(a.original_score_rng_source.original_64d540_return_eax,
