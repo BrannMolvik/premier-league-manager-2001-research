@@ -46,6 +46,33 @@ class SourceOriginal42B0E0HumanTermsTests(TestCase):
                 with self.assertRaises(Original42B0E0HumanModifierError):
                     source_original_42b0e0_human_modifier_terms(**(original|change))
 
+    def test_private_original_option_owner_list_getter_chain(self):
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('canonical proprietary executable not available in CI')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+                         (4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        # ECX owner+4 linked-node head/next+4; virtual +0 key getter;
+        # conditional 5EEB10 -> 5EEA90 finds native object;
+        # object virtual +4 returns the original DWORD later INC/FILD.
+        # No pointer-graph snapshot or native object virtual methods executed.
+        sig={
+            0x5ee9ab:'8b 47 04',0x5ee9b6:'8b 49 04',
+            0x5ee9d6:'8b 10 8b c8 ff 12',0x5ee9dc:'3b c3',
+            0x5ee9eb:'5f 5e b0 01 5b c2 04 00',
+            0x5ee9f3:'5f 5e 32 c0 5b c2 04 00',
+            0x5eea9b:'8b 47 04',0x5eeadb:'8b 47 04',
+            0x5eeafc:'8b 00 5f 5e 5b c2 04 00',
+            0x5eeb19:'e8 82 fe ff ff',
+            0x5eeb22:'5f 83 c8 ff 5e c2 04 00',
+            0x5eeb2d:'e8 5e ff ff ff',
+            0x5eeb32:'8b 10 8b c8 ff 52 04',
+        }
+        for va,seq in sig.items():
+            with self.subTest(native_va=hex(va)):
+                want=bytes.fromhex(seq)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(want)],want)
+
     def test_private_original_four_stage_modifier_call_chain(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
         if not p:self.skipTest('canonical proprietary executable not available in CI')
