@@ -150,6 +150,9 @@ on:
       - "reconstruction/test_original_presults_native_event_work.py"
       - "reconstruction/original_presults_child_inventory.py"
       - "reconstruction/test_original_presults_child_inventory.py"
+      - "reconstruction/original_presults_bottom_surface.py"
+      - "reconstruction/test_original_presults_bottom_surface.py"
+      - "reconstruction/test_original_presults_host_surface.py"
       - "reconstruction/original_presults_native_leaguematch_vtables.py"
       - "reconstruction/test_original_presults_native_leaguematch_vtables.py"
       - "reconstruction/original_schedule_event_native_constructor.py"
@@ -577,6 +580,8 @@ jobs:
             test_original_fastview_special_event_title \
             test_original_presults_native_event_work \
             test_original_presults_child_inventory \
+            test_original_presults_bottom_surface \
+            test_original_presults_host_surface \
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
