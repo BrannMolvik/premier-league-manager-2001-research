@@ -136,3 +136,34 @@ class Original5DC510EventLayoutTests(TestCase):
             off=site-0x400000
             self.assertEqual(raw[off],0xE8)
             self.assertEqual(site+5+unpack_from('<i',raw,off+1)[0],target)
+
+    def test_first_human_5db430_5db493_zero_type_5e43b0_preserves_float_bits(self):
+        """Original 5E4410 bit-copy route, NOT arbitrary 87AD88 scaling."""
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE unavailable')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(4714541,
+            '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        sites={
+            0x5DB41B:'6a 01 6a 00 6a 00',
+            0x5DB42A:'83 ec 08 dd 1c 24 e8 7b 8f 00 00',
+            0x5DB47E:'6a 02 6a 00 6a 00',
+            0x5DB48D:'83 ec 08 dd 1c 24 e8 18 8f 00 00',
+            0x5E43B0:'8b 44 24 10 56 8b f1 89 46 08',
+            0x5E43BF:'8b 4c 24 10 8b 54 24 0c 8b 44 24 08 51 52 50 8b ce',
+            0x5E4419:'8b 45 10 56 85 c0 8b f1',
+            0x5E4429:'74 0d',
+            0x5E4438:'8b 45 08 8b 4d 0c 89 06 89 4e 04',
+            0x5E445A:'8b 46 08 85 c0 0f 84 bc 03 00 00',
+            0x5E4821:'5e 8b e5 5d c2 0c 00',
+        }
+        from struct import unpack_from
+        for va,h in sites.items():
+            with self.subTest(va=hex(va)):
+                data=bytes.fromhex(h)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(data)],data)
+        for site,target in ((0x5DB430,0x5E43B0),(0x5DB493,0x5E43B0),
+                            (0x5E43BA,0x5E4300),(0x5E43D0,0x5E4410)):
+            off=site-0x400000
+            self.assertEqual(raw[off],0xe8)
+            self.assertEqual(site+5+unpack_from('<i',raw,off+1)[0],target)

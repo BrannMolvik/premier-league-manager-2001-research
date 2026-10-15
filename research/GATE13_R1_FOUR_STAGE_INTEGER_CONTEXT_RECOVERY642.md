@@ -273,3 +273,41 @@ dispatch, and first-side selected user identity at 5DB3CB/5DB502,
 then determine which specific +670 reader slots can see the record
 produced by original 5DB456/4B9. Prove type and query arguments and
 normal match GameState callbacks before making a live score change.
+
+## Recovery643 additional constructor narrowing: first human 5E43B0 zero-type path
+
+Bounded original PE stack reconstruction of first-side human
+`5DB41B–435` and `5DB47E–498` shows two reached record
+constructors. Each immediately pushes a distinct native record
+selector (1 then 2) that is **left for the outer 5DC510
+call**, followed by **two zero DWORD constructor fields**,
+then an eight-byte scored QWORD. Native `5E43B0 RET 0x10`
+consumes precisely that eight-byte QWORD and the two zero
+DWORDs; the earlier selector push remains on the stack.
+`5E43B0` stores the second constructor DWORD (zero) at
+result+8 and passes the QWORD plus first DWORD (also zero)
+to `5E4410`. Because the first constructor DWORD is zero,
+`5E4410` takes `5E4438–440` **exact low/high DWORD copy**
+rather than the nonzero flag's runtime scalar `0x87AD88`;
+because result+8 is zero, `5E445A–5E4821` returns before
+any nonzero category normalization. A separate FPU compare
+to zero is performed but cannot change the already copied
+double on this reached category-zero branch.
+
+This **does resolve** the two top-level first-human
+`5E43B0` record-double copies as raw rounded QWORD
+values from their upstream native weighted x87 stage sums.
+It does **not** imply all `5E43B0` calls are raw
+(with other flags native scaling/normalization occurs),
+does not resolve the nested `5DC510→5DC650` constructor,
+and does not recover the original upstream weighted
+float inputs or actual writer/reader +670 owner identity.
+Original native opcode and four call-target regression was
+added to the existing human callback test; all source uses
+remain static, with no real match or original program launch.
+
+Next: calculate exact source weighted QWORDs and source flags
+for the original first/second sides, join same concrete
+registered native owner and slot at readback, and integrate
+the full GameState scoring/queue context only where original
+x87 behavior and native callbacks are independently qualified.
