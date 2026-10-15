@@ -93,6 +93,8 @@ def source_original_409c90_first_pass_eleven_strict_role_slots(
         raise Original409C90FirstPassSourceError("original native team record through +294 mandatory")
     if type(mask) is not SourceOriginal409C90InitialMask or type(rows) is not tuple:
         raise Original409C90FirstPassSourceError("real source 409D5E mask and ordered players required")
+    if n<0 or n>360 or len(team)<0x244+2*n:
+        raise Original409C90FirstPassSourceError("source roster/count capacity invalid")
     if (mask.original_reached_roster_count!=n or
         mask.original_club_key_dword!=unpack_from("<I",team,4)[0] or
         mask.original_team_class_byte74!=team[0x74] or
@@ -100,8 +102,6 @@ def source_original_409c90_first_pass_eleven_strict_role_slots(
         mask.original_roster_word_ids_in_order!=tuple(
             unpack_from("<H",team,0x244+2*i)[0] for i in range(n))):
         raise Original409C90FirstPassSourceError("source team+4, +74 and roster/mask identity mismatch")
-    if len(team)<0x244+2*n or n>360:
-        raise Original409C90FirstPassSourceError("source roster/count capacity invalid")
     base=_source_int(original_global_875640_native_player_base,1,0xffffffff,"875640 base")
     for i,row in enumerate(rows):
         pid=unpack_from("<H",team,0x244+2*i)[0]
