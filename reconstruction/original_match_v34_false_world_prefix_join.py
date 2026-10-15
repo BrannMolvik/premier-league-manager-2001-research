@@ -43,6 +43,7 @@ def source_original_reached_v34_false_fallback_to_world_prefix(
     original_native_510d60_readiness: SourceOriginal510D60NativeReadiness,
     original_native_wrapped_511120_if_reached: SourceOriginal511120WrappedNativeReadiness | None,
     original_native_match_record_before_v38: bytes,
+    original_context_pointer_at_512d80: int,
     original_original_context_before_512d80: bytes,
     original_processing_context_actual_after_512d80_callbacks: bytes,
     original_tls_record_source,
@@ -61,6 +62,8 @@ def source_original_reached_v34_false_fallback_to_world_prefix(
             "native 5130C2 FALSE path requires reached original 510D60 AL0 source")
     if type(match) is not bytes or len(match)<0x60 or unpack_from('<I',match,0)[0]!=ready.original_native_match_vtable:
         raise Original510D60ToFallbackSourceError("original LeagueMatch score record differs from v34 source owner")
+    if type(original_context_pointer_at_512d80) is not int or not 0<original_context_pointer_at_512d80<=0xffffffff:
+        raise Original510D60ToFallbackSourceError('actual original 512D80 context pointer required')
     if type(before) is not bytes or len(before)<0x5b4:
         raise Original510D60ToFallbackSourceError("actual original 512D80 context required")
     if (unpack_from('<I',before,0)[0]!=ready.original_first_team_pointer or
@@ -82,7 +85,7 @@ def source_original_reached_v34_false_fallback_to_world_prefix(
             original_processing_context_actual_after_512d80_callbacks=(
                 original_processing_context_actual_after_512d80_callbacks),
             original_v34_at_5130c2_returned_false=False,
-            original_context_pointer=0x9000,  # overwritten via explicit native context below
+            original_context_pointer=original_context_pointer_at_512d80,
             original_context_record_before_512d80=before,
             original_tls_record_source=original_tls_record_source,
             original_first_team_407770_eax_nonzero=(
