@@ -111,6 +111,15 @@ class OriginalScoringFpuTlsJoinTests(TestCase):
             with self.subTest(change=change),self.assertRaises(OriginalScoringFpuBoundSourceError):
                 join(**(good|change))
 
+    def test_x87_integer_rounding_boundary_is_not_guessed_or_forged(self):
+        for val,eax in ((100.,1),(100.,2),(200.,2),(1100.,11)):
+            with self.subTest(clamped=val,eax=eax),self.assertRaises(OriginalScoringFpuBoundSourceError):
+                join(**args(stage=0.5,clamped=val,eax=eax))
+        exact_zero=join(**args(stage=0.5,clamped=0.,eax=0))
+        self.assertFalse(exact_zero.original_source_float_truncation_consistency_verified)
+        with self.assertRaises(OriginalScoringFpuBoundSourceError):
+            join(**args(stage=0.5,clamped=0.,eax=1))
+
     def test_native_original_pe_source_branches_and_true_double_constants(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
         if not p:self.skipTest('original private PE not available in hosted CI')
