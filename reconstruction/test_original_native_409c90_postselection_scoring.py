@@ -81,6 +81,7 @@ class Original409C90PostselectionScoreTests(unittest.TestCase):
             original_reached_41c7e0_signed_eax_per_nonzero_role=(10,13,None))
         factor=source_factor(original_native_player_at_41b970=p)
         x=source_contribution(original_slot_index=0,
+            original_native_player_pointer_at_scoring=0x40000000+51*0x250,
             original_409c90_plus90_mode_dword=1,
             original_native_player_at_post_assignment_scoring=p,
             original_role_dword_from_original_876cb8=1,
@@ -101,6 +102,7 @@ class Original409C90PostselectionScoreTests(unittest.TestCase):
         ):
             with self.subTest(wrong=str(wrong)[:72]),self.assertRaises(Original409C90ScoreSourceError):
                 source_contribution(**(dict(original_slot_index=0,
+                    original_native_player_pointer_at_scoring=0x40000000+51*0x250,
                     original_409c90_plus90_mode_dword=1,
                     original_native_player_at_post_assignment_scoring=p,
                     original_role_dword_from_original_876cb8=1,
@@ -112,7 +114,8 @@ class Original409C90PostselectionScoreTests(unittest.TestCase):
 
     def test_original_other_mode_single_41c7e0_and_signed_accumulator_wrap(self):
         p=pbytes()
-        opts=dict(original_slot_index=0,original_409c90_plus90_mode_dword=0,
+        opts=dict(original_slot_index=0,original_native_player_pointer_at_scoring=0x40000000+51*0x250,
+            original_409c90_plus90_mode_dword=0,
             original_native_player_at_post_assignment_scoring=p,
             original_role_dword_from_original_876cb8=8,
             original_team_score_accumulator_before=0x7fffffff,
@@ -179,6 +182,7 @@ class Original409C90PostselectionScoreTests(unittest.TestCase):
         receipts=[]
         for i,pid in enumerate(range(51,62)):
             r=source_contribution(original_slot_index=i,
+                original_native_player_pointer_at_scoring=0x40000000+pid*0x250,
                 original_409c90_plus90_mode_dword=0,
                 original_native_player_at_post_assignment_scoring=pbytes(pid),
                 original_role_dword_from_original_876cb8=i+1,
@@ -191,6 +195,7 @@ class Original409C90PostselectionScoreTests(unittest.TestCase):
             accum=r.original_team_score_accumulator_after_source_add_signed
         args=dict(original_complete_source_second_pass=second,
                   original_native_team_at_40a2a4=t,
+                  original_global_875640_player_array_base_at_scoring=0x40000000,
                   original_40a1f8_mode_dword=0,
                   original_eleven_reached_scores=tuple(receipts))
         result=source_team_score(**args)
