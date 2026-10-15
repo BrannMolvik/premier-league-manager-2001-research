@@ -20,15 +20,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from struct import pack_into,unpack_from
 
+from original_native_v38_thread_rng import (
+    ORIGINAL_RANDOM_FACTOR_DOUBLE,
+    source_original_crt_rand15_step_from_reached_seed,
+)
+
 
 class OriginalNative64D540SourceError(ValueError):
     pass
 
 
-SOURCE_NATIVE_CRT_SEED_MULTIPLIER = 0x343FD
-SOURCE_NATIVE_CRT_SEED_INCREMENT = 0x269EC3
 SOURCE_NATIVE_CRT_TLS_RNG_OFFSET = 0x14
-SOURCE_NATIVE_RAND_SCALE = 1.0 / 32768.0
+SOURCE_NATIVE_RAND_SCALE = ORIGINAL_RANDOM_FACTOR_DOUBLE
 SOURCE_MATCH_RNG_CALL_SITES = (0x5DABED,0x5DAE68)
 
 
@@ -69,9 +72,7 @@ def source_original_64d540_bounded_tls_match_rng(
         raise OriginalNative64D540SourceError(
             "original score-side 5DABD6/5DAE51 positive clamped int32 bound required")
     seed=unpack_from("<I",record,SOURCE_NATIVE_CRT_TLS_RNG_OFFSET)[0]
-    after=(seed*SOURCE_NATIVE_CRT_SEED_MULTIPLIER+
-           SOURCE_NATIVE_CRT_SEED_INCREMENT)&0xffffffff
-    rand=(after>>16)&0x7fff
+    after,rand=source_original_crt_rand15_step_from_reached_seed(seed)
     # Native FILD 15-bit rand, FIMUL 32-bit bound and FMUL 2**-15
     # are exact for these 46-bit integer products in x87 extended.
     # 668350 sets its rounding-control word to truncate.
