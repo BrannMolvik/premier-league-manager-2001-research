@@ -62,3 +62,46 @@ per-node event8 and vtable class only where producer and
 mutation semantics are qualified. Then compare count
 against original first- and second-collection non-LeagueMatch
 events, fail closed on unknown candidate types.
+
+
+## PostponedEvent native +0x08 pointer truthiness confirmed, 510BA0
+
+Source-preserving bound read-only original `510BA0–510C09`
+links the current event to its replacement when original
+postponement is permitted. At `510BA3`, it reads
+`original_event+0x08`; nonzero directly skips re-postponing.
+For a zero link, `510BAC` calls original virtual+0x18
+to get the payload and checks **payload+0x44 bit0x40**;
+set bit6 skips the postponement entirely. If clean,
+it allocates a fresh 0x1C-byte wrapper, initializes
+it by original `510380` (therefore new wrapper+8 starts 0),
+writes **new wrapper+0x14 = old event** and
+**new wrapper+0x18 = reason/payload source argument**,
+sets specialized wrapper vtable `0x7C9FE8`,
+then original `510BF8` writes **OLD original event+0x08 =
+NEW wrapper pointer**. It invokes native `615A60`
+to insert the new wrapper at original date index
+`old+0x10 + 7`.
+
+This proves a narrow equivalence for PResults:
+`PrimaryScheduleShadowEntry.wrapper_link_state=linked`
+may correspond to the original old event+0x08
+being nonzero **if and only if** the entry was
+actually linked by the qualified 510BA0/615A60
+lifecycle. Native PResults `4A7210` requires
+event+8 == 0; a linked old event must not count
+as eligible again. Modern `wrapper_link_state=clear`
+is *not sufficient* to assert actual native event+8
+is zero after unspecified mutation, wrapper lifecycle,
+or a prior process; do not promote it automatically.
+
+Original `510BA0` is thus a bridge lead for
+reconstructing event+8 truthiness inside persistent
+`PrimaryScheduleShadowState`. A source-safe
+implementation must preserve provenance of original
+link insertion and unknown paths, not reinterpret
+one user-visible postponed score or fixture date as
+a native node pointer. The second event collection,
+all non-LeagueMatch vtables, all actual 6168C0
+callbacks and real GameState SaveLoad remain
+outstanding. No original executable was launched.
