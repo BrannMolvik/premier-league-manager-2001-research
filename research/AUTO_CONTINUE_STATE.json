@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery658 PR774 open head18c98942ea9ec4b6ccbd62930ec9ec5e7c4158c8 base main2aca76d695eadfd3f380e8840987d01c6e9d315b. MERGED PR773 exact-head focused Gate13 2315/242, full reconstruction 4830/246, asset green. PR774 composes original 4182F0 assignment bit4/5, conditional 418220 role swap, 417340 manager AL and reached/skipped 41EDF0 registered signed player+72 quota into atomic GameState.native_status_world+registered_club_quotas, schema48 save/load and negative tests, research source note. NEXT inspect exact PR774 required focused Gate13/full/asset CI and logs, review source plus corner cases/mergeability, fix if red and only merge verified exact-head. After this continue complete original 409C90 11 XI/41C7E0/41B970 and 5111A0 then 513010→5DA2F0 v38/v3c normal four-mode match and calendar/GUI. Gate13–17 OPEN; original exe static only, no physical Windows11 test.",
-  "last_known_main_head": "2aca76d695eadfd3f380e8840987d01c6e9d315b",
+  "active_task": "Recovery658 two verified Gate13 native GameState status leaf integrations MERGED: PR773 -> main2aca76d695eadfd3f380e8840987d01c6e9d315b, exact-head Gate13 2315 tests/242 skipped, full 4830 tests/246 skipped, asset SUCCESS; PR774 -> main468a488d7732b5e412df312e89fc8c7f9b3036c6, exact-head Gate13 38745434166 SUCCESS 2315/242, full 38745433999 SUCCESS 4834/246, asset 38745433958 SUCCESS. Source 4181B0/418220/4EA370 preselection resets and separately source-qualified 4182F0+417340+optional 41EDF0 selected-player/quota native_status_world atomic GameState shadow persistence (no new save schema). NEXT meaningful original player XI: source original 409C90 11-player role search and 41C7E0(19 roles) full result with actual original callback x87 41B970/668350 and 407DF0/407F20, source-prove complete first+second XI 409D79..40A2A4 and user/roster mutation 4182F0, team+34/+1D8 and match 5111A0 before claiming full normal player route. Source original private executable SHA833bf95e 4714541 bytes previously static only, never run/committed; use verified private Drive extracted source small file per workflow, no mega ZIP. Remaining 513010->5DA2F0 score/v38v3c, all four PPreMatch modes, PResults dual calendar and 432505 return, all leagues/2–6 humans and real Windows11 GUI Gate13–17 OPEN; continue work, not complete.",
+  "last_known_main_head": "468a488d7732b5e412df312e89fc8c7f9b3036c6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -37,6 +37,6 @@
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "2aca76d695eadfd3f380e8840987d01c6e9d315b",
-  "active_branch": "worker/gate13-r1-4182f0-registered-quota-world-658"
+  "last_known_main_commit": "468a488d7732b5e412df312e89fc8c7f9b3036c6",
+  "active_branch": "main"
 }
