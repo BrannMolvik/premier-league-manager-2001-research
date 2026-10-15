@@ -101,6 +101,13 @@ def source_original_4a8260_native_progress_counter_receipts(
     if type(original_two_collection_receipt) is not OriginalPResultsTwoCollectionSourceReceipt:
         raise OriginalPResultsEventSourceError(
             "original 4A8260 two native collection receipt required")
+    expected=source_original_4a8260_two_collection_date_callbacks(
+        original_primary_947ad8=original_two_collection_receipt.original_primary_947ad8,
+        original_secondary_947af0=original_two_collection_receipt.original_secondary_947af0,
+    )
+    if original_two_collection_receipt!=expected:
+        raise OriginalPResultsEventSourceError(
+            "original 4A8260 composite callback/primary return receipt tampered")
     before=original_before_processed_64
     total=original_first_collection_4a7210_total_68
     if (type(before) is not int or type(total) is not int
