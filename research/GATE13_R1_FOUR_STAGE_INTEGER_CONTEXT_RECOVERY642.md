@@ -184,7 +184,7 @@ returns the floating result via x87 at `5DD2D3`, `RET 0x1C`.
 A private-PE regression now verifies nine native opcode sites and five
 real call targets, including `5DC890 → 5DD1F0`.
 
-This is **actual native same-queue read-back evidence**, strengthening
+This is **source proof of the same linked-queue record format and a compatible native read-back**, not proof of one identical live per-user queue object, strengthening
 the player-scoring dependency: dropping queued payloads or replacing
 them with an inbox flag would change the original score calculation.
 It is still **not a source-verified complete scorer**. The original
@@ -231,9 +231,9 @@ marks native x87 sum and live GameState as NOT executed.
 Six locally run corresponding unit tests PASS with actual hashed private
 PE, including source compare signatures. Focused Gate13 workflow
 registered the module/tests. No PR or remote CI yet while this coherent
-feature branch remains open to continued source work. **This is the first
-direct source-joined native queued record select → original score query
-slice** and is not original-game runtime observation or completed
+feature branch remains open to continued source work. **This is a bounded source-matched original queued-record selection
+component**, not a proven identity join between the selected human +670
+writer and a reached 5DC890 reader in the actual original player journey and is not original-game runtime observation or completed
 player-visible match.
 
 Remaining scoring inputs: actual `5E43B0/5E4410` normalized
@@ -241,3 +241,13 @@ record double, `5DD1F0` produced query triples/types from reached
 match states, x87 sum/control environment and full original human-side
 callbacks, other side and processing context; only then may a source-safe
 real `GameState` and all-mode normal player match be implemented.
+
+**Recovery643 owner-identity correction:** Original native `5DC510`
+appends a record through one concrete selected `user+670` pointer;
+`5DC890→5DD1F0` independently queries an object of the matching
+queue-owner layout. We have proved reader/writer *structure* and
+native per-record filter semantics, but we have NOT yet source-joined
+the same concrete selected user's pointer across those native call
+chains. The readback source receipt therefore explicitly reports
+`original_same_owner_instance_proven=False`. Reached owner and query
+callers must be checked before any live original score/world claim.

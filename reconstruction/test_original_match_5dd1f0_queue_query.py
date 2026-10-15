@@ -48,6 +48,7 @@ class Original5DD1F0NativeQueueTests(TestCase):
         self.assertEqual((r.original_inspected_wrapper_pointers,
             r.original_source_selected_wrapper_pointers,r.original_selected_finite_contributions),((),(),()))
         self.assertFalse(r.native_x87_sum_executed)
+        self.assertFalse(r.original_same_owner_instance_proven)
 
     def test_original_type_gate_and_numeric_source_filter(self):
         rows=linked(((1.25,0x66,(1,2,3)),(9.5,0x65,(1,2,3)),

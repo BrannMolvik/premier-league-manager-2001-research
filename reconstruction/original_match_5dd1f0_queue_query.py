@@ -1,6 +1,6 @@
-"""Original +670 intrusive-score-record queue read by native 5DD1F0.
+"""Original 5DC510-style intrusive record queue read by native 5DD1F0.
 
-Exact source lane: 5DC510 creates record, 617D70 appends wrapper,
+Source-equivalent lane: 5DC510 creates record, 617D70 appends wrapper,
 5DC890 calls 5DD1F0, which filters record+10 type, nonnegative
 record first QWORD, and signed lexicographic [lower,upper] tuple range
 with 64D060/64D020. This read-only selection does NOT execute x87,
@@ -29,6 +29,7 @@ class SourceOriginal5DD1F0QueryReceipt:
     original_inspected_wrapper_pointers: tuple[int, ...]
     original_source_selected_wrapper_pointers: tuple[int, ...]
     original_selected_finite_contributions: tuple[float, ...]
+    original_same_owner_instance_proven: bool = False
     native_x87_sum_executed: bool = False
     actual_native_queue_consumed: bool = False
     live_game_state_updated: bool = False
