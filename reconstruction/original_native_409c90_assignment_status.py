@@ -6,6 +6,7 @@ was statically inspected, never run/committed. Native 409C90 has extensive
 mutable selection/score loops and nested callbacks; these prefix snapshots
 do NOT execute it or certify GameState, SaveLoad or match score.
 """
+from __future__ import annotations
 from dataclasses import dataclass
 from struct import pack_into,unpack_from
 
