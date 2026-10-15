@@ -36,12 +36,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "b1180fb42e86b4f90c14f1dfbf5b98a7a1914e2a",
+  "latest_reverse_engineering_checkpoint": "38ff7862ff220bde9ef939bfd916b1b8049db31f",
   "last_verified_reconstruction_ci_head": "2a65a872e6cbf5f0dda10e7a176c3f1f05738995",
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery655 canonical main b1180fb42e86b4f90c14f1dfbf5b98a7a1914e2a, merged PR767 exact Gate13 38724932758 2263 tests 231 skips and asset 38724932745 success. Source original 5111A0 conditional 4037B0/511170/409B50, mandatory 405A20 stable sorts then two 510CD0 selected arrays verified source-only. Earlier impossible gate0/roster<11 test corrected. Original private SHA833bf95e static only. NEXT original 409C90 nonhuman GameState/player and team+34/status+248 mutable original world, full original match 513010->5DA2F0->v38/v3c SaveLoad calendar and 0/1/2/3 GUI, all countries/2-6 managers and original Win11 GUI acceptance. Gate13–17 OPEN, PR739 high-risk separate.",
+  "active_task": "Recovery655 main 38ff7862ff220bde9ef939bfd916b1b8049db31f includes reviewed source PR768 status+position original 409C90 partial, exact head Gate13 2279 tests/236 skips run38727904108 SUCCESS asset38727904129 SUCCESS. Source original 4181B0 both reset/418220 status bytes swap, 409C90 class2/3 418130 availability, source-selected 4182F0 registered manager/bit13 restricted assignment now source projected. Native original SHA833bf95e static only no execution. NEXT original 418050 other-team-class dynamic eligibility and full 409C90 eleven-slot player/scores mutable team+34/+1D8, actual GameState SaveLoad followed by 513010→5DA2F0→v38/v3c/PResults both calendars all modes 0–3/manager return. All original countries/leagues, 2–6 humans, real Win11 GUI/release Gate13–17 OPEN. High-risk PR739 unmerged.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3407,5 +3407,14 @@
     "tests": 2263,
     "skipped": 231,
     "asset_policy_run": 38724932745
+  },
+  "gate13_recovery655_409c90_status_source": "PR768 38ff7862ff220bde9ef939bfd916b1b8049db31f source only 4181B0/418220, 4182F0 registered-user gated and 409C90 class2/3 roster mask",
+  "gate13_recovery655_409c90_tests": {
+    "head": "82ad3a6ce26492e1ef1dc626af8e7b8b47a5e863",
+    "focused_run": 38727904108,
+    "tests": 2279,
+    "skipped": 236,
+    "asset_run": 38727904129,
+    "outcome": "success"
   }
 }
