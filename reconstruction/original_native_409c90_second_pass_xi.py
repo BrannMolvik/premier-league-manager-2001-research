@@ -33,8 +33,9 @@ class SourceOriginal409C90SecondPassCandidate:
 @dataclass(frozen=True)
 class SourceOriginal409C90SecondPassRole:
     original_role_entry8_from_876cb8: bytes
-    original_ordered_candidate_facts_if_unfilled:
-        tuple[SourceOriginal409C90SecondPassCandidate,...] | None = None
+    original_ordered_candidate_facts_if_unfilled: (
+        tuple[SourceOriginal409C90SecondPassCandidate,...] | None
+    ) = None
     original_874be0_word_if_chosen_bit11_mode1: int | None = None
 
 
