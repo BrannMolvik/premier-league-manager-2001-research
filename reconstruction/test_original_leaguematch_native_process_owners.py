@@ -986,6 +986,36 @@ class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
                 original_second_405a20_source_sort=good,
                 original_global_875640_player_array_address=0x40000000)
 
+    def test_original_405a20_stable_descending_sort_and_417e20_pe_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("private canonical original PE optional in CI")
+        from hashlib import sha256
+        raw=Path(original).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x511235:"e8 e6 47 ef ff",0x51125e:"e8 bd 47 ef ff",
+            0x405a20:"8b 44 24 08",0x405a29:"8b 81 94 02 00 00",
+            0x405a38:"e8 73 fe ff ff",
+            0x4058b0:"83 ec 18",0x4058e1:"e8 ca ff ff ff",
+            0x40595e:"66 8b 01",0x405966:"ff 12",0x405968:"85 c0",
+            0x40596a:"74 18",0x405974:"66 8b 17",
+            0x405984:"8b 44 24 18",0x405990:"83 c0 02",
+            0x40b4a0:"8b 44 24 04",0x40b4c9:"8b 57 04",
+            0x40b4cd:"e8 4e c9 00 00",0x40b4da:"e8 41 c9 00 00",
+            0x40b4e1:"3b c3",0x40b4e3:"0f 9c c1",
+            0x417e20:"53",0x417e2c:"e8 af 00 00 00",
+            0x417e3f:"e8 bc 00 00 00",0x417e52:"e8 49 00 00 00",
+            0x417e65:"e8 56 00 00 00",0x417e73:"8b 8e 48 02 00 00",
+            0x417e79:"e8 42 25 0d 00",0x417e84:"8d 04 80",
+            0x417e89:"8a 54 81 10",0x417e94:"2b c2",
+            0x7bef9c:"a0 b4 40 00",
+        }
+        for va,hexbytes in sites.items():
+            with self.subTest(va=hex(va)):
+                signature=bytes.fromhex(hexbytes)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(signature)],signature)
+
     def test_original_510cd0_417f50_417f60_optional_pe_signatures(self):
         original=os.environ.get("FM2001_ORIGINAL_EXE")
         if not original:self.skipTest("canonical private original PE optional in CI")
