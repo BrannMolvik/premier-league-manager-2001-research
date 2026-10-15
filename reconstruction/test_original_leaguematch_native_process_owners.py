@@ -521,5 +521,135 @@ class Original407770NativeRosterSourceTests(unittest.TestCase):
 
 
 
+
+class SourceOriginal406BE0RosterCountTests(unittest.TestCase):
+    """Original 406BE0(1,0), 417EE0 and 4EA3C0 exact recorded fields."""
+
+    @staticmethod
+    def team(ids=(51,52,53),key=7):
+        x=bytearray(0x298)
+        pack_into("<I",x,4,key)
+        pack_into("<i",x,0x294,len(ids))
+        for index,pid in enumerate(ids):
+            pack_into("<H",x,0x244+2*index,pid)
+        return bytes(x)
+
+    @staticmethod
+    def player(pid,club=7,active=True,status=1,base=0x40000000):
+        from original_native_406be0_roster_count import SourceOriginal406BE0Player
+        raw=bytearray(0x24c)
+        pack_into("<h",raw,0x10,club)
+        pack_into("<I",raw,0x14,0x10 if active else 0)
+        if status is None:
+            pack_into("<I",raw,0x248,0)
+        else:
+            pack_into("<I",raw,0x248,0x51000000+pid*8)
+        flags=None if status is None else bytes((0,0,0,status))
+        return SourceOriginal406BE0Player(pid,base+pid*0x250,bytes(raw),flags)
+
+    @staticmethod
+    def project(team,players):
+        from original_native_406be0_roster_count import (
+            source_original_406be0_arg1_one_arg2_zero_roster_count)
+        return source_original_406be0_arg1_one_arg2_zero_roster_count(
+            original_team_record=team,
+            original_global_875640_player_array_address=0x40000000,
+            original_ordered_player_records=players)
+
+    def test_4ea3c0_masks_player_status_low_five_bits_for_role_one(self):
+        ids=(51,52,53)
+        ps=(self.player(51,status=0x21),
+            self.player(52,status=2),
+            self.player(53,status=0x41))
+        result=self.project(self.team(ids),ps)
+        self.assertEqual(result.source_return_eax,2)
+        self.assertEqual(result.reached_417ee0_player_ids,ids)
+        self.assertEqual(result.reached_4ea3c0_player_ids,ids)
+        self.assertEqual(result.matched_4ea3c0_role_one_player_ids,(51,53))
+        self.assertFalse(result.native_406be0_executed)
+        self.assertFalse(result.live_game_state_modified)
+
+    def test_417ee0_signed_team_full_key_and_flag_bit4_skip_status(self):
+        ids=(51,52,53)
+        ps=(self.player(51,club=7,active=True,status=1),
+            self.player(52,club=8,active=True,status=None),
+            self.player(53,club=7,active=False,status=None))
+        result=self.project(self.team(ids),ps)
+        self.assertEqual(result.source_return_eax,1)
+        self.assertEqual(result.reached_4ea3c0_player_ids,(51,))
+        self.assertEqual(result.matched_4ea3c0_role_one_player_ids,(51,))
+        # Original MOVSX WORD can match full UINT32 0xffffffff.
+        x=self.project(self.team((51,),key=0xffffffff),
+                       (self.player(51,club=-1,status=1),))
+        self.assertEqual(x.source_return_eax,1)
+        # Two role-one players do NOT satisfy outer 407770 EAX==1.
+        self.assertNotEqual(self.project(self.team((51,52)),
+            (self.player(51,status=1),self.player(52,status=1))).source_return_eax,1)
+
+    def test_negative_or_zero_roster_short_circuits(self):
+        for count in (-3,0):
+            t=bytearray(self.team(()))
+            pack_into("<i",t,0x294,count)
+            x=self.project(bytes(t),())
+            self.assertEqual(x.source_return_eax,0)
+            self.assertEqual(x.reached_417ee0_player_ids,())
+
+    def test_original_pointer_and_reached_input_fail_closed(self):
+        from original_native_406be0_roster_count import (
+            SourceOriginal406BE0Player,Original406BE0SourceError)
+        valid=self.player(51)
+        t=self.team((51,))
+        cases=(
+            (t,()),(t,(self.player(52),)),
+            (t,(SourceOriginal406BE0Player(51,0x1,valid.original_player_record_bytes,
+                                           valid.original_4ea3c0_status_record_if_417ee0_true),)),
+            (t,(SourceOriginal406BE0Player(51,valid.original_player_record_native_pointer,
+                                           bytes(2),bytes(4)),)),
+            (t,(SourceOriginal406BE0Player(51,valid.original_player_record_native_pointer,
+                                           valid.original_player_record_bytes,None),)),
+            (t,(self.player(51,active=False,status=1),)),
+            (t,(self.player(51,club=8,status=1),)),
+            (self.team((51,52)),(valid,)),
+        )
+        for team,players in cases:
+            with self.subTest(players=str(players)[:70]),self.assertRaises(Original406BE0SourceError):
+                self.project(team,players)
+
+    def test_canonical_original_static_406be0_417ee0_4ea3c0_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("private original EXE optional in CI")
+        from hashlib import sha256
+        pe=Path(original).read_bytes()
+        self.assertEqual((len(pe),sha256(pe).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x406BE5:"33 c0",
+            0x406BED:"8b 8f 94 02 00 00",
+            0x406BFD:"8d b7 44 02 00 00",
+            0x406C05:"66 8b 06",
+            0x406C19:"3b cd",
+            0x406C21:"e8 ba 12 01 00",
+            0x406C26:"85 c0",
+            0x406C2C:"66 8b 06",
+            0x406C35:"a1 40 56 87 00",
+            0x406C3D:"8b 8c 02 48 02 00 00",
+            0x406C44:"e8 77 37 0e 00",
+            0x406C49:"3b 44 24 18",
+            0x406C4F:"ff 44 24 10",
+            0x417EE0:"0f bf 41 10",
+            0x417EE4:"39 44 24 04",
+            0x417EEF:"8b 41 14",
+            0x417EF2:"c1 e8 04",
+            0x417EF5:"83 e0 01",
+            0x4EA3C0:"8a 41 03",
+            0x4EA3C3:"83 e0 1f",
+            0x4EA3C6:"c3",
+        }
+        for va,bytes_hex in sites.items():
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(bytes_hex)
+                self.assertEqual(pe[va-0x400000:va-0x400000+len(bs)],bs)
+
+
 if __name__=="__main__":
     unittest.main()
