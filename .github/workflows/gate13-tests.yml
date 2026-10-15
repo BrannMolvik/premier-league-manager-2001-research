@@ -202,6 +202,8 @@ on:
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
       - "reconstruction/original_native_409c90_assignment_status.py"
       - "reconstruction/test_original_native_409c90_assignment_status.py"
+      - "reconstruction/game_state.py"
+      - "reconstruction/test_original_native_409c90_live_status_reset.py"
       - "reconstruction/original_native_418050_dynamic_eligibility.py"
       - "reconstruction/test_original_native_418050_dynamic_eligibility.py"
       - "reconstruction/original_native_409c90_initial_availability.py"
@@ -663,6 +665,7 @@ jobs:
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
             test_original_native_409c90_assignment_status \
+            test_original_native_409c90_live_status_reset \
             test_original_native_418050_dynamic_eligibility \
             test_original_native_409c90_initial_availability \
             test_original_native_409c90_first_pass_xi \
