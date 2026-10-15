@@ -147,6 +147,7 @@ class SourceOriginal512D80ThroughV38V3CPrefix:
 def source_original_5130c2_false_through_fallback_v38_v3c_prefix(
     *,
     original_native_match_record_before_v38: bytes,
+    original_processing_context_actual_after_512d80_callbacks: bytes,
     **original_512d80_reached_args,
 ) -> SourceOriginal512D80ThroughV38V3CPrefix:
     """Source v34-false -> 512D80 -> 5112A0 score latch -> 511370 bit0.
@@ -155,27 +156,38 @@ def source_original_5130c2_false_through_fallback_v38_v3c_prefix(
     This only composes a true ZERO-event prefix, and cannot be published
     into a running GameState as a complete original match.
     """
-    from struct import pack_into
     from original_native_match_v3c_entry import (
         source_original_v38_then_v3c_zero_event_prefix,
     )
     from original_leaguematch_native_process_owners import OriginalLeagueMatchProcessOwnerError
     fallback=source_original_512d80_fallback_random_scores(
         **original_512d80_reached_args)
-    before=original_512d80_reached_args["original_context_record_before_512d80"]
-    if (unpack_from('<I',before,0xd0c)[0]!=0 or
-        unpack_from('<I',before,0xd10)[0]!=0):
+    # 407770/5160xx callbacks may mutate the processing context and
+    # competition/event world; never reuse the earlier context as if none
+    # of those original calls ran. Require an INDEPENDENTLY reached
+    # post-512D80 context, including both event counters and actual scores.
+    context=original_processing_context_actual_after_512d80_callbacks
+    if type(context) is not bytes or len(context)<0xd54:
         raise Original512D80SourceError(
-            "original source 513570 v38 event lists nonzero; cannot skip their actual callbacks")
-    context=bytearray(before)
-    pack_into('<I',context,0xd4c,fallback.original_first_score_context_d4c)
-    pack_into('<I',context,0xd50,fallback.original_second_score_context_d50)
+            "actual source context AFTER all 512D80 callbacks required")
+    if (unpack_from('<I',context,0)[0]!=fallback.original_first_team_pointer or
+        unpack_from('<I',context,0x5b0)[0]!=fallback.original_second_team_pointer):
+        raise Original512D80SourceError(
+            "source team pointers changed after 512D80 callbacks; unresolved original owner effects")
+    if (unpack_from('<I',context,0xd4c)[0]!=fallback.original_first_score_context_d4c or
+        unpack_from('<I',context,0xd50)[0]!=fallback.original_second_score_context_d50):
+        raise Original512D80SourceError(
+            "native post-512D80 source score differs from projected RNG/override write")
+    if (unpack_from('<I',context,0xd0c)[0]!=0 or
+        unpack_from('<I',context,0xd10)[0]!=0):
+        raise Original512D80SourceError(
+            "original source 513570 v38 event lists nonzero; cannot skip actual event callbacks")
     try:
         prefix=source_original_v38_then_v3c_zero_event_prefix(
             original_native_match_record_before_v38=original_native_match_record_before_v38,
-            original_processing_context_after_match=bytes(context),
+            original_processing_context_after_match=context,
         )
     except OriginalLeagueMatchProcessOwnerError as exc:
         raise Original512D80SourceError(
             "original native v38/v3c world prefix requires authentic source LeagueMatch owner") from exc
-    return SourceOriginal512D80ThroughV38V3CPrefix(fallback,bytes(context),prefix)
+    return SourceOriginal512D80ThroughV38V3CPrefix(fallback,context,prefix)
