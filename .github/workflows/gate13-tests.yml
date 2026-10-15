@@ -163,6 +163,8 @@ on:
       - "reconstruction/original_postresults_432505_single_user_return.py"
       - "reconstruction/test_original_postresults_432505_single_user_return.py"
       - "reconstruction/test_original_postresults_host_return.py"
+      - "reconstruction/original_match_513010_postcalc_phase.py"
+      - "reconstruction/test_original_match_513010_postcalc_phase.py"
       - "reconstruction/original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/test_original_postresults_4325f7_pmenu_return.py"
       - "reconstruction/original_presults_native_leaguematch_vtables.py"
@@ -600,6 +602,7 @@ jobs:
             test_original_presults_postponed_wrapper_precount \
             test_original_postresults_432505_single_user_return \
             test_original_postresults_host_return \
+            test_original_match_513010_postcalc_phase \
             test_original_postresults_4325f7_pmenu_return \
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
