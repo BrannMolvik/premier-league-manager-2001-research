@@ -105,6 +105,9 @@ from original_native_409c90_assignment_status import (
     SourceOriginal409C90PreSelectionPlayerReset,
     source_original_4181b0_full_player_reset,
 )
+from original_native_4182f0_417340_41edf0_leaf import (
+    source_original_4182f0_417340_optional_41edf0_leaf,
+)
 from original_human_user_name import OriginalHumanUserName, original_fresh_human_name
 from match_preparation import (
     PreparedAiMatchSelection,
@@ -1124,6 +1127,60 @@ class GameState:
         candidate.validate()
         self.native_status_world=candidate
         return after
+
+    def apply_verified_native_4182f0_assignment_leaf(
+        self, *, original_native_player_pointer: int,
+        original_player_before_4182f0: bytes,
+        original_status_before_4182f0: bytes,
+        original_source_status_pointer: int,
+        original_417340_source_receipt: Original417340RegisteredUserReceipt,
+        original_41edf0_source_if_reached: Original41EDF0Reached | None,
+        mapped_runtime_player_index: int,
+    ):
+        """Atomically retain source-qualified 4182F0 leaf player and quota.
+
+        Only original native player/status and original registered-club quota
+        sidecars are updated. This is NOT a complete 409C90 XI/score, native
+        callback execution, modern-player update, or match/calendar tick.
+        """
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players):
+            raise ValueError("existing source-mapped 4182F0 player required")
+        from struct import unpack_from
+        before=source_native_player_status_world_from_reached(
+            original_player_record=original_player_before_4182f0,
+            original_source_role_object_pointer=original_source_status_pointer,
+            original_source_role_object_record=original_status_before_4182f0,
+            original_mapped_player_id=mapped_runtime_player_index)
+        if self.native_status_world.players.get(mapped_runtime_player_index)!=before:
+            raise ValueError("original 4182F0 source player/status prestate absent or stale")
+        stage=source_original_4182f0_417340_optional_41edf0_leaf(
+            original_native_player_pointer=original_native_player_pointer,
+            original_player_before_4182f0=original_player_before_4182f0,
+            original_status_before_4182f0=original_status_before_4182f0,
+            original_417340_source_receipt=original_417340_source_receipt,
+            original_41edf0_source_if_reached=original_41edf0_source_if_reached)
+        after=source_native_player_status_world_from_reached(
+            original_player_record=stage.original_player_after_leaf,
+            original_source_role_object_pointer=original_source_status_pointer,
+            original_source_role_object_record=stage.original_status_after_leaf,
+            original_mapped_player_id=mapped_runtime_player_index)
+
+        quotas=dict(self.native_status_world.registered_club_quotas)
+        quota=stage.original_41edf0_quota_if_reached
+        if quota is not None and quota.original_source_registered_club_index_signed is not None:
+            key=source_native_registered_key(quota.original_source_registered_club_index_signed)
+            if quotas.get(key)!=quota.original_registered_club_counter_before:
+                raise ValueError("original 41EDF0 registered club quota absent or stale")
+            if quota.original_registered_club_counter_after is None:
+                raise ValueError("original 41EDF0 reached counter output required")
+            quotas[key]=quota.original_registered_club_counter_after
+        players=dict(self.native_status_world.players)
+        players[mapped_runtime_player_index]=after
+        candidate=OriginalNativeStatusWorldState(players,quotas)
+        candidate.validate()
+        self.native_status_world=candidate
+        return stage
 
     def retain_verified_native_registered_club_quota(
         self, reached: Original41EDF0Reached,
