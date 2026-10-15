@@ -201,3 +201,43 @@ bind exactly matched queued record outcomes to source-proven
 5DB37C score calculation, native human +670 state, live GameState and
 SaveLoad. Follow with whole normal NEXT/PPreMatch 0–3/PResults/return,
 multi-human, original leagues and Gate13–17 Windows11 validation.
+
+
+## Recovery643: original 64D060/64D020 record range guards fully source-bounded
+
+Further independent static native disassembly resolves two predicates
+previously open in the paragraph above: `64D060` is original **signed**
+lexicographic (DWORD0,DWORD1,DWORD2) **greater-than-or-equal**
+and `64D020` is signed lexicographic **less-than-or-equal**,
+both inclusive. Native `CMP/JGE/JLE` short-circuits after the first
+unequal element; never apply unsigned ordering or three separate
+componentwise comparisons. `5DD1F0` supplies payload+0x14,+0x18,+0x1C
+as comparison-side triple and user/query stack words +0C,+10,+14
+as lower bound, +18,+1C,+20 as upper bound. Filter results guard
+the original contribution. Additional original PE byte checks cover
+all six native compare element checks and native queue-head/type/
+zero/x87 predicate sites.
+
+New bounded immutable module
+`reconstruction/original_match_5dd1f0_queue_query.py` validates the
+**actual supplied complete** native owner+4/+8 linked wrapper chain,
+each 0x0C wrapper and 0x20 payload identity, subtype WORD+0x10,
+finite nonnegative first-double x87 guard, and original two inclusive
+signed lexicographic source comparisons, returning **ordered eligible
+contributions**, not a guessed total. It rejects malformed/partial
+chains, duplicate wrappers/payload owners, NaN/Infinity, absent signed
+query triples and native pointer aliasing. Source scope explicitly
+marks native x87 sum and live GameState as NOT executed.
+Six locally run corresponding unit tests PASS with actual hashed private
+PE, including source compare signatures. Focused Gate13 workflow
+registered the module/tests. No PR or remote CI yet while this coherent
+feature branch remains open to continued source work. **This is the first
+direct source-joined native queued record select → original score query
+slice** and is not original-game runtime observation or completed
+player-visible match.
+
+Remaining scoring inputs: actual `5E43B0/5E4410` normalized
+record double, `5DD1F0` produced query triples/types from reached
+match states, x87 sum/control environment and full original human-side
+callbacks, other side and processing context; only then may a source-safe
+real `GameState` and all-mode normal player match be implemented.
