@@ -76,6 +76,7 @@ from gate14_match_detail_route_source import (
 from match_detail_mode import MatchDetailMode
 from original_button_frames import OriginalButtonState
 from original_prematch_panel import PREMATCH_SELECTORS, prematch_selector_at_point
+from original_postresults_432505_single_user_return import SourceOriginalSingleUserStartMenuReturn
 from original_presults_bottom_surface import (
     OriginalPResultsBottomArt,
     load_verified_original_presults_bottom_art,
@@ -2659,6 +2660,45 @@ class OriginalGameTkHost:
             "source navigation trigger remains unrecovered"
         )
         return opened
+
+    def apply_source_original_postresults_single_user_startmenu(
+        self, receipt: SourceOriginalSingleUserStartMenuReturn,
+    ) -> None:
+        """Source 4325DF automatic PStartMenu route, not a waiting-bar click.
+
+        This intentionally is NOT called by the ordinary Quick3 post-match
+        path while native 4290F0/516010 source results and the complete
+        432505 callback context are not supplied by live GameState.
+        """
+        if type(receipt) is not SourceOriginalSingleUserStartMenuReturn:
+            raise OriginalGameHostError(
+                "PResults PStartMenu requires original 4325DF source receipt")
+        if (not receipt.original_reached_432505
+                or receipt.original_branch_destination != 0x4325DF
+                or receipt.original_start_menu_constructor_va != 0x4C3280
+                or receipt.original_registered_user_count_8755e4 != 1
+                or not receipt.original_current_user_pointer_from_4139d0):
+            raise OriginalGameHostError(
+                "Original 4325DF PStartMenu branch receipt identity invalid")
+        if (self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
+                or self._original_match_input_owner() is not None):
+            raise OriginalGameHostError(
+                "Original PStartMenu return cannot bypass an active match owner")
+        # Actual 4325DF clears 875614, then creates original PStartMenu.
+        # Keep the reconstructed current gameplay for Continue, as the
+        # existing qualified PMenu Start return does.
+        self.presenter.session.source_accepted_return_to_start_menu()
+        self.pmenu_popup_active = False
+        self.management_presenter = None
+        self._squad_drag_source = None
+        self.management_header_state.set_selected(False)
+        self.presenter.hierarchy = None
+        self.first_screen_animation = OriginalFirstScreenAnimation()
+        self.redraw()
+        self.last_status = (
+            "Original source-qualified single-user 4325DF PStartMenu entered; "
+            "ordinary post-match automatic return awaits live native predicates"
+        )
 
     def apply_source_accepted_pmenu_action(
         self,
