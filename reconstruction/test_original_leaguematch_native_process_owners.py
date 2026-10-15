@@ -811,5 +811,453 @@ class SourceOriginal407220Mode4NullOwnerTests(unittest.TestCase):
                 self.assertEqual(raw[va-0x400000:va-0x400000+len(bs)],bs)
 
 
+
+class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
+    @staticmethod
+    def team(ids,key=7):
+        return SourceOriginal406BE0RosterCountTests.team(ids,key)
+
+    @staticmethod
+    def player(pid,flags14,club=7):
+        from original_native_406be0_roster_count import SourceOriginal406BE0Player
+        base=SourceOriginal406BE0RosterCountTests.player(
+            pid,club=club,active=False,status=None)
+        b=bytearray(base.original_player_record_bytes)
+        pack_into("<I",b,0x14,flags14)
+        return SourceOriginal406BE0Player(
+            pid,base.original_player_record_native_pointer,bytes(b),None)
+
+    @staticmethod
+    def source_sorted_receipt(team,players,role_penalties=None):
+        from original_native_405a20_sort_roster import (
+            source_original_405a20_sort_team_roster_by_417e20)
+        from original_native_406be0_roster_count import SourceOriginal406BE0Player
+        reached=[]
+        for r in players:
+            raw=bytearray(r.original_player_record_bytes)
+            pack_into("<I",raw,0x248,0x50000000+r.original_roster_word_id*4)
+            reached.append(SourceOriginal406BE0Player(
+                r.original_roster_word_id,r.original_player_record_native_pointer,
+                bytes(raw),bytes((0,0,0,1))))
+        table=bytearray(32*20)
+        for role,penalty in (role_penalties or {}).items():
+            table[role*20+16]=penalty
+        return source_original_405a20_sort_team_roster_by_417e20(
+            original_team_at_405a20=team,
+            original_global_875640_player_base=0x40000000,
+            original_ordered_player_records=tuple(reached),
+            original_874b68_role_table=bytes(table))
+
+    def project(self,team,players,target=0x4):
+        from original_native_510cd0_selected_roster import (
+            source_original_510cd0_selected_player_pointers)
+        return source_original_510cd0_selected_player_pointers(
+            original_team_record=team,
+            original_global_875640_player_array_address=0x40000000,
+            original_ordered_player_records=players,
+            original_target_processing_context_offset=target)
+
+    def test_510cd0_retains_order_and_both_bit4_bit5_without_duplicate(self):
+        ids=(51,52,53,54,55,56)
+        recs=(self.player(51,0x10),self.player(52,0x20),
+              self.player(53,0x30),self.player(54,0),
+              self.player(55,0x20,club=8),self.player(56,0x20))
+        x=self.project(self.team(ids),recs)
+        self.assertEqual(x.source_selected_player_pointers,
+            tuple(0x40000000+pid*0x250 for pid in (51,52,53,56)))
+        self.assertEqual(x.source_selection_count_return_eax,4)
+        self.assertEqual(x.source_reached_417f50_player_ids,ids)
+        self.assertEqual(x.source_reached_417f60_player_ids,(52,54,55,56))
+        self.assertEqual(x.source_select_bit4_or_bit5_player_ids,(51,52,53,56))
+        self.assertEqual(x.source_original_target_context_offset,4)
+        self.assertEqual(x.source_original_count_context_offset,0x5A4)
+        self.assertFalse(x.original_510cd0_was_executed)
+        self.assertFalse(x.saved_game_state_modified)
+
+    def test_5111a0_two_source_arrays_use_distinct_5b4_second_slots(self):
+        from original_native_510cd0_selected_roster import (
+            source_original_5111a0_two_source_selection_arrays)
+        first_ids=(51,52,53)
+        second_ids=(61,62,63)
+        first=(self.player(51,0x10),self.player(52,0),self.player(53,0x20))
+        second=(self.player(61,0x30),self.player(62,0),self.player(63,0x10))
+        x=source_original_5111a0_two_source_selection_arrays(
+            original_match_record=native_match(0x7C4C24),
+            original_first_407770_zero_gate_nonzero=True,
+            original_second_407770_zero_gate_nonzero=True,
+            original_first_405a20_source_sort=self.source_sorted_receipt(
+                self.team(first_ids),first),
+            original_second_405a20_source_sort=self.source_sorted_receipt(
+                self.team(second_ids),second),
+            original_global_875640_player_array_address=0x40000000)
+        self.assertEqual(x.original_match_vtable,0x7C4C24)
+        self.assertEqual(x.source_first_team_receipt.source_original_count_context_offset,0x5A4)
+        self.assertEqual(x.source_second_team_receipt.source_original_target_context_offset,0x5B4)
+        self.assertEqual(x.source_second_team_receipt.source_original_count_context_offset,0xB54)
+        self.assertEqual(x.source_first_team_receipt.source_selection_count_return_eax,2)
+        self.assertEqual(x.source_second_team_receipt.source_selection_count_return_eax,2)
+        self.assertEqual(x.source_first_team_receipt.source_select_bit4_or_bit5_player_ids,(51,53))
+        self.assertEqual(x.source_second_team_receipt.source_select_bit4_or_bit5_player_ids,(61,63))
+        self.assertFalse(x.original_5111a0_other_callbacks_executed)
+        self.assertFalse(x.original_match_executed)
+
+    def test_rejected_unvisited_original_510cd0_inputs(self):
+        from original_native_510cd0_selected_roster import Original510CD0SourceError
+        ids=(51,52)
+        good=(self.player(51,0x10),self.player(52,0x20))
+        for bad_team,players,target in (
+            (self.team(ids),good,0x5A4),
+            (self.team(ids),good[:1],4),
+            (self.team(ids),good+(self.player(53,0x20),),4),
+            (self.team(ids),(self.player(52,0x20),self.player(51,0x10)),4),
+            (self.team(ids),(self.player(51,0x10),self.player(52,0x20)),True),
+        ):
+            with self.subTest(target=target,size=len(players)),self.assertRaises(
+                    Original510CD0SourceError):
+                self.project(bad_team,players,target)
+        large=bytearray(self.team(ids))
+        pack_into("<i",large,0x294,361)
+        with self.assertRaises(Original510CD0SourceError):
+            self.project(bytes(large),good)
+        from original_native_510cd0_selected_roster import (
+            source_original_5111a0_two_source_selection_arrays)
+        for first,second in ((False,True),(True,False),(True,None)):
+            with self.subTest(first=first,second=second),self.assertRaises(
+                    Original510CD0SourceError):
+                source_original_5111a0_two_source_selection_arrays(
+                    original_match_record=native_match(0x7C4C24),
+                    original_first_407770_zero_gate_nonzero=first,
+                    original_second_407770_zero_gate_nonzero=second,
+                    original_first_405a20_source_sort=self.source_sorted_receipt(
+                        self.team(ids),good),
+                    original_second_405a20_source_sort=self.source_sorted_receipt(
+                        self.team(ids),good),
+                    original_global_875640_player_array_address=0x40000000)
+
+    def test_source_405a20_order_descending_tier_and_stable_on_ties(self):
+        ids=(51,52,53,54,55,56)
+        rows=(self.player(51,0x20),self.player(52,0x10),
+              self.player(53,0x10),self.player(54,0),
+              self.player(55,0x20),self.player(56,0x30))
+        first=self.source_sorted_receipt(self.team(ids),rows)
+        self.assertEqual(first.source_player_ids_after,(52,53,56,51,55,54))
+        self.assertEqual(first.source_player_score_pairs_before,
+            ((51,3000),(52,4000),(53,4000),(54,0),(55,3000),(56,4000)))
+        self.assertFalse(first.original_405a20_executed)
+        self.assertFalse(first.original_game_state_modified)
+        x=self.project(first.source_projected_team_after_405a20,
+                       first.original_player_records_sorted_for_510cd0)
+        self.assertEqual(x.source_select_bit4_or_bit5_player_ids,(52,53,56,51,55))
+        second=self.source_sorted_receipt(self.team(ids),rows,
+                                         role_penalties={1:12})
+        self.assertEqual(second.source_player_score_pairs_before,
+            tuple((pid,score-12) for pid,score in first.source_player_score_pairs_before))
+        self.assertEqual(second.source_player_ids_after,first.source_player_ids_after)
+
+    def test_source_405a20_rejects_untrusted_table_or_player_identity(self):
+        from original_native_405a20_sort_roster import (
+            source_original_405a20_sort_team_roster_by_417e20 as rank,
+            Original405A20SourceError)
+        ids=(51,52)
+        players=(self.player(51,0x10),self.player(52,0x20))
+        good=self.source_sorted_receipt(self.team(ids),players)
+        self.assertEqual(len(good.original_player_records_sorted_for_510cd0),2)
+        base=dict(original_team_at_405a20=self.team(ids),
+                  original_global_875640_player_base=0x40000000,
+                  original_ordered_player_records=good.original_player_records_sorted_for_510cd0,
+                  original_874b68_role_table=bytes(32*20))
+        for k,v in (
+            ("original_874b68_role_table",bytes(10)),
+            ("original_global_875640_player_base",0),
+            ("original_ordered_player_records",()),
+            ("original_ordered_player_records",tuple(reversed(
+                good.original_player_records_sorted_for_510cd0))),
+        ):
+            with self.subTest(field=k),self.assertRaises(Original405A20SourceError):
+                rank(**(base|{k:v}))
+        from original_native_510cd0_selected_roster import (
+            source_original_5111a0_two_source_selection_arrays,
+            Original510CD0SourceError)
+        with self.assertRaises(Original510CD0SourceError):
+            source_original_5111a0_two_source_selection_arrays(
+                original_match_record=native_match(0x7C4C24),
+                original_first_407770_zero_gate_nonzero=True,
+                original_second_407770_zero_gate_nonzero=True,
+                original_first_405a20_source_sort=None,
+                original_second_405a20_source_sort=good,
+                original_global_875640_player_array_address=0x40000000)
+
+    def test_original_405a20_stable_descending_sort_and_417e20_pe_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("private canonical original PE optional in CI")
+        from hashlib import sha256
+        raw=Path(original).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x511235:"e8 e6 47 ef ff",0x51125e:"e8 bd 47 ef ff",
+            0x405a20:"8b 44 24 08",0x405a29:"8b 81 94 02 00 00",
+            0x405a38:"e8 73 fe ff ff",
+            0x4058b0:"83 ec 18",0x4058e1:"e8 ca ff ff ff",
+            0x40595e:"66 8b 01",0x405966:"ff 12",0x405968:"85 c0",
+            0x40596a:"74 18",0x405974:"66 8b 17",
+            0x405984:"8b 44 24 18",0x405990:"83 c0 02",
+            0x40b4a0:"8b 44 24 04",0x40b4c9:"8b 57 04",
+            0x40b4cd:"e8 4e c9 00 00",0x40b4da:"e8 41 c9 00 00",
+            0x40b4e1:"3b c3",0x40b4e3:"0f 9c c1",
+            0x417e20:"53",0x417e2c:"e8 af 00 00 00",
+            0x417e3f:"e8 bc 00 00 00",0x417e52:"e8 49 00 00 00",
+            0x417e65:"e8 56 00 00 00",0x417e73:"8b 8e 48 02 00 00",
+            0x417e79:"e8 42 25 0d 00",0x417e84:"8d 04 80",
+            0x417e89:"8a 54 81 10",0x417e94:"2b c2",
+            0x7bef9c:"a0 b4 40 00",
+        }
+        for va,hexbytes in sites.items():
+            with self.subTest(va=hex(va)):
+                signature=bytes.fromhex(hexbytes)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(signature)],signature)
+
+    def test_original_510cd0_417f50_417f60_optional_pe_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("canonical private original PE optional in CI")
+        from hashlib import sha256
+        raw=Path(original).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        signatures={
+            0x510CD0:"83 ec 08",
+            0x510CDA:"8b 8f 94 02 00 00",
+            0x510CF3:"8d 9f 44 02 00 00",
+            0x510CFC:"66 8b 03",
+            0x510D05:"a1 40 56 87 00",
+            0x510D11:"e8 3a 72 f0 ff",
+            0x510D16:"85 c0",
+            0x510D1D:"e8 3e 72 f0 ff",
+            0x510D26:"8b 4c 24 10",
+            0x510D2A:"89 75 00",
+            0x510D4B:"8b 44 24 10",
+            0x417F50:"8b 44 24 04",
+            0x417F54:"8b 40 04",
+            0x417F58:"e8 83 ff ff ff",
+            0x417F60:"8b 44 24 04",
+            0x417F64:"8b 40 04",
+            0x417F68:"e8 93 ff ff ff",
+            0x417EE0:"0f bf 41 10",
+            0x417EEF:"8b 41 14",
+            0x417F00:"0f bf 41 10",
+            0x417F0F:"8b 41 14",
+            0x51126C:"e8 5f fa ff ff",
+            0x511277:"89 86 a4 05 00 00",
+            0x511287:"e8 44 fa ff ff",
+            0x51128C:"89 86 54 0b 00 00",
+        }
+        for va,hexbytes in signatures.items():
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(hexbytes)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(bs)],bs)
+
+
+
+class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
+    @staticmethod
+    def owner(n=123):
+        b=bytearray(0x20);pack_into("<I",b,0x1c,n);return bytes(b)
+
+    @staticmethod
+    def match(flags=0,ptr=0x7000):
+        r=bytearray(native_match(0x7C9D9C))
+        pack_into("<I",r,0x44,flags);pack_into("<I",r,0x4c,ptr)
+        return bytes(r)
+
+    @staticmethod
+    def context(first=0x10000,second=0x20000):
+        b=bytearray(0x5b4)
+        pack_into("<I",b,0,first);pack_into("<I",b,0x5b0,second)
+        return bytes(b)
+
+    @staticmethod
+    def team(ids=tuple(range(51,62)),key=7):
+        return SourceOriginal406BE0RosterCountTests.team(ids,key)
+
+    def kwargs(self,flags=0):
+        return dict(
+            original_match_record_at_5111a0=self.match(flags),
+            original_processing_context_at_5111a0=self.context(),
+            original_first_team_record_at_5111a0=self.team(key=7),
+            original_second_team_record_at_5111a0=self.team(tuple(range(71,82)),key=8),
+            original_first_match_4c_pointer_if_nonhuman_reached=None,
+            original_second_match_4c_pointer_if_nonhuman_reached=None,
+            original_first_match_4c_owner_record_if_nonhuman_reached=None,
+            original_second_match_4c_owner_record_if_nonhuman_reached=None,
+            original_first_4037b0_human_al_if_reached=None,
+            original_second_4037b0_human_al_if_reached=None,
+            original_first_511170_v18_nonzero_if_needed=None,
+            original_second_511170_v18_nonzero_if_needed=None,
+            original_first_511170_second_4f3dc0_pointer_if_needed=None,
+            original_second_511170_second_4f3dc0_pointer_if_needed=None,
+        )
+
+    def project(self,args):
+        from original_native_5111a0_conditional_prep import (
+            source_original_5111a0_conditional_nonhuman_409b50_plan)
+        return source_original_5111a0_conditional_nonhuman_409b50_plan(**args)
+
+    def test_completed_match_bit5_skips_both_nonhuman_updates_but_not_sorts(self):
+        x=self.project(self.kwargs(0x20))
+        self.assertTrue(x.original_409b50_skipped_due_to_bit5)
+        self.assertEqual(x.source_mandatory_405a20_order,(0x10000,0x20000))
+        self.assertEqual(tuple(s.original_409b50_reached_args_if_needed
+                               for s in x.original_side_conditional_receipts),(None,None))
+        self.assertFalse(x.original_all_5111a0_callbacks_executed)
+        self.assertFalse(x.live_world_modified)
+
+    def test_first_human_skips_and_second_nonhuman_v18_false_pushes_zero(self):
+        x=self.kwargs()
+        x.update(original_first_4037b0_human_al_if_reached=True,
+                 original_second_4037b0_human_al_if_reached=False,
+                 original_second_match_4c_pointer_if_nonhuman_reached=0x7000,
+                 original_second_match_4c_owner_record_if_nonhuman_reached=self.owner(0xBABE),
+                 original_second_511170_v18_nonzero_if_needed=False)
+        r=self.project(x)
+        self.assertEqual(r.original_side_conditional_receipts[0]
+                         .original_409b50_reached_args_if_needed,None)
+        self.assertEqual(r.original_side_conditional_receipts[1]
+                         .original_409b50_reached_args_if_needed,(0,11,0xBABE))
+        self.assertFalse(r.original_side_conditional_receipts[1].native_409b50_executed)
+
+    def test_first_nonhuman_can_mutate_second_native_match_owner(self):
+        x=self.kwargs()
+        x.update(original_first_4037b0_human_al_if_reached=False,
+                 original_second_4037b0_human_al_if_reached=False,
+                 original_first_match_4c_pointer_if_nonhuman_reached=0x7000,
+                 original_second_match_4c_pointer_if_nonhuman_reached=0x8000,
+                 original_first_match_4c_owner_record_if_nonhuman_reached=self.owner(111),
+                 original_second_match_4c_owner_record_if_nonhuman_reached=self.owner(222),
+                 original_first_511170_v18_nonzero_if_needed=False,
+                 original_second_511170_v18_nonzero_if_needed=True,
+                 original_second_511170_second_4f3dc0_pointer_if_needed=0xA000)
+        r=self.project(x)
+        sides=r.original_side_conditional_receipts
+        self.assertEqual(sides[0].original_409b50_reached_args_if_needed,(0,11,111))
+        self.assertEqual(sides[1].original_409b50_reached_args_if_needed,(0xA000,11,222))
+        self.assertEqual(tuple(s.original_4037b0_human_al_if_reached for s in sides),
+                         (False,False))
+
+    def test_unreached_callback_facts_and_unsupported_owner_fail_closed(self):
+        from original_native_5111a0_conditional_prep import Original5111A0ConditionalSourceError
+        good=self.kwargs()
+        good.update(original_first_4037b0_human_al_if_reached=True,
+                    original_second_4037b0_human_al_if_reached=True)
+        for fields in (
+            dict(original_first_511170_v18_nonzero_if_needed=False),
+            dict(original_first_511170_second_4f3dc0_pointer_if_needed=0x1234),
+            dict(original_first_match_4c_pointer_if_nonhuman_reached=0x7000),
+            dict(original_first_match_4c_owner_record_if_nonhuman_reached=self.owner()),
+            dict(original_first_4037b0_human_al_if_reached=1),
+            dict(original_match_record_at_5111a0=bytes(0x58)),
+            dict(original_processing_context_at_5111a0=self.context(first=0,second=1)),
+            dict(original_processing_context_at_5111a0=self.context(first=2,second=2)),
+            dict(original_first_team_record_at_5111a0=b""),
+        ):
+            with self.subTest(fields=str(fields)[:100]),self.assertRaises(Original5111A0ConditionalSourceError):
+                self.project(good|fields)
+        x=self.kwargs()
+        x.update(original_first_4037b0_human_al_if_reached=False,
+                 original_second_4037b0_human_al_if_reached=True,
+                 original_first_match_4c_pointer_if_nonhuman_reached=0x7000,
+                 original_first_match_4c_owner_record_if_nonhuman_reached=self.owner(),
+                 original_first_511170_v18_nonzero_if_needed=True)
+        for fields in (
+            dict(original_first_511170_second_4f3dc0_pointer_if_needed=None),
+            dict(original_first_511170_second_4f3dc0_pointer_if_needed=0),
+            dict(original_first_match_4c_pointer_if_nonhuman_reached=0x8000),
+        ):
+            with self.subTest(fields=fields),self.assertRaises(Original5111A0ConditionalSourceError):
+                self.project(x|fields)
+        x=self.kwargs(0x20)
+        x["original_first_4037b0_human_al_if_reached"]=False
+        with self.assertRaises(Original5111A0ConditionalSourceError):
+            self.project(x)
+
+    def test_source_join_5111a0_conditional_two_sorts_and_both_selected_arrays(self):
+        from original_native_5111a0_conditional_prep import (
+            source_original_5111a0_conditional_sorts_and_selected_tail as compose,
+            Original5111A0ConditionalSourceError)
+        cargs=self.kwargs(0x20) # original bit5 skips 409B50 but sorts are mandatory
+        c=self.project(cargs)
+        util=SourceOriginal510CD0SelectionArrayTests
+        first_ids=tuple(range(51,62))
+        second_ids=tuple(range(71,82))
+        first=util.source_sorted_receipt(
+            util.team(first_ids,key=7),
+            tuple(util.player(pid,0x10 if i==0 else 0x20)
+                  for i,pid in enumerate(first_ids)))
+        second=util.source_sorted_receipt(
+            util.team(second_ids,key=8),
+            tuple(util.player(pid,0x10 if i==1 else 0x20,club=8)
+                  for i,pid in enumerate(second_ids)))
+        args=dict(
+            original_conditional_source=c,
+            original_native_match_record_at_entry=cargs["original_match_record_at_5111a0"],
+            original_processing_context_at_entry=cargs["original_processing_context_at_5111a0"],
+            original_first_team_native_pointer_at_405a20=0x10000,
+            original_second_team_native_pointer_at_405a20=0x20000,
+            original_first_team_record_actual_at_405a20=first.original_team_roster_before_405a20,
+            original_second_team_record_actual_at_405a20=second.original_team_roster_before_405a20,
+            original_first_405a20_source_sort=first,
+            original_second_405a20_source_sort=second,
+            original_global_875640_player_array_address=0x40000000,
+            original_first_407770_zero_gate_nonzero=True,
+            original_second_407770_zero_gate_nonzero=True,
+        )
+        result=compose(**args)
+        self.assertEqual(result.original_reached_action_sites_in_order,
+                         (0x511235,0x51125E,0x51126C,0x511287))
+        self.assertEqual(result.two_selected_pointer_arrays
+                         .source_first_team_receipt.source_select_bit4_or_bit5_player_ids,first_ids)
+        self.assertEqual(result.two_selected_pointer_arrays
+                         .source_second_team_receipt.source_select_bit4_or_bit5_player_ids,(72,71,*range(73,82)))
+        self.assertFalse(result.native_world_and_sort_mutated)
+        self.assertFalse(result.original_game_state_modified)
+        for changed in (
+            {"original_first_team_native_pointer_at_405a20":0x20000},
+            {"original_first_407770_zero_gate_nonzero":False},
+            {"original_second_405a20_source_sort":first},
+            {"original_native_match_record_at_entry":self.match(0)},
+            {"original_processing_context_at_entry":self.context(0x99999,0x20000)},
+            {"original_global_875640_player_array_address":0},
+        ):
+            with self.subTest(changed=str(changed)[:95]),self.assertRaises(
+                    Original5111A0ConditionalSourceError):
+                compose(**(args|changed))
+
+    def test_original_511170_5111a0_409b50_source_opcode_sites_if_private(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("private canonical original PE unavailable in CI")
+        from hashlib import sha256
+        raw=Path(original).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(
+            4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x511176:"8b 4e 4c",0x511179:"e8 42 2c fe ff",
+            0x511182:"ff 52 18",0x511185:"85 c0",
+            0x511189:"8b 4e 4c",0x51118c:"e8 2f 2c fe ff",
+            0x511194:"8b c7",0x5111ab:"8b 47 44",
+            0x5111ae:"c1 e8 05",0x5111b1:"a8 01",
+            0x5111b5:"8b 0e",0x5111b7:"e8 f4 25 ef ff",
+            0x5111c0:"8b 4f 4c",0x5111cb:"8b 82 94 02 00 00",
+            0x5111d2:"e8 99 ff ff ff",0x5111da:"e8 71 89 ef ff",
+            0x5111df:"8b 8e b0 05 00 00",0x5111e5:"e8 c6 25 ef ff",
+            0x511204:"e8 67 ff ff ff",0x511210:"e8 3b 89 ef ff",
+            0x511235:"e8 e6 47 ef ff",0x51125e:"e8 bd 47 ef ff",
+            0x4f3dc0:"8b c1",0x4f3dc9:"8b c1",0x409bcb:"e8 c0 00 00 00",
+            0x409bd0:"89 be d8 01 00 00",
+        }
+        for va,hx in sites.items():
+            with self.subTest(va=hex(va)):
+                signature=bytes.fromhex(hx)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(signature)],signature)
+
+
 if __name__=="__main__":
     unittest.main()
