@@ -388,3 +388,95 @@ class Original409C90AssignmentStatusSourceTests(TestCase):
             with self.subTest(va=hex(va)):
                 bs=bytes.fromhex(sig)
                 self.assertEqual(b[va-0x400000:va-0x400000+len(bs)],bs)
+
+    def test_source_4182f0_assignment_authentic_417340_gate_and_two_bit0_paths(self):
+        from dataclasses import replace
+        from original_native_409c90_assignment_status import (
+            source_original_4182f0_assignment_without_reached_41edf0 as assign)
+        from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
+
+        def source_receipt(p,matched):
+            return Original417340RegisteredUserReceipt(
+                original_native_player_at_call=p,
+                original_native_player_id=unpack_from("<H",p,4)[0],
+                original_current_club_index_signed=unpack_from("<h",p,0x10)[0],
+                original_source_club_pointer=0x600000,
+                original_source_club_owner_key=7,
+                original_visited_manager_link_pointers=(0x700000,) if matched else (),
+                original_matching_user_pointer=0x500000 if matched else None,
+                original_417340_return_al=int(matched))
+
+        for flag174,flag14,matched in ((0,0,True),(1,0,True),(3,0x2000,False)):
+            with self.subTest(flag174=flag174,flag14=flag14,matched=matched):
+                original=bytearray(original_player(flags14=flag14))
+                pack_into("<h",original,0x10,7)
+                pack_into("<I",original,0x174,flag174)
+                original[0x152]=0xA6
+                original[0x153]=0xB9
+                status=b"\x17\x00\x00\xe5\xc3"
+                post=bytearray(original)
+                pack_into("<I",post,0x14,(flag14|0x10)&~0x20)
+                pack_into("<I",post,0x174,flag174&~3)
+                if flag174&1:
+                    post[0x152]=5
+                    post[0x153]=3
+                args=dict(original_native_player_pointer=0x500000,
+                    original_player_record_before_4182f0=bytes(original),
+                    original_status_record_before_4182f0=status,
+                    original_417340_source_receipt_after_mutations=source_receipt(bytes(post),matched))
+                r=assign(**args)
+                self.assertEqual(r.original_player_after_4182f0,bytes(post))
+                self.assertEqual(r.original_417340_registered_user_al,int(matched))
+                self.assertEqual(r.original_418220_exchange_if_reached is not None,bool(flag174&1))
+                self.assertEqual(r.original_status_after_4182f0[3:],
+                                 b"\xe6\xc9" if flag174&1 else b"\xe5\xc3")
+                self.assertFalse(r.original_41edf0_was_reached)
+                self.assertFalse(r.native_4182f0_executed)
+                self.assertFalse(r.live_game_state_modified)
+                if not matched:
+                    wrong=bytearray(post)
+                    pack_into("<I",wrong,0x14,0x10)
+                    with self.assertRaises(Original409C90SourceError):
+                        assign(**(args|{"original_417340_source_receipt_after_mutations":
+                            source_receipt(bytes(wrong),False)}))
+                with self.assertRaises(Original409C90SourceError):
+                    assign(**(args|{"original_417340_source_receipt_after_mutations":
+                        replace(source_receipt(bytes(post),matched),
+                            original_417340_return_al=int(not matched))}))
+                with self.assertRaises(Original409C90SourceError):
+                    assign(**(args|{"original_417340_source_receipt_after_mutations":None}))
+
+        # Native 418321 calls 41EDF0 when non-human AND +14 bit13 is clear.
+        p=original_player(flags14=0)
+        post=bytearray(p);pack_into("<I",post,0x14,0x10)
+        with self.assertRaises(Original409C90SourceError):
+            assign(original_native_player_pointer=0x500000,
+                original_player_record_before_4182f0=p,
+                original_status_record_before_4182f0=bytes(5),
+                original_417340_source_receipt_after_mutations=source_receipt(bytes(post),False))
+
+    def test_private_original_4182f0_postassignment_callback_branch(self):
+        path=environ.get("FM2001_ORIGINAL_EXE")
+        if not path:self.skipTest("private PE source optional in CI")
+        b=Path(path).read_bytes()
+        self.assertEqual((len(b),sha256(b).hexdigest()),(
+            4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x4182F3:"83 4e 14 10",
+            0x4182F7:"e8 64 fe ff ff",
+            0x4182FE:"e8 7d fe ff ff",
+            0x418305:"e8 66 fe ff ff",
+            0x41830C:"e8 2f f0 ff ff",
+            0x418311:"84 c0",
+            0x418313:"75 11",
+            0x418315:"8b 46 14",
+            0x418318:"c1 e8 0d",
+            0x41831B:"a8 01",
+            0x41831D:"75 07",
+            0x418321:"e8 ca 6a 00 00",
+            0x418326:"5e c3",
+        }
+        for va,h in sites.items():
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(h)
+                self.assertEqual(b[va-0x400000:va-0x400000+len(bs)],bs)
