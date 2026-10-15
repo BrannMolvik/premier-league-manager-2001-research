@@ -265,7 +265,7 @@ def source_original_409c90_reached_41fa50_then_optional_4181b0(
     if original_reached_status_record_for_4181b0_if_called is None:
         raise Original409C90SourceError("original 4181B0 reached status record mandatory")
     reset=source_original_4181b0_full_player_reset(
-        original_player_native_pointer=original_native_player_pointer,
+        original_native_player_pointer=original_native_player_pointer,
         original_player_record_before=original_player_record_before_41fa50,
         original_status_record_before=original_reached_status_record_for_4181b0_if_called)
     return SourceOriginal409C90PreSelectionPlayerReset(result,reset)
