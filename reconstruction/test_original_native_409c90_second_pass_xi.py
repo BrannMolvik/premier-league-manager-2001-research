@@ -98,12 +98,13 @@ class Original409C90SecondPassTests(unittest.TestCase):
                          original_reached_668350_eax_if_scored=8),C2(2)))
         noone=R2(entry(99),tuple(C2(i) for i in range(3)))
         after=self.second(t,rows,first,
-            (R2(entry(1)),retry_role)+(noone,)*9,human=True)
+            (R2(entry(1)),retry_role,noone)+(R2(entry(99)),)*8,human=True)
         self.assertEqual(after.source_original_selected_roster_indices11,
             (0,1)+(-1,)*9)
         self.assertEqual(after.source_second_pass_newly_selected_roster_indices11,
             (-1,1)+(-1,)*9)
         self.assertEqual(after.source_used_mask_after_both_passes,b"\x01\x01\x00")
+        self.assertEqual(after.original_first_unfillable_second_pass_slot,2)
         self.assertFalse(after.source_409c90_should_retry_at_409ca5_with_mode0)
         self.assertFalse(after.source_409c90_has_eleven_selected_slots)
         self.assertFalse(after.original_live_game_state_modified)
@@ -144,11 +145,12 @@ class Original409C90SecondPassTests(unittest.TestCase):
         emptysecond=R2(entry(1),tuple(C2(i) for i in range(3)))
         for human,retry in ((False,True),(True,False)):
             with self.subTest(human=human):
-                r=self.second(t,rows,first,(emptysecond,)*11,human=human)
+                r=self.second(t,rows,first,(emptysecond,)+(R2(entry(1)),)*10,human=human)
                 self.assertEqual(r.source_original_selected_roster_indices11,(-1,)*11)
                 self.assertEqual(r.source_used_mask_after_both_passes,bytes(3))
                 self.assertEqual(r.source_409c90_should_retry_at_409ca5_with_mode0,retry)
                 self.assertFalse(r.source_409c90_has_eleven_selected_slots)
+                self.assertEqual(r.original_first_unfillable_second_pass_slot,0)
 
     def test_guard_unvisited_second_pass_callbacks_role_and_first_mask_integrity(self):
         rows=(player(51),player(52),player(53,1))
@@ -164,7 +166,8 @@ class Original409C90SecondPassTests(unittest.TestCase):
         missing=R2(entry(99),(
             C2(0),C2(1,original_reached_41c7e0_eax_if_scored=1,
                          original_reached_668350_eax_if_scored=1),C2(2)))
-        all_missing=(R2(entry(1)),)+(missing,)*10
+        all_missing=(R2(entry(1)),missing,R2(entry(99),
+             tuple(C2(i) for i in range(3))))+(R2(entry(99)),)*8
         for changed in (
             {"original_eleven_second_pass_roles":(R2(entry(1),
                 (C2(0),C2(1),C2(2))),)+all_missing[1:]},
