@@ -38,6 +38,23 @@ class OriginalFourStageRngReachTests(TestCase):
         self.assertNotEqual(out.original_stage_rng_draws_if_reached[0].original_seed_after,states[1])
         self.assertFalse(out.live_game_state_updated)
 
+
+    def test_private_original_exe_four_stage_rand_callsites_if_available(self):
+        from hashlib import sha256
+        from os import environ
+        from pathlib import Path
+        executable=environ.get('FM2001_ORIGINAL_EXE')
+        if not executable:self.skipTest('original PE intentionally private outside hosted CI')
+        source=Path(executable).read_bytes()
+        self.assertEqual((len(source),sha256(source).hexdigest()),(
+            4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        calls={0x5dabed:'e8 4e 29 07 00',0x5dae68:'e8 d3 26 07 00',
+               0x5db0e9:'e8 52 24 07 00',0x5db364:'e8 d7 21 07 00'}
+        for va,raw in calls.items():
+            with self.subTest(va=hex(va)):
+                expected=bytes.fromhex(raw)
+                self.assertEqual(source[va-0x400000:va-0x400000+len(expected)],expected)
+
     def test_unsupported_intervening_guards_and_missing_snapshots_fail_closed(self):
         x=fixture(mask=(0,1,0,1))
         for bad in (
