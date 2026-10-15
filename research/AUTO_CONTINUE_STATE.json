@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery640. Active Gate13, Gates14–17 OPEN. main=d278a329c358ecf2235211822cad295af40c8790. Existing PR751 worker/gate13-r1-42b0e0-human-fpu-modifier-639 currently exact head b06913eea436a5393007020307ef9c87ee495959, mergeable but unreviewed. Private original PE SHA833bf95e independently byte-confirmed via local static disassembly, never executed/committed. Branch adds 5DA250 finite five-way pre-threshold source classifier with rational binary64 comparisons and subnormal guard; native literal 7BD5F8=0,7BD8F8=1.5; all four 4037B0/403850→42B0E0→FMUL scoring gates; 5EE9A0 linked-list/virtual ID predicate→5EEA90→5EEB10 virtual DWORD getter source chain, tests/doc. Local standalone source check 17 5DA250 opcode sites, 7 QWORDs, 13 option source sites, 9 path examples passed. No claim actual full branch unit tests run. PR751 exact-head Gate13 run38667515058 was pending at inspection; asset38667514936 SUCCESS; earlier test runs cancelled after sequential pushes. STOP incremental PR pushes; inspect exact head CI and independent code review, merge only after required checks and evidence. Then immediately resume native live 42B0E0 x87 numerical return/A-B calling-stage provenance, four scoring stages and GameState NEXT→PPreMatch modes0–3→PResults→management/SaveLoad/Inbox. High-risk PR739 remain OPEN/UNMERGED without independent GameState/schema48 review. No native original program/physical Windows11 GUI was run.",
-  "last_known_main_head": "d278a329c358ecf2235211822cad295af40c8790",
+  "active_task": "Recovery640 PR751 MERGED main f6b61ee191a67a7fa7e29adfe4d15a1e4b78af3e after exact-head Gate13 run38667870448 SUCCESS 2,020 tests/179 skips and asset38667870443 SUCCESS. Source-only original human+65C option 5EE9A0→5EEA90→5EEB10 and four original 42B0E0 gated x87 multipliers; 5DA250 pre-threshold source path and PC24-near-edge fail-closed, original private PE SHA833bf95e statically disassembled not run. CURRENT NEXT: source-prove actual four 5DA250 argument A/B stack owners and original 42B0E0 x87 result/control-word lifecycle, then implement live four-stage per-player scoring, 64D540 TLS RNG, match callbacks and atomic GameState/SaveLoad. Finish normal NEXT→PPreMatch modes0–3→PResults→return and remaining Gates13–17, Win11 GUI/installer verification. PR739 high-risk schema48 independent review still required. Gate13–17 OPEN. Preserve milestone batching, no heartbeat CI and no original executables in Git.",
+  "last_known_main_head": "f6b61ee191a67a7fa7e29adfe4d15a1e4b78af3e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -32,10 +32,10 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 640,
   "last_recovery_reason": "same-chat-recovery-no-progress 36 min, fallback 20 min, new-chat recovery generation 640, 2026-10-15 KST",
-  "note": "Generation640 checkpoint after substantive source verification/feature-branch work. Main d278a329; PR751 exact head b06913ee. Do not merge merely on green source tests; do not restart CI through heartbeat. Maintain full original scope and Windows11 release blockers.",
+  "note": "PR751 source milestone merged, gates still OPEN; work continues on original match score/heap and full player journey. No physical Windows11 verification.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "d278a329c358ecf2235211822cad295af40c8790"
+  "last_known_main_commit": "f6b61ee191a67a7fa7e29adfe4d15a1e4b78af3e"
 }
