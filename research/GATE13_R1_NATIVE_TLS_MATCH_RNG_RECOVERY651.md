@@ -1,0 +1,27 @@
+# Recovery651: exact original CRT thread-local RNG for match scorer, first and second bounds
+
+15 October 2026 KST. Canonical main baseline `6b91b9ed4f97f58ecc7064d713901f703b982eb9` after reviewed PR760 410FF0 class→5DA250 score inputs. Active source branch `worker/gate13-r1-native-tls-rng-651`. Original shipped privately owned `footballmanager.exe` length 4,714,541 SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`, **statically** inspected only, no native original process or original binary attached to GitHub.
+
+## Native original 5DABED + 5DAE68 scoring RNG and TLS owner
+
+The original `5DABCA` (first side) and `5DAE45` (second side) call `668350`, whose original x87 control-word change causes **truncate toward zero** to a signed integer EAX. Each immediately saves EAX in EDI, does `CMP EDI,1`, then **clamps to EDI=1** if less than one. At `5DABED/5DAE68`, each pushes its own EDI as the original `64D540` argument. Both callback sites use the same original routine, but **the initial RNG seed may differ** because of other original callbacks between the two visits or because a thread context differs. The original prior 5DA250 result/derived x87 values feeding these FISTP instructions are still unknown; **do not guess the bound** from 410FF0 coefficients.
+
+Actual original `64D540` calls `66951C` once, does `FILD` 66951C result, `FIMUL` the signed caller argument, multiplies exact original QWORD `0x7D8060 = 1/32768`, then calls original `668350` to truncate. Original `66951C` calls original `66D553`, which obtains **per-thread TLS state** (original dynamic Get/TlsValue path) and updates its DWORD **+0x14**:
+```
+seed_after = (seed_before * 0x343FD + 0x269EC3) & 0xFFFFFFFF
+rand15 = (seed_after >> 16) & 0x7FFF
+64D540(bound) = (rand15 * bound) // 32768
+```
+for the reached first/second-side **positive clamped int32** match-score bound. Original x87 `FIMUL` is exact in this bounded domain because the product has at most 46 significant integer bits and 80-bit x87 has 64; scaling by power-of-two and FISTP truncates exactly. Signed/negative general-purpose calls elsewhere have not been projected. `64D540` advance consumes exactly **one** CRT thread-local PRNG state. Its original seed initialization occurs in the 66D553 runtime/TLS callback path and **is not recoverable from the visible reconstructed match result or date**. Never treat a fresh arbitrary Python `Random` seed as authentic native source.
+
+The repository ALREADY had the verified `original_native_v38_thread_rng.py` implementation of original `66951C` and special v38 `64D540(2)`. Instead of duplicating its seed transition, the worker extracted **one shared** `source_original_crt_rand15_step_from_reached_seed` pure projection in that existing canonical module. The existing v38(2) method now calls the shared implementation, and new `original_match_64d540_tls_score_rng.py` also calls the same function after extracting the **actual source TLS byte record +0x14**. This explicitly avoids divergent pseudo-random state in the source models. The new module returns immutable projected TLS **after** bytes, native int32 positive bound, original rand15, exact output EAX, and explicit false native callbacks/GameState mutation.
+
+`original_match_5dabca_score_rng_join.py` source-joins original first or second signed 668350 returned EAX, computes only the original native **max(1,EAX)** clamp, and calls the shared TLS RNG helper with actual independent source thread-state input. It **does not call** native 668350, manufacture FPU return EAX, mutate TLS, assume seed continuity between stages, or publish a match score.
+
+New regression files verify source seed0->0x00269EC3 rand38 and seed1->0x0029E2C0 rand41; signed/seed overflow under modulo2^32; first/second call-site correct owner and bound, positive native quotient exact for integer bounds through INT_MAX, projection leaves other TLS bytes unchanged, early bypass/missing source rejects, compatibility of `64D540(2)` with **existing** v38 source, and actual shipped private PE opcode signatures/direct call targets/constant. The optional private PE signature tests skip automatically when the owner-private original game executable is unavailable to CI. Source tests registered in focused Gate13 workflow, **not yet accepted** at a reviewed exact PR head.
+
+## Next genuine gameplay dependency and gate state
+
+To actually replace reconstructed one-human Quick3 with native-equivalent match calculation, recover original `5DAB0C` x87 returned and FPU-selected bound `5DABCA`, mirrored second side, original 64D540 call-order dependencies with original v38 and all other original RNG draws, and **native v+38/v+3C** score-world completion into persistent GameState and SaveLoad. The original new dual-calendar PResults source callback seam exists but true native first+second collection event streams are not yet produced by GameState. Original mode0/1 3D and mode2 FastView, 2–6 registered managers, all original countries/leagues, correct PBg 432505 return and physical Windows 11 original-vs-port gameplay/installer audit remain **OPEN**. Do not close Gate13 or Gates14–17 from static source formulas, and leave PR739 high-risk separately unmerged.
+
+Continue source-to-live integration and batch independent exact-head CI at coherent milestones. Runtime agent-runtime is the canonical heartbeat, not a reason for micro-main commits.
