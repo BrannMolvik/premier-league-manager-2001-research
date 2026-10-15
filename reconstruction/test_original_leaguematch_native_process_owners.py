@@ -368,5 +368,144 @@ class LeagueMatchV34SourceReadinessReturnTests(unittest.TestCase):
 
 
 
+
+class Original407770NativeRosterSourceTests(unittest.TestCase):
+    def source_team(self, count=11, player_ids=None):
+        r=bytearray(0x298)
+        pack_into("<i",r,0x294,count)
+        if player_ids is None:player_ids=tuple(range(101,101+max(count,0)))
+        for index,pid in enumerate(player_ids):
+            if 0x244+2*index+2 <= len(r):
+                pack_into("<H",r,0x244+2*index,pid)
+        return bytes(r)
+
+    def project(self, *, count=11, argument=0, ids=None, **kwargs):
+        from original_native_407770_roster_eligibility import (
+            source_original_407770_reached_roster_gate)
+        return source_original_407770_reached_roster_gate(
+            original_team_record=self.source_team(count,ids),
+            original_407770_argument=argument,**kwargs)
+
+    def test_roster_under_11_original_always_fails_early_without_day_callbacks(self):
+        for count in (-1,0,1,10):
+            for arg in (0,1):
+                with self.subTest(count=count,arg=arg):
+                    x=self.project(count=count,argument=arg)
+                    self.assertFalse(x.original_return_eax_nonzero)
+                    self.assertEqual(x.reached_4ea300_player_ids,())
+                    self.assertFalse(x.native_407770_executed)
+
+    def test_native_arg0_exact_player_day_boundaries_and_short_circuit(self):
+        from original_native_407770_roster_eligibility import SourceOriginal407770PlayerDayResult as Row
+        ids=tuple(range(101,112))
+        good=tuple(Row(pid,5) for pid in ids)
+        base=dict(original_current_day_874b64_if_arg0=6)
+        success=self.project(argument=0,ids=ids,
+            original_reached_4ea300_player_results_if_arg0=good,**base)
+        self.assertTrue(success.original_return_eax_nonzero)
+        self.assertEqual(success.reached_4ea300_player_ids,ids)
+        for value in (0,-1,6,7):
+            with self.subTest(value=value):
+                early=good[:3]+(Row(ids[3],value),)
+                result=self.project(argument=0,ids=ids,
+                    original_reached_4ea300_player_results_if_arg0=early,**base)
+                self.assertFalse(result.original_return_eax_nonzero)
+                self.assertEqual(result.reached_4ea300_player_ids,ids[:4])
+
+    def test_native_arg1_403640_bang_name_and_407220_routes(self):
+        shared=dict(original_reached_406be0_eax_if_arg1=1)
+        yes=self.project(argument=1,original_reached_403640_al_if_arg1=True,**shared)
+        self.assertTrue(yes.original_return_eax_nonzero)
+        yes=self.project(argument=1,original_reached_403640_al_if_arg1=False,
+                         original_team_name_first_byte_if_reached=0x21,**shared)
+        self.assertTrue(yes.original_return_eax_nonzero)
+        no=self.project(argument=1,original_reached_403640_al_if_arg1=False,
+                        original_team_name_first_byte_if_reached=0x41,
+                        original_reached_407220_edi_if_arg1=10,**shared)
+        self.assertFalse(no.original_return_eax_nonzero)
+        yes=self.project(argument=1,original_reached_403640_al_if_arg1=False,
+                         original_team_name_first_byte_if_reached=0x41,
+                         original_reached_407220_edi_if_arg1=11,**shared)
+        self.assertTrue(yes.original_return_eax_nonzero)
+        self.assertFalse(self.project(argument=1,
+                         original_reached_403640_al_if_arg1=True,
+                         original_reached_406be0_eax_if_arg1=2).original_return_eax_nonzero)
+
+    def test_407770_rejects_synthetic_and_unreached_leaves(self):
+        from original_native_407770_roster_eligibility import (
+            Original407770SourceError,SourceOriginal407770PlayerDayResult as Row)
+        cases=[
+            dict(count=10,argument=0,original_current_day_874b64_if_arg0=3),
+            dict(argument=2),
+            dict(argument=True),
+            dict(argument=0,original_current_day_874b64_if_arg0=9),
+            dict(argument=0,original_current_day_874b64_if_arg0=9,
+                 original_reached_4ea300_player_results_if_arg0=(Row(999,1),)),
+            dict(argument=0,original_current_day_874b64_if_arg0=9,
+                 original_reached_4ea300_player_results_if_arg0=(Row(101,0),Row(102,2))),
+            dict(argument=0,original_current_day_874b64_if_arg0=9,
+                 original_reached_4ea300_player_results_if_arg0=(Row(101,2),)),
+            dict(argument=0,original_current_day_874b64_if_arg0=9,
+                 original_reached_4ea300_player_results_if_arg0=()),
+            dict(argument=1,original_reached_403640_al_if_arg1=True),
+            dict(argument=1,original_reached_403640_al_if_arg1=True,
+                 original_team_name_first_byte_if_reached=0x21,
+                 original_reached_406be0_eax_if_arg1=1),
+            dict(argument=1,original_reached_403640_al_if_arg1=False,
+                 original_team_name_first_byte_if_reached=0x21,
+                 original_reached_407220_edi_if_arg1=11,
+                 original_reached_406be0_eax_if_arg1=1),
+            dict(argument=1,original_reached_403640_al_if_arg1=False,
+                 original_team_name_first_byte_if_reached=0x41,
+                 original_reached_406be0_eax_if_arg1=1),
+            dict(argument=1,original_reached_403640_al_if_arg1=True,
+                 original_reached_406be0_eax_if_arg1=True),
+        ]
+        for case in cases:
+            with self.subTest(case=str(case)[:110]),self.assertRaises(Original407770SourceError):
+                self.project(**case)
+
+    def test_optional_canonical_pe_407770_original_branch_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("private original PE not available")
+        from hashlib import sha256
+        raw=Path(original).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x40777B:"8b 86 94 02 00 00",
+            0x407781:"83 f8 0b",
+            0x407784:"0f 8c bc 00 00 00",
+            0x407791:"85 c9",
+            0x407793:"74 58",
+            0x407797:"e8 a4 be ff ff",
+            0x4077A5:"80 39 21",
+            0x4077B6:"e8 65 fa ff ff",
+            0x4077CA:"e8 11 f4 ff ff",
+            0x4077CF:"83 ff 0b",
+            0x4077D8:"83 f8 01",
+            0x4077F3:"8d be 44 02 00 00",
+            0x407801:"66 8b 07",
+            0x407816:"e8 e5 2a 0e 00",
+            0x40781B:"3b 05 64 4b 87 00",
+            0x407821:"7d 6e",
+            0x407823:"85 c0",
+            0x407825:"7e 6a",
+            0x407827:"8b 86 94 02 00 00",
+            0x40782D:"43",
+            0x407831:"3b d8",
+            0x407835:"5f 5e",
+            0x407837:"b8 01 00 00 00",
+            0x407846:"8b 56 0c",
+            0x407889:"e8 e1 0e 26 00",
+            0x407891:"5f 5e 33 c0",
+        }
+        for address,expected in sites.items():
+            with self.subTest(address=hex(address)):
+                b=bytes.fromhex(expected)
+                self.assertEqual(raw[address-0x400000:address-0x400000+len(b)],b)
+
+
+
 if __name__=="__main__":
     unittest.main()
