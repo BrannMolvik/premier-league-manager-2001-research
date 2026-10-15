@@ -173,6 +173,8 @@ on:
       - "reconstruction/original_match_human_callback_dispatch.py"
       - "reconstruction/original_match_5dc510_event_payload.py"
       - "reconstruction/test_original_match_human_callback_dispatch.py"
+      - "reconstruction/original_match_5dd1f0_queue_query.py"
+      - "reconstruction/test_original_match_5dd1f0_queue_query.py"
       - "reconstruction/original_match_four_stage_rng_reach.py"
       - "reconstruction/test_original_match_four_stage_rng_reach.py"
       - "reconstruction/original_native_64d540_rand_step.py"
@@ -578,6 +580,7 @@ jobs:
             test_original_match_four_stage_integer_totals \
             test_original_match_nonhuman_stage_context_join \
             test_original_match_human_callback_dispatch \
+            test_original_match_5dd1f0_queue_query \
             test_original_match_four_stage_rng_reach \
             test_original_native_64d540_rand_step \
             test_original_match_stage4_rng_join \
