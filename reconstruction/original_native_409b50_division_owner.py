@@ -89,6 +89,7 @@ def source_original_409b50_select_edi_and_write_team_plus1d8(
     *, original_403e10_owner_gate: SourceOriginal403E10CompetitionOwner,
     original_reached_409500_return_eax_if_403e10_true: int|None,
     original_reached_875628_indexed_record_at_409b72_if_valid_mode: bytes|None,
+    original_native_team_pointer_post_409c90: int,
     original_native_team_record_post_409c90_pre_409bd0: bytes,
 ) -> SourceOriginal409B50After409C90:
     """Exact original 409B50 AL gate, 409500 4-way EAX dispatch,
@@ -106,6 +107,9 @@ def source_original_409b50_select_edi_and_write_team_plus1d8(
     mode=original_reached_409500_return_eax_if_403e10_true
     rec=original_reached_875628_indexed_record_at_409b72_if_valid_mode
     post=original_native_team_record_post_409c90_pre_409bd0
+    if (type(original_native_team_pointer_post_409c90) is not int or
+            original_native_team_pointer_post_409c90!=c.original_native_team_pointer):
+        raise Original409B50SourceError("source actual same native team pointer must survive 409C90")
     if type(post) is not bytes or len(post)<0x1e0:
         raise Original409B50SourceError(
             "independent actual post-409C90 native team through +1D8 is required")
