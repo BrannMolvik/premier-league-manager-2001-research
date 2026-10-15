@@ -370,20 +370,21 @@ class LeagueMatchV34SourceReadinessReturnTests(unittest.TestCase):
 
 
 class Original407770NativeRosterSourceTests(unittest.TestCase):
-    def source_team(self, count=11, player_ids=None):
+    def source_team(self, count=11, player_ids=None, kind_byte74=0):
         r=bytearray(0x298)
         pack_into("<i",r,0x294,count)
+        r[0x74]=kind_byte74
         if player_ids is None:player_ids=tuple(range(101,101+max(count,0)))
         for index,pid in enumerate(player_ids):
             if 0x244+2*index+2 <= len(r):
                 pack_into("<H",r,0x244+2*index,pid)
         return bytes(r)
 
-    def project(self, *, count=11, argument=0, ids=None, **kwargs):
+    def project(self, *, count=11, argument=0, ids=None, kind_byte74=0, **kwargs):
         from original_native_407770_roster_eligibility import (
             source_original_407770_reached_roster_gate)
         return source_original_407770_reached_roster_gate(
-            original_team_record=self.source_team(count,ids),
+            original_team_record=self.source_team(count,ids,kind_byte74),
             original_407770_argument=argument,**kwargs)
 
     def test_roster_under_11_original_always_fails_early_without_day_callbacks(self):
@@ -404,7 +405,7 @@ class Original407770NativeRosterSourceTests(unittest.TestCase):
             original_reached_4ea300_player_results_if_arg0=good,**base)
         self.assertTrue(success.original_return_eax_nonzero)
         self.assertEqual(success.reached_4ea300_player_ids,ids)
-        for value in (0,-1,6,7):
+        for value in (0,255,6,7):
             with self.subTest(value=value):
                 early=good[:3]+(Row(ids[3],value),)
                 result=self.project(argument=0,ids=ids,
@@ -414,7 +415,7 @@ class Original407770NativeRosterSourceTests(unittest.TestCase):
 
     def test_native_arg1_403640_bang_name_and_407220_routes(self):
         shared=dict(original_reached_406be0_eax_if_arg1=1)
-        yes=self.project(argument=1,original_reached_403640_al_if_arg1=True,**shared)
+        yes=self.project(argument=1,kind_byte74=2,original_reached_403640_al_if_arg1=True,**shared)
         self.assertTrue(yes.original_return_eax_nonzero)
         yes=self.project(argument=1,original_reached_403640_al_if_arg1=False,
                          original_team_name_first_byte_if_reached=0x21,**shared)
@@ -427,7 +428,7 @@ class Original407770NativeRosterSourceTests(unittest.TestCase):
                          original_team_name_first_byte_if_reached=0x41,
                          original_reached_407220_edi_if_arg1=11,**shared)
         self.assertTrue(yes.original_return_eax_nonzero)
-        self.assertFalse(self.project(argument=1,
+        self.assertFalse(self.project(argument=1,kind_byte74=3,
                          original_reached_403640_al_if_arg1=True,
                          original_reached_406be0_eax_if_arg1=2).original_return_eax_nonzero)
 
@@ -460,6 +461,10 @@ class Original407770NativeRosterSourceTests(unittest.TestCase):
                  original_reached_406be0_eax_if_arg1=1),
             dict(argument=1,original_reached_403640_al_if_arg1=True,
                  original_reached_406be0_eax_if_arg1=True),
+            dict(argument=1,original_reached_403640_al_if_arg1=False,
+                 kind_byte74=2,original_reached_406be0_eax_if_arg1=1),
+            dict(argument=0,original_current_day_874b64_if_arg0=9,
+                 original_reached_4ea300_player_results_if_arg0=(Row(101,-1),)),
         ]
         for case in cases:
             with self.subTest(case=str(case)[:110]),self.assertRaises(Original407770SourceError):
@@ -499,6 +504,15 @@ class Original407770NativeRosterSourceTests(unittest.TestCase):
             0x407846:"8b 56 0c",
             0x407889:"e8 e1 0e 26 00",
             0x407891:"5f 5e 33 c0",
+            0x4EA300:"8b 54 24 04",
+            0x4EA304:"33 c0",
+            0x4EA306:"8a 04 0a",
+            0x4EA309:"c2 04 00",
+            0x403640:"8a 41 74",
+            0x403643:"3c 02",
+            0x403647:"3c 03",
+            0x40364B:"33 c0",
+            0x40364E:"b8 01 00 00 00",
         }
         for address,expected in sites.items():
             with self.subTest(address=hex(address)):

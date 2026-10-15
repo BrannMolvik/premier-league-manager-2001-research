@@ -18,7 +18,7 @@ class Original407770SourceError(ValueError):
 @dataclass(frozen=True)
 class SourceOriginal407770PlayerDayResult:
     original_roster_player_word_id: int
-    original_reached_4ea300_signed_eax: int
+    original_reached_4ea300_unsigned_byte_eax: int
 
 
 @dataclass(frozen=True)
@@ -59,10 +59,13 @@ def source_original_407770_reached_roster_gate(
 
     With arg0 (zero), each 16-bit roster ID at team+244 in order is
     resolved through 875640 lookup and checked by actual 4EA300(0).
-    It returns zero on first signed EAX >= original global day 874B64
-    or EAX <=0; otherwise after all count entries it returns one.
+    Original 4EA300(0) returns the zero-extended first BYTE of its actual
+    875640-indexed source player pointer; it cannot return negative values
+    or integers above 255. It returns zero on first EAX >= original global
+    signed day 874B64 or EAX <=0; otherwise after all entries returns one.
 
-    With arg1 (nonzero), 403640 AL or actual team+8 leading '!' forces
+    With arg1 (nonzero), source 403640 reads team+74 BYTE and tests
+    exact values 2 or 3; actual team+8 leading '!' also forces
     EDI=11. Otherwise 407EC0 and 407220(4) produce the native EDI.
     Original 406BE0(1,0) then returns EAX. Only EDI==11 AND EAX==1
     returns nonzero. No callback result may be inferred from a modern XI.
@@ -90,6 +93,9 @@ def source_original_407770_reached_roster_gate(
             raise Original407770SourceError("arg1 never calls roster-day 4EA300 gate")
         if type(original_reached_403640_al_if_arg1) is not bool:
             raise Original407770SourceError("reached original 403640 AL required")
+        # Native 403640: BYTE team+74 equals 2 or 3 -> EAX=1, else EAX=0.
+        if original_reached_403640_al_if_arg1 != (original_team_record[0x74] in (2,3)):
+            raise Original407770SourceError("native 403640 AL contradicts actual team+74 source byte")
         if type(original_reached_406be0_eax_if_arg1) is not int:
             raise Original407770SourceError("actual reached original 406BE0 EAX required")
         eax=_signed32(original_reached_406be0_eax_if_arg1,"406BE0")
@@ -122,7 +128,11 @@ def source_original_407770_reached_roster_gate(
         pid=unpack_from('<H',original_team_record,0x244+2*index)[0]
         if type(receipt.original_roster_player_word_id) is not int or receipt.original_roster_player_word_id!=pid:
             raise Original407770SourceError("wrong original roster WORD order")
-        value=_signed32(receipt.original_reached_4ea300_signed_eax,"4EA300")
+        # Original 4EA300(0): mov edx,[esp+4]; xor eax,eax;
+        # mov al, BYTE PTR [edx+ecx]. Offset 0 -> zero-extended uint8.
+        value=receipt.original_reached_4ea300_unsigned_byte_eax
+        if type(value) is not int or not 0<=value<=255:
+            raise Original407770SourceError("native 4EA300(0) cannot return outside uint8")
         visited.append(pid)
         if value<=0 or value>=day:
             if index+1!=len(replies):
