@@ -37,7 +37,7 @@ class FourIndependentNativeGuardTests(TestCase):
         if not p:self.skipTest("original executable private, not available in hosted CI")
         pe=Path(p).read_bytes()
         self.assertEqual((len(pe),sha256(pe).hexdigest()),(4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
-        sig={0x5da97c:"df e0",0x5da97e:"f6 c4 40",0x5da981:"0f 85 7e 02 00 00",0x5dac0f:"f6 c4 40",0x5dac14:"0f 85 66 02 00 00",0x5dae8d:"df e0",0x5dae8f:"f6 c4 40",0x5dae92:"0f 85 69 02 00 00",0x5db10b:"df e0",0x5db10d:"f6 c4 40",0x5db110:"0f 85 66 02 00 00"}
+        sig={0x5da97c:"df e0",0x5da97e:"f6 c4 40",0x5da981:"0f 85 7e 02 00 00",0x5dac0f:"df e0",0x5dac11:"f6 c4 40",0x5dac14:"0f 85 66 02 00 00",0x5dae8d:"df e0",0x5dae8f:"f6 c4 40",0x5dae92:"0f 85 69 02 00 00",0x5db10b:"df e0",0x5db10d:"f6 c4 40",0x5db110:"0f 85 66 02 00 00"}
         for va,hexcode in sig.items():
             with self.subTest(va=hex(va)):
                 want=bytes.fromhex(hexcode)
