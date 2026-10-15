@@ -162,6 +162,8 @@ on:
       - "reconstruction/test_original_match_four_5da250_argument_source.py"
       - "reconstruction/original_match_four_b_direct_writer.py"
       - "reconstruction/test_original_match_four_b_direct_writer.py"
+      - "reconstruction/original_match_40cbc0_5e48d0_b_join.py"
+      - "reconstruction/test_original_match_40cbc0_5e48d0_b_join.py"
       - "reconstruction/original_match_four_stage_rng_reach.py"
       - "reconstruction/test_original_match_four_stage_rng_reach.py"
       - "reconstruction/original_native_64d540_rand_step.py"
@@ -562,6 +564,7 @@ jobs:
             test_original_native_5da250_fpu_branch_source \
             test_original_match_four_5da250_argument_source \
             test_original_match_four_b_direct_writer \
+            test_original_match_40cbc0_5e48d0_b_join \
             test_original_match_four_stage_rng_reach \
             test_original_native_64d540_rand_step \
             test_original_match_stage4_rng_join \
