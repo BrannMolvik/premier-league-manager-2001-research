@@ -153,6 +153,10 @@ on:
       - "reconstruction/original_presults_bottom_surface.py"
       - "reconstruction/test_original_presults_bottom_surface.py"
       - "reconstruction/test_original_presults_host_surface.py"
+      - "reconstruction/original_presults_multiuser_day_target.py"
+      - "reconstruction/test_original_presults_multiuser_day_target.py"
+      - "reconstruction/original_presults_postponed_wrapper_precount.py"
+      - "reconstruction/test_original_presults_postponed_wrapper_precount.py"
       - "reconstruction/original_postresults_432505_single_user_return.py"
       - "reconstruction/test_original_postresults_432505_single_user_return.py"
       - "reconstruction/test_original_postresults_host_return.py"
@@ -587,6 +591,8 @@ jobs:
             test_original_presults_child_inventory \
             test_original_presults_bottom_surface \
             test_original_presults_host_surface \
+            test_original_presults_multiuser_day_target \
+            test_original_presults_postponed_wrapper_precount \
             test_original_postresults_432505_single_user_return \
             test_original_postresults_host_return \
             test_original_postresults_4325f7_pmenu_return \
