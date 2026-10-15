@@ -80,3 +80,66 @@ def source_original_432505_single_user_startmenu_plan(
         original_reached_user_pointer_4139d0,
         original_registered_manager_count_8755e4,
     )
+
+
+@dataclass(frozen=True)
+class SourceOriginal4290F0Return:
+    """Native 4290F0's actual final EAX predicate, not its side effects."""
+    original_global_87755a_byte: int
+    original_user_10d8_first_read: int | None
+    original_user_10d8_after_callbacks: int | None
+    original_4290f0_eax_result: int
+    original_4290f0_exit_va: int
+    native_intervening_callbacks_executed: bool = False
+    original_gui_side_effects_proven: bool = False
+
+
+def source_original_4290f0_return_from_reached(
+    *,
+    original_global_87755a_byte_at_5160a0: int,
+    original_current_user_record_at_429126: bytes | None,
+    original_current_user_record_at_429424: bytes | None,
+) -> SourceOriginal4290F0Return:
+    """Read original 5160A0 early exit or BOTH reached +10D8 reads.
+
+    Original 4290F0 calls 5160A0 (global 87755A byte).
+    If nonzero, it returns full EAX=0 without touching the user+10D8.
+    If zero, it checks user+10D8 at 429126 and may execute mutable
+    callbacks selected by its value 1..5, finally reading user+10D8
+    again at 429424 and returns SETNE AL. A pre-call field alone
+    cannot be assumed unchanged by those callbacks.
+    """
+    from struct import unpack_from
+    flag=original_global_87755a_byte_at_5160a0
+    if type(flag) is not int or not 0<=flag<=0xff:
+        raise OriginalPostResultsReturnSourceError("source 87755A BYTE required")
+    first=original_current_user_record_at_429126
+    after=original_current_user_record_at_429424
+    if flag:
+        if first is not None or after is not None:
+            raise OriginalPostResultsReturnSourceError(
+                "original 5160A0 early exit must not read user+10D8")
+        return SourceOriginal4290F0Return(flag,None,None,0,0x429125)
+    if (type(first) is not bytes or len(first)<0x10dc or
+        type(after) is not bytes or len(after)<0x10dc):
+        raise OriginalPostResultsReturnSourceError(
+            "actual native user+10D8 bytes before and after reached callbacks required")
+    old=unpack_from("<I",first,0x10d8)[0]
+    final=unpack_from("<I",after,0x10d8)[0]
+    return SourceOriginal4290F0Return(flag,old,final,
+         int(final!=0),0x429441)
+
+
+def source_original_432505_single_user_startmenu_from_4290f0(
+    *, source_4290f0: SourceOriginal4290F0Return,
+    **original_432505_source_inputs,
+) -> SourceOriginalSingleUserStartMenuReturn:
+    if type(source_4290f0) is not SourceOriginal4290F0Return:
+        raise OriginalPostResultsReturnSourceError(
+            "native 4290F0 return must be source-joined by its original producer")
+    if "original_4290f0_eax_at_43254c" in original_432505_source_inputs:
+        raise OriginalPostResultsReturnSourceError(
+            "cannot override source-qualified 4290F0 predicate")
+    return source_original_432505_single_user_startmenu_plan(
+        original_4290f0_eax_at_43254c=source_4290f0.original_4290f0_eax_result,
+        **original_432505_source_inputs)
