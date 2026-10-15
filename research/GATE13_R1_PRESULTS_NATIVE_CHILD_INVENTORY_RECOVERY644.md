@@ -112,3 +112,103 @@ return or fabricated progress timing. Gate13 stays reopened;
 no physical Win11 proof. Do not PR/CI until coherent player
 feature or otherwise independently useful safely reviewed
 integration milestone.
+
+
+## Recovery645: original PResults bottom graphics entered the ordinary Tk NEXT worker
+
+**This entry supersedes the earlier "not a renderer" state above.** A
+meaningful **partial real player-visible integration** has now been
+implemented on the new main-based branch:
+`worker/gate13-r1-original-normal-player-644`.
+
+Three byte-identical source assets were imported under
+`original_assets/source/FM2001_Art/Generic/waiting/`,
+not into `reconstruction/` and not as a duplicate archive.
+`original_assets/MANIFEST.md` records full original Drive
+provenance, original SHA256, size, unchanged binary form, runtime
+native purpose, and Git blob identity. Imported art:
+
+- `waiting_back_2.444`, original source byte count 46448,
+  SHA `289b6929...`, initial original PResults x0 y513
+  800x87, **static initial control ID0, never a return control**.
+- `loading_back.444`, 25944,
+  SHA `397e6a91...`, PResults x0 y579 800x14.
+- `loading_fill.444`, 17204,
+  SHA `9ba312d8...`, actual decoded 800x10 sprite initially
+  x0 y581 width0; clipped left-to-right only from original
+  6168C0→4A71F0 qualified event ticks/4A7210 independent total.
+
+`original_presults_bottom_surface.py` now validates all
+three actual original .444 bytes and headers **before**
+decoding with the repository's existing original
+TQIA/quantization EA444 pipeline. It yields exact
+source XY, pixel-aligned RGBA imagery for children
+`+0x16C/+0x220`, and optional clipped original
+`+0x270` bitmap **only** when the caller supplies the
+typed actual source `OriginalPResultsDatedEventReceipt`
+with independent original eligible-work denominator.
+There is no invented animation, progress time, score, upper
+screen, input semantics, or return button.
+
+`original_game_host.py` now injects a lazy
+`presults_resource_loader` from the ordinary
+`run_original_game_ui` entry. It decodes original bitmaps
+**off the Tk thread** inside the transactional NEXT or
+Quick3 match worker, publishes only a typed
+`presults_art` queue receipt, and paints the verified
+partial source PResults bottom while the original
+results owner holds management input. The upper
+0–512 pixel rows are intentionally empty/black
+rather than made-up PResults typography. Original
+gameplay transaction is only published **after** the
+worker returns an `ok` or `match_ok` receipt.
+A source art failure aborts the transaction and leaves
+prior saved state alone. Each NEXT resets previous
+dated-event progress so no stale progress bar is shown.
+
+A new host method
+`apply_source_original_presults_dated_callbacks`
+accepts the actual typed dated-event callback receipt
+**only during an active results owner** and validates the
+source quantized bar layout before changing any
+Tk pixels or stored graphical receipt. No synthetic
+worker sends events yet, because the actual original
+dated-event producer is not source-integrated into
+modern `GameState`. Consequently normal NEXT/Quick3
+shows only original static source bottom imagery and
+cannot falsely display "100%" based on match count.
+
+New test modules:
+`test_original_presults_bottom_surface.py`
+and `test_original_presults_host_surface.py`,
+plus original child resource tests, covering import
+hashes, three source placements, exact RGBA source
+cropping, two-pass validated events, typed fail-closed
+triggers, stale progress reset, source resource error
+atomicity and real ordinary NEXT worker receipt order.
+All are registered in the focused Gate13 source
+workflow. **No green exact-head CI or independent
+native Windows11 player playtest exists yet at
+authoring of this entry**; complete applicable PR
+checks and review are required before merge.
+
+**Whole-feature audit:** This is a **PARTIAL** implementation
+and not completed PResults, Gate13 or original normal
+player journey. Upper PResults children 1/2 contents,
+native event count/producer, source 432505+ post-results
+manager branch and conditional Start/Menu/Squad,
+original score calculation `513252→5DA2F0→v38/v3c`,
+mode 0/1 3D and mode 2 FastView wrapper,
+true saved GameState, multiple humans and shipped
+competitions/leagues, and actual Windows11 GUI
+verification are still OPEN. Do not fake these missing
+behaviors or mark any gate passed.
+
+**Next highest impact after exact-head tests:** integrate
+the actual source `4A7210` eligible event work and
+`6168C0` ordered user match+event callback stream
+into `HumanGameplayController` / live event-driven
+`PResults` UI rather than a dummy timer; recover
+and paint remaining original PResults children and
+source-return trigger. Continue original mode-specific
+full player match and source saved state.
