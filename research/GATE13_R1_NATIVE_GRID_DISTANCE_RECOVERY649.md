@@ -105,3 +105,92 @@ dual-date source callback seam is not live
 GameState. Gate13–17 OPEN. User-approved
 milestone batching: do not force minor
 standalone CI merges.
+
+
+## Recovery650 continuation: full category 0x42 stages and first true score-context sink
+
+Canonical source 40CBC0 team+14 **0x42** dispatches to 40CE09. Four
+**separately reached** 4056D0/4056F0/4FA520 lookups (40CE09,
+40CE83, 40CEDA, 40CF31) can repeatedly overwrite output QWORDs.
+The first branch selector0..4 writes first 20/16/12/9/9, second×.75
+(the last two selectors share entry 40CE69). Stage2 selector0/1
+overwrites with 15/10, stage3 selector0/1 with 17/12. Finally the
+40CF31 selector0..4 overwrites with (30/20/16/12/9)*0.5 and
+second=first*.75; selector greater than4 leaves *previous* QWORD
+bytes unchanged. Original caller 5DA8D9 zeroed both QWORD slots
+before entering 40CBC0. We must not infer all four 4FA520 results
+are constant; original callbacks can be revisited and per-stage
+source identities remain independent. Existing broad
+`original_native_40cbc0_all_paths` conservatively requires
+same original source category on every call; the new strictly
+bounded `original_match_40cbc0_type42_stages.py` accepts actual
+per-call independent source values, forbids caller-invented
+nonzero initial QWORDs, preserves previous write on later
+source no-op, and never claims native callbacks executed.
+Both models are source projections, not substitutes for
+executing the original 4056F0/4FA520 linked event world.
+
+More importantly, original `5DA9A1` constructs 5E43B0,
+`5DA9A8` calls 5E48D0, and at **5DA9AD** stores the
+calculated QWORD input at temporary stack+38. At **5DA9B3**
+the original checks source 4037B0 registered team.
+For a human-managed team, original `403850` chooses its
+original registered user, reads user+0x694 pointer and
+DWORD+0x0C, then **5DA9E4** writes that raw integer
+to **original match-context (EBP+0xC)+0xD88**. The
+source also computes signed FILD(user+694+0x0C) MINUS
+the source 5E48D0 QWORD, keeping the difference in
+temporary stack+0x30. For a non-managed team, the
+original `5DA9EC` loads the source QWORD and
+**5DAA00→668350** truncates to an integer; **5DAA05**
+writes it to *the same context+0xD88*. This is
+the first proved concrete mutable output field in
+the full 5DA2F0 scoring pathway. It is not
+necessarily the final public home/away score:
+later 5DAA0B onward original source FPU,
+RNG/world and stage work still executes.
+
+`reconstruction/original_match_5da9ad_first_d88_sink.py`
+now accepts the existing source-type
+`OriginalScoredStageFreshCallbackSource` (5E48D0
+first stage), previously registered full-club-key
+`OriginalMatch4037B0TeamOwner`, exact
+native match-context record+0xD88, and
+human user+694 pointer/body when original
+human branch is reached. It projects
+per-source write destination, raw native managed
+int32 or qualified nonhuman truncated score
+factor, human FPU difference QWORD and
+explicit **NO native callback/NO GameState mutation**.
+It rejects forged source stage/manager identity,
+invalid source human owner links, integer overflow,
+unvisited fields and corrupt source records.
+Tests cover both branch values/negatives,
+real 13 native PE opcode site signatures and
+source raw manager+694+0C integer reads.
+The real mutable GameState equivalent of
+context+0xD88 has not yet been source-linked
+to `HumanGameplayController`/SaveLoad, so
+do **not** write reconstructed match scores
+from this bounded DTO.
+
+**Important source reuse audit:** prior main already includes
+`original_native_40cbc0_all_paths.py` for general
+eight-branch coefficient QWORD stores and
+`original_match_40cbc0_5e48d0_b_join.py` for
+all four source stage input slots. These were
+reviewed before adding the new first-stage D88 sink.
+Do not create a second generic 40CBC0 engine or
+overwrite these existing comprehensive models.
+The narrow 0x42 callback-drift test is a
+qualification of the prior conservative same-
+category restriction, not proof of actual dynamic
+native category changes.
+
+**Unfinished:** a true source-backed native
+5DA2F0 calculator must now recover the subsequent
+5DAA0B..5DB1xx stages and 5DBCD0/5DBA60
+before persistent match event worlds, result
+screens, all modes or Gate13 can be accepted.
+All tests on this WIP need exact-head CI; the
+original executable has never run.
