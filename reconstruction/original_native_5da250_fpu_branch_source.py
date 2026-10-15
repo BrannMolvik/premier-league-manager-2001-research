@@ -4,7 +4,9 @@ Actual original FPU AH statuses and two original QWORD arguments required;
 no fake Python numeric formula for x87 extended intermediates is returned.
 """
 from dataclasses import dataclass
-from struct import pack
+from struct import pack, unpack
+from fractions import Fraction
+from math import isfinite
 
 class Original5DA250BranchSourceError(ValueError):
     pass
@@ -67,3 +69,34 @@ def source_original_5da250_reached_x87_branch(
     if take(4)&0x01:
         return done(path+'-clamped-to-0p1',0.1,False)
     return done(path+'-x87-computed',None,True)
+
+def source_original_5da250_finite_prethreshold_path(
+    *, original_esp4_qword: bytes, original_espc_qword: bytes,
+) -> str:
+    """Classify only source-proven finite comparisons, never the x87 result.
+
+    5DA258 compares A with B; 5DA265 compares A with original zero.
+    5DA298 computes exactly -B/2 before 5DA298/9C compares it to A.
+    5DA2B5 negates B before 5DA2B7/BB compares -B with A.
+    Rational comparison preserves original finite QWORD input distinctions,
+    including binary64 subnormals that Python float intermediate arithmetic
+    would silently round to zero. Intermediate score/threshold remains unknown.
+    """
+    a, b = original_esp4_qword, original_espc_qword
+    if type(a) is not bytes or len(a) != 8 or type(b) is not bytes or len(b) != 8:
+        raise Original5DA250BranchSourceError("both source QWORD arguments required")
+    af, bf = unpack("<d", a)[0], unpack("<d", b)[0]
+    if not (isfinite(af) and isfinite(bf)):
+        raise Original5DA250BranchSourceError(
+            "nonfinite original FPU status/control word not source-qualified"
+        )
+    a_exact, b_exact = Fraction.from_float(af), Fraction.from_float(bf)
+    if a_exact > b_exact:
+        return "5da25f-direct-literal-0p1"
+    if a_exact > 0:
+        return "5da274-ratio"
+    if -b_exact / 2 < a_exact:
+        return "5da2a3-negative-half-ratio"
+    if -b_exact < a_exact:
+        return "5da2c2-weighted-negative-ratio"
+    return "5da2d6-direct-literal-2p0"
