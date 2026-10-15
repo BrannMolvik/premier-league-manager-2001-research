@@ -156,10 +156,10 @@ def source_original_5130c2_false_through_fallback_v38_v3c_prefix(
     into a running GameState as a complete original match.
     """
     from struct import pack_into
-    from original_native_v3c_calendar_second_pass import OriginalV3CRescheduleGateError
     from original_native_match_v3c_entry import (
         source_original_v38_then_v3c_zero_event_prefix,
     )
+    from original_leaguematch_native_process_owners import OriginalLeagueMatchProcessOwnerError
     fallback=source_original_512d80_fallback_random_scores(
         **original_512d80_reached_args)
     before=original_512d80_reached_args["original_context_record_before_512d80"]
@@ -175,7 +175,7 @@ def source_original_5130c2_false_through_fallback_v38_v3c_prefix(
             original_native_match_record_before_v38=original_native_match_record_before_v38,
             original_processing_context_after_match=bytes(context),
         )
-    except Exception as exc:
+    except OriginalLeagueMatchProcessOwnerError as exc:
         raise Original512D80SourceError(
             "original native v38/v3c world prefix requires authentic source LeagueMatch owner") from exc
     return SourceOriginal512D80ThroughV38V3CPrefix(fallback,bytes(context),prefix)
