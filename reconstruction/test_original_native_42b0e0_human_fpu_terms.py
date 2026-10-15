@@ -46,6 +46,28 @@ class SourceOriginal42B0E0HumanTermsTests(TestCase):
                 with self.assertRaises(Original42B0E0HumanModifierError):
                     source_original_42b0e0_human_modifier_terms(**(original|change))
 
+    def test_private_original_four_stage_modifier_call_chain(self):
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('canonical proprietary executable not available in CI')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+                         (4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        # Each source sequence:
+        # call 4037B0; test human gate; skip-if-not-human +0x14;
+        # mov ecx,esi; call 403850; mov ecx,eax;
+        # call 42B0E0; fmul stage stack QWORD; skip; fld same QWORD.
+        # Source continuity only, NOT proof of a live GameState match.
+        prefixes=(
+            (0x5dab30,'e8 7b 8c e2 ff 84 c0 74 14 8b ce e8 10 8d e2 ff 8b c8 e8 99 05 e5 ff dc 4c 24 60 eb 04 dd 44 24 60'),
+            (0x5dadb0,'e8 fb 89 e2 ff 84 c0 74 14 8b ce e8 90 8a e2 ff 8b c8 e8 19 03 e5 ff dc 4c 24 58 eb 04 dd 44 24 58'),
+            (0x5db02c,'e8 7f 87 e2 ff 84 c0 74 14 8b ce e8 14 88 e2 ff 8b c8 e8 9d 00 e5 ff dc 4c 24 68 eb 04 dd 44 24 68'),
+            (0x5db2ac,'e8 ff 84 e2 ff 84 c0 74 14 8b ce e8 94 85 e2 ff 8b c8 e8 1d fe e4 ff dc 4c 24 50 eb 04 dd 44 24 50'),
+        )
+        for va,sequence in prefixes:
+            with self.subTest(stage=hex(va)):
+                want=bytes.fromhex(sequence)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(want)],want)
+
     def test_private_original_pe_three_options_and_weights(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
         if not p:self.skipTest('canonical proprietary executable not available in CI')
