@@ -101,6 +101,10 @@ from original_native_status_world_state import (
     OriginalNativeStatusWorldState,source_native_registered_key,
     source_native_player_status_world_from_reached,
 )
+from original_native_409c90_assignment_status import (
+    SourceOriginal409C90PreSelectionPlayerReset,
+    source_original_4181b0_full_player_reset,
+)
 from original_human_user_name import OriginalHumanUserName, original_fresh_human_name
 from match_preparation import (
     PreparedAiMatchSelection,
@@ -1062,6 +1066,64 @@ class GameState:
             raise ValueError("original status world already initialized differently")
         self.native_status_world.players[mapped_runtime_player_index]=record
         return record
+
+    def apply_verified_native_409c90_preselection_reset(
+        self, *, original_reached: SourceOriginal409C90PreSelectionPlayerReset,
+        original_source_status_pointer: int, mapped_runtime_player_index: int,
+    ):
+        """Commit only source-qualified 40A1A8 -> 4181B0 status-world bytes.
+
+        The original 41FA50-false branch reaches 4181B0. Its conditional
+        418220 role/position exchange and final 4EA370 reset are already
+        established by original PE source. The separately retained, exact
+        pre-call native player/status owner MUST agree with the source plan.
+        This does not run native callbacks, select the eleven, mutate the
+        generic RuntimePlayer, or advance the match/calendar.
+        """
+        if (type(mapped_runtime_player_index) is not int
+                or mapped_runtime_player_index not in self.players
+                or not isinstance(
+                    original_reached, SourceOriginal409C90PreSelectionPlayerReset
+                )):
+            raise ValueError("source-reached 409C90 existing player required")
+        decision=original_reached.original_41fa50_source_decision
+        reset=original_reached.original_4181b0_reset_if_reached
+        if (decision.source_original_return_eax != 0 or reset is None):
+            raise ValueError("original 41FA50 did not reach 4181B0 reset")
+
+        # Validate the complete pure original-leaf projection, including
+        # both bit0/418220 paths, before touching the live world.
+        checked=source_original_4181b0_full_player_reset(
+            original_native_player_pointer=reset.original_player_native_pointer,
+            original_player_record_before=reset.original_player_before_reset,
+            original_status_record_before=reset.original_status_before_reset,
+        )
+        if checked != reset:
+            raise ValueError("original 4181B0 reached reset receipt mismatch")
+        before=source_native_player_status_world_from_reached(
+            original_player_record=reset.original_player_before_reset,
+            original_source_role_object_pointer=original_source_status_pointer,
+            original_source_role_object_record=reset.original_status_before_reset,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        if decision.original_player_signed_word10 != before.original_current_club_index_10:
+            raise ValueError("original 41FA50 player club owner mismatch")
+        if self.native_status_world.players.get(mapped_runtime_player_index) != before:
+            raise ValueError("original 4181B0 native status prestate absent or stale")
+
+        after=source_native_player_status_world_from_reached(
+            original_player_record=reset.source_player_after_reset,
+            original_source_role_object_pointer=original_source_status_pointer,
+            original_source_role_object_record=reset.source_status_after_reset,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        candidate_players=dict(self.native_status_world.players)
+        candidate_players[mapped_runtime_player_index]=after
+        candidate=OriginalNativeStatusWorldState(
+            candidate_players,dict(self.native_status_world.registered_club_quotas))
+        candidate.validate()
+        self.native_status_world=candidate
+        return after
 
     def retain_verified_native_registered_club_quota(
         self, reached: Original41EDF0Reached,
