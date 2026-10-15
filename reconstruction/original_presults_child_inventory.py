@@ -11,6 +11,14 @@ ORIGINAL_WAITING_BACK_2_SIZE=46448
 ORIGINAL_WAITING_BACK_2_SHA256='289b692919b3048bbe932eaf83083c622089fe4367d8124cd26a8bbf566899e5'
 ORIGINAL_WAITING_BACK_2_SOURCE='FM2001_Art/Generic/Waiting/waiting_back_2.444'
 ORIGINAL_WAITING_BACK_2_RECT=(0,513,800,87)
+ORIGINAL_LOADING_BACK_SOURCE='FM2001_Art/Generic/Waiting/loading_back.444'
+ORIGINAL_LOADING_BACK_SIZE=25944
+ORIGINAL_LOADING_BACK_SHA256='397e6a91e041575a897605274c6cc6d0711d462ef15bedfe7d9d383f370e37d2'
+ORIGINAL_LOADING_BACK_RECT=(0,579,800,14)
+ORIGINAL_LOADING_FILL_SOURCE='FM2001_Art/Generic/Waiting/loading_fill.444'
+ORIGINAL_LOADING_FILL_SIZE=17204
+ORIGINAL_LOADING_FILL_SHA256='9ba312d886fbb1898ad1f63b5e3c985972c22da09b7915b13d06a374e8c32070'
+ORIGINAL_LOADING_FILL_INITIAL_RECT=(0,581,0,10)
 
 
 @dataclass(frozen=True)
@@ -28,7 +36,7 @@ PRESULTS_REGISTERED_INITIAL_CHILDREN=(
     OriginalPResultsStaticChild(0,0x16c,0,(0,513),(800,87),0x651BA0),
     OriginalPResultsStaticChild(1,0x1a0,0,(0,518),(800,38),0x6503F0),
     OriginalPResultsStaticChild(2,0x1e0,0,(0,556),(800,18),0x6503F0),
-    OriginalPResultsStaticChild(3,0x220,0,(0,579),None,0x64F380),
+    OriginalPResultsStaticChild(3,0x220,0,(0,579),(800,14),0x64F380),
     OriginalPResultsStaticChild(4,0x270,0,(0,581),(0,10),0x64F380),
 )
 
@@ -45,17 +53,22 @@ class SourceOriginalPResultsInitialPanel:
     original_shared_progress_owner_offset: int=0x250
     original_first_child_bitmap_va: int=0x946630
     original_bitmap_validated: bool=False
+    original_loading_back_validated: bool=False
+    original_loading_fill_validated: bool=False
     original_return_input_proven: bool=False
     original_live_game_view_rendered: bool=False
 
 
-def source_original_presults_initial_children(*, waiting_back_2_raw:bytes | None=None):
+def source_original_presults_initial_children(*, waiting_back_2_raw:bytes | None=None,
+                                             loading_back_raw:bytes | None=None,
+                                             loading_fill_raw:bytes | None=None):
     """Preserve bounded constructor facts, optionally verify private original art.
 
     Original 4A6E50 uses five-pointer child array and ID=0 for all
     five initial children. Progress +250 is referenced by child+270 and is
-    not registered as a sixth child. Unknown initial child 3 dimensions remain None. Child 4 initializes
-    as x0..0 / y581..591 before source event ticks update right edge.
+    not registered as a sixth child. Child 3 derives 800x14 from original 5F4420->64E500 which initializes
+    +9465f0, not guessed globals. Child 4 initializes x0..0 / y581..591
+    before source event ticks update right edge.
     """
     if waiting_back_2_raw is not None:
         if type(waiting_back_2_raw) is not bytes:
@@ -63,9 +76,22 @@ def source_original_presults_initial_children(*, waiting_back_2_raw:bytes | None
         if (len(waiting_back_2_raw)!=ORIGINAL_WAITING_BACK_2_SIZE or
             sha256(waiting_back_2_raw).hexdigest()!=ORIGINAL_WAITING_BACK_2_SHA256):
             raise OriginalPResultsSourceError('original waiting_back_2.444 identity mismatch')
+    for raw,name,size,expected,wh in (
+        (loading_back_raw,'loading_back.444',ORIGINAL_LOADING_BACK_SIZE,
+         ORIGINAL_LOADING_BACK_SHA256,(800,14)),
+        (loading_fill_raw,'loading_fill.444',ORIGINAL_LOADING_FILL_SIZE,
+         ORIGINAL_LOADING_FILL_SHA256,(800,10)),
+    ):
+        if raw is not None:
+            if (type(raw) is not bytes or len(raw)!=size or
+                sha256(raw).hexdigest()!=expected or
+                raw[:4]!=wh[0].to_bytes(2,'little')+wh[1].to_bytes(2,'little')):
+                raise OriginalPResultsSourceError(name+' original bitmap identity/dimensions mismatch')
     return SourceOriginalPResultsInitialPanel(
         PRESULTS_REGISTERED_INITIAL_CHILDREN,
-        original_bitmap_validated=waiting_back_2_raw is not None)
+        original_bitmap_validated=waiting_back_2_raw is not None,
+        original_loading_back_validated=loading_back_raw is not None,
+        original_loading_fill_validated=loading_fill_raw is not None)
 
 
 @dataclass(frozen=True)
