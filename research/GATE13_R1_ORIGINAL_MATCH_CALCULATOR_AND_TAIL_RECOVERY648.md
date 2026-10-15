@@ -32,3 +32,121 @@ Local canonical bounded disassembly `5DA2F0..5DA605` confirms:
 - `5DA5D9` starts a separate match+0x4C owner/pointer branch and may skip at `5DA5F9`. Not yet established how it writes final context scores; this requires continuing the callee source graph rather than inventing native RNG or player ratings.
 
 **Next exact source slice:** analyze `4037B0,403850,4290A0,618E00,65D920,65DA60` callback types and 5DA5CF+ score writes, then map only validated source numeric inputs to the existing reconstructed `HumanGameplayController`. Original 5DA2F0 calculation equivalence, rounding/RNG, 533D80/5331C0 native modal lifecycles and original save state remain UNVERIFIED. Do not model their success as the result of calling modern `play_user_primary_match` alone.
+
+
+## Recovery649: original 4037B0 registered club and concrete non-managed numeric team inputs
+
+Static canonical source `5DA2F0` (private PE SHA833bf95e)
+starts by passing the selected actual team pointer to `4037B0`.
+This is not a vague "user team" bool: `4037B0` passes the
+team through `4139E0`, which reads **team+0x04
+FULL DWORD owner key**, traverses original 874C10+9CC
+manager-linked list (node+0 user pointer; user+5B4
+context pointer) and compares each **context+0x04
+FULL DWORD** using `4139F0`. It stops on first
+matching registered manager, returns AL=1, and
+otherwise returns AL=0. The separate `403850`
+lookup then uses `413B40`, which masks the team
+owner key to **16 bits**. Full-key membership
+and low16 manager lookup are different operations:
+never assume one proves the other or choose an
+arbitrary user when two full keys share the low16.
+
+For a source-confirmed **4037B0 AL false**,
+`5DA538→5DA5CF` reads exact native fields
+`team+0x140`, `+0x13C`, `+0x138`, `+0x134`
+(in this *decreasing* order). Each is a DWORD
+zero-extended into an x87 `FILD QWORD`. The
+first two (*+140*, *+13C*) are compared against
+native double **200000.0** at 0x7D73D8.
+Values **greater** than the limit are zeroed in
+their resulting double stack slots; values equal
+to 200000 are retained. The other two (*+138*,
+*+134*) are not subject to this comparison on
+this branch. Native uint32 0xFFFFFFFF thus
+becomes positive 4294967295.0 through the
+zero-extended QWORD, not a signed -1.0.
+Only this bounded input branch has been recovered;
+the original nonhuman scoring result is **not**
+computed by projecting these four numbers.
+
+`reconstruction/original_match_5da2f0_team_inputs.py`
+now takes actual native club-team bytes, full ordered
+manager-linked records and exact full-key match,
+and returns source-typed registration branch result.
+Only original AL=false qualifies a second source
+function to extract and convert four native team
+inputs from the **same team+4 key** after callback.
+It rejects malformed/reordered link chains, alias
+and unsupported type drift, and cannot claim source
+native callback execution, score calculation or
+GameState mutation. The companion five-unit-test
+module verifies full-key vs colliding low16 human
+owner, first match stopping before unreached tail,
+threshold boundary, uint32 conversion and
+negative pointer/mutated record cases.
+
+### Original source 5DA5D9: explicit encounter owner/v+18 fallback and numeric tier
+
+After both human or nonhuman team-numeric branches
+meet at **5DA5CF**, native code reads
+`match_context+0x4C` into EBX and calls its
+virtual **+0x18**. If this returns zero and
+`encounter+0x04` is nonzero, it selects that
+alternate pointer before calling virtual +0x18
+**again**. If the second virtual result is zero,
+the original jumps directly to **5DA746** and
+checks match-context v+0x28, invoking
+`5DBCD0` twice when v+28==6 or
+`5DBA60` twice otherwise, with opposite
+team argument order. If second v+18 returns
+nonzero, original reads selected encounter+0x3C,
+subtracts match context virtual+0x60 EAX,
+and selects an original tier integer:
+`diff==2 -> 30` at 0x821088;
+`diff==3 -> 20` at 0x82108C;
+`diff==4 -> 15` at 0x821090;
+every other 32-bit diff -> **14** (15-1).
+Native 0x821094 additionally contains **10**
+and is used in subsequent x87 `FDIVR`
+calculation. These are concrete input factors,
+**not** scores, percentage values or a license
+to guess modern RNG.
+
+The new `original_match_5da5d9_encounter_tier.py`
+captures actual reached original initial/selected
+encounter pointers, source v+18 outputs, match
+context+4C identity, optional match-context v+60
+EAX and returns branch/tier. Source methods and
+all mutations remain unexecuted. Six regression
+tests cover v+18 no-alternate, distinct alternate,
+failed second v+18, all exact numeric tiers,
+unsigned wraparound, alias/missing-pointer
+rejection and actual original global tier bytes.
+
+All **26** newly asserted 4037B0/4139E0/5DA538
+and 5DA5D9/5DA6xx native opcode sites were
+independently compared byte-for-byte against the
+canonical shipped private PE in this recovery:
+**26/26 PASS**. The WIP source modules/tests have
+been registered in Gate13 CI but full Python
+unit tests are **not yet certified** on exact GitHub
+head; original executable not launched. This
+improves native match-calculation input fidelity,
+but **DOES NOT** complete original LeagueMatch,
+Quick Match replacement, modes0/1/2, v38/v3c
+persistence or the original player match return.
+Original two date registries, multi-human saves
+and true Win11 interactive release audits still
+unresolved. Keep Gate13 and Gates14–17 OPEN.
+
+**Next:** trace exact **5DA746** v+28
+`5DBCD0/5DBA60` return values and the 5DA785
+team+20/+24 signed integer distance math,
+then 5DA8D9→40CBC0 and 5DA9A6 native event-score
+mutations. Map those exact original world fields
+to saved `GameState` and ordinary one-match
+fixtures before allowing automatic source-derived
+progress or mode0–3 playback. Re-review actual
+ordinary user gameplay, not only isolated source
+unit tests, at the next coherent PR.
