@@ -97,6 +97,19 @@ class OriginalPResultsTwoCollectionTests(TestCase):
                      original_before_processed_64=0,
                      original_first_collection_4a7210_total_68=2)|changed))
 
+    def test_directly_constructed_composite_cannot_override_first_al_or_ordered_events(self):
+        from dataclasses import replace
+        source=combine(original_primary_947ad8=receipt((event(0x1000,1),),False),
+                       original_secondary_947af0=receipt((event(0x2000,2),),True))
+        for forged in (replace(source,original_4a8260_return_al_nonzero=True),
+                       replace(source,ordered_source_callbacks=()),
+                       replace(source,original_secondary_6168c0_return_al_nonzero=False),
+                       replace(source,original_native_date_event_callbacks_executed=True)):
+            with self.subTest(forged=forged),self.assertRaises(OriginalPResultsEventSourceError):
+                progress(original_two_collection_receipt=forged,
+                         original_before_processed_64=0,
+                         original_first_collection_4a7210_total_68=2)
+
     def test_canonical_private_pe_4a8260_both_native_registry_calls_and_return_owner(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
         if not p:self.skipTest('private actual original executable not provided')
