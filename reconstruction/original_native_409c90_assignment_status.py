@@ -381,3 +381,66 @@ def source_original_4181b0_full_player_reset(
     return SourceOriginal4181B0FullReset(
         original_native_player_pointer,bool(bits174&1),exchange,p,s,
         bytes(source_player),bytes(status))
+
+
+@dataclass(frozen=True)
+class SourceOriginal409C90Class23Availability:
+    original_native_team_type_byte74: int
+    original_409c90_reached_signed_roster_count: int
+    original_ordered_source_player_ids: tuple[int,...]
+    original_418130_return_byte_values: tuple[int,...]
+    source_second_allocated_mask_bytes: bytes
+    native_418130_executed: bool = False
+    native_409c90_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_409c90_class23_initial_roster_mask(
+    *, original_team_record_at_409c90: bytes,
+    original_409b50_reached_roster_count_argument: int,
+    original_global_875640_player_base: int,
+    original_ordered_player_records: tuple[object,...],
+) -> SourceOriginal409C90Class23Availability:
+    """Native 409CEA/409D0E calls 403640 per player; team type 2 or3
+    selects source 418130 (BYTE player+14 bits0/1 nonzero) and
+    saves returned AL into its temporary allocated mask[slot] 409D5E.
+
+    Other team classes choose original *dynamic* 418050 and are rejected.
+    This models ONLY source per-slot mask, no native array allocations
+    or 409C90 eleven-position/roster/world assignments.
+    """
+    from original_native_406be0_roster_count import SourceOriginal406BE0Player
+    from struct import unpack_from
+    team=original_team_record_at_409c90
+    count=original_409b50_reached_roster_count_argument
+    base=original_global_875640_player_base
+    rows=original_ordered_player_records
+    if type(team) is not bytes or len(team)<0x298:
+        raise Original409C90SourceError("original 409C90 native team record+294 required")
+    if type(count) is not int or not 0<=count<=360:
+        raise Original409C90SourceError("actual 409B50→409C90 signed count argument 0..360 required")
+    if type(base) is not int or not 0<base<=0xffffffff:
+        raise Original409C90SourceError("original global 875640 player array base required")
+    if type(rows) is not tuple or len(rows)!=count or len(team)<0x244+2*count:
+        raise Original409C90SourceError("actual original ordered roster and full list of source players required")
+    class74=team[0x74]
+    if class74 not in (2,3):
+        raise Original409C90SourceError("403640 false reaches unknown 418050 instead of 418130")
+    vals=[]
+    ids=[]
+    for i,p in enumerate(rows):
+        pid=unpack_from("<H",team,0x244+2*i)[0]
+        expected=base+pid*0x250
+        if (type(p) is not SourceOriginal406BE0Player or
+            type(p.original_roster_word_id) is not int or p.original_roster_word_id!=pid or
+            type(p.original_player_record_native_pointer) is not int or
+            p.original_player_record_native_pointer!=expected or expected>0xffffffff):
+            raise Original409C90SourceError("original source 875640 indexed player pointer/order mismatch")
+        source=p.original_player_record_bytes
+        if type(source) is not bytes or len(source)<0x18:
+            raise Original409C90SourceError("original player+14 DWORD required")
+        flags=unpack_from("<I",source,0x14)[0]
+        ids.append(pid)
+        vals.append(int(bool(flags&3)))
+    return SourceOriginal409C90Class23Availability(
+        class74,count,tuple(ids),tuple(vals),bytes(vals))
