@@ -2572,6 +2572,37 @@ class OriginalGameTkHost:
         self._presults_source_progress = kwargs
         self.redraw()
 
+    def apply_source_original_presults_two_collection_callbacks(
+        self, *, original_two_collection_receipt,
+        original_source_event_total: int,
+        original_processed_before_callbacks: int,
+    ) -> None:
+        """Present only genuine 4A8260 primary+secondary source events.
+
+        A true native event producer must supply the TWO separately
+        processed 6168C0 registries and independently reached 4A7210
+        first-registry denominator. Source-only tracing does not invoke
+        this method automatically from the normal single-human simulator.
+        """
+        if self._original_match_input_owner() != "results":
+            raise OriginalGameHostError(
+                "Dual-calendar original progress requires live PResults input owner")
+        if type(self._presults_bottom_art) is not OriginalPResultsBottomArt:
+            raise OriginalGameHostError(
+                "Dual-calendar source progress requires validated source bitmaps")
+        kwargs = dict(
+            original_two_collection_4a8260=original_two_collection_receipt,
+            original_source_event_total=original_source_event_total,
+            original_processed_before_callbacks=original_processed_before_callbacks,
+        )
+        # Validate ALL original progress counters and bitmap geometry before
+        # publishing either an intermediate image or a mutable host receipt.
+        # When secondary native callbacks advance beyond first-only 4A7210
+        # denominator, do not fabricate an 800-pixel clamp.
+        source_original_presults_bottom_surface(self._presults_bottom_art, **kwargs)
+        self._presults_source_progress = kwargs
+        self.redraw()
+
     def _schedule_prematch_update(self) -> None:
         if self._prematch_idle is None:
             self._prematch_idle = self.root.after(16, self._update_prematch_controls)
