@@ -52,6 +52,20 @@ class OriginalMatchTLSNativeRngTests(TestCase):
         self.assertNotEqual(first.original_tls_record_pointer,second.original_tls_record_pointer)
         self.assertNotEqual(first.original_seed_after,second.original_seed_after)
 
+    def test_bounded_two_reuses_existing_v38_original_66951c_rng_not_parallel_generator(self):
+        from original_native_v38_thread_rng import (
+            source_original_v38_random_two_from_reached_tls_seed)
+        for seed in (0,1,0x75bcd15,0xffffffff):
+            known=source_original_v38_random_two_from_reached_tls_seed(
+                original_reached_tls_seed_at_offset_14=seed)
+            score=source(**receipt(seed=seed,bound=2))
+            self.assertEqual(score.original_seed_after,
+                             known.original_thread_seed_after_66951c)
+            self.assertEqual(score.original_66951c_rand15,
+                             known.original_rand15_result)
+            self.assertEqual(score.original_64d540_return_eax,
+                             known.original_64d540_2_return_eax)
+
     def test_original_fimul_rand_result_positive_bound_and_trunc_no_round_nearest(self):
         for seed in (0,1,0x75bcd15,0xffffffff):
             for bound in (1,2,500,32767,32768,999999,0x7fffffff):
