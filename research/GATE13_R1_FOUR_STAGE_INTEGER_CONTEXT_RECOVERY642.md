@@ -251,3 +251,25 @@ the same concrete selected user's pointer across those native call
 chains. The readback source receipt therefore explicitly reports
 `original_same_owner_instance_proven=False`. Reached owner and query
 callers must be checked before any live original score/world claim.
+
+## Recovery643 next owner-identity target: original indexed +670 score reader
+
+A bounded actual original `5DC890` caller at native **451021** uses
+`ECX=[EAX+index*4+0x670]` from a registered-user `4139D0`
+lookup; `index=[ESI+0xE0]` at 451014 and `EAX` is returned from
+`4139D0 → 413B10` over the original `0x874C10+0x9CC` manager
+list. The source writer in original first-side scoring,
+`5DB450`, instead loads **`ECX=[selected_user+0x670]`**,
+with no dynamic index. Thus the score-record **reader can use an
+indexed +670 pointer**, potentially a different subqueue or selected
+manager. A real matching owner requires source-qualified selected user,
+registered-list index and **the actual +670 slot index**, not merely
+equal payload layout. New private PE regression preserves this
+one explicit reader callsite and writer comparison.
+
+**Exact next join:** trace the 451021 enclosing original current-manager
+and score-query context, `4139D0` record index, 5DC890 numeric
+dispatch, and first-side selected user identity at 5DB3CB/5DB502,
+then determine which specific +670 reader slots can see the record
+produced by original 5DB456/4B9. Prove type and query arguments and
+normal match GameState callbacks before making a live score change.

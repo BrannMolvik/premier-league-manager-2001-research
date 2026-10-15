@@ -123,3 +123,28 @@ class Original5DD1F0NativeQueueTests(TestCase):
                 data=bytes.fromhex(h)
                 self.assertEqual(raw[va-0x400000:va-0x400000+len(data)],data)
         self.assertEqual(unpack_from('<d',raw,0x7BD5F8-0x400000)[0],0.)
+
+    def test_451021_original_reached_user_indexed_plus670_queue_identity_gap(self):
+        """Actual reader +670 index is not necessarily writer's first +670 slot."""
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE unavailable in hosted CI')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(4714541,
+            '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        sites={
+            0x4139D0:'8b 81 c4 09 00 00 50 e8 34 01 00 00 c3',
+            0x413B10:'8b 81 cc 09 00 00 33 d2',
+            0x451009:'b9 10 4c 87 00 52 e8 bc 29 fc ff',
+            0x451014:'8b 8e e0 00 00 00 8b 8c 88 70 06 00 00',
+            0x451021:'e8 6a b8 18 00',
+            0x5DB450:'8b 8f 70 06 00 00 e8 b5 10 00 00',
+        }
+        for va,h in sites.items():
+            with self.subTest(va=hex(va)):
+                data=bytes.fromhex(h)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(data)],data)
+        for call,target in ((0x4139D7,0x413B10),(0x45100F,0x4139D0),
+                            (0x451021,0x5DC890),(0x5DB456,0x5DC510)):
+            pos=call-0x400000
+            self.assertEqual(raw[pos],0xe8)
+            self.assertEqual(call+5+unpack_from('<i',raw,pos+1)[0],target)
