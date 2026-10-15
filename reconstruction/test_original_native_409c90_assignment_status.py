@@ -186,3 +186,38 @@ class Original409C90AssignmentStatusSourceTests(TestCase):
             with self.subTest(va=hex(va)):
                 sig=bytes.fromhex(expected)
                 self.assertEqual(b[va-0x400000:va-0x400000+len(sig)],sig)
+
+    def test_original_409c90_41fa50_gate_only_calls_4181b0_when_false(self):
+        from original_native_409c90_assignment_status import (
+            source_original_409c90_reached_41fa50_then_optional_4181b0 as decide)
+        def player(owner,linked,extras=0):
+            b=bytearray(original_player(flags14=0x33))
+            pack_into("<h",b,0x10,owner)
+            pack_into("<h",b,0x72,linked)
+            pack_into("<I",b,0x174,extras)
+            return bytes(b)
+        common=dict(original_native_player_pointer=0x500000,
+                    original_global_8755d0_dword=12,
+                    original_team_club_key_dword=7)
+        yes=decide(original_player_record_before_41fa50=player(3,7),
+                   original_reached_status_record_for_4181b0_if_called=None,**common)
+        self.assertEqual(yes.original_41fa50_source_decision.source_original_return_eax,1)
+        self.assertIsNone(yes.original_4181b0_reset_if_reached)
+        false=decide(original_player_record_before_41fa50=player(7,7,extras=2),
+                     original_reached_status_record_for_4181b0_if_called=b"\x17\x00\x00\x80\xf5",
+                     **common)
+        self.assertEqual(false.original_41fa50_source_decision.source_original_return_eax,0)
+        self.assertEqual(unpack_from("<I",false.original_4181b0_reset_if_reached
+                         .source_player_after_literal_stores,0x14)[0],0x03)
+        self.assertEqual(false.original_4181b0_reset_if_reached
+                         .source_status_after_4ea370[3:],b"\x97\xf0")
+        self.assertFalse(false.live_game_state_modified)
+        with self.assertRaises(Original409C90SourceError):
+            decide(original_player_record_before_41fa50=player(3,7),
+                   original_reached_status_record_for_4181b0_if_called=bytes(5),**common)
+        with self.assertRaises(Original409C90SourceError):
+            decide(original_player_record_before_41fa50=player(7,7,extras=1),
+                   original_reached_status_record_for_4181b0_if_called=bytes(5),**common)
+        with self.assertRaises(Original409C90SourceError):
+            decide(original_player_record_before_41fa50=player(7,7),
+                   original_reached_status_record_for_4181b0_if_called=None,**common)
