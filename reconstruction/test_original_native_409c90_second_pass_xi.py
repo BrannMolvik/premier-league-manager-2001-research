@@ -133,7 +133,7 @@ class Original409C90SecondPassTests(unittest.TestCase):
         self.assertEqual(final.source_second_pass_newly_selected_roster_indices11,(-1,)*11)
         self.assertEqual(final.source_used_mask_after_both_passes,bytes([1]*11))
         self.assertIsNone(final.original_unfilled_40a105_reached_4037b0_human_al)
-        self.assertFalse(final.original_40a1bb_assignment_not_executed is False)
+        self.assertTrue(final.original_40a1bb_assignment_not_executed)
 
     def test_source_incomplete_nonhuman_mode1_retries_from_409ca5_not_fake_completion(self):
         rows=tuple(player(pid,1) for pid in (51,52,53))
