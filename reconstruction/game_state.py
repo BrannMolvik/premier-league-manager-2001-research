@@ -1063,6 +1063,79 @@ class GameState:
         self.native_status_world.players[mapped_runtime_player_index]=record
         return record
 
+    def apply_verified_native_409c90_preselection_player_reset(
+        self, *, mapped_runtime_player_index: int,
+        original_native_player_pointer: int,
+        original_player_record_before_41fa50: bytes,
+        original_role_object_record_before_4181b0: bytes,
+        original_global_8755d0_dword: int,
+        original_team_club_key_dword: int,
+    ):
+        """Atomically retain exact ORIGINAL 409C90 41FA50→4181B0 reset.
+
+        This is one independently sourced native player/status transaction,
+        NOT the surrounding complete 409C90 XI selection or a playable match.
+        It retains only the existing sparse original native-status sidecar
+        fields, with current save-schema persistence. Actual reached source
+        player/status bytes must already be seeded to that sidecar; no
+        defaults from RuntimePlayer or guessed competition data are allowed.
+        """
+        from struct import unpack_from
+        from original_native_409c90_assignment_status import (
+            source_original_409c90_reached_41fa50_then_optional_4181b0,
+        )
+        if (type(mapped_runtime_player_index) is not int or
+                mapped_runtime_player_index not in self.players or
+                type(original_native_player_pointer) is not int or
+                not 0 < original_native_player_pointer <= 0xffffffff or
+                type(original_player_record_before_41fa50) is not bytes or
+                len(original_player_record_before_41fa50) < 0x24c or
+                type(original_role_object_record_before_4181b0) is not bytes or
+                len(original_role_object_record_before_4181b0) < 5):
+            raise ValueError("qualified original 409C90 player/status source required")
+        if unpack_from("<H", original_player_record_before_41fa50, 4)[0] != mapped_runtime_player_index:
+            raise ValueError("original 409C90 native player ID mismatch")
+        status_pointer = unpack_from("<I", original_player_record_before_41fa50, 0x248)[0]
+        if status_pointer == 0:
+            raise ValueError("original 409C90 separate status pointer absent")
+        before = source_native_player_status_world_from_reached(
+            original_player_record=original_player_record_before_41fa50,
+            original_source_role_object_pointer=status_pointer,
+            original_source_role_object_record=original_role_object_record_before_4181b0,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        if self.native_status_world.players.get(mapped_runtime_player_index) != before:
+            raise ValueError("original 409C90 previous native status is absent or stale")
+        projected = source_original_409c90_reached_41fa50_then_optional_4181b0(
+            original_native_player_pointer=original_native_player_pointer,
+            original_player_record_before_41fa50=original_player_record_before_41fa50,
+            original_global_8755d0_dword=original_global_8755d0_dword,
+            original_team_club_key_dword=original_team_club_key_dword,
+            original_reached_status_record_for_4181b0_if_called=(
+                original_role_object_record_before_4181b0),
+        )
+        reset = projected.original_4181b0_reset_if_reached
+        if reset is None or projected.original_41fa50_source_decision.source_original_return_eax != 0:
+            raise ValueError("source 41FA50 did not reach original 4181B0 reset")
+        if (reset.original_player_native_pointer != original_native_player_pointer or
+                reset.original_player_before_reset != original_player_record_before_41fa50 or
+                reset.original_status_before_reset != original_role_object_record_before_4181b0 or
+                unpack_from("<I", reset.source_player_after_reset, 0x248)[0] != status_pointer):
+            raise ValueError("original 4181B0 source player/status ownership changed")
+        after = source_native_player_status_world_from_reached(
+            original_player_record=reset.source_player_after_reset,
+            original_source_role_object_pointer=status_pointer,
+            original_source_role_object_record=reset.source_status_after_reset,
+            original_mapped_player_id=mapped_runtime_player_index,
+        )
+        staged = dict(self.native_status_world.players)
+        staged[mapped_runtime_player_index] = after
+        candidate = OriginalNativeStatusWorldState(
+            staged, dict(self.native_status_world.registered_club_quotas))
+        candidate.validate()
+        self.native_status_world = candidate
+        return projected
+
     def retain_verified_native_registered_club_quota(
         self, reached: Original41EDF0Reached,
     ) -> tuple[int,int]:
