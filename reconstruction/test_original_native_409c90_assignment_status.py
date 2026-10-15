@@ -221,3 +221,101 @@ class Original409C90AssignmentStatusSourceTests(TestCase):
         with self.assertRaises(Original409C90SourceError):
             decide(original_player_record_before_41fa50=player(7,7),
                    original_reached_status_record_for_4181b0_if_called=None,**common)
+
+    def test_418220_status_low_fields_exchange_and_full_saved_byte_replace(self):
+        from original_native_409c90_assignment_status import (
+            source_original_418220_exact_role_position_exchange as swap)
+        raw=bytearray(original_player(flags14=0x23))
+        raw[0x152]=0xA6
+        raw[0x153]=0xB9
+        status=b"\x07\x18\x00\xe5\xc3"
+        v=swap(original_native_player_pointer=0x500000,
+               original_player_record_before_418220=bytes(raw),
+               original_status_record_before_418220=status)
+        # Masked old status getters 4EA3C0/4EA3D0 become FULL saved
+        # player bytes; old full saved bytes become status LOW bits.
+        self.assertEqual(v.original_status_role_low5_before,0x05)
+        self.assertEqual(v.original_status_position_low4_before,0x03)
+        self.assertEqual(v.original_player_saved_role_byte_before,0xA6)
+        self.assertEqual(v.original_player_saved_position_byte_before,0xB9)
+        self.assertEqual(v.source_player_after_418220[0x152:0x154],b"\x05\x03")
+        self.assertEqual(v.source_status_after_418220[3:],b"\xe6\xc9")
+        self.assertEqual(unpack_from("<I",v.source_player_after_418220,0x14),
+                         unpack_from("<I",bytes(raw),0x14))
+        self.assertFalse(v.native_418220_executed)
+        self.assertFalse(v.original_world_committed)
+        for changed in (
+            {"original_native_player_pointer":0},
+            {"original_player_record_before_418220":bytes(3)},
+            {"original_player_record_before_418220":original_player(status_pointer=0)},
+            {"original_status_record_before_418220":bytes(3)},
+            {"original_status_record_before_418220":bytearray(5)},
+        ):
+            with self.subTest(changed=str(changed)[:90]),self.assertRaises(Original409C90SourceError):
+                swap(**(dict(original_native_player_pointer=0x500000,
+                     original_player_record_before_418220=bytes(raw),
+                     original_status_record_before_418220=status)|changed))
+
+    def test_4181b0_full_status_reset_both_418180_exchange_paths(self):
+        from original_native_409c90_assignment_status import (
+            source_original_4181b0_full_player_reset as full)
+        p=bytearray(original_player(flags14=0xFFFFFFFF))
+        p[0x152]=0xA6;p[0x153]=0xB9
+        original_status=b"\x17\x18\x00\xe5\xc3"
+        for flags174,expect_saved in (
+            (0x00000002,b"\xa6\xb9"),
+            (0x00000003,b"\x05\x03"),
+            (0x80000001,b"\x05\x03"),
+        ):
+            with self.subTest(flags174=flags174):
+                pack_into("<I",p,0x174,flags174)
+                r=full(original_native_player_pointer=0x500000,
+                    original_player_record_before=bytes(p),
+                    original_status_record_before=original_status)
+                self.assertEqual(r.original_418220_was_reached,bool(flags174&1))
+                self.assertEqual(r.original_418220_source_exchange_if_reached is not None,
+                                 bool(flags174&1))
+                self.assertEqual(r.source_player_after_reset[0x152:0x154],expect_saved)
+                self.assertEqual(unpack_from("<I",r.source_player_after_reset,0x14)[0],
+                                 0xFFFFFFCF)
+                self.assertEqual(unpack_from("<I",r.source_player_after_reset,0x174)[0],
+                                 flags174 & ~3)
+                self.assertEqual(r.source_status_after_reset,
+                                 b"\x17\x18\x00\xf7\xc0")
+                self.assertEqual(r.original_player_before_reset,bytes(p))
+                self.assertFalse(r.native_original_4181b0_executed)
+                self.assertFalse(r.live_game_state_modified)
+
+    def test_original_418220_exchange_private_pe_opcode_chain(self):
+        p=environ.get("FM2001_ORIGINAL_EXE")
+        if not p:self.skipTest("private original executable not available")
+        b=Path(p).read_bytes()
+        self.assertEqual((len(b),sha256(b).hexdigest()),(
+            4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x418183:"f6 86 74 01 00 00 01",
+            0x41818c:"e8 8f 00 00 00",
+            0x418197:"24 fe",
+            0x418199:"89 86 74 01 00 00",
+            0x418220:"51 53 56",
+            0x418225:"8b 8e 48 02 00 00",
+            0x41822b:"e8 90 21 0d 00",
+            0x418236:"8a d8",
+            0x418238:"e8 93 21 0d 00",
+            0x418243:"88 44 24 0b",
+            0x418249:"8a 86 52 01 00 00",
+            0x418250:"e8 db 20 0d 00",
+            0x418255:"8a 8e 53 01 00 00",
+            0x418262:"e8 e9 20 0d 00",
+            0x418267:"8a 54 24 0b",
+            0x41826b:"88 9e 52 01 00 00",
+            0x418271:"88 96 53 01 00 00",
+            0x4EA3C0:"8a 41 03",
+            0x4EA3C3:"83 e0 1f",
+            0x4EA3D0:"8a 41 04",
+            0x4EA3D3:"24 0f",
+        }
+        for va,hx in sites.items():
+            with self.subTest(va=hex(va)):
+                sig=bytes.fromhex(hx)
+                self.assertEqual(b[va-0x400000:va-0x400000+len(sig)],sig)
