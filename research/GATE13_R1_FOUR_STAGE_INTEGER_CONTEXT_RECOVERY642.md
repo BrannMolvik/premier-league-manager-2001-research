@@ -376,3 +376,57 @@ through `5DC890` with caller-supplied exact two range triples and
 the source-matched reader queue pointer, before an actual original
 match GameState/SaveLoad integration. Then complete original weighted
 score/stage owner and full native NEXT→PPreMatch 0–3→PResults→return.
+
+
+## Recovery644: first joined original 451021 numeric 0x66 queue query
+
+The corrected source owner projection now has a bounded *caller →
+numeric dispatcher → score-record queue selection* seam.
+
+Original `451005 MOV DX,[club+4]` followed by PUSH EDX at
+`45100E` makes low16 numeric `5DC890` selector; original
+`4139D0` does **not** consume that pushed EDX because it returns
+with plain `RET`. `5DC890` masks the selector with FFFF and
+branches on the source values: at `5DC8C3/8CC/8D1/8D4`, case
+**0x66** follows the single native call `5DC910→5DD1F0`
+after building *two 12-byte triple operands* and pushing the
+requested subtype **0x66**. Other numeric cases (including
+0x00,0x64,0xC8) have different call/count/aggregation paths
+and cannot be aliased to case 0x66.
+
+`reconstruction/original_match_451021_numeric66_queue_join.py`
+joins the **same source-selected native reader queue pointer** from
+the `874C10+9C4` selected registered user and presenter +E0 slot,
+to independently supplied original 0x0C queue owner/list and exact
+two original three-DWORD query range operands. It reuses original
+`5DD1F0` signed inclusive range/type selection and preserves
+actual ordered record contributions. Wrong slot, wrong reader
+queue pointer, missing manager chain, or a selector other than
+0x66 fails closed. Even when original read and write queue
+pointers match in a supplied snapshot, the module does **not**
+claim original in-process manager identity/absence of mutation,
+execute native x87 accumulation, update GameState, or produce
+a real match score.
+
+An additional four-method synthetic/counterexample test module
+`test_original_match_451021_numeric66_queue_join.py` and the
+separate manager-ordinal tests are registered on focused
+Gate13 CI. Independently locally checked **11 canonical PE
+opcode sites and 3 direct x86 call targets** of the joined
+numeric-0x66 path (all PASS); local previous Recovery643
+14 original callback/queue unit tests were also run again
+against the private original and passed 14/14. The newly
+added Python owner/join tests themselves are **not yet locally
+or remotely executed**; do not represent them as passed.
+No executable launch, PR or CI since this WIP is still not a
+complete original GameState player feature.
+
+**Next source target:** trace exact **normal matched caller**
+of `451021`: original `[874C10+9C4]` current registered manager
+ordinal, source presenter+E0 slot, two date/query triples
+constructed at `404410→41C580`, and source vtable/score-reader
+return ownership. Cover other reached `5DC890` numeric cases,
+native 5DC510/650 mutable world and x87 result before committing
+a real source-preserving GameState match/SaveLoad. Full NEXT,
+PPreMatch modes0–3, PResults visible callbacks/return, Inbox,
+multi-human/leagues and Win11 player tests remain mandatory.
