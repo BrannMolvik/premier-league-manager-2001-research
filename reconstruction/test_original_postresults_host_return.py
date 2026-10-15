@@ -17,7 +17,7 @@ def source_args():
         original_global_date_9847fc=0x2000123,
         original_reached_user_pointer_4139d0=0x1000,
         original_875680_settings_owner_pointer=0,
-        original_4290f0_al_at_43254c=1,
+        original_4290f0_eax_at_43254c=1,
         original_516010_al_at_432559=1,
         original_registered_manager_count_8755e4=1,
         original_413ac0_update_completed=True,
