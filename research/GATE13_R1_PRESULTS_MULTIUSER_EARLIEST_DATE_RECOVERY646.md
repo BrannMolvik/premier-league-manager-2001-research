@@ -105,3 +105,64 @@ a native node pointer. The second event collection,
 all non-LeagueMatch vtables, all actual 6168C0
 callbacks and real GameState SaveLoad remain
 outstanding. No original executable was launched.
+
+
+## Recovery646 next exact-source discovery: native PostponedEvent wrapper PResults virtual ownership
+
+Fresh private original PE vtable at **0x7C9FE8** (raw
+`.rdata` offset `0x3C9FE8`) proves postponed event has
+**different native virtual implementations** from common
+LeagueMatch vtables:
+- virtual+0x0C = **0x5140B0**,
+- virtual+0x10 = **0x5140F0**,
+- virtual+0x18 = **0x514100**.
+
+All three load **wrapper+0x14** underlying original
+event pointer and tail-jump to that underlying event's
+corresponding vtable method. Thus native
+`PResults 4A7210` calling wrapper v+0x0C can
+correctly see the **underlying** `LeagueMatch 510AD0`
+eligibility. But the immediately subsequent
+`event+8` check is on the **new wrapper itself**,
+not on the linked underlying old match!
+Original `510BF8` writes **old match+8=new wrapper
+pointer**, so counting the underlying old match
+again would be incorrect; fresh wrapper was
+initialized through `510380` with **wrapper+8=0**.
+Then `v+18` returns original underlying match
+via `514100→underlying v+18`, so the
+`payload+44 bit0x40` is tested on the **underlying**
+match, not wrapper bytes.
+
+New `original_presults_postponed_wrapper_precount.py`
+strictly requires the original 7C9FE8 wrapper
+vtable and bidirectional 510BA0 source link
+identity (wrapper+14 points to old match, and old
+match+8 points to wrapper). It invokes already-
+tested native common/special LeagueMatch v+0C
+to establish eligibility, then applies the
+**wrapper's** event+8 source gate and underlying
+post-callback match+44 flags. If the underlying
+virtual is false, post-virtual fields cannot be
+supplied, preserving original short-circuiting.
+Tests assert linked old event is excluded while
+new wrapper is counted on source **+7-day** future
+slot, including the original 4A7210 real date
+bucket iterator, not a made-up fixture count.
+
+Original executable independent direct source check
+**8 original opcode sites plus native vtable
+three exact method addresses PASS**. New
+source-plus-composition Python tests authored on
+the current feature branch, not yet remotely CI
+run. Importantly this does **not** implement
+real native event callback side effects, original
+two-date-collection ownership, saved GUI/multiuser
+or original PResults ticks. It rules out an easy
+but wrong future implementation: `wrapper+8`
+must not be mistaken for linked old match+8, and
+`wrapper+44` must not be substituted for
+the underlying match's payload+44. Normal
+`PrimaryScheduleShadowEntry.wrapper_link_state`
+is a partial semantic reflection, not proof the
+native raw pointers were really reached.
