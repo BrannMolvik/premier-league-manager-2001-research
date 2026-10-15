@@ -20,8 +20,8 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery639 main cd66ea29b3b03846435df7ce8303c6d0feff0cef (Gate13 OPEN; Gates14–17 OPEN). Reviewed/verified source-only PR748 branch d4f921... Gate13 run38662069617 1998 tests/173 skips, asset38662069640 PASS, merged 525124f4. PR749 native per-thread 66951C/64D540 RNG head59d4fec... Gate13 run38662562272 2004/174 PASS, asset38662562217 PASS, merged7604cd0b. PR750 four conditional scored stage 64D540 calls source head0c76a4ffd382b2c208386c79615a9d3aa2fdbe85 Gate13 run38663066031 2008/175 skips PASS, asset38663066063 PASS, merged cd66ea29b3b03846435df7ce8303c6d0feff0cef. Canonical original private footballmanager.exe SHA833bf95e statically byte checked only, never executed/committed. All four source stage guards and RNG site ordering/explicit native CRT owner snapshots qualified; no unproven intermediate RNG continuity. NEXT trace original selected user 42B0E0 human modifier +65C via 5EE9A0/5EEB10, 5DA250 nonlinear x87, 66D553 TLS lifecycle and original roster/player +70, then live atomic original 5DA2F0 match GameState SaveLoad, normal NEXT→PPreMatch modes0–3→v38/v3c→PResults→management, original per-user Inbox, every shipped country/league and 1–6 human careers, physical Windows11 Gates13–17 acceptance and release. Separate high-risk PR739 injury schema48 remains OPEN and unmerged pending independent GameState/native future-event identity review. No native original process/physical Win11 GUI was run.",
-  "last_known_main_head": "cd66ea29b3b03846435df7ce8303c6d0feff0cef",
+  "active_task": "Recovered main d278a329c358ecf2235211822cad295af40c8790 (source-only Recovery639 four scored RNG stages) and active Gate13. Resume existing worker/gate13-r1-42b0e0-human-fpu-modifier-639 first; inspect branch/head and original source 42B0E0 +65C, 5EE9A0/5EEB10, 5DA250 nonlinear x87, 66D553 TLS, then source-bound original live 5DA2F0 match GameState NEXT→PPreMatch modes0–3→PResults→management. High-risk PR739 injury/schema48 remains unmerged pending independent review. Gates13–17 remain OPEN; no physical Win11 acceptance. Preserve milestone batching/no heartbeat CI.",
+  "last_known_main_head": "d278a329c358ecf2235211822cad295af40c8790",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -30,12 +30,12 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 639,
-  "last_recovery_reason": "stale-repository-activity 15 min, recovery639, 2026-10-15 KST",
-  "note": "Meaningful CI verified PR748–750 merges. Main source-only, not playable acceptance. Preserve no-shortcut original fidelity scope.",
+  "recovery_generation": 640,
+  "last_recovery_reason": "same-chat-recovery-no-progress 36 min, fallback 20 min, new-chat recovery generation 640, 2026-10-15 KST",
+  "note": "Recovery 640 started from verified actual main d278a329c358ecf2235211822cad295af40c8790; branch task under examination. Original PE statically checked in prior source proof only, no executable/Windows11 GUI run.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10,
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
-  "last_known_main_commit": "cd66ea29b3b03846435df7ce8303c6d0feff0cef"
+  "last_known_main_commit": "d278a329c358ecf2235211822cad295af40c8790"
 }
