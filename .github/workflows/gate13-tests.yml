@@ -202,6 +202,10 @@ on:
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
       - "reconstruction/original_native_409c90_assignment_status.py"
       - "reconstruction/test_original_native_409c90_assignment_status.py"
+      - "reconstruction/original_native_418050_dynamic_eligibility.py"
+      - "reconstruction/test_original_native_418050_dynamic_eligibility.py"
+      - "reconstruction/original_native_409c90_initial_availability.py"
+      - "reconstruction/test_original_native_409c90_initial_availability.py"
       - "reconstruction/original_native_42b0e0_human_fpu_terms.py"
       - "reconstruction/test_original_native_42b0e0_human_fpu_terms.py"
       - "reconstruction/original_native_5da250_fpu_branch_source.py"
@@ -651,6 +655,8 @@ jobs:
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
             test_original_native_409c90_assignment_status \
+            test_original_native_418050_dynamic_eligibility \
+            test_original_native_409c90_initial_availability \
             test_original_native_42b0e0_human_fpu_terms \
             test_original_native_5da250_fpu_branch_source \
             test_original_match_four_5da250_argument_source \
