@@ -154,6 +154,8 @@ on:
       - "reconstruction/test_original_schedule_event_native_constructor.py"
       - "reconstruction/original_leaguematch_native_process_owners.py"
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
+      - "reconstruction/original_match_four_stage_rng_reach.py"
+      - "reconstruction/test_original_match_four_stage_rng_reach.py"
       - "reconstruction/original_native_64d540_rand_step.py"
       - "reconstruction/test_original_native_64d540_rand_step.py"
       - "reconstruction/original_match_stage4_rng_join.py"
@@ -548,6 +550,7 @@ jobs:
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
+            test_original_match_four_stage_rng_reach \
             test_original_native_64d540_rand_step \
             test_original_match_stage4_rng_join \
             test_original_match_four_stage_guard_source \
