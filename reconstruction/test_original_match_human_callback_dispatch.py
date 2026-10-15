@@ -105,3 +105,34 @@ class Original5DC510EventLayoutTests(TestCase):
         for va,h in signatures.items():
             with self.subTest(va=hex(va)):
                 self.assertEqual(raw[va-0x400000:va-0x400000+len(bytes.fromhex(h))],bytes.fromhex(h))
+
+
+    def test_original_5dd1f0_consumes_670_payload_word_and_filters_before_sum(self):
+        """Native same owner+4 queue is read back by a conditional score query."""
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE unavailable')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(4714541,
+            '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        signatures={
+           0x5DD1FB:'8b 71 04',  # original owner+4 head pointer
+           0x5DD21D:'8b 0e 66 8b 45 08 66 39 41 10', # node+0 payload, payload+10 word
+           0x5DD22D:'6a 00 e8 9c 76 00 00 dc 1d f8 d5 7b 00 df e0 f6 c4 01',
+           0x5DD278:'e8 e3 fd 06 00 85 c0 74 47', # 64D060 filter
+           0x5DD2AE:'e8 6d fd 06 00 85 c0 74 11', # 64D020 filter
+           0x5DD2B7:'8b 0e 6a 00 e8 10 76 00 00 dc 44 24 10 dd 5c 24 10',
+           0x5DD2C8:'8b 76 04 85 f6 0f 85 4a ff ff ff',
+           0x5DD2D3:'dd 44 24 10 5f 5e 5b 8b e5 5d c2 1c 00',
+           0x5DC910:'e8 db 08 00 00', # 5DC890 numeric dispatch calls this score query
+        }
+        for va,h in signatures.items():
+            with self.subTest(native=hex(va)):
+                b=bytes.fromhex(h)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
+        from struct import unpack_from
+        for site,target in ((0x5DD22F,0x5E48D0),(0x5DD278,0x64D060),
+                            (0x5DD2AE,0x64D020),(0x5DD2BB,0x5E48D0),
+                            (0x5DC910,0x5DD1F0)):
+            off=site-0x400000
+            self.assertEqual(raw[off],0xE8)
+            self.assertEqual(site+5+unpack_from('<i',raw,off+1)[0],target)
