@@ -34,3 +34,81 @@ This source receipt is not a renderer, no original PResults progress event queue
 3. Verify physical normal Windows 11 GUI against original behaviors and all shipped countries/leagues and human managers before Gate13 closure and subsequent Gate14–17 audits.
 
 This WIP does not merge PR739 or rewrite canonical main CURRENT_STATE until coherent integration.
+
+
+## Recovery644 continuation: original progress backing/fill SOURCE-RESOLVED, not unknown geometry
+
+The earlier table's child3 and child4 `None` unknown width/height
+are **superseded** by independently traced original initialization.
+
+The original executable string pointers at `0x835980` and
+`0x8359AC`, verified directly as the shipped NUL-terminated
+paths, are:
+
+- `FM2001_Art/Generic/Waiting/loading_back.444`:
+  authenticated directly from the **private extracted disc source**
+  Google Drive file `1PISSgK8dwFbUwPlJZQUrho1QgwnPWtO5`,
+  **25,944 bytes**, SHA256
+  `397e6a91e041575a897605274c6cc6d0711d462ef15bedfe7d9d383f370e37d2`,
+  authentic 444 header width=800, height=14.
+- `FM2001_Art/Generic/Waiting/loading_fill.444`:
+  private Drive file `10Ks8RyM7B8HtcGUR8i5-6W58t1wxMey7`,
+  **17,204 bytes**, SHA256
+  `9ba312d886fbb1898ad1f63b5e3c985972c22da09b7915b13d06a374e8c32070`,
+  authentic 444 header width=800, height=10.
+
+Original `5F43D0→64D750` loads the backing asset into
+`0x946610`. Original `5F4420` passes the **exact**
+`0x946610` bitmap handle, original x=0, y=0, width=800,
+height=14, two native option DWORDs and 0x100 to original
+`64E500` owner **0x9465F0**; its native `64E58F/592`
+stores these width/height fields at object+14/+18. In
+`PResults::4A6E50`, the source `4A6F31/36` retrieves
+**0x9465F0+18 = 14** and **+14=800** for PResults child3
+`+0x220` at (0,579), giving **initial 800×14**.
+
+Similarly `5F4460→64D750` loads `loading_fill.444` into
+`0x9465D0`; original `4A6F58–4A6F76` passes native
+width=0, height=10, x=0,y=0 into `64E500` for the embedded
+**PResults+0x250** bar. Its `+14/+18` become **0/10**;
+child4 `+0x270` copies them at `4A6F90–4A6FA9`
+and begins at (0,581) with initial **0×10** rectangle.
+Original event tick `4A71F0` calls `4A7190`, which
+computes quantized width **10 × floor(80 × processed / total)**
+within the nonnegative, non-overflow source domain (total0
+=> width0) and changes `PResults+0x264` then the
+control's right edge `PResults+0x280`, followed by
+`64F600` child4 refresh. This **does not** mean a clock
+or fixture-result count may generate the progress ticks.
+
+The new original-source `source_original_presults_bar_rects_from_dated_callbacks`
+accepts ONLY typed, ordered native `6168C0` two-pass
+event-progress callback receipts and caller-supplied authentic
+`4A7210` eligible-event total and prior processed count.
+It yields event-by-event rectangle geometry `(0,581,width,10)`.
+It refuses arbitrary/fake tick records, missing or invalid
+native virtual+10 callbacks, unqualified signed count
+overrun, and cannot claim native execution or GUI rendering.
+Source loader identity checker independently validates the
+three original assets and rejects changed/malformed data,
+without checking those private bytes into Git.
+
+**New local test evidence:** six focused tests PASS against the
+hash-verified original private executable and ALL THREE original
+bitmap files, including negative asset corruption, dynamic
+progress callbacks and initial rects. Event receipt tests use
+the same pure dataclass schema as the repository's
+`original_presults_native_event_work`; actual complete suite
+and CI have not yet been run on this WIP branch.
+
+**Remaining normal player barrier:** this constructs an exact
+source-defined three-sprite bottom PResults visual component,
+not an 800x600 finished original screen. Original PResults
+actual tick producer, original child1/child2 dynamic captions
+and source mouse/keyboard lifecycle must be connected to the
+real retained pending match, with native 0–3 mode execution,
+GameState SaveLoad and PBg 0x432505+ return. No fake click to
+return or fabricated progress timing. Gate13 stays reopened;
+no physical Win11 proof. Do not PR/CI until coherent player
+feature or otherwise independently useful safely reviewed
+integration milestone.
