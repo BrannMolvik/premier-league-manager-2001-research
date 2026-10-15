@@ -48,3 +48,26 @@ do **not** assume it proves every possible other participant is AI.
 5DB4D7+ alternate branches; then actual GameState/player-visible
 R1 flow. No native execution, full original career, GUI or Win11
 acceptance claimed.
+
+## Native nested 5DC650 state and event path (Recovery642 continued)
+
+The original `5DC510` caller invokes `5DC650` at 5DC5D4 **before**
+its own `617D70` at 5DC63A. New independent disassembly of original
+`5DC650..5DC887` shows two conditional flow families selected from
+native EDI argument at 5DC672: nonnull target at 5DC680, null target at
+5DC768. Both perform `5E48D0` QWORD source comparisons with
+`FNSTSW AH bit0x1` guard; *each* may return early without an event
+when an independently source-required pointer is null (5DC6A8 / 5DC790).
+Otherwise 5DC6E3–E7 or 5DC7D5–D9 performs original
+`FSUBR QWORD [ESI]` then `FSTP QWORD [ESI]`, where
+`ESI=EBX+0x10` and `EBX` is the selected 5DC650 original state owner.
+It may allocate a 0x20-byte record and then `5DC86B CALL 617D70`
+with an allocated data-link pointer or null if allocation fails.
+Source `5DC887 RET 0x28` establishes this callback's cleanup.
+There is **no source-safe blanket claim** every 5DC650 call queues
+a substantive event, nor proof the resulting first-side state can be
+reconstructed simply by an EBX score adjustment. Exact original argument
+constructor values, FPU status/NaN/error cases, alternate recipient and
+queue side effects still require integration evidence. A new optional original
+PE regression checks source direct path, both early exits, mutable
+ESI-owner stores, and queue call. This is static source proof only.

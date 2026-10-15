@@ -98,3 +98,34 @@ class OriginalNonhumanStageContextJoinTests(TestCase):
             p=site-0x400000
             self.assertEqual(raw[p],0xe8)
             self.assertEqual(site+5+unpack_from('<i',raw,p+1)[0],target)
+
+    def test_original_5dc650_conditional_mutable_second_state_and_queue(self):
+        """5DC510 nested callback may skip or additionally mutate/queue."""
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE unavailable in hosted CI')
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(
+            4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        cases={
+            0x5DC672:'85 ff 6a 00 8d 4c 24 44 0f 84 e8 00 00 00',
+            0x5DC69B:'f6 c4 01 74 18',
+            0x5DC6A8:'33 c0 e9 c6 01 00 00',
+            0x5DC6E3:'dc 2e 6a 20 dd 1e',
+            0x5DC771:'8d 73 10 6a 00 8b ce e8 53 81 00 00',
+            0x5DC783:'f6 c4 01 74 22',
+            0x5DC790:'33 c0 e9 de 00 00 00',
+            0x5DC7D5:'dc 2e 6a 20 dd 1e',
+            0x5DC869:'8b cb e8 00 b5 03 00',
+            0x5DC887:'c2 28 00',
+        }
+        for va,src in cases.items():
+            with self.subTest(addr=hex(va)):
+                b=bytes.fromhex(src)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
+        for site,target in ((0x5DC674,0x5DC768),(0x5DC86B,0x617D70)):
+            p=site-0x400000
+            if site==0x5DC674:
+                self.assertEqual(raw[p:p+2],b'\x6a\x00')
+                continue
+            self.assertEqual(raw[p],0xe8)
+            self.assertEqual(site+5+unpack_from('<i',raw,p+1)[0],target)
