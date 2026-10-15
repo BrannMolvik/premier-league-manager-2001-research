@@ -594,6 +594,31 @@ class SourceOriginal406BE0RosterCountTests(unittest.TestCase):
             self.assertEqual(x.source_return_eax,0)
             self.assertEqual(x.reached_417ee0_player_ids,())
 
+    def test_actual_407770_arg1_composes_original_role_one_count_not_truthy_count(self):
+        from original_native_406be0_roster_count import (
+            source_original_407770_arg1_with_406be0_original_player_bytes as compose)
+        for role1_count,expected in ((0,False),(1,True),(2,False)):
+            ps=tuple(self.player(pid,status=1 if i<role1_count else 2)
+                     for i,pid in enumerate(range(51,62)))
+            result=compose(original_team_record=self.team(tuple(range(51,62))),
+                           original_global_875640_player_array_address=0x40000000,
+                           original_ordered_player_records=ps,
+                           original_reached_403640_al=False,
+                           original_team_name_first_byte_if_reached=0x41,
+                           original_reached_407220_edi_if_reached=11)
+            self.assertEqual(result.original_406be0_count.source_return_eax,role1_count)
+            self.assertEqual(result.original_407770_arg1_receipt.original_return_eax_nonzero,expected)
+            self.assertFalse(result.live_native_match_executed)
+            self.assertFalse(result.live_game_state_modified)
+        from original_native_406be0_roster_count import Original406BE0SourceError
+        with self.assertRaises(Original406BE0SourceError):
+            compose(original_team_record=self.team((51,)),
+                original_global_875640_player_array_address=0x40000000,
+                original_ordered_player_records=(self.player(51),),
+                original_reached_403640_al=False,
+                original_team_name_first_byte_if_reached=0x41,
+                original_reached_407220_edi_if_reached=11)
+
     def test_original_pointer_and_reached_input_fail_closed(self):
         from original_native_406be0_roster_count import (
             SourceOriginal406BE0Player,Original406BE0SourceError)
