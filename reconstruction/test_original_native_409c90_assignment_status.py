@@ -125,3 +125,64 @@ class Original409C90AssignmentStatusSourceTests(TestCase):
             with self.subTest(va=hex(va)):
                 sig=bytes.fromhex(expected)
                 self.assertEqual(b[va-0x400000:va-0x400000+len(sig)],sig)
+
+    def test_source_41fa50_signed_team_key_and_early_return(self):
+        from original_native_409c90_assignment_status import source_original_41fa50_player_club_link_predicate as query
+        def player(word10,word72):
+            b=bytearray(original_player())
+            pack_into("<h",b,0x10,word10)
+            pack_into("<h",b,0x72,word72)
+            return bytes(b)
+        base=dict(original_global_8755d0_dword=15,original_reached_club_key_dword=7)
+        yes=query(original_player_record=player(3,7),**base)
+        self.assertEqual((yes.source_original_return_eax,yes.original_player_signed_word72_if_reached),(1,7))
+        for first,second in ((7,7),(15,7),(3,8)):
+            with self.subTest(first=first,second=second):
+                self.assertEqual(query(original_player_record=player(first,second),**base).source_original_return_eax,0)
+        negative=query(original_player_record=player(-1,7),
+             original_global_8755d0_dword=0xffffffff,original_reached_club_key_dword=7)
+        self.assertEqual(negative.source_original_return_eax,0)
+        self.assertIsNone(negative.original_player_signed_word72_if_reached)
+
+    def test_source_4181b0_reset_no_418220_and_reject_bit0_true(self):
+        from original_native_409c90_assignment_status import source_original_4181b0_reset_bit0_clear_branch as reset
+        p=bytearray(original_player(flags14=0xffffffff))
+        pack_into("<I",p,0x174,0xfffffffe)
+        v=reset(original_player_native_pointer=0x500000,
+                original_player_record_before=bytes(p),
+                original_status_record_before=b"\x17\x22\x33\xe5\xb7")
+        self.assertEqual(unpack_from("<I",v.source_player_after_literal_stores,0x14)[0],0xffffffcf)
+        self.assertEqual(unpack_from("<I",v.source_player_after_literal_stores,0x174)[0],0xfffffffc)
+        self.assertEqual(v.source_status_after_4ea370,b"\x17\x22\x33\xf7\xb0")
+        self.assertFalse(v.original_418220_called)
+        self.assertFalse(v.original_native_4181b0_executed)
+        wrong=bytearray(p);pack_into("<I",wrong,0x174,1)
+        for changed in (dict(original_player_record_before=bytes(wrong)),
+                        dict(original_player_native_pointer=True),
+                        dict(original_status_record_before=bytes(3))):
+            with self.subTest(changed=changed),self.assertRaises(Original409C90SourceError):
+                reset(**(dict(original_player_native_pointer=0x500000,
+                         original_player_record_before=bytes(p),
+                         original_status_record_before=bytes(5))|changed))
+
+    def test_private_original_reset_and_club_source_pe_sites(self):
+        path=environ.get("FM2001_ORIGINAL_EXE")
+        if not path:self.skipTest("private original executable not provided")
+        b=Path(path).read_bytes()
+        self.assertEqual((len(b),sha256(b).hexdigest()),(
+            4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x41FA50:"0f bf 41 10",0x41FA54:"8b 15 d0 55 87 00",
+            0x41FA66:"0f bf 41 72",0x41FA6E:"b8 01 00 00 00",
+            0x418150:"8b 41 14",0x418153:"24 ef",0x418160:"8b 41 14",
+            0x418163:"24 df",0x418170:"8b 81 74 01 00 00",
+            0x418183:"f6 86 74 01 00 00 01",0x41818C:"e8 8f 00 00 00",
+            0x4181B3:"e8 98 ff ff ff",0x4181C8:"e8 a3 ff ff ff",
+            0x4181D3:"e8 98 21 0d 00",0x4EA370:"8a 41 03",
+            0x4EA380:"8a 41 04",0x4EA385:"88 51 03",
+            0x4EA388:"88 41 04",
+        }
+        for va,expected in sites.items():
+            with self.subTest(va=hex(va)):
+                sig=bytes.fromhex(expected)
+                self.assertEqual(b[va-0x400000:va-0x400000+len(sig)],sig)
