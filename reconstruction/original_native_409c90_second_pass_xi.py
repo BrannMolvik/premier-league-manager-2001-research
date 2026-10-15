@@ -45,6 +45,7 @@ class SourceOriginal409C90SecondPass:
     source_second_pass_newly_selected_roster_indices11: tuple[int,...]
     source_used_mask_after_both_passes: bytes
     source_special_count_after_both_passes: int
+    original_first_unfillable_second_pass_slot: int | None
     original_unfilled_40a105_reached_4037b0_human_al: bool | None
     source_409c90_should_retry_at_409ca5_with_mode0: bool
     source_409c90_has_eleven_selected_slots: bool
@@ -122,12 +123,21 @@ def source_original_409c90_second_pass_fill_unmatched_eleven_slots(
     selected=list(first.source_original_selection_indices11)
     changed=[-1]*11
     count=first.source_special_count_after_first_pass
+    aborted_slot=None
     for slot,rule in enumerate(roles):
         if type(rule) is not SourceOriginal409C90SecondPassRole:
             raise Original409C90SecondPassSourceError("original role source receipt required")
         if (type(rule.original_role_entry8_from_876cb8) is not bytes or
             rule.original_role_entry8_from_876cb8!=first.source_formation_role_entries11[slot]):
             raise Original409C90SecondPassSourceError("original 876CB8 formation role changed between passes")
+        if aborted_slot is not None:
+            # Native 409F9E and 40A072 jump directly to 40A105 when
+            # this slot has no candidate; later slots never run.
+            if (rule.original_ordered_candidate_facts_if_unfilled is not None or
+                rule.original_874be0_word_if_chosen_bit11_mode1 is not None):
+                raise Original409C90SecondPassSourceError(
+                    "40A105 early abort makes every later role/candidate source unreachable")
+            continue
         if selected[slot]>=0:
             if (rule.original_ordered_candidate_facts_if_unfilled is not None or
                 rule.original_874be0_word_if_chosen_bit11_mode1 is not None):
@@ -172,6 +182,7 @@ def source_original_409c90_second_pass_fill_unmatched_eleven_slots(
         if best<0:
             if word is not None:
                 raise Original409C90SecondPassSourceError("no selected second-pass player skips 874BE0")
+            aborted_slot=slot
             continue
         selected[slot]=best
         changed[slot]=best
@@ -183,7 +194,7 @@ def source_original_409c90_second_pass_fill_unmatched_eleven_slots(
                 count+=1
         elif word is not None:
             raise Original409C90SecondPassSourceError("selected non-special roster skips original 874BE0")
-    incomplete=any(x<0 for x in selected)
+    incomplete=aborted_slot is not None
     human=original_4037b0_human_al_if_any_slot_unfilled
     if incomplete:
         if type(human) is not bool:
@@ -194,4 +205,4 @@ def source_original_409c90_second_pass_fill_unmatched_eleven_slots(
             "complete selected eleven skips source 40A105 / 4037B0")
     retry=bool(incomplete and not human and first.original_esp94_mode_flag==1)
     return SourceOriginal409C90SecondPass(first,tuple(selected),tuple(changed),
-        bytes(used),count,human,retry,not incomplete)
+        bytes(used),count,aborted_slot,human,retry,not incomplete)
