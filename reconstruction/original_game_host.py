@@ -76,6 +76,11 @@ from gate14_match_detail_route_source import (
 from match_detail_mode import MatchDetailMode
 from original_button_frames import OriginalButtonState
 from original_prematch_panel import PREMATCH_SELECTORS, prematch_selector_at_point
+from original_presults_bottom_surface import (
+    OriginalPResultsBottomArt,
+    load_verified_original_presults_bottom_art,
+    source_original_presults_bottom_surface,
+)
 from gate14_prematch_compositor_source import prematch_selector_caption_color16
 from gate14_fastview_human_tk_window import open_human_fastview_tk_window
 from original_first_screen_presenter import (
@@ -408,6 +413,7 @@ class OriginalGameTkHost:
         management_text_resources=None,
         management_resource_loader=None,
         prematch_resource_loader=None,
+        presults_resource_loader=None,
         management_thread_factory=Thread,
     ):
         self.presenter = presenter
@@ -456,6 +462,9 @@ class OriginalGameTkHost:
         }
         self._prematch_idle = None
         self.last_results_progress = None
+        self._presults_bottom_art = None
+        self._presults_source_progress = None
+        self.presults_resource_loader = presults_resource_loader
         self.management_text_resources = management_text_resources
         self.management_resource_loader = management_resource_loader
         self.prematch_resource_loader = prematch_resource_loader
@@ -1269,11 +1278,20 @@ class OriginalGameTkHost:
         result_queue = Queue()
         self._management_turn_queue = result_queue
         self.management_next_flags |= 0x14
+        # The original event owner resets its counters for each NEXT pass;
+        # a previous source 6168C0 callback must not paint a stale new bar.
+        self._presults_source_progress = None
         self._squad_drag_source = None
         self.root.configure(cursor='watch')
 
         def worker():
             try:
+                # Source PResults art is loaded on the worker thread; native
+                # Tk canvas/photo updates remain on the main thread.
+                if (self.presults_resource_loader is not None
+                        and self._presults_bottom_art is None):
+                    art = self.presults_resource_loader()
+                    result_queue.put(('presults_art', art, None, None))
                 # advance_original_management stages its graph; publish only on Tk's thread.
                 staged = copy(gameplay)
                 outcome = staged.advance_original_management()
@@ -1315,6 +1333,7 @@ class OriginalGameTkHost:
         result_queue = Queue()
         self._management_turn_queue = result_queue
         self.last_results_progress = None
+        self._presults_source_progress = None
         # Retain the authenticated PPreMatch owner until the staged match
         # commits. If calculation fails, the still-pending human fixture must
         # be able to reselect Quick; clearing now stranded modal input.
@@ -1322,6 +1341,10 @@ class OriginalGameTkHost:
 
         def worker():
             try:
+                if (self.presults_resource_loader is not None
+                        and self._presults_bottom_art is None):
+                    art = self.presults_resource_loader()
+                    result_queue.put(('presults_art', art, None, None))
                 staged = copy(gameplay)
                 outcome = staged.play_original_user_primary_match(mode)
                 if outcome.results_progress is not None:
@@ -1351,6 +1374,17 @@ class OriginalGameTkHost:
             status, payload, outcome, auxiliary = self._management_turn_queue.get_nowait()
         except Empty:
             self._management_turn_poll = self.root.after(25, self._poll_original_management_turn)
+            return
+        if status == 'presults_art':
+            if type(payload) is not OriginalPResultsBottomArt:
+                self.last_status = 'Original PResults source resource identity rejected'
+                self._management_turn_poll = self.root.after(
+                    25, self._poll_original_management_turn)
+                return
+            self._presults_bottom_art = payload
+            self.redraw()
+            self._management_turn_poll = self.root.after(
+                25, self._poll_original_management_turn)
             return
         if status == 'progress':
             self.last_results_progress = payload
@@ -2490,6 +2524,53 @@ class OriginalGameTkHost:
             "unresolved child pixels remain omitted"
         )
 
+    def _draw_original_presults_partial(self) -> None:
+        """Display only original PResults bottom children 0/3/4.
+
+        The top 513 px and caption/children 1/2 are still unresolved, so
+        the canvas remains black there instead of duplicating PPreMatch or
+        manufacturing a native PResults control. No bitmap is clickable.
+        """
+        if type(self._presults_bottom_art) is not OriginalPResultsBottomArt:
+            return
+        kwargs = self._presults_source_progress or {}
+        surface = source_original_presults_bottom_surface(
+            self._presults_bottom_art, **kwargs)
+        self.canvas.delete("all")
+        self._photos = []
+        for layer in surface.source_layers:
+            x,y,w,h = layer.native_rect
+            photo = self._rgba_photo(w,h,layer.rgba)
+            self._create_native_image(x,y,image=photo,anchor=self.tk.NW)
+        self.last_status = (
+            "Original PResults bottom assets shown; "
+            "incomplete top-screen children and native return unresolved; "
+            "progress only from validated dated-event callbacks"
+        )
+
+    def apply_source_original_presults_dated_callbacks(
+        self, *, original_dated_event_receipt,
+        original_source_event_total: int,
+        original_processed_before_callbacks: int,
+    ) -> None:
+        """Accept actual source callback receipt on Tk thread, never a timer."""
+        if self._original_match_input_owner() != "results":
+            raise OriginalGameHostError(
+                "PResults event display requires active original results input owner")
+        if self._presults_bottom_art is None:
+            raise OriginalGameHostError(
+                "PResults event display requires authenticated original source assets")
+        kwargs = dict(
+            original_dated_event_receipt=original_dated_event_receipt,
+            original_source_event_total=original_source_event_total,
+            original_processed_before_callbacks=original_processed_before_callbacks,
+        )
+        # Validate before publishing so malformed event receipts change
+        # neither the frame, nor transient state nor the gameplay graph.
+        source_original_presults_bottom_surface(self._presults_bottom_art, **kwargs)
+        self._presults_source_progress = kwargs
+        self.redraw()
+
     def _schedule_prematch_update(self) -> None:
         if self._prematch_idle is None:
             self._prematch_idle = self.root.after(16, self._update_prematch_controls)
@@ -2513,7 +2594,11 @@ class OriginalGameTkHost:
             self._draw_prematch()
             return
         if owner == 'results':
-            return  # Retain the last source-owned frame; no invented PResults pixels.
+            if self._presults_bottom_art is not None:
+                self._draw_original_presults_partial()
+            # Without source art, retain the last source-owned frame rather
+            # than replace it with fabricated PResults art or progress.
+            return
         screen = self.presenter.session.navigation.screen
         if screen in (
             FrontEndScreen.START_MENU,
@@ -3167,6 +3252,11 @@ def run_original_game_ui(
     original_executable = Path(game_dir) / "FOOTBAL.EXE"
     runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
 
+    def load_presults_resources():
+        # Called from the asynchronous original NEXT/match worker, not Tk.
+        return load_verified_original_presults_bottom_art(
+            resolved_source_root, original_executable)
+
     def load_management_resources(family: str):
         # Fresh MANAGEMENT must not wait for unrelated panels. Each family is
         # source-verified only when its route first needs it, then retained for
@@ -3341,6 +3431,7 @@ def run_original_game_ui(
         ),
         management_resource_loader=load_management_resources,
         prematch_resource_loader=load_prematch_resources,
+        presults_resource_loader=load_presults_resources,
     )
     if startup_media_backend is not None:
         host._startup_native_input = getattr(startup_media_backend, 'request_native_input', None)
