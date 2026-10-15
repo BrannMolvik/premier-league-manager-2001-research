@@ -1,0 +1,97 @@
+# Recovery645: original PBg NEXT→PResults post-return CFG and source-safe Tk bridge
+
+15 October 2026 KST, owner-authorized original executable `footballmanager.exe`, 4,714,541 bytes SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Inspected with bounded local `objdump -d -M intel --start-address=0x432505 --stop-address=0x43268a` and exact original opcode checks, **not executed**. This entry follows reviewed/merged PR754 and CURRENT_STATE main `34f80b905ebdd117521ad001627e88eb95c018b5`. Active implementation branch `worker/gate13-r1-presults-live-event-return-645`.
+
+## Whole normal original player route, gaps and sibling source behavior
+
+Original PBg `432505` continues after scheduled event processing and PResults returns. The native function **does not always return to Squad or even PMenu**:
+
+1. `432505–43252B` formats native global date 9847FC through 64CCD0/64CE30, then calls original current user UI update `413AC0`. Neither calendar/date nor source UI side effects should be inferred from a modern match score.
+2. `43252C–432568` reads settings pointer 875680; null reaches current registered user lookup `4139D0` and `4290F0` **full EAX** predicate (not AL: source `CMP EAX,ESI`), `516010` **AL** global byte 82856E, and signed manager count `8755E4`. If all reached results nonzero/null as applicable and native signed user count `<=1`, original 4325DF zeroes global 875614 and calls 4C3280 PStartMenu. Original source does not independently guarantee that other possible 0/non-positive counts are safe; conservative clean-room contract permits one actual registered manager with nonnull selected user. The `4325DF` branch requires exact preceding context and cannot be assumed just because a score is complete.
+3. Native **4325F7** is the separate return when settings pointer nonnull, 4290F0 full EAX zero or 516010 AL zero (additional branch transfers from the multi-manager path also exist). It checks native local BYTE `[ESP+12]`: when **zero** it optionally calls `4A9E20` cleanup (only if 875680 null), resets selected-manager ordinal global `8755D4=0`, then calls `4C2FB0(1,0,1)` to create PMenu. When nonzero, source proceeds into **43261F** and compares original local DWORD `[ESP+14]` to 2. If not 2, it *returns without constructing PMenu*.
+4. Native 43261F if local DWORD==2 performs `inc [8755D4]`; `CDQ / IDIV [8755E4]` and writes the **signed remainder** back to current-manager ordinal `8755D4`. It then may call `532960/532980`, dispose an actual active 876760 window via its native vtable and calls `4C2FB0(1,1,1)`. Source safe nonnegative selected ordinal/count supports exact `(old+1)%count`, including **2–6 registered managers**; negative/out-of-range or zero divisor are unqualified, not silently accepted. The actual portable UI has not yet restored native user rotation, window destructor side effects or 2–6 manager state.
+5. A distinct **43256A** user-count>1 path calls `413C90` and tests native `[ESP+13]`, then may route to PMenu or invoke 876760 stack logic. Complete state and native side effects need separate owner/flow proof. The current two source modules **do not claim** this path.
+
+## Implementation and independent local native verification
+
+- `reconstruction/original_postresults_432505_single_user_return.py`: typed immutable source-qualified single-user 4325DF PStartMenu branch plan requiring actual 413AC0 source update, reached user pointer, native settings pointer, **full UINT32** 4290F0 result, byte 516010 result and exactly one manager; no automatic event simulation or real native effects.
+- `reconstruction/original_game_host.py`: `apply_source_original_postresults_single_user_startmenu(receipt)` accepts the exact typed original branch ONLY after native results/prematch input ownership cleared, while in ordinary management. It uses the already-qualified FrontEndSession PStartMenu navigation and normal PMenu hierarchy teardown; it is **not invoked automatically from Quick3**, because modern `HumanGameplayController` does not yet supply authentic 4290F0 and native return provenance. Critically, a displayed PResults bottom bitmap ID0 is **not** treated as return input.
+- `reconstruction/original_postresults_4325f7_pmenu_return.py`: complementary original PMenu branch source receipt for zero `[ESP+12]` and exact 43261F two-to-six-user signed modulo when source local state==2, preserving distinct constructor argument triples and pending 876760 owner disposal. Returned mutations are projected, not applied to GameState.
+- `test_original_postresults_432505_single_user_return.py`, `test_original_postresults_host_return.py`, `test_original_postresults_4325f7_pmenu_return.py` cover 4325DF call result, false/full EAX byte distinction and signed byte restrictions, failure cases and rollback during active pending match or wrong screen, first PMenu reset and native manager modulo values for two–six managers.
+- Independent local source audit **PASS: 12 original 432505/4325DF/516010 instruction sites and 5 direct calls**, plus **10 4325F7/43261F/432673 opcode sites and 2 direct calls** against the same private PE. The new Python unit tests are authored and registered in the focused Gate13 workflow but **not yet accepted on exact-head GitHub CI**. Do not claim player GUI/playability from static tests.
+
+## Earliest incomplete gate and next actual work
+
+**Gate13 OPEN, Gates14–17 OPEN.** Old quick result `HumanGameplayController.play_original_user_primary_match(mode3)` can complete reconstructed match and show lower PResults source art but **does not execute actual 4A7210 date-bucket eligible-count**, callback-triggered 6168C0+4A71F0 ticks, 513252→5DA2F0 true original match/v38/v3c score, 0–2 match wrappers or native 432505 guarded return, full 2–6 registered users, all shipped countries/leagues or post-match SaveLoad. Actual Windows 11 host interaction/installation and original gameplay comparison also remain unverified.
+
+**Next source-backed player-visible milestone:** trace source 432505→4325F7 native 4290F0 predicate and `[ESP+12/+13/+14]` local producer over the full `432190` ordinary NEXT caller to bind reaching branch state to portable GameState without invented defaults; qualify full original 4A7210→6168C0/PResults live producer from reconstructed owner events. Only then dispatch existing guarded host StartMenu route or PMenu shell/user rotation from real complete source GameState, preserving old Quick3 until all required evidence is present. Avoid wasting another PR/CI on this incomplete return adapter alone: batch implementation and review into meaningful vertical progress on active branch. Existing high-risk PR739 remains separate and unmerged.
+
+
+## Recovery645 follow-up: original 4290F0 full user predicate and 432333 local-mode source
+
+Fresh static original `objdump` of canonical SHA833bf95e proves:
+
+- Source **4290F0→5160A0** reads original global byte
+  **0x87755A**. If nonzero, original **429114–429125**
+  returns full `EAX=0` without inspecting user+10D8.
+- If source global flag is zero, native **429126**
+  loads selected user DWORD **+0x10D8** and may
+  enter a switch on its value (native handlers for
+  1..5 include allocation, date and per-user+670
+  calculations). At **429424**, the code reads
+  user+10D8 **again, after these callbacks**, does
+  `XOR EAX,EAX; TEST ECX,ECX; SETNE AL` and
+  returns EAX as 0 or 1. Using an earlier cached
+  user field for this final predicate would be
+  incorrect when native callback changes it.
+  This is actual original selected-user state, not
+  a match-score success Boolean or simple settings flag.
+- New `source_original_4290f0_return_from_reached`
+  models only reached original global byte and
+  first/after **separate** native user records.
+  It rejects an unreached source field in the
+  early-exit branch; `source_original_432505_single_user_startmenu_from_4290f0`
+  uses that exact predicate without permitting
+  an independently injected override. No original
+  native callbacks execute, and live user+10D8
+  is still **not** source-owned by GameState.
+- Source `43231A` reads original current manager
+  `8755D4` and count `8755E4`; it increments
+  ordinal and branches **JGE→4324FE** if there is
+  no next registered manager (the 4324FE route
+  actually calls **431F70 PResults** then returns
+  to 432505). Only when `old+1 < count` does
+  `43232E` write native local BYTE `[ESP+12]=1`,
+  `432333` write DWORD `[ESP+14]=2` and
+  `43233B` jump to `432505`.
+  Thus the original default state2 producer
+  does **not** authorize inventing a wrap-around
+  player rotation on the last manager. The
+  later signed IDIV at 43262D *could* yield
+  wrapped remainder only with independently
+  sourced intervening changes or another
+  reached source mode producer. New
+  `source_original_432333_native_rotation_prebranch`
+  strictly projects this guard, rejects last manager
+  and negative/count-zero inputs and marks intervening
+  `413AC0/4290F0` native callback mutation **unknown**.
+- Independent private original PE verification
+  **PASS**: seven original 4290F0/5160A0
+  opcodes plus its direct call target, plus
+  **seven** original 43231A/432333/4324FE
+  sites and prior 22 postreturn opcodes/7 calls.
+  Added regressions are authored but still
+  require exact-head CI.
+
+**Player impact:** ordinary PResults completion
+must **not** infer a single human StartMenu/next
+manager merely from `HumanGameplayController`
+simulation completion or original `PResults`
+artwork. Original `PBg` stage and user+10D8
+callbacks are separate substantial systems.
+Next actual feature step is source-owning the
+reached original user+10D8 producer and eligible
+dated-event queue, then original correct
+synchronous return into PBg. Until this
+exists, source-only return helper must not
+automatically leave current management.
