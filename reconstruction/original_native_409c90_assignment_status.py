@@ -230,7 +230,7 @@ def source_original_4181b0_reset_bit0_clear_branch(
 @dataclass(frozen=True)
 class SourceOriginal409C90PreSelectionPlayerReset:
     original_41fa50_source_decision: SourceOriginal41FA50ClubKeyPredicate
-    original_4181b0_reset_if_reached: SourceOriginal4181B0ResetNo418220 | None
+    original_4181b0_reset_if_reached: SourceOriginal4181B0FullReset | None
     native_original_409c90_executed: bool = False
     original_mutable_roster_world_completed: bool = False
     live_game_state_modified: bool = False
@@ -245,8 +245,9 @@ def source_original_409c90_reached_41fa50_then_optional_4181b0(
 ) -> SourceOriginal409C90PreSelectionPlayerReset:
     """Original 40A18C 41FA50 then 40A1A8 4181B0 iff EAX==0.
 
-    4181B0 complete literal reset is source-qualified only where original
-    player+174 bit0 is clear (418180 skips mutating 418220).
+    4181B0 full player/status reset, including its conditional native
+    418220 saved role/position exchange, is source-qualified by the
+    independently verified 4EA3C0/D0/330/350 leaf calls.
     When 41FA50 returns1, NO 4181B0 nor status record read is reached.
     This is a source-typed plan; original roster status is NOT committed.
     """
@@ -262,7 +263,7 @@ def source_original_409c90_reached_41fa50_then_optional_4181b0(
         return SourceOriginal409C90PreSelectionPlayerReset(result,None)
     if original_reached_status_record_for_4181b0_if_called is None:
         raise Original409C90SourceError("original 4181B0 reached status record mandatory")
-    reset=source_original_4181b0_reset_bit0_clear_branch(
+    reset=source_original_4181b0_full_player_reset(
         original_player_native_pointer=original_native_player_pointer,
         original_player_record_before=original_player_record_before_41fa50,
         original_status_record_before=original_reached_status_record_for_4181b0_if_called)
