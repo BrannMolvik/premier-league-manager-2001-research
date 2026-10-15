@@ -123,6 +123,8 @@ def source_original_407770_arg1_full_counts_with_null_407ec0(
     """
     if type(original_team_record) is not bytes or len(original_team_record)<0x298:
         raise Original407220SourceError("actual original source team record required")
+    if unpack_from("<i",original_team_record,0x294)[0]<11:
+        raise Original407220SourceError("407770 requires roster >=11 before 407EC0 and 407220")
     if original_team_record[0x74] in (2,3):
         raise Original407220SourceError("403640 true: source 407220 not reached")
     if type(original_team_name_first_byte_if_reached) is not int or (
