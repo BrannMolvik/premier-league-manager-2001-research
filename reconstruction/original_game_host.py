@@ -1278,6 +1278,9 @@ class OriginalGameTkHost:
         result_queue = Queue()
         self._management_turn_queue = result_queue
         self.management_next_flags |= 0x14
+        # The original event owner resets its counters for each NEXT pass;
+        # a previous source 6168C0 callback must not paint a stale new bar.
+        self._presults_source_progress = None
         self._squad_drag_source = None
         self.root.configure(cursor='watch')
 
