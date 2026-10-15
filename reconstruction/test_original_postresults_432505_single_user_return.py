@@ -46,6 +46,8 @@ class OriginalPostResultsSingleUserTests(TestCase):
             {'original_global_date_9847fc':-1},
             {'original_4290f0_eax_at_43254c':True},
             {'original_4290f0_eax_at_43254c':0x100000000},
+            {'original_4290f0_eax_at_43254c':0x100},
+            {'original_4290f0_eax_at_43254c':0xffffffff},
             {'original_516010_al_at_432559':256},
             {'original_registered_manager_count_8755e4':True},
         ]
@@ -53,8 +55,11 @@ class OriginalPostResultsSingleUserTests(TestCase):
             with self.subTest(change=change),self.assertRaises(OriginalPostResultsReturnSourceError):
                 plan(**(base|change))
 
-    def test_original_4290f0_returns_full_eax_not_al(self):
-        self.assertEqual(plan(**(inputs() | {'original_4290f0_eax_at_43254c':0x100})).original_branch_destination,0x4325df)
+    def test_original_4290f0_returns_exact_boolean_full_eax_not_arbitrary_al(self):
+        self.assertEqual(plan(**inputs()).original_branch_destination,0x4325df)
+        for not_original in (0x100,0xffffffff):
+            with self.assertRaises(OriginalPostResultsReturnSourceError):
+                plan(**(inputs() | {'original_4290f0_eax_at_43254c':not_original}))
 
     def test_original_pe_native_return_pbg_432505_guards_and_startmenu_call(self):
         p=environ.get('FM2001_ORIGINAL_EXE')

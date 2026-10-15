@@ -62,10 +62,10 @@ def source_original_432505_single_user_startmenu_plan(
         raise OriginalPostResultsReturnSourceError("native 4139D0 selected user cannot be null")
     if (type(original_4290f0_eax_at_43254c) is not int or
         type(original_516010_al_at_432559) is not int or
-        not 0<=original_4290f0_eax_at_43254c<=0xff or
+        original_4290f0_eax_at_43254c not in (0,1) or
         not 0<=original_516010_al_at_432559<=0xff):
         raise OriginalPostResultsReturnSourceError(
-            "actual original 4290F0 full EAX uint32 and 516010 AL byte required")
+            "source 4290F0 full EAX is exactly 0/1 and 516010 AL must be byte")
     if (type(original_registered_manager_count_8755e4) is not int or
         original_registered_manager_count_8755e4!=1):
         raise OriginalPostResultsReturnSourceError(
