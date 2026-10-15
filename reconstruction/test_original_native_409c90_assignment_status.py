@@ -320,3 +320,71 @@ class Original409C90AssignmentStatusSourceTests(TestCase):
             with self.subTest(va=hex(va)):
                 sig=bytes.fromhex(hx)
                 self.assertEqual(b[va-0x400000:va-0x400000+len(sig)],sig)
+
+    def test_original_409c90_class2_or3_418130_per_player_mask(self):
+        from original_native_409c90_assignment_status import (
+            source_original_409c90_class23_initial_roster_mask as source)
+        from original_native_406be0_roster_count import SourceOriginal406BE0Player
+        team=bytearray(0x298)
+        team[0x74]=2
+        pack_into("<i",team,0x294,4)
+        rows=[]
+        for i,(pid,flags) in enumerate(((51,0),(52,1),(53,2),(54,3))):
+            pack_into("<H",team,0x244+2*i,pid)
+            player=bytearray(original_player(flags14=flags))
+            rows.append(SourceOriginal406BE0Player(
+                pid,0x40000000+pid*0x250,bytes(player),bytes(5)))
+        args=dict(original_team_record_at_409c90=bytes(team),
+                  original_409b50_reached_roster_count_argument=4,
+                  original_global_875640_player_base=0x40000000,
+                  original_ordered_player_records=tuple(rows))
+        x=source(**args)
+        self.assertEqual(x.original_native_team_type_byte74,2)
+        self.assertEqual(x.original_ordered_source_player_ids,(51,52,53,54))
+        self.assertEqual(x.original_418130_return_byte_values,(0,1,1,1))
+        self.assertEqual(x.source_second_allocated_mask_bytes,b"\x00\x01\x01\x01")
+        self.assertFalse(x.native_418130_executed)
+        self.assertFalse(x.native_409c90_executed)
+        self.assertFalse(x.live_game_state_modified)
+        for cls in (3,):
+            team[0x74]=cls
+            self.assertEqual(source(**(args|{"original_team_record_at_409c90":bytes(team)}))
+                             .source_second_allocated_mask_bytes,b"\x00\x01\x01\x01")
+        for changed in (
+            {"original_global_875640_player_base":0},
+            {"original_409b50_reached_roster_count_argument":True},
+            {"original_409b50_reached_roster_count_argument":361},
+            {"original_ordered_player_records":tuple(rows[:-1])},
+            {"original_ordered_player_records":tuple(reversed(rows))},
+        ):
+            with self.subTest(changed=str(changed)[:75]),self.assertRaises(Original409C90SourceError):
+                source(**(args|changed))
+        team[0x74]=0
+        with self.assertRaises(Original409C90SourceError):
+            source(**(args|{"original_team_record_at_409c90":bytes(team)}))
+
+    def test_original_409c90_418130_source_byte_mask_private_pe(self):
+        path=environ.get("FM2001_ORIGINAL_EXE")
+        if not path:self.skipTest("private source executable unavailable in CI")
+        b=Path(path).read_bytes()
+        self.assertEqual((len(b),sha256(b).hexdigest()),(
+            4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x409CEA:"8b 4c 24 1c",
+            0x409CEE:"e8 4d 99 ff ff",
+            0x409D12:"e8 29 99 ff ff",
+            0x409D17:"3c 01",
+            0x409D19:"74 29",
+            0x409D44:"33 c0",
+            0x409D46:"66 8b 07",
+            0x409D4F:"a1 40 56 87 00",
+            0x409D59:"e8 d2 e3 00 00",
+            0x409D5E:"88 04 2e",
+            0x418130:"f6 41 14 03",
+            0x418134:"0f 95 c0",
+            0x418137:"c3",
+        }
+        for va,sig in sites.items():
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(sig)
+                self.assertEqual(b[va-0x400000:va-0x400000+len(bs)],bs)
