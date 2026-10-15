@@ -1,0 +1,21 @@
+# Recovery658: 4182F0 -> 417340 -> conditional 41EDF0 native status/quota world
+
+Date: 15 October 2026 KST. Gate 13, Gates 14–17 OPEN. Base main `2aca76d695eadfd3f380e8840987d01c6e9d315b` (reviewed/merged PR773 atomic source 4181B0 preselection reset); separate player-selected `4182F0` branch is the next source-bounded integration.
+
+## Original source provenance (bounded leaf only)
+
+The private source is the user-authorized original `footballmanager.exe`, **4,714,541 bytes**, SHA256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. Original x86 static evidence was independently previously recorded in merged PR768 and source reports, particularly original opcode sites `4182F3/4182F7/4182FE/418305/41830C/418311/418313/418315/418318/41831B/41831D/418321/418326` and 41EDF0 conditional registered-quota leaf; the licensed original was **never executed** or committed. This change combines the already source-proven leaves and native owner data; it is not a new native runtime observation.
+
+At original `4182F0`, set player DWORD+0x14 bit4, clear bit5, invoke original `418180` (if player DWORD+0x174 bit0 set, original `418220` exchanges **FULL** saved player +0x152/+0x153 bytes and masked status-object+3 low5/+4 low4), clear player+0x174 bits0 and1, then call original `417340`. `417340` consults the **current** signed player+0x10 team to find a matching human registration, not registered club player+0x72. Only `AL=0` **and** player DWORD+0x14 bit13 clear reaches `418321` -> `41EDF0`. Original 41EDF0 only reads the signed registered player+0x72 club and quota if player +0x14 bit12 is set; it clears bit12, decrements signed registered club+0x1A8 only when **positive**; for bit12 clear, the callback performs no player/club write and must not have fake club-global source inputs.
+
+This is the **selected player assignment LEAF**; original 409C90 11-position selection, team+0x34 score, 41C7E0/41B970 and actual matching game world are not inferred by this model.
+
+## Branch source implementation and acceptance bounds
+
+- Pure `reconstruction/original_native_4182f0_417340_41edf0_leaf.py` reprojects native flag/status stores, binds exact source-qualified 417340 post-local-store receipt to player identity, rejects extra/missing 41EDF0 on an unreachable/reached branch and uses the previously source-proven native 41EDF0 quota projector. Source and runtime-executed/callback booleans are separate.
+- `GameState.apply_verified_native_4182f0_assignment_leaf` requires a retained, independently verified native player/status sidecar prestate, exact source role-object pointer, mapped original player identity and (if used) pre-seeded signed original registered-club quota. It validates the joined leaf and stages player/club sidecar updates **atomically** before one assignment; generic player runtime, other users, calendar, match, other original event queues are unchanged. Existing internal save schema 48 handles the sparse status world and registered quotas, no schema expansion.
+- `test_original_native_4182f0_417340_41edf0_leaf.py`: human AL1 skip, nonhuman bit13 skip, bit12 unset reached 41EDF0/no club read, bit12 set reached/decrement, source status exchange vs no exchange, bad manager/missing quota/invalid pointer/unvisited source/stale replay, and real controller Save/Load roundtrip. The 417340 source test receipt is created through the original 417340 manager-node source projector rather than a guessed direct AL.
+
+**Not accepted from this work:** full 409C90 starting XI, complete 5111A0 sorting/team lineups and 513010→5DA2F0 score/RNG/v38/v3c world, original PPreMatch modes0–3, paired dated-event streams into PResults, 432505 management return, 2–6 humans/all shipped leagues, or physical original-vs-port Windows11 playtest. Do not treat new pure source and CI as original executable execution or fully integrated ordinary player journey.
+
+Before merging: review source/caller receipts against previously established opcode proofs, evaluate separate quota owner identities and callback alternates, require exact-head focused Gate13, **full regression** (native GameState/save mutation), asset policy; no automatic full gate or release closure. Then continue original 409C90 complete eleven and true match/player calendar.
