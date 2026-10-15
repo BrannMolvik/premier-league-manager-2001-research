@@ -138,3 +138,89 @@ def source_original_5111a0_conditional_nonhuman_409b50_plan(
             i,source_teams[i],True,False,v18[i],nodes[i],(n,count,match_arg)))
     return SourceOriginal5111A0ConditionalBeforeBothSorts(
         owner.source_vtable_va,flags,skip,tuple(receipts),source_teams)
+
+
+@dataclass(frozen=True)
+class SourceOriginal5111A0BoundedPreparationPlan:
+    conditional_source: SourceOriginal5111A0ConditionalBeforeBothSorts
+    first_405a20_source_sort: object
+    second_405a20_source_sort: object
+    two_selected_pointer_arrays: object
+    original_reached_action_sites_in_order: tuple[int,...]
+    native_original_5111a0_executed: bool = False
+    native_world_and_sort_mutated: bool = False
+    original_game_state_modified: bool = False
+
+
+def source_original_5111a0_conditional_sorts_and_selected_tail(
+    *, original_conditional_source: SourceOriginal5111A0ConditionalBeforeBothSorts,
+    original_native_match_record_at_entry: bytes,
+    original_processing_context_at_entry: bytes,
+    original_first_team_native_pointer_at_405a20: int,
+    original_second_team_native_pointer_at_405a20: int,
+    original_first_405a20_source_sort: object,
+    original_second_405a20_source_sort: object,
+    original_global_875640_player_array_address: int,
+    original_first_407770_zero_gate_nonzero: bool,
+    original_second_407770_zero_gate_nonzero: bool,
+) -> SourceOriginal5111A0BoundedPreparationPlan:
+    """Full bounded SOURCE sequencing of native 5111A0, not its execution.
+
+    Independently reached post-409B50 first/second 405A20 snapshots are
+    mandatory. Do NOT just copy old 5111A0 pre-mutation team bytes,
+    since original 409B50 / 409C90 can update team/player state.
+    Never use this receipt as a live match or original save write.
+    """
+    from original_native_405a20_sort_roster import SourceOriginal405A20NativeRosterSort
+    from original_native_510cd0_selected_roster import (
+        source_original_5111a0_two_source_selection_arrays)
+    c=original_conditional_source
+    if type(c) is not SourceOriginal5111A0ConditionalBeforeBothSorts:
+        raise Original5111A0ConditionalSourceError("original conditional source receipt mandatory")
+    if (type(original_native_match_record_at_entry) is not bytes or
+        len(original_native_match_record_at_entry)<0x50 or
+        unpack_from("<I",original_native_match_record_at_entry,0)[0]!=c.original_match_vtable_va or
+        unpack_from("<I",original_native_match_record_at_entry,0x44)[0]!=c.original_match_flags44):
+        raise Original5111A0ConditionalSourceError("source entry match/flags identity drift")
+    ctx=original_processing_context_at_entry
+    if (type(ctx) is not bytes or len(ctx)<0x5b4 or
+            tuple(unpack_from("<I",ctx,p)[0] for p in (0,0x5b0)) !=
+            c.source_mandatory_405a20_order):
+        raise Original5111A0ConditionalSourceError("source player context team ownership drift")
+    expected=c.source_mandatory_405a20_order
+    if (type(original_first_team_native_pointer_at_405a20) is not int or
+        type(original_second_team_native_pointer_at_405a20) is not int or
+        (original_first_team_native_pointer_at_405a20,
+         original_second_team_native_pointer_at_405a20)!=expected):
+        raise Original5111A0ConditionalSourceError(
+            "actual original reached 405A20 native team pointers required")
+    if (type(original_first_405a20_source_sort) is not SourceOriginal405A20NativeRosterSort or
+        type(original_second_405a20_source_sort) is not SourceOriginal405A20NativeRosterSort):
+        raise Original5111A0ConditionalSourceError("two native source sort receipts required")
+    if (type(original_first_407770_zero_gate_nonzero) is not bool or
+        type(original_second_407770_zero_gate_nonzero) is not bool or
+        not original_first_407770_zero_gate_nonzero or
+        not original_second_407770_zero_gate_nonzero):
+        raise Original5111A0ConditionalSourceError("5111A0 never reached without two 407770(0) positives")
+    try:
+        tail=source_original_5111a0_two_source_selection_arrays(
+            original_match_record=original_native_match_record_at_entry,
+            original_first_407770_zero_gate_nonzero=True,
+            original_second_407770_zero_gate_nonzero=True,
+            original_first_405a20_source_sort=original_first_405a20_source_sort,
+            original_second_405a20_source_sort=original_second_405a20_source_sort,
+            original_global_875640_player_array_address=original_global_875640_player_array_address)
+    except (ValueError, TypeError) as e:
+        raise Original5111A0ConditionalSourceError(
+            "native sort/selection source identity or pointer validation failed") from e
+    actions=[]
+    for side in c.original_side_conditional_receipts:
+        if side.original_4037b0_checked:
+            actions.append((0x5111B7,0x5111E5)[side.original_side_index])
+            if side.original_409b50_reached_args_if_needed is not None:
+                actions.append((0x5111D2,0x511204)[side.original_side_index])
+                actions.append((0x5111DA,0x511210)[side.original_side_index])
+    actions += [0x511235,0x51125E,0x51126C,0x511287]
+    return SourceOriginal5111A0BoundedPreparationPlan(
+        c,original_first_405a20_source_sort,original_second_405a20_source_sort,
+        tail,tuple(actions))
