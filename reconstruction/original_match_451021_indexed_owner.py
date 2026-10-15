@@ -1,8 +1,9 @@
 """Original 451021 indexed-manager scoring queue versus 5DB450 club-selected queue.
 
 Static source from authorized original PE SHA833bf95e...b7cc3:
-451005 reads WORD club+4 and 4139D0->413B10 treats it as a ZERO-BASED
-manager-list ORDINAL, not a club key. 451014 fetches presentation +E0
+451005 pushes club+4 WORD as a retained numeric dispatch argument;
+4139D0 instead reads global 874C10+9C4 as the ZERO-BASED manager-list
+ORDINAL for 413B10. 451014 fetches presentation +E0
 DWORD index and 45101A uses user+(index*4)+670 pointer. In contrast
 403850->413B40 selects first user whose context+4 equals club DWORD+4
 masked to 16 bits; 5DB450 reads user+670 (zero index).
@@ -24,7 +25,8 @@ class Original451021IndexedOwnerError(ValueError):
 
 @dataclass(frozen=True)
 class SourceOriginal451021IndexedOwner:
-    original_reader_manager_ordinal_from_d8_word: int
+    original_reader_manager_ordinal_from_global_9c4: int
+    original_reader_dispatch_selector_word_from_d8: int
     original_reader_user_pointer: int
     original_reader_plus_e0_queue_slot_index: int
     original_reader_queue_pointer: int
@@ -94,7 +96,11 @@ def source_original_451021_reader_5db450_writer_snapshot(
         type(writer_club) is not bytes or len(writer_club)<8 or
         type(presenter) is not bytes or len(presenter)<0xe4):
         raise Original451021IndexedOwnerError('actual reader club, writer club and presenter+E0 bytes required')
-    ordinal=unpack_from('<H',reader_club,4)[0]
+    # Source 4139D0 pushes global+9C4 to 413B10. The earlier
+    # 45100E PUSH club-derived DX survives 4139D0 RET and is consumed
+    # as numeric selector by 5DC890 (RET 0x1C).
+    ordinal=unpack_from('<I',root,0x9c4)[0]
+    dispatcher_word=unpack_from('<H',reader_club,4)[0]
     writer_key=unpack_from('<I',writer_club,4)[0]
     slot=unpack_from('<I',presenter,0xe0)[0]
     if ordinal>=len(owners):
@@ -121,5 +127,5 @@ def source_original_451021_reader_5db450_writer_snapshot(
     _u32(readqueue,'reader queue object')
     _u32(writequeue,'writer queue object')
     return SourceOriginal451021IndexedOwner(
-        ordinal,readerptr,slot,readqueue,writer_key,masked_key,
+        ordinal,dispatcher_word,readerptr,slot,readqueue,writer_key,masked_key,
         writerptr,writequeue,readerptr==writerptr,readqueue==writequeue)
