@@ -21,7 +21,7 @@ class OriginalPResultsChildrenTests(TestCase):
         self.assertEqual(tuple(x.original_initial_xy for x in r.registered_children),
                          ((0,513),(0,518),(0,556),(0,579),(0,581)))
         self.assertEqual(tuple(x.original_initial_wh for x in r.registered_children),
-                         ((800,87),(800,38),(800,18),None,(0,10)))
+                         ((800,87),(800,38),(800,18),(800,14),(0,10)))
         self.assertEqual(tuple(x.original_factory_call for x in r.registered_children),
                          (0x651ba0,0x6503f0,0x6503f0,0x64f380,0x64f380))
         self.assertEqual(r.original_shared_progress_owner_offset,0x250)
@@ -36,11 +36,29 @@ class OriginalPResultsChildrenTests(TestCase):
         r=source_original_presults_initial_children(waiting_back_2_raw=b)
         self.assertTrue(r.original_bitmap_validated)
         self.assertEqual(ORIGINAL_WAITING_BACK_2_RECT,(0,513,800,87))
+        from original_presults_child_inventory import ORIGINAL_LOADING_BACK_RECT,ORIGINAL_LOADING_FILL_INITIAL_RECT
+        self.assertEqual(ORIGINAL_LOADING_BACK_RECT,(0,579,800,14))
+        self.assertEqual(ORIGINAL_LOADING_FILL_INITIAL_RECT,(0,581,0,10))
         for changed in (b[:-1],b[:-1]+bytes((b[-1]^1,))):
             with self.assertRaises(OriginalPResultsSourceError):
                 source_original_presults_initial_children(waiting_back_2_raw=changed)
         with self.assertRaises(OriginalPResultsSourceError):
             source_original_presults_initial_children(waiting_back_2_raw=bytearray(b))
+
+    def test_original_back_and_fill_source_bytes_and_reject_tampering(self):
+        from original_presults_child_inventory import source_original_presults_initial_children
+        p=environ.get('FM2001_ORIGINAL_WAITING_FOLDER')
+        if not p:self.skipTest('private original loading back/fill not provided')
+        root=Path(p)
+        b=(root/'loading_back.444.bin').read_bytes()
+        f=(root/'loading_fill.444.bin').read_bytes()
+        v=source_original_presults_initial_children(loading_back_raw=b,loading_fill_raw=f)
+        self.assertTrue(v.original_loading_back_validated)
+        self.assertTrue(v.original_loading_fill_validated)
+        for name,raw in (('loading_back_raw',b),('loading_fill_raw',f)):
+            for corrupt in (raw[:-1],raw[:-1]+bytes([raw[-1]^1]),bytearray(raw)):
+                with self.subTest(name=name,len=len(corrupt)),self.assertRaises(OriginalPResultsSourceError):
+                    source_original_presults_initial_children(**{name:corrupt})
 
     def test_original_exe_ctor_child_offset_geometry_and_zero_id_sites(self):
         path=environ.get('FM2001_ORIGINAL_EXE')
@@ -60,6 +78,7 @@ class OriginalPResultsChildrenTests(TestCase):
           0x4a6ee5:'8d be e0 01 00 00',
           0x4a6f08:'6a 12 68 20 03 00 00 68 2c 02 00 00',
           0x4a6f1f:'8d be 20 02 00 00',
+          0x4a6f31:'a1 08 66 94 00 8b 0d 04 66 94 00',
           0x4a6f44:'68 43 02 00 00',
           0x4a6f58:'68 00 01 00 00 55 6a 01 6a 0a 55',
           0x4a6f63:'8d 9e 50 02 00 00',
@@ -68,6 +87,11 @@ class OriginalPResultsChildrenTests(TestCase):
           0x4a6f90:'8b 43 18 8b 4b 14 55 68 10 bf 87 00 50 51',
           0x4a6f9e:'68 45 02 00 00',
           0x4a6fa6:'89 5f 2c',
+          0x5f4420:'68 00 01 00 00 6a 00 6a 01 6a 0e 68 20 03 00 00',
+          0x5f4439:'b9 f0 65 94 00',
+          0x5f4448:'e8 b3 a0 05 00',
+          0x5f4464:'68 ac 59 83 00',
+          0x64e58f:'89 5e 14 89 6e 18',
         }
         for va,s in sites.items():
             with self.subTest(va=hex(va)):
