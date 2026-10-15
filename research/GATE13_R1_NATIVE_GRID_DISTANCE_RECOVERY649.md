@@ -28,3 +28,80 @@ Unit coverage checks signed positive/negative edge inputs, magic quotient equiva
 At `5DA8D9–5DA967`, native `5DA2F0` allocates temporary QWORD output slots, zeros each explicitly, calls **40CBC0** with two QWORD output pointers and actual scoring team context. Then `5DA96C` reads the produced QWORD; if equal to 0.0, it jumps to `5DAC05`. Otherwise `5DA995` builds native 5E43B0 and 5E48D0 source transformations from the other output before reaching score/event callback code. The two outputs from **40CBC0** must be source-mapped and stored to original match-world semantics before classifying an actual score/goal event. Do not treat an integer grid distance or 1.2/1.5 adjustment as the result of original 5DA2F0.
 
 The normal game is still the reconstructed one-human Quick Match with mode0/1/2 explicitly fail-closed. 513010 native match calculation, v38/v3c save updates, 4A7210/6168C0 dual-calendar actual event writers, 432505 original return, true 2–6 human registry, all original leagues and physical Windows11 GUI acceptance are not source-complete. Gate13 and Gates14–17 OPEN. Source-first but prioritize real player-visible integration once 40CBC0 score path qualifies; no micro CI/PR unless this slice forms a coherent reviewed milestone.
+
+
+## Recovery649 follow-on: original 40CBC0 type 0x1A event-strength double pair, not invented match RNG
+
+Further private canonical disassembly `40CBC0..40D01C`
+traced actual **source dispatch by team category
+DWORD team+0x14**, not a single generic rating
+function. At native `40CBD4` subtracts 0x18
+from this type and bounds-checks 0x31 entries
+through private original selector table
+`0x40CFC0`; the branch for type **0x1A**
+selects `40CBF2` through index1 in native
+jump table `0x40CFA0`. Other type tags
+including 0x18,0x1F,0x21,0x28,0x42,0x49
+follow DIFFERENT source branches and may not
+safely be treated as the same team category.
+
+The type0x1A branch gets an actual key pointer
+from original `team+0x10`, calls `4056D0`,
+`4056F0` and `4FA520` on the reached source
+container, then dispatches returned source
+enum 0..4 via exact pointer table `40CFF4`.
+The original QWORD output at first arg `[EBP+8]`
+is global original constant from respectively
+`822040/822050/822060/822070/822080`
+= **30.0,20.0,16.0,12.0,9.0**. Each case
+then sets second arg `[EBP+0xC]` to
+**first × 0.75**, reading the authentic
+global double **0x7BD558 = 0.75**. Those
+two QWORD outputs are the same source output
+pointers passed by `5DA8E7..5DA967`,
+subsequently read at `5DA96C` and
+`5DA987`. This is a *calculating-input
+branch*, not a final match result.
+
+New `original_match_40cbc0_type1a_pair.py`
+accepts source team+0x14 category exactly
+0x1A, verifies reached original team+0x10
+lookup-pointer identity and independently
+supplied native `4FA520` enum 0..4, and
+returns exact two original QWORD factors
+and source jump case. It marks all callbacks
+unexecuted and disallows inferring scores.
+Other original team categories and unsupported
+selector values **fail closed**, not default
+to the type1A factors. Companion unit tests
+cover all five original cases, wrong
+team-category/owner inputs and original
+opcode/tables/doubles and no native GUI
+or mutable world claims.
+
+Independent raw-byte original PE audit
+**13/13 opcode sites**, five original
+40CFF4 direct native pointer values, and
+all six original constants PASS. Added
+source module/tests to focused Gate13 workflow.
+The earlier grid distance source helper's
+**17 original PE opcode** sites also PASS.
+New Python modules are source-derived but
+still await exact PR-head CI; no native
+original process execution or Windows11
+acceptance has been claimed.
+
+**Next high-impact source steps:** trace
+other commonly reached team+0x14 branches
+through 40CE09/40CF31 for 0x42 and native
+5DA96C→5E43B0→5E48D0 QWORD event score
+transformation; bind actual 513010/5DA2F0
+team+20/+24 distance + genuine 40CBC0
+factors to persistent original match world
+and per-mode presentation effects. Current
+portable one-human Quick3 match remains
+non-equivalent and original PResults
+dual-date source callback seam is not live
+GameState. Gate13–17 OPEN. User-approved
+milestone batching: do not force minor
+standalone CI merges.
