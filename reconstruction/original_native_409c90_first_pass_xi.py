@@ -42,6 +42,8 @@ class SourceOriginal409C90FirstPassRole:
 
 @dataclass(frozen=True)
 class SourceOriginal409C90FirstPass:
+    original_team_record_at_first_pass: bytes
+    original_native_roster_word_ids_at_first_pass: tuple[int,...]
     original_native_team_key: int
     original_reached_first_mask: bytes
     source_original_selection_indices11: tuple[int,...]
@@ -209,6 +211,7 @@ def source_original_409c90_first_pass_eleven_strict_role_slots(
             raise Original409C90FirstPassSourceError(
                 "original bit11/mode flag not both true skips 874BE0 indexed WORD")
     return SourceOriginal409C90FirstPass(
+        team,tuple(unpack_from("<H",team,0x244+i*2)[0] for i in range(n)),
         unpack_from("<I",team,4)[0],mask.source_mask_bytes,tuple(chosen),
         bytes(used),original_first_pass_esp14_special_count,count,mode,tuple(scores),
         tuple(rule.original_role_entry8_from_876cb8 for rule in roles))
