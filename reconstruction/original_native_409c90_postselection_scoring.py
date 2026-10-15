@@ -168,3 +168,78 @@ def source_original_409c90_selected_slot_score_contribution(
     signed=u if u<0x80000000 else u-0x100000000
     return SourceOriginal409C90PostSelectionContribution(
         i,mode,p,role,previous,value,signed,scored,factor)
+
+
+@dataclass(frozen=True)
+class SourceOriginal409C90FinalTeamScoreWrite:
+    original_team_source_before_40a2a4: bytes
+    original_team_source_after_40a2a4_literal_store: bytes
+    original_selected_original_word_ids_in_slot_order: tuple[int,...]
+    original_40a1f8_mode_dword: int
+    source_original_eleven_postselection_scores: tuple[SourceOriginal409C90PostSelectionContribution,...]
+    original_accumulator_final_signed32: int
+    native_40a2a4_executed: bool = False
+    source_409b50_team_plus1d8_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_409c90_exact_eleven_score_to_team_plus34(
+    *, original_complete_source_second_pass: object,
+    original_native_team_at_40a2a4: bytes,
+    original_40a1f8_mode_dword: int,
+    original_eleven_reached_scores: tuple[SourceOriginal409C90PostSelectionContribution,...],
+) -> SourceOriginal409C90FinalTeamScoreWrite:
+    """Actual original 40A1D0 loops 11 selected WORD roster IDs,
+    accumulates mode-specific score into local +2C signed32, and
+    40A2A4 writes that DWORD to source native team+34. Never runs
+    the original 41E1D0/41C7E0/4182F0 or GameState.
+    """
+    from original_native_409c90_second_pass_xi import SourceOriginal409C90SecondPass
+    c=original_complete_source_second_pass
+    team=original_native_team_at_40a2a4
+    mode=original_40a1f8_mode_dword
+    results=original_eleven_reached_scores
+    if (type(c) is not SourceOriginal409C90SecondPass or
+        not c.source_409c90_has_eleven_selected_slots or
+        c.source_409c90_should_retry_at_409ca5_with_mode0):
+        raise Original409C90ScoreSourceError(
+            "original 40A158 assignment only reached after a complete eleven-player XI")
+    if type(team) is not bytes or len(team)<0x298:
+        raise Original409C90ScoreSourceError("full original team at 40A2A4 required")
+    if (type(mode) is not int or not 0<=mode<=0xffffffff or
+            type(results) is not tuple or len(results)!=11):
+        raise Original409C90ScoreSourceError("original mode and eleven score receipts required")
+    n=unpack_from("<i",team,0x294)[0]
+    if n<11 or n>360:
+        raise Original409C90ScoreSourceError("actual original reached 40A1D0 roster count >=11 required")
+    if (unpack_from("<I",team,4)[0]!=c.original_source_first_pass.original_native_team_key or
+        tuple(unpack_from("<H",team,0x244+i*2)[0] for i in range(n))!=
+             c.original_source_first_pass.original_native_roster_word_ids_at_first_pass):
+        raise Original409C90ScoreSourceError(
+            "original source native team+4 and roster WORD ID owner changed after XI selection")
+    chosen=c.source_original_selected_roster_indices11
+    selected_ids=[]
+    accumulator=0
+    for i,(idx,contribution) in enumerate(zip(chosen,results)):
+        if (type(idx) is not int or not 0<=idx<n or
+                type(contribution) is not SourceOriginal409C90PostSelectionContribution or
+                contribution.original_native_slot_index!=i or
+                contribution.original_409c90_plus90_mode_dword!=mode or
+                contribution.original_previous_team_score_accumulator_signed!=accumulator):
+            raise Original409C90ScoreSourceError(
+                "eleven original selected source roster indices/mode or score accumulation drift")
+        pid=unpack_from("<H",team,0x244+idx*2)[0]
+        p=contribution.original_player_after_source_assignment_at_call
+        if (unpack_from("<H",p,4)[0]!=pid or
+            contribution.original_team_score_accumulator_after_source_add_signed!=
+                ((accumulator+contribution.original_native_score_subcall_return_signed_eax
+                  +0x80000000)&0xffffffff)-0x80000000):
+            raise Original409C90ScoreSourceError(
+                "original 875640 selected player ID or signed32 score source changed")
+        selected_ids.append(pid)
+        accumulator=contribution.original_team_score_accumulator_after_source_add_signed
+    out=bytearray(team)
+    from struct import pack_into
+    pack_into("<i",out,0x34,accumulator)
+    return SourceOriginal409C90FinalTeamScoreWrite(
+        team,bytes(out),tuple(selected_ids),mode,results,accumulator)
