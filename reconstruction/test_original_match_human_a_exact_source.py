@@ -82,3 +82,36 @@ class OriginalHumanScoreATests(TestCase):
             with self.subTest(site=hex(va)):
                 b=bytes.fromhex(code)
                 self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
+
+    def test_5da250_original_literal_returns_only_where_reached(self):
+        from original_match_human_a_exact_source import source_original_human_5da250_literal_if_proven
+        for stage,stat8,statc,expected in (
+                (1,0,100,0.1),(2,0,0,2.0),(3,0,100,2.0),(4,100,0,0.1)):
+            with self.subTest(stage=stage,stat8=stat8,statc=statc):
+                a=source_exact_original_human_5da250_a(
+                    original_stage_callback=join(stage,True),
+                    original_selected_user_694_record_if_human=user(stat8,statc))
+                r=source_original_human_5da250_literal_if_proven(original_exact_human_a=a)
+                self.assertEqual(r.native_literal_st0_qword_if_source_proven,pack('<d',expected))
+                self.assertFalse(r.native_computed_result_unresolved)
+                self.assertFalse(r.live_match_state_updated)
+        a=source_exact_original_human_5da250_a(
+            original_stage_callback=join(1,True),
+            original_selected_user_694_record_if_human=user())
+        r=source_original_human_5da250_literal_if_proven(original_exact_human_a=a)
+        self.assertIsNone(r.native_literal_st0_qword_if_source_proven)
+        self.assertTrue(r.native_computed_result_unresolved)
+
+    def test_original_5da250_direct_literal_constant_opcodes(self):
+        path=environ.get('FM2001_ORIGINAL_EXE')
+        if not path:self.skipTest('private original PE unavailable in CI')
+        raw=Path(path).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),(
+            4714541,'833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'))
+        self.assertEqual(raw[0x7BDB78-0x400000:0x7BDB80-0x400000],pack('<d',0.1))
+        self.assertEqual(raw[0x7BDCA8-0x400000:0x7BDCB0-0x400000],pack('<d',2.0))
+        for va,code in ((0x5DA25F,'74 26'),(0x5DA287,'dd d8 dd 05 78 db 7b 00'),
+                        (0x5DA2D6,'dd d8 dd 05 a8 dc 7b 00 c2 10 00')):
+            with self.subTest(native_site=hex(va)):
+                b=bytes.fromhex(code)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(b)],b)
