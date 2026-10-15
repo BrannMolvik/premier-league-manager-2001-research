@@ -36,12 +36,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "52ce02ca13e883a08548cf4cefaa136e505fd93c",
+  "latest_reverse_engineering_checkpoint": "b1180fb42e86b4f90c14f1dfbf5b98a7a1914e2a",
   "last_verified_reconstruction_ci_head": "2a65a872e6cbf5f0dda10e7a176c3f1f05738995",
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery654 main 52ce02ca13e883a08548cf4cefaa136e505fd93c PR764 original v34 four 407770(0)/(1) gates, wrapper AL; PR765 exact original 406BE0(1,0) roster role count via 417EE0/4EA3C0 source bytes merged. PR764 exact head Gate13 2240/226 and asset green; PR765 exact head Gate13 2246/227 and asset green. Original private SHA833bf95e static disassembly ONLY. NEXT 407220(4)/41FAB0 with 407EC0 dynamic pointer, original 5111A0/510CD0 5A4/B54 preparation world effects, THEN real 513010→5DA2F0 scores v38/v3c SaveLoad/2 calendars, original PPreMatch all modes and PResults/post-return, all original leagues/2–6 managers/physical Windows11 release. Gate13–17 OPEN. High risk PR739 still unmerged. Runtime continuous working.",
+  "active_task": "Recovery655 canonical main b1180fb42e86b4f90c14f1dfbf5b98a7a1914e2a, merged PR767 exact Gate13 38724932758 2263 tests 231 skips and asset 38724932745 success. Source original 5111A0 conditional 4037B0/511170/409B50, mandatory 405A20 stable sorts then two 510CD0 selected arrays verified source-only. Earlier impossible gate0/roster<11 test corrected. Original private SHA833bf95e static only. NEXT original 409C90 nonhuman GameState/player and team+34/status+248 mutable original world, full original match 513010->5DA2F0->v38/v3c SaveLoad calendar and 0/1/2/3 GUI, all countries/2-6 managers and original Win11 GUI acceptance. Gate13–17 OPEN, PR739 high-risk separate.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3398,5 +3398,14 @@
   "gate13_recovery654_original_readiness": "PR764 d83e4f3eac85f3812bb26b31a58c981a68289f15: 510D60 four 407770 and wrapped 511120, original 4EA300/403640 read. Source-only.",
   "gate13_recovery654_native_roster_count": "PR765 52ce02ca13e883a08548cf4cefaa136e505fd93c: exact 406BE0(1,0) counted original role one via 417EE0 full signed club-key/bit4 and 4EA3C0 status mask; Gate13 2246 tests 227 skips and asset PASS; original static only.",
   "gate13_recovery654_gate13_ci": "38719295310 success: 2246 tests, 227 skipped",
-  "gate13_recovery654_asset_ci": "38719295400 success"
+  "gate13_recovery654_asset_ci": "38719295400 success",
+  "gate13_recovery655_original_prep_source": "PR767 b1180fb42e86b4f90c14f1dfbf5b98a7a1914e2a, 5111A0 conditional and mandatory 405A20/510CD0 original source projections, not live original gameplay",
+  "gate13_recovery655_focused_ci": {
+    "head": "584504cd516c06c826d5f0d78563fb9e0f6f042d",
+    "run": 38724932758,
+    "outcome": "success",
+    "tests": 2263,
+    "skipped": 231,
+    "asset_policy_run": 38724932745
+  }
 }
