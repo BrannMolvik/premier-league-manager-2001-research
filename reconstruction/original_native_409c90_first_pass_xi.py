@@ -50,6 +50,7 @@ class SourceOriginal409C90FirstPass:
     source_special_count_after_first_pass: int
     original_esp94_mode_flag: int
     source_best_scores11: tuple[int,...]
+    source_formation_role_entries11: tuple[bytes,...]
     original_strict_second_pass_still_required: bool = True
     original_41c7e0_41b970_668350_callbacks_executed: bool = False
     original_world_mutated: bool = False
@@ -209,4 +210,5 @@ def source_original_409c90_first_pass_eleven_strict_role_slots(
                 "original bit11/mode flag not both true skips 874BE0 indexed WORD")
     return SourceOriginal409C90FirstPass(
         unpack_from("<I",team,4)[0],mask.source_mask_bytes,tuple(chosen),
-        bytes(used),original_first_pass_esp14_special_count,count,mode,tuple(scores))
+        bytes(used),original_first_pass_esp14_special_count,count,mode,tuple(scores),
+        tuple(rule.original_role_entry8_from_876cb8 for rule in roles))
