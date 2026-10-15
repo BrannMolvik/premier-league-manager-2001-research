@@ -796,7 +796,7 @@ class SourceOriginal407220Mode4NullOwnerTests(unittest.TestCase):
             0x407331:"8b c5",
             0x41fab0:"8b 54 24 0c",
             0x41fab7:"0f bf 48 10",
-            0x41fabc:"3b d1",
+            0x41fabb:"3b d1",
             0x41fac7:"83 fa 04",
             0x41facc:"33 c0",
             0x41faf2:"85 d2",
