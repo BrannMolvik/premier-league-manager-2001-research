@@ -827,6 +827,27 @@ class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
         return SourceOriginal406BE0Player(
             pid,base.original_player_record_native_pointer,bytes(b),None)
 
+    @staticmethod
+    def source_sorted_receipt(team,players,role_penalties=None):
+        from original_native_405a20_sort_roster import (
+            source_original_405a20_sort_team_roster_by_417e20)
+        from original_native_406be0_roster_count import SourceOriginal406BE0Player
+        reached=[]
+        for r in players:
+            raw=bytearray(r.original_player_record_bytes)
+            pack_into("<I",raw,0x248,0x50000000+r.original_roster_word_id*4)
+            reached.append(SourceOriginal406BE0Player(
+                r.original_roster_word_id,r.original_player_record_native_pointer,
+                bytes(raw),bytes((0,0,0,1))))
+        table=bytearray(32*20)
+        for role,penalty in (role_penalties or {}).items():
+            table[role*20+16]=penalty
+        return source_original_405a20_sort_team_roster_by_417e20(
+            original_team_at_405a20=team,
+            original_global_875640_player_base=0x40000000,
+            original_ordered_player_records=tuple(reached),
+            original_874b68_role_table=bytes(table))
+
     def project(self,team,players,target=0x4):
         from original_native_510cd0_selected_roster import (
             source_original_510cd0_selected_player_pointers)
@@ -864,17 +885,19 @@ class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
             original_match_record=native_match(0x7C4C24),
             original_first_407770_zero_gate_nonzero=True,
             original_second_407770_zero_gate_nonzero=True,
-            original_first_team_record=self.team(first_ids),
-            original_second_team_record=self.team(second_ids),
-            original_global_875640_player_array_address=0x40000000,
-            original_first_team_ordered_players=first,
-            original_second_team_ordered_players=second)
+            original_first_405a20_source_sort=self.source_sorted_receipt(
+                self.team(first_ids),first),
+            original_second_405a20_source_sort=self.source_sorted_receipt(
+                self.team(second_ids),second),
+            original_global_875640_player_array_address=0x40000000)
         self.assertEqual(x.original_match_vtable,0x7C4C24)
         self.assertEqual(x.source_first_team_receipt.source_original_count_context_offset,0x5A4)
         self.assertEqual(x.source_second_team_receipt.source_original_target_context_offset,0x5B4)
         self.assertEqual(x.source_second_team_receipt.source_original_count_context_offset,0xB54)
         self.assertEqual(x.source_first_team_receipt.source_selection_count_return_eax,2)
         self.assertEqual(x.source_second_team_receipt.source_selection_count_return_eax,2)
+        self.assertEqual(x.source_first_team_receipt.source_select_bit4_or_bit5_player_ids,(51,53))
+        self.assertEqual(x.source_second_team_receipt.source_select_bit4_or_bit5_player_ids,(61,63))
         self.assertFalse(x.original_5111a0_other_callbacks_executed)
         self.assertFalse(x.original_match_executed)
 
@@ -905,11 +928,63 @@ class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
                     original_match_record=native_match(0x7C4C24),
                     original_first_407770_zero_gate_nonzero=first,
                     original_second_407770_zero_gate_nonzero=second,
-                    original_first_team_record=self.team(ids),
-                    original_second_team_record=self.team(ids),
-                    original_global_875640_player_array_address=0x40000000,
-                    original_first_team_ordered_players=good,
-                    original_second_team_ordered_players=good)
+                    original_first_405a20_source_sort=self.source_sorted_receipt(
+                        self.team(ids),good),
+                    original_second_405a20_source_sort=self.source_sorted_receipt(
+                        self.team(ids),good),
+                    original_global_875640_player_array_address=0x40000000)
+
+    def test_source_405a20_order_descending_tier_and_stable_on_ties(self):
+        ids=(51,52,53,54,55,56)
+        rows=(self.player(51,0x20),self.player(52,0x10),
+              self.player(53,0x10),self.player(54,0),
+              self.player(55,0x20),self.player(56,0x30))
+        first=self.source_sorted_receipt(self.team(ids),rows)
+        self.assertEqual(first.source_player_ids_after,(52,53,56,51,55,54))
+        self.assertEqual(first.source_player_score_pairs_before,
+            ((51,3000),(52,4000),(53,4000),(54,0),(55,3000),(56,4000)))
+        self.assertFalse(first.original_405a20_executed)
+        self.assertFalse(first.original_game_state_modified)
+        x=self.project(first.source_projected_team_after_405a20,
+                       first.original_player_records_sorted_for_510cd0)
+        self.assertEqual(x.source_select_bit4_or_bit5_player_ids,(52,53,56,51,55))
+        second=self.source_sorted_receipt(self.team(ids),rows,
+                                         role_penalties={1:12})
+        self.assertEqual(second.source_player_score_pairs_before,
+            tuple((pid,score-12) for pid,score in first.source_player_score_pairs_before))
+        self.assertEqual(second.source_player_ids_after,first.source_player_ids_after)
+
+    def test_source_405a20_rejects_untrusted_table_or_player_identity(self):
+        from original_native_405a20_sort_roster import (
+            source_original_405a20_sort_team_roster_by_417e20 as rank,
+            Original405A20SourceError)
+        ids=(51,52)
+        players=(self.player(51,0x10),self.player(52,0x20))
+        good=self.source_sorted_receipt(self.team(ids),players)
+        self.assertEqual(len(good.original_player_records_sorted_for_510cd0),2)
+        base=dict(original_team_at_405a20=self.team(ids),
+                  original_global_875640_player_base=0x40000000,
+                  original_ordered_player_records=good.original_player_records_sorted_for_510cd0,
+                  original_874b68_role_table=bytes(32*20))
+        for k,v in (
+            ("original_874b68_role_table",bytes(10)),
+            ("original_global_875640_player_base",0),
+            ("original_ordered_player_records",()),
+            ("original_ordered_player_records",tuple(reversed(
+                good.original_player_records_sorted_for_510cd0))),
+        ):
+            with self.subTest(field=k),self.assertRaises(Original405A20SourceError):
+                rank(**(base|{k:v}))
+        from original_native_510cd0_selected_roster import (
+            source_original_5111a0_two_source_selection_arrays)
+        with self.assertRaises(Original510CD0SourceError):
+            source_original_5111a0_two_source_selection_arrays(
+                original_match_record=native_match(0x7C4C24),
+                original_first_407770_zero_gate_nonzero=True,
+                original_second_407770_zero_gate_nonzero=True,
+                original_first_405a20_source_sort=None,
+                original_second_405a20_source_sort=good,
+                original_global_875640_player_array_address=0x40000000)
 
     def test_original_510cd0_417f50_417f60_optional_pe_signatures(self):
         original=os.environ.get("FM2001_ORIGINAL_EXE")
