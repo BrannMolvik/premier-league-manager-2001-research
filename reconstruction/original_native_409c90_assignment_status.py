@@ -444,3 +444,75 @@ def source_original_409c90_class23_initial_roster_mask(
         vals.append(int(bool(flags&3)))
     return SourceOriginal409C90Class23Availability(
         class74,count,tuple(ids),tuple(vals),bytes(vals))
+
+
+@dataclass(frozen=True)
+class SourceOriginal4182F0AssignmentNoDeferred:
+    original_native_player_pointer: int
+    original_pre_assignment_player_record: bytes
+    original_pre_assignment_status_record: bytes
+    original_418220_exchange_if_reached: SourceOriginal418220Exchange | None
+    original_417340_registered_user_al: int
+    original_player_after_4182f0: bytes
+    original_status_after_4182f0: bytes
+    original_41edf0_was_reached: bool = False
+    native_4182f0_executed: bool = False
+    native_417340_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_4182f0_assignment_without_reached_41edf0(
+    *, original_native_player_pointer: int,
+    original_player_record_before_4182f0: bytes,
+    original_status_record_before_4182f0: bytes,
+    original_417340_source_receipt_after_mutations: object,
+) -> SourceOriginal4182F0AssignmentNoDeferred:
+    """Original 4182F0 true assignment flag and conditional 418220 swap.
+
+    Literal order: player+14 OR bit4, clear bit5 via 418160,
+    exchange stored role/position iff player+174 bit0 via 418180,
+    clear bit0, clear bit1 via 418170, call source 417340 at 41830C.
+    When original 417340 source AL=1 or player+14 bit13 remains SET,
+    41EDF0 is NOT reached. Otherwise source branch remains UNKNOWN.
+    The helper requires a separately reached SOURCE-QUALIFIED native
+    player/manager receipt for 417340, matching the exact post-mutation
+    player record; it does not call the original game.
+    """
+    from original_native_417340_registered_user_gate import Original417340RegisteredUserReceipt
+    source=original_player_record_before_4182f0
+    st=original_status_record_before_4182f0
+    p=original_native_player_pointer
+    if type(p) is not int or not 0<p<=0xffffffff:
+        raise Original409C90SourceError("actual native original player pointer required")
+    if type(source) is not bytes or len(source)<0x24c or type(st) is not bytes or len(st)<5:
+        raise Original409C90SourceError("full source player/status records required")
+    if unpack_from("<I",source,0x248)[0]==0:
+        raise Original409C90SourceError("source original player+248 status owner missing")
+    flags14=unpack_from("<I",source,0x14)[0]
+    flags174=unpack_from("<I",source,0x174)[0]
+    player=bytearray(source)
+    # 4182F3 OR DWORD+14 bit4; 418160 clears low-byte bit5 only.
+    pack_into("<I",player,0x14,(flags14|0x10)&~0x20)
+    exchange=None
+    status=st
+    if flags174&1:
+        exchange=source_original_418220_exact_role_position_exchange(
+            original_native_player_pointer=p,
+            original_player_record_before_418220=bytes(player),
+            original_status_record_before_418220=st)
+        player=bytearray(exchange.source_player_after_418220)
+        status=exchange.source_status_after_418220
+    pack_into("<I",player,0x174,flags174 & ~0x3)
+    receipt=original_417340_source_receipt_after_mutations
+    if type(receipt) is not Original417340RegisteredUserReceipt or (
+            receipt.original_native_player_at_call!=bytes(player)):
+        raise Original409C90SourceError(
+            "independently source-derived 417340 at exact post-mutation player record required")
+    al=receipt.original_417340_return_al
+    if type(al) is not int or al not in (0,1):
+        raise Original409C90SourceError("actual 417340 source AL 0 or 1 required")
+    if al==0 and (unpack_from("<I",player,0x14)[0]&0x2000)==0:
+        raise Original409C90SourceError(
+            "original 418321 calls unresolved native 41EDF0 when no registered user and bit13 clear")
+    return SourceOriginal4182F0AssignmentNoDeferred(
+        p,source,st,exchange,al,bytes(player),status)
