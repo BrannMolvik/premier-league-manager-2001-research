@@ -120,6 +120,7 @@ class OriginalPResultsHostSurfaceTests(TestCase):
     def test_normal_next_worker_publishes_source_sprite_before_committing_turn(self):
         h=_host()
         h._presults_bottom_art=None
+        h._presults_source_progress={'stale_prior_match':'do-not-reuse'}
         h._management_turn_thread=None
         h.presults_resource_loader=_art
         h.management_thread_factory=_Thread
@@ -129,6 +130,7 @@ class OriginalPResultsHostSurfaceTests(TestCase):
                 h._draw_original_presults_partial()
         h.redraw=redraw
         h._begin_original_management_turn()
+        self.assertIsNone(h._presults_source_progress)
         # First worker receipt has only decoded original art, no game commit.
         self.assertEqual(original.calls,0)
         self.assertEqual(len(h.canvas.images),0)
