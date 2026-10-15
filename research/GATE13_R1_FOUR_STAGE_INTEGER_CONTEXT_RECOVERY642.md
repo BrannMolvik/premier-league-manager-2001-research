@@ -311,3 +311,68 @@ for the original first/second sides, join same concrete
 registered native owner and slot at readback, and integrate
 the full GameState scoring/queue context only where original
 x87 behavior and native callbacks are independently qualified.
+
+
+## Recovery644: corrected native reader registry lookup to global+9C4 (source correction)
+
+Reopening original private PE at native `0x4139D0`, `0x413B10`,
+`0x451005–0x451026`, and `0x5DB450` disproves the previous
+**club-word-index** interpretation. The actual original does:
+
+- **451005** reads WORD `[ESI+D8->club+4]` into DX, preserving the
+  upper half of EDX. **45100E PUSH EDX** leaves it as the next
+  `5DC890` query's low16 dispatch selector.
+- **451009** loads native root `ECX=874C10` and **45100F CALL
+  4139D0**. That wrapper reads **DWORD `[874C10+9C4]`**
+  as a zero-based *registered-manager ordinal*, pushes it for
+  `413B10`, and returns `RET` without consuming the separately
+  pushed EDX query argument.
+- **413B10** walks `874C10+9CC` linked-manager entries by counting
+  from zero, returns node+0 user pointer; on an out-of-range ordinal
+  it returns null. Normal original invocation of `45101A` must not
+  be assumed successful for an out-of-range ordinal.
+- **451014/45101A** reads source presenter+E0 DWORD as second
+  index, then dereferences `[ordinal-selected-user+0x670+4*index]`
+  to obtain `ECX` queue object. **451021 CALL 5DC890** consumes
+  numeric selector and both by-value range triples.
+- **Writer is different**: 5DB3CB→403850→413B40 selects the FIRST
+  registered user whose context+4 equals (first-side club DWORD+4
+  masked with FFFF), then 5DB450 loads **selected-user+670** with
+  *no* indexed offset.
+
+Therefore a source-verified writer/reader join requires **three**
+independent choices: global+9C4 registered-user ordinal,
+presenter+E0 slot index and first-side full-key human gate +
+413B40 masked-key selection. Comparing only low16 club keys or a
+source record type gives a false owner. `5DC890` also dispatches
+among original numeric categories on the retained query WORD;
+`0x66` is one source-direct call into `5DD1F0`, while other
+categories may call the aggregator more than once.
+
+Corrected feature WIP
+`reconstruction/original_match_451021_indexed_owner.py` and
+`test_original_match_451021_indexed_owner.py` project a complete
+source supplied `+9CC` manager chain, source `+9C4` ordinal,
+`+E0` queue slot, original full/masked writer key and both actual
+reached pointers. It preserves separate flags for selected user
+identity and selected queue pointer equality. They are **snapshot
+possibilities**, explicitly NOT proof the registration list could not
+mutate between original writer and reader, no simulated GameState,
+no native score or Windows GUI observation.
+
+**Verification:** original 4,714,541-byte SHA833bf95e unchanged;
+11 decisive exact original PE signature sites and four direct call
+targets were executed and passed locally. The newly authored module
+and test have been added to the focused Gate13 CI workflow but have
+not yet been separately run under remote CI. Earlier Recovery643
+text claiming `4139D0` used the club-word as list ordinal is
+**superseded by this correction**. Prior WIP/source conclusions
+unaffected: +670 source record layout, original 617D70 append,
+5DD1F0 type/float/signed bound checking, conditional callbacks.
+No reason to merge PR739 or close Gate13 on this snapshot.
+
+NEXT source qualified feature: bind the numeric `0x66` selector
+through `5DC890` with caller-supplied exact two range triples and
+the source-matched reader queue pointer, before an actual original
+match GameState/SaveLoad integration. Then complete original weighted
+score/stage owner and full native NEXT→PPreMatch 0–3→PResults→return.
