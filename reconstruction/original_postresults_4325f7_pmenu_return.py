@@ -77,3 +77,36 @@ def source_original_4325f7_pmenu_return(
     # matches Python remainder. Negative/overflow original paths remain
     # unqualified instead of falsely claiming C integer behavior.
     return SourceOriginalPBgPMenuReturn(0x43261F,(old+1)%count,(1,1,1),False,True)
+
+
+@dataclass(frozen=True)
+class SourceOriginal432333RotationPrebranch:
+    """Original actual 43231A comparison before jumping into 432505."""
+    original_manager_ordinal_at_43231a: int
+    original_registered_count_at_43231f: int
+    original_local_esp12_byte_at_43232e: int = 1
+    original_local_esp14_dword_at_432333: int = 2
+    original_next_432505: int = 0x432505
+    native_413ac0_mutations_after_source_test_ruled_out: bool = False
+    actual_original_callbacks_executed: bool = False
+
+
+def source_original_432333_native_rotation_prebranch(
+    *,
+    original_8755d4_before_43231a: int,
+    original_8755e4_count_before_43231f: int,
+) -> SourceOriginal432333RotationPrebranch:
+    """Original 43231A only reaches state2 if old+1 < user-count.
+
+    Countervalues are from BEFORE 432505 user update. They cannot be
+    reused after 432505/4290F0 mutable callbacks unless separately
+    observed at the later 43261F site.
+    """
+    old=original_8755d4_before_43231a
+    count=original_8755e4_count_before_43231f
+    if (type(old) is not int or type(count) is not int
+            or not 0<=old<0x7ffffffe or not 1<=count<=0x7fffffff
+            or old>=count or old+1>=count):
+        raise OriginalPBgReturnSourceError(
+            "original 432328 JGE diverts last manager to 4324FE; no reached state2")
+    return SourceOriginal432333RotationPrebranch(old,count)
