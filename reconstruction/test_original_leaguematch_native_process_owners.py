@@ -811,5 +811,145 @@ class SourceOriginal407220Mode4NullOwnerTests(unittest.TestCase):
                 self.assertEqual(raw[va-0x400000:va-0x400000+len(bs)],bs)
 
 
+
+class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
+    @staticmethod
+    def team(ids,key=7):
+        return SourceOriginal406BE0RosterCountTests.team(ids,key)
+
+    @staticmethod
+    def player(pid,flags14,club=7):
+        from original_native_406be0_roster_count import SourceOriginal406BE0Player
+        base=SourceOriginal406BE0RosterCountTests.player(
+            pid,club=club,active=False,status=None)
+        b=bytearray(base.original_player_record_bytes)
+        pack_into("<I",b,0x14,flags14)
+        return SourceOriginal406BE0Player(
+            pid,base.original_player_record_native_pointer,bytes(b),None)
+
+    def project(self,team,players,target=0x4):
+        from original_native_510cd0_selected_roster import (
+            source_original_510cd0_selected_player_pointers)
+        return source_original_510cd0_selected_player_pointers(
+            original_team_record=team,
+            original_global_875640_player_array_address=0x40000000,
+            original_ordered_player_records=players,
+            original_target_processing_context_offset=target)
+
+    def test_510cd0_retains_order_and_both_bit4_bit5_without_duplicate(self):
+        ids=(51,52,53,54,55,56)
+        recs=(self.player(51,0x10),self.player(52,0x20),
+              self.player(53,0x30),self.player(54,0),
+              self.player(55,0x20,club=8),self.player(56,0x20))
+        x=self.project(self.team(ids),recs)
+        self.assertEqual(x.source_selected_player_pointers,
+            tuple(0x40000000+pid*0x250 for pid in (51,52,53,56)))
+        self.assertEqual(x.source_selection_count_return_eax,4)
+        self.assertEqual(x.source_reached_417f50_player_ids,ids)
+        self.assertEqual(x.source_reached_417f60_player_ids,(52,54,55,56))
+        self.assertEqual(x.source_select_bit4_or_bit5_player_ids,(51,52,53,56))
+        self.assertEqual(x.source_original_target_context_offset,4)
+        self.assertEqual(x.source_original_count_context_offset,0x5A4)
+        self.assertFalse(x.original_510cd0_was_executed)
+        self.assertFalse(x.saved_game_state_modified)
+
+    def test_5111a0_two_source_arrays_use_distinct_5b4_second_slots(self):
+        from original_native_510cd0_selected_roster import (
+            source_original_5111a0_two_source_selection_arrays)
+        first_ids=(51,52,53)
+        second_ids=(61,62,63)
+        first=(self.player(51,0x10),self.player(52,0),self.player(53,0x20))
+        second=(self.player(61,0x30),self.player(62,0),self.player(63,0x10))
+        x=source_original_5111a0_two_source_selection_arrays(
+            original_match_record=native_match(0x7C4C24),
+            original_first_407770_zero_gate_nonzero=True,
+            original_second_407770_zero_gate_nonzero=True,
+            original_first_team_record=self.team(first_ids),
+            original_second_team_record=self.team(second_ids),
+            original_global_875640_player_array_address=0x40000000,
+            original_first_team_ordered_players=first,
+            original_second_team_ordered_players=second)
+        self.assertEqual(x.original_match_vtable,0x7C4C24)
+        self.assertEqual(x.source_first_team_receipt.source_original_count_context_offset,0x5A4)
+        self.assertEqual(x.source_second_team_receipt.source_original_target_context_offset,0x5B4)
+        self.assertEqual(x.source_second_team_receipt.source_original_count_context_offset,0xB54)
+        self.assertEqual(x.source_first_team_receipt.source_selection_count_return_eax,2)
+        self.assertEqual(x.source_second_team_receipt.source_selection_count_return_eax,2)
+        self.assertFalse(x.original_5111a0_other_callbacks_executed)
+        self.assertFalse(x.original_match_executed)
+
+    def test_rejected_unvisited_original_510cd0_inputs(self):
+        from original_native_510cd0_selected_roster import Original510CD0SourceError
+        ids=(51,52)
+        good=(self.player(51,0x10),self.player(52,0x20))
+        for bad_team,players,target in (
+            (self.team(ids),good,0x5A4),
+            (self.team(ids),good[:1],4),
+            (self.team(ids),good+(self.player(53,0x20),),4),
+            (self.team(ids),(self.player(52,0x20),self.player(51,0x10)),4),
+            (self.team(ids),(self.player(51,0x10),self.player(52,0x20)),True),
+        ):
+            with self.subTest(target=target,size=len(players)),self.assertRaises(
+                    Original510CD0SourceError):
+                self.project(bad_team,players,target)
+        large=bytearray(self.team(ids))
+        pack_into("<i",large,0x294,361)
+        with self.assertRaises(Original510CD0SourceError):
+            self.project(bytes(large),good)
+        from original_native_510cd0_selected_roster import (
+            source_original_5111a0_two_source_selection_arrays)
+        for first,second in ((False,True),(True,False),(True,None)):
+            with self.subTest(first=first,second=second),self.assertRaises(
+                    Original510CD0SourceError):
+                source_original_5111a0_two_source_selection_arrays(
+                    original_match_record=native_match(0x7C4C24),
+                    original_first_407770_zero_gate_nonzero=first,
+                    original_second_407770_zero_gate_nonzero=second,
+                    original_first_team_record=self.team(ids),
+                    original_second_team_record=self.team(ids),
+                    original_global_875640_player_array_address=0x40000000,
+                    original_first_team_ordered_players=good,
+                    original_second_team_ordered_players=good)
+
+    def test_original_510cd0_417f50_417f60_optional_pe_signatures(self):
+        original=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not original:self.skipTest("canonical private original PE optional in CI")
+        from hashlib import sha256
+        raw=Path(original).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        signatures={
+            0x510CD0:"83 ec 08",
+            0x510CDA:"8b 8f 94 02 00 00",
+            0x510CF3:"8d 9f 44 02 00 00",
+            0x510CFC:"66 8b 03",
+            0x510D05:"a1 40 56 87 00",
+            0x510D11:"e8 3a 72 f0 ff",
+            0x510D16:"85 c0",
+            0x510D1D:"e8 3e 72 f0 ff",
+            0x510D26:"8b 4c 24 10",
+            0x510D2A:"89 75 00",
+            0x510D4B:"8b 44 24 10",
+            0x417F50:"8b 44 24 04",
+            0x417F54:"8b 40 04",
+            0x417F58:"e8 83 ff ff ff",
+            0x417F60:"8b 44 24 04",
+            0x417F64:"8b 40 04",
+            0x417F68:"e8 93 ff ff ff",
+            0x417EE0:"0f bf 41 10",
+            0x417EEF:"8b 41 14",
+            0x417F00:"0f bf 41 10",
+            0x417F0F:"8b 41 14",
+            0x51126C:"e8 5f fa ff ff",
+            0x511277:"89 86 a4 05 00 00",
+            0x511287:"e8 44 fa ff ff",
+            0x51128C:"89 86 54 0b 00 00",
+        }
+        for va,hexbytes in signatures.items():
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(hexbytes)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(bs)],bs)
+
+
 if __name__=="__main__":
     unittest.main()
