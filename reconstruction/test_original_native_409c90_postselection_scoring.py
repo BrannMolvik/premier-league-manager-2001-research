@@ -208,6 +208,11 @@ class Original409C90PostselectionScoreTests(unittest.TestCase):
         for changed in (
             dict(original_eleven_reached_scores=tuple(receipts[:-1])),
             dict(original_40a1f8_mode_dword=1),
+            dict(original_global_875640_player_array_base_at_scoring=0),
+            dict(original_eleven_reached_scores=(replace(receipts[0],
+                original_role_dword_from_876cb8=99),)+tuple(receipts[1:])),
+            dict(original_eleven_reached_scores=(replace(receipts[0],
+                original_native_player_pointer_at_scoring=0x4abcde),)+tuple(receipts[1:])),
             dict(original_eleven_reached_scores=(replace(receipts[0],
                 original_native_slot_index=1),)+tuple(receipts[1:])),
             dict(original_eleven_reached_scores=(replace(receipts[0],
