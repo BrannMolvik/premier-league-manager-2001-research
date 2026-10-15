@@ -136,3 +136,92 @@ def source_original_409c90_one_selected_player_source_prefix(
         original_native_player_record_before=player,
     )
     return SourceOriginal409C90SelectedPlayerPrefix(True,status_pointer,original_native_player_pointer,out,flags)
+
+
+@dataclass(frozen=True)
+class SourceOriginal41FA50ClubKeyPredicate:
+    original_player_signed_word10: int
+    original_player_signed_word72_if_reached: int | None
+    source_original_return_eax: int
+    native_41fa50_executed: bool = False
+
+
+def source_original_41fa50_player_club_link_predicate(
+    *, original_player_record: bytes,
+    original_global_8755d0_dword: int,
+    original_reached_club_key_dword: int,
+) -> SourceOriginal41FA50ClubKeyPredicate:
+    """Native 41FA50 returns one iff player+10 is neither source key
+    and player's signed WORD+72 exactly equals source club key.
+    If player+10 equals global 8755D0 or club key, 41FA50 returns 0
+    BEFORE reaching player+72 comparison. This source input alone
+    does NOT mean 409C90 called 4181B0 on the player.
+    """
+    p=original_player_record
+    for name,k in (("global 8755D0",original_global_8755d0_dword),
+                   ("source club key",original_reached_club_key_dword)):
+        if type(k) is not int or not 0<=k<=0xffffffff:
+            raise Original409C90SourceError(f"actual original {name} DWORD required")
+    if type(p) is not bytes or len(p)<0x74:
+        raise Original409C90SourceError("original player signed WORD+10 and+72 required")
+    a=unpack_from("<h",p,0x10)[0]
+    if a==(original_global_8755d0_dword if original_global_8755d0_dword<0x80000000
+           else original_global_8755d0_dword-0x100000000) or (
+        a==(original_reached_club_key_dword if original_reached_club_key_dword<0x80000000
+           else original_reached_club_key_dword-0x100000000)):
+        return SourceOriginal41FA50ClubKeyPredicate(a,None,0)
+    b=unpack_from("<h",p,0x72)[0]
+    return SourceOriginal41FA50ClubKeyPredicate(a,b,int((b&0xffffffff)==original_reached_club_key_dword))
+
+
+@dataclass(frozen=True)
+class SourceOriginal4181B0ResetNo418220:
+    original_player_native_pointer: int
+    original_status_pointer: int
+    original_player_before: bytes
+    original_status_before: bytes
+    source_player_after_literal_stores: bytes
+    source_status_after_4ea370: bytes
+    original_418220_called: bool = False
+    original_native_4181b0_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_4181b0_reset_bit0_clear_branch(
+    *, original_player_native_pointer: int,
+    original_player_record_before: bytes,
+    original_status_record_before: bytes,
+) -> SourceOriginal4181B0ResetNo418220:
+    """Native original 4181B0→418150/160/180/170→4EA370 complete
+    known literal stores only when player+174 bit0 is CLEAR.
+
+    418180 conditionally calls 418220 if bit0 SET; that branch mutates
+    further player/status world and is NOT source-closed here.
+    Original 4EA370 sets status+3 low five bits from status+0 and
+    clears status+4 low four bits, preserving upper status bits.
+    """
+    player=original_player_record_before
+    status=original_status_record_before
+    ptr=original_player_native_pointer
+    if type(ptr) is not int or not 0<ptr<=0xffffffff:
+        raise Original409C90SourceError("original native player pointer required")
+    if type(player) is not bytes or len(player)<0x24c:
+        raise Original409C90SourceError("original player through +248 status owner required")
+    if type(status) is not bytes or len(status)<5:
+        raise Original409C90SourceError("actual status bytes through+4 required")
+    status_ptr=unpack_from("<I",player,0x248)[0]
+    if not status_ptr:
+        raise Original409C90SourceError("native player+248 status pointer missing")
+    flag174=unpack_from("<I",player,0x174)[0]
+    if flag174&1:
+        raise Original409C90SourceError(
+            "original 418180 calls unresolved 418220 when player+174 bit0 true")
+    out=bytearray(player)
+    flag14=unpack_from("<I",player,0x14)[0]
+    pack_into("<I",out,0x14,flag14 & ~0x30)
+    pack_into("<I",out,0x174,flag174 & ~2)
+    st=bytearray(status)
+    st[3]=(st[3]&0xe0)|(st[0]&0x1f)
+    st[4]=st[4]&0xf0
+    return SourceOriginal4181B0ResetNo418220(
+        ptr,status_ptr,player,status,bytes(out),bytes(st))
