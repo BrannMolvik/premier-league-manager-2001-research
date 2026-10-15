@@ -42,7 +42,10 @@ def source_original_5111a0_conditional_nonhuman_409b50_plan(
     original_processing_context_at_5111a0: bytes,
     original_first_team_record_at_5111a0: bytes,
     original_second_team_record_at_5111a0: bytes,
-    original_match_plus4c_owner_record_if_reached: bytes | None,
+    original_first_match_4c_pointer_if_nonhuman_reached: int | None,
+    original_second_match_4c_pointer_if_nonhuman_reached: int | None,
+    original_first_match_4c_owner_record_if_nonhuman_reached: bytes | None,
+    original_second_match_4c_owner_record_if_nonhuman_reached: bytes | None,
     original_first_4037b0_human_al_if_reached: bool | None,
     original_second_4037b0_human_al_if_reached: bool | None,
     original_first_511170_v18_nonzero_if_needed: bool | None,
@@ -79,12 +82,17 @@ def source_original_5111a0_conditional_nonhuman_409b50_plan(
     teams=(original_first_team_record_at_5111a0,original_second_team_record_at_5111a0)
     if any(type(t) is not bytes or len(t)<0x298 for t in teams):
         raise Original5111A0ConditionalSourceError("both original team records through signed roster count required")
-    if unpack_from("<I",teams[0],4)[0]==unpack_from("<I",teams[1],4)[0]:
-        raise Original5111A0ConditionalSourceError("original source two team club keys must be distinct")
-    if (type(original_match_plus4c_owner_record_if_reached) is not bytes or
-            len(original_match_plus4c_owner_record_if_reached)<0x20 or pointer==0):
-        raise Original5111A0ConditionalSourceError("source match+4C owner and +1C field mandatory")
-    match_arg=unpack_from("<I",original_match_plus4c_owner_record_if_reached,0x1c)[0]
+    # 409B50 for side0 may mutate match+4C or its object before side1.
+    # Read the reached owner and +1C separately at the exact call site;
+    # never reuse a pre-callback snapshot as if both sides share it.
+    owners=(
+        original_first_match_4c_owner_record_if_nonhuman_reached,
+        original_second_match_4c_owner_record_if_nonhuman_reached,
+    )
+    pointers=(
+        original_first_match_4c_pointer_if_nonhuman_reached,
+        original_second_match_4c_pointer_if_nonhuman_reached,
+    )
     human=(original_first_4037b0_human_al_if_reached,
            original_second_4037b0_human_al_if_reached)
     v18=(original_first_511170_v18_nonzero_if_needed,
@@ -92,7 +100,7 @@ def source_original_5111a0_conditional_nonhuman_409b50_plan(
     nodes=(original_first_511170_second_4f3dc0_pointer_if_needed,
            original_second_511170_second_4f3dc0_pointer_if_needed)
     skip=bool(flags&0x20)
-    if skip and any(v is not None for v in human+v18+nodes):
+    if skip and any(v is not None for v in human+v18+nodes+owners+pointers):
         raise Original5111A0ConditionalSourceError("bit5 branch skips all source 4037B0 and 511170")
     receipts=[]
     for i in range(2):
@@ -102,10 +110,19 @@ def source_original_5111a0_conditional_nonhuman_409b50_plan(
         if type(human[i]) is not bool:
             raise Original5111A0ConditionalSourceError("actual source 4037B0 human AL on both teams required")
         if human[i]:
-            if v18[i] is not None or nodes[i] is not None:
+            if (v18[i] is not None or nodes[i] is not None or
+                    owners[i] is not None or pointers[i] is not None):
                 raise Original5111A0ConditionalSourceError("human team skips 511170 and 409B50")
             receipts.append(SourceOriginal5111A0SideConditional(i,source_teams[i],True,True,None,None,None))
             continue
+        if (type(pointers[i]) is not int or not 0<pointers[i]<=0xffffffff or
+                type(owners[i]) is not bytes or len(owners[i])<0x20):
+            raise Original5111A0ConditionalSourceError(
+                "actual native match+4C pointer and owner+1C at this reached side required")
+        if i==0 and pointers[i]!=pointer:
+            raise Original5111A0ConditionalSourceError(
+                "first nonhuman side match+4C owner not from original match entry")
+        match_arg=unpack_from("<I",owners[i],0x1c)[0]
         if type(v18[i]) is not bool:
             raise Original5111A0ConditionalSourceError("source 511170 reached vtable+18 return required")
         if v18[i]:
