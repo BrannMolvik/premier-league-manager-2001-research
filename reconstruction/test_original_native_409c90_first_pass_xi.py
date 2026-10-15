@@ -104,30 +104,67 @@ class Original409C90StrictFirstPassTests(unittest.TestCase):
         self.assertEqual(x.source_original_selection_indices11,(1,-1)+(-1,)*9)
         self.assertEqual(x.source_best_scores11,(1,0)+(0,)*9)
 
-    def test_source_407df0_unsigned_cutoff_and_874be0_special_count(self):
-        rows=(player(51,0x800),player(52,0),player(53,1))
-        args=self.defaults(rows)
-        args["original_first_pass_esp14_special_count"]=1
-        args["original_first_pass_esp94_mode_flag"]=1
-        a=slot(1,(
-            Candidate(0,original_reached_407df0_eax_if_bit11=1), # count>=limit, skip
-            Candidate(1,original_reached_status_bytes_if_4ea300_called=b"\x01\x00\x00",
-                    original_reached_41c7e0_eax_if_scored=8,
-                    original_reached_668350_eax_if_scored=8),
-            Candidate(2),
-        ))
-        b=slot(1,(
-            Candidate(0,original_reached_407df0_eax_if_bit11=4,
-                   original_reached_status_bytes_if_4ea300_called=b"\x01\x00\x00",
-                   original_reached_41c7e0_eax_if_scored=10,
-                   original_reached_668350_eax_if_scored=10),
-            Candidate(1),Candidate(2),
-        ),word=1)
-        c=slot(123,tuple(Candidate(i) for i in range(3)))
-        result=project(**args,original_eleven_role_source_inputs=(a,b)+(c,)*9)
-        self.assertEqual(result.source_original_selection_indices11,(1,0)+(-1,)*9)
-        self.assertEqual(result.source_special_count_after_first_pass,2)
-        self.assertEqual(result.source_used_mask_after_first_pass,b"\x01\x01\x00")
+    def test_409ca6_counter_zero_and_class23_409cf7_mode_zero(self):
+        args=self.defaults()
+        c=slot(100,tuple(Candidate(i) for i in range(3)))
+        for change in (
+            dict(original_first_pass_esp14_special_count=1),
+            dict(original_first_pass_esp94_mode_flag=1),
+        ):
+            with self.subTest(change=change),self.assertRaises(
+                    Original409C90FirstPassSourceError):
+                project(**(args|change),
+                        original_eleven_role_source_inputs=(c,)*11)
+
+    def test_class0_selected_bit11_874be0_counter_then_407df0_unsigned_cutoff(self):
+        from original_native_418050_dynamic_eligibility import (
+            source_original_418050_reached_availability as dynamic)
+        rows=(player(51,0x800),player(52,0x800),player(53,1))
+        t=team(cls=0)
+        rec=bytearray(0x18)
+        pack_into("<i",rec,0x14,100)
+        dyn=[]
+        for row in rows:
+            p=row.original_player_record_bytes
+            extra=(dict(original_41b4d0_returned_pointer_if_reached=0x800000,
+                        original_41b4d0_returned_record_if_reached=bytes(rec),
+                        original_global_9847fc_current_day_if_reached=90)
+                   if row.original_roster_word_id!=53 else {})
+            dyn.append(dynamic(original_player_record_at_418050=p,
+                original_club_key_dword_arg1=7,
+                original_dynamic_owner_ptr_arg2=0,
+                original_player_record_at_reached_41b490=p,**extra))
+        m=first_mask(original_team_record_at_409c90=t,
+             original_reached_409b50_roster_count_argument=3,
+             original_global_875640_native_player_base=0x40000000,
+             original_ordered_at_call_player_records=rows,
+             original_reached_409c90_dynamic_owner_ptr=0,
+             original_418050_receipts_if_reached=tuple(dyn))
+        self.assertEqual(m.source_mask_bytes,b"\x00\x00\x01")
+        args=dict(original_team_record_at_first_pass=t,
+             original_global_875640_native_player_base=0x40000000,
+             original_mask_receipt_after_409d5e=m,
+             original_ordered_player_records_at_first_pass=rows,
+             original_first_pass_esp14_special_count=0,
+             original_first_pass_esp94_mode_flag=1)
+        first=slot(1,(
+            Candidate(0,original_reached_407df0_eax_if_bit11=2,
+                original_reached_status_bytes_if_4ea300_called=b"\x01\x00\x00",
+                original_reached_41c7e0_eax_if_scored=11,
+                original_reached_668350_eax_if_scored=10),
+            Candidate(1,original_reached_407df0_eax_if_bit11=2,
+                original_reached_status_bytes_if_4ea300_called=b"\x01\x00\x00",
+                original_reached_41c7e0_eax_if_scored=9,
+                original_reached_668350_eax_if_scored=8),
+            Candidate(2)),word=1)
+        later=slot(1,(
+            Candidate(0), # already selected in previous slot
+            Candidate(1,original_reached_407df0_eax_if_bit11=1),
+            Candidate(2)))
+        x=project(**args,original_eleven_role_source_inputs=(first,)+(later,)*10)
+        self.assertEqual(x.source_original_selection_indices11,(0,)+(-1,)*10)
+        self.assertEqual(x.source_used_mask_after_first_pass,b"\x01\x00\x00")
+        self.assertEqual(x.source_special_count_after_first_pass,1)
 
     def test_original_unreached_callbacks_malformed_source_and_roster_fail_closed(self):
         args=self.defaults()
