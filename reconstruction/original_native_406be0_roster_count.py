@@ -108,3 +108,48 @@ def source_original_406be0_arg1_one_arg2_zero_roster_count(
         club_key,count,len(matched),tuple(reached_gate),
         tuple(reached_status),tuple(matched),
     )
+
+
+@dataclass(frozen=True)
+class SourceOriginal407770Arg1From406BE0:
+    """Source-derived role-one count and outer 407770(1) comparison only."""
+    original_406be0_count: SourceOriginal406BE0Count
+    original_407770_arg1_receipt: object
+    live_native_match_executed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_407770_arg1_with_406be0_original_player_bytes(
+    *, original_team_record: bytes,
+    original_global_875640_player_array_address: int,
+    original_ordered_player_records: tuple[SourceOriginal406BE0Player, ...],
+    original_reached_403640_al: bool,
+    original_team_name_first_byte_if_reached: int | None,
+    original_reached_407220_edi_if_reached: int | None,
+) -> SourceOriginal407770Arg1From406BE0:
+    """Source-compose 406BE0(1,0) return with 407770 arg1, not live match.
+
+    This only visits 406BE0 on the source 407770 team+294 >=11 path.
+    The remaining 407220 branch is not derived: require independently
+    reached actual EDI whenever original 403640 / '!' paths skip it.
+    """
+    if type(original_team_record) is not bytes or len(original_team_record)<0x298:
+        raise Original406BE0SourceError("original roster record required")
+    if unpack_from("<i",original_team_record,0x294)[0]<11:
+        raise Original406BE0SourceError("407770 roster<11 path never reaches 406BE0")
+    count=source_original_406be0_arg1_one_arg2_zero_roster_count(
+        original_team_record=original_team_record,
+        original_global_875640_player_array_address=original_global_875640_player_array_address,
+        original_ordered_player_records=original_ordered_player_records)
+    from original_native_407770_roster_eligibility import (
+        source_original_407770_reached_roster_gate,
+    )
+    outer=source_original_407770_reached_roster_gate(
+        original_team_record=original_team_record,
+        original_407770_argument=1,
+        original_reached_403640_al_if_arg1=original_reached_403640_al,
+        original_team_name_first_byte_if_reached=original_team_name_first_byte_if_reached,
+        original_reached_407220_edi_if_arg1=original_reached_407220_edi_if_reached,
+        original_reached_406be0_eax_if_arg1=count.source_return_eax,
+    )
+    return SourceOriginal407770Arg1From406BE0(count,outer)
