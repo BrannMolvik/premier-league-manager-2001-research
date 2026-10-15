@@ -98,6 +98,38 @@ class OriginalPostponedWrapperPResultsTests(TestCase):
             with self.subTest(changed=change.keys()),self.assertRaises(OriginalPResultsEventSourceError):
                 source(**(good|change))
 
+    def test_original_native_linked_old_day_and_plus_seven_wrapper_day_count_once(self):
+        from original_presults_native_leaguematch_vtables import (
+            source_original_league_match_native_precount_node_4a7210)
+        from original_presults_native_event_work import (
+            OriginalPResultsNativeDateBucket,source_original_presults_precount_4a7210)
+        case=records()
+        old=source_original_league_match_native_precount_node_4a7210(
+            original_event_object_pointer=0x3000,
+            original_match_record_before_v0c=case['original_underlying_match_record_before_v0c'],
+            original_first_club_virtual_result_pointer=0x1111,
+            original_second_club_virtual_result_pointer=0x2222,
+            original_special_owner_record_via_plus54=None,
+            original_match_record_after_reached_v0c=case['original_underlying_match_record_after_reached_v0c'])
+        self.assertEqual(old.reached_event8,0x9000)
+        postponed=source(**case)
+        self.assertEqual(postponed.reached_event8,0)
+        days=tuple(OriginalPResultsNativeDateBucket(
+            day, (old,) if day==1 else ((postponed,) if day==8 else ())
+        ) for day in range(1,9))
+        total=source_original_presults_precount_4a7210(
+            original_current_date_global_9847fc=0,
+            original_inclusive_upper_date=8,
+            original_947ad8_date_buckets=days,
+            original_already_processed_64=0)
+        self.assertEqual(total,1)
+        with self.assertRaises(OriginalPResultsEventSourceError):
+            source_original_presults_precount_4a7210(
+                original_current_date_global_9847fc=0,
+                original_inclusive_upper_date=8,
+                original_947ad8_date_buckets=days[:-1],
+                original_already_processed_64=0)
+
     def test_original_pe_510ba0_wrapper_creation_and_5140b0_vtable_delegate_sites(self):
         p=environ.get('FM2001_ORIGINAL_EXE')
         if not p:self.skipTest('private original executable not available')
