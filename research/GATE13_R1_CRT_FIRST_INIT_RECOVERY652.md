@@ -20,3 +20,71 @@ Bounded canonical original source disassembly `66D540..66D5B9` proves a previous
 The real reconstruction still does not know **which existing per-thread seed was reached** by the current save/game process, all other original CRT RNG draws across game and match processing, or the x87-returned native bound prior to `5DABCA/5DAE45`. Source `5DA250` has multiple x87 computed branches and the effective original x87 control/precision values are only partly constrained; those must be recovered before replacing the current reconstructed Quick3 score computation with the actual 513010→5DA2F0→v38/v3c original engine. Normal PResults needs actual native 6168C0 first and second date-calendar v+10 callback events and correct 432505 postreturn; 3D mode0/1 and FastView mode2 presenters need real original lifecycle; true 2–6 saved human registry, all shipped leagues and original-vs-port **physical Win11 GUI** acceptance are still blocked. High-risk PR739 injury/schema48 remains unmerged. Gates13,14,15,16,17 are open, Windows11 release **not** verified.
 
 Source-first evidence does not authorize generating match-result values or registering false calendar events; continue actual playable/saved world integration and batch next CI at a coherent source-to-player milestone.
+
+
+## Recovery653: x87 first/second native match RNG input and safe TLS join
+
+Continuing the exact active branch rather than restarting, canonical private
+PE static disassembly from **5DAB0C–5DABFD** and **5DAE12–5DAE7C**
+shows the first/second score stages have identical x87 bound computations:
+- `5DAB0C` stores original `5DA250` ratio as native `ESP+0x10`.
+  An x87 score/ceiling value remains in ST0 after the earlier
+  `5DAB67→5DAB90` source compare/condition sequence.
+- `5DAB97` (`5DAE12` second side) compares that native ratio against
+  **source double 1.0** at original `0x7BD6B0`.
+- Ratio **strictly greater than 1.0** executes source
+  `5DABA8–5DABBE` (second side `5DAE23–5DAE39`):
+  `ST0 = prior_clamped_score / (1000.0 × (ratio−1.0) + 100.0)`,
+  with original 1000.0 at `0x7C6828` and 100.0 at `0x7BD6A0`.
+- Ratio **less than or equal to 1.0** executes
+  `5DABC2–5DABC4` (second `5DAE3D–5DAE3F`):
+  `ST0 = prior_clamped_score × original binary64 0.01`
+  stored at `0x7BD600`.
+- The common `5DABCA`/`5DAE45` then invokes original
+  `668350`: x87 control word temporarily selects truncation
+  toward zero and FISTP converts to a signed return integer;
+  original code sets `EDI=max(1, EAX)` and calls
+  `64D540` at `5DABED`/`5DAE68`. That native call
+  advances the original **per-thread** CRT 66951C state.
+  A separate next `668350` consumes the remaining original
+  x87 score value, so this first bound is **not the final score**.
+
+The new `original_match_5dab97_fpu_tls_join.py` requires:
+actual original stage ratio QWORD, independently captured previous
+x87 score QWORD, the **actual** first 668350 signed result and a
+typed original `66D553` freshly initialized OR reused TLS record.
+It bridges these source inputs through already merged
+`original_match_5dabca_score_rng_join` and the authentic
+`64D540` source RNG implementation. It never creates an RNG
+seed1 for existing threads, does not claim that native x87 or RNG
+callbacks ran, and does not calculate public goals.
+
+Its independent rational check uses the **exact original binary64
+constant bits**, not a decimal approximation. Differences in
+the native 80-bit x87 register precision can cause a different integer
+near a truncation threshold. Such cases are deliberately **refused**
+except mathematically exact zero with EAX=0, rather than
+silently accepting an arbitrary reported EAX or claiming x87
+equivalence. The original fresh-thread first random draw is a
+source-derived candidate, not proof the actual original normal
+match thread has not already consumed earlier random calls.
+
+Source-proven actual shipped PE assertions: 14 original TLS
+initializer opcode sites already independently verified, plus
+**19 original first/second FPU bound opcode sites** and the
+four exact PE double constants 1.0/1000.0/100.0/0.01 passed
+independent local byte checks. The two new Python files were
+registered in the focused Gate13 workflow, not yet exact-head CI
+certified at the time of this note.
+
+**Actual player gap:** current `HumanGameplayController`
+uses modern reconstructed outcome logic rather than the native
+513010→5DA2F0 calculator. Its ordinary Quick Match and source
+PResults sprite acceptance do NOT prove these x87 values
+were reached, nor source equivalence for 2–6 users, modal
+mode0/1/2, native v38/v3c save callbacks, original calendar
+event producer, or Windows11 GUI comparison. Keep Gate13–17
+open. Next implementation should focus on *persisted actual
+match state and normal user route* with source-valid reachable
+inputs, rather than indefinitely growing disconnected
+source-only helpers. Do not infer live x87 score from fixture count.
