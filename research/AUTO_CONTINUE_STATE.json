@@ -20,7 +20,7 @@
   ],
   "audit_only_boundaries": "Historical field name. Autonomous worker owns ALL implementation including R1, source-faithful and through reviewed PRs. Codex optional QA only; no automatic Codex usage or routine review. No unapproved original executable run, proprietary bytes in Git, force push, unsupported invented behavior, unchecked risky PR self-merge or false Windows GUI acceptance. See updated WORK_OWNERSHIP.json and WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md.",
   "active_gate": 13,
-  "active_task": "Recovery658 canonical main 575c6d7a77acf904e75fe1bd483026ea70aae80d. Continue worker/gate13-r1-5111a0-native-selected-player-arrays-654 and NEXT source-verified atomic GameState integration of original 4181B0 reset+418220 exchange using existing native_status_world player+14/+174/+152/+153/status+3/+4, strict prestate consistency and Save/Load tests; no new schema. Check branch before writing; no unwarranted original 409C90/5111A0/world completion claims; Gate13–17 all OPEN. Preserve heartbeat separate from code commits.",
+  "active_task": "Recovery658 main 575c6d7a77acf904e75fe1bd483026ea70aae80d, feature branch worker/gate13-r1-4181b0-reset-game-state-658 head 077e4629fc7438cc06e65ffe6ad245f72b603c62 (3 branch commits). Source-verified 40A18C 41FA50-false -> 40A1A8 4181B0 with conditional 418220 status exchange/4EA370 is now mapped into an atomic GameState.native_status_world shadow only; status prestate, source plan and identity guarded. New 164-line regression & unchanged schema48 save/load coverage; source note added. Branch diff 3 files +251 lines, no CI yet. NEXT exact-head PR CI full due save state changes, review, merge only if verified; then original 4182F0/417340/41EDF0 selected-player world, 409C90 eleven roles/5111A0 match, remaining Gate13–17 open. No native original or Win11 GUI execution.",
   "last_known_main_head": "575c6d7a77acf904e75fe1bd483026ea70aae80d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -38,5 +38,5 @@
   "implementation_scope": "Entire remaining original FM2001 Windows11 port Gates13–17, with priority to complete normal player workflows, including R1 NEXT->PPreMatch->all original match modes->PResults->return (previous Codex lock released), Inbox delivery/UI, Squad and formations, Save/Load, Fixtures/Tables, every shipped playable country/league, multi-human, career/season and original graphics/audio. Source evidence before implementation, tested reviewed worker PRs; Codex only optional explicitly cost-approved independent QA/playtesting.",
   "scoped_fix_policy_path": "research/WORKER_SCOPED_SOURCE_FIX_AUTHORIZATION.md",
   "last_known_main_commit": "575c6d7a77acf904e75fe1bd483026ea70aae80d",
-  "active_branch": "worker/gate13-r1-5111a0-native-selected-player-arrays-654"
+  "active_branch": "worker/gate13-r1-4181b0-reset-game-state-658"
 }
