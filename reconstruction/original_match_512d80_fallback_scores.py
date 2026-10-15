@@ -132,3 +132,50 @@ def source_original_512d80_fallback_random_scores(
     return SourceOriginal512D80FallbackScores(
         original_context_pointer,first,second,True,True,
         draw1,draw2,home,away,tuple(trace))
+
+
+@dataclass(frozen=True)
+class SourceOriginal512D80ThroughV38V3CPrefix:
+    original_fallback_scores: SourceOriginal512D80FallbackScores
+    original_processing_context_after_512d80: bytes
+    original_v38_then_v3c_prefix: object
+    native_original_callbacks_executed: bool = False
+    original_v3c_world_effects_completed: bool = False
+    live_game_state_modified: bool = False
+
+
+def source_original_5130c2_false_through_fallback_v38_v3c_prefix(
+    *,
+    original_native_match_record_before_v38: bytes,
+    **original_512d80_reached_args,
+) -> SourceOriginal512D80ThroughV38V3CPrefix:
+    """Source v34-false -> 512D80 -> 5112A0 score latch -> 511370 bit0.
+
+    The full native v3c body and any 513570 event walk remain unresolved.
+    This only composes a true ZERO-event prefix, and cannot be published
+    into a running GameState as a complete original match.
+    """
+    from struct import pack_into
+    from original_native_v3c_calendar_second_pass import OriginalV3CRescheduleGateError
+    from original_native_match_v3c_entry import (
+        source_original_v38_then_v3c_zero_event_prefix,
+    )
+    fallback=source_original_512d80_fallback_random_scores(
+        **original_512d80_reached_args)
+    before=original_512d80_reached_args["original_context_record_before_512d80"]
+    if (unpack_from('<I',before,0xd0c)[0]!=0 or
+        unpack_from('<I',before,0xd10)[0]!=0):
+        raise Original512D80SourceError(
+            "original source 513570 v38 event lists nonzero; cannot skip their actual callbacks")
+    context=bytearray(before)
+    pack_into('<I',context,0xd4c,fallback.original_first_score_context_d4c)
+    pack_into('<I',context,0xd50,fallback.original_second_score_context_d50)
+    try:
+        prefix=source_original_v38_then_v3c_zero_event_prefix(
+            original_native_match_record_before_v38=original_native_match_record_before_v38,
+            original_processing_context_after_match=bytes(context),
+        )
+    except Exception as exc:
+        raise Original512D80SourceError(
+            "original native v38/v3c world prefix requires authentic source LeagueMatch owner") from exc
+    return SourceOriginal512D80ThroughV38V3CPrefix(fallback,bytes(context),prefix)
