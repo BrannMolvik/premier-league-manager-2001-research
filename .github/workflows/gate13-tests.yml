@@ -154,6 +154,10 @@ on:
       - "reconstruction/test_original_schedule_event_native_constructor.py"
       - "reconstruction/original_leaguematch_native_process_owners.py"
       - "reconstruction/test_original_leaguematch_native_process_owners.py"
+      - "reconstruction/original_match_four_stage_guard_source.py"
+      - "reconstruction/test_original_match_four_stage_guard_source.py"
+      - "reconstruction/original_match_stage4_coefficient_player_source.py"
+      - "reconstruction/test_original_match_stage4_coefficient_player_source.py"
       - "reconstruction/original_native_40cbc0_coeff_route.py"
       - "reconstruction/test_original_native_40cbc0_coeff_route.py"
       - "reconstruction/original_native_4fa520_category_source.py"
@@ -540,6 +544,8 @@ jobs:
             test_original_presults_native_leaguematch_vtables \
             test_original_schedule_event_native_constructor \
             test_original_leaguematch_native_process_owners \
+            test_original_match_four_stage_guard_source \
+            test_original_match_stage4_coefficient_player_source \
             test_original_native_40cbc0_coeff_route \
             test_original_native_4fa520_category_source \
             test_original_native_4f3b10_query_owner \
