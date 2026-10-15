@@ -208,16 +208,17 @@ class Original409C90AssignmentStatusSourceTests(TestCase):
                      **common)
         self.assertEqual(false.original_41fa50_source_decision.source_original_return_eax,0)
         self.assertEqual(unpack_from("<I",false.original_4181b0_reset_if_reached
-                         .source_player_after_literal_stores,0x14)[0],0x03)
+                         .source_player_after_reset,0x14)[0],0x03)
         self.assertEqual(false.original_4181b0_reset_if_reached
-                         .source_status_after_4ea370[3:],b"\x97\xf0")
+                         .source_status_after_reset[3:],b"\x97\xf0")
         self.assertFalse(false.live_game_state_modified)
         with self.assertRaises(Original409C90SourceError):
             decide(original_player_record_before_41fa50=player(3,7),
                    original_reached_status_record_for_4181b0_if_called=bytes(5),**common)
-        with self.assertRaises(Original409C90SourceError):
-            decide(original_player_record_before_41fa50=player(7,7,extras=1),
-                   original_reached_status_record_for_4181b0_if_called=bytes(5),**common)
+        positive=decide(original_player_record_before_41fa50=player(7,7,extras=1),
+                        original_reached_status_record_for_4181b0_if_called=bytes(5),**common)
+        self.assertTrue(positive.original_4181b0_reset_if_reached.original_418220_was_reached)
+        self.assertFalse(positive.live_game_state_modified)
         with self.assertRaises(Original409C90SourceError):
             decide(original_player_record_before_41fa50=player(7,7),
                    original_reached_status_record_for_4181b0_if_called=None,**common)
