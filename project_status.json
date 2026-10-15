@@ -36,12 +36,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "3b9cb028cc3984509b5e79a6a7efe0dd9f91c5b3",
+  "latest_reverse_engineering_checkpoint": "52ce02ca13e883a08548cf4cefaa136e505fd93c",
   "last_verified_reconstruction_ci_head": "2a65a872e6cbf5f0dda10e7a176c3f1f05738995",
   "last_verified_test_count": 2929,
   "asset_policy_validated_head": "017d1d550f021e9e9ee39602b2d51cd252c5c8e4",
   "asset_policy_status": "passed",
-  "active_task": "Recovery637 canonical main fa42a84c1124af836137e30a211fe900e23b7b1a following reviewed/merged original source PR745/746/747. PR747 exact-head Gate13 run38658015170 SUCCESS 1990 tests/171 skips; asset38658015154 SUCCESS. Original private SHA833bf95e static only. Full 40CBC0 all native entry/fallthrough exact coefficient paths and 5DA8D9->5DA967 first-side stack QWORD and 5DA981 zero branch now source projected, NOT live original process or GameState. NEXT source 5DA981 zero (5DAC05) and nonzero (5DA987) original roster/player/event/RNG world, 5DC510/650 owner+670 event side effects, v38/v3c, PPreMatch modes0-3 PResults management normal NEXT, SaveLoad and injury Inbox. All original countries/leagues, 1–6 humans and physical Windows11 Gate13–17 GUI/audit remain OPEN. High-risk PR739 unmerged independent GameState/schema48 review.",
+  "active_task": "Recovery654 main 52ce02ca13e883a08548cf4cefaa136e505fd93c PR764 original v34 four 407770(0)/(1) gates, wrapper AL; PR765 exact original 406BE0(1,0) roster role count via 417EE0/4EA3C0 source bytes merged. PR764 exact head Gate13 2240/226 and asset green; PR765 exact head Gate13 2246/227 and asset green. Original private SHA833bf95e static disassembly ONLY. NEXT 407220(4)/41FAB0 with 407EC0 dynamic pointer, original 5111A0/510CD0 5A4/B54 preparation world effects, THEN real 513010→5DA2F0 scores v38/v3c SaveLoad/2 calendars, original PPreMatch all modes and PResults/post-return, all original leagues/2–6 managers/physical Windows11 release. Gate13–17 OPEN. High risk PR739 still unmerged. Runtime continuous working.",
   "last_local_focused_test_count": 375,
   "last_local_focused_test_skips": 0,
   "gate13_local_playtest_snapshot": "170970e5c01272c66f878178498b5ab8ff4f4d63",
@@ -3394,5 +3394,9 @@
   "gate13_latest_verified_source_pr": 747,
   "gate13_latest_verified_source_head": "db297461bf79355a3a82041fde4d0e6fc8daa9d0",
   "gate13_latest_verified_source_gate13_run": 38658015170,
-  "gate13_latest_verified_source_asset_run": 38658015154
+  "gate13_latest_verified_source_asset_run": 38658015154,
+  "gate13_recovery654_original_readiness": "PR764 d83e4f3eac85f3812bb26b31a58c981a68289f15: 510D60 four 407770 and wrapped 511120, original 4EA300/403640 read. Source-only.",
+  "gate13_recovery654_native_roster_count": "PR765 52ce02ca13e883a08548cf4cefaa136e505fd93c: exact 406BE0(1,0) counted original role one via 417EE0 full signed club-key/bit4 and 4EA3C0 status mask; Gate13 2246 tests 227 skips and asset PASS; original static only.",
+  "gate13_recovery654_gate13_ci": "38719295310 success: 2246 tests, 227 skipped",
+  "gate13_recovery654_asset_ci": "38719295400 success"
 }
