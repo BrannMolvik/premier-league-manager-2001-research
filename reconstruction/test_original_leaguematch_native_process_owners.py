@@ -976,7 +976,8 @@ class SourceOriginal510CD0SelectionArrayTests(unittest.TestCase):
             with self.subTest(field=k),self.assertRaises(Original405A20SourceError):
                 rank(**(base|{k:v}))
         from original_native_510cd0_selected_roster import (
-            source_original_5111a0_two_source_selection_arrays)
+            source_original_5111a0_two_source_selection_arrays,
+            Original510CD0SourceError)
         with self.assertRaises(Original510CD0SourceError):
             source_original_5111a0_two_source_selection_arrays(
                 original_match_record=native_match(0x7C4C24),
