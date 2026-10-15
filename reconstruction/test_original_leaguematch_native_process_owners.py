@@ -1196,6 +1196,8 @@ class SourceOriginal5111A0ConditionalBranchTests(unittest.TestCase):
             original_processing_context_at_entry=cargs["original_processing_context_at_5111a0"],
             original_first_team_native_pointer_at_405a20=0x10000,
             original_second_team_native_pointer_at_405a20=0x20000,
+            original_first_team_record_actual_at_405a20=first.original_team_roster_before_405a20,
+            original_second_team_record_actual_at_405a20=second.original_team_roster_before_405a20,
             original_first_405a20_source_sort=first,
             original_second_405a20_source_sort=second,
             original_global_875640_player_array_address=0x40000000,
