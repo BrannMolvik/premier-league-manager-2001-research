@@ -39,7 +39,7 @@ def source_original_432505_single_user_startmenu_plan(
     original_global_date_9847fc: int,
     original_reached_user_pointer_4139d0: int,
     original_875680_settings_owner_pointer: int,
-    original_4290f0_al_at_43254c: int,
+    original_4290f0_eax_at_43254c: int,
     original_516010_al_at_432559: int,
     original_registered_manager_count_8755e4: int,
     original_413ac0_update_completed: bool,
@@ -60,18 +60,18 @@ def source_original_432505_single_user_startmenu_plan(
                 "actual original "+name+" DWORD required")
     if not original_reached_user_pointer_4139d0:
         raise OriginalPostResultsReturnSourceError("native 4139D0 selected user cannot be null")
-    if (type(original_4290f0_al_at_43254c) is not int or
+    if (type(original_4290f0_eax_at_43254c) is not int or
         type(original_516010_al_at_432559) is not int or
-        not 0<=original_4290f0_al_at_43254c<=0xff or
+        not 0<=original_4290f0_eax_at_43254c<=0xff or
         not 0<=original_516010_al_at_432559<=0xff):
         raise OriginalPostResultsReturnSourceError(
-            "actual native source 4290F0 and 516010 return bytes required")
+            "actual original 4290F0 full EAX uint32 and 516010 AL byte required")
     if (type(original_registered_manager_count_8755e4) is not int or
         original_registered_manager_count_8755e4!=1):
         raise OriginalPostResultsReturnSourceError(
             "only original one-registered-manager 4325DF path is source-qualified")
     if (original_875680_settings_owner_pointer!=0 or
-        original_4290f0_al_at_43254c==0 or
+        original_4290f0_eax_at_43254c==0 or
         original_516010_al_at_432559==0):
         raise OriginalPostResultsReturnSourceError(
             "original 4325DF PStartMenu branch native guards not met")
