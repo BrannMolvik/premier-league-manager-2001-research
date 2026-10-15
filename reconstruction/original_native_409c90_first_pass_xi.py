@@ -116,6 +116,17 @@ def source_original_409c90_first_pass_eleven_strict_role_slots(
                       "current 409D79 special count")
     mode=_source_int(original_first_pass_esp94_mode_flag,0,0xffffffff,
                      "409F1A native mode flag")
+    # Native 409CA5 pushes EBX and 409CA6 sets [ESP+18]=0,
+    # corresponding to initial [ESP+14]=0 after stack restoration.
+    # On the 40A133 retry path it returns to 409CA5 and resets again.
+    if count != 0:
+        raise Original409C90FirstPassSourceError(
+            "original first-pass special counter is initialized to zero at 409CA6")
+    # Native 409CF7 writes zero to [ESP+94] when 403640 returns AL1
+    # (team+74 byte2 or3), before the 11-slot scan begins.
+    if team[0x74] in (2,3) and mode!=0:
+        raise Original409C90FirstPassSourceError(
+            "source team class2/3 overrides 409F1A original mode flag to zero")
     roles=original_eleven_role_source_inputs
     if type(roles) is not tuple or len(roles)!=11:
         raise Original409C90FirstPassSourceError("exact original 11-slot formation role receipts required")
