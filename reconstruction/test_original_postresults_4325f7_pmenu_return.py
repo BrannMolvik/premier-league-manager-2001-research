@@ -103,3 +103,42 @@ class OriginalPostResultsPMenuTests(TestCase):
             loc=site-0x400000
             self.assertEqual(raw[loc],0xe8)
             self.assertEqual(site+5+unpack_from('<i',raw,loc+1)[0],target)
+
+
+    def test_native_432333_rotation_prebranch_rejects_last_registered_manager(self):
+        from original_postresults_4325f7_pmenu_return import (
+            source_original_432333_native_rotation_prebranch as before)
+        for n in range(2,7):
+            for old in range(n-1):
+                r=before(original_8755d4_before_43231a=old,
+                         original_8755e4_count_before_43231f=n)
+                self.assertEqual((r.original_local_esp12_byte_at_43232e,
+                                  r.original_local_esp14_dword_at_432333,
+                                  r.original_next_432505),(1,2,0x432505))
+                self.assertFalse(r.native_413ac0_mutations_after_source_test_ruled_out)
+            with self.assertRaises(OriginalPBgReturnSourceError):
+                before(original_8755d4_before_43231a=n-1,
+                       original_8755e4_count_before_43231f=n)
+        for old,n in ((0,1),(1,1),(0,0),(-1,5),(0x7fffffff,5),
+                      (True,2),(0,False)):
+            with self.subTest(old=old,count=n),self.assertRaises(OriginalPBgReturnSourceError):
+                before(original_8755d4_before_43231a=old,
+                       original_8755e4_count_before_43231f=n)
+
+    def test_original_source_43231a_selection_and_state2_local_writes(self):
+        p=environ.get('FM2001_ORIGINAL_EXE')
+        if not p:self.skipTest('private original PE required')
+        raw=Path(p).read_bytes()
+        sites={
+           0x43231a:'a1 d4 55 87 00 8b 0d e4 55 87 00 40',
+           0x432326:'3b c1',
+           0x432328:'0f 8d d0 01 00 00',
+           0x43232e:'c6 44 24 12 01',
+           0x432333:'c7 44 24 14 02 00 00 00',
+           0x43233b:'e9 c5 01 00 00',
+           0x4324fe:'8b cd e8 6b fa ff ff',
+        }
+        for site,hexbytes in sites.items():
+            with self.subTest(va=hex(site)):
+                data=bytes.fromhex(hexbytes)
+                self.assertEqual(raw[site-0x400000:site-0x400000+len(data)],data)
