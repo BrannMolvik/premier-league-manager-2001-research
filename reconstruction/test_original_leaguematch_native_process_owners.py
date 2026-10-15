@@ -676,5 +676,140 @@ class SourceOriginal406BE0RosterCountTests(unittest.TestCase):
                 self.assertEqual(pe[va-0x400000:va-0x400000+len(bs)],bs)
 
 
+
+class SourceOriginal407220Mode4NullOwnerTests(unittest.TestCase):
+    @staticmethod
+    def team(ids=tuple(range(51,62)),key=7):
+        return SourceOriginal406BE0RosterCountTests.team(ids,key)
+
+    @staticmethod
+    def player(pid,club=7,active=True,status=2):
+        return SourceOriginal406BE0RosterCountTests.player(
+            pid,club=club,active=active,status=status)
+
+    def project(self,team,players,ecx=0):
+        from original_native_407220_mode4_zero_owner import (
+            source_original_407220_mode4_with_null_407ec0)
+        return source_original_407220_mode4_with_null_407ec0(
+            original_team_record=team,
+            original_global_875640_player_array_address=0x40000000,
+            original_ordered_player_records=players,
+            original_reached_407ec0_return_eax=ecx)
+
+    def composed(self,team,players,ecx=0,name_byte=0x41):
+        from original_native_407220_mode4_zero_owner import (
+            source_original_407770_arg1_full_counts_with_null_407ec0)
+        return source_original_407770_arg1_full_counts_with_null_407ec0(
+            original_team_record=team,
+            original_global_875640_player_array_address=0x40000000,
+            original_ordered_player_records=players,
+            original_reached_407ec0_return_eax=ecx,
+            original_team_name_first_byte_if_reached=name_byte)
+
+    def test_41fab0_signed_full_team_key_mode4_and_bit4_exact_count(self):
+        ids=(51,52,53)
+        records=(self.player(51,status=1),self.player(52,active=False,status=None),
+                 self.player(53,club=8,status=None))
+        r=self.project(self.team(ids),records)
+        self.assertEqual(r.original_return_edi_count,1)
+        self.assertEqual(r.source_reached_41fab0_ids,ids)
+        self.assertEqual(r.source_eligible_41fab0_ids,(51,))
+        self.assertFalse(r.native_41fab0_executed)
+        self.assertFalse(r.live_game_state_modified)
+        x=self.project(self.team((51,),key=0xffffffff),
+                       (self.player(51,club=-1,status=2),))
+        self.assertEqual(x.original_return_edi_count,1)
+
+    def test_reached_null_owner_all_eleven_counts_then_role_exactly_one(self):
+        ids=tuple(range(51,62))
+        ps=tuple(self.player(pid,status=1 if i==0 else 2)
+                 for i,pid in enumerate(ids))
+        x=self.composed(self.team(ids),ps)
+        self.assertEqual(x.original_407220_mode4_count.original_return_edi_count,11)
+        self.assertEqual(x.original_406be0_role_one_count.source_return_eax,1)
+        self.assertTrue(x.original_407770_arg1_receipt.original_return_eax_nonzero)
+        self.assertFalse(x.original_live_game_state_modified)
+        # 11 selected but TWO source status1 records fails exact 406BE0 EAX==1.
+        twice=tuple(self.player(pid,status=1 if i<2 else 2)
+                    for i,pid in enumerate(ids))
+        self.assertFalse(self.composed(self.team(ids),twice)
+                         .original_407770_arg1_receipt.original_return_eax_nonzero)
+        # 10 qualified with one source bit4 clear does not reach 407770 EDI==11.
+        ten=tuple(self.player(pid,active=(i!=5),status=None if i==5 else (
+                    1 if i==0 else 2)) for i,pid in enumerate(ids))
+        self.assertEqual(self.composed(self.team(ids),ten)
+                         .original_407220_mode4_count.original_return_edi_count,10)
+        self.assertFalse(self.composed(self.team(ids),ten)
+                         .original_407770_arg1_receipt.original_return_eax_nonzero)
+
+    def test_null_owner_paths_are_explicitly_bounded(self):
+        from original_native_407220_mode4_zero_owner import Original407220SourceError
+        ids=tuple(range(51,62))
+        recs=tuple(self.player(pid,status=1 if i==0 else 2)
+                   for i,pid in enumerate(ids))
+        good=self.team(ids)
+        for changed in (
+            dict(ecx=1),
+            dict(ecx=True),
+            dict(ecx=-1),
+            dict(name_byte=0x21),
+        ):
+            with self.subTest(change=changed),self.assertRaises(Original407220SourceError):
+                self.composed(good,recs,**changed)
+        not_managed=bytearray(good);not_managed[0x74]=2
+        with self.assertRaises(Original407220SourceError):
+            self.composed(bytes(not_managed),recs)
+        with self.assertRaises(Original407220SourceError):
+            self.composed(self.team((51,)),(self.player(51),))
+        with self.assertRaises(Original407220SourceError):
+            self.project(good,recs[:-1])
+        badids=list(recs);badids[0]=self.player(52)
+        with self.assertRaises(Original407220SourceError):
+            self.project(good,tuple(badids))
+        with self.assertRaises(Original407220SourceError):
+            self.project(good,recs,ecx=0xffffffff)
+        with self.assertRaises(Original407220SourceError):
+            self.project(good,tuple(badids),ecx=0)
+
+    def test_original_407220_41fab0_source_opcodes_optional_PE(self):
+        p=os.environ.get("FM2001_ORIGINAL_EXE")
+        if not p:self.skipTest("private original canonical PE unavailable")
+        from hashlib import sha256
+        raw=Path(p).read_bytes()
+        self.assertEqual((len(raw),sha256(raw).hexdigest()),
+            (4714541,"833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"))
+        sites={
+            0x407220:"83 ec 18",
+            0x407229:"8b 83 94 02 00 00",
+            0x40723b:"8d 83 44 02 00 00",
+            0x407251:"66 8b 01",
+            0x40725a:"8b 15 40 56 87 00",
+            0x40726e:"e8 3d 88 01 00",
+            0x407273:"85 c0",
+            0x40727b:"b8 01 00 00 00",
+            0x407280:"8b cf",
+            0x407282:"d3 e0",
+            0x407284:"85 46 14",
+            0x407291:"85 c9",
+            0x407293:"74 78",
+            0x40730d:"45",
+            0x407331:"8b c5",
+            0x41fab0:"8b 54 24 0c",
+            0x41fab7:"0f bf 48 10",
+            0x41fabb:"3b d1",
+            0x41fac7:"83 fa 04",
+            0x41facc:"33 c0",
+            0x41faf2:"85 d2",
+            0x41faf6:"be 01 00 00 00",
+            0x41fafd:"8b 50 14",
+            0x41fb00:"d3 e6",
+            0x41fb02:"85 f2",
+        }
+        for va,signature in sites.items():
+            with self.subTest(va=hex(va)):
+                bs=bytes.fromhex(signature)
+                self.assertEqual(raw[va-0x400000:va-0x400000+len(bs)],bs)
+
+
 if __name__=="__main__":
     unittest.main()
